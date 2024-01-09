@@ -89,6 +89,7 @@ class CallController extends GetxController {
 
   /// Indicator whether info header is shown or not.
   final RxBool showHeader = RxBool(true);
+  bool headerHovered = false;
 
   /// Local [Participant]s in `default` mode.
   final RxList<Participant> locals = RxList([]);
@@ -1064,7 +1065,11 @@ class CallController extends GetxController {
   void keepUi([bool? enabled]) {
     _uiTimer?.cancel();
     showUi.value = isPanelOpen.value || (enabled ?? true);
-    showHeader.value = (enabled ?? true);
+
+    if (!headerHovered) {
+      showHeader.value = (enabled ?? true);
+    }
+
     if (state.value == OngoingCallState.active &&
         enabled == null &&
         !isPanelOpen.value) {
@@ -1072,7 +1077,10 @@ class CallController extends GetxController {
         const Duration(seconds: _uiDuration),
         () {
           showUi.value = false;
-          showHeader.value = false;
+
+          if (!headerHovered) {
+            showHeader.value = false;
+          }
         },
       );
     }

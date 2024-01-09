@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -34,9 +32,9 @@ class Dock<T extends Object> extends StatefulWidget {
     super.key,
     required this.items,
     required this.itemBuilder,
-    this.isDraggable,
     this.onReorder,
     this.itemWidth = 48,
+    this.delayed = true,
     this.onDragStarted,
     this.onDragEnded,
     this.onLeave,
@@ -49,10 +47,11 @@ class Dock<T extends Object> extends StatefulWidget {
   /// Builder building the provided item.
   final Widget Function(T item) itemBuilder;
 
-  final bool Function(T item)? isDraggable;
-
   /// Max width [itemBuilder] is allowed to build within.
   final double itemWidth;
+
+  /// Indicator whether [Draggable] used over [items] should be delay activated.
+  final bool delayed;
 
   /// Callback, called when the [items] are reordered.
   final Function(List<T>)? onReorder;
@@ -91,7 +90,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// Position in [_items] to add expanding [AnimatedContainer] to.
   ///
   /// Represents a place to add the dragged item to.
-  int _expanded = -1;
+  int __expanded = -1;
+
+  /// Indicator whether the [_expanded] has been changed during the current
+  /// frame.
+  bool _expandedChanged = false;
 
   /// Position in [_items] to add shrinking [AnimatedContainer] to.
   int _compressed = -1;
@@ -115,6 +118,34 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           _items.first.key.currentContext?.size == null
       ? widget.itemWidth
       : _items.first.key.currentContext!.size!.width;
+
+  /// Returns a position in [_items] to add expanding [AnimatedContainer] to.
+  int get _expanded => __expanded;
+
+  /// Sets the [_expanded] position to the provided [index].
+  ///
+  /// Accounts possible double invokes during a single frame by scheduling the
+  /// change in the next frame on such occasions.
+  set _expanded(int index) {
+    if (_expanded != index && mounted) {
+      // If [__expanded] has been changed during this frame, then schedule this
+      // change for a next frame.
+      if (_expandedChanged) {
+        return SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() => __expanded = index);
+          }
+        });
+      } else {
+        setState(() => __expanded = index);
+      }
+
+      _expandedChanged = true;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _expandedChanged = false;
+      });
+    }
+  }
 
   @override
   void didUpdateWidget(covariant Dock<T> oldWidget) {
@@ -194,12 +225,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                   aspectRatio: 1,
                   child: LayoutBuilder(builder: (c, constraints) {
                     return DelayedDraggable(
-                      maxSimultaneousDrags:
-                          widget.isDraggable?.call(e.item) == true
-                              ? _entry == null
-                                  ? 1
-                                  : 0
-                              : 0,
+                      maxSimultaneousDrags: _entry == null ? 1 : 0,
+                      distance: widget.delayed ? 6 : 0,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
                       feedback: Transform.translate(
                         offset: -Offset(
@@ -232,6 +259,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                       onDraggableCanceled: (_, o) {
                         int index = _dragged!.key;
 
+                        _expanded = index;
+                        final _DraggedItem<T> dragged = _dragged!.value;
+
                         // Animate the item returning to its position.
                         _animate(
                           item: _dragged!.value,
@@ -246,19 +276,17 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                           onEnd: () {
                             if (mounted) {
                               setState(() {
-                                _items[index].hidden = false;
+                                _resetAnimations();
+                                _expanded = -1;
+                                _items.insert(index, dragged);
                                 widget.onDragEnded?.call(_items[index].item);
                               });
                             }
                           },
                         );
 
-                        _items.insert(index, _dragged!.value);
-                        _items[index].hidden = true;
-
                         _rect = null;
                         _dragged = null;
-                        _expanded = -1;
 
                         setState(() {});
                       },
@@ -307,7 +335,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       onLeave: (e) {
         if (e == null || (widget.onWillAccept?.call(e) ?? true)) {
           widget.onLeave?.call(e);
-          setState(() => _expanded = -1);
+          _expanded = -1;
         }
       },
       onWillAccept: (e) =>
@@ -364,9 +392,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         _removeOverlay();
 
         Rect begin;
-        if (_rect != null) {
+        if (rect != null) {
           begin = Rect.fromLTWH(
-              dragOffset.dx, dragOffset.dy, _rect!.width, _rect!.height);
+            dragOffset.dx,
+            dragOffset.dy,
+            rect.width,
+            rect.height,
+          );
         } else {
           begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _size, _size);
         }
@@ -392,7 +424,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       if (i == _expanded || i + 1 == _expanded) {
         // If this position is already expanded, then the item is at this
         // position, so no action is needed.
-        return setState(() => _expanded = -1);
+        _expanded = -1;
+        return;
       }
 
       // Set the animations to [Duration.zero], as we're gonna do sorting.
@@ -440,7 +473,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
     _expanded = -1;
     widget.onReorder?.call(_items.map((e) => e.item).toList());
-    setState(() {});
   }
 
   /// Calculates the position to drop the provided item at.
@@ -467,17 +499,23 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       }
     }
 
-    setState(() => _expanded = indexToPlace);
+    // Update the [__expanded] here directly, if [_dragged] is `null`, meaning
+    // this [_onMove] was invoked before the [onDragStarted].
+    //
+    // Otherwise the [__expanded] will be assigned to an invalid value, causing
+    // the animation to flicker.
+    if (_dragged == null) {
+      setState(() => __expanded = indexToPlace);
+    } else {
+      _expanded = indexToPlace;
+    }
   }
 
   /// Sets the [_animateDuration] to [Duration.zero] for one frame.
   void _resetAnimations() {
     _animateDuration = Duration.zero;
     SchedulerBinding.instance.addPostFrameCallback(
-      (_) => Future.delayed(
-        Duration.zero,
-        () => _animateDuration = animateDuration,
-      ),
+      (_) => _animateDuration = animateDuration,
     );
   }
 
@@ -551,14 +589,21 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
     super.onDragEnd,
     super.onDraggableCanceled,
     super.onDragCompleted,
+    this.distance = 6,
   });
+
+  /// Distance in pixels, that must be traveled by pointer for gesture
+  /// recognition.
+  final double distance;
 
   @override
   MultiDragGestureRecognizer createRecognizer(
     GestureMultiDragStartCallback onStart,
   ) {
-    return _ImmediateDelayedMultiDragGestureRecognizer(debugOwner: '$hashCode')
-      ..onStart = (Offset position) {
+    return _ImmediateDelayedMultiDragGestureRecognizer(
+      debugOwner: '$hashCode',
+      distance: distance,
+    )..onStart = (Offset position) {
         final Drag? result = onStart(position);
         if (result != null) {
           HapticFeedback.selectionClick();
@@ -572,7 +617,14 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
 /// threshold is reached.
 class _ImmediateDelayedMultiDragGestureRecognizer
     extends MultiDragGestureRecognizer {
-  _ImmediateDelayedMultiDragGestureRecognizer({super.debugOwner});
+  _ImmediateDelayedMultiDragGestureRecognizer({
+    super.debugOwner,
+    this.distance = 6,
+  });
+
+  /// Distance in pixels, that must be traveled by pointer for gesture
+  /// recognition.
+  final double distance;
 
   @override
   MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
@@ -580,6 +632,7 @@ class _ImmediateDelayedMultiDragGestureRecognizer
         event.position,
         event.kind,
         gestureSettings,
+        distance: distance,
       );
 
   @override
@@ -591,12 +644,17 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
   _ImmediateDelayedPointerState(
     super.initialPosition,
     super.kind,
-    super.deviceGestureSettings,
-  );
+    super.deviceGestureSettings, {
+    this.distance = 6,
+  });
+
+  /// Distance in pixels, that must be traveled by pointer for gesture
+  /// recognition.
+  final double distance;
 
   @override
   void checkForResolutionAfterMove() {
-    if (pendingDelta!.distance > 6) {
+    if (pendingDelta!.distance > distance) {
       resolve(GestureDisposition.accepted);
     }
   }

@@ -23,6 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/ui/page/call/widget/tooltip_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 
 import '../controller.dart';
@@ -613,64 +614,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Sliding from the top info header.
-        if (WebUtils.isPopup)
-          Obx(() {
-            if (!c.fullscreen.value) {
-              return const SizedBox();
-            }
-
-            return Align(
-              alignment: Alignment.topCenter,
-              child: AnimatedSlider(
-                duration: 400.milliseconds,
-                translate: false,
-                beginOffset: const Offset(0, -1),
-                endOffset: const Offset(0, 0),
-                isOpen: c.state.value == OngoingCallState.active &&
-                    c.showHeader.value,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      CustomBoxShadow(
-                        color: style.colors.onBackgroundOpacity20,
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
-                      )
-                    ],
-                  ),
-                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
-                  child: ConditionalBackdropFilter(
-                    borderRadius: BorderRadius.circular(30),
-                    filter: ImageFilter.blur(
-                      sigmaX: 15,
-                      sigmaY: 15,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: style.colors.primaryAuxiliaryOpacity25,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 10,
-                      ),
-                      child: Text(
-                        (c.income
-                                ? 'label_call_title_paid'
-                                : 'label_call_title')
-                            .l10nfmt(c.titleArguments),
-                        style: style.fonts.small.regular.onPrimary,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
           final bool enabled =
@@ -698,21 +641,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Top [MouseRegion] that toggles info header on hover.
-        Align(
-          alignment: Alignment.topCenter,
-          child: SizedBox(
-            height: 100,
-            width: double.infinity,
-            child: MouseRegion(
-              opaque: false,
-              onEnter: (_) => c.showHeader.value = true,
-              onHover: (_) => c.showHeader.value = true,
-              onExit: (_) => c.showHeader.value = false,
-            ),
-          ),
-        ),
-
         // Secondary panel itself.
         Obx(() {
           final bool isIncoming = c.state.value != OngoingCallState.active &&
@@ -736,6 +664,32 @@ Widget desktopCall(CallController c, BuildContext context) {
             return _secondaryView(c, context);
           });
         }),
+
+        // Top [MouseRegion] that toggles info header on hover.
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) {
+                c.showHeader.value = true;
+                c.headerHovered = true;
+                c.isCursorHidden.value = false;
+              },
+              onHover: (_) {
+                c.showHeader.value = true;
+                c.headerHovered = true;
+                c.isCursorHidden.value = false;
+              },
+              onExit: (_) {
+                c.showHeader.value = false;
+                c.headerHovered = false;
+              },
+            ),
+          ),
+        ),
 
         // Show a hint if any renderer is draggable.
         Obx(() {
@@ -774,6 +728,226 @@ Widget desktopCall(CallController c, BuildContext context) {
                 : const SizedBox(),
           );
         }),
+
+        // Sliding from the top info header.
+        if (WebUtils.isPopup)
+          Obx(() {
+            // if (!c.fullscreen.value) {
+            //   return const SizedBox();
+            // }
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &&
+                    c.showHeader.value,
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onHover: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onExit: (_) {
+                    c.showHeader.value = false;
+                    c.headerHovered = false;
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                    child: ConditionalBackdropFilter(
+                      borderRadius: BorderRadius.circular(30),
+                      filter: ImageFilter.blur(
+                        sigmaX: 15,
+                        sigmaY: 15,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: style.colors.primaryAuxiliaryOpacity25,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (c.fullscreen.value) ...[
+                              Text(
+                                (c.income
+                                        ? 'label_call_title_paid'
+                                        : 'label_call_title')
+                                    .l10nfmt(c.titleArguments),
+                                style: style.fonts.small.regular.onPrimary,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(6, 0, 12, 0),
+                                color: Colors.white,
+                                width: 1,
+                                height: 12,
+                              ),
+                            ],
+                            TooltipButton(
+                              onTap: () {
+                                c.focusAll();
+                                c.isCursorHidden.value = false;
+                                c.showHeader.value = true;
+                              },
+                              child: const SvgIcon(SvgIcons.callGallery),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: () {
+                                c.showHeader.value = true;
+                                c.isCursorHidden.value = false;
+
+                                final me = [...c.locals, ...c.focused]
+                                    .firstWhereOrNull((e) => e.member == c.me);
+                                if (me != null) {
+                                  c.unfocus(me);
+                                }
+
+                                if (c.secondaryAlignment.value != null) {
+                                  c.secondaryBottom.value = 10;
+                                  c.secondaryRight.value = 10;
+                                  c.secondaryLeft.value = null;
+                                  c.secondaryTop.value = null;
+                                  c.secondaryAlignment.value = null;
+                                }
+                              },
+                              child: const SvgIcon(SvgIcons.callFloating),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: () {
+                                c.showHeader.value = true;
+                                c.isCursorHidden.value = false;
+
+                                final me = [...c.locals, ...c.focused]
+                                    .firstWhereOrNull((e) => e.member == c.me);
+                                if (me != null) {
+                                  c.unfocus(me);
+                                }
+
+                                c.secondaryAlignment.value =
+                                    Alignment.centerRight;
+                              },
+                              child: const SvgIcon(SvgIcons.callSide),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: c.toggleFullscreen,
+                              // hint: fullscreen
+                              //     ? 'btn_fullscreen_exit'.l10n
+                              //     : 'btn_fullscreen_enter'.l10n,
+                              child: SvgIcon(
+                                c.fullscreen.value
+                                    ? SvgIcons.fullscreenExitSmall
+                                    : SvgIcons.fullscreenEnterSmall,
+                              ),
+                            ),
+                            if (c.fullscreen.value) const SizedBox(width: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+
+        // if (WebUtils.isPopup)
+        if (false)
+          Obx(() {
+            return Align(
+              alignment: Alignment.topRight,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &&
+                    c.showHeader.value,
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (_) => c.showHeader.value = true,
+                  onHover: (_) => c.showHeader.value = true,
+                  onExit: (_) => c.showHeader.value = false,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                    child: ConditionalBackdropFilter(
+                      borderRadius: BorderRadius.circular(30),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: style.colors.primaryAuxiliaryOpacity25,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TooltipButton(
+                              onTap: () {
+                                c.keepUi(true);
+                              },
+                              child: const SvgIcon(SvgIcons.callGallery),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: () {
+                                c.keepUi(true);
+                              },
+                              child: const SvgIcon(SvgIcons.callFloating),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: () {
+                                c.keepUi(true);
+                              },
+                              child: const SvgIcon(SvgIcons.callSide),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
 
         // If there's any notifications to show, display them.
         Align(
@@ -833,13 +1007,38 @@ Widget desktopCall(CallController c, BuildContext context) {
                       )
                     ],
                   ),
-                  child: Obx(
-                    () => TitleBar(
+                  child: Obx(() {
+                    return TitleBar(
                       title: 'label_call_title'.l10nfmt(c.titleArguments),
                       chat: c.chat.value,
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       toggleFullscreen: c.toggleFullscreen,
+                      onPrimary: c.focusAll,
+                      onFloating: () {
+                        final me = [...c.locals, ...c.focused]
+                            .firstWhereOrNull((e) => e.member == c.me);
+                        if (me != null) {
+                          c.unfocus(me);
+                        }
+
+                        if (c.secondaryAlignment.value != null) {
+                          c.secondaryBottom.value = 10;
+                          c.secondaryRight.value = 10;
+                          c.secondaryLeft.value = null;
+                          c.secondaryTop.value = null;
+                          c.secondaryAlignment.value = null;
+                        }
+                      },
+                      onSecondary: () {
+                        final me = [...c.locals, ...c.focused]
+                            .firstWhereOrNull((e) => e.member == c.me);
+                        if (me != null) {
+                          c.unfocus(me);
+                        }
+
+                        c.secondaryAlignment.value = Alignment.centerRight;
+                      },
                       onTap: WebUtils.isPopup
                           ? null
                           : () {
@@ -848,8 +1047,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 c.toggleFullscreen();
                               }
                             },
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),

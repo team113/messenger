@@ -34,6 +34,9 @@ class TitleBar extends StatelessWidget {
     this.onTap,
     this.toggleFullscreen,
     this.fullscreen = false,
+    this.onFloating,
+    this.onSecondary,
+    this.onPrimary,
   });
 
   /// Indicator whether fullscreen icon should be turned on.
@@ -53,6 +56,10 @@ class TitleBar extends StatelessWidget {
 
   /// Callback, called to toggle fullscreen on and off.
   final void Function()? toggleFullscreen;
+
+  final void Function()? onFloating;
+  final void Function()? onSecondary;
+  final void Function()? onPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +112,28 @@ class TitleBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TooltipButton(
+                      onTap: onPrimary,
+                      // hint: 'Равноправное представление'.l10n,
+                      child: const SvgIcon(SvgIcons.callGallery),
+                    ),
+                    const SizedBox(width: 16),
+                    TooltipButton(
+                      onTap: onFloating,
+                      // hint: 'Плавающая панель'.l10n,
+                      child: const SvgIcon(SvgIcons.callFloating),
+                    ),
+                    const SizedBox(width: 16),
+                    TooltipButton(
+                      onTap: onSecondary,
+                      // hint: 'Боковая панель'.l10n,
+                      child: const SvgIcon(SvgIcons.callSide),
+                    ),
+                    const SizedBox(width: 16),
+                    TooltipButton(
                       onTap: toggleFullscreen,
-                      hint: fullscreen
-                          ? 'btn_fullscreen_exit'.l10n
-                          : 'btn_fullscreen_enter'.l10n,
+                      // hint: fullscreen
+                      //     ? 'btn_fullscreen_exit'.l10n
+                      //     : 'btn_fullscreen_enter'.l10n,
                       child: SvgIcon(
                         fullscreen
                             ? SvgIcons.fullscreenExitSmall

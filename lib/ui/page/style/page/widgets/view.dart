@@ -1551,7 +1551,6 @@ class _WidgetsViewState extends State<WidgetsView> {
           child: Dock(
             items: List.generate(5, (i) => i),
             itemWidth: 48,
-            isDraggable: (_) => true,
             onReorder: (buttons) {},
             onDragStarted: (b) {},
             onDragEnded: (_) {},
