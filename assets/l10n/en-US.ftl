@@ -600,6 +600,7 @@ label_chat_monolog = Notes
 label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
 label_chat_name_hint = Chat name
 label_chats = Messages
+label_chats_section_hint = Audio and video call buttons
 label_clear_history = Clear history
 label_code_sent_again = The code has been re-sent.
 label_confirm = Confirm
@@ -651,12 +652,7 @@ label_direct_chat_link_description =
     After the chat created by this link is deleted, your privacy
     settings are respected.
 label_direct_chat_link_in_chat_description =
-    Users who came via a direct
-    link to the chat are automatically added to chat members. They can:
-
-    - visit group profile,
-    - send messages to group chat,
-    - make calls
+    Users who come via a direct link automatically become full members of the group.
 label_disabled = Disabled
 label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
@@ -794,6 +790,7 @@ label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
@@ -872,7 +869,6 @@ label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_timeline_style = Timeline style
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
 label_transition_count = Transitions: {$count}

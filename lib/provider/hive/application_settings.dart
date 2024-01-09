@@ -129,17 +129,6 @@ class ApplicationSettingsHiveProvider
     );
   }
 
-  /// Stores a new [enabled] value of [ApplicationSettings.timelineEnabled]
-  /// to [Hive].
-  Future<void> setTimelineEnabled(bool enabled) async {
-    Log.debug('setTimelineEnabled($enabled)', '$runtimeType');
-
-    await putSafe(
-      0,
-      (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
-    );
-  }
-
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
   Future<void> setPinnedActions(List<String> buttons) async {

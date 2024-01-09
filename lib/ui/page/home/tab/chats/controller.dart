@@ -486,7 +486,7 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    return _contactService.paginated.values.any((e) =>
+    return _contactService.contacts.values.any((e) =>
         e.contact.value.users.length == 1 &&
         e.contact.value.users.every((m) => m.id == userId));
   }
@@ -531,7 +531,7 @@ class ChatsTabController extends GetxController {
 
     try {
       final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
+          _contactService.contacts.values.firstWhereOrNull(
         (e) =>
             e.contact.value.users.length == 1 &&
             e.contact.value.users.every((m) => m.id == user.id),
@@ -598,7 +598,6 @@ class ChatsTabController extends GetxController {
       );
 
       router.chat(chat.chat.value.id);
-      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {

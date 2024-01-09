@@ -624,6 +624,7 @@ label_chat_monolog = Заметки
 label_chat_monolog_description = Пишите заметки, идеи или пересылайте другие сообщения, чтобы сохранить их здесь. Только Вы видите этот чат.
 label_chat_name_hint = Название чата
 label_chats = Чаты
+label_chats_section_hint = Кнопки аудио и видео звонка
 label_clear_history = Очистить историю
 label_code_sent_again = Код отправлен повторно.
 label_confirm = Подтвердить
@@ -676,13 +677,7 @@ label_direct_chat_link_description =
     После удаления чата, созданного по прямой ссылке на чат,
     применяются Ваши настройки конфиденциальности.
 label_direct_chat_link_in_chat_description =
-    Пользователи, пришедшие по
-    прямой ссылке на чат, добавляются в список участников чата
-    автоматически. Они имеют возможность:
-
-    - просматривать профиль группы,
-    - отправлять сообщения в чат группы,
-    - совершать звонки
+    Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
 label_disabled = Отключены
 label_display_audio_and_video_call_buttons = Отображать кнопки аудио и видео звонка
 label_display_timestamps = Отображать метки времени
@@ -823,6 +818,7 @@ label_open_calls_in_app = Отображать звонки в окне прил
 label_open_calls_in_window = Отображать звонки в отдельном окне.
 label_or_register = или регистрация
 label_outgoing_call = Исходящий звонок
+label_participants = Участников: {$count}
 label_participants_of = Участников: {$a} из {$b}
 label_password = Пароль
 label_password_changed = Пароль изменён.
@@ -904,7 +900,6 @@ label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
-label_timeline_style = Стиль метки времени
 label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
 label_transition_count = Переходов: {$count}

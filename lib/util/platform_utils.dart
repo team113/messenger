@@ -81,7 +81,8 @@ class PlatformUtilsImpl {
 
   /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
   /// passed.
-  Timer? _activityTimer;
+  @visibleForTesting
+  Timer? activityTimer;
 
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);
@@ -594,10 +595,10 @@ class PlatformUtilsImpl {
       _activityController?.add(active);
     }
 
-    _activityTimer?.cancel();
+    activityTimer?.cancel();
 
     if (active) {
-      _activityTimer = Timer(_activityTimeout, () {
+      activityTimer = Timer(_activityTimeout, () {
         _isActive = false;
         _activityController?.add(false);
       });

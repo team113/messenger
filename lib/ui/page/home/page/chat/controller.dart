@@ -126,11 +126,6 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
-  /// Indicator whether any [Text] is being selected right now.
-  ///
-  /// Used to discard [SwipeableStatus] gestures when [Text] is being selected.
-  final RxBool isSelecting = RxBool(false);
-
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
   int initIndex = 0;
@@ -172,18 +167,8 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether any [ChatItem] is being dragged.
-  ///
-  /// Used to discard any horizontal gestures while this is `true`.
-  final RxBool isItemDragged = RxBool(false);
-
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
-
-  /// Indicator whether an ongoing horizontal scroll is happening.
-  ///
-  /// Used to discard any vertical gestures while this is `true`.
-  final RxBool isHorizontalScroll = RxBool(false);
 
   /// [Timer] for discarding any vertical movement in a [FlutterListView] of
   /// [ChatItem]s when non-`null`.
@@ -272,7 +257,7 @@ class ChatController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
-  /// [StreamSubscription] to [ContactService.paginated] determining the
+  /// [StreamSubscription] to [ContactService.contacts] determining the
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
@@ -1025,11 +1010,11 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog == true) {
-        inContacts.value = _contactService.paginated.values.any(
+        inContacts.value = _contactService.contacts.values.any(
           (e) => e.contact.value.users.every((m) => m.id == user?.id),
         );
 
-        _contactsSubscription = _contactService.paginated.changes.listen((e) {
+        _contactsSubscription = _contactService.contacts.changes.listen((e) {
           switch (e.op) {
             case OperationKind.added:
             case OperationKind.updated:
@@ -1446,7 +1431,7 @@ class ChatController extends GetxController {
     if (inContacts.value) {
       try {
         final RxChatContact? contact =
-            _contactService.paginated.values.firstWhereOrNull(
+            _contactService.contacts.values.firstWhereOrNull(
           (e) => e.contact.value.users.every((m) => m.id == user?.id),
         );
         await _contactService.deleteContact(contact!.contact.value.id);

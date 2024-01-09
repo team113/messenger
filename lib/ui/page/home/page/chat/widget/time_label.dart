@@ -19,16 +19,13 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import 'swipeable_status.dart';
 
-/// Centered [time] wrapped in a [SwipeableStatus] animating its [opacity]
-/// changes.
+/// Centered [time] label animating its [opacity] changes.
 class TimeLabelWidget extends StatelessWidget {
   const TimeLabelWidget(
     this.time, {
     super.key,
     this.opacity = 1,
-    this.animation,
   });
 
   /// Opacity of this [TimeLabelWidget].
@@ -36,9 +33,6 @@ class TimeLabelWidget extends StatelessWidget {
 
   /// [DateTime] to display.
   final DateTime time;
-
-  /// [AnimationController] controlling the [SwipeableStatus].
-  final AnimationController? animation;
 
   @override
   Widget build(BuildContext context) {
@@ -48,29 +42,19 @@ class TimeLabelWidget extends StatelessWidget {
       ignoring: true,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
-        child: SwipeableStatus(
-          animation: animation,
-          padding: const EdgeInsets.only(right: 8),
-          crossAxisAlignment: CrossAxisAlignment.center,
-          swipeable: Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text(time.yyMd),
-          ),
-          child: AnimatedOpacity(
-            key: Key('$time'),
-            opacity: opacity,
-            duration: const Duration(milliseconds: 250),
-            child: Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  border: style.systemMessageBorder,
-                  color: style.systemMessageColor,
-                ),
-                child: Text(time.toRelative(), style: style.systemMessageStyle),
+        child: AnimatedOpacity(
+          key: Key('$time'),
+          opacity: opacity,
+          duration: const Duration(milliseconds: 250),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style.systemMessageBorder,
+                color: style.systemMessageColor,
               ),
+              child: Text(time.toRelative(), style: style.systemMessageStyle),
             ),
           ),
         ),

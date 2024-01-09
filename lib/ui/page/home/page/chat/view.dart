@@ -23,7 +23,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -65,12 +64,11 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
-import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
-class ChatView extends StatefulWidget {
+class ChatView extends StatelessWidget {
   const ChatView(this.id, {super.key, this.itemId, this.welcome});
 
   /// ID of this [Chat].
@@ -84,51 +82,24 @@ class ChatView extends StatefulWidget {
   final ChatMessageText? welcome;
 
   @override
-  State<ChatView> createState() => _ChatViewState();
-}
-
-/// State of a [ChatView] used to animate [SwipeableStatus].
-class _ChatViewState extends State<ChatView>
-    with SingleTickerProviderStateMixin {
-  /// [AnimationController] of [SwipeableStatus]es.
-  late final AnimationController _animation;
-
-  @override
-  void initState() {
-    _animation = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-      debugLabel: '$runtimeType (${widget.id})',
-    );
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _animation.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
-        widget.id,
+        id,
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
-        itemId: widget.itemId,
-        welcome: widget.welcome,
+        itemId: itemId,
+        welcome: welcome,
       ),
-      tag: widget.id.val,
-      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
+      tag: id.val,
+      global: !Get.isRegistered<ChatController>(tag: id.val),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
@@ -165,7 +136,7 @@ class _ChatViewState extends State<ChatView>
               body: const Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
                 padding: Insets.dense.copyWith(top: 0),
-                child: _bottomBar(c),
+                child: _bottomBar(c, context),
               ),
             );
           }
@@ -173,7 +144,7 @@ class _ChatViewState extends State<ChatView>
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
           return CustomDropTarget(
-            key: Key('ChatView_${widget.id}'),
+            key: Key('ChatView_$id'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -572,233 +543,132 @@ class _ChatViewState extends State<ChatView>
                         }),
                       ],
                     ),
-                    body: Listener(
-                      onPointerSignal: c.settings.value?.timelineEnabled == true
-                          ? (s) {
-                              if (s is PointerScrollEvent) {
-                                if ((s.scrollDelta.dy.abs() < 3 &&
-                                        s.scrollDelta.dx.abs() > 3) ||
-                                    c.isHorizontalScroll.value) {
-                                  double value =
-                                      _animation.value + s.scrollDelta.dx / 100;
-                                  _animation.value = value.clamp(0, 1);
-
-                                  if (_animation.value == 0 ||
-                                      _animation.value == 1) {
-                                    _resetHorizontalScroll(c, 10.milliseconds);
-                                  } else {
-                                    _resetHorizontalScroll(c);
-                                  }
-                                }
-                              }
-                            }
-                          : null,
-                      onPointerPanZoomUpdate: (s) {
-                        if (c.scrollOffset.dx.abs() < 7 &&
-                            c.scrollOffset.dy.abs() < 7) {
-                          c.scrollOffset = c.scrollOffset.translate(
-                            s.panDelta.dx.abs(),
-                            s.panDelta.dy.abs(),
-                          );
-                        }
-                      },
-                      onPointerMove: (d) {
-                        if (c.scrollOffset.dx.abs() < 7 &&
-                            c.scrollOffset.dy.abs() < 7) {
-                          c.scrollOffset = c.scrollOffset.translate(
-                            d.delta.dx.abs(),
-                            d.delta.dy.abs(),
-                          );
-                        }
-                      },
-                      onPointerUp: (_) => c.scrollOffset = Offset.zero,
-                      onPointerCancel: (_) => c.scrollOffset = Offset.zero,
-                      child: RawGestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        gestures: {
-                          if (c.settings.value?.timelineEnabled == true &&
-                              c.isSelecting.isFalse)
-                            AllowMultipleHorizontalDragGestureRecognizer:
-                                GestureRecognizerFactoryWithHandlers<
-                                    AllowMultipleHorizontalDragGestureRecognizer>(
-                              () =>
-                                  AllowMultipleHorizontalDragGestureRecognizer(),
-                              (AllowMultipleHorizontalDragGestureRecognizer
-                                  instance) {
-                                instance.onUpdate = (d) {
-                                  if (!c.isItemDragged.value &&
-                                      c.scrollOffset.dy.abs() < 7 &&
-                                      c.scrollOffset.dx.abs() > 7 &&
-                                      c.isSelecting.isFalse) {
-                                    double value =
-                                        (_animation.value - d.delta.dx / 100)
-                                            .clamp(0, 1);
-
-                                    if (_animation.value != 1 && value == 1 ||
-                                        _animation.value != 0 && value == 0) {
-                                      HapticFeedback.selectionClick();
-                                    }
-
-                                    _animation.value = value.clamp(0, 1);
-                                  }
-                                };
-
-                                instance.onEnd = (d) async {
-                                  c.scrollOffset = Offset.zero;
-                                  if (!c.isItemDragged.value &&
-                                      _animation.value != 1 &&
-                                      _animation.value != 0) {
-                                    if (_animation.value >= 0.5) {
-                                      await _animation.forward();
-                                      HapticFeedback.selectionClick();
-                                    } else {
-                                      await _animation.reverse();
-                                      HapticFeedback.selectionClick();
-                                    }
-                                  }
-                                };
-                              },
-                            )
-                        },
-                        child: Stack(
-                          children: [
-                            // Required for the [Stack] to take [Scaffold]'s
-                            // size.
-                            IgnorePointer(
-                              child: ContextMenuInterceptor(child: Container()),
-                            ),
-                            Obx(() {
-                              final Widget child = FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isHorizontalScroll.isTrue ||
-                                        (PlatformUtils.isDesktop &&
-                                            c.isItemDragged.isTrue)
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const BouncingScrollPhysics(),
-                                reverse: true,
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  stickyAtTailer: true,
-                                  keepPosition: true,
-                                  keepPositionOffset: c.active.isTrue
-                                      ? c.keepPositionOffset.value
-                                      : 1,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: false,
-                                  disableCacheItems: kDebugMode ? true : false,
-                                ),
-                              );
-
-                              if (PlatformUtils.isMobile) {
-                                if (!PlatformUtils.isWeb) {
-                                  return Scrollbar(
-                                    controller: c.listController,
-                                    child: child,
-                                  );
-                                } else {
-                                  return child;
-                                }
-                              }
-
-                              return SelectionArea(
-                                onSelectionChanged: (a) =>
-                                    c.selection.value = a,
-                                contextMenuBuilder: (_, __) => const SizedBox(),
-                                selectionControls: EmptyTextSelectionControls(),
-                                child: ContextMenuInterceptor(child: child),
-                              );
-                            }),
-                            Obx(() {
-                              if ((c.chat!.status.value.isSuccess ||
-                                      c.chat!.status.value.isEmpty) &&
-                                  c.chat!.messages.isEmpty) {
-                                return Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      border: style.systemMessageBorder,
-                                      color: style.systemMessageColor,
-                                    ),
-                                    child: Text(
-                                      key: const Key('NoMessages'),
-                                      isMonolog
-                                          ? 'label_chat_monolog_description'
-                                              .l10n
-                                          : 'label_no_messages'.l10n,
-                                      textAlign: TextAlign.center,
-                                      style: style
-                                          .fonts.small.regular.onBackground,
-                                    ),
-                                  ),
-                                );
-                              }
-                              if (c.chat!.status.value.isLoading) {
-                                return const Center(
-                                  child: CustomProgressIndicator(),
-                                );
-                              }
-
-                              return const SizedBox();
-                            }),
-                            if (c.callPosition == CallButtonsPosition.top ||
-                                c.callPosition == CallButtonsPosition.bottom)
-                              Positioned(
-                                top: c.callPosition == CallButtonsPosition.top
-                                    ? 8
-                                    : null,
-                                bottom:
-                                    c.callPosition == CallButtonsPosition.bottom
-                                        ? 8
-                                        : null,
-                                right: 12,
-                                child: Obx(() {
-                                  final bool inCall =
-                                      c.chat?.inCall.value ?? false;
-
-                                  return Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const SizedBox(height: 8),
-                                      CircleButton(
-                                        inCall
-                                            ? SvgIcons.chatAudioCallDisabled
-                                            : SvgIcons.chatAudioCall,
-                                        onPressed:
-                                            inCall ? null : () => c.call(false),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      CircleButton(
-                                        inCall
-                                            ? SvgIcons.chatVideoCallDisabled
-                                            : SvgIcons.chatVideoCall,
-                                        onPressed:
-                                            inCall ? null : () => c.call(true),
-                                      ),
-                                      const SizedBox(height: 8),
-                                    ],
-                                  );
-                                }),
-                              ),
-                          ],
+                    body: Stack(
+                      children: [
+                        // Required for the [Stack] to take [Scaffold]'s
+                        // size.
+                        IgnorePointer(
+                          child: ContextMenuInterceptor(child: Container()),
                         ),
-                      ),
+                        Obx(() {
+                          final Widget child = FlutterListView(
+                            key: const Key('MessagesList'),
+                            controller: c.listController,
+                            physics: const BouncingScrollPhysics(),
+                            reverse: true,
+                            delegate: FlutterListViewDelegate(
+                              (context, i) => _listElement(context, c, i),
+                              // ignore: invalid_use_of_protected_member
+                              childCount: c.elements.value.length,
+                              stickyAtTailer: true,
+                              keepPosition: true,
+                              keepPositionOffset: c.active.isTrue
+                                  ? c.keepPositionOffset.value
+                                  : 1,
+                              onItemKey: (i) =>
+                                  c.elements.values.elementAt(i).id.toString(),
+                              onItemSticky: (i) => c.elements.values
+                                  .elementAt(i) is DateTimeElement,
+                              initIndex: c.initIndex,
+                              initOffset: c.initOffset,
+                              initOffsetBasedOnBottom: false,
+                              disableCacheItems: kDebugMode ? true : false,
+                            ),
+                          );
+
+                          if (PlatformUtils.isMobile) {
+                            if (!PlatformUtils.isWeb) {
+                              return Scrollbar(
+                                controller: c.listController,
+                                child: child,
+                              );
+                            } else {
+                              return child;
+                            }
+                          }
+
+                          return SelectionArea(
+                            onSelectionChanged: (a) => c.selection.value = a,
+                            contextMenuBuilder: (_, __) => const SizedBox(),
+                            selectionControls: EmptyTextSelectionControls(),
+                            child: ContextMenuInterceptor(child: child),
+                          );
+                        }),
+                        Obx(() {
+                          if ((c.chat!.status.value.isSuccess ||
+                                  c.chat!.status.value.isEmpty) &&
+                              c.chat!.messages.isEmpty) {
+                            return Center(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: style.systemMessageBorder,
+                                  color: style.systemMessageColor,
+                                ),
+                                child: Text(
+                                  key: const Key('NoMessages'),
+                                  isMonolog
+                                      ? 'label_chat_monolog_description'.l10n
+                                      : 'label_no_messages'.l10n,
+                                  textAlign: TextAlign.center,
+                                  style: style.fonts.small.regular.onBackground,
+                                ),
+                              ),
+                            );
+                          }
+                          if (c.chat!.status.value.isLoading) {
+                            return const Center(
+                              child: CustomProgressIndicator(),
+                            );
+                          }
+
+                          return const SizedBox();
+                        }),
+                        if (c.callPosition == CallButtonsPosition.top ||
+                            c.callPosition == CallButtonsPosition.bottom)
+                          Positioned(
+                            top: c.callPosition == CallButtonsPosition.top
+                                ? 8
+                                : null,
+                            bottom: c.callPosition == CallButtonsPosition.bottom
+                                ? 8
+                                : null,
+                            right: 12,
+                            child: Obx(() {
+                              final bool inCall = c.chat?.inCall.value ?? false;
+
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  CircleButton(
+                                    inCall
+                                        ? SvgIcons.chatAudioCallDisabled
+                                        : SvgIcons.chatAudioCall,
+                                    onPressed:
+                                        inCall ? null : () => c.call(false),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  CircleButton(
+                                    inCall
+                                        ? SvgIcons.chatVideoCallDisabled
+                                        : SvgIcons.chatVideoCall,
+                                    onPressed:
+                                        inCall ? null : () => c.call(true),
+                                  ),
+                                  const SizedBox(height: 8),
+                                ],
+                              );
+                            }),
+                          ),
+                      ],
                     ),
                     floatingActionButton: Obx(() {
                       return SizedBox(
@@ -822,7 +692,7 @@ class _ChatViewState extends State<ChatView>
                     }),
                     bottomNavigationBar: Padding(
                       padding: Insets.dense.copyWith(top: 0),
-                      child: _bottomBar(c),
+                      child: _bottomBar(c, context),
                     ),
                   ),
                   IgnorePointer(
@@ -973,8 +843,6 @@ class _ChatViewState extends State<ChatView>
                           m.memberId != e.value.author.id),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
                   onHide: () => c.hideChatItem(e.value),
                   onDelete: () => c.deleteMessage(e.value),
                   onReply: () {
@@ -1001,13 +869,11 @@ class _ChatViewState extends State<ChatView>
                   onGallery: c.calculateGallery,
                   onResend: () => c.resendItem(e.value),
                   onEdit: () => c.editMessage(e.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
                   onFileTap: (a) => c.downloadFile(e.value, a),
                   onAttachmentError: () async {
                     await c.chat?.updateAttachments(e.value);
                     await Future.delayed(Duration.zero);
                   },
-                  onSelecting: (s) => c.isSelecting.value = s,
                   onDownload: c.downloadMedia,
                   onDownloadAs: c.downloadMediaAs,
                   onSave: (a) => c.saveToGallery(a, e.value),
@@ -1057,8 +923,6 @@ class _ChatViewState extends State<ChatView>
                           m.memberId != element.authorId),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
                   onHide: () async {
                     final List<Future> futures = [];
 
@@ -1120,7 +984,6 @@ class _ChatViewState extends State<ChatView>
                   },
                   onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {
                       if (item.quote.original!.chatId == c.id) {
@@ -1145,7 +1008,6 @@ class _ChatViewState extends State<ChatView>
 
                     await Future.delayed(Duration.zero);
                   },
-                  onSelecting: (s) => c.isSelecting.value = s,
                   onSelect: () {
                     c.selecting.toggle();
                     c.selected.add(element);
@@ -1161,7 +1023,6 @@ class _ChatViewState extends State<ChatView>
         child: Obx(() {
           return TimeLabelWidget(
             element.id.at.val,
-            animation: _animation,
             opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
           );
         }),
@@ -1317,7 +1178,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-  Widget _bottomBar(ChatController c) {
+  Widget _bottomBar(ChatController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Obx(() {
@@ -1540,24 +1401,6 @@ class _ChatViewState extends State<ChatView>
         onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         canForward: true,
       );
-    });
-  }
-
-  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
-  /// the provided [duration].
-  ///
-  /// Defaults to 50 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.isHorizontalScroll.value = true;
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.isHorizontalScroll.value = false;
-      c.horizontalScrollTimer.value = null;
     });
   }
 
