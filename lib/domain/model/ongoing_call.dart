@@ -483,7 +483,7 @@ class OngoingCall {
 
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
-                for (final m in dialed.members) {
+                for (final ChatMember m in dialed.members) {
                   addDialing(m.user.id);
                 }
               }
@@ -499,10 +499,11 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  for (final m in (v?.chat.value.members ?? []).where((e) =>
-                      e.user.id != me.id.userId &&
-                      dialed.answeredMembers
-                          .none((a) => a.user.id == e.user.id))) {
+                  for (final ChatMember m in (v?.chat.value.members ?? [])
+                      .where((e) =>
+                          e.user.id != me.id.userId &&
+                          dialed.answeredMembers
+                              .none((a) => a.user.id == e.user.id))) {
                     addDialing(m.user.id);
                   }
                 }
@@ -550,7 +551,7 @@ class OngoingCall {
               '$runtimeType($id)',
             );
 
-            for (final event in versioned.events) {
+            for (final ChatCallEvent event in versioned.events) {
               switch (event.kind) {
                 case ChatCallEventKind.roomReady:
                   final node = event as EventChatCallRoomReady;

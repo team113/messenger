@@ -242,7 +242,8 @@ void main() async {
     );
     callService.onReady();
 
-    await skipEventLoopIterations(2);
+    await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'first');
 
@@ -320,7 +321,8 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await skipEventLoopIterations(2);
+    await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'second');
   });
@@ -377,7 +379,8 @@ void main() async {
     );
     callService.onReady();
 
-    await skipEventLoopIterations(2);
+    await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
 
     await callService.call(
@@ -390,7 +393,7 @@ void main() async {
     expect(callService.calls.values.first.value.state.value,
         OngoingCallState.local);
 
-    await skipEventLoopIterations(1);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'outgoing');
     expect(callService.calls.values.first.value.caller?.id.val, 'me');
@@ -400,7 +403,7 @@ void main() async {
       const ChatCallDeviceId('device'),
     );
 
-    await skipEventLoopIterations(1);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
   });
 
@@ -455,7 +458,7 @@ void main() async {
     );
     callService.onReady();
 
-    await skipEventLoopIterations(1);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -486,13 +489,14 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await skipEventLoopIterations(2);
+    await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
     await callService.decline(const ChatId('incoming'));
 
-    await skipEventLoopIterations(1);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -523,7 +527,8 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await skipEventLoopIterations(2);
+    await Future.delayed(Duration.zero);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
@@ -534,16 +539,9 @@ void main() async {
       withScreen: false,
     );
 
-    await skipEventLoopIterations(1);
+    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
   });
-}
-
-/// Skips [count] event loop iterations. Used for creating zero-time delays.
-Future<void> skipEventLoopIterations(int count) async {
-  for (var i = 0; i < count; i++) {
-    await Future.delayed(Duration.zero);
-  }
 }
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {

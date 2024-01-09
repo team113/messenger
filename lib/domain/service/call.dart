@@ -330,9 +330,9 @@ class CallService extends DisposableService {
 
   /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
   /// specified [OngoingCall].
-  void transferCredentials(ChatId chatId, ChatItemId callId) {
+  Future<void> transferCredentials(ChatId chatId, ChatItemId callId) {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
-    _callsRepo.transferCredentials(chatId, callId);
+    return _callsRepo.transferCredentials(chatId, callId);
   }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the

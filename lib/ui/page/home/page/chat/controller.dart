@@ -48,7 +48,12 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart';
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallDoesNotExistException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';

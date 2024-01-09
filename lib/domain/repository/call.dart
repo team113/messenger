@@ -134,7 +134,11 @@ abstract class AbstractCallRepository {
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
   Future<void> moveCredentials(
-      ChatItemId callId, ChatItemId newCallId, ChatId chatId, ChatId newChatId);
+    ChatItemId callId,
+    ChatItemId newCallId,
+    ChatId chatId,
+    ChatId newChatId,
+  );
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [chatId] and [callId].

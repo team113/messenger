@@ -71,13 +71,13 @@ class CallRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [ChatCallCredentials] local storage.
+  /// Local [ChatCallCredentials] storage.
   final ChatCallCredentialsHiveProvider _credentialsProvider;
 
   /// Temporary local [ChatCallCredentials] storage.
   ///
   /// Used to store newly generated [ChatCallCredentials] by [ChatId] until they
-  /// are saved in [ChatCallCredentialsHiveProvider]. This prevents credentials
+  /// are saved to [ChatCallCredentialsHiveProvider]. This prevents credentials
   /// from being re-generated if the app is restarted while pending a response.
   final PendingChatCallCredentialsHiveProvider _pendingCredentialsProvider;
 
@@ -348,7 +348,6 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     Log.debug('leave($chatId, $deviceId)', '$runtimeType');
-
     await _graphQlProvider.leaveChatCall(chatId, deviceId);
   }
 
@@ -427,7 +426,7 @@ class CallRepository extends DisposableInterface
       creds = ChatCallCredentials(const Uuid().v4());
       await _pendingCredentialsProvider.put(chatId, creds);
     }
-    _inMemoryCredentialsCache[chatId] ??= creds;
+    _inMemoryCredentialsCache[chatId] = creds;
 
     return creds;
   }
@@ -436,11 +435,11 @@ class CallRepository extends DisposableInterface
   Future<void> transferCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
-    ChatCallCredentials? creds = _inMemoryCredentialsCache[chatId];
-    creds ??= _pendingCredentialsProvider.get(chatId);
+    final ChatCallCredentials? creds = _inMemoryCredentialsCache[chatId] ??
+        _pendingCredentialsProvider.get(chatId);
 
     if (creds != null) {
-      // Credentials must be removed from persistent storage after transfer to
+      // Credentials must be removed from persistent storage during transfer to
       // prevent the risk of them being reused.
       await _pendingCredentialsProvider.remove(chatId);
       await _credentialsProvider.put(callId, creds);
@@ -469,10 +468,10 @@ class CallRepository extends DisposableInterface
   ) async {
     Log.debug('moveCredentials($callId, $newCallId)', '$runtimeType');
 
-    final ChatCallCredentials? inMemoryCreds =
+    final ChatCallCredentials? cachedCreds =
         _inMemoryCredentialsCache.remove(chatId);
-    if (inMemoryCreds != null) {
-      _inMemoryCredentialsCache[newChatId] = inMemoryCreds;
+    if (cachedCreds != null) {
+      _inMemoryCredentialsCache[newChatId] = cachedCreds;
     }
 
     final ChatCallCredentials? tempPersistedCreds =
