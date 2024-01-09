@@ -51,7 +51,7 @@ class CallRepository extends DisposableInterface
     this._graphQlProvider,
     this._userRepo,
     this._credentialsProvider,
-    this._tempCredentialsProvider,
+    this._pendingCredentialsProvider,
     this._settingsRepo, {
     required this.me,
   });
@@ -77,14 +77,16 @@ class CallRepository extends DisposableInterface
   /// Temporary local [ChatCallCredentials] storage.
   ///
   /// Used to store newly generated [ChatCallCredentials] by [ChatId] until they
-  /// are saved in [ChatCallCredentialsHiveProvider].
-  final TemporaryChatCallCredentialsHiveProvider _tempCredentialsProvider;
+  /// are saved in [ChatCallCredentialsHiveProvider]. This prevents credentials
+  /// from being re-generated if the app is restarted while pending a response.
+  final PendingChatCallCredentialsHiveProvider _pendingCredentialsProvider;
 
-  /// Temporary in-memory [ChatCallCredentials] storage.
+  /// In-memory [ChatCallCredentials] cache.
   ///
   /// Used to store newly generated [ChatCallCredentials] by [ChatId] until the
-  /// corresponding [OngoingCall] ends.
-  final Map<ChatId, ChatCallCredentials> _credentials = {};
+  /// corresponding [OngoingCall] ends. This prevents credentials from being re-
+  /// generated on repeated [generateCredentials] calls.
+  final Map<ChatId, ChatCallCredentials> _inMemoryCredentialsCache = {};
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -418,15 +420,15 @@ class CallRepository extends DisposableInterface
     // Credentials could be stored in-memory from previous attempts to start a
     // call in [Chat] with this [ChatId] or persisted in [Hive] if
     // [transferCredentials] was not performed for some reason.
-    ChatCallCredentials? creds = _credentials[chatId];
-    creds ??= _tempCredentialsProvider.get(chatId);
+    ChatCallCredentials? creds = _inMemoryCredentialsCache[chatId];
+    creds ??= _pendingCredentialsProvider.get(chatId);
 
     if (creds == null) {
       // Generate new credentials only if they were not stored.
       creds = ChatCallCredentials(const Uuid().v4());
-      await _tempCredentialsProvider.put(chatId, creds);
+      await _pendingCredentialsProvider.put(chatId, creds);
     }
-    _credentials[chatId] ??= creds;
+    _inMemoryCredentialsCache[chatId] ??= creds;
 
     return creds;
   }
@@ -435,13 +437,13 @@ class CallRepository extends DisposableInterface
   Future<void> transferCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
-    ChatCallCredentials? creds = _credentials[chatId];
-    creds ??= _tempCredentialsProvider.get(chatId);
+    ChatCallCredentials? creds = _inMemoryCredentialsCache[chatId];
+    creds ??= _pendingCredentialsProvider.get(chatId);
 
     if (creds != null) {
       // Credentials must be removed from persistent storage after transfer to
       // prevent the risk of them being reused.
-      await _tempCredentialsProvider.remove(chatId);
+      await _pendingCredentialsProvider.remove(chatId);
       await _credentialsProvider.put(callId, creds);
     }
   }
@@ -468,16 +470,17 @@ class CallRepository extends DisposableInterface
   ) async {
     Log.debug('moveCredentials($callId, $newCallId)', '$runtimeType');
 
-    final ChatCallCredentials? inMemoryCreds = _credentials.remove(chatId);
+    final ChatCallCredentials? inMemoryCreds =
+        _inMemoryCredentialsCache.remove(chatId);
     if (inMemoryCreds != null) {
-      _credentials[newChatId] = inMemoryCreds;
+      _inMemoryCredentialsCache[newChatId] = inMemoryCreds;
     }
 
     final ChatCallCredentials? tempPersistedCreds =
-        _tempCredentialsProvider.get(chatId);
+        _pendingCredentialsProvider.get(chatId);
     if (tempPersistedCreds != null) {
-      await _tempCredentialsProvider.remove(chatId);
-      await _tempCredentialsProvider.put(newChatId, tempPersistedCreds);
+      await _pendingCredentialsProvider.remove(chatId);
+      await _pendingCredentialsProvider.put(newChatId, tempPersistedCreds);
     }
 
     final ChatCallCredentials? creds = _credentialsProvider.get(callId);
@@ -493,8 +496,8 @@ class CallRepository extends DisposableInterface
 
     // Remove credentials from everywhere since it's guaranteed that they won't
     // be used again.
-    _credentials.remove(chatId);
-    await _tempCredentialsProvider.remove(chatId);
+    _inMemoryCredentialsCache.remove(chatId);
+    await _pendingCredentialsProvider.remove(chatId);
     await _credentialsProvider.remove(callId);
   }
 

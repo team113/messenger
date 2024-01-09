@@ -506,11 +506,23 @@ class ChatController extends GetxController {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
     }
   }
 
   /// Joins the call in the [Chat] identified by the [id].
-  Future<void> joinCall() => _callService.join(id, withVideo: false);
+  Future<void> joinCall() async {
+    try {
+      await _callService.join(id, withVideo: false);
+    } on CallDoesNotExistException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
 
   /// Drops the call in the [Chat] identified by the [id].
   Future<void> dropCall() => _callService.leave(id);

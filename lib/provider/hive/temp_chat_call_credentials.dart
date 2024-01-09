@@ -23,9 +23,9 @@ import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] temporary storage for [ChatCallCredentials].
-class TemporaryChatCallCredentialsHiveProvider
+class PendingChatCallCredentialsHiveProvider
     extends HiveBaseProvider<ChatCallCredentials> {
-  TemporaryChatCallCredentialsHiveProvider();
+  PendingChatCallCredentialsHiveProvider();
 
   @override
   Stream<BoxEvent> get boxEvents => box.watch();

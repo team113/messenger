@@ -82,20 +82,31 @@ class CallService extends DisposableService {
     }
 
     try {
-      Rx<OngoingCall> call = await _callsRepo.start(
-        chatId,
-        withAudio: withAudio,
-        withVideo: withVideo,
-        withScreen: withScreen,
-      );
+      Rx<OngoingCall>? call;
+
+      try {
+        call = await _callsRepo.start(
+          chatId,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+        );
+      } on CallAlreadyJoinedException catch (e) {
+        await _callsRepo.leave(chatId, e.deviceId);
+        call = await _callsRepo.join(
+          chatId,
+          null,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+        );
+      }
 
       if (isClosed) {
-        call.value.dispose();
+        call?.value.dispose();
       } else {
-        call.value.connect(this);
+        call?.value.connect(this);
       }
-    } on CallAlreadyJoinedException catch (e) {
-      await _callsRepo.leave(chatId, e.deviceId);
     } catch (e) {
       // If an error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -139,6 +150,13 @@ class CallService extends DisposableService {
         );
       } on CallAlreadyJoinedException catch (e) {
         await _callsRepo.leave(chatId, e.deviceId);
+        call = await _callsRepo.join(
+          chatId,
+          callId,
+          withAudio: withAudio,
+          withVideo: withVideo,
+          withScreen: withScreen,
+        );
       }
 
       if (isClosed) {

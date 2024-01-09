@@ -25,7 +25,10 @@ import '/domain/model/chat.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
-    show CallAlreadyExistsException, CallIsInPopupException;
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -257,6 +260,8 @@ class ChatInfoController extends GetxController {
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     }
   }

@@ -88,8 +88,7 @@ void main() async {
   await chatProvider.init();
   final callCredentialsProvider = ChatCallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider =
-      TemporaryChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
   final mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();

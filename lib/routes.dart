@@ -477,7 +477,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
                 deps
-                    .put(TemporaryChatCallCredentialsHiveProvider())
+                    .put(PendingChatCallCredentialsHiveProvider())
                     .init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
@@ -605,7 +605,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
               deps
-                  .put(TemporaryChatCallCredentialsHiveProvider())
+                  .put(PendingChatCallCredentialsHiveProvider())
                   .init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),

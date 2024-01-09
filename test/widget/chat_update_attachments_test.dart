@@ -466,8 +466,7 @@ void main() async {
   await messagesProvider.clear();
   final callCredentialsProvider = ChatCallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider =
-      TemporaryChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
