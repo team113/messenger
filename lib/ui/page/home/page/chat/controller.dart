@@ -203,7 +203,7 @@ class ChatController extends GetxController {
   static const double loaderHeight = 64;
 
   /// [ListElementId] of an item from the [elements] that should be highlighted.
-  final Rx<ListElementId?> highlightItem = Rx<ListElementId?>(null);
+  final Rx<ListElementId?> highlighted = Rx<ListElementId?>(null);
 
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
@@ -317,7 +317,7 @@ class ChatController extends GetxController {
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
-  /// [Timer] resetting the [highlightItem] value after the [_highlightTimeout]
+  /// [Timer] resetting the [highlighted] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
 
@@ -1630,11 +1630,11 @@ class ChatController extends GetxController {
 
   /// Highlights the item with the provided [index].
   Future<void> _highlight(ListElementId id) async {
-    highlightItem.value = id;
+    highlighted.value = id;
 
     _highlightTimer?.cancel();
     _highlightTimer = Timer(_highlightTimeout, () {
-      highlightItem.value = null;
+      highlighted.value = null;
     });
   }
 

@@ -1069,7 +1069,6 @@ class ChatRepository extends DisposableInterface
   /// Fetches the [HiveChatItem] with the provided [id].
   Future<HiveChatItem?> message(ChatItemId id) async {
     Log.debug('message($id)', '$runtimeType');
-
     return (await _graphQlProvider.chatItem(id)).chatItem?.toHive();
   }
 

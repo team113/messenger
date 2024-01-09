@@ -19,14 +19,14 @@ Feature: Chat transitions
 
   Scenario: Chats transitions works correctly
     Given user Alice
-    And Alice has "Test" group
-    And Alice sends "first message" message to "Test" group
-    And Alice sends 100 messages to "Test" group
-    And Alice replies to "first message" message with "reply" text in "Test" group
-    And Alice reads all messages in "Test" group
+    And Alice has "Thoughts" group
+    And Alice sends "How are you?" message to "Thoughts" group
+    And Alice sends 100 messages to "Thoughts" group
+    And Alice replies to "How are you?" message with "I am fine" text in "Thoughts" group
+    And Alice reads all messages in "Thoughts" group
     And I sign in as Alice
-    And I am in "Test" group
+    And I am in "Thoughts" group
 
     When I tap `CloseButton` button
-    And I tap "first message" reply
-    Then I see "first message" message
+    And I tap "How are you?" reply of "I am fine" message
+    Then I see "How are you?" message

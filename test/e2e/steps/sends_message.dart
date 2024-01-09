@@ -49,8 +49,8 @@ final StepDefinitionGeneric sendsMessageToMe =
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Sends a message from the specified [User] to the group with the provided
-/// name and text.
+/// Sends a text message from the specified [User] to the [Chat]-group with the
+/// provided name.
 ///
 /// Examples:
 /// - Bob sends "Hello, Alice!" message to "Name" group
@@ -116,8 +116,8 @@ final StepDefinitionGeneric sendsMessageWithException =
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Sends the provided count of messages from the provided [TestUser] to the
-/// group with the provided name.
+/// Sends the provided count of messages from the specified [TestUser] to the
+/// [Chat]-group with the provided name.
 ///
 /// Examples:
 /// - Given Alice sends 100 messages to "Name" group

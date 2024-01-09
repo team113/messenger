@@ -54,7 +54,7 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Reads all messages by the provided [TestUser] in the [Group] with the
+/// Reads all messages by the provided [TestUser] in the [Chat]-group with the
 /// provided name.
 ///
 /// Examples:

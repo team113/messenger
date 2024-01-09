@@ -820,7 +820,7 @@ class ChatView extends StatelessWidget {
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight: c.highlightItem.value == element.id ||
+              highlight: c.highlighted.value == element.id ||
                   c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
@@ -899,7 +899,7 @@ class ChatView extends StatelessWidget {
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight: c.highlightItem.value == element.id ||
+              highlight: c.highlighted.value == element.id ||
                   c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(

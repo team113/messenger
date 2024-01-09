@@ -245,8 +245,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapChat,
         tapContact,
         tapDropdownItem,
-        tapMessage,
+
+        // TODO: Fix `gherkin` matching `tapMessage` instead.
         tapReply,
+
+        tapMessage,
         tapText,
         tapUserInSearchResults,
         tapWidget,
