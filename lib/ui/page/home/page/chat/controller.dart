@@ -331,7 +331,8 @@ class ChatController extends GetxController {
   /// current frame.
   bool _messagesAreLoading = false;
 
-  /// History of the transitions to return back on the [animateToBottom].
+  /// History of the [animateTo] transitions to [ChatItem]s to return back on
+  /// the [animateToBottom] invokes.
   final List<ChatItem> _history = [];
 
   /// Returns [MyUser]'s [UserId].
@@ -496,8 +497,6 @@ class ChatController extends GetxController {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
-
-    Future.delayed(Duration.zero, chat!.around);
 
     super.onClose();
   }
@@ -1077,8 +1076,8 @@ class ChatController extends GetxController {
     bool addToHistory = true,
     double offset = 50,
   }) async {
-    final ChatItem itemAnimateTo = reply?.original ?? forward?.original ?? item;
-    final ChatItemId animateTo = itemAnimateTo.id;
+    final ChatItem original = reply?.original ?? forward?.original ?? item;
+    final ChatItemId animateTo = original.id;
 
     final int index = elements.values.toList().indexWhere((e) {
       return e.id.id == animateTo ||
@@ -1087,6 +1086,7 @@ class ChatController extends GetxController {
                   e.note.value?.value.id == animateTo));
     });
 
+    // If [original] is within the [elements], then just [animateToIndex].
     if (index != -1) {
       _highlight(elements.values.elementAt(index).id);
 
@@ -1102,12 +1102,12 @@ class ChatController extends GetxController {
         initIndex = index;
       }
 
+      // And add the transition to the [history].
       if (addToHistory) {
         this.addToHistory(item);
       }
     } else {
-      final ListElementId itemId =
-          ListElementId(itemAnimateTo.at, itemAnimateTo.id);
+      final ListElementId itemId = ListElementId(original.at, original.id);
       final ListElementId? lastId = elements.values
           .lastWhereOrNull(
             (e) =>
@@ -1118,7 +1118,7 @@ class ChatController extends GetxController {
           )
           ?.id;
 
-      // If the [itemAnimateTo] placed before the first item then animate to top
+      // If the [original] is placed before the first item, then animate to top,
       // or otherwise to bottom.
       if (lastId != null && itemId.compareTo(lastId) == 1) {
         if (_topLoader == null) {
@@ -1155,6 +1155,7 @@ class ChatController extends GetxController {
         });
       }
 
+      // And then try to fetch the items.
       try {
         await chat!.around(
           item: item,
