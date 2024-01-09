@@ -1499,7 +1499,9 @@ class ChatRepository extends DisposableInterface
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden) {
-      await _pagination?.put(chat);
+      // Put copy of the [chat] to [Pagination] to avoid [chat] parameters
+      // changing.
+      await _pagination?.put(chat.copyWith());
     }
 
     final HiveRxChat rxChat = _add(chat, pagination: pagination);

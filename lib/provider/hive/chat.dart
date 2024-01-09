@@ -172,4 +172,14 @@ class HiveChat extends HiveObject {
   @override
   String toString() =>
       '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
+
+  /// Returns a copy of this [HiveChat].
+  HiveChat copyWith() => HiveChat(
+        value,
+        ver,
+        lastItemCursor,
+        lastReadItemCursor,
+        recentCursor,
+        favoriteCursor,
+      );
 }
