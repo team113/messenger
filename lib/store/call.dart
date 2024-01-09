@@ -424,9 +424,9 @@ class CallRepository extends DisposableInterface
     if (creds == null) {
       // Generate new credentials only if they were not stored.
       creds = ChatCallCredentials(const Uuid().v4());
+      _inMemoryCredentialsCache[chatId] = creds;
       await _pendingCredentialsProvider.put(chatId, creds);
     }
-    _inMemoryCredentialsCache[chatId] = creds;
 
     return creds;
   }
@@ -440,7 +440,7 @@ class CallRepository extends DisposableInterface
 
     if (creds != null) {
       // Credentials must be removed from persistent storage during transfer to
-      // prevent the risk of them being reused.
+      // prevent the risk of them being reused in another call.
       await _pendingCredentialsProvider.remove(chatId);
       await _credentialsProvider.put(callId, creds);
     }

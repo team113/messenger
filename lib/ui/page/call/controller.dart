@@ -454,7 +454,7 @@ class CallController extends GetxController {
     } else {
       // If not [WebUtils.isPopup], then subtract the title bar from the height.
       if (fullscreen.isTrue && !WebUtils.isPopup) {
-        var size = router.context!.mediaQuerySize;
+        final Size size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - titleHeight);
       } else {
         return router.context!.mediaQuerySize;
@@ -825,7 +825,7 @@ class CallController extends GetxController {
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
 
-    for (var e in _notificationTimers) {
+    for (final Timer e in _notificationTimers) {
       e.cancel();
     }
     _notificationTimers.clear();

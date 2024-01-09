@@ -337,7 +337,7 @@ class CallService extends DisposableService {
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
     Log.debug('removeCredentials($chatId, $callId)', '$runtimeType');
     return _callsRepo.removeCredentials(chatId, callId);
   }
