@@ -32,7 +32,7 @@ void main() async {
   final Directory cache = (await PlatformUtils.cacheDirectory)!..create();
 
   Hive.init('./test/.temp_hive/cache_worker_unit');
-  final cacheInfoHiveProvider = CacheInfoHiveProvider();
+  var cacheInfoHiveProvider = CacheInfoHiveProvider();
   await cacheInfoHiveProvider.init();
 
   tearDownAll(() => cache.listSync().forEach((e) => e.deleteSync()));

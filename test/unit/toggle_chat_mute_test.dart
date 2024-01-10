@@ -22,7 +22,6 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
-import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -33,7 +32,7 @@ import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
@@ -41,7 +40,7 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/temp_chat_call_credentials.dart';
+import 'package:messenger/provider/hive/backup_call_credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -61,38 +60,38 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
 
-  final credentialsProvider = Get.put(CredentialsHiveProvider());
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  final userProvider = Get.put(UserHiveProvider());
+  var userProvider = Get.put(UserHiveProvider());
   await userProvider.init();
-  final chatHiveProvider = Get.put(ChatHiveProvider());
+  var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
   final callCredentialsProvider = Get.put(CallCredentialsHiveProvider());
   await callCredentialsProvider.init();
   final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
-  final draftProvider = Get.put(DraftHiveProvider());
+  var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
-  final mediaSettingsProvider = MediaSettingsHiveProvider();
+  var mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
-  final applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
-  final backgroundProvider = BackgroundHiveProvider();
+  var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  final callRectProvider = CallRectHiveProvider();
+  var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  final monologProvider = MonologHiveProvider();
+  var monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  final recentChatProvider = RecentChatHiveProvider();
+  var recentChatProvider = RecentChatHiveProvider();
   await recentChatProvider.init();
-  final favoriteChatProvider = FavoriteChatHiveProvider();
+  var favoriteChatProvider = FavoriteChatHiveProvider();
   await favoriteChatProvider.init();
-  final sessionProvider = SessionDataHiveProvider();
+  var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  final chatData = {
+  var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': null,
     'avatar': null,
@@ -113,7 +112,7 @@ void main() async {
     'ver': '0'
   };
 
-  final recentChats = {
+  var recentChats = {
     'recentChats': {
       'edges': [
         {
@@ -130,7 +129,7 @@ void main() async {
     }
   };
 
-  final favoriteChats = {
+  var favoriteChats = {
     'favoriteChats': {
       'edges': [],
       'pageInfo': {
@@ -186,7 +185,7 @@ void main() async {
   );
 
   test('ChatService successfully toggle chat mute', () async {
-    final AuthService authService = Get.put(
+    AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
         credentialsProvider,
@@ -194,7 +193,7 @@ void main() async {
     );
     await authService.init();
 
-    final AbstractSettingsRepository settingsRepository = Get.put(
+    AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -202,10 +201,10 @@ void main() async {
         callRectProvider,
       ),
     );
-    final UserRepository userRepository =
+    UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);
 
-    final AbstractCallRepository callRepository = CallRepository(
+    final callRepository = CallRepository(
       graphQlProvider,
       userRepository,
       callCredentialsProvider,
@@ -213,8 +212,7 @@ void main() async {
       settingsRepository,
       me: const UserId('me'),
     );
-    final AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatHiveProvider,
@@ -228,8 +226,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    final ChatService chatService =
-        Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.toggleChatMute(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -249,7 +246,7 @@ void main() async {
 
   test('ChatService throws a ToggleChatMuteException when toggle chat mute',
       () async {
-    final AuthService authService = Get.put(
+    AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
         credentialsProvider,
@@ -257,7 +254,7 @@ void main() async {
     );
     await authService.init();
 
-    final AbstractSettingsRepository settingsRepository = Get.put(
+    AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -265,10 +262,10 @@ void main() async {
         callRectProvider,
       ),
     );
-    final UserRepository userRepository =
+    UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);
 
-    final AbstractCallRepository callRepository = CallRepository(
+    final callRepository = CallRepository(
       graphQlProvider,
       userRepository,
       callCredentialsProvider,
@@ -276,8 +273,7 @@ void main() async {
       settingsRepository,
       me: const UserId('me'),
     );
-    final AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(
+    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatHiveProvider,
@@ -291,8 +287,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    final ChatService chatService =
-        Get.put(ChatService(chatRepository, authService));
+    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.toggleChatMute(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
