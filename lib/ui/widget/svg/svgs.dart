@@ -184,6 +184,18 @@ class SvgIcons {
     height: 21,
   );
 
+  static const SvgData passwordSmall = SvgData(
+    'assets/icons/password_small.svg',
+    width: 17.1,
+    height: 19,
+  );
+
+  static const SvgData passwordSmallWhite = SvgData(
+    'assets/icons/password_small_white.svg',
+    width: 17.1,
+    height: 19,
+  );
+
   static const SvgData qrCode = SvgData(
     'assets/icons/qr_code.svg',
     width: 20,

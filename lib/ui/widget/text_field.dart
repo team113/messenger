@@ -44,6 +44,7 @@ class ReactiveTextField extends StatelessWidget {
     this.hint,
     this.icon,
     this.label,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.maxLength,
     this.maxLines = 1,
     this.minLines,
@@ -99,6 +100,9 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional label of this [ReactiveTextField].
   final String? label;
+
+  /// [FloatingLabelBehavior] of this [ReactiveTextField].
+  final FloatingLabelBehavior floatingLabelBehavior;
 
   /// Optional hint of this [ReactiveTextField].
   final String? hint;
@@ -280,20 +284,19 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(() {
       final style = Theme.of(context).style;
 
+      final decoration = Theme.of(context).inputDecorationTheme;
+
+      final floatingLabel = state.error.value?.isNotEmpty == true
+          ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
+          : state.isFocused.value
+              ? decoration.floatingLabelStyle
+                  ?.copyWith(color: style.colors.primary)
+              : decoration.floatingLabelStyle;
+
       return Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-                floatingLabelStyle: state.error.value?.isNotEmpty == true
-                    ? Theme.of(context)
-                        .inputDecorationTheme
-                        .floatingLabelStyle
-                        ?.copyWith(color: style.colors.danger)
-                    : state.isFocused.value
-                        ? Theme.of(context)
-                            .inputDecorationTheme
-                            .floatingLabelStyle
-                            ?.copyWith(color: style.colors.primary)
-                        : null,
+                floatingLabelStyle: floatingLabel,
               ),
         ),
         child: Column(
@@ -319,6 +322,14 @@ class ReactiveTextField extends StatelessWidget {
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
               decoration: InputDecoration(
+                labelStyle:
+                    floatingLabelBehavior == FloatingLabelBehavior.always
+                        ? floatingLabel?.copyWith(
+                      fontSize:
+                      (decoration.floatingLabelStyle!.fontSize ?? 18) - 0.5,
+                    )
+                        : null,
+                floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value
                     ? null

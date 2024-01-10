@@ -33,14 +33,24 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddEmailView extends StatelessWidget {
-  const AddEmailView({super.key, this.email});
+  const AddEmailView({super.key, this.email, this.timeout = false});
 
   /// [UserEmail] to confirm.
   final UserEmail? email;
 
+  /// Indicator whether the resend timer should be started initially.
+  final bool timeout;
+
   /// Displays a [AddEmailView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {
-    return ModalPopup.show(context: context, child: AddEmailView(email: email));
+  static Future<T?> show<T>(
+    BuildContext context, {
+    UserEmail? email,
+    bool timeout = false,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: AddEmailView(email: email, timeout: timeout),
+    );
   }
 
   @override
@@ -51,6 +61,7 @@ class AddEmailView extends StatelessWidget {
       init: AddEmailController(
         Get.find(),
         initial: email,
+        timeout: timeout,
         pop: context.popModal,
       ),
       builder: (AddEmailController c) {

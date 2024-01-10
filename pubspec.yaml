@@ -41,8 +41,10 @@ dependencies:
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.6
+  flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
+  flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.6
   hive_flutter: ^1.1.0
@@ -87,7 +89,6 @@ dependencies:
   sound_fonts: ^0.1.1
   stdlibc: ^0.1.4
   toml: ^0.14.0
-  flutter_thumbhash: ^0.1.0+1
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
   uuid: ^3.0.7

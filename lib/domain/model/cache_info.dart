@@ -44,7 +44,9 @@ class CacheInfo extends HiveObject {
   int size;
 
   /// Maximum allowed cache size in bytes.
-  int maxSize;
+  ///
+  /// `null` means that the [maxSize] has no limit.
+  int? maxSize;
 }
 
 /// [Hive] adapter for a [CacheInfo].
@@ -58,7 +60,7 @@ class CacheInfoAdapter extends TypeAdapter<CacheInfo> {
       checksums: HashSet()..addAll(reader.read() as List<String>),
       size: reader.read() as int,
       modified: reader.read() as DateTime?,
-      maxSize: reader.read() as int,
+      maxSize: reader.read() as int?,
     );
   }
 
