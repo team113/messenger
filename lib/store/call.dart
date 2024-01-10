@@ -141,7 +141,7 @@ class CallRepository extends DisposableInterface
           withVideo: false,
           withScreen: false,
           mediaSettings: media.value,
-          creds: await getCredentials(call.id),
+          creds: getCredentials(call.id),
         ),
       );
       calls[call.chatId] = ongoing;
@@ -243,7 +243,7 @@ class CallRepository extends DisposableInterface
         withVideo: withVideo,
         withScreen: withScreen,
         mediaSettings: media.value,
-        creds: await generateCredentials(chatId),
+        creds: generateCredentials(chatId),
         state: OngoingCallState.local,
       ),
     );
@@ -295,7 +295,7 @@ class CallRepository extends DisposableInterface
 
       ChatCallCredentials? credentials;
       if (callId != null) {
-        credentials = await getCredentials(callId);
+        credentials = getCredentials(callId);
       }
 
       ongoing = Rx<OngoingCall>(
@@ -306,7 +306,7 @@ class CallRepository extends DisposableInterface
           withVideo: withVideo,
           withScreen: withScreen,
           mediaSettings: media.value,
-          creds: credentials ?? await generateCredentials(chatId),
+          creds: credentials ?? generateCredentials(chatId),
           state: OngoingCallState.joining,
         ),
       );
