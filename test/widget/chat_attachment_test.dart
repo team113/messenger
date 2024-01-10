@@ -438,9 +438,9 @@ void main() async {
   ));
   await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
-  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {

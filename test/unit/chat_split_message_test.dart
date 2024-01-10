@@ -82,9 +82,9 @@ void main() async {
   final userProvider = Get.put(UserHiveProvider(), permanent: true);
   await userProvider.init();
   await userProvider.clear();
-  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
   final mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();

@@ -1886,13 +1886,13 @@ class CallController extends GetxController {
   }
 
   /// Puts the [CallMember.tracks] to the according [Participant].
-  void _putMemberTracksToParticipant(CallMember member) {
+  void _putTracksFrom(CallMember member) {
     if (member.tracks.none((t) => t.source == MediaSourceKind.device)) {
-      _putTrackToParticipant(member, null);
+      _putTrack(member, null);
     }
 
     for (final Track track in member.tracks) {
-      _putTrackToParticipant(member, track);
+      _putTrack(member, track);
     }
   }
 
@@ -1900,7 +1900,7 @@ class CallController extends GetxController {
   ///
   /// If no suitable [Participant]s for this [track] are found, then a new
   /// [Participant] with this [track] is added.
-  void _putTrackToParticipant(CallMember member, Track? track) {
+  void _putTrack(CallMember member, Track? track) {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
@@ -2048,7 +2048,7 @@ class CallController extends GetxController {
       ) {
         switch (track.op) {
           case OperationKind.added:
-            _putTrackToParticipant(member, track.element);
+            _putTrack(member, track.element);
             _ensureCorrectGrouping();
             break;
 
@@ -2071,7 +2071,7 @@ class CallController extends GetxController {
       _membersSubscription = _currentCall.value.members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            _putMemberTracksToParticipant(e.value!);
+            _putTracksFrom(e.value!);
             _membersTracksSubscriptions[e.key!] =
                 e.value!.tracks.changes.listen(
               (c) => onTracksChanged(e.value!, c),
@@ -2099,7 +2099,7 @@ class CallController extends GetxController {
         }
       });
 
-      members.forEach((_, value) => _putMemberTracksToParticipant(value));
+      members.forEach((_, value) => _putTracksFrom(value));
       _ensureCorrectGrouping();
     }
   }

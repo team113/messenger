@@ -23,15 +23,15 @@ import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatCallCredentials].
-class ChatCallCredentialsHiveProvider
+class CallCredentialsHiveProvider
     extends HiveBaseProvider<ChatCallCredentials> {
-  ChatCallCredentialsHiveProvider();
+  CallCredentialsHiveProvider();
 
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'chat_call_credentials';
+  String get boxName => 'call_credentials';
 
   @override
   void registerAdapters() {
@@ -48,13 +48,13 @@ class ChatCallCredentialsHiveProvider
     await putSafe(id.val, creds);
   }
 
-  /// Returns a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
+  /// Returns the [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
   ChatCallCredentials? get(ChatItemId id) {
     Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
-  /// Removes a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
+  /// Removes the [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
   Future<void> remove(ChatItemId id) async {
     Log.debug('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

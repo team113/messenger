@@ -222,9 +222,9 @@ void main() async {
   await applicationSettingsProvider.init();
   final backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
   final myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();

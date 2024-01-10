@@ -475,10 +475,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
-                deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
-                deps
-                    .put(PendingChatCallCredentialsHiveProvider())
-                    .init(userId: me),
+                deps.put(CallCredentialsHiveProvider()).init(userId: me),
+                deps.put(BackupCallCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
@@ -603,10 +601,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
-              deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
-              deps
-                  .put(PendingChatCallCredentialsHiveProvider())
-                  .init(userId: me),
+              deps.put(CallCredentialsHiveProvider()).init(userId: me),
+              deps.put(BackupCallCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),

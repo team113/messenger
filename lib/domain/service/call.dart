@@ -140,9 +140,6 @@ class CallService extends DisposableService {
         );
       } on CallAlreadyJoinedException catch (e) {
         await _callsRepo.leave(chatId, e.deviceId);
-        // Wait for the previous call to be removed through the `heartbeat`
-        // subscription and then join again.
-        await Future.delayed(1.seconds);
         call = await _callsRepo.join(
           chatId,
           callId,

@@ -122,7 +122,7 @@ abstract class AbstractCallRepository {
   /// These [ChatCallCredentials] are considered temporary. Use
   /// [transferCredentials] to persist them, once [ChatItemId] of the
   /// [OngoingCall] is acquired.
-  Future<ChatCallCredentials> generateCredentials(ChatId id);
+  ChatCallCredentials generateCredentials(ChatId id);
 
   /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
   /// specified [OngoingCall].
@@ -130,7 +130,7 @@ abstract class AbstractCallRepository {
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
   /// provided [id].
-  Future<ChatCallCredentials> getCredentials(ChatItemId callId);
+  ChatCallCredentials getCredentials(ChatItemId callId);
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
   Future<void> moveCredentials(
@@ -151,10 +151,7 @@ abstract class AbstractCallRepository {
   /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
   /// subscription without leaving the [OngoingCall] will end up by kicking the
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
-  Stream<ChatCallEvents> heartbeat(
-    ChatItemId id,
-    ChatCallDeviceId deviceId,
-  );
+  Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId);
 }
 
 /// Cannot create a new [OngoingCall] in the specified [Chat], because it exists

@@ -70,9 +70,9 @@ void main() async {
   await userProvider.init();
   final chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
   final draftProvider = DraftHiveProvider();
   await draftProvider.init();

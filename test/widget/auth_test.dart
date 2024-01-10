@@ -89,7 +89,7 @@ void main() async {
   await applicationSettingsProvider.init(userId: const UserId('me'));
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init(userId: const UserId('me'));
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  var callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init(userId: const UserId('me'));
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init(userId: const UserId('me'));

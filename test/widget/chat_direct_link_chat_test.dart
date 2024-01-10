@@ -194,9 +194,9 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
   await chatItemHiveProvider.init();
   await chatItemHiveProvider.clear();
-  final callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider = PendingChatCallCredentialsHiveProvider();
+  final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
   await tempCallCredentialsProvider.init();
   final callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();

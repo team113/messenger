@@ -432,6 +432,14 @@ class ChatInfoView extends StatelessWidget {
               onPressed: () => router.chat(c.chat?.id ?? id),
               child: const SvgIcon(SvgIcons.chat),
             ),
+            const SizedBox(width: 15),
+            AnimatedButton(
+              onPressed: () async {
+                await c.joinCall();
+                c.joinCall();
+              },
+              child: const Icon(Icons.bug_report),
+            ),
             KeyedSubtree(
               key: const Key('MoreButton'),
               child: ContextMenuRegion(
