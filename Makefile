@@ -126,6 +126,7 @@ endif
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
+#	                   [split-debug-info=(no|yes)]
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -146,17 +147,11 @@ else
 			                   dockerized=no
 endif
 else
-# TODO: `--split-debug-info` should be used on any non-Web platform.
-#       1) macOS/iOS `--split-debug-info` can be tracked here:
-#          https://github.com/getsentry/sentry-dart/issues/444
-#       2) Linux/Windows `--split-debug-info` can be tracked here:
-#          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
+		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
-		    --split-debug-info=symbols \
-		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
-		) \
+			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
@@ -174,7 +169,7 @@ ifeq ($(dockerized),yes)
 			make flutter.clean dockerized=no
 else
 	flutter clean
-	rm -rf .cache/pub/ doc/ \
+	rm -rf .cache/pub/ debug/ doc/ \
 	       lib/api/backend/*.dart \
 	       lib/api/backend/*.g.dart \
 	       lib/api/backend/*.graphql.dart \
@@ -830,6 +825,42 @@ endif
 
 
 
+###################
+# Sentry commands #
+###################
+
+# Upload debug symbols to Sentry.
+#
+# Usage:
+#	make sentry.upload [project=($(SENTRY_PROJECT)|<project>)]
+#	                   [org=($(SENTRY_ORG)|<org>)]
+#	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
+#	                   [release=($(SENTRY_RELEASE)|<release>)]
+#	                   [url=($(SENTRY_URL)|<url>)]
+
+sentry-project=$(strip $(or $(SENTRY_PROJECT),\
+	$(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
+sentry-org=$(strip $(or $(SENTRY_ORG),\
+	$(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
+sentry-token=$(strip $(or $(SENTRY_AUTH_TOKEN),\
+	$(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
+sentry-release=$(strip $(or $(SENTRY_RELEASE),\
+	$(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2),\
+	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2)))
+sentry-url=$(strip $(or $(url),$(SENTRY_URL),\
+	$(shell grep 'SENTRY_URL=' .env | cut -d'=' -f2)))
+
+sentry.upload:
+	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
+	SENTRY_ORG=$(or $(org),$(sentry-org)) \
+	SENTRY_AUTH_TOKEN=$(or $(token),$(sentry-token)) \
+	SENTRY_RELEASE=$(NAME)@$(or $(release),$(sentry-release)) \
+	$(if $(call eq,$(sentry-url),),,SENTRY_URL=$(sentry-url)) \
+	dart run sentry_dart_plugin
+
+
+
+
 ##################
 # .PHONY section #
 ##################
@@ -847,4 +878,5 @@ endif
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
         minikube.boot \
+        sentry.upload \
         test.e2e test.unit

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -339,12 +339,14 @@ class ChatsTabView extends StatelessWidget {
                                 label: 'btn_create_group'.l10n,
                                 onPressed: c.startGroupCreating,
                                 trailing: const SvgIcon(SvgIcons.group),
+                                inverted: const SvgIcon(SvgIcons.groupWhite),
                               ),
                               ContextMenuButton(
                                 key: const Key('SelectChatsButton'),
                                 label: 'btn_select_and_delete'.l10n,
                                 onPressed: c.toggleSelecting,
                                 trailing: const SvgIcon(SvgIcons.select),
+                                inverted: const SvgIcon(SvgIcons.selectWhite),
                               ),
                             ],
                             child: AnimatedButton(
@@ -582,7 +584,6 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
-                                      inCall: () => c.containsCall(chat.id),
                                     );
                                   }),
                                 );
@@ -755,7 +756,6 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: (clear) => c.hideChat(e.id, clear),
-                                inCall: () => c.containsCall(e.id),
                                 inContacts: e.chat.value.isDialog
                                     ? () => c.inContacts(e)
                                     : null,
@@ -1014,7 +1014,7 @@ class ChatsTabView extends StatelessWidget {
                             10 + 10,
                             0,
                             10 + 10,
-                            72 + MediaQuery.of(context).viewPadding.bottom,
+                            72 + router.context!.mediaQueryViewPadding.bottom,
                           ),
                           child: WidgetButton(
                             key: const Key('Restore'),

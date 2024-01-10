@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,7 +47,7 @@ class Config {
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
-  static late String sentryDsn;
+  static String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
   ///

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,6 +34,7 @@ class ApplicationSettingsHiveProvider
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
+    Hive.maybeRegisterAdapter(CallButtonsPositionAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -128,17 +129,6 @@ class ApplicationSettingsHiveProvider
     );
   }
 
-  /// Stores a new [enabled] value of [ApplicationSettings.timelineEnabled]
-  /// to [Hive].
-  Future<void> setTimelineEnabled(bool enabled) async {
-    Log.debug('setTimelineEnabled($enabled)', '$runtimeType');
-
-    await putSafe(
-      0,
-      (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
-    );
-  }
-
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
   Future<void> setPinnedActions(List<String> buttons) async {
@@ -147,6 +137,17 @@ class ApplicationSettingsHiveProvider
     await putSafe(
       0,
       (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
+    );
+  }
+
+  /// Stores a new [position] value of
+  /// [ApplicationSettings.callButtonsPosition] to [Hive].
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
+
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..callButtonsPosition = position,
     );
   }
 }

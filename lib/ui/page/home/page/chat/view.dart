@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,10 +23,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -62,13 +62,13 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
+import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
-import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
-class ChatView extends StatefulWidget {
+class ChatView extends StatelessWidget {
   const ChatView(this.id, {super.key, this.itemId, this.welcome});
 
   /// ID of this [Chat].
@@ -82,51 +82,24 @@ class ChatView extends StatefulWidget {
   final ChatMessageText? welcome;
 
   @override
-  State<ChatView> createState() => _ChatViewState();
-}
-
-/// State of a [ChatView] used to animate [SwipeableStatus].
-class _ChatViewState extends State<ChatView>
-    with SingleTickerProviderStateMixin {
-  /// [AnimationController] of [SwipeableStatus]es.
-  late final AnimationController _animation;
-
-  @override
-  void initState() {
-    _animation = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-      debugLabel: '$runtimeType (${widget.id})',
-    );
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _animation.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
-        widget.id,
+        id,
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
-        itemId: widget.itemId,
-        welcome: widget.welcome,
+        itemId: itemId,
+        welcome: welcome,
       ),
-      tag: widget.id.val,
-      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
+      tag: id.val,
+      global: !Get.isRegistered<ChatController>(tag: id.val),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
@@ -163,7 +136,7 @@ class _ChatViewState extends State<ChatView>
               body: const Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
                 padding: Insets.dense.copyWith(top: 0),
-                child: _bottomBar(c),
+                child: _bottomBar(c, context),
               ),
             );
           }
@@ -171,7 +144,7 @@ class _ChatViewState extends State<ChatView>
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
           return CustomDropTarget(
-            key: Key('ChatView_${widget.id}'),
+            key: Key('ChatView_$id'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -251,46 +224,17 @@ class _ChatViewState extends State<ChatView>
                       leading: const [StyledBackButton()],
                       actions: [
                         Obx(() {
-                          if (c.chat?.blocked == true) {
-                            return const SizedBox.shrink();
-                          }
+                          final bool blocked = c.chat?.blocked == true;
+                          final bool inCall = c.chat?.inCall.value ?? false;
 
                           final List<Widget> children;
 
-                          if (c.selecting.value) {
-                            children = [
-                              AnimatedButton(
-                                key: const Key('CloseButton'),
-                                decorator: (c) => Container(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(12, 0, 2, 0),
-                                  height: double.infinity,
-                                  child: c,
-                                ),
-                                onPressed: c.selecting.value
-                                    ? c.selecting.toggle
-                                    : null,
-                                child: const SvgIcon(SvgIcons.closePrimary),
-                              ),
-                            ];
-                          } else if (c.chat!.chat.value.ongoingCall == null) {
-                            children = [
-                              AnimatedButton(
-                                onPressed: () => c.call(true),
-                                child: const SvgIcon(SvgIcons.chatVideoCall),
-                              ),
-                              const SizedBox(width: 28),
-                              AnimatedButton(
-                                key: const Key('AudioCall'),
-                                onPressed: () => c.call(false),
-                                child: const SvgIcon(SvgIcons.chatAudioCall),
-                              ),
-                              const SizedBox(width: 10),
-                            ];
-                          } else {
+                          // Display the join/end call button, if [Chat] has an
+                          // [OngoingCall] happening in it.
+                          if (c.chat!.chat.value.ongoingCall != null) {
                             final Widget child;
 
-                            if (c.inCall) {
+                            if (inCall) {
                               child = Container(
                                 key: const Key('Drop'),
                                 height: 32,
@@ -321,13 +265,35 @@ class _ChatViewState extends State<ChatView>
                             children = [
                               AnimatedButton(
                                 key: const Key('ActiveCallButton'),
-                                onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                onPressed: inCall ? c.dropCall : c.joinCall,
                                 child: SafeAnimatedSwitcher(
                                   duration: 300.milliseconds,
                                   child: child,
                                 ),
                               ),
                             ];
+                          } else if (!blocked) {
+                            children = [
+                              if (c.callPosition == null ||
+                                  c.callPosition ==
+                                      CallButtonsPosition.appBar) ...[
+                                AnimatedButton(
+                                  onPressed: () => c.call(true),
+                                  child: const SvgIcon(SvgIcons.chatVideoCall),
+                                ),
+                                const SizedBox(width: 28),
+                                AnimatedButton(
+                                  key: const Key('AudioCall'),
+                                  onPressed: () => c.call(false),
+                                  child: const SvgIcon(SvgIcons.chatAudioCall),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            ];
+                          } else {
+                            // [Chat]-dialog is blocked, therefore no call
+                            // buttons should be displayed.
+                            children = [];
                           }
 
                           return Row(
@@ -353,123 +319,217 @@ class _ChatViewState extends State<ChatView>
 
                                 final Widget child;
 
-                                child = ContextMenuRegion(
-                                  key: c.moreKey,
-                                  selector: c.moreKey,
-                                  alignment: Alignment.topRight,
-                                  enablePrimaryTap: true,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 10,
-                                  ),
-                                  actions: [
-                                    if (dialog)
-                                      ContextMenuButton(
-                                        key: Key(
-                                          contact
-                                              ? 'DeleteFromContactsButton'
-                                              : 'AddToContactsButton',
-                                        ),
-                                        label: contact
-                                            ? 'btn_delete_from_contacts'.l10n
-                                            : 'btn_add_to_contacts'.l10n,
-                                        trailing: SvgIcon(
-                                          contact
-                                              ? SvgIcons.deleteContact
-                                              : SvgIcons.addContact,
-                                        ),
-                                        onPressed: contact
-                                            ? () =>
-                                                _removeFromContacts(c, context)
-                                            : c.addToContacts,
+                                if (c.selecting.value) {
+                                  child = AnimatedButton(
+                                    onPressed: c.selecting.toggle,
+                                    child: Container(
+                                      padding: const EdgeInsets.only(left: 10),
+                                      height: double.infinity,
+                                      child: const Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(10, 0, 21, 0),
+                                        child: SvgIcon(SvgIcons.closePrimary),
                                       ),
-                                    ContextMenuButton(
-                                      key: Key(
-                                        favorite
-                                            ? 'UnfavoriteChatButton'
-                                            : 'FavoriteChatButton',
-                                      ),
-                                      label: favorite
-                                          ? 'btn_delete_from_favorites'.l10n
-                                          : 'btn_add_to_favorites'.l10n,
-                                      trailing: SvgIcon(
-                                        favorite
-                                            ? SvgIcons.favoriteSmall
-                                            : SvgIcons.unfavoriteSmall,
-                                      ),
-                                      onPressed: favorite
-                                          ? c.unfavoriteChat
-                                          : c.favoriteChat,
                                     ),
-                                    if (!isLocal) ...[
-                                      if (!monolog)
+                                  );
+                                } else {
+                                  child = ContextMenuRegion(
+                                    key: c.moreKey,
+                                    selector: c.moreKey,
+                                    alignment: Alignment.topRight,
+                                    enablePrimaryTap: true,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 10,
+                                    ),
+                                    actions: [
+                                      if (c.callPosition ==
+                                          CallButtonsPosition.contextMenu) ...[
+                                        ContextMenuButton(
+                                          label: 'btn_audio_call'.l10n,
+                                          onPressed: blocked || inCall
+                                              ? null
+                                              : () => c.call(false),
+                                          trailing: SvgIcon(
+                                            blocked || inCall
+                                                ? SvgIcons.makeAudioCallDisabled
+                                                : SvgIcons.makeAudioCall,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.makeAudioCallWhite,
+                                          ),
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'btn_video_call'.l10n,
+                                          onPressed: blocked || inCall
+                                              ? null
+                                              : () => c.call(true),
+                                          trailing: SvgIcon(
+                                            blocked || inCall
+                                                ? SvgIcons.makeVideoCallDisabled
+                                                : SvgIcons.makeVideoCall,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.makeVideoCallWhite,
+                                          ),
+                                        ),
+                                      ],
+                                      if (dialog)
                                         ContextMenuButton(
                                           key: Key(
-                                            muted
-                                                ? 'UnmuteChatButton'
-                                                : 'MuteChatButton',
+                                            contact
+                                                ? 'DeleteFromContactsButton'
+                                                : 'AddToContactsButton',
                                           ),
-                                          label: muted
-                                              ? PlatformUtils.isMobile
-                                                  ? 'btn_unmute'.l10n
-                                                  : 'btn_unmute_chat'.l10n
-                                              : PlatformUtils.isMobile
-                                                  ? 'btn_mute'.l10n
-                                                  : 'btn_mute_chat'.l10n,
+                                          label: contact
+                                              ? 'btn_delete_from_contacts'.l10n
+                                              : 'btn_add_to_contacts'.l10n,
                                           trailing: SvgIcon(
-                                            muted
-                                                ? SvgIcons.unmuteSmall
-                                                : SvgIcons.muteSmall,
+                                            contact
+                                                ? SvgIcons.deleteContact
+                                                : SvgIcons.addContact,
                                           ),
-                                          onPressed:
-                                              muted ? c.unmuteChat : c.muteChat,
+                                          inverted: SvgIcon(
+                                            contact
+                                                ? SvgIcons.deleteContactWhite
+                                                : SvgIcons.addContactWhite,
+                                          ),
+                                          onPressed: contact
+                                              ? () => _removeFromContacts(
+                                                    c,
+                                                    context,
+                                                  )
+                                              : c.addToContacts,
                                         ),
                                       ContextMenuButton(
-                                        key: const Key('ClearHistoryButton'),
-                                        label: 'btn_clear_history'.l10n,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.cleanHistory,
+                                        key: Key(
+                                          favorite
+                                              ? 'UnfavoriteChatButton'
+                                              : 'FavoriteChatButton',
                                         ),
-                                        onPressed: () => _clearChat(c, context),
+                                        label: favorite
+                                            ? 'btn_delete_from_favorites'.l10n
+                                            : 'btn_add_to_favorites'.l10n,
+                                        trailing: SvgIcon(
+                                          favorite
+                                              ? SvgIcons.favoriteSmall
+                                              : SvgIcons.unfavoriteSmall,
+                                        ),
+                                        inverted: SvgIcon(
+                                          favorite
+                                              ? SvgIcons.favoriteSmallWhite
+                                              : SvgIcons.unfavoriteSmallWhite,
+                                        ),
+                                        onPressed: favorite
+                                            ? c.unfavoriteChat
+                                            : c.favoriteChat,
+                                      ),
+                                      if (!isLocal) ...[
+                                        if (!monolog)
+                                          ContextMenuButton(
+                                            key: Key(
+                                              muted
+                                                  ? 'UnmuteChatButton'
+                                                  : 'MuteChatButton',
+                                            ),
+                                            label: muted
+                                                ? PlatformUtils.isMobile
+                                                    ? 'btn_unmute'.l10n
+                                                    : 'btn_unmute_chat'.l10n
+                                                : PlatformUtils.isMobile
+                                                    ? 'btn_mute'.l10n
+                                                    : 'btn_mute_chat'.l10n,
+                                            trailing: SvgIcon(
+                                              muted
+                                                  ? SvgIcons.unmuteSmall
+                                                  : SvgIcons.muteSmall,
+                                            ),
+                                            inverted: SvgIcon(
+                                              muted
+                                                  ? SvgIcons.unmuteSmallWhite
+                                                  : SvgIcons.muteSmallWhite,
+                                            ),
+                                            onPressed: muted
+                                                ? c.unmuteChat
+                                                : c.muteChat,
+                                          ),
+                                        ContextMenuButton(
+                                          key: const Key('ClearHistoryButton'),
+                                          label: 'btn_clear_history'.l10n,
+                                          trailing: const SvgIcon(
+                                            SvgIcons.cleanHistory,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.cleanHistoryWhite,
+                                          ),
+                                          onPressed: () =>
+                                              _clearChat(c, context),
+                                        ),
+                                      ],
+                                      if (!monolog && !dialog)
+                                        ContextMenuButton(
+                                          key: const Key('LeaveGroupButton'),
+                                          label: 'btn_leave_group'.l10n,
+                                          trailing: const SvgIcon(
+                                            SvgIcons.leaveGroup,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.leaveGroupWhite,
+                                          ),
+                                          onPressed: () =>
+                                              _leaveGroup(c, context),
+                                        ),
+                                      if (!isLocal || monolog)
+                                        ContextMenuButton(
+                                          key: const Key('HideChatButton'),
+                                          label: 'btn_delete_chat'.l10n,
+                                          trailing:
+                                              const SvgIcon(SvgIcons.delete19),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.delete19White,
+                                          ),
+                                          onPressed: () =>
+                                              _hideChat(c, context),
+                                        ),
+                                      if (dialog)
+                                        ContextMenuButton(
+                                          key: Key(
+                                            blocked ? 'Unblock' : 'Block',
+                                          ),
+                                          label: blocked
+                                              ? 'btn_unblock'.l10n
+                                              : 'btn_block'.l10n,
+                                          trailing:
+                                              const SvgIcon(SvgIcons.block),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.blockWhite,
+                                          ),
+                                          onPressed: blocked
+                                              ? c.unblock
+                                              : () => _blockUser(c, context),
+                                        ),
+                                      ContextMenuButton(
+                                        label: 'btn_select_messages'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.select,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.selectWhite,
+                                        ),
                                       ),
                                     ],
-                                    if (!monolog && !dialog)
-                                      ContextMenuButton(
-                                        key: const Key('LeaveGroupButton'),
-                                        label: 'btn_leave_group'.l10n,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.leaveGroup,
-                                        ),
-                                        onPressed: () =>
-                                            _leaveGroup(c, context),
+                                    child: Container(
+                                      key: const Key('MoreButton'),
+                                      padding: const EdgeInsets.only(
+                                        left: 20,
+                                        right: 21,
                                       ),
-                                    if (!isLocal || monolog)
-                                      ContextMenuButton(
-                                        key: const Key('HideChatButton'),
-                                        label: 'btn_delete_chat'.l10n,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.cleanHistory,
-                                        ),
-                                        onPressed: () => _hideChat(c, context),
-                                      ),
-                                    if (dialog)
-                                      ContextMenuButton(
-                                        key: const Key('Block'),
-                                        label: 'btn_block'.l10n,
-                                        trailing: const SvgIcon(SvgIcons.block),
-                                        onPressed: () => _blockUser(c, context),
-                                      ),
-                                  ],
-                                  child: Container(
-                                    key: const Key('MoreButton'),
-                                    padding: const EdgeInsets.only(
-                                      left: 20,
-                                      right: 21,
+                                      height: double.infinity,
+                                      child: const SvgIcon(SvgIcons.more),
                                     ),
-                                    height: double.infinity,
-                                    child: const SvgIcon(SvgIcons.more),
-                                  ),
-                                );
+                                  );
+                                }
 
                                 return AnimatedButton(
                                   child: SafeAnimatedSwitcher(
@@ -483,194 +543,132 @@ class _ChatViewState extends State<ChatView>
                         }),
                       ],
                     ),
-                    body: Listener(
-                      onPointerSignal: c.settings.value?.timelineEnabled == true
-                          ? (s) {
-                              if (s is PointerScrollEvent) {
-                                if ((s.scrollDelta.dy.abs() < 3 &&
-                                        s.scrollDelta.dx.abs() > 3) ||
-                                    c.isHorizontalScroll.value) {
-                                  double value =
-                                      _animation.value + s.scrollDelta.dx / 100;
-                                  _animation.value = value.clamp(0, 1);
-
-                                  if (_animation.value == 0 ||
-                                      _animation.value == 1) {
-                                    _resetHorizontalScroll(c, 10.milliseconds);
-                                  } else {
-                                    _resetHorizontalScroll(c);
-                                  }
-                                }
-                              }
-                            }
-                          : null,
-                      onPointerPanZoomUpdate: (s) {
-                        if (c.scrollOffset.dx.abs() < 7 &&
-                            c.scrollOffset.dy.abs() < 7) {
-                          c.scrollOffset = c.scrollOffset.translate(
-                            s.panDelta.dx.abs(),
-                            s.panDelta.dy.abs(),
-                          );
-                        }
-                      },
-                      onPointerMove: (d) {
-                        if (c.scrollOffset.dx.abs() < 7 &&
-                            c.scrollOffset.dy.abs() < 7) {
-                          c.scrollOffset = c.scrollOffset.translate(
-                            d.delta.dx.abs(),
-                            d.delta.dy.abs(),
-                          );
-                        }
-                      },
-                      onPointerUp: (_) => c.scrollOffset = Offset.zero,
-                      onPointerCancel: (_) => c.scrollOffset = Offset.zero,
-                      child: RawGestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        gestures: {
-                          if (c.settings.value?.timelineEnabled == true &&
-                              c.isSelecting.isFalse)
-                            AllowMultipleHorizontalDragGestureRecognizer:
-                                GestureRecognizerFactoryWithHandlers<
-                                    AllowMultipleHorizontalDragGestureRecognizer>(
-                              () =>
-                                  AllowMultipleHorizontalDragGestureRecognizer(),
-                              (AllowMultipleHorizontalDragGestureRecognizer
-                                  instance) {
-                                instance.onUpdate = (d) {
-                                  if (!c.isItemDragged.value &&
-                                      c.scrollOffset.dy.abs() < 7 &&
-                                      c.scrollOffset.dx.abs() > 7 &&
-                                      c.isSelecting.isFalse) {
-                                    double value =
-                                        (_animation.value - d.delta.dx / 100)
-                                            .clamp(0, 1);
-
-                                    if (_animation.value != 1 && value == 1 ||
-                                        _animation.value != 0 && value == 0) {
-                                      HapticFeedback.selectionClick();
-                                    }
-
-                                    _animation.value = value.clamp(0, 1);
-                                  }
-                                };
-
-                                instance.onEnd = (d) async {
-                                  c.scrollOffset = Offset.zero;
-                                  if (!c.isItemDragged.value &&
-                                      _animation.value != 1 &&
-                                      _animation.value != 0) {
-                                    if (_animation.value >= 0.5) {
-                                      await _animation.forward();
-                                      HapticFeedback.selectionClick();
-                                    } else {
-                                      await _animation.reverse();
-                                      HapticFeedback.selectionClick();
-                                    }
-                                  }
-                                };
-                              },
-                            )
-                        },
-                        child: Stack(
-                          children: [
-                            // Required for the [Stack] to take [Scaffold]'s
-                            // size.
-                            IgnorePointer(
-                              child: ContextMenuInterceptor(child: Container()),
-                            ),
-                            Obx(() {
-                              final Widget child = FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isHorizontalScroll.isTrue ||
-                                        (PlatformUtils.isDesktop &&
-                                            c.isItemDragged.isTrue)
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const BouncingScrollPhysics(),
-                                reverse: true,
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  stickyAtTailer: true,
-                                  keepPosition: true,
-                                  keepPositionOffset: c.active.isTrue
-                                      ? c.keepPositionOffset.value
-                                      : 1,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) => c.elements.values
-                                      .elementAt(i) is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: false,
-                                  disableCacheItems: kDebugMode ? true : false,
-                                ),
-                              );
-
-                              if (PlatformUtils.isMobile) {
-                                if (!PlatformUtils.isWeb) {
-                                  return Scrollbar(
-                                    controller: c.listController,
-                                    child: child,
-                                  );
-                                } else {
-                                  return child;
-                                }
-                              }
-
-                              return SelectionArea(
-                                onSelectionChanged: (a) =>
-                                    c.selection.value = a,
-                                contextMenuBuilder: (_, __) => const SizedBox(),
-                                selectionControls: EmptyTextSelectionControls(),
-                                child: ContextMenuInterceptor(child: child),
-                              );
-                            }),
-                            Obx(() {
-                              if ((c.chat!.status.value.isSuccess ||
-                                      c.chat!.status.value.isEmpty) &&
-                                  c.chat!.messages.isEmpty) {
-                                return Center(
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      border: style.systemMessageBorder,
-                                      color: style.systemMessageColor,
-                                    ),
-                                    child: Text(
-                                      key: const Key('NoMessages'),
-                                      isMonolog
-                                          ? 'label_chat_monolog_description'
-                                              .l10n
-                                          : 'label_no_messages'.l10n,
-                                      textAlign: TextAlign.center,
-                                      style: style
-                                          .fonts.small.regular.onBackground,
-                                    ),
-                                  ),
-                                );
-                              }
-                              if (c.chat!.status.value.isLoading) {
-                                return const Center(
-                                  child: CustomProgressIndicator(),
-                                );
-                              }
-
-                              return const SizedBox();
-                            }),
-                          ],
+                    body: Stack(
+                      children: [
+                        // Required for the [Stack] to take [Scaffold]'s
+                        // size.
+                        IgnorePointer(
+                          child: ContextMenuInterceptor(child: Container()),
                         ),
-                      ),
+                        Obx(() {
+                          final Widget child = FlutterListView(
+                            key: const Key('MessagesList'),
+                            controller: c.listController,
+                            physics: const BouncingScrollPhysics(),
+                            reverse: true,
+                            delegate: FlutterListViewDelegate(
+                              (context, i) => _listElement(context, c, i),
+                              // ignore: invalid_use_of_protected_member
+                              childCount: c.elements.value.length,
+                              stickyAtTailer: true,
+                              keepPosition: true,
+                              keepPositionOffset: c.active.isTrue
+                                  ? c.keepPositionOffset.value
+                                  : 1,
+                              onItemKey: (i) =>
+                                  c.elements.values.elementAt(i).id.toString(),
+                              onItemSticky: (i) => c.elements.values
+                                  .elementAt(i) is DateTimeElement,
+                              initIndex: c.initIndex,
+                              initOffset: c.initOffset,
+                              initOffsetBasedOnBottom: false,
+                              disableCacheItems: kDebugMode ? true : false,
+                            ),
+                          );
+
+                          if (PlatformUtils.isMobile) {
+                            if (!PlatformUtils.isWeb) {
+                              return Scrollbar(
+                                controller: c.listController,
+                                child: child,
+                              );
+                            } else {
+                              return child;
+                            }
+                          }
+
+                          return SelectionArea(
+                            onSelectionChanged: (a) => c.selection.value = a,
+                            contextMenuBuilder: (_, __) => const SizedBox(),
+                            selectionControls: EmptyTextSelectionControls(),
+                            child: ContextMenuInterceptor(child: child),
+                          );
+                        }),
+                        Obx(() {
+                          if ((c.chat!.status.value.isSuccess ||
+                                  c.chat!.status.value.isEmpty) &&
+                              c.chat!.messages.isEmpty) {
+                            return Center(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: style.systemMessageBorder,
+                                  color: style.systemMessageColor,
+                                ),
+                                child: Text(
+                                  key: const Key('NoMessages'),
+                                  isMonolog
+                                      ? 'label_chat_monolog_description'.l10n
+                                      : 'label_no_messages'.l10n,
+                                  textAlign: TextAlign.center,
+                                  style: style.fonts.small.regular.onBackground,
+                                ),
+                              ),
+                            );
+                          }
+                          if (c.chat!.status.value.isLoading) {
+                            return const Center(
+                              child: CustomProgressIndicator(),
+                            );
+                          }
+
+                          return const SizedBox();
+                        }),
+                        if (c.callPosition == CallButtonsPosition.top ||
+                            c.callPosition == CallButtonsPosition.bottom)
+                          Positioned(
+                            top: c.callPosition == CallButtonsPosition.top
+                                ? 8
+                                : null,
+                            bottom: c.callPosition == CallButtonsPosition.bottom
+                                ? 8
+                                : null,
+                            right: 12,
+                            child: Obx(() {
+                              final bool inCall = c.chat?.inCall.value ?? false;
+
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  CircleButton(
+                                    inCall
+                                        ? SvgIcons.chatAudioCallDisabled
+                                        : SvgIcons.chatAudioCall,
+                                    onPressed:
+                                        inCall ? null : () => c.call(false),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  CircleButton(
+                                    inCall
+                                        ? SvgIcons.chatVideoCallDisabled
+                                        : SvgIcons.chatVideoCall,
+                                    onPressed:
+                                        inCall ? null : () => c.call(true),
+                                  ),
+                                  const SizedBox(height: 8),
+                                ],
+                              );
+                            }),
+                          ),
+                      ],
                     ),
                     floatingActionButton: Obx(() {
                       return SizedBox(
@@ -694,7 +692,7 @@ class _ChatViewState extends State<ChatView>
                     }),
                     bottomNavigationBar: Padding(
                       padding: Insets.dense.copyWith(top: 0),
-                      child: _bottomBar(c),
+                      child: _bottomBar(c, context),
                     ),
                   ),
                   IgnorePointer(
@@ -845,8 +843,6 @@ class _ChatViewState extends State<ChatView>
                           m.memberId != e.value.author.id),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
                   onHide: () => c.hideChatItem(e.value),
                   onDelete: () => c.deleteMessage(e.value),
                   onReply: () {
@@ -873,17 +869,18 @@ class _ChatViewState extends State<ChatView>
                   onGallery: c.calculateGallery,
                   onResend: () => c.resendItem(e.value),
                   onEdit: () => c.editMessage(e.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
                   onFileTap: (a) => c.downloadFile(e.value, a),
                   onAttachmentError: () async {
                     await c.chat?.updateAttachments(e.value);
                     await Future.delayed(Duration.zero);
                   },
-                  onSelecting: (s) => c.isSelecting.value = s,
                   onDownload: c.downloadMedia,
                   onDownloadAs: c.downloadMediaAs,
                   onSave: (a) => c.saveToGallery(a, e.value),
-                  onSelect: c.selecting.toggle,
+                  onSelect: () {
+                    c.selecting.toggle();
+                    c.selected.add(element);
+                  },
                 ),
               ),
             );
@@ -926,8 +923,6 @@ class _ChatViewState extends State<ChatView>
                           m.memberId != element.authorId),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
                   onHide: () async {
                     final List<Future> futures = [];
 
@@ -989,7 +984,6 @@ class _ChatViewState extends State<ChatView>
                   },
                   onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
                   onForwardedTap: (quote) {
                     if (quote.original != null) {
                       if (quote.original!.chatId == c.id) {
@@ -1014,8 +1008,10 @@ class _ChatViewState extends State<ChatView>
 
                     await Future.delayed(Duration.zero);
                   },
-                  onSelecting: (s) => c.isSelecting.value = s,
-                  onSelect: c.selecting.toggle,
+                  onSelect: () {
+                    c.selecting.toggle();
+                    c.selected.add(element);
+                  },
                 ),
               ),
             );
@@ -1027,7 +1023,6 @@ class _ChatViewState extends State<ChatView>
         child: Obx(() {
           return TimeLabelWidget(
             element.id.at.val,
-            animation: _animation,
             opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
           );
         }),
@@ -1183,7 +1178,7 @@ class _ChatViewState extends State<ChatView>
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-  Widget _bottomBar(ChatController c) {
+  Widget _bottomBar(ChatController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Obx(() {
@@ -1282,10 +1277,16 @@ class _ChatViewState extends State<ChatView>
 
                             final result = await ConfirmDialog.show(
                               context,
-                              title: 'label_delete_message'.l10n,
+                              title: c.selected.length > 1
+                                  ? 'label_delete_messages'.l10n
+                                  : 'label_delete_message'.l10n,
                               description: deletable
                                   ? null
-                                  : 'label_message_will_deleted_for_you'.l10n,
+                                  : c.selected.length > 1
+                                      ? 'label_messages_will_deleted_for_you'
+                                          .l10n
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
                               initial: 1,
                               variants: [
                                 ConfirmDialogVariant(
@@ -1400,24 +1401,6 @@ class _ChatViewState extends State<ChatView>
         onItemPressed: (id) => c.animateTo(id),
         canForward: true,
       );
-    });
-  }
-
-  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
-  /// the provided [duration].
-  ///
-  /// Defaults to 50 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.isHorizontalScroll.value = true;
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.isHorizontalScroll.value = false;
-      c.horizontalScrollTimer.value = null;
     });
   }
 

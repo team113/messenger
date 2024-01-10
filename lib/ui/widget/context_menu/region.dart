@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -267,10 +267,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           if (b is ContextMenuButton) {
             return Row(
               children: [
-                if (b.leading != null) ...[
-                  b.leading!,
-                  const SizedBox(width: 12),
-                ],
                 Text(b.label, style: style.fonts.normal.regular.onBackground),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),

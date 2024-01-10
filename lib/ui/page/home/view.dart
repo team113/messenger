@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -288,7 +288,6 @@ class _HomeViewState extends State<HomeView> {
                                       label: 'label_presence_present'.l10n,
                                       onPressed: () =>
                                           c.setPresence(Presence.present),
-                                      showTrailing: true,
                                       trailing: Container(
                                         width: 10,
                                         height: 10,
@@ -302,7 +301,6 @@ class _HomeViewState extends State<HomeView> {
                                       label: 'label_presence_away'.l10n,
                                       onPressed: () =>
                                           c.setPresence(Presence.away),
-                                      showTrailing: true,
                                       trailing: Container(
                                         width: 10,
                                         height: 10,

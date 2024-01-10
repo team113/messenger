@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
+import 'ui/widget/custom_page.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';
@@ -137,7 +138,7 @@ class Themes {
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'NotoSansDisplay',
+      fontFamily: 'Roboto',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
@@ -366,10 +367,10 @@ class Themes {
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
         },
       ),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,17 +39,20 @@ class SvgData {
 
 /// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
-  const SvgIcon(this.data, {super.key, this.height});
+  const SvgIcon(this.data, {super.key, this.width, this.height});
 
   /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional width to display [data] of.
+  final double? width;
 
   /// Optional height to display [data] of.
   final double? height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.icon(data, height: height);
+    return SvgImage.icon(data, width: width, height: height);
   }
 }
 
@@ -67,8 +70,20 @@ class SvgIcons {
     height: 21.02,
   );
 
+  static const SvgData chatAudioCallDisabled = SvgData(
+    'assets/icons/chat_audio_call_disabled.svg',
+    width: 21,
+    height: 21.02,
+  );
+
   static const SvgData chatVideoCall = SvgData(
     'assets/icons/chat_video_call.svg',
+    width: 27.71,
+    height: 19,
+  );
+
+  static const SvgData chatVideoCallDisabled = SvgData(
+    'assets/icons/chat_video_call_disabled.svg',
     width: 27.71,
     height: 19,
   );
@@ -744,20 +759,38 @@ class SvgIcons {
 
   static const SvgData reply = SvgData(
     'assets/icons/reply.svg',
-    width: 18.5,
-    height: 18,
+    width: 19.53,
+    height: 19,
+  );
+
+  static const SvgData replyWhite = SvgData(
+    'assets/icons/reply_white.svg',
+    width: 19.53,
+    height: 19,
   );
 
   static const SvgData forwardSmall = SvgData(
     'assets/icons/forward_small.svg',
-    width: 18.5,
-    height: 18,
+    width: 19.53,
+    height: 19,
+  );
+
+  static const SvgData forwardSmallWhite = SvgData(
+    'assets/icons/forward_small_white.svg',
+    width: 19.53,
+    height: 19,
   );
 
   static const SvgData edit = SvgData(
     'assets/icons/edit.svg',
-    width: 18,
-    height: 18,
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData editWhite = SvgData(
+    'assets/icons/edit_white.svg',
+    width: 19,
+    height: 19,
   );
 
   static const SvgData more = SvgData(
@@ -786,14 +819,26 @@ class SvgIcons {
 
   static const SvgData info = SvgData(
     'assets/icons/info.svg',
-    width: 18,
-    height: 18,
+    width: 19,
+    height: 19,
   );
 
-  static const SvgData copy18 = SvgData(
-    'assets/icons/copy_18.svg',
-    width: 15.45,
-    height: 18,
+  static const SvgData infoWhite = SvgData(
+    'assets/icons/info_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData copy19 = SvgData(
+    'assets/icons/copy19.svg',
+    width: 16.3,
+    height: 19,
+  );
+
+  static const SvgData copy19White = SvgData(
+    'assets/icons/copy19_white.svg',
+    width: 16.3,
+    height: 19,
   );
 
   static const SvgData darkMode = SvgData(
@@ -1302,8 +1347,32 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData makeAudioCallWhite = SvgData(
+    'assets/icons/make_audio_call_white.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData makeAudioCallDisabled = SvgData(
+    'assets/icons/make_audio_call_disabled.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData makeVideoCall = SvgData(
     'assets/icons/make_video_call.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData makeVideoCallWhite = SvgData(
+    'assets/icons/make_video_call_white.svg',
+    width: 21.93,
+    height: 15,
+  );
+
+  static const SvgData makeVideoCallDisabled = SvgData(
+    'assets/icons/make_video_call_disabled.svg',
     width: 21.93,
     height: 15,
   );
@@ -1314,8 +1383,20 @@ class SvgIcons {
     height: 19.57,
   );
 
+  static const SvgData favoriteSmallWhite = SvgData(
+    'assets/icons/favorite_small_white.svg',
+    width: 20.57,
+    height: 19.57,
+  );
+
   static const SvgData unfavoriteSmall = SvgData(
     'assets/icons/unfavorite_small.svg',
+    width: 20.57,
+    height: 19.57,
+  );
+
+  static const SvgData unfavoriteSmallWhite = SvgData(
+    'assets/icons/unfavorite_small_white.svg',
     width: 20.57,
     height: 19.57,
   );
@@ -1326,16 +1407,40 @@ class SvgIcons {
     height: 20,
   );
 
+  static const SvgData muteSmallWhite = SvgData(
+    'assets/icons/mute_small_white.svg',
+    width: 19.68,
+    height: 20,
+  );
+
   static const SvgData unmuteSmall = SvgData(
     'assets/icons/unmute_small.svg',
     width: 19.68,
     height: 20,
   );
 
+  static const SvgData unmuteSmallWhite = SvgData(
+    'assets/icons/unmute_small_white.svg',
+    width: 19.68,
+    height: 20,
+  );
+
   static const SvgData block = SvgData(
     'assets/icons/block.svg',
-    width: 18,
-    height: 18,
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData blockWhite = SvgData(
+    'assets/icons/block_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData blockSmall = SvgData(
+    'assets/icons/block.svg',
+    width: 16,
+    height: 16,
   );
 
   static const SvgData cleanHistory = SvgData(
@@ -1344,8 +1449,26 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData cleanHistoryWhite = SvgData(
+    'assets/icons/clean_history_white.svg',
+    width: 17.21,
+    height: 18,
+  );
+
+  static const SvgData cleanHistorySmall = SvgData(
+    'assets/icons/clean_history_small.svg',
+    width: 15.28,
+    height: 16,
+  );
+
   static const SvgData addContact = SvgData(
     'assets/icons/add_contact.svg',
+    width: 21.01,
+    height: 19.43,
+  );
+
+  static const SvgData addContactWhite = SvgData(
+    'assets/icons/add_contact_white.svg',
     width: 21.01,
     height: 19.43,
   );
@@ -1356,16 +1479,34 @@ class SvgIcons {
     height: 19.43,
   );
 
+  static const SvgData deleteContactWhite = SvgData(
+    'assets/icons/delete_contact_white.svg',
+    width: 21.01,
+    height: 19.43,
+  );
+
   static const SvgData group = SvgData(
     'assets/icons/group.svg',
     width: 21.29,
     height: 18,
   );
 
+  static const SvgData groupWhite = SvgData(
+    'assets/icons/group_white.svg',
+    width: 21.29,
+    height: 18,
+  );
+
   static const SvgData select = SvgData(
     'assets/icons/select.svg',
-    width: 19.5,
-    height: 18,
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData selectWhite = SvgData(
+    'assets/icons/select_white.svg',
+    width: 19,
+    height: 19,
   );
 
   static const SvgData sortAbcSmall = SvgData(
@@ -1496,8 +1637,14 @@ class SvgIcons {
 
   static const SvgData sendSmall = SvgData(
     'assets/icons/send_small.svg',
-    width: 18.37,
-    height: 16,
+    width: 19.22,
+    height: 16.5,
+  );
+
+  static const SvgData sendSmallWhite = SvgData(
+    'assets/icons/send_small_white.svg',
+    width: 19.22,
+    height: 16.5,
   );
 
   static const SvgData leaveGroup = SvgData(
@@ -1506,8 +1653,62 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData leaveGroupWhite = SvgData(
+    'assets/icons/leave_group_white.svg',
+    width: 16.28,
+    height: 19,
+  );
+
+  static const SvgData leaveGroupSmall = SvgData(
+    'assets/icons/leave_group_small.svg',
+    width: 12.88,
+    height: 16,
+  );
+
   static const SvgData report = SvgData(
     'assets/icons/report.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData delete19 = SvgData(
+    'assets/icons/delete19.svg',
+    width: 19.88,
+    height: 19,
+  );
+
+  static const SvgData delete19White = SvgData(
+    'assets/icons/delete19_white.svg',
+    width: 19.88,
+    height: 19,
+  );
+
+  static const SvgData download19 = SvgData(
+    'assets/icons/download19.svg',
+    width: 12.89,
+    height: 19,
+  );
+
+  static const SvgData download19White = SvgData(
+    'assets/icons/download19_white.svg',
+    width: 12.89,
+    height: 19,
+  );
+
+  static const SvgData addMember = SvgData(
+    'assets/icons/add_member.svg',
+    width: 17,
+    height: 17,
+  );
+
+  static const SvgData complaint = SvgData(
+    'assets/icons/complaint.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData unblock = SvgData(
+    'assets/icons/unblock.svg',
     width: 16,
     height: 16,
   );

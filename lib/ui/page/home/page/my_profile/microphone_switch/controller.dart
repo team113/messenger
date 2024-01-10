@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -42,6 +43,9 @@ class MicrophoneSwitchController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
+  /// Error message to display, if any.
+  final RxnString error = RxnString();
+
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
   StreamSubscription? _devicesSubscription;
@@ -52,9 +56,16 @@ class MicrophoneSwitchController extends GetxController {
       (e) => devices.value = e.audio().toList(),
     );
 
-    await WebUtils.microphonePermission();
-    devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+    try {
+      await WebUtils.microphonePermission();
+      devices.value =
+          await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+    } on UnsupportedError {
+      error.value = 'err_media_devices_are_null'.l10n;
+    } catch (e) {
+      error.value = e.toString();
+      rethrow;
+    }
 
     super.onInit();
   }

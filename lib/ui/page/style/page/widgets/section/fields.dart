@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '../widget/headline.dart';
 import '../widget/headlines.dart';
-import '/api/backend/schema.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
@@ -32,7 +31,6 @@ import '/ui/page/home/page/my_profile/widget/login.dart';
 import '/ui/page/home/page/my_profile/widget/name.dart';
 import '/ui/page/home/page/my_profile/widget/status.dart';
 import '/ui/page/home/page/user/widget/blocklist_record.dart';
-import '/ui/page/home/page/user/widget/presence.dart';
 import '/ui/page/home/page/user/widget/status.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/direct_link.dart';
@@ -189,7 +187,6 @@ class FieldsSection {
       const Headline(child: UserLoginField(null)),
       const Headline(child: UserNameField(null)),
       const Headline(child: UserTextStatusField(null)),
-      const Headline(child: UserPresenceField(Presence.present, 'Online')),
       const Headline(
         child: UserStatusCopyable(UserTextStatus.unchecked('Status')),
       ),

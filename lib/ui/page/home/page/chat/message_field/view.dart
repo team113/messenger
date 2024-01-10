@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -753,11 +753,20 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
+    return ObxValue(
+      (p) {
+        return Opacity(
+          opacity: 1 - p.value,
+          child: Dismissible(
+            key: Key(e.id.val),
+            direction: DismissDirection.up,
+            onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+            onUpdate: (d) => p.value = d.progress,
+            child: attachment(),
+          ),
+        );
+      },
+      RxDouble(0),
     );
   }
 

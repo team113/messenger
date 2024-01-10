@@ -6,10 +6,68 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.12] · 2023-??-??
+## [0.1.0-alpha.12] · 2024-??-??
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
-[Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
+[Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Call buttons position setting and adjusting. ([#750], [#718])
+        - Removed timeline mode. ([#791], [#788])
+        - Attachments fading out when dismissed by swipe gesture. ([#786], [#699])
+    - Chats tab:
+        - Monolog searching. ([#745], [#582])
+    - Redesigned user page. ([#769], [#766])
+    - Redesigned chat info page. ([#769], [#766])
+    - Tuned up page transition animation. ([#775], [#573])
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Restore button displaying under mobile navigation bar. ([#763, #758])
+    - Contacts tab:
+        - Restore button displaying under mobile navigation bar. ([#763, #758])
+    - User page:
+        - Downloaded avatar missing its extension on desktop. ([#756, #726])
+    - Chat page:
+        - Read partially message status missing in forwards. ([#776])
+    - Media panel:
+        - Dock animations lagging when dragging buttons. ([#774], [#698])
+- Web:
+    - Media devices not showing up on profile page in Safari. ([#780])
+
+[#573]: /../../issues/573
+[#582]: /../../issues/582
+[#698]: /../../issues/698
+[#699]: /../../issues/699
+[#718]: /../../issues/718
+[#726]: /../../issues/726
+[#745]: /../../pull/745
+[#750]: /../../pull/750
+[#756]: /../../pull/756
+[#758]: /../../issues/758
+[#763]: /../../pull/763
+[#766]: /../../issues/766
+[#769]: /../../pull/769
+[#774]: /../../pull/774
+[#775]: /../../pull/775
+[#776]: /../../pull/776
+[#780]: /../../pull/780
+[#786]: /../../pull/786
+[#788]: /../../issues/788
+[#791]: /../../pull/791
+
+
+
+
+## [0.1.0-alpha.11.1] · 2023-12-22
+[0.1.0-alpha.11.1]: /../../tree/v0.1.0-alpha.11.1
+
+[Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.11.1) | [Milestone](/../../milestone/13)
 
 ### Added
 
@@ -39,6 +97,7 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - Chats tab:
         - Redesigned chat tile. ([#748], [#741])
+    - Icons in desktop context menu. ([#757])
 
 ### Fixed
 
@@ -68,6 +127,7 @@ All user visible changes to this project will be documented in this file. This p
 [#736]: /../../pull/736
 [#741]: /../../issues/741
 [#748]: /../../pull/748
+[#757]: /../../pull/757
 
 
 

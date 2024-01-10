@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -121,5 +121,6 @@ class ModelTypeId {
   static const favoriteChatsCursor = 101;
   static const thumbhash = 102;
   static const favoriteChatContactsCursor = 103;
-  static const hiveBlocklistRecord = 104;
+  static const callButtonsPosition = 104;
+  static const hiveBlocklistRecord = 105;
 }
