@@ -162,7 +162,6 @@ class LoginController extends GetxController {
     login = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
-        password.error.value = null;
         password.unsubmit();
       },
       onSubmitted: (s) => password.focus.requestFocus(),
@@ -171,7 +170,6 @@ class LoginController extends GetxController {
     password = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
-        login.error.value = null;
         login.unsubmit();
       },
       onSubmitted: (s) => signIn(),
@@ -307,8 +305,6 @@ class LoginController extends GetxController {
 
     if (login.text.isEmpty) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
-      login.error.value = 'err_incorrect_login_or_password'.l10n;
-      password.unsubmit();
       password.unsubmit();
       return;
     }
@@ -339,15 +335,12 @@ class LoginController extends GetxController {
 
     if (password.text.isEmpty) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
-      login.error.value = 'err_incorrect_login_or_password'.l10n;
-      password.unsubmit();
       password.unsubmit();
       return;
     }
 
     if (userLogin == null && num == null && email == null && phone == null) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
-      login.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;
     }
@@ -366,7 +359,6 @@ class LoginController extends GetxController {
       (onSuccess ?? router.home)();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
-      login.error.value = '';
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
@@ -380,7 +372,6 @@ class LoginController extends GetxController {
           }
 
           password.error.value = e.toMessage();
-          login.error.value = '';
           break;
 
         case CreateSessionErrorCode.artemisUnknown:
