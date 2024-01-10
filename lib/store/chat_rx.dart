@@ -100,9 +100,6 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
-  /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
-  ChatItemsCursor? _lastReadItemCursor;
-
   @override
   final RxList<LastChatRead> reads = RxList();
 
@@ -193,6 +190,9 @@ class HiveRxChat extends RxChat {
   /// Indicator whether this [HiveRxChat] has been disposed, meaning no requests
   /// should be made.
   bool _disposed = false;
+
+  /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
+  ChatItemsCursor? _lastReadItemCursor;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -739,7 +739,7 @@ class HiveRxChat extends RxChat {
     return message.value;
   }
 
-  /// Adds the provided [item] to [Pagination]s.
+  /// Adds the provided [item] to the [Pagination]s.
   Future<void> put(HiveChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
     await _pagination.put(item, ignoreBounds: ignoreBounds);
@@ -774,8 +774,8 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Returns a stored or fetches from remote [HiveChatItem] identified by the
-  /// provided [itemId].
+  /// Returns the stored or fetched [HiveChatItem] identified by the provided
+  /// [itemId].
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
@@ -947,7 +947,7 @@ class HiveRxChat extends RxChat {
         throw ArgumentError.value(
           item,
           'item',
-          'item should be ChatMessage if reply provided.',
+          'Should be `ChatMessage`, if `reply` is provided.',
         );
       }
 
@@ -955,11 +955,7 @@ class HiveRxChat extends RxChat {
       final int replyIndex =
           message.repliesTo.indexWhere((e) => e.original?.id == reply);
       if (replyIndex == -1) {
-        throw ArgumentError.value(
-          reply,
-          'reply',
-          'Reply not found.',
-        );
+        throw ArgumentError.value(reply, 'reply', 'Not found.');
       }
 
       cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
@@ -969,7 +965,7 @@ class HiveRxChat extends RxChat {
         throw ArgumentError.value(
           item,
           'item',
-          'item should be ChatForward if forward provided.',
+          'Should be `ChatForward`, if `forward` is provided.',
         );
       }
 
