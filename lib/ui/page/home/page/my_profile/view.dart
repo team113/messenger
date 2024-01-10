@@ -62,7 +62,6 @@ import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
-import 'timeline_switch/view.dart';
 import 'widget/background_preview.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
@@ -596,32 +595,6 @@ Widget _chats(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Paddings.dense(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 21.0),
-            child: Text(
-              'label_display_timestamps'.l10n,
-              style: style.fonts.normal.regular.secondary,
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(height: 4),
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.settings.value?.timelineEnabled ?? true)
-                ? 'label_as_timeline'.l10n
-                : 'label_in_message'.l10n,
-            maxLines: null,
-            onPressed: () => TimelineSwitchView.show(context),
-            style: style.fonts.normal.regular.primary,
-          );
-        }),
-      ),
-      const SizedBox(height: 16),
       Paddings.dense(
         Align(
           alignment: Alignment.centerLeft,
