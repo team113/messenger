@@ -1496,14 +1496,6 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    // [pagination] is `true`, if the [chat] is received from [Pagination],
-    // thus otherwise we should try putting it to it.
-    if (!pagination && !chat.value.isHidden) {
-      // Put copy of the [chat] to [Pagination] to avoid [chat] parameters
-      // changing.
-      await _pagination?.put(chat.copyWith());
-    }
-
     final HiveRxChat rxChat = _add(chat, pagination: pagination);
 
     // TODO: https://github.com/team113/messenger/issues/27
@@ -1539,6 +1531,12 @@ class ChatRepository extends DisposableInterface
 
         await _chatLocal.put(chat);
       }
+    }
+
+    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
+    if (!pagination && !chat.value.isHidden) {
+      await _pagination?.put(chat);
     }
 
     return rxChat;
