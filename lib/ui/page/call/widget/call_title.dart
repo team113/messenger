@@ -88,7 +88,18 @@ class CallTitle extends StatelessWidget {
           // const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: style.fonts.largest.bold.onPrimary,
+            style: style.fonts.largest.bold.onPrimary.copyWith(
+              shadows: [
+                Shadow(
+                  blurRadius: 6,
+                  color: style.colors.onBackground,
+                ),
+                Shadow(
+                  blurRadius: 6,
+                  color: style.colors.onBackground,
+                ),
+              ],
+            ),
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
@@ -112,7 +123,18 @@ class CallTitle extends StatelessWidget {
                   if (withDots) const SizedBox(width: 13),
                   Text(
                     state!,
-                    style: style.fonts.big.regular.onPrimary,
+                    style: style.fonts.big.regular.onPrimary.copyWith(
+                      shadows: [
+                        Shadow(
+                          blurRadius: 6,
+                          color: style.colors.onBackground,
+                        ),
+                        Shadow(
+                          blurRadius: 6,
+                          color: style.colors.onBackground,
+                        ),
+                      ],
+                    ),
                   ),
                   if (withDots) const AnimatedDots(),
                 ],

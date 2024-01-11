@@ -108,11 +108,14 @@ class MessageTimestamp extends StatelessWidget {
           if (price != null) ...[
             SelectionContainer.disabled(
               child: Text(
-                '${price!.toStringAsFixed(0)} ¤',
-                style: style.systemMessageStyle.copyWith(
-                  fontSize: fontSize ?? 11,
+                '¤ ${price!.toStringAsFixed(0)}',
+                style: style.fonts.small.regular.secondary.copyWith(
                   color: paidColor,
                 ),
+                // style: style.systemMessageStyle.copyWith(
+                //   fontSize: fontSize ?? 11,
+                //   color: paidColor,
+                // ),
               ),
             ),
           ],

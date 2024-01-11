@@ -194,12 +194,18 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child: child,
                           );
                         }),
-                        Obx(() => MouseRegion(
-                              opaque: false,
-                              cursor: c.isCursorHidden.value
-                                  ? SystemMouseCursors.none
-                                  : SystemMouseCursors.basic,
-                            )),
+                        Obx(
+                          () => MouseRegion(
+                            opaque: false,
+                            cursor: c.isCursorHidden.value
+                                ? SystemMouseCursors.none
+                                : c.hoveredRenderer.value == null &&
+                                        c.draggedRenderer.value == null &&
+                                        c.doughDraggedRenderer.value == null
+                                    ? SystemMouseCursors.basic
+                                    : SystemMouseCursors.grab,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -806,50 +812,17 @@ Widget desktopCall(CallController c, BuildContext context) {
                               ),
                             ],
                             TooltipButton(
-                              onTap: () {
-                                c.focusAll();
-                                c.isCursorHidden.value = false;
-                                c.showHeader.value = true;
-                              },
+                              onTap: c.layoutAsPrimary,
                               child: const SvgIcon(SvgIcons.callGallery),
                             ),
                             const SizedBox(width: 16),
                             TooltipButton(
-                              onTap: () {
-                                c.showHeader.value = true;
-                                c.isCursorHidden.value = false;
-
-                                final me = [...c.locals, ...c.focused]
-                                    .firstWhereOrNull((e) => e.member == c.me);
-                                if (me != null) {
-                                  c.unfocus(me);
-                                }
-
-                                if (c.secondaryAlignment.value != null) {
-                                  c.secondaryBottom.value = 10;
-                                  c.secondaryRight.value = 10;
-                                  c.secondaryLeft.value = null;
-                                  c.secondaryTop.value = null;
-                                  c.secondaryAlignment.value = null;
-                                }
-                              },
+                              onTap: () => c.layoutAsSecondary(floating: true),
                               child: const SvgIcon(SvgIcons.callFloating),
                             ),
                             const SizedBox(width: 16),
                             TooltipButton(
-                              onTap: () {
-                                c.showHeader.value = true;
-                                c.isCursorHidden.value = false;
-
-                                final me = [...c.locals, ...c.focused]
-                                    .firstWhereOrNull((e) => e.member == c.me);
-                                if (me != null) {
-                                  c.unfocus(me);
-                                }
-
-                                c.secondaryAlignment.value =
-                                    Alignment.centerRight;
-                              },
+                              onTap: () => c.layoutAsSecondary(floating: false),
                               child: const SvgIcon(SvgIcons.callSide),
                             ),
                             const SizedBox(width: 16),
@@ -865,80 +838,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                               ),
                             ),
                             if (c.fullscreen.value) const SizedBox(width: 4),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-
-        // if (WebUtils.isPopup)
-        if (false)
-          Obx(() {
-            return Align(
-              alignment: Alignment.topRight,
-              child: AnimatedSlider(
-                duration: 400.milliseconds,
-                translate: false,
-                beginOffset: const Offset(0, -1),
-                endOffset: const Offset(0, 0),
-                isOpen: c.state.value == OngoingCallState.active &&
-                    c.showHeader.value,
-                child: MouseRegion(
-                  opaque: false,
-                  onEnter: (_) => c.showHeader.value = true,
-                  onHover: (_) => c.showHeader.value = true,
-                  onExit: (_) => c.showHeader.value = false,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity20,
-                          blurRadius: 8,
-                          blurStyle: BlurStyle.outer,
-                        )
-                      ],
-                    ),
-                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
-                    child: ConditionalBackdropFilter(
-                      borderRadius: BorderRadius.circular(30),
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: style.colors.primaryAuxiliaryOpacity25,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 10,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TooltipButton(
-                              onTap: () {
-                                c.keepUi(true);
-                              },
-                              child: const SvgIcon(SvgIcons.callGallery),
-                            ),
-                            const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: () {
-                                c.keepUi(true);
-                              },
-                              child: const SvgIcon(SvgIcons.callFloating),
-                            ),
-                            const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: () {
-                                c.keepUi(true);
-                              },
-                              child: const SvgIcon(SvgIcons.callSide),
-                            ),
                           ],
                         ),
                       ),
@@ -1014,31 +913,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       toggleFullscreen: c.toggleFullscreen,
-                      onPrimary: c.focusAll,
-                      onFloating: () {
-                        final me = [...c.locals, ...c.focused]
-                            .firstWhereOrNull((e) => e.member == c.me);
-                        if (me != null) {
-                          c.unfocus(me);
-                        }
-
-                        if (c.secondaryAlignment.value != null) {
-                          c.secondaryBottom.value = 10;
-                          c.secondaryRight.value = 10;
-                          c.secondaryLeft.value = null;
-                          c.secondaryTop.value = null;
-                          c.secondaryAlignment.value = null;
-                        }
-                      },
-                      onSecondary: () {
-                        final me = [...c.locals, ...c.focused]
-                            .firstWhereOrNull((e) => e.member == c.me);
-                        if (me != null) {
-                          c.unfocus(me);
-                        }
-
-                        c.secondaryAlignment.value = Alignment.centerRight;
-                      },
+                      onPrimary: c.layoutAsPrimary,
+                      onFloating: () => c.layoutAsSecondary(floating: true),
+                      onSecondary: () => c.layoutAsSecondary(floating: false),
                       onTap: WebUtils.isPopup
                           ? null
                           : () {
@@ -1300,11 +1177,11 @@ Widget _primaryView(CallController c) {
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
             if (d?.chatId == c.chatId.value) {
-              if (d?.participant.member.id.userId != c.me.id.userId ||
-                  d?.participant.video.value?.source !=
-                      MediaSourceKind.display) {
-                c.primaryTargets.value = 1;
-              }
+              // if (d?.participant.member.id.userId != c.me.id.userId ||
+              //     d?.participant.video.value?.source !=
+              //         MediaSourceKind.display) {
+              c.primaryTargets.value = 1;
+              // }
 
               return true;
             }
@@ -1363,8 +1240,12 @@ Widget _primaryView(CallController c) {
                           context,
                         );
 
+                // final bool isAnyDrag =
+                //     c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
+
                 return MouseRegion(
                   opaque: false,
+                  // cursor: SystemMouseCursors.grab,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
                       c.hoveredRenderer.value = data.participant;
@@ -1788,33 +1669,38 @@ Widget _secondaryView(CallController c, BuildContext context) {
             right: right,
             top: top,
             bottom: bottom,
-            child: IgnorePointer(
-              child: SizedBox(
-                width: width,
-                height: height,
-                child: Obx(() {
-                  if (c.secondaryAlignment.value == null) {
-                    return IgnorePointer(
-                      child: ClipRRect(
-                        borderRadius: borderRadius,
-                        child: Stack(
-                          children: [
-                            Container(color: style.colors.backgroundAuxiliary),
-                            const SvgImage.asset(
-                              'assets/images/background_dark.svg',
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                            Container(color: style.colors.onPrimaryOpacity7),
-                          ],
+            child: MouseRegion(
+              opaque: false,
+              cursor: SystemMouseCursors.basic,
+              child: IgnorePointer(
+                child: SizedBox(
+                  width: width,
+                  height: height,
+                  child: Obx(() {
+                    if (c.secondaryAlignment.value == null) {
+                      return IgnorePointer(
+                        child: ClipRRect(
+                          borderRadius: borderRadius,
+                          child: Stack(
+                            children: [
+                              Container(
+                                  color: style.colors.backgroundAuxiliary),
+                              const SvgImage.asset(
+                                'assets/images/background_dark.svg',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                              Container(color: style.colors.onPrimaryOpacity7),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }
+                      );
+                    }
 
-                  return Container();
-                }),
+                    return Container();
+                  }),
+                ),
               ),
             ),
           ),
@@ -1885,6 +1771,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
                 return MouseRegion(
                   opaque: false,
+                  // cursor: SystemMouseCursors.grab,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
                       c.hoveredRenderer.value = data.participant;
@@ -2004,11 +1891,20 @@ Widget _secondaryView(CallController c, BuildContext context) {
             right: right,
             top: top,
             bottom: bottom,
-            child: MouseRegion(
-              opaque: false,
-              cursor: SystemMouseCursors.basic,
-              child:
-                  IgnorePointer(child: SizedBox(width: width, height: height)),
+            child: Obx(
+              () {
+                return MouseRegion(
+                  opaque: false,
+                  cursor: c.hoveredRenderer.value == null &&
+                          c.draggedRenderer.value == null &&
+                          c.doughDraggedRenderer.value == null
+                      ? SystemMouseCursors.basic
+                      : SystemMouseCursors.grab,
+                  child: IgnorePointer(
+                    child: SizedBox(width: width, height: height),
+                  ),
+                );
+              },
             ),
           ),
 

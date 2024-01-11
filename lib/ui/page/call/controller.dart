@@ -861,6 +861,8 @@ class CallController extends GetxController {
     }
     _notificationTimers.clear();
     _chatSubscription?.cancel();
+
+    // AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
   }
 
   /// Drops the call.
@@ -1060,6 +1062,44 @@ class CallController extends GetxController {
     }
   }
 
+  void layoutAsPrimary() {
+    focusAll();
+    isCursorHidden.value = false;
+    showHeader.value = true;
+  }
+
+  void layoutAsSecondary({bool floating = false}) {
+    showHeader.value = true;
+    isCursorHidden.value = false;
+
+    // final screens = [...locals, ...focused, ...remotes]
+    //     .where((e) => e.video.value?.source == MediaSourceKind.display);
+
+    // if (screens.isEmpty) {
+    final mine = [...locals, ...focused].where((e) => e.member == me);
+    for (var e in mine) {
+      unfocus(e);
+    }
+    // } else {
+    //   unfocusAll();
+    //   for (var e in screens) {
+    //     focus(e);
+    //   }
+    // }
+
+    if (floating) {
+      if (secondaryAlignment.value != null) {
+        secondaryBottom.value = 10;
+        secondaryRight.value = 10;
+        secondaryLeft.value = null;
+        secondaryTop.value = null;
+        secondaryAlignment.value = null;
+      }
+    } else {
+      secondaryAlignment.value = Alignment.centerRight;
+    }
+  }
+
   /// Keeps UI open for some amount of time and then hides it if [enabled] is
   /// `null`, otherwise toggles its state immediately to [enabled].
   void keepUi([bool? enabled]) {
@@ -1089,11 +1129,11 @@ class CallController extends GetxController {
   /// Centers the [participant], which means [focus]ing the [participant] and
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
+    // if (participant.member.owner == MediaOwnerKind.local &&
+    //     participant.video.value?.source == MediaSourceKind.display) {
+    //   // Movement of a local [MediaSourceKind.display] is prohibited.
+    //   return;
+    // }
 
     paneled.remove(participant);
     locals.remove(participant);
@@ -1112,11 +1152,11 @@ class CallController extends GetxController {
   /// If [participant] is [paneled], then it will be placed to the [focused] if
   /// it's not empty, or to its `default` group otherwise.
   void focus(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
+    // if (participant.member.owner == MediaOwnerKind.local &&
+    //     participant.video.value?.source == MediaSourceKind.display) {
+    //   // Movement of a local [MediaSourceKind.display] is prohibited.
+    //   return;
+    // }
 
     if (focused.isNotEmpty) {
       if (paneled.contains(participant)) {
@@ -1136,11 +1176,11 @@ class CallController extends GetxController {
 
   /// Unfocuses [participant], which means putting it in its `default` group.
   void unfocus(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
+    // if (participant.member.owner == MediaOwnerKind.local &&
+    //     participant.video.value?.source == MediaSourceKind.display) {
+    //   // Movement of a local [MediaSourceKind.display] is prohibited.
+    //   return;
+    // }
 
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
@@ -1847,11 +1887,11 @@ class CallController extends GetxController {
 
   /// Puts [participant] from its `default` group to [list].
   void _putVideoTo(Participant participant, RxList<Participant> list) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
+    // if (participant.member.owner == MediaOwnerKind.local &&
+    //     participant.video.value?.source == MediaSourceKind.display) {
+    //   // Movement of a local [MediaSourceKind.display] is prohibited.
+    //   return;
+    // }
 
     locals.remove(participant);
     remotes.remove(participant);
@@ -1865,9 +1905,9 @@ class CallController extends GetxController {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
         // Movement of [MediaSourceKind.display] to [locals] is prohibited.
-        if (participant.video.value?.source == MediaSourceKind.display) {
-          break;
-        }
+        // if (participant.video.value?.source == MediaSourceKind.display) {
+        //   break;
+        // }
 
         locals.addIf(!locals.contains(participant), participant);
         list.remove(participant);
@@ -2139,6 +2179,10 @@ class CallController extends GetxController {
             _insureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
+            }
+
+            if (isGroup && _currentCall.value.members.length == 1) {
+              AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
             }
             break;
 

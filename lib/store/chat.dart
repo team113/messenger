@@ -1661,7 +1661,22 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _putEntry(ChatData(event.value!, null, null), pagination: true);
+          final ChatItem? last = event.value!.value.lastItem;
+
+          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
+          // and might not be happening remotely at all.
+          _putEntry(
+            ChatData(
+              event.value!
+                ..value.ongoingCall = null
+                ..value.lastItem = last is ChatCall
+                    ? (last..conversationStartedAt = null)
+                    : last,
+              null,
+              null,
+            ),
+            pagination: true,
+          );
           break;
 
         case OperationKind.removed:

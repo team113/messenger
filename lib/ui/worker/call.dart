@@ -249,6 +249,13 @@ class CallWorker extends DisposableService {
           if (_workers.isEmpty) {
             stop();
           }
+
+          final OngoingCall? c = event.value?.value;
+          if (c != null) {
+            if (c.members.keys.any((e) => e.userId == _myUser.value?.id)) {
+              AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
+            }
+          }
           break;
 
         default:
