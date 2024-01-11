@@ -220,6 +220,7 @@ jobs:
 
       - run: make flutter.build platform=${{ matrix.platform }} profile=yes
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
+                            SOCAPP_LINK_URL=${{ secrets.LINK_URL }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}'
         if: ${{ matrix.platform == 'web' }}
@@ -233,6 +234,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LINK_URL=${{ secrets.LINK_URL }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'

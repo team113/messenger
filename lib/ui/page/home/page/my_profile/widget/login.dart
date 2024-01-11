@@ -17,15 +17,16 @@
 
 import 'dart:async';
 
-import 'package:flutter/gestures.dart';
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
+import 'package:messenger/ui/page/home/widget/paddings.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
-import '/themes.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -33,13 +34,19 @@ import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [UserLogin].
 class UserLoginField extends StatefulWidget {
-  const UserLoginField(this.login, {super.key, this.onSubmit});
+  const UserLoginField(
+    this.login, {
+    super.key,
+    this.onSubmit,
+    this.editable = true,
+  });
 
   /// Unique login of an [User].
   final UserLogin? login;
 
   /// Callback, called when [UserLogin] is submitted.
-  final Future<void> Function(UserLogin login)? onSubmit;
+  final Future<void> Function(UserLogin? login)? onSubmit;
+  final bool editable;
 
   @override
   State<UserLoginField> createState() => _UserLoginFieldState();
@@ -47,16 +54,17 @@ class UserLoginField extends StatefulWidget {
 
 /// State of a [UserLoginField] maintaining the [_state].
 class _UserLoginFieldState extends State<UserLoginField> {
+  late bool _editing = widget.login == null;
+
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
     approvable: true,
+    submitted: false,
     onChanged: (s) async {
       s.error.value = null;
 
       if (s.text.isEmpty) {
-        s.unchecked = widget.login?.val ?? '';
-        s.status.value = RxStatus.empty();
         return;
       }
 
@@ -69,16 +77,31 @@ class _UserLoginFieldState extends State<UserLoginField> {
     onSubmitted: (s) async {
       if (s.error.value == null) {
         s.editable.value = false;
+
+        // if (!widget.editable) {
         s.status.value = RxStatus.loading();
+        // }
+
         try {
-          await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
+          if (s.text.isEmpty) {
+            await widget.onSubmit?.call(null);
+          } else {
+            await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
+          }
+
+          if (widget.editable) {
+            setState(() => _editing = false);
+          }
+
           s.status.value = RxStatus.empty();
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
           s.status.value = RxStatus.empty();
+          s.unsubmit();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
+          s.unsubmit();
           rethrow;
         } finally {
           s.editable.value = true;
@@ -91,7 +114,8 @@ class _UserLoginFieldState extends State<UserLoginField> {
   void didUpdateWidget(UserLoginField oldWidget) {
     if (!_state.focus.hasFocus &&
         !_state.changed.value &&
-        _state.editable.value) {
+        _state.editable.value &&
+        _state.error.value == null) {
       _state.unchecked = widget.login?.val;
     }
 
@@ -100,81 +124,52 @@ class _UserLoginFieldState extends State<UserLoginField> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Widget child;
 
-    return ReactiveTextField(
-      key: const Key('LoginField'),
-      state: _state,
-      onSuffixPressed: _state.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: _state.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: _state.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.copy),
-            ),
-      label: 'label_login'.l10n,
-      hint: widget.login == null ? 'label_login_hint'.l10n : widget.login!.val,
-      clearable: false,
-      subtitle: true
-          ? null
-          : RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'label_login_visible'.l10n,
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                  TextSpan(
-                    text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                    style: style.fonts.small.regular.primary,
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        await ConfirmDialog.show(
-                          context,
-                          title: 'label_login'.l10n,
-                          additional: [
-                            Center(
-                              child: Text(
-                                'label_login_visibility_hint'.l10n,
-                                style: style.fonts.normal.regular.secondary,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'label_visible_to'.l10n,
-                                style: style.fonts.big.regular.onBackground,
-                              ),
-                            ),
-                          ],
-                          label: 'label_confirm'.l10n,
-                          initial: 2,
-                          variants: [
-                            ConfirmDialogVariant(
-                              onProceed: () {},
-                              label: 'label_all'.l10n,
-                            ),
-                            ConfirmDialogVariant(
-                              onProceed: () {},
-                              label: 'label_my_contacts'.l10n,
-                            ),
-                            ConfirmDialogVariant(
-                              onProceed: () {},
-                              label: 'label_nobody'.l10n,
-                            ),
-                          ],
-                        );
-                      },
-                  ),
-                ],
-              ),
-            ),
+    if (_editing) {
+      child = Padding(
+        key: const Key('1'),
+        padding: const EdgeInsets.only(top: 8.0),
+        child: ReactiveTextField(
+          key: const Key('LoginField'),
+          state: _state,
+          clearable: widget.login == null,
+          onChanged: () => _state.error.value = null,
+          onCanceled: widget.login == null
+              ? null
+              : () {
+                  _state.unsubmit();
+                  _state.text = widget.login!.val;
+                  // _state.submit();
+                },
+          label: 'label_login'.l10n,
+          hint: widget.login == null
+              ? 'label_login_hint'.l10n
+              : widget.login!.val,
+        ),
+      );
+    } else {
+      child = Paddings.basic(
+        ContactInfoContents(
+          padding: EdgeInsets.zero,
+          title: 'label_login'.l10n,
+          content: _state.text,
+          trailing: WidgetButton(
+            onPressed: () => setState(() {
+              _editing = true;
+              _state.unsubmit();
+              _state.changed.value = true;
+            }),
+            child: const SvgIcon(SvgIcons.editField),
+          ),
+        ),
+      );
+    }
+
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 200),
+      sizeDuration: const Duration(milliseconds: 200),
+      child: child,
     );
   }
 }

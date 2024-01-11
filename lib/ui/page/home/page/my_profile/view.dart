@@ -219,6 +219,21 @@ class MyProfileView extends StatelessWidget {
                               return const SizedBox();
                             }
 
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: (s) async {
+                                  if (s == null) {
+                                    c.myUser.value?.login = null;
+                                    c.myUser.refresh();
+                                  } else {
+                                    await c.updateUserLogin(s);
+                                  }
+                                },
+                              ),
+                            );
+
                             return Paddings.basic(
                               Padding(
                                 padding: const EdgeInsets.only(top: 6),
@@ -228,7 +243,7 @@ class MyProfileView extends StatelessWidget {
                                   content: c.myUser.value!.login.toString(),
                                   trailing: WidgetButton(
                                     onPressed: () {},
-                                    child: const SvgIcon(SvgIcons.delete),
+                                    child: const SvgIcon(SvgIcons.edit),
                                   ),
                                   // subtitle: [
                                   //   const SizedBox(height: 4),
@@ -1176,7 +1191,12 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           padding: const EdgeInsets.only(top: 8, bottom: 12),
           child: UserLoginField(
             c.myUser.value?.login,
-            onSubmit: c.updateUserLogin,
+            editable: false,
+            onSubmit: (s) async {
+              if (s != null) {
+                await c.updateUserLogin(s);
+              }
+            },
           ),
         );
       }),

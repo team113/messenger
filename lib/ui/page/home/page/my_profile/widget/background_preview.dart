@@ -17,7 +17,6 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -135,7 +134,6 @@ class MessagePreviewWidget extends StatelessWidget {
     this.text,
     this.child,
     this.fromMe = true,
-    this.primary = false,
     this.style,
   });
 
@@ -146,7 +144,6 @@ class MessagePreviewWidget extends StatelessWidget {
   /// Text to display in this [MessagePreviewWidget].
   final String? text;
 
-  final bool primary;
   final TextStyle? style;
 
   final Widget? child;
@@ -174,15 +171,7 @@ class MessagePreviewWidget extends StatelessWidget {
                       Text(
                         text!,
                         style: this.style ??
-                            (primary
-                                ? style.fonts.medium.regular.primary
-                                : style.fonts.medium.regular.onBackground),
-                        // child: Text.rich(
-                        //   text!.parseLinks(
-                        //     [],
-                        //     style.fonts.medium.regular.primary,
-                        //   ),
-                        // ),
+                            style.fonts.medium.regular.onBackground,
                       ),
                 ),
             ],

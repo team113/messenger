@@ -15,7 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
@@ -30,13 +35,24 @@ import '/ui/widget/svg/svg.dart';
 ///
 /// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(this.cover, {super.key, this.user});
+  const CallCoverWidget(
+    this.cover, {
+    super.key,
+    this.user,
+    this.chat,
+    this.me,
+  });
 
   /// [UserCallCover] to display.
   final UserCallCover? cover;
 
   /// [User] this [UserCallCover] belongs to.
   final User? user;
+
+  /// [Chat] this [UserCallCover] belongs to.
+  final RxChat? chat;
+
+  final UserId? me;
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +67,12 @@ class CallCoverWidget extends StatelessWidget {
             height: double.infinity,
             fit: BoxFit.cover,
           ),
-        if (user != null)
+        if (user != null || (chat != null && me != null))
           LayoutBuilder(builder: (context, constraints) {
-            final String? title = user?.name?.val ?? user?.num.toString();
-            final int? color = user?.num.val.sum();
+            final String? title = chat?.title.value.initials() ??
+                user?.name?.val ??
+                user?.num.toString();
+            final int? color = chat?.chat.value.colorDiscriminant(me).sum();
 
             final Color gradient;
 
@@ -96,12 +114,12 @@ class CallCoverWidget extends StatelessWidget {
               ),
             );
           }),
-        if (cover != null)
+        if (user?.callCover != null || cover != null)
           RetryImage(
-            cover!.full.url,
-            key: Key(cover!.full.url),
-            checksum: cover!.full.checksum,
-            thumbhash: cover!.full.thumbhash,
+            (user?.callCover ?? cover)!.full.url,
+            key: Key((user?.callCover ?? cover)!.full.url),
+            checksum: (user?.callCover ?? cover)!.full.checksum,
+            thumbhash: (user?.callCover ?? cover)!.full.thumbhash,
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

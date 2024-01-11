@@ -102,7 +102,7 @@ class CallWorker extends DisposableService {
       PlatformUtils.isWeb ? 'incoming_web_call.mp3' : 'incoming_call.mp3';
 
   /// Returns the name of an outgoing call sound asset.
-  String get _outgoing => 'outgoing_call.mp3';
+  String get _outgoing => 'outgoing_call2.mp3';
 
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
@@ -169,17 +169,26 @@ class CallWorker extends DisposableService {
               _callService.join(c.chatId.value, withVideo: false);
               _answeredCalls.remove(c.chatId.value);
             } else if (outgoing) {
+              // final chatOrFuture = _chatService.get(c.chatId.value);
+              // if (chatOrFuture is RxChat?) {
+              //   if (chatOrFuture?.chat.value.isGroup != true) {
+              //     play(_outgoing);
+              //   }
+              // } else {
+              //   final chat = await chatOrFuture;
+              //   if (chat?.chat.value.isGroup != true) {
+
               final chatOrFuture = _chatService.get(c.chatId.value);
               if (chatOrFuture is RxChat?) {
-                if (chatOrFuture?.chat.value.isGroup != true) {
-                  play(_outgoing);
-                }
+                play(_outgoing, once: chatOrFuture?.chat.value.isGroup == true);
               } else {
                 final chat = await chatOrFuture;
-                if (chat?.chat.value.isGroup != true) {
-                  play(_outgoing);
-                }
+                play(_outgoing, once: chat?.chat.value.isGroup == true);
               }
+
+              // AudioUtils.once(AudioSource.asset(_outgoing));
+              //   }
+              // }
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play(_incoming, fade: true);
               Vibration.hasVibrator().then((bool? v) {
@@ -231,15 +240,28 @@ class CallWorker extends DisposableService {
               }
             }
 
-            _workers[event.key!] = ever(c.state, (OngoingCallState state) {
-              if (state != OngoingCallState.pending &&
-                  state != OngoingCallState.local) {
-                _workers.remove(event.key!)?.dispose();
-                if (_workers.isEmpty) {
-                  stop();
+            _workers[event.key!] = ever(
+              c.state,
+              (OngoingCallState state) async {
+                if (state != OngoingCallState.pending &&
+                    state != OngoingCallState.local) {
+                  _workers.remove(event.key!)?.dispose();
+                  if (_workers.isEmpty) {
+                    final chatOrFuture = _chatService.get(c.chatId.value);
+                    if (chatOrFuture is RxChat?) {
+                      if (chatOrFuture?.chat.value.isGroup != true) {
+                        stop();
+                      }
+                    } else {
+                      final chat = await chatOrFuture;
+                      if (chat?.chat.value.isGroup != true) {
+                        stop();
+                      }
+                    }
+                  }
                 }
-              }
-            });
+              },
+            );
           }
           break;
 
@@ -330,22 +352,41 @@ class CallWorker extends DisposableService {
   }
 
   /// Plays the given [asset].
-  Future<void> play(String asset, {bool fade = false}) async {
+  Future<void> play(
+    String asset, {
+    bool fade = false,
+    bool once = false,
+  }) async {
+    final source = AudioSource.asset('audio/$asset');
+
     if (_myUser.value?.muted == null) {
       if (asset == _incoming) {
         final previous = _incomingAudio;
+
         _incomingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
+          source,
           fade: fade ? 1.seconds : Duration.zero,
         );
+
         previous?.cancel();
       } else {
+        // if (repeat) {
+        //   AudioUtils.once(source).then((_) => AudioUtils.once(source));
+        // } else {
         final previous = _outgoingAudio;
+        print('_outgoingAudio');
         _outgoingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
+          source,
           fade: fade ? 1.seconds : Duration.zero,
+          onDone: once
+              ? () {
+                  print('once');
+                  _outgoingAudio = AudioUtils.play(source, onDone: () {});
+                }
+              : null,
         );
         previous?.cancel();
+        // }
       }
     }
   }

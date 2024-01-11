@@ -74,6 +74,7 @@ class ReactiveTextField extends StatelessWidget {
     this.subtitle,
     this.clearable = true,
     this.selectable,
+    this.onCanceled,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -190,6 +191,8 @@ class ReactiveTextField extends StatelessWidget {
   /// selectable.
   final bool? selectable;
 
+  final void Function()? onCanceled;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
@@ -237,7 +240,10 @@ class ReactiveTextField extends StatelessWidget {
                       state.hasAllowance.value = true;
                       state.focus.requestFocus();
                     }
-                  : onSuffixPressed,
+                  : state.error.value != null ||
+                          state.status.value == RxStatus.error()
+                      ? onCanceled
+                      : onSuffixPressed,
           decorator: (child) {
             if (!hasSuffix) {
               return child;
@@ -257,11 +263,20 @@ class ReactiveTextField extends StatelessWidget {
                           ? const SvgIcon(SvgIcons.timer)
                           : (state.error.value != null && treatErrorAsStatus) ||
                                   state.status.value.isError
-                              ? const SizedBox(
-                                  key: ValueKey('Error'),
-                                  width: 24,
-                                  child: SvgIcon(SvgIcons.errorBig),
-                                )
+                              ? onCanceled == null
+                                  ? const SizedBox(
+                                      key: ValueKey('Error'),
+                                      width: 24,
+                                      child: SvgIcon(SvgIcons.errorBig),
+                                    )
+                                  : AllowOverflow(
+                                      key: const ValueKey('Cancel'),
+                                      child: Text(
+                                        'btn_cancel'.l10n,
+                                        style:
+                                            style.fonts.small.regular.primary,
+                                      ),
+                                    )
                               : (state.approvable &&
                                       (state.changed.value ||
                                           state.hasAllowance.value))
@@ -611,7 +626,7 @@ class TextFieldState extends ReactiveFieldState {
     controller.addListener(() {
       PlatformUtils.keepActive();
 
-      changed.value = controller.text != (_previousSubmit ?? '');
+      changed.value = controller.text != _previousSubmit;
 
       if (controller.text != prev) {
         prev = controller.text;

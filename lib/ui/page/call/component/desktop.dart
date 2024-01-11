@@ -146,15 +146,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   c.state.value != OngoingCallState.joining &&
                                   !isOutgoing;
 
-                          final bool isDialog =
-                              c.chat.value?.chat.value.isDialog == true;
-
                           final Widget child;
 
                           if (!isIncoming) {
                             child = _primaryView(c);
                           } else {
-                            if (isDialog) {
+                            if (c.isDialog) {
                               final User? user = c.chat.value?.members.values
                                       .firstWhereOrNull(
                                         (e) => e.id != c.me.id.userId,
@@ -184,7 +181,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   ),
                                 );
                               } else {
-                                child = const SizedBox();
+                                child = CallCoverWidget(
+                                  null,
+                                  chat: c.chat.value,
+                                  me: c.me.id.userId,
+                                );
+                                // child = const SizedBox();
                               }
                             }
                           }
@@ -199,11 +201,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                             opaque: false,
                             cursor: c.isCursorHidden.value
                                 ? SystemMouseCursors.none
-                                : c.hoveredRenderer.value == null &&
-                                        c.draggedRenderer.value == null &&
-                                        c.doughDraggedRenderer.value == null
-                                    ? SystemMouseCursors.basic
-                                    : SystemMouseCursors.grab,
+                                : c.draggedRenderer.value != null ||
+                                        c.doughDraggedRenderer.value != null
+                                    ? SystemMouseCursors.grabbing
+                                    : c.hoveredRenderer.value != null
+                                        ? SystemMouseCursors.grab
+                                        : SystemMouseCursors.basic,
                           ),
                         ),
                       ],
@@ -1895,11 +1898,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
               () {
                 return MouseRegion(
                   opaque: false,
-                  cursor: c.hoveredRenderer.value == null &&
-                          c.draggedRenderer.value == null &&
-                          c.doughDraggedRenderer.value == null
-                      ? SystemMouseCursors.basic
-                      : SystemMouseCursors.grab,
+                  cursor: c.draggedRenderer.value != null ||
+                          c.doughDraggedRenderer.value != null
+                      ? SystemMouseCursors.grabbing
+                      : c.hoveredRenderer.value != null
+                          ? SystemMouseCursors.grab
+                          : SystemMouseCursors.basic,
                   child: IgnorePointer(
                     child: SizedBox(width: width, height: height),
                   ),

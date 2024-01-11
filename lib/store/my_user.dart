@@ -175,7 +175,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserLogin(UserLogin login) async {
     final UserLogin? oldLogin = myUser.value?.login;
 
-    myUser.update((u) => u?.login = login);
+    // myUser.update((u) => u?.login = login);
 
     try {
       await _graphQlProvider.updateUserLogin(login);

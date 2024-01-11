@@ -70,6 +70,7 @@ class AudioUtilsImpl {
   StreamSubscription<void> play(
     AudioSource music, {
     Duration fade = Duration.zero,
+    void Function()? onDone,
   }) {
     StreamController? controller = _players[music];
     StreamSubscription? position;
@@ -95,14 +96,16 @@ class AudioUtilsImpl {
 
           await player?.open(music.media);
 
-          // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-          if (PlatformUtils.isWeb) {
-            position = player?.stream.completed.listen((e) async {
-              await player?.seek(Duration.zero);
-              await player?.play();
-            });
-          } else {
-            await player?.setPlaylistMode(PlaylistMode.loop);
+          if (onDone == null) {
+            // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
+            if (PlatformUtils.isWeb) {
+              position = player?.stream.completed.listen((e) async {
+                await player?.seek(Duration.zero);
+                await player?.play();
+              });
+            } else {
+              await player?.setPlaylistMode(PlaylistMode.loop);
+            }
           }
 
           if (fade != Duration.zero) {
@@ -133,7 +136,7 @@ class AudioUtilsImpl {
       _players[music] = controller;
     }
 
-    return controller.stream.listen((_) {});
+    return controller.stream.listen((_) {}, onDone: onDone);
   }
 }
 

@@ -259,9 +259,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       },
                       child: MessagePreviewWidget(
                         fromMe: true,
-                        // text:
-                        //     '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
-                        primary: true,
+                        style: style.fonts.medium.regular.primary,
                         child: Stack(
                           children: [
                             Text.rich(
@@ -272,25 +270,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                                         '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
                                     style: style.fonts.medium.regular.primary,
                                   ),
-                                  // TextSpan(
-                                  //   text:
-                                  //       '   ${widget.link?.usageCount} кликов',
-                                  //   style: style.fonts.small.regular.primary
-                                  //       .copyWith(
-                                  //     color: style.colors.transparent,
-                                  //   ),
-                                  // ),
                                 ],
                               ),
                             ),
-                            // Positioned(
-                            //   bottom: 0,
-                            //   right: 0,
-                            //   child: Text(
-                            //     '${widget.link?.usageCount} кликов',
-                            //     style: style.fonts.small.regular.secondary,
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),

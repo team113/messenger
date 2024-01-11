@@ -175,7 +175,13 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
         : (document['google']?['clientId'] ?? '');
 
-    origin = url;
+    origin = const bool.hasEnvironment('SOCAPP_LINK_URL')
+        ? const String.fromEnvironment('SOCAPP_LINK_URL')
+        : (document['link']?['url'] ?? '');
+
+    if (origin.isEmpty) {
+      origin = url;
+    }
 
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
