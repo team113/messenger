@@ -36,6 +36,7 @@ class FieldButton extends StatefulWidget {
     this.subtitle,
     this.headline,
     this.warning = false,
+    this.danger = false,
   });
 
   /// Optional label of this [FieldButton].
@@ -73,6 +74,9 @@ class FieldButton extends StatefulWidget {
   /// Indicator whether this [FieldButton] should have warning style.
   final bool warning;
 
+  /// Indicator whether the [text] should should have danger color.
+  final bool danger;
+
   @override
   State<FieldButton> createState() => _FieldButtonState();
 }
@@ -97,7 +101,9 @@ class _FieldButtonState extends State<FieldButton> {
                 ? style.colors.onBackgroundOpacity40
                 : widget.warning
                     ? style.colors.onPrimary
-                    : style.colors.onBackground,
+                    : widget.danger
+                        ? style.colors.danger
+                        : style.colors.onBackground,
           ),
           height: 46,
           leading: Transform.translate(

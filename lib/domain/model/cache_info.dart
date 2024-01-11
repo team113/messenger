@@ -31,7 +31,7 @@ class CacheInfo extends HiveObject {
     HashSet<String>? checksums,
     this.size = 0,
     this.modified,
-    this.maxSize = GB,
+    this.maxSize = GB * 2,
   }) : checksums = checksums ?? HashSet();
 
   /// Checksums of the stored in cache files.

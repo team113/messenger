@@ -206,7 +206,6 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                   ),
                   if (widget.leading != null) ...[
                     const SizedBox(width: 8),
-
                     SizedBox(
                       child: Center(
                         child: Opacity(opacity: 0, child: widget.leading!),

@@ -172,8 +172,7 @@ class MyProfileView extends StatelessWidget {
                                   title: 'label_login'.l10n,
                                   content: c.myUser.value!.login.toString(),
                                   trailing: WidgetButton(
-                                    onPressed: () =>
-                                        c.updateUserLogin(UserLogin('')),
+                                    onPressed: () {},
                                     child: const SvgIcon(SvgIcons.delete),
                                   ),
                                 ),
@@ -286,6 +285,12 @@ class MyProfileView extends StatelessWidget {
                         children: [_blockedUsers(context, c)],
                       );
 
+                    case ProfileTab.sections:
+                      return block(
+                        title: 'label_show_sections'.l10n,
+                        children: [_sections(context, c)],
+                      );
+
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
@@ -328,7 +333,7 @@ class MyProfileView extends StatelessWidget {
   }
 }
 
-/// Returns addable list of [MyUser.emails].
+/// Returns list of [MyUser.emails].
 Widget _emails(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -385,7 +390,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
   });
 }
 
-/// Returns addable list of [MyUser.phones].
+/// Returns list of [MyUser.phones].
 Widget _phones(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -476,7 +481,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
       const SizedBox(height: 12),
       Obx(() {
         if (c.myUser.value?.login != null) {
-          return const SizedBox(height: 0);
+          return const SizedBox();
         }
 
         return Padding(
@@ -786,6 +791,25 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   });
 }
 
+/// Returns the contents of a [ProfileTab.sections] section.
+Widget _sections(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      Paddings.dense(
+        Obx(() {
+          final enabled = c.settings.value?.workWithUsTabEnabled == true;
+
+          return SwitchField(
+            text: 'btn_work_with_us'.l10n,
+            value: enabled,
+            onChanged: c.setWorkWithUsTabEnabled,
+          );
+        }),
+      ),
+    ],
+  );
+}
+
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
@@ -836,6 +860,7 @@ Widget _danger(BuildContext context, MyProfileController c) {
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
           onPressed: () => _deleteAccount(c, context),
+          danger: true,
           style: style.fonts.normal.regular.danger,
         ),
       ),
@@ -858,7 +883,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
   ];
 
   final gbs =
-      CacheWorker.instance.info.value.maxSize?.toDouble() ?? 64 * GB / GB;
+      (CacheWorker.instance.info.value.maxSize?.toDouble() ?? 64 * GB) / GB;
   var index = values.indexWhere((e) => gbs <= e);
   if (index == -1) {
     index = values.length - 1;
@@ -874,7 +899,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
             Obx(() {
               final int size = CacheWorker.instance.info.value.size;
               final int max =
-                  CacheWorker.instance.info.value.maxSize ?? 64 * GB;
+                  CacheWorker.instance.info.value.maxSize ?? (64 * GB);
 
               if (max >= 64 * GB) {
                 return Text(
@@ -886,7 +911,10 @@ Widget _storage(BuildContext context, MyProfileController c) {
               }
 
               return Text(
-                'label_takes_gb_of_gb'.l10nfmt({'a': (size / GB).toPrecision(2), 'b': max ~/ GB}),
+                'label_takes_gb_of_gb'.l10nfmt({
+                  'a': (size / GB).toPrecision(2),
+                  'b': max ~/ GB,
+                }),
               );
             }),
             Container(

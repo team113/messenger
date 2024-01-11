@@ -187,28 +187,38 @@ class MyProfileController extends GetxController {
         }
       },
       onSubmitted: (s) async {
+        if (s.text.isEmpty || (s.error.value != null && s.retry.isFalse)) {
+          return;
+        }
+        s.retry.value = false;
+
         UserPhone phone = UserPhone(s.text.replaceAll(' ', ''));
         s.clear();
 
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
+        bool modal = true;
 
-          _myUserService.addUserPhone(phone).onError((_, __) {
-            s.unchecked = phone.val;
-            s.error.value = 'err_data_transfer'.l10n;
-            s.unsubmit();
-          });
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
 
-          await AddPhoneView.show(
-            router.context!,
-            phone: phone,
-            timeout: true,
-          );
+        _myUserService.addUserPhone(phone).onError((_, __) {
+          s.unchecked = phone.val;
+          s.error.value = 'err_data_transfer'.l10n;
+          s.unsubmit();
+          s.retry.value = true;
 
-          s.editable.value = true;
-          s.status.value = RxStatus.empty();
-        }
+          if (modal) {
+            Navigator.of(router.context!).pop();
+          }
+        });
+
+        await AddPhoneView.show(
+          router.context!,
+          phone: phone,
+          timeout: true,
+        ).then((_) => modal = false);
+
+        s.editable.value = true;
+        s.status.value = RxStatus.empty();
       },
     );
 
@@ -216,6 +226,7 @@ class MyProfileController extends GetxController {
       approvable: true,
       onChanged: (s) {
         s.error.value = null;
+        s.retry.value = false;
 
         if (s.text.isNotEmpty) {
           try {
@@ -231,20 +242,29 @@ class MyProfileController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty || s.error.value != null) {
+        if (s.text.isEmpty || (s.error.value != null && s.retry.isFalse)) {
           return;
         }
+        s.retry.value = false;
 
         final email = UserEmail(s.text);
         s.clear();
+
+        bool modal = true;
 
         _myUserService.addUserEmail(email).onError((_, __) {
           s.unchecked = email.val;
           s.error.value = 'err_data_transfer'.l10n;
           s.unsubmit();
+          s.retry.value = true;
+
+          if (modal) {
+            Navigator.of(router.context!).pop();
+          }
         });
 
-        await AddEmailView.show(router.context!, email: email, timeout: true);
+        await AddEmailView.show(router.context!, email: email, timeout: true)
+            .then((_) => modal = false);
       },
     );
 
@@ -388,6 +408,10 @@ class MyProfileController extends GetxController {
 
   /// Deletes the cache used by the application.
   Future<void> clearCache() => CacheWorker.instance.clear();
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
+      _settingsRepo.setWorkWithUsTabEnabled(enabled);
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

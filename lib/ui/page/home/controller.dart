@@ -107,6 +107,9 @@ class HomeController extends GetxController {
   /// Returns the background's [Uint8List].
   Rx<Uint8List?> get background => _settings.background;
 
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
+
   @override
   void onInit() {
     super.onInit();

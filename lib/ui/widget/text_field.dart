@@ -203,11 +203,12 @@ class ReactiveTextField extends StatelessWidget {
             !state.status.value.isEmpty;
 
         return AnimatedButton(
-          onPressed: state.approvable && state.changed.value
-              ? state.isEmpty.value && !clearable
-                  ? null
-                  : state.submit
-              : onSuffixPressed,
+          onPressed:
+              (state.approvable && state.changed.value || state.retry.isTrue)
+                  ? state.isEmpty.value && !clearable
+                      ? null
+                      : state.submit
+                  : onSuffixPressed,
           decorator: (child) {
             if (!hasSuffix) {
               return child;
@@ -239,9 +240,10 @@ class ReactiveTextField extends StatelessWidget {
                                     color: style.colors.acceptAuxiliary,
                                   ),
                                 )
-                              : (state.error.value != null &&
-                                          treatErrorAsStatus) ||
-                                      state.status.value.isError
+                              : ((state.error.value != null &&
+                                              treatErrorAsStatus) ||
+                                          state.status.value.isError) &&
+                                      state.retry.isFalse
                                   ? SizedBox(
                                       key: const ValueKey('Error'),
                                       width: 24,
@@ -251,7 +253,9 @@ class ReactiveTextField extends StatelessWidget {
                                         color: style.colors.danger,
                                       ),
                                     )
-                                  : (state.approvable && state.changed.value)
+                                  : (state.approvable &&
+                                          (state.changed.value ||
+                                              state.retry.isTrue))
                                       ? state.isEmpty.value && !clearable
                                           ? const SizedBox(
                                               key: Key('Empty'),
@@ -322,13 +326,17 @@ class ReactiveTextField extends StatelessWidget {
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
               decoration: InputDecoration(
-                labelStyle:
-                    floatingLabelBehavior == FloatingLabelBehavior.always
-                        ? floatingLabel?.copyWith(
-                      fontSize:
-                      (decoration.floatingLabelStyle!.fontSize ?? 18) - 0.5,
-                    )
-                        : null,
+                alignLabelWithHint: true,
+                // Make font size smaller to fix label animation when this
+                // [ReactiveTextField] gets focus.
+                labelStyle: floatingLabelBehavior ==
+                        FloatingLabelBehavior.always
+                    ? floatingLabel?.copyWith(
+                        fontSize:
+                            (decoration.floatingLabelStyle!.fontSize ?? 18) -
+                                1.1,
+                      )
+                    : null,
                 floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value
@@ -490,6 +498,10 @@ abstract class ReactiveFieldState {
 
   /// Reactive error message.
   final RxnString error = RxnString();
+
+  /// Reactive indicator whether this [ReactiveFieldState] can be submited when
+  /// [error] is not empty or [changed] is `false`.
+  final RxBool retry = RxBool(false);
 
   /// Submits this [ReactiveFieldState].
   void submit() {

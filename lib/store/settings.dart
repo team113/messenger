@@ -202,6 +202,12 @@ class SettingsRepository extends DisposableInterface
     await _settingsLocal.setCallButtonsPosition(position);
   }
 
+  @override
+  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
+    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
+    await _settingsLocal.setWorkWithUsTabEnabled(enabled);
+  }
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     Log.debug('_initMediaSubscription()', '$runtimeType');
