@@ -175,7 +175,7 @@ jobs:
 
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
-                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}'
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}'
         if: ${{ matrix.platform == 'web' }}
 
       # TODO: Use `split-debug-info` for Windows once Sentry supports it:
@@ -187,7 +187,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
@@ -324,7 +324,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
 
       - name: Parse application name from Git repository name
@@ -943,3 +943,4 @@ jobs:
                   org=${{ secrets.SENTRY_ORG }}
                   token=${{ secrets.SENTRY_TOKEN }}
                   release=${{ steps.semver.outputs.group1 }}
+                  url=${{ secrets.SENTRY_URL }}

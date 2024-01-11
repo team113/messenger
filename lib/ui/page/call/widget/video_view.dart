@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -342,7 +342,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   /// Recursively waits for the [RtcVideoRenderer]'s size to be determined and
   /// requests a rebuild when it becomes determined.
   void _waitTilSizeDetermined() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (widget.renderer.height.value == 0) {
           _waitTilSizeDetermined();

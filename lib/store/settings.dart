@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -191,15 +191,15 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setTimelineEnabled(bool enabled) async {
-    Log.debug('setTimelineEnabled($enabled)', '$runtimeType');
-    await _settingsLocal.setTimelineEnabled(enabled);
-  }
-
-  @override
   Future<void> setPinnedActions(List<String> buttons) async {
     Log.debug('setPinnedActions($buttons)', '$runtimeType');
     await _settingsLocal.setPinnedActions(buttons);
+  }
+
+  @override
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
+    await _settingsLocal.setCallButtonsPosition(position);
   }
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.

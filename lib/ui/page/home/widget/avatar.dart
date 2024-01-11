@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -60,7 +60,7 @@ enum AvatarRadius {
       AvatarRadius.big => 20,
       AvatarRadius.large => 30,
       AvatarRadius.larger => 32,
-      AvatarRadius.largest => 100,
+      AvatarRadius.largest => 200,
     };
   }
 }
@@ -220,7 +220,11 @@ class AvatarWidget extends StatelessWidget {
         key: key,
         label: LayoutBuilder(
           builder: (context, constraints) {
-            return SvgIcon(SvgIcons.notes, height: constraints.maxWidth / 2);
+            return SvgIcon(
+              SvgIcons.notes,
+              width: constraints.maxWidth,
+              height: constraints.maxWidth / 2,
+            );
           },
         ),
         avatar: chat?.avatar,

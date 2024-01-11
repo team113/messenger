@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -68,7 +68,7 @@ class ChatForwardController extends GetxController {
 
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].
-  final void Function()? pop;
+  final void Function([bool])? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -178,7 +178,7 @@ class ChatForwardController extends GetxController {
           ];
 
           await Future.wait(futures);
-          pop?.call();
+          pop?.call(true);
           onSent?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);

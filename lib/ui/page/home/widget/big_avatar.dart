@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -111,8 +111,8 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                 duration: 200.milliseconds,
                 child: widget.loading
                     ? Container(
-                        width: 200,
-                        height: 200,
+                        width: AvatarRadius.largest.toDouble() * 2,
+                        height: AvatarRadius.largest.toDouble() * 2,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: style.colors.onBackgroundOpacity13,
@@ -215,7 +215,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     children: [
                       GalleryItem.image(
                         avatar!.original.url,
-                        avatar.original.checksum ?? DateTime.now().toString(),
+                        avatar.original.name,
                         width: avatar.original.width,
                         height: avatar.original.height,
                         checksum: avatar.original.checksum,

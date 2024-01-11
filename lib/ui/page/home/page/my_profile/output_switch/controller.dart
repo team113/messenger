@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -42,6 +43,9 @@ class OutputSwitchController extends GetxController {
   /// ID of the initially selected audio output device.
   RxnString output;
 
+  /// Error message to display, if any.
+  final RxnString error = RxnString();
+
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
   StreamSubscription? _devicesSubscription;
@@ -52,11 +56,18 @@ class OutputSwitchController extends GetxController {
       (e) => devices.value = e.output().toList(),
     );
 
-    // Output devices are permitted to be use when requesting a microphone
-    // permission.
-    await WebUtils.microphonePermission();
-    devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
+    try {
+      // Output devices are permitted to be use when requesting a microphone
+      // permission.
+      await WebUtils.microphonePermission();
+      devices.value =
+          await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
+    } on UnsupportedError {
+      error.value = 'err_media_devices_are_null'.l10n;
+    } catch (e) {
+      error.value = e.toString();
+      rethrow;
+    }
 
     super.onInit();
   }

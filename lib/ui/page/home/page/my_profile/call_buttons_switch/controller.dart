@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,18 +24,20 @@ import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [TimelineSwitchView].
-class TimelineSwitchController extends GetxController {
-  TimelineSwitchController(this._settingsRepository);
+/// Controller of a [CallButtonsSwitchView].
+class CallButtonsSwitchController extends GetxController {
+  CallButtonsSwitchController(this._settingsRepository);
 
-  /// Settings repository updating the [ApplicationSettings.timelineEnabled].
+  /// Settings repository updating the
+  /// [ApplicationSettings.callButtonsPosition].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Sets the [ApplicationSettings.timelineEnabled] value.
-  Future<void> setTimelineEnabled(bool enabled) =>
-      _settingsRepository.setTimelineEnabled(enabled);
+  /// Sets the [ApplicationSettings.callButtonsPosition] value.
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    _settingsRepository.setCallButtonsPosition(position);
+  }
 }

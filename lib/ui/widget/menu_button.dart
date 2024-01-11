@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -62,7 +62,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.signing => 'label_login_section_hint'.l10n,
           ProfileTab.link => 'label_your_direct_link'.l10n,
           ProfileTab.background => 'label_app_background'.l10n,
-          ProfileTab.chats => 'label_timeline_style'.l10n,
+          ProfileTab.chats => 'label_chats_section_hint'.l10n,
           ProfileTab.calls => 'label_calls_displaying'.l10n,
           ProfileTab.media => 'label_media_section_hint'.l10n,
           ProfileTab.notifications => 'label_sound_and_vibrations'.l10n,

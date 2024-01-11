@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -387,6 +387,12 @@ void main() async {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
+
+    await tester.tap(find.byKey(const Key('MoreButton'), skipOffstage: false));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('EditButton'), skipOffstage: false));
+    await tester.pumpAndSettle();
 
     final link = find.byKey(const Key('LinkField'), skipOffstage: false);
     await tester.dragUntilVisible(

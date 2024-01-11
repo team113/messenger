@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -314,7 +314,7 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     expect(
-      () async => await chatService.hideChat(
+      chatService.hideChat(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       ),
       throwsA(isA<HideChatException>()),

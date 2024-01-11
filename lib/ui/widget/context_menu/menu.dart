@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -204,7 +204,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       scale: 0.8,
                       child: Align(
                         alignment: Alignment.center,
-                        child: isMouseOver
+                        child: isMouseOver && widget.onPressed != null
                             ? (widget.inverted ?? widget.trailing)
                             : widget.trailing,
                       ),

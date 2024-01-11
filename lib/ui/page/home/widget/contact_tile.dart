@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -181,7 +181,7 @@ class ContactTile extends StatelessWidget {
                               myUser?.name?.val ??
                               myUser?.num.toString() ??
                               (myUser == null
-                                  ? '...'
+                                  ? 'dot'.l10n * 3
                                   : 'btn_your_profile'.l10n),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
