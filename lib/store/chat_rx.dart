@@ -191,6 +191,15 @@ class HiveRxChat extends RxChat {
   /// should be made.
   bool _disposed = false;
 
+  /// Indicator whether [_chatEvent]s should be appended to [_debouncedEvents].
+  bool _justSubscribed = false;
+
+  /// [ChatEventsVersioned] to handle with debounce in [_eventsDebounce].
+  final RxList<ChatEventsVersioned> _debouncedEvents = RxList();
+
+  /// [debounce] handling the [_debouncedEvents].
+  Worker? _eventsDebounce;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -1095,6 +1104,25 @@ class HiveRxChat extends RxChat {
         _chatRepository.chatEvents(id, ver, () => ver),
       );
 
+      if (ver != null) {
+        _justSubscribed = true;
+        _eventsDebounce = debounce(_debouncedEvents, (events) {
+          if (_eventsDebounce?.disposed == false) {
+            print(
+              '[debug] debounce fired with: ${events.expand((e) => e.events).map((e) => e.kind).join(',')}',
+            );
+
+            _eventsDebounce?.dispose();
+            _eventsDebounce = null;
+            _justSubscribed = false;
+
+            for (var e in events) {
+              _chatEvent(ChatEventsEvent(e));
+            }
+          }
+        });
+      }
+
       await _remoteSubscription!.execute(
         _chatEvent,
         onError: (e) async {
@@ -1134,6 +1162,15 @@ class HiveRxChat extends RxChat {
       case ChatEventsKind.event:
         final HiveChat? chatEntity = await _chatLocal.get(id);
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
+
+        if (_justSubscribed) {
+          print(
+            '[debug] add to debounced: ${versioned.events.map((e) => e.kind).join(',')}',
+          );
+          _debouncedEvents.add(versioned);
+          return;
+        }
+
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           Log.debug(
             '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
