@@ -27,6 +27,7 @@ All user visible changes to this project will be documented in this file. This p
     - Tuned up page transition animation. ([#775], [#573])
     - Profile page:
         - Redesigned direct chat link. ([#796], [#787])
+    - Redesigned profile page. ([#794], [#789])
 
 ### Fixed
 
@@ -64,7 +65,9 @@ All user visible changes to this project will be documented in this file. This p
 [#786]: /../../pull/786
 [#787]: /../../issues/787
 [#788]: /../../issues/788
+[#789]: /../../issues/789
 [#791]: /../../pull/791
+[#794]: /../../pull/794
 [#796]: /../../pull/796
 
 
