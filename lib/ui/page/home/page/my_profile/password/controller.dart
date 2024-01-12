@@ -76,6 +76,8 @@ class ChangePasswordController extends GetxController {
         s.error.value = null;
         newPassword.error.value = null;
         repeatPassword.error.value = null;
+        repeatPassword.markSubmittable();
+
         try {
           UserPassword(s.text);
         } on FormatException catch (_) {
@@ -84,10 +86,12 @@ class ChangePasswordController extends GetxController {
       },
       onSubmitted: (s) => newPassword.focus.requestFocus(),
     );
+
     newPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
         repeatPassword.error.value = null;
+        repeatPassword.markSubmittable();
 
         try {
           UserPassword(s.text);
@@ -97,10 +101,12 @@ class ChangePasswordController extends GetxController {
       },
       onSubmitted: (s) => repeatPassword.focus.requestFocus(),
     );
+
     repeatPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
         newPassword.error.value = null;
+
         if (s.text != newPassword.text && newPassword.isValidated) {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
