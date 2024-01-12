@@ -132,7 +132,6 @@ class MessagePreviewWidget extends StatelessWidget {
   const MessagePreviewWidget({
     super.key,
     this.text,
-    this.child,
     this.fromMe = true,
     this.style,
   });
@@ -151,9 +150,6 @@ class MessagePreviewWidget extends StatelessWidget {
   /// Meaningless, if [child] is provided.
   final TextStyle? style;
 
-  /// [Widget] to display instead of the [text].
-  final Widget? child;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -170,15 +166,14 @@ class MessagePreviewWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (child != null || text != null)
+              if (text != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: child ??
-                      Text(
-                        text!,
-                        style: this.style ??
-                            style.fonts.medium.regular.onBackground,
-                      ),
+                  child: Text(
+                    text!,
+                    style:
+                        this.style ?? style.fonts.medium.regular.onBackground,
+                  ),
                 ),
             ],
           ),

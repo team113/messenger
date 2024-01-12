@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -250,55 +249,40 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           Row(
             children: [
               Expanded(
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: PlatformUtils.isMobile
-                            ? 'btn_share'.l10n
-                            : 'btn_copy'.l10n,
-                        style: style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            final share =
-                                '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+                child: WidgetButton(
+                  onPressed: () {
+                    final share =
+                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
 
-                            if (PlatformUtils.isMobile) {
-                              Share.share(share);
-                            } else {
-                              PlatformUtils.copy(text: share);
-                              MessagePopup.success('label_copied'.l10n);
-                            }
-                          },
-                      ),
-                    ],
+                    if (PlatformUtils.isMobile) {
+                      Share.share(share);
+                    } else {
+                      PlatformUtils.copy(text: share);
+                      MessagePopup.success('label_copied'.l10n);
+                    }
+                  },
+                  child: Text(
+                    PlatformUtils.isMobile ? 'btn_share'.l10n : 'btn_copy'.l10n,
+                    style: style.fonts.small.regular.primary,
                   ),
-                  textAlign: widget.onSubmit == null
-                      ? TextAlign.center
-                      : TextAlign.left,
                 ),
               ),
               if (widget.onSubmit != null) ...[
                 const SizedBox(width: 8),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'btn_delete'.l10n,
-                        style: widget.onSubmit == null
-                            ? style.fonts.small.regular.secondary
-                            : style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            setState(() {
-                              widget.onSubmit?.call(null);
-                              _state.unsubmit();
-                              _state.changed.value = true;
-                              _editing = true;
-                            });
-                          },
-                      ),
-                    ],
+                WidgetButton(
+                  onPressed: () {
+                    setState(() {
+                      widget.onSubmit?.call(null);
+                      _state.unsubmit();
+                      _state.changed.value = true;
+                      _editing = true;
+                    });
+                  },
+                  child: Text(
+                    'btn_delete'.l10n,
+                    style: widget.onSubmit == null
+                        ? style.fonts.small.regular.secondary
+                        : style.fonts.small.regular.primary,
                   ),
                 ),
               ],
@@ -315,6 +299,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     );
   }
 
+  /// Builds a wrapper around the [child] visually representing a [ChatInfo]
+  /// message.
   Widget _info(BuildContext context, Widget child) {
     final style = Theme.of(context).style;
 

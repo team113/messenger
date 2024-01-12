@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../routes.dart';
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -56,7 +57,7 @@ class IntroductionController extends GetxController {
 
   /// Origin to display withing the [link] field.
   late final String _origin =
-      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
+      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}${Routes.chatDirectLink}/';
 
   /// Creates a [ChatDirectLink] from the [link].
   Future<void> createLink() async {
