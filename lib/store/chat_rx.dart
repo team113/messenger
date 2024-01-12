@@ -74,7 +74,13 @@ class HiveRxChat extends RxChat {
         unreadCount = RxInt(hiveChat.value.unreadCount),
         // TODO: Don't ignore version, when all events are surely delivered by
         //       subscribing to `chatEvents` with that version.
-        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
+        ver = hiveChat.value.name?.val == 'named'
+            ? ChatVersion(
+                '031452680279290975191536964834527342193031452680279888553166213896908846608141',
+              )
+            : hiveChat.value.favoritePosition == null
+                ? hiveChat.ver
+                : null;
 
   @override
   final Rx<Chat> chat;
@@ -190,9 +196,6 @@ class HiveRxChat extends RxChat {
   /// Indicator whether this [HiveRxChat] has been disposed, meaning no requests
   /// should be made.
   bool _disposed = false;
-
-  /// Indicator whether [_chatEvent]s should be appended to [_debouncedEvents].
-  bool _justSubscribed = false;
 
   /// [ChatEventsVersioned] to handle with debounce in [_eventsDebounce].
   final RxList<ChatEventsVersioned> _debouncedEvents = RxList();
@@ -1105,16 +1108,10 @@ class HiveRxChat extends RxChat {
       );
 
       if (ver != null) {
-        _justSubscribed = true;
         _eventsDebounce = debounce(_debouncedEvents, (events) {
           if (_eventsDebounce?.disposed == false) {
-            print(
-              '[debug] debounce fired with: ${events.expand((e) => e.events).map((e) => e.kind).join(',')}',
-            );
-
             _eventsDebounce?.dispose();
             _eventsDebounce = null;
-            _justSubscribed = false;
 
             for (var e in events) {
               _chatEvent(ChatEventsEvent(e));
@@ -1160,16 +1157,13 @@ class HiveRxChat extends RxChat {
         break;
 
       case ChatEventsKind.event:
-        final HiveChat? chatEntity = await _chatLocal.get(id);
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
-
-        if (_justSubscribed) {
-          print(
-            '[debug] add to debounced: ${versioned.events.map((e) => e.kind).join(',')}',
-          );
+        if (_eventsDebounce != null) {
           _debouncedEvents.add(versioned);
           return;
         }
+
+        final HiveChat? chatEntity = await _chatLocal.get(id);
 
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
           Log.debug(
