@@ -54,6 +54,9 @@ class Config {
   /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
+  /// [ChatDirectLink] prefix.
+  static String link = '';
+
   /// Directory to download files to.
   static String downloads = '';
 
@@ -175,12 +178,14 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
         : (document['google']?['clientId'] ?? '');
 
-    origin = const bool.hasEnvironment('SOCAPP_LINK_URL')
+    link = const bool.hasEnvironment('SOCAPP_LINK_URL')
         ? const String.fromEnvironment('SOCAPP_LINK_URL')
         : (document['link']?['url'] ?? '');
 
-    if (origin.isEmpty) {
-      origin = url;
+    origin = url;
+
+    if (link.isEmpty) {
+      link = origin;
     }
 
     logLevel = me.LogLevel.values.firstWhere(

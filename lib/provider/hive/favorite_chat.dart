@@ -19,6 +19,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
+import '/util/new_type.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatId]s sorted by the [ChatFavoritePosition]s.
@@ -42,7 +43,7 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(ChatFavoritePosition key, ChatId item) async {
-    final String i = key.toString().padLeft(100, '0');
+    final String i = '${key.toPlainString()}_$item';
 
     if (getSafe(i) != item) {
       await _mutex.protect(() async {

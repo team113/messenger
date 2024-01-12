@@ -24,6 +24,7 @@ library main;
 import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -52,8 +53,8 @@ import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
-import 'provider/hive/download.dart';
 import 'provider/hive/credentials.dart';
+import 'provider/hive/download.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -171,6 +172,7 @@ Future<void> main() async {
             exception is WebSocketChannelException ||
             exception is HttpException ||
             exception is ClientException ||
+            exception is DioException ||
             exception is ResubscriptionRequiredException) {
           return null;
         }
@@ -370,8 +372,8 @@ Future<void> _initHive() async {
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
 
-  await Get.put(CacheInfoHiveProvider()).init();
   if (!PlatformUtils.isWeb) {
+    await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
 }

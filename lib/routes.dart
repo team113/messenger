@@ -19,7 +19,6 @@ import 'package:collection/collection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 
 import 'domain/model/chat.dart';
@@ -829,10 +828,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             name: Routes.work,
             child: WorkView(),
           ));
-
-          // if (_state.routes.length == 1) {
-          //   return pages;
-          // }
         }
       }
     }

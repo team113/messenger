@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '/config.dart';
@@ -59,23 +58,8 @@ class FontFamily extends StatelessWidget {
         const SizedBox(height: 4),
         WidgetButton(
           onPressed: () async {
-            String? to;
-
-            try {
-              to = await FilePicker.platform.saveFile(
-                fileName: asset,
-                type: FileType.image,
-                lockParentWindow: true,
-              );
-            } on UnimplementedError catch (_) {
-              // No-op.
-            }
-
-            await PlatformUtils.download(
+            await PlatformUtils.saveTo(
               '${Config.origin}/assets/assets/fonts/$asset',
-              asset,
-              null,
-              path: to,
             );
 
             MessagePopup.success('$asset downloaded');

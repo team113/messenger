@@ -147,6 +147,9 @@ class User extends HiveObject {
 
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
+
+  @override
+  String toString() => '$runtimeType($id)';
 }
 
 /// Unique ID of an [User].

@@ -29,12 +29,13 @@ import 'rectangle_button.dart';
 class ConfirmDialogVariant<T> {
   const ConfirmDialogVariant({this.key, required this.label, this.onProceed});
 
+  /// [Key] of this [ConfirmDialogVariant].
   final Key? key;
 
   /// Callback, called when this [ConfirmDialogVariant] is submitted.
   final T? Function()? onProceed;
 
-  /// [Widget] representing this [ConfirmDialogVariant].
+  /// Label representing this [ConfirmDialogVariant].
   final String label;
 }
 
@@ -100,15 +101,15 @@ class ConfirmDialog extends StatefulWidget {
 /// State of a [ConfirmDialog] keeping the selected [ConfirmDialogVariant].
 class _ConfirmDialogState extends State<ConfirmDialog> {
   /// Currently selected [ConfirmDialogVariant].
-  late ConfirmDialogVariant _variant;
+  late ConfirmDialogVariant _selected;
 
   /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void didUpdateWidget(ConfirmDialog oldWidget) {
-    if (!widget.variants.contains(_variant)) {
-      setState(() => _variant = widget.variants.first);
+    if (!widget.variants.contains(_selected)) {
+      setState(() => _selected = widget.variants.first);
     }
 
     super.didUpdateWidget(oldWidget);
@@ -116,7 +117,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _variant = widget.variants[min(widget.variants.length - 1, widget.initial)];
+    _selected = widget
+        .variants[max(min(widget.initial, widget.variants.length - 1), 0)];
     super.initState();
   }
 
@@ -150,9 +152,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
         if (widget.variants.length > 1)
           Flexible(
             child: Scrollbar(
-              controller: scrollController,
+              controller: _scrollController,
               child: ListView.separated(
-                controller: scrollController,
+                controller: _scrollController,
                 physics: const ClampingScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (c, i) {
@@ -161,10 +163,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                   return Padding(
                     padding: ModalPopup.padding(context),
                     child: RectangleButton(
-                      selected: _variant == variant,
-                      onPressed: _variant == variant
+                      key: variant.key,
+                      selected: _selected == variant,
+                      onPressed: _selected == variant
                           ? null
-                          : () => setState(() => _variant = variant),
+                          : () => setState(() => _selected = variant),
                       label: variant.label,
                       radio: true,
                     ),
@@ -183,7 +186,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
             key: const Key('Proceed'),
             title: widget.label ?? 'btn_proceed'.l10n,
             onPressed: () {
-              _variant.onProceed?.call();
+              _selected.onProceed?.call();
               Navigator.of(context).pop(true);
             },
           ),

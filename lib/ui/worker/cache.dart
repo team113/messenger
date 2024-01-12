@@ -393,9 +393,9 @@ class CacheWorker extends DisposableService {
 
   /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
-    // if (_cacheLocal == null) {
-    //   return;
-    // }
+    if (_cacheLocal == null) {
+      return;
+    }
 
     _localSubscription = StreamIterator(_cacheLocal!.boxEvents);
     while (await _localSubscription!.moveNext()) {

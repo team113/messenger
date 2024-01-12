@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/config.dart';
-import 'package:messenger/routes.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '/config.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/widget/widget_button.dart';
@@ -32,19 +32,10 @@ class SourceCodeBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    // Returns a [Text] wrapped in a [WidgetButton] launching the [link].
-    Widget button({
-      required String label,
-      void Function()? onPressed,
-      String? link,
-    }) {
+    // Returns a [Text] wrapped in a [WidgetButton] invoking [onPressed].
+    Widget button({required String label, void Function()? onPressed}) {
       return WidgetButton(
-        onPressed: onPressed ??
-            () async {
-              if (link != null) {
-                await launchUrlString(link);
-              }
-            },
+        onPressed: onPressed,
         child: Text(label, style: style.fonts.normal.regular.primary),
       );
     }
@@ -55,7 +46,9 @@ class SourceCodeBlock extends StatelessWidget {
       children: [
         button(
           label: '- GitHub repository',
-          link: 'https://github.com/team113/messenger',
+          onPressed: () => launchUrlString(
+            'https://github.com/team113/messenger',
+          ),
         ),
         Row(
           children: [
@@ -67,14 +60,18 @@ class SourceCodeBlock extends StatelessWidget {
             Text('(', style: style.fonts.normal.regular.onBackground),
             button(
               label: 'открыть отдельно',
-              link: '${Config.origin}${Routes.style}',
+              onPressed: () => launchUrlString(
+                '${Config.origin}${Routes.style}',
+              ),
             ),
             Text(')', style: style.fonts.normal.regular.onBackground),
           ],
         ),
         button(
           label: '- GraphQL API',
-          link: 'https://messenger.soc.stg.t11913.org/api/graphql/playground',
+          onPressed: () => launchUrlString(
+            'https://messenger.soc.stg.t11913.org/api/graphql/playground',
+          ),
         ),
       ],
     );

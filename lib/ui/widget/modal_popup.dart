@@ -53,9 +53,6 @@ abstract class ModalPopup {
 
     if (context.isMobile) {
       return showModalBottomSheet(
-        transitionAnimationController:
-            BottomSheet.createAnimationController(Navigator.of(context))
-              ..duration = const Duration(milliseconds: 350),
         context: context,
         barrierColor: style.barrierColor,
         isScrollControlled: true,
@@ -63,6 +60,9 @@ abstract class ModalPopup {
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
+        transitionAnimationController:
+            BottomSheet.createAnimationController(Navigator.of(context))
+              ..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14),
@@ -110,12 +110,8 @@ abstract class ModalPopup {
         context: context,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        pageBuilder: (
-          BuildContext buildContext,
-          Animation<double> animation,
-          Animation<double> secondaryAnimation,
-        ) {
-          final body = Center(
+        pageBuilder: (_, __, ___) {
+          final Widget body = Center(
             child: Container(
               constraints: modalConstraints,
               width: modalConstraints.maxWidth,
@@ -132,18 +128,14 @@ abstract class ModalPopup {
             ),
           );
 
-          return SafeArea(child: Builder(builder: (_) => body));
+          return SafeArea(child: body);
         },
         barrierLabel:
             MaterialLocalizations.of(context).modalBarrierDismissLabel,
         transitionDuration: const Duration(milliseconds: 300),
-        transitionBuilder: (BuildContext context, Animation<double> animation,
-            Animation<double> secondaryAnimation, Widget child) {
+        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
           return FadeTransition(
-            opacity: CurvedAnimation(
-              parent: animation,
-              curve: Curves.linear,
-            ),
+            opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
             child: child,
           );
         },

@@ -44,12 +44,8 @@ class TypographyView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final List<(FontWeight, String, String)> families = [
-      (
-        FontWeight.w400,
-        'Noto Sans Display (Regular)',
-        'NotoSansDisplay-Regular.ttf'
-      ),
-      (FontWeight.w700, 'Noto Sans Display (Bold)', 'NotoSansDisplay-Bold.ttf'),
+      (FontWeight.w400, 'Roboto (Regular)', 'Roboto-Regular.ttf'),
+      (FontWeight.w700, 'Roboto (Bold)', 'Roboto-Bold.ttf'),
     ];
 
     return ScrollableColumn(

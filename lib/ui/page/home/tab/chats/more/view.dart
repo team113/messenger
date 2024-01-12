@@ -145,7 +145,7 @@ class ChatsMoreView extends StatelessWidget {
                 : () {
                     PlatformUtils.copy(
                       text:
-                          '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
+                          '${Config.link}${Routes.chatDirectLink}/${c.link.text}',
                     );
 
                     MessagePopup.success('label_copied'.l10n);
@@ -156,7 +156,7 @@ class ChatsMoreView extends StatelessWidget {
                     offset: const Offset(0, -1),
                     child: const SvgIcon(SvgIcons.copy),
                   ),
-            label: '${Config.origin}/',
+            label: '${Config.link}/',
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 6, 24, 6),

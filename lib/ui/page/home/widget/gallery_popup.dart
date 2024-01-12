@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -27,26 +28,25 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'gallery_button.dart';
 
 /// Item in a [GalleryPopup].
 ///
@@ -599,8 +599,12 @@ class _GalleryPopupState extends State<GalleryPopup>
               onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
-              label: 'btn_save_as'.l10n,
-              onPressed: () => _saveAs(widget.children[_page]),
+              label: 'btn_download_as'.l10n,
+              onPressed: () => _downloadAs(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () => _saveToGallery(widget.children[_page]),
             ),
             ContextMenuButton(
               label: 'btn_info'.l10n,
@@ -647,7 +651,15 @@ class _GalleryPopupState extends State<GalleryPopup>
                         constraints:
                             const BoxConstraints(minWidth: 1, minHeight: 1),
                         child: PlatformUtils.isWeb
-                            ? WebImage(e.link, onForbidden: e.onError)
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+
+                                // TODO: Wait for HTML to support specifying
+                                //       download name:
+                                //       https://github.com/whatwg/html/issues/2722
+                                // name: e.name,
+                              )
                             : RetryImage(
                                 e.link,
                                 width: e.width?.toDouble(),
@@ -667,8 +679,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
-    final style = Theme.of(context).style;
-
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
@@ -694,30 +704,17 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: WidgetButton(
-                    onPressed: left
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page - 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
+                    onPressed: left ? () => _animateToPage(_page - 1) : null,
                     child: Container(
                       padding: const EdgeInsets.only(left: 8, right: 8),
                       width: 60 + 16,
                       height: double.infinity,
                       child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: style.colors.onSecondaryOpacity50,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
+                        child: GalleryButton(
+                          onPressed:
+                              left ? () => _animateToPage(_page - 1) : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 1),
                             child: Center(
                               child: Transform.translate(
                                 offset: const Offset(-1, 0),
@@ -747,30 +744,17 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: WidgetButton(
-                    onPressed: right
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page + 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
+                    onPressed: right ? () => _animateToPage(_page + 1) : null,
                     child: Container(
                       padding: const EdgeInsets.only(left: 8, right: 8),
                       width: 60 + 16,
                       height: double.infinity,
                       child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: style.colors.onSecondaryOpacity50,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
+                        child: GalleryButton(
+                          onPressed:
+                              right ? () => _animateToPage(_page + 1) : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 1),
                             child: Center(
                               child: Transform.translate(
                                 offset: const Offset(1, 0),
@@ -800,15 +784,9 @@ class _GalleryPopupState extends State<GalleryPopup>
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
                 opacity: (_displayClose || _showControls) ? 1 : 0,
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: style.colors.onSecondaryOpacity50,
-                    onPressed: _dismiss,
-                    withBlur: true,
-                    icon: SvgIcons.close,
-                  ),
+                child: GalleryButton(
+                  onPressed: _dismiss,
+                  icon: SvgIcons.close,
                 ),
               ),
             ),
@@ -824,17 +802,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 250),
                   opacity: (_displayFullscreen || _showControls) ? 1 : 0,
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
-                      onPressed: _toggleFullscreen,
-                      withBlur: true,
-                      icon: _isFullscreen.value
-                          ? SvgIcons.fullscreenExit
-                          : SvgIcons.fullscreenEnter,
-                    ),
+                  child: GalleryButton(
+                    onPressed: _toggleFullscreen,
+                    icon: _isFullscreen.value
+                        ? SvgIcons.fullscreenExit
+                        : SvgIcons.fullscreenEnter,
                   ),
                 ),
               ),
@@ -894,20 +866,12 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: style.colors.onSecondaryOpacity50,
-                    onPressed: () {
-                      widget.onTrashPressed?.call(_page);
-                      _dismiss();
-                    },
-                    withBlur: true,
-                    icon: SvgIcons.deleteGallery,
-                    // assetWidth: 27.21,
-                    // asset: 'delete',
-                  ),
+                child: GalleryButton(
+                  onPressed: () {
+                    widget.onTrashPressed?.call(_page);
+                    _dismiss();
+                  },
+                  icon: SvgIcons.deleteBig,
                 ),
               ),
             ),
@@ -916,6 +880,16 @@ class _GalleryPopupState extends State<GalleryPopup>
     ]);
 
     return widgets;
+  }
+
+  /// Animates the [_pageController] to the provided [page].
+  void _animateToPage(int page) {
+    node.requestFocus();
+    _pageController.animateToPage(
+      page,
+      curve: Curves.linear,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   /// Starts a dismiss animation.
@@ -974,19 +948,11 @@ class _GalleryPopupState extends State<GalleryPopup>
     if (k is KeyUpEvent) {
       if (k.physicalKey == PhysicalKeyboardKey.arrowRight) {
         if (_page < widget.children.length - 1) {
-          _pageController.animateToPage(
-            _page + 1,
-            curve: Curves.linear,
-            duration: const Duration(milliseconds: 200),
-          );
+          _animateToPage(_page + 1);
         }
       } else if (k.physicalKey == PhysicalKeyboardKey.arrowLeft) {
         if (_page > 0) {
-          _pageController.animateToPage(
-            _page - 1,
-            curve: Curves.linear,
-            duration: const Duration(milliseconds: 200),
-          );
+          _animateToPage(_page - 1);
         }
       } else if (k.physicalKey == PhysicalKeyboardKey.escape) {
         _dismiss();
@@ -1033,18 +999,10 @@ class _GalleryPopupState extends State<GalleryPopup>
       if (!_ignorePageSnapping && !horizontalPriority) {
         if (s.scrollDelta.dy > 0 && _page > 0) {
           _resetSnappingTimer();
-          _pageController.animateToPage(
-            _page - 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.linear,
-          );
+          _animateToPage(_page - 1);
         } else if (s.scrollDelta.dy < 0 && _page < widget.children.length - 1) {
           _resetSnappingTimer();
-          _pageController.animateToPage(
-            _page + 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.linear,
-          );
+          _animateToPage(_page + 1);
         }
       }
     }
@@ -1121,11 +1079,12 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] using `save as` dialog.
-  Future<void> _saveAs(GalleryItem item) async {
+  Future<void> _downloadAs(GalleryItem item) async {
     try {
       String? to = await FilePicker.platform.saveFile(
         fileName: item.name,
@@ -1138,38 +1097,46 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
-    try {
-      try {
-        await PlatformUtils.saveToGallery(
-          item.link,
-          item.name,
-          checksum: item.checksum,
-        );
-      } catch (_) {
-        if (item.onError != null) {
-          await item.onError?.call();
-          await PlatformUtils.saveToGallery(
-            item.link,
-            item.name,
-            checksum: item.checksum,
-          );
-        } else {
-          rethrow;
-        }
-      }
+    // Tries downloading the [item].
+    Future<void> download() async {
+      await PlatformUtils.saveToGallery(
+        item.link,
+        item.name,
+        checksum: item.checksum,
+        size: item.size,
+        isImage: !item.isVideo,
+      );
 
       if (mounted) {
         MessagePopup.success(item.isVideo
             ? 'label_video_saved_to_gallery'.l10n
             : 'label_image_saved_to_gallery'.l10n);
       }
+    }
+
+    try {
+      try {
+        await download();
+      } on DioException catch (e) {
+        if (item.onError != null && e.response?.statusCode == 403) {
+          await item.onError?.call();
+          await Future.delayed(Duration.zero);
+          await download();
+        } else {
+          rethrow;
+        }
+      }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
@@ -1196,6 +1163,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 

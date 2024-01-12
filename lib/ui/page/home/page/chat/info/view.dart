@@ -424,8 +424,6 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final Widget child;
-
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -449,65 +447,6 @@ class ChatInfoView extends StatelessWidget {
             background: c.background.value,
           ),
         ],
-      );
-
-      if (c.editing.value) {
-        child = Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 12),
-          child: DirectLinkField(
-            c.chat?.chat.value.directLink,
-            onSubmit: c.createChatDirectLink,
-            transitions: false,
-          ),
-        );
-      } else {
-        child = DirectLinkField(
-          c.chat?.chat.value.directLink,
-          onSubmit: (s) =>
-              s == null ? c.deleteChatDirectLink() : c.createChatDirectLink(s),
-          background: c.background.value,
-        );
-        // child = Padding(
-        //   padding: Insets.basic.copyWith(bottom: 0),
-        //   child: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       Padding(
-        //         padding: const EdgeInsets.fromLTRB(
-        //           6,
-        //           0,
-        //           8,
-        //           24,
-        //         ),
-        //         child: Text(
-        //           'Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.',
-        //           style: style.fonts.small.regular.secondary,
-        //         ),
-        //       ),
-        //       // ContactInfoContents(
-        //       //   padding: EdgeInsets.zero,
-        //       //   title: '${Config.origin}/',
-        //       //   content: c.link.text,
-        //       //   icon: const SvgIcon(SvgIcons.profileLink),
-        //       //   maxLines: null,
-        //       //   trailing: CopyOrShareButton(
-        //       //     '${Config.origin}/${c.link.text}',
-        //       //     onCopy: () {
-        //       //       if (c.link.text !=
-        //       //           c.chat?.chat.value.directLink?.slug.val) {
-        //       //         c.link.submit();
-        //       //       }
-        //       //     },
-        //       //   ),
-        //       // ),
-        //     ],
-        //   ),
-        // );
-      }
-
-      return SafeAnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        child: child,
       );
     });
   }
@@ -696,144 +635,11 @@ class ChatInfoView extends StatelessWidget {
                 ),
               ],
               child: Container(
-                padding: const EdgeInsets.only(
-                  left: 21 + 10,
-                  right: 4 + 21,
-                ),
+                padding: const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
                 height: double.infinity,
                 child: const SvgIcon(SvgIcons.more),
               ),
             ),
-            if (false)
-              Obx(() {
-                return ContextMenuRegion(
-                  key: c.moreKey,
-                  selector: c.moreKey,
-                  alignment: Alignment.topRight,
-                  enablePrimaryTap: true,
-                  margin: const EdgeInsets.only(
-                    bottom: 4,
-                    left: 20,
-                  ),
-                  actions: [
-                    ContextMenuButton(
-                      // label: 'btn_edit'.l10n,
-                      label: 'Редактировать профиль',
-                      onPressed: c.editing.toggle,
-                      trailing: const SvgIcon(SvgIcons.edit),
-                      inverted: const SvgIcon(SvgIcons.editWhite),
-                    ),
-
-                    if (c.chat?.chat.value.isDialog == true) ...[
-                      ContextMenuButton(
-                        label: 'btn_set_price'.l10n,
-                        onPressed: () => GetPaidView.show(
-                          context,
-                          mode: GetPaidMode.user,
-                          user: c.chat!.members.values.firstWhere(
-                            (e) => e.id != c.me,
-                          ),
-                        ),
-                        trailing: const SvgIcon(SvgIcons.gapopaCoin),
-                        inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
-                      ),
-                      ContextMenuButton(
-                        label: contact
-                            ? 'btn_delete_from_contacts'.l10n
-                            : 'btn_add_to_contacts'.l10n,
-                        onPressed:
-                            contact ? c.removeFromContacts : c.addToContacts,
-                        trailing: SvgIcon(
-                          contact
-                              ? SvgIcons.deleteContact
-                              : SvgIcons.addContact,
-                        ),
-                        inverted: SvgIcon(
-                          contact
-                              ? SvgIcons.deleteContactWhite
-                              : SvgIcons.addContactWhite,
-                        ),
-                      ),
-                    ],
-                    if (false)
-                      ContextMenuButton(
-                        label: favorite
-                            ? 'btn_delete_from_favorites'.l10n
-                            : 'btn_add_to_favorites'.l10n,
-                        onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                        trailing: SvgIcon(
-                          favorite
-                              ? SvgIcons.favoriteSmall
-                              : SvgIcons.unfavoriteSmall,
-                        ),
-                        inverted: SvgIcon(
-                          favorite
-                              ? SvgIcons.favoriteSmallWhite
-                              : SvgIcons.unfavoriteSmallWhite,
-                        ),
-                      ),
-                    if (false && !c.isMonolog)
-                      ContextMenuButton(
-                        label: muted
-                            ? PlatformUtils.isMobile
-                                ? 'btn_unmute'.l10n
-                                : 'btn_unmute_chat'.l10n
-                            : PlatformUtils.isMobile
-                                ? 'btn_mute'.l10n
-                                : 'btn_mute_chat'.l10n,
-                        onPressed: muted ? c.unmuteChat : c.muteChat,
-                        trailing: SvgIcon(
-                          muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                        ),
-                        inverted: SvgIcon(
-                          muted
-                              ? SvgIcons.unmuteSmallWhite
-                              : SvgIcons.muteSmallWhite,
-                        ),
-                      ),
-                    ContextMenuButton(
-                      label: 'btn_clear_history'.l10n,
-                      trailing: const SvgIcon(SvgIcons.cleanHistory),
-                      inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-                      onPressed: () => _clearChat(c, context),
-                    ),
-                    // if (!c.isMonolog)
-                    //   ContextMenuButton(
-                    //     onPressed: () => _leaveGroup(c, context),
-                    //     label: 'btn_leave_group'.l10n,
-                    //     trailing: const SvgIcon(SvgIcons.leaveGroup),
-                    //     inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
-                    //   ),
-                    // ContextMenuButton(
-                    //   label: 'btn_delete_chat'.l10n,
-                    //   trailing: const SvgIcon(SvgIcons.delete19),
-                    //   inverted: const SvgIcon(SvgIcons.delete19White),
-                    //   onPressed: () => _hideChat(c, context),
-                    // ),
-                    if (!c.isMonolog) ...[
-                      // ContextMenuButton(
-                      //   label: 'btn_block'.l10n,
-                      //   trailing: const SvgIcon(SvgIcons.block),
-                      //   inverted: const SvgIcon(SvgIcons.blockWhite),
-                      //   onPressed: () {},
-                      // ),
-                      // ContextMenuButton(
-                      //   onPressed: () {},
-                      //   label: 'btn_report'.l10n,
-                      //   trailing: const SvgIcon(SvgIcons.report16),
-                      // ),
-                    ],
-                  ],
-                  child: Container(
-                    padding: const EdgeInsets.only(
-                      left: 21 + 10,
-                      right: 4 + 21,
-                    ),
-                    height: double.infinity,
-                    child: const SvgIcon(SvgIcons.more),
-                  ),
-                );
-              }),
           ],
         ],
       ),

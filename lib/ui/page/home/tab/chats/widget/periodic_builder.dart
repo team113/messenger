@@ -25,10 +25,14 @@ class PeriodicBuilder extends StatefulWidget {
     super.key,
     required this.period,
     required this.builder,
+    this.delay = Duration.zero,
   });
 
   /// Period, over which to invoke the [builder].
   final Duration period;
+
+  /// Delay before the first invocation of the [builder].
+  final Duration delay;
 
   /// Builder building the [Widget] to periodically rebuild.
   final Widget Function(BuildContext context) builder;
@@ -37,27 +41,47 @@ class PeriodicBuilder extends StatefulWidget {
   State<PeriodicBuilder> createState() => _PeriodicBuilderState();
 }
 
-/// State of a [PeriodicBuilder] maintaining the [timer].
+/// State of a [PeriodicBuilder] maintaining the [_timer] and [_delay].
 class _PeriodicBuilderState extends State<PeriodicBuilder> {
   /// [Timer] rebuilding this [Widget].
-  late final Timer timer;
+  Timer? _timer;
+
+  /// [Timer] delaying the first invocation of the [builder].
+  Timer? _delay;
 
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(widget.period, (_) {
-      if (mounted) {
-        setState(() {});
-      }
-    });
+
+    if (widget.delay == Duration.zero) {
+      _start();
+    } else {
+      _delay = Timer(widget.delay, () {
+        if (mounted) {
+          setState(() {});
+        }
+
+        _start();
+      });
+    }
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    _timer?.cancel();
+    _delay?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) => widget.builder(context);
+
+  /// Starts the [_timer].
+  void _start() {
+    _timer = Timer.periodic(widget.period, (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 }

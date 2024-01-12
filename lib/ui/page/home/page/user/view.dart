@@ -319,23 +319,6 @@ class UserView extends StatelessWidget {
                           //     : c.createChatDirectLink(s),
                           background: c.background.value,
                         ),
-                        // Paddings.basic(
-                        //   ContactInfoContents(
-                        //     padding: EdgeInsets.zero,
-                        //     title: '${Config.origin}/',
-                        //     content: 'kLFJKjkw14j23JDMwW',
-                        //     // content: '${Config.origin}/kLFJKjkw14j23JDMwW',
-                        //     icon: const SvgIcon(SvgIcons.profileLink),
-                        //     maxLines: null,
-                        //     trailing: CopyOrShareButton(
-                        //       '${Config.origin}/kLFJKjkw14j23JDMwW',
-                        //     ),
-                        //     // trailing: WidgetButton(
-                        //     //   onPressed: () {},
-                        //     //   child: const SvgIcon(SvgIcons.copy),
-                        //     // ),
-                        //   ),
-                        // ),
                       ],
                     ),
                     // ContactInfoWidget(

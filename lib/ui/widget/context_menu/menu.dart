@@ -116,10 +116,8 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
     super.key,
     required this.label,
-    this.leading = true,
     this.trailing,
     this.inverted,
-    this.showTrailing = false,
     this.enlarged,
     this.onPressed,
   });
@@ -129,14 +127,10 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 
   /// Optional trailing widget.
   final Widget? trailing;
+
+  /// Optional inverted [trailing] widget, displayed when this
+  /// [ContextMenuButton] is hovered.
   final Widget? inverted;
-
-  /// Indicator whether the [trailing] should always be displayed.
-  ///
-  /// On mobile platforms the provided [trailing] is always displayed.
-  final bool showTrailing;
-
-  final bool leading;
 
   /// Indicator whether this [ContextMenuButton] should be enlarged.
   ///
@@ -161,8 +155,6 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
     final bool isMobile = widget.enlarged ?? context.isMobile;
 
-    // final Widget suffix =
-
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
       onTapUp: (_) {
@@ -176,7 +168,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         child: Container(
           padding: isMobile
               ? EdgeInsets.fromLTRB(
-                  widget.trailing == null ? 18 : 5, 15, 18, 15)
+                  widget.trailing == null ? 18 : 5,
+                  15,
+                  18,
+                  15,
+                )
               : EdgeInsets.fromLTRB(widget.trailing == null ? 8 : 0, 6, 12, 6),
           margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
@@ -202,18 +198,18 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                     ),
                   )
                 else
-                  Container(
+                  SizedBox(
                     width: 36,
                     child: Transform.scale(
                       scale: 0.8,
                       child: Align(
                         alignment: Alignment.center,
-                        child: isMouseOver
+                        child: isMouseOver && widget.onPressed != null
                             ? (widget.inverted ?? widget.trailing)
                             : widget.trailing,
                       ),
                     ),
-                  )
+                  ),
               ],
               Text(
                 widget.label,

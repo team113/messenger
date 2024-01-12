@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
@@ -70,6 +71,36 @@ abstract class StorageFile extends HiveObject {
 
   /// Returns an absolute URL to this [StorageFile] on a file storage.
   String get url => '${Config.files}$relativeRef';
+
+  /// Returns the name of this [StorageFile].
+  String get name {
+    final basename = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
+    return [basename, _extension].nonNulls.join('.');
+  }
+
+  /// Returns the extension parsed from the [relativeRef], excluding the dot, if
+  /// any.
+  ///
+  /// ```dart
+  /// var file = StorageFile(relativeRef: 'http://site/.jpg');
+  /// print(file._extension); // => 'jpg'
+  ///
+  /// var file = StorageFile(relativeRef: 'http://site/noExtension');
+  /// print(file._extension); // => 'null'
+  /// ```
+  String? get _extension {
+    final index = url.lastIndexOf('.');
+    if (index < 0 || index + 1 >= url.length) {
+      return null;
+    }
+
+    final result = url.substring(index + 1).toLowerCase();
+    if (result.contains('/')) {
+      return null;
+    }
+
+    return result;
+  }
 }
 
 /// Plain-[StorageFile] on a file storage.

@@ -19,8 +19,8 @@ import 'package:flutter/material.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/page/user/widget/contact_info.dart';
 import '/ui/page/home/widget/action.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -39,17 +39,15 @@ class BlocklistRecordWidget extends StatelessWidget {
     return Column(
       children: [
         Paddings.basic(
-          ContactInfoContents(
-            padding: EdgeInsets.zero,
+          InfoTile(
             title: 'label_date'.l10n,
-            content: record.at.val.yMdHm,
+            content: record.at.val.toLocal().yMdHm,
           ),
         ),
         if (record.reason != null) ...[
           const SizedBox(height: 8),
           Paddings.basic(
-            ContactInfoContents(
-              padding: EdgeInsets.zero,
+            InfoTile(
               title: 'label_reason'.l10n,
               content: record.reason!.val,
             ),
@@ -59,6 +57,7 @@ class BlocklistRecordWidget extends StatelessWidget {
           const SizedBox(height: 16),
           SelectionContainer.disabled(
             child: ActionButton(
+              key: const Key('Unblock'),
               text: 'btn_unblock'.l10n,
               onPressed: onUnblock,
               trailing: const SvgIcon(SvgIcons.unblock16),

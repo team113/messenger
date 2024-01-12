@@ -30,10 +30,11 @@ class VacancyWorkButton extends StatelessWidget {
     this.onPressed = _defaultOnPressed,
   });
 
-  final void Function(WorkTab work)? onPressed;
-
   /// [WorkTab] to display.
   final WorkTab work;
+
+  /// Callback, called when this button is pressed.
+  final void Function(WorkTab work)? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -66,5 +67,8 @@ class VacancyWorkButton extends StatelessWidget {
     });
   }
 
+  /// Changes router location to the [work] page.
+  ///
+  /// Intended to be used as a default of the [decorator].
   static void _defaultOnPressed(WorkTab work) => router.work(work);
 }

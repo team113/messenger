@@ -269,9 +269,6 @@ class _HomeViewState extends State<HomeView> {
                                   c.settings.value?.publicsTabEnabled == true;
 
                               return ContextMenuTile(
-                                // label: hasPublics
-                                //     ? 'btn_hide_publics_tab'.l10n
-                                //     : 'btn_show_publics_tab'.l10n,
                                 icon: Transform.scale(
                                   scale: 1,
                                   child: const SvgIcon(SvgIcons.publics),
@@ -283,41 +280,6 @@ class _HomeViewState extends State<HomeView> {
                               );
                             }),
                           ),
-                          // Balance.
-                          // if (c.settings.value?.balanceTabEnabled == true)
-                          //   ContextMenuButton(
-                          //     label: 'btn_hide_balance_tab'.l10n,
-                          //     onPressed: () => c.setBalanceTabEnabled(false),
-                          //   )
-                          // else
-                          //   ContextMenuButton(
-                          //     label: 'btn_show_balance_tab'.l10n,
-                          //     onPressed: () => c.setBalanceTabEnabled(true),
-                          //   ),
-
-                          // // Partner.
-                          // if (c.settings.value?.partnerTabEnabled == true)
-                          //   ContextMenuButton(
-                          //     label: 'btn_hide_work_tab'.l10n,
-                          //     onPressed: () => c.setPartnerTabEnabled(false),
-                          //   )
-                          // else
-                          //   ContextMenuButton(
-                          //     label: 'btn_show_work_tab'.l10n,
-                          //     onPressed: () => c.setPartnerTabEnabled(true),
-                          //   ),
-
-                          // // Publics.
-                          // if (c.settings.value?.publicsTabEnabled == true)
-                          //   ContextMenuButton(
-                          //     label: 'btn_hide_publics_tab'.l10n,
-                          //     onPressed: () => c.setPublicsTabEnabled(false),
-                          //   )
-                          // else
-                          //   ContextMenuButton(
-                          //     label: 'btn_show_publics_tab'.l10n,
-                          //     onPressed: () => c.setPublicsTabEnabled(true),
-                          //   ),
                           const ContextMenuDivider(),
                         ];
 
@@ -357,20 +319,6 @@ class _HomeViewState extends State<HomeView> {
                                           );
                                         }),
                                       ),
-                                      // if (c.displayFunds)
-                                      //   ContextMenuButton(
-                                      //     label: 'btn_hide_balance'.l10n,
-                                      //     onPressed: () {
-                                      //       c.setDisplayFunds(false);
-                                      //     },
-                                      //   )
-                                      // else
-                                      //   ContextMenuButton(
-                                      //     label: 'btn_display_balance'.l10n,
-                                      //     onPressed: () {
-                                      //       c.setDisplayFunds(true);
-                                      //     },
-                                      //   ),
                                     ],
                                     child: WalletWidget(
                                       key: c.balanceKey,
@@ -387,11 +335,6 @@ class _HomeViewState extends State<HomeView> {
                                       : null,
                                   child: ContextMenuRegion(
                                     selector: c.partnerKey,
-                                    // alignment: Alignment.bottomCenter,
-                                    // margin: const EdgeInsets.only(
-                                    //   bottom: 4,
-                                    //   right: 10,
-                                    // ),
                                     alignment: Alignment.bottomCenter,
                                     margin: const EdgeInsets.only(bottom: 16),
                                     actions: [
@@ -416,21 +359,6 @@ class _HomeViewState extends State<HomeView> {
                                           );
                                         }),
                                       ),
-                                      // if (c.displayTransactions)
-                                      //   ContextMenuButton(
-                                      //     label: 'btn_hide_transactions'.l10n,
-                                      //     onPressed: () {
-                                      //       c.setDisplayTransactions(false);
-                                      //     },
-                                      //   )
-                                      // else
-                                      //   ContextMenuButton(
-                                      //     label:
-                                      //         'btn_display_transactions'.l10n,
-                                      //     onPressed: () {
-                                      //       c.setDisplayTransactions(true);
-                                      //     },
-                                      //   ),
                                     ],
                                     child: SvgIcon(
                                       SvgIcons.partner,
@@ -443,11 +371,6 @@ class _HomeViewState extends State<HomeView> {
                                   key: const Key('PublicButton'),
                                   child: ContextMenuRegion(
                                     selector: c.publicsKey,
-                                    // alignment: Alignment.bottomCenter,
-                                    // margin: const EdgeInsets.only(
-                                    //   bottom: 4,
-                                    //   right: 40,
-                                    // ),
                                     alignment: Alignment.bottomCenter,
                                     margin: const EdgeInsets.only(bottom: 16),
                                     actions: [
@@ -467,16 +390,6 @@ class _HomeViewState extends State<HomeView> {
                                           );
                                         }),
                                       ),
-                                      // if (c.publicsToggle.value)
-                                      //   ContextMenuButton(
-                                      //     label: 'btn_unmute_chats'.l10n,
-                                      //     onPressed: c.publicsToggle.toggle,
-                                      //   )
-                                      // else
-                                      //   ContextMenuButton(
-                                      //     label: 'btn_mute_chats'.l10n,
-                                      //     onPressed: c.publicsToggle.toggle,
-                                      //   ),
                                     ],
                                     child: Transform.translate(
                                       key: c.publicsKey,
@@ -531,22 +444,6 @@ class _HomeViewState extends State<HomeView> {
                                         );
                                       }),
                                     ),
-                                    // if (c.myUser.value?.muted != null)
-                                    //   ContextMenuButton(
-                                    //     key: const Key('UnmuteChatsButton'),
-                                    //     label: 'btn_unmute_chats'.l10n,
-                                    //     onPressed: () => c.toggleMute(true),
-                                    //     // trailing:
-                                    //     //     const SvgIcon(SvgIcons.muteSmall),
-                                    //   )
-                                    // else
-                                    //   ContextMenuButton(
-                                    //     key: const Key('MuteChatsButton'),
-                                    //     label: 'btn_mute_chats'.l10n,
-                                    //     onPressed: () => c.toggleMute(false),
-                                    //     // trailing:
-                                    //     //     const SvgIcon(SvgIcons.unmuteSmall),
-                                    //   ),
                                   ],
                                   child: Obx(() {
                                     final Widget child;
@@ -610,34 +507,6 @@ class _HomeViewState extends State<HomeView> {
                                         ),
                                       ),
                                     ),
-                                    // ContextMenuButton(
-                                    //   label: 'label_presence_present'.l10n,
-                                    //   onPressed: () =>
-                                    //       c.setPresence(Presence.present),
-                                    //   showTrailing: true,
-                                    //   trailing: Container(
-                                    //     width: 10,
-                                    //     height: 10,
-                                    //     decoration: BoxDecoration(
-                                    //       shape: BoxShape.circle,
-                                    //       color: style.colors.acceptAuxiliary,
-                                    //     ),
-                                    //   ),
-                                    // ),
-                                    // ContextMenuButton(
-                                    //   label: 'label_presence_away'.l10n,
-                                    //   onPressed: () =>
-                                    //       c.setPresence(Presence.away),
-                                    //   showTrailing: true,
-                                    //   trailing: Container(
-                                    //     width: 10,
-                                    //     height: 10,
-                                    //     decoration: BoxDecoration(
-                                    //       shape: BoxShape.circle,
-                                    //       color: style.colors.warning,
-                                    //     ),
-                                    //   ),
-                                    // ),
                                   ],
                                   child: AvatarWidget.fromMyUser(
                                     c.myUser.value,

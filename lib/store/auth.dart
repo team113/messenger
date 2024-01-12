@@ -153,7 +153,12 @@ class AuthRepository implements AbstractAuthRepository {
     UserPhone? phone,
   }) =>
       _graphQlProvider.validateUserPasswordRecoveryCode(
-          login, num, email, phone, code);
+        login,
+        num,
+        email,
+        phone,
+        code,
+      );
 
   @override
   Future<void> resetUserPassword({
@@ -165,7 +170,13 @@ class AuthRepository implements AbstractAuthRepository {
     UserPhone? phone,
   }) =>
       _graphQlProvider.resetUserPassword(
-          login, num, email, phone, code, newPassword);
+        login,
+        num,
+        email,
+        phone,
+        code,
+        newPassword,
+      );
 
   @override
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {

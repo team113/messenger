@@ -314,15 +314,9 @@ class _RetryImageState extends State<RetryImage> {
                                 ),
                               ],
                             ),
-                            child: const SvgImage.asset(
-                              'assets/icons/download.svg',
-                              height: 40,
-                            ),
+                            child: const SvgIcon(SvgIcons.download),
                           )
-                        : const SvgImage.asset(
-                            'assets/icons/close_primary.svg',
-                            height: 13,
-                          ),
+                        : const SvgIcon(SvgIcons.closePrimary),
                   ),
               ],
             ),
@@ -412,11 +406,20 @@ class _RetryImageState extends State<RetryImage> {
 
     _isSvg = false;
     if (_image != null) {
-      _isSvg = _image!.length >= 4 &&
-          _image![0] == 60 &&
-          _image![1] == 115 &&
-          _image![2] == 118 &&
-          _image![3] == 103;
+      _isSvg =
+          // Starts with `<svg`.
+          (_image!.length >= 4 &&
+                  _image![0] == 60 &&
+                  _image![1] == 115 &&
+                  _image![2] == 118 &&
+                  _image![3] == 103) ||
+              // Starts with `<?xml`.
+              (_image!.length >= 5 &&
+                  _image![0] == 60 &&
+                  _image![1] == 63 &&
+                  _image![2] == 120 &&
+                  _image![3] == 109 &&
+                  _image![4] == 108);
     }
 
     if (mounted) {

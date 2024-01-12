@@ -158,15 +158,15 @@ class UserRepository extends DisposableInterface
     return searchResult;
   }
 
-  // TODO: Should return [FutureOr<RxUser?>].
   @override
-  Future<RxUser?> get(UserId id) {
-    RxUser? user = users[id];
+  FutureOr<RxUser?> get(UserId id) {
+    // Return the stored user instance, if it exists.
+    final HiveRxUser? user = users[id];
     if (user != null) {
-      return Future.value(user);
+      return user;
     }
 
-    // If [user] doesn't exists, we should lock the [mutex] to avoid remote
+    // If [user] doesn't exist, we should lock the [mutex] to avoid remote
     // double invoking.
     Mutex? mutex = _locks[id];
     if (mutex == null) {

@@ -81,7 +81,8 @@ class PlatformUtilsImpl {
 
   /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
   /// passed.
-  Timer? _activityTimer;
+  @visibleForTesting
+  Timer? activityTimer;
 
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);
@@ -534,7 +535,8 @@ class PlatformUtilsImpl {
     return result;
   }
 
-  /// Downloads an image from the provided [url] and saves it to the gallery.
+  /// Downloads a video or an image from the provided [url] and saves it to the
+  /// gallery.
   Future<void> saveToGallery(
     String url,
     String name, {
@@ -595,14 +597,14 @@ class PlatformUtilsImpl {
       _activityController?.add(active);
     }
 
-    _activityTimer?.cancel();
+    activityTimer?.cancel();
 
-    // if (active) {
-    //   _activityTimer = Timer(_activityTimeout, () {
-    //     _isActive = false;
-    //     _activityController?.add(false);
-    //   });
-    // }
+    if (active) {
+      activityTimer = Timer(_activityTimeout, () {
+        _isActive = false;
+        _activityController?.add(false);
+      });
+    }
   }
 }
 

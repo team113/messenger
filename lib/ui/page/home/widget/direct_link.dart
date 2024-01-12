@@ -170,7 +170,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               ? null
               : () {
                   final share =
-                      '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+                      '${Config.link}${Routes.chatDirectLink}/${_state.text}';
 
                   if (PlatformUtils.isMobile) {
                     Share.share(share);
@@ -184,7 +184,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               : PlatformUtils.isMobile
                   ? const SvgIcon(SvgIcons.share)
                   : const SvgIcon(SvgIcons.copy),
-          label: '${Config.origin}/',
+          label: '${Config.link}/',
           // subtitle: false && widget.transitions
           //     ? RichText(
           //         text: TextSpan(
@@ -234,7 +234,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   ),
                 ),
               ),
-
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
@@ -246,7 +245,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     child: WidgetButton(
                       onPressed: () {
                         final share =
-                            '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+                            '${Config.link}${Routes.chatDirectLink}/${_state.text}';
 
                         if (PlatformUtils.isMobile) {
                           Share.share(share);
@@ -267,7 +266,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                                 children: [
                                   TextSpan(
                                     text:
-                                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
+                                        '${Config.link}${Routes.chatDirectLink}/${_state.text}',
                                     style: style.fonts.medium.regular.primary,
                                   ),
                                 ],
@@ -290,7 +289,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         ),
                         child: QrImageView(
                           data:
-                              '${Config.origin}${Routes.chatDirectLink}/${widget.link!.slug.val}',
+                              '${Config.link}${Routes.chatDirectLink}/${widget.link!.slug.val}',
                           version: QrVersions.auto,
                           size: 300.0,
                         ),
@@ -310,12 +309,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   const SizedBox(height: 14),
                 ],
               ),
-              // ContactInfoContents(
-              //   padding: EdgeInsets.zero,
-              //   title: '${Config.origin}/',
-              //   content: _state.text,
-              //   trailing: CopyOrShareButton('${Config.origin}/${_state.text}'),
-              // ),
             ],
           ),
           const SizedBox(height: 12),
@@ -333,7 +326,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             final share =
-                                '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+                                '${Config.link}${Routes.chatDirectLink}/${_state.text}';
 
                             if (PlatformUtils.isMobile) {
                               Share.share(share);
@@ -372,29 +365,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 Text.rich(
                   TextSpan(
                     children: [
-                      // TextSpan(
-                      //   text: PlatformUtils.isMobile
-                      //       ? 'Поделиться'
-                      //       : 'Копировать',
-                      //   style: style.fonts.small.regular.primary,
-                      //   recognizer: TapGestureRecognizer()
-                      //     ..onTap = () {
-                      //       final share =
-                      //           '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
-
-                      //       if (PlatformUtils.isMobile) {
-                      //         Share.share(share);
-                      //       } else {
-                      //         PlatformUtils.copy(text: share);
-                      //         MessagePopup.success('label_copied'.l10n);
-                      //       }
-                      //     },
-                      // ),
-                      // TextSpan(
-                      //   text: ' или ',
-                      //   style: style.fonts.small.regular.secondary,
-                      // ),
-
                       TextSpan(
                         text: 'Удалить',
                         style: widget.onSubmit == null

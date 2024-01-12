@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
+import 'ui/widget/custom_page.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';
@@ -104,6 +105,7 @@ class Themes {
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
+      almostTransparent: const Color(0x01000000),
       accept: const Color(0x7F34B139),
       acceptPrimary: const Color(0xFF6eb876),
       acceptAuxiliary: const Color(0xFF4CAF50),
@@ -198,7 +200,6 @@ class Themes {
           cardRadius: BorderRadius.circular(14),
           cardSelectedBorder:
               Border.all(color: colors.primaryHighlightShiny, width: 0.5),
-          // contextMenuBackgroundColor: colors.secondaryHighlight,
           contextMenuBackgroundColor: colors.onPrimary,
           contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
           contextMenuRadius: BorderRadius.circular(11),
@@ -370,10 +371,10 @@ class Themes {
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
         },
       ),
@@ -697,6 +698,7 @@ class Palette {
     Color? onBackgroundOpacity50,
     Color? onBackgroundOpacity70,
     required this.transparent,
+    required this.almostTransparent,
     required this.accept,
     required this.acceptPrimary,
     required this.acceptAuxiliary,
@@ -964,6 +966,9 @@ class Palette {
   /// brightness.
   final Color transparent;
 
+  /// Almost transparent [Color].
+  final Color almostTransparent;
+
   /// Indicator of an affirmative color of confirmable elements.
   final Color accept;
 
@@ -1088,6 +1093,8 @@ class Palette {
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
+      almostTransparent:
+          Color.lerp(color.almostTransparent, other.almostTransparent, t)!,
       accept: Color.lerp(color.accept, other.accept, t)!,
       acceptPrimary: Color.lerp(color.acceptPrimary, other.acceptPrimary, t)!,
       acceptAuxiliary:
@@ -1123,7 +1130,11 @@ extension HexColor on Color {
 
 // TODO: Remove, when flutter/flutter#132839 is fixed:
 //       https://github.com/flutter/flutter/issues/132839
+/// Extension adding workaround of [BlurStyle.outer] rendered incorrectly on
+/// iOS.
 extension BlurStylePlatformExtension on BlurStyle {
+  /// Returns the [BlurStyle.outer], if not [PlatformUtilsImpl.isIOS], or
+  /// [BlurStyle.normal] otherwise.
   BlurStyle get workaround {
     if (PlatformUtils.isIOS) {
       return BlurStyle.normal;
