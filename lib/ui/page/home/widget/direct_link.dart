@@ -42,21 +42,15 @@ import '/util/platform_utils.dart';
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(
-    this.link, {
-    super.key,
-    this.onSubmit,
-    this.transitions = true,
-    this.background,
-  });
+  const DirectLinkField(this.link, {super.key, this.onSubmit, this.background});
 
-  /// Reactive state of the [ReactiveTextField].
+  /// [ChatDirectLink] to display.
   final ChatDirectLink? link;
 
   /// Callback, called when [ChatDirectLinkSlug] is submitted.
   final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
 
-  final bool transitions;
+  /// Bytes of the background to display under the widget.
   final Uint8List? background;
 
   @override
@@ -71,6 +65,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
 
+  /// Indicator whether editing of the [ChatDirectLinkSlug] is enabled
+  /// currently.
   bool _editing = false;
 
   @override
@@ -161,24 +157,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         child: ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
-          onSuffixPressed: _state.isEmpty.value || !widget.transitions
-              ? null
-              : () {
-                  final share =
-                      '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
-
-                  if (PlatformUtils.isMobile) {
-                    Share.share(share);
-                  } else {
-                    PlatformUtils.copy(text: share);
-                    MessagePopup.success('label_copied'.l10n);
-                  }
-                },
-          trailing: _state.isEmpty.value || !widget.transitions
-              ? null
-              : PlatformUtils.isMobile
-                  ? const SvgIcon(SvgIcons.share)
-                  : const SvgIcon(SvgIcons.copy),
           label: '${Config.origin}/',
         ),
       );
@@ -224,9 +202,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                           Share.share(share);
                         } else {
                           PlatformUtils.copy(text: share);
-                          MessagePopup.success(
-                            'label_copied'.l10n,
-                          );
+                          MessagePopup.success('label_copied'.l10n);
                         }
                       },
                       child: MessagePreviewWidget(
@@ -249,23 +225,22 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         ),
                         child: QrImageView(
                           data:
-                              '${Config.origin}${Routes.chatDirectLink}/${widget.link!.slug.val}',
+                              '${Config.origin}${Routes.chatDirectLink}/${widget.link?.slug.val}',
                           version: QrVersions.auto,
                           size: 300.0,
                         ),
                       ),
                     ),
                   ),
-                  if (widget.transitions)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
-                      child: MessagePreviewWidget(
-                        fromMe: true,
-                        text: '${widget.link?.usageCount} кликов',
-                        style: style.fonts.medium.regular.secondary,
-                        // primary: true,
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                    child: MessagePreviewWidget(
+                      fromMe: true,
+                      text: 'label_clicks_count'
+                          .l10nfmt({'count': widget.link?.usageCount ?? 0}),
+                      style: style.fonts.medium.regular.secondary,
                     ),
+                  ),
                   const SizedBox(height: 14),
                 ],
               ),
@@ -280,8 +255,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     children: [
                       TextSpan(
                         text: PlatformUtils.isMobile
-                            ? 'Поделиться'
-                            : 'Копировать',
+                            ? 'btn_share'.l10n
+                            : 'btn_copy'.l10n,
                         style: style.fonts.small.regular.primary,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
@@ -309,7 +284,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Удалить',
+                        text: 'btn_delete'.l10n,
                         style: widget.onSubmit == null
                             ? style.fonts.small.regular.secondary
                             : style.fonts.small.regular.primary,
