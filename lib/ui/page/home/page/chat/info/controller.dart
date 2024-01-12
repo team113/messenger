@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ import '/domain/repository/call.dart'
         CallAlreadyJoinedException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -49,6 +51,7 @@ class ChatInfoController extends GetxController {
     this._chatService,
     this._authService,
     this._callService,
+    this._settingsRepo,
   );
 
   /// ID of the [Chat] this page is about.
@@ -98,6 +101,9 @@ class ChatInfoController extends GetxController {
   /// [CallService] used to start a call in the [chat].
   final CallService _callService;
 
+  /// Settings repository, used to retrieve the [background].
+  final AbstractSettingsRepository _settingsRepo;
+
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
@@ -109,6 +115,9 @@ class ChatInfoController extends GetxController {
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
+
+  /// Returns the current background's [Uint8List] value.
+  Rx<Uint8List?> get background => _settingsRepo.background;
 
   @override
   void onInit() {
@@ -393,6 +402,11 @@ class ChatInfoController extends GetxController {
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
     await _chatService.createChatDirectLink(chatId, slug!);
+  }
+
+  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
+  Future<void> deleteChatDirectLink() async {
+    await _chatService.deleteChatDirectLink(chatId);
   }
 
   /// Fetches the [chat].

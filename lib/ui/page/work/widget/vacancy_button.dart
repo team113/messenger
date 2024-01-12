@@ -62,7 +62,7 @@ class VacancyWorkButton extends StatelessWidget {
             SvgIcon(selected ? SvgIcons.freelanceWhite : SvgIcons.freelance),
         },
         inverted: selected,
-        onPressed: () => router.work(work),
+        onPressed: onPressed == null ? null : () => onPressed?.call(work),
       );
     });
   }

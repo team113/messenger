@@ -147,7 +147,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   Future<void> setBackground(Uint8List? bytes) async {
-    Log.debug('setBackground($bytes)', '$runtimeType');
+    Log.debug('setBackground(${bytes?.length})', '$runtimeType');
 
     bytes == null
         ? await _backgroundLocal.delete()

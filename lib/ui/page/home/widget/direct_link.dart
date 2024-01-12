@@ -16,10 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
-import 'package:flutter/gestures.dart';
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '/config.dart';
 import '/domain/model/user.dart';
@@ -27,9 +30,10 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/link_details/view.dart';
+import '/ui/page/home/page/my_profile/widget/background_preview.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -37,13 +41,16 @@ import '/util/platform_utils.dart';
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(this.link, {super.key, this.onSubmit});
+  const DirectLinkField(this.link, {super.key, this.onSubmit, this.background});
 
-  /// Reactive state of the [ReactiveTextField].
+  /// [ChatDirectLink] to display.
   final ChatDirectLink? link;
 
   /// Callback, called when [ChatDirectLinkSlug] is submitted.
-  final FutureOr<void> Function(ChatDirectLinkSlug)? onSubmit;
+  final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
+
+  /// Bytes of the background to display under the widget.
+  final Uint8List? background;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -57,10 +64,15 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
 
+  /// Indicator whether editing of the [ChatDirectLinkSlug] is enabled
+  /// currently.
+  bool _editing = false;
+
   @override
   void initState() {
     if (widget.link == null) {
       _generated = ChatDirectLinkSlug.generate(10).val;
+      _editing = true;
     }
 
     _state = TextFieldState(
@@ -83,6 +95,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         } on FormatException {
           s.error.value = 'err_incorrect_input'.l10n;
         }
+
+        setState(() => _editing = false);
 
         if (slug == null || slug == widget.link?.slug) {
           return;
@@ -121,6 +135,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         !_state.changed.value &&
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
+
+      if (oldWidget.link != widget.link) {
+        _editing = widget.link == null;
+      }
     }
 
     super.didUpdateWidget(oldWidget);
@@ -130,51 +148,178 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ReactiveTextField(
+    final Widget child;
+
+    if (_editing) {
+      child = Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
-          onSuffixPressed: _state.isEmpty.value
-              ? null
-              : () {
-                  PlatformUtils.copy(
-                    text:
-                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
-                  );
-                  MessagePopup.success('label_copied'.l10n);
-                },
-          trailing: _state.isEmpty.value
-              ? null
-              : Transform.translate(
-                  offset: const Offset(0, -1),
-                  child: const SvgIcon(SvgIcons.copy),
-                ),
           label: '${Config.origin}/',
-          subtitle: RichText(
-            text: TextSpan(
-              style: style.fonts.small.regular.onBackground,
-              children: [
-                TextSpan(
-                  text: 'label_transition_count'.l10nfmt({
-                        'count': widget.link?.usageCount ?? 0,
-                      }) +
-                      'dot_space'.l10n,
-                  style: style.fonts.small.regular.secondary,
+        ),
+      );
+    } else {
+      child = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: style.primaryBorder,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: widget.background == null
+                        ? const SvgImage.asset(
+                            'assets/images/background_light.svg',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.memory(widget.background!, fit: BoxFit.cover),
+                  ),
                 ),
-                TextSpan(
-                  text: 'label_details'.l10n,
-                  style: style.fonts.small.regular.primary,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () => LinkDetailsView.show(context),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 14),
+                  _info(context, Text(DateTime.now().yMd)),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                    child: WidgetButton(
+                      onPressed: () {
+                        final share =
+                            '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+
+                        if (PlatformUtils.isMobile) {
+                          Share.share(share);
+                        } else {
+                          PlatformUtils.copy(text: share);
+                          MessagePopup.success('label_copied'.l10n);
+                        }
+                      },
+                      child: MessagePreviewWidget(
+                        fromMe: true,
+                        style: style.fonts.medium.regular.primary,
+                        text:
+                            '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 6, 0),
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: style.secondaryBorder,
+                          color: style.readMessageColor,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: QrImageView(
+                          data:
+                              '${Config.origin}${Routes.chatDirectLink}/${widget.link?.slug.val}',
+                          version: QrVersions.auto,
+                          size: 300.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                    child: MessagePreviewWidget(
+                      fromMe: true,
+                      text: 'label_clicks_count'
+                          .l10nfmt({'count': widget.link?.usageCount ?? 0}),
+                      style: style.fonts.medium.regular.secondary,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: WidgetButton(
+                  onPressed: () {
+                    final share =
+                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+
+                    if (PlatformUtils.isMobile) {
+                      Share.share(share);
+                    } else {
+                      PlatformUtils.copy(text: share);
+                      MessagePopup.success('label_copied'.l10n);
+                    }
+                  },
+                  child: Text(
+                    PlatformUtils.isMobile ? 'btn_share'.l10n : 'btn_copy'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+              if (widget.onSubmit != null) ...[
+                const SizedBox(width: 8),
+                WidgetButton(
+                  onPressed: () {
+                    setState(() {
+                      widget.onSubmit?.call(null);
+                      _state.unsubmit();
+                      _state.changed.value = true;
+                      _editing = true;
+                    });
+                  },
+                  child: Text(
+                    'btn_delete'.l10n,
+                    style: widget.onSubmit == null
+                        ? style.fonts.small.regular.secondary
+                        : style.fonts.small.regular.primary,
+                  ),
                 ),
               ],
-            ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    return AnimatedSizeAndFade(
+      sizeDuration: const Duration(milliseconds: 300),
+      fadeDuration: const Duration(milliseconds: 300),
+      child: child,
+    );
+  }
+
+  /// Builds a wrapper around the [child] visually representing a [ChatInfo]
+  /// message.
+  Widget _info(BuildContext context, Widget child) {
+    final style = Theme.of(context).style;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: DefaultTextStyle(
+            style: style.systemMessageStyle,
+            child: child,
           ),
         ),
-      ],
+      ),
     );
   }
 }
