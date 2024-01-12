@@ -576,7 +576,7 @@ class CallController extends GetxController {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    speakerSwitched = RxBool(!PlatformUtils.isIOS);
+    speakerSwitched = RxBool(false);
 
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
@@ -961,44 +961,58 @@ class CallController extends GetxController {
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();
-    }
 
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      final List<MediaDeviceDetails> outputs =
-          _currentCall.value.devices.output().toList();
-      if (outputs.length > 1) {
-        MediaDeviceDetails? device;
+      try {
+        final List<MediaDeviceDetails> outputs =
+            _currentCall.value.devices.output().toList();
+        if (outputs.length > 1) {
+          MediaDeviceDetails? device;
 
-        if (PlatformUtils.isIOS) {
-          device = _currentCall.value.devices.output().firstWhereOrNull(
-              (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
-        } else {
-          device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
-              e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
-        }
-
-        if (device == null) {
-          if (speakerSwitched.value) {
-            device = outputs.firstWhereOrNull((e) =>
-                e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
-            speakerSwitched.value = !(device != null);
+          if (PlatformUtils.isIOS) {
+            device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+                e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
           } else {
-            device = outputs.firstWhereOrNull((e) =>
-                e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
-            speakerSwitched.value = (device != null);
+            device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+                e.deviceId() != 'ear-speaker' &&
+                e.deviceId() != 'speakerphone');
           }
 
           if (device == null) {
-            int selected = _currentCall.value.outputDevice.value == null
-                ? 0
-                : outputs.indexWhere((e) =>
-                    e.deviceId() == _currentCall.value.outputDevice.value!);
-            selected += 1;
-            device = outputs[(selected) % outputs.length];
-          }
-        }
+            // final isEarPiece =
+            //     _currentCall.value.audioDevice.value == 'ear-speaker' ||
+            //         _currentCall.value.audioDevice.value == 'ear-piece';
 
-        await _currentCall.value.setOutputDevice(device.deviceId());
+            // print(outputs.map((e) => e.deviceId()));
+            // print('${_currentCall.value.audioDevice.value}');
+
+            if (speakerSwitched.value) {
+              device = outputs.firstWhereOrNull((e) =>
+                  e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+              // speakerSwitched.value = !(device != null);
+            } else {
+              device = outputs.firstWhereOrNull((e) =>
+                  e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+              // speakerSwitched.value = (device != null);
+            }
+
+            if (device == null) {
+              int selected = _currentCall.value.outputDevice.value == null
+                  ? 0
+                  : outputs.indexWhere(
+                      (e) =>
+                          e.deviceId() ==
+                          _currentCall.value.outputDevice.value!,
+                    );
+              selected += 1;
+              device = outputs[(selected) % outputs.length];
+            }
+          }
+
+          speakerSwitched.toggle();
+          await _currentCall.value.setOutputDevice(device.deviceId());
+        }
+      } catch (e) {
+        MessagePopup.error(e);
       }
     } else {
       // TODO: Ensure `medea_flutter_webrtc` supports Web output device

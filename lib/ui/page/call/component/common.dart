@@ -500,8 +500,8 @@ class SpeakerButton extends CallButton {
   }) {
     return Obx(() {
       return CallButtonWidget(
-        hint: hint,
-        asset: c.isRemoteAudioEnabled.value
+        hint: hinted ? hint : null,
+        asset: c.speakerSwitched.value
             ? SvgIcons.callIncomingAudioOn
             : SvgIcons.callIncomingAudioOff,
         hinted: hinted,

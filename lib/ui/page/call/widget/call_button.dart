@@ -87,7 +87,7 @@ class CallButtonWidget extends StatelessWidget {
         offset: offset,
         color: color ?? style.colors.onSecondaryOpacity50,
         hint: !expanded && hinted ? hint : null,
-        text: expanded || constrained ? hint : null,
+        text: hinted && (expanded || constrained) ? hint : null,
         minified: !constrained,
         showText: expanded,
         withBlur: withBlur,

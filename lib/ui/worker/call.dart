@@ -22,6 +22,7 @@ import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -98,11 +99,14 @@ class CallWorker extends DisposableService {
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   /// Returns the name of an incoming call sound asset.
-  String get _incoming =>
-      PlatformUtils.isWeb ? 'incoming_web_call.mp3' : 'incoming_call.mp3';
+  String get _incoming => PlatformUtils.isWeb && PlatformUtils.isMobile
+      ? 'end_call.wav'
+      : PlatformUtils.isWeb
+          ? 'incoming_web_call.mp3'
+          : 'incoming_call.mp3';
 
   /// Returns the name of an outgoing call sound asset.
-  String get _outgoing => 'outgoing_call2.mp3';
+  String get _outgoing => 'outgoing_call3.mp3';
 
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
@@ -189,8 +193,11 @@ class CallWorker extends DisposableService {
               // AudioUtils.once(AudioSource.asset(_outgoing));
               //   }
               // }
-            } else if (!PlatformUtils.isMobile || isInForeground) {
+            } else if (!PlatformUtils.isMobile ||
+                isInForeground ||
+                PlatformUtils.isWeb) {
               play(_incoming, fade: true);
+
               Vibration.hasVibrator().then((bool? v) {
                 _vibrationTimer?.cancel();
 
@@ -361,14 +368,16 @@ class CallWorker extends DisposableService {
 
     if (_myUser.value?.muted == null) {
       if (asset == _incoming) {
-        final previous = _incomingAudio;
+        // final previous = _incomingAudio;
 
+        _incomingAudio?.cancel();
+        MessagePopup.success('3play(${(source as AssetAudioSource).asset})');
         _incomingAudio = AudioUtils.play(
           source,
           fade: fade ? 1.seconds : Duration.zero,
         );
 
-        previous?.cancel();
+        // previous?.cancel();
       } else {
         // if (repeat) {
         //   AudioUtils.once(source).then((_) => AudioUtils.once(source));

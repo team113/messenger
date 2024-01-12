@@ -72,6 +72,8 @@ class AudioUtilsImpl {
     Duration fade = Duration.zero,
     void Function()? onDone,
   }) {
+    Log.debug('play($music)', '$runtimeType');
+
     StreamController? controller = _players[music];
     StreamSubscription? position;
 
@@ -81,6 +83,8 @@ class AudioUtilsImpl {
 
       controller = StreamController.broadcast(
         onListen: () async {
+          Log.debug('play($music): onListen', '$runtimeType');
+
           try {
             player = Player();
           } catch (e) {
@@ -93,6 +97,11 @@ class AudioUtilsImpl {
               );
             }
           }
+
+          Log.debug(
+            'play($music): devices = ${_player?.state.audioDevices.map((e) => e.name)}',
+            '$runtimeType',
+          );
 
           await player?.open(music.media);
 
@@ -121,8 +130,12 @@ class AudioUtilsImpl {
               },
             );
           }
+
+          Log.debug('play($music): onListen done', '$runtimeType');
         },
         onCancel: () async {
+          Log.debug('play($music): onCancel', '$runtimeType');
+
           _players.remove(music);
           position?.cancel();
           timer?.cancel();

@@ -443,14 +443,14 @@ Widget mobileCall(CallController c, BuildContext context) {
             const SizedBox(height: 12),
             buttons(
               [
-                if (PlatformUtils.isMobile)
-                  padding(
-                    c.videoState.value.isEnabled
-                        ? SwitchButton(c).build(expanded: c.isPanelOpen.value)
-                        : SpeakerButton(c).build(expanded: c.isPanelOpen.value),
-                  ),
-                if (PlatformUtils.isDesktop)
-                  padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
+                // if (PlatformUtils.isMobile)
+                padding(
+                  c.videoState.value.isEnabled
+                      ? SwitchButton(c).build(expanded: c.isPanelOpen.value)
+                      : SpeakerButton(c).build(expanded: c.isPanelOpen.value),
+                ),
+                // if (PlatformUtils.isDesktop)
+                //   padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
@@ -581,13 +581,33 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
-                                            ? SwitchButton(c).build(blur: true)
-                                            : SpeakerButton(c)
-                                                .build(blur: true),
+                                            ? SwitchButton(c).build(
+                                                blur: true,
+                                                hinted: false,
+                                              )
+                                            : SpeakerButton(c).build(
+                                                blur: true,
+                                                hinted: false,
+                                              ),
                                       ),
-                                    padding(AudioButton(c).build(blur: true)),
-                                    padding(VideoButton(c).build(blur: true)),
-                                    padding(CancelButton(c).build(blur: true)),
+                                    padding(
+                                      AudioButton(c).build(
+                                        blur: true,
+                                        hinted: false,
+                                      ),
+                                    ),
+                                    padding(
+                                      VideoButton(c).build(
+                                        blur: true,
+                                        hinted: false,
+                                      ),
+                                    ),
+                                    padding(
+                                      CancelButton(c).build(
+                                        blur: true,
+                                        hinted: false,
+                                      ),
+                                    ),
                                   ]
                                 : [
                                     padding(
