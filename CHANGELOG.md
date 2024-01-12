@@ -43,6 +43,7 @@ All user visible changes to this project will be documented in this file. This p
         - Dock animations lagging when dragging buttons. ([#774], [#698])
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
+    - Video popup calls starting without camera enabled. ([#797])
 
 [#573]: /../../issues/573
 [#582]: /../../issues/582
@@ -66,6 +67,7 @@ All user visible changes to this project will be documented in this file. This p
 [#788]: /../../issues/788
 [#791]: /../../pull/791
 [#796]: /../../pull/796
+[#797]: /../../pull/797
 
 
 
