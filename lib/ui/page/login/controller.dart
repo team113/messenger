@@ -162,9 +162,12 @@ class LoginController extends GetxController {
     login = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
-        password.markSubmittable();
+        password.unsubmit();
       },
-      onSubmitted: (s) => password.focus.requestFocus(),
+      onSubmitted: (s) {
+        password.focus.requestFocus();
+        s.unsubmit();
+      },
     );
 
     password = TextFieldState(
@@ -186,9 +189,12 @@ class LoginController extends GetxController {
       onChanged: (s) {
         s.error.value = null;
         repeatPassword.error.value = null;
-        repeatPassword.markSubmittable();
+        repeatPassword.unsubmit();
       },
-      onSubmitted: (s) => repeatPassword.focus.requestFocus(),
+      onSubmitted: (s) {
+        repeatPassword.focus.requestFocus();
+        s.unsubmit();
+      },
     );
 
     repeatPassword = TextFieldState(

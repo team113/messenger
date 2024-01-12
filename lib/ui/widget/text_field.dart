@@ -584,9 +584,6 @@ class TextFieldState extends ReactiveFieldState {
   /// was modified since the last [submit] action.
   String? _previousSubmit;
 
-  /// Whether the [submit] action should be allowed unconditionally.
-  bool _shouldAllowSubmit = false;
-
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
 
@@ -616,8 +613,7 @@ class TextFieldState extends ReactiveFieldState {
   @override
   void submit() {
     if (editable.value) {
-      if (_shouldAllowSubmit || controller.text != _previousSubmit) {
-        _shouldAllowSubmit = false;
+      if (controller.text != _previousSubmit) {
         if (_previousText != controller.text) {
           _previousText = controller.text;
           onChanged?.call(this);
@@ -633,12 +629,6 @@ class TextFieldState extends ReactiveFieldState {
   void unsubmit() {
     _previousSubmit = null;
     changed.value = false;
-  }
-
-  /// Allows [submit] to be invoked even if the [text] was not modified since
-  /// the last [submit] action.
-  void markSubmittable() {
-    _shouldAllowSubmit = true;
   }
 
   /// Clears the [TextEditingController]'s text without calling [onChanged].
