@@ -404,9 +404,11 @@ Widget _phones(BuildContext context, MyProfileController c) {
     for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
       widgets.add(
         InfoTile(
+          key: const Key('ConfirmedPhone'),
           content: e.val,
           title: 'label_phone'.l10n,
           trailing: WidgetButton(
+            key: const Key('DeletePhone'),
             onPressed: () => _deletePhone(c, context, e),
             child: const SvgIcon(SvgIcons.delete),
           ),
@@ -420,6 +422,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
     if (unconfirmed != null) {
       widgets.add(
         InfoTile(
+          key: const Key('UnconfirmedPhone'),
           content: unconfirmed.val,
           title: 'label_phone_not_verified'.l10n,
           trailing: WidgetButton(
@@ -429,6 +432,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
           subtitle: [
             const SizedBox(height: 4),
             WidgetButton(
+              key: const Key('VerifyPhone'),
               onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
               child: Text(
                 'label_verify'.l10n,
@@ -503,6 +507,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
         ].whereNotNull();
 
         final phone = ReactiveTextField(
+          key: const Key('Phone'),
           state: c.phone,
           label: 'label_add_phone'.l10n,
           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -530,6 +535,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             const SizedBox(height: 6),
             const SizedBox(height: 12),
             WidgetButton(
+              key: const Key('ExpandSigning'),
               onPressed: c.expanded.toggle,
               child: Row(
                 children: [
@@ -885,8 +891,9 @@ Widget _storage(BuildContext context, MyProfileController c) {
     64.0,
   ];
 
-  final gbs =
-      (CacheWorker.instance.info.value.maxSize?.toDouble() ?? (values.last * GB)) / GB;
+  final gbs = (CacheWorker.instance.info.value.maxSize?.toDouble() ??
+          (values.last * GB)) /
+      GB;
   var index = values.indexWhere((e) => gbs <= e);
   if (index == -1) {
     index = values.length - 1;
@@ -901,8 +908,8 @@ Widget _storage(BuildContext context, MyProfileController c) {
           children: [
             Obx(() {
               final int size = CacheWorker.instance.info.value.size;
-              final int max =
-                  CacheWorker.instance.info.value.maxSize ?? (values.last * GB).toInt();
+              final int max = CacheWorker.instance.info.value.maxSize ??
+                  (values.last * GB).toInt();
 
               if (max >= 64 * GB) {
                 return Text(

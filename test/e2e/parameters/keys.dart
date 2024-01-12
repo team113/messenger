@@ -78,6 +78,7 @@ enum WidgetKey {
   EditButton,
   Email,
   EmailsExpandable,
+  ExpandSigning,
   FavoriteChatButton,
   FavoriteContactButton,
   ForwardButton,
@@ -158,6 +159,7 @@ enum WidgetKey {
   UserScrollable,
   UsernameField,
   VerifyEmail,
+  VerifyPhone,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

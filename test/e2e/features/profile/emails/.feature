@@ -36,4 +36,4 @@ Feature: User email
 
     When I tap `DeleteEmail` widget
     And I tap `Proceed` button
-    Then I wait until `Email` is present
+    Then I wait until `ConfirmedEmail` is absent
