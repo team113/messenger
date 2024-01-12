@@ -50,8 +50,8 @@ class CallRepository extends DisposableInterface
   CallRepository(
     this._graphQlProvider,
     this._userRepo,
-    this._credentialsProvider,
-    this._backupCredentialsProvider,
+    this._callCredentialsProvider,
+    this._chatCredentialsProvider,
     this._settingsRepo, {
     required this.me,
   });
@@ -72,14 +72,16 @@ class CallRepository extends DisposableInterface
   final UserRepository _userRepo;
 
   /// Local [ChatCallCredentials] storage.
-  final CallCredentialsHiveProvider _credentialsProvider;
+  ///
+  /// Stores [ChatCallCredentials] by ID of a [ChatCall].
+  final CallCredentialsHiveProvider _callCredentialsProvider;
 
   /// Local [ChatCallCredentials] backup storage.
   ///
   /// Stores [ChatCallCredentials] by [ChatId]. Used to prevent credentials from
   /// being re-generated if the app was restarted before calling
   /// [transferCredentials] or on repeated [generateCredentials] calls.
-  final ChatCredentialsHiveProvider _backupCredentialsProvider;
+  final ChatCredentialsHiveProvider _chatCredentialsProvider;
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -408,10 +410,10 @@ class CallRepository extends DisposableInterface
   ChatCallCredentials generateCredentials(ChatId chatId) {
     Log.debug('generateCredentials($chatId)', '$runtimeType');
 
-    ChatCallCredentials? creds = _backupCredentialsProvider.get(chatId);
+    ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
-      _backupCredentialsProvider.put(chatId, creds);
+      _chatCredentialsProvider.put(chatId, creds);
     }
 
     return creds;
@@ -421,11 +423,11 @@ class CallRepository extends DisposableInterface
   void transferCredentials(ChatId chatId, ChatItemId callId) {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
-    final ChatCallCredentials? creds = _backupCredentialsProvider.get(chatId);
+    final ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
       final credsCopy = ChatCallCredentials(creds.val);
-      _credentialsProvider.put(callId, credsCopy);
+      _callCredentialsProvider.put(callId, credsCopy);
     }
   }
 
@@ -433,10 +435,10 @@ class CallRepository extends DisposableInterface
   ChatCallCredentials getCredentials(ChatItemId callId) {
     Log.debug('getCredentials($callId)', '$runtimeType');
 
-    ChatCallCredentials? creds = _credentialsProvider.get(callId);
+    ChatCallCredentials? creds = _callCredentialsProvider.get(callId);
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
-      _credentialsProvider.put(callId, creds);
+      _callCredentialsProvider.put(callId, creds);
     }
 
     return creds;
@@ -452,34 +454,32 @@ class CallRepository extends DisposableInterface
     Log.debug('moveCredentials($callId, $newCallId, $chatId, $newChatId)',
         '$runtimeType');
 
-    ChatCallCredentials? backupCreds = _backupCredentialsProvider.get(chatId);
-    ChatCallCredentials? creds = _credentialsProvider.get(callId);
+    ChatCallCredentials? chatCreds = _chatCredentialsProvider.get(chatId);
+    ChatCallCredentials? callCreds = _callCredentialsProvider.get(callId);
 
-    if (backupCreds != null) {
+    if (chatCreds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      backupCreds = ChatCallCredentials(backupCreds.val);
+      chatCreds = ChatCallCredentials(chatCreds.val);
 
-      _backupCredentialsProvider.remove(chatId);
-      _backupCredentialsProvider.put(newChatId, backupCreds);
+      _chatCredentialsProvider.remove(chatId);
+      _chatCredentialsProvider.put(newChatId, chatCreds);
     }
 
-    if (creds != null) {
+    if (callCreds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      creds = ChatCallCredentials(creds.val);
+      callCreds = ChatCallCredentials(callCreds.val);
 
-      _credentialsProvider.remove(callId);
-      _credentialsProvider.put(newCallId, creds);
+      _callCredentialsProvider.remove(callId);
+      _callCredentialsProvider.put(newCallId, callCreds);
     }
   }
 
   @override
-  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('removeCredentials($callId)', '$runtimeType');
 
-    return Future.wait([
-      _backupCredentialsProvider.remove(chatId),
-      _credentialsProvider.remove(callId),
-    ]);
+    await _chatCredentialsProvider.remove(chatId);
+    await _callCredentialsProvider.remove(callId);
   }
 
   @override

@@ -98,7 +98,7 @@ class CallService extends DisposableService {
       await _callsRepo.leave(chatId, e.deviceId);
       rethrow;
     } catch (e) {
-      // If an error occurs, it's guaranteed that the broken call will be
+      // If any other error occurs, it's guaranteed that the broken call will be
       // removed.
       _callsRepo.remove(chatId);
       rethrow;

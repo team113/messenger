@@ -31,7 +31,7 @@ class ChatCredentialsHiveProvider
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'backup_call_credentials';
+  String get boxName => 'chat_credentials';
 
   @override
   void registerAdapters() {
