@@ -74,13 +74,7 @@ class HiveRxChat extends RxChat {
         unreadCount = RxInt(hiveChat.value.unreadCount),
         // TODO: Don't ignore version, when all events are surely delivered by
         //       subscribing to `chatEvents` with that version.
-        ver = hiveChat.value.name?.val == 'named'
-            ? ChatVersion(
-                '031452680279290975191536964834527342193031452680279888553166213896908846608141',
-              )
-            : hiveChat.value.favoritePosition == null
-                ? hiveChat.ver
-                : null;
+        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
 
   @override
   final Rx<Chat> chat;
