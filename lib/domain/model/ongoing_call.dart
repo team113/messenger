@@ -2058,11 +2058,11 @@ class CallMember {
   /// Indicator whether this [CallMember] is dialing.
   final RxBool isDialing;
 
-  /// [ConnectionHandle] of this [CallMember].
-  ConnectionHandle? _connection;
-
   /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
+
+  /// [ConnectionHandle] of this [CallMember].
+  ConnectionHandle? _connection;
 
   /// Disposes the [tracks] of this [CallMember].
   void dispose() {

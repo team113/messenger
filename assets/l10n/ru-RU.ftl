@@ -627,6 +627,7 @@ label_chat_name_hint = Название чата
 label_chats = Чаты
 label_chats_section_hint = Кнопки аудио и видео звонка
 label_clear_history = Очистить историю
+label_clicks_count = {$count} кликов
 label_code_sent_again = Код отправлен повторно.
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения

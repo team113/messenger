@@ -20,7 +20,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -34,12 +33,9 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/info_tile.dart';
-import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/member_tile.dart';
@@ -62,7 +58,13 @@ class ChatInfoView extends StatelessWidget {
 
     return GetBuilder<ChatInfoController>(
       key: const Key('ChatInfoView'),
-      init: ChatInfoController(id, Get.find(), Get.find(), Get.find()),
+      init: ChatInfoController(
+        id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       tag: id.val,
       global: !Get.isRegistered<ChatInfoController>(tag: id.val),
       builder: (c) {
@@ -196,51 +198,24 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final Widget child;
-
-      if (c.editing.value) {
-        child = Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 12),
-          child: DirectLinkField(
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(6, 0, 8, 24),
+            child: Text(
+              'label_direct_chat_link_in_chat_description'.l10n,
+              style: style.fonts.small.regular.secondary,
+            ),
+          ),
+          DirectLinkField(
             c.chat?.chat.value.directLink,
-            onSubmit: c.createChatDirectLink,
+            onSubmit: (s) => s == null
+                ? c.deleteChatDirectLink()
+                : c.createChatDirectLink(s),
+            background: c.background.value,
           ),
-        );
-      } else {
-        child = Padding(
-          padding: Insets.basic.copyWith(bottom: 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(6, 0, 8, 24),
-                child: Text(
-                  'label_direct_chat_link_in_chat_description'.l10n,
-                  style: style.fonts.small.regular.secondary,
-                ),
-              ),
-              InfoTile(
-                title: '${Config.origin}/',
-                content: c.link.text,
-                maxLines: null,
-                trailing: CopyOrShareButton(
-                  '${Config.origin}${Routes.chatDirectLink}/${c.link.text}',
-                  onPressed: () {
-                    if (c.link.text !=
-                        c.chat?.chat.value.directLink?.slug.val) {
-                      c.link.submit();
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      }
-
-      return SafeAnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        child: child,
+        ],
       );
     });
   }
