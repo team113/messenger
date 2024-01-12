@@ -179,7 +179,10 @@ class MyProfileView extends StatelessWidget {
                           Obx(() {
                             return DirectLinkField(
                               c.myUser.value?.chatDirectLink,
-                              onSubmit: c.createChatDirectLink,
+                              onSubmit: (s) => s == null
+                                  ? c.deleteChatDirectLink()
+                                  : c.createChatDirectLink(s),
+                              background: c.background.value,
                             );
                           }),
                         ],
