@@ -50,9 +50,12 @@ class Config {
   static String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
-  ///
-  /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
+
+  /// [ChatDirectLink] prefix.
+  ///
+  /// If empty, then [origin] is used.
+  static String link = '';
 
   /// Directory to download files to.
   static String downloads = '';
@@ -170,6 +173,14 @@ class Config {
             'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
     origin = url;
+
+    link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
+        ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
+        : (document['link']?['url'] ?? '');
+
+    if (link.isEmpty) {
+      link = origin;
+    }
 
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
