@@ -499,11 +499,16 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  for (final ChatMember m in (v?.chat.value.members ?? [])
-                      .where((e) =>
-                          e.user.id != me.id.userId &&
-                          dialed.answeredMembers
-                              .none((a) => a.user.id == e.user.id))) {
+                  final Iterable<ChatMember> redialed =
+                      (v?.chat.value.members ?? []).where(
+                    (e) =>
+                        e.user.id != me.id.userId &&
+                        dialed.answeredMembers.none(
+                          (a) => a.user.id == e.user.id,
+                        ),
+                  );
+
+                  for (final ChatMember m in redialed) {
                     addDialing(m.user.id);
                   }
                 }

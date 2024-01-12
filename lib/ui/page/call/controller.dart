@@ -1888,11 +1888,11 @@ class CallController extends GetxController {
   /// Puts the [CallMember.tracks] to the according [Participant].
   void _putTracksFrom(CallMember member) {
     if (member.tracks.none((t) => t.source == MediaSourceKind.device)) {
-      _putTrack(member, null);
+      _putTrackFrom(member, null);
     }
 
     for (final Track track in member.tracks) {
-      _putTrack(member, track);
+      _putTrackFrom(member, track);
     }
   }
 
@@ -1900,7 +1900,7 @@ class CallController extends GetxController {
   ///
   /// If no suitable [Participant]s for this [track] are found, then a new
   /// [Participant] with this [track] is added.
-  void _putTrack(CallMember member, Track? track) {
+  void _putTrackFrom(CallMember member, Track? track) {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
@@ -2048,7 +2048,7 @@ class CallController extends GetxController {
       ) {
         switch (track.op) {
           case OperationKind.added:
-            _putTrack(member, track.element);
+            _putTrackFrom(member, track.element);
             _ensureCorrectGrouping();
             break;
 

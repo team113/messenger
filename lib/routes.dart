@@ -45,9 +45,10 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
+import 'provider/hive/call_credentials.dart';
 import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
-import 'provider/hive/call_credentials.dart';
+import 'provider/hive/chat_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
@@ -58,7 +59,6 @@ import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
-import 'provider/hive/backup_call_credentials.dart';
 import 'provider/hive/user.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
@@ -476,7 +476,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(CallCredentialsHiveProvider()).init(userId: me),
-                deps.put(BackupCallCredentialsHiveProvider()).init(userId: me),
+                deps.put(ChatCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
@@ -602,7 +602,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
               deps.put(CallCredentialsHiveProvider()).init(userId: me),
-              deps.put(BackupCallCredentialsHiveProvider()).init(userId: me),
+              deps.put(ChatCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),

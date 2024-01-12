@@ -36,9 +36,10 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
@@ -47,7 +48,6 @@ import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/backup_call_credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -136,8 +136,8 @@ void main() async {
   await backgroundProvider.init();
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  final tempCallCredentialsProvider = BackupCallCredentialsHiveProvider();
-  await tempCallCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -215,7 +215,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
-        tempCallCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -240,7 +240,6 @@ void main() async {
     );
     callService.onReady();
 
-    await Future.delayed(Duration.zero);
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'first');
@@ -320,7 +319,6 @@ void main() async {
     ));
 
     await Future.delayed(Duration.zero);
-    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'second');
   });
@@ -350,7 +348,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
-        tempCallCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -375,7 +373,6 @@ void main() async {
     );
     callService.onReady();
 
-    await Future.delayed(Duration.zero);
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
 
@@ -427,7 +424,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
-        tempCallCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -484,7 +481,6 @@ void main() async {
     ));
 
     await Future.delayed(Duration.zero);
-    await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
@@ -521,7 +517,6 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await Future.delayed(Duration.zero);
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
