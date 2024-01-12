@@ -74,7 +74,7 @@ class FieldButton extends StatefulWidget {
   /// Indicator whether this [FieldButton] should have warning style.
   final bool warning;
 
-  /// Indicator whether the [text] should should have danger color.
+  /// Indicator whether the [text] should have danger color.
   final bool danger;
 
   @override

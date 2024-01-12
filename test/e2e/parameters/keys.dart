@@ -157,6 +157,7 @@ enum WidgetKey {
   Unselected,
   UserScrollable,
   UsernameField,
+  VerifyEmail,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

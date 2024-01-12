@@ -343,9 +343,11 @@ Widget _emails(BuildContext context, MyProfileController c) {
     for (UserEmail e in c.myUser.value?.emails.confirmed ?? []) {
       widgets.add(
         InfoTile(
+          key: const Key('ConfirmedEmail'),
           content: e.val,
           title: 'label_email'.l10n,
           trailing: WidgetButton(
+            key: const Key('DeleteEmail'),
             onPressed: () => _deleteEmail(c, context, e),
             child: const SvgIcon(SvgIcons.delete),
           ),
@@ -360,6 +362,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
     if (unconfirmed != null) {
       widgets.add(
         InfoTile(
+          key: const Key('UnconfirmedEmail'),
           content: unconfirmed.val,
           trailing: WidgetButton(
             onPressed: () => _deleteEmail(c, context, unconfirmed),
@@ -369,6 +372,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
           subtitle: [
             const SizedBox(height: 4),
             WidgetButton(
+              key: const Key('VerifyEmail'),
               onPressed: () => AddEmailView.show(context, email: unconfirmed),
               child: Text(
                 'label_verify'.l10n,
@@ -460,7 +464,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             child: Container(
               width: double.infinity,
               height: 0.5,
-              color: Colors.black26,
+              color: style.colors.onBackgroundOpacity27,
             ),
           ),
           const SizedBox(width: 8),
@@ -473,7 +477,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             child: Container(
               width: double.infinity,
               height: 0.5,
-              color: Colors.black26,
+              color: style.colors.onBackgroundOpacity27,
             ),
           ),
         ],
@@ -508,6 +512,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           ],
         );
         final email = ReactiveTextField(
+          key: const Key('Email'),
           state: c.email,
           label: 'label_add_email'.l10n,
           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -797,11 +802,9 @@ Widget _sections(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
-          final enabled = c.settings.value?.workWithUsTabEnabled == true;
-
           return SwitchField(
             text: 'btn_work_with_us'.l10n,
-            value: enabled,
+            value: c.settings.value?.workWithUsTabEnabled == true,
             onChanged: c.setWorkWithUsTabEnabled,
           );
         }),
@@ -883,7 +886,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
   ];
 
   final gbs =
-      (CacheWorker.instance.info.value.maxSize?.toDouble() ?? 64 * GB) / GB;
+      (CacheWorker.instance.info.value.maxSize?.toDouble() ?? (values.last * GB)) / GB;
   var index = values.indexWhere((e) => gbs <= e);
   if (index == -1) {
     index = values.length - 1;
@@ -899,7 +902,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
             Obx(() {
               final int size = CacheWorker.instance.info.value.size;
               final int max =
-                  CacheWorker.instance.info.value.maxSize ?? (64 * GB);
+                  CacheWorker.instance.info.value.maxSize ?? (values.last * GB).toInt();
 
               if (max >= 64 * GB) {
                 return Text(
@@ -917,12 +920,10 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 }),
               );
             }),
-            Container(
-              color: Colors.transparent,
+            SizedBox(
               height: 100,
               child: FlutterSlider(
                 handlerHeight: 24,
-                handler: FlutterSliderHandler(),
                 values: [v.toDouble()],
                 tooltip: FlutterSliderTooltip(disabled: true),
                 fixedValues: values.mapIndexed(
@@ -936,11 +937,11 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 trackBar: FlutterSliderTrackBar(
                   inactiveTrackBar: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: Colors.black12,
+                    color: style.colors.onBackgroundOpacity13,
                   ),
                   activeTrackBar: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: Colors.blue.withOpacity(1),
+                    borderRadius: BorderRadius.circular(20),
+                    color: style.colors.primaryHighlight,
                   ),
                 ),
                 onDragging: (i, lower, upper) {
@@ -963,7 +964,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 },
                 hatchMark: FlutterSliderHatchMark(
                   labelsDistanceFromTrackBar: -48,
-                  linesAlignment: FlutterSliderHatchMarkAlignment.right,
                   density: 0.5, // means 50 lines, from 0 to 100 percent
                   labels: [
                     FlutterSliderHatchMarkLabel(
@@ -988,21 +988,21 @@ Widget _storage(BuildContext context, MyProfileController c) {
                       ),
                     ),
                     FlutterSliderHatchMarkLabel(
-                      percent: 48,
+                      percent: 49,
                       label: Text(
                         'label_count_gb'.l10nfmt({'count': 8}),
                         style: style.fonts.smallest.regular.secondary,
                       ),
                     ),
                     FlutterSliderHatchMarkLabel(
-                      percent: 64,
+                      percent: 66,
                       label: Text(
                         'label_count_gb'.l10nfmt({'count': 16}),
                         style: style.fonts.smallest.regular.secondary,
                       ),
                     ),
                     FlutterSliderHatchMarkLabel(
-                      percent: 80,
+                      percent: 83,
                       label: Text(
                         'label_count_gb'.l10nfmt({'count': 32}),
                         style: style.fonts.smallest.regular.secondary,
