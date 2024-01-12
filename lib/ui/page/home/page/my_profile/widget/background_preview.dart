@@ -85,14 +85,14 @@ class BackgroundPreview extends StatelessWidget {
                         children: [
                           Align(
                             alignment: Alignment.topLeft,
-                            child: _MessageWidget(
+                            child: MessagePreviewWidget(
                               fromMe: false,
                               text: 'label_hello'.l10n,
                             ),
                           ),
                           Align(
                             alignment: Alignment.topRight,
-                            child: _MessageWidget(
+                            child: MessagePreviewWidget(
                               text: 'label_hello_reply'.l10n,
                             ),
                           ),
@@ -128,28 +128,32 @@ class BackgroundPreview extends StatelessWidget {
 }
 
 /// Message-styled [Container].
-class _MessageWidget extends StatelessWidget {
-  const _MessageWidget({
+class MessagePreviewWidget extends StatelessWidget {
+  const MessagePreviewWidget({
+    super.key,
     this.text,
     this.fromMe = true,
+    this.style,
   });
 
   /// Indicator whether the message is sent by the user or received from
   /// other users.
   final bool fromMe;
 
-  /// Text to display in this [_MessageWidget].
+  /// Text to display in this [MessagePreviewWidget].
   final String? text;
+
+  /// Optional [TextStyle] to apply to the [text].
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       child: IntrinsicWidth(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
+        child: Container(
           decoration: BoxDecoration(
             color: fromMe ? style.readMessageColor : style.messageColor,
             borderRadius: BorderRadius.circular(15),
@@ -163,7 +167,8 @@ class _MessageWidget extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
                   child: Text(
                     text!,
-                    style: style.fonts.medium.regular.onBackground,
+                    style:
+                        this.style ?? style.fonts.medium.regular.onBackground,
                   ),
                 ),
             ],
