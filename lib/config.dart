@@ -172,6 +172,8 @@ class Config {
         : (document['fcm']?['vapidKey'] ??
             'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
 
+    origin = url;
+
     link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
         ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
         : (document['link']?['url'] ?? '');
@@ -183,8 +185,6 @@ class Config {
       orElse: () =>
           kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
     );
-
-    origin = url;
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
