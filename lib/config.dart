@@ -176,7 +176,7 @@ class Config {
 
     link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
         ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
-        : (document['link']?['url'] ?? '');
+        : (document['link']?['prefix'] ?? '');
 
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
