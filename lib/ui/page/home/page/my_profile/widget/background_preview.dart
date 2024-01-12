@@ -141,13 +141,9 @@ class MessagePreviewWidget extends StatelessWidget {
   final bool fromMe;
 
   /// Text to display in this [MessagePreviewWidget].
-  ///
-  /// Meaningless, if [child] is provided.
   final String? text;
 
   /// Optional [TextStyle] to apply to the [text].
-  ///
-  /// Meaningless, if [child] is provided.
   final TextStyle? style;
 
   @override
