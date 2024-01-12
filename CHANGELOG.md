@@ -21,8 +21,12 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Monolog searching. ([#745], [#582])
     - Redesigned user page. ([#769], [#766])
-    - Redesigned chat info page. ([#769], [#766])
+    - Chat info page:
+        - Redesigned general information and group members. ([#769], [#766])
+        - Redesigned direct chat link. ([#796], [#787])
     - Tuned up page transition animation. ([#775], [#573])
+    - Profile page:
+        - Redesigned direct chat link. ([#796], [#787])
 
 ### Fixed
 
@@ -58,8 +62,10 @@ All user visible changes to this project will be documented in this file. This p
 [#776]: /../../pull/776
 [#780]: /../../pull/780
 [#786]: /../../pull/786
+[#787]: /../../issues/787
 [#788]: /../../issues/788
 [#791]: /../../pull/791
+[#796]: /../../pull/796
 
 
 

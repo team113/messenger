@@ -602,6 +602,7 @@ label_chat_name_hint = Chat name
 label_chats = Messages
 label_chats_section_hint = Audio and video call buttons
 label_clear_history = Clear history
+label_clicks_count = {$count} clicks
 label_code_sent_again = The code has been re-sent.
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
