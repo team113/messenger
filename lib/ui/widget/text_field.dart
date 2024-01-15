@@ -212,7 +212,6 @@ class ReactiveTextField extends StatelessWidget {
                   ? const SizedBox(
                       key: ValueKey('Empty'),
                       width: 24,
-                      child: Icon(Icons.bug_report),
                     )
                   : status.isLoading
                       ? const SizedBox(
