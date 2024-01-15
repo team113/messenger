@@ -118,7 +118,7 @@ class CallRepository extends DisposableInterface
 
   @override
   Rx<OngoingCall>? add(ChatCall call) {
-    Log.debug('add(${call.id})', '$runtimeType');
+    Log.debug('add($call)', '$runtimeType');
 
     Rx<OngoingCall>? ongoing = calls[call.chatId];
 
@@ -158,7 +158,7 @@ class CallRepository extends DisposableInterface
     bool withScreen = false,
   }) {
     Log.debug(
-      'addStored(${stored.call?.id}, $withAudio, $withVideo, $withScreen)',
+      'addStored($stored, $withAudio, $withVideo, $withScreen)',
       '$runtimeType',
     );
 
@@ -260,7 +260,7 @@ class CallRepository extends DisposableInterface
     final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
       call.value.call.value = chatCall;
-      linkCredentialsToCall(chatCall.chatId, chatCall.id);
+      transferCredentials(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
@@ -328,7 +328,7 @@ class CallRepository extends DisposableInterface
     final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
       ongoing.value.call.value = chatCall;
-      linkCredentialsToCall(chatCall.chatId, chatCall.id);
+      transferCredentials(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
@@ -416,13 +416,13 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  void linkCredentialsToCall(ChatId chatId, ChatItemId callId) {
-    Log.debug('linkCredentialsToCall($chatId, $callId)', '$runtimeType');
+  void transferCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
     final ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      final credsCopy = ChatCallCredentials(creds.val);
+      final ChatCallCredentials credsCopy = creds.copyWith();
       _callCredentialsProvider.put(callId, credsCopy);
     }
   }
@@ -457,7 +457,7 @@ class CallRepository extends DisposableInterface
 
     if (chatCreds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      chatCreds = ChatCallCredentials(chatCreds.val);
+      chatCreds = chatCreds.copyWith();
 
       _chatCredentialsProvider.remove(chatId);
       _chatCredentialsProvider.put(newChatId, chatCreds);
@@ -465,7 +465,7 @@ class CallRepository extends DisposableInterface
 
     if (callCreds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      callCreds = ChatCallCredentials(callCreds.val);
+      callCreds = callCreds.copyWith();
 
       _callCredentialsProvider.remove(callId);
       _callCredentialsProvider.put(newCallId, callCreds);

@@ -95,7 +95,8 @@ class CallService extends DisposableService {
         call.value.connect(this);
       }
     } on CallAlreadyJoinedException catch (e) {
-      await _callsRepo.leave(chatId, e.deviceId);
+      _callsRepo.leave(chatId, e.deviceId);
+      _callsRepo.remove(chatId);
 
       // TODO: Try joining the [OngoingCall] again, instead of throwing the
       //       exception here.
@@ -158,9 +159,8 @@ class CallService extends DisposableService {
         call?.value.connect(this);
       }
     } on CallAlreadyJoinedException catch (e) {
-      // If an error occurs during re-joining, just leave. Don't invoke `remove`
-      // as it will be done through the remote subscription.
-      await _callsRepo.leave(chatId, e.deviceId);
+      _callsRepo.leave(chatId, e.deviceId);
+      _callsRepo.remove(chatId);
       rethrow;
     } catch (e) {
       // If any other error occurs, it's guaranteed that the broken call will be
@@ -330,9 +330,9 @@ class CallService extends DisposableService {
 
   /// Copies the [ChatCallCredentials] from the provided [Chat] and links them
   /// to the specified [OngoingCall].
-  void linkCredentialsToCall(ChatId chatId, ChatItemId callId) {
-    Log.debug('linkCredentialsToCall($chatId, $callId)', '$runtimeType');
-    _callsRepo.linkCredentialsToCall(chatId, callId);
+  void transferCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
+    _callsRepo.transferCredentials(chatId, callId);
   }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the

@@ -120,13 +120,13 @@ abstract class AbstractCallRepository {
   /// provided [chatId].
   ///
   /// These [ChatCallCredentials] are considered backup and should be linked to
-  /// an [OngoingCall] by calling [linkCredentialsToCall] once its [ChatItemId]
-  /// is acquired.
+  /// an [OngoingCall] by calling [transferCredentials] once its [ChatItemId] is
+  /// acquired.
   ChatCallCredentials generateCredentials(ChatId chatId);
 
   /// Copies the [ChatCallCredentials] from the provided [Chat] and links them
   /// to the specified [OngoingCall].
-  void linkCredentialsToCall(ChatId chatId, ChatItemId callId);
+  void transferCredentials(ChatId chatId, ChatItemId callId);
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
   /// provided [callId].

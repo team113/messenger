@@ -69,13 +69,6 @@ class ChatCall extends ChatItem {
   @HiveField(10)
   int? finishReasonIndex;
 
-  ChatCallFinishReason? get finishReason => finishReasonIndex == null
-      ? null
-      : ChatCallFinishReason.values[finishReasonIndex!];
-  set finishReason(ChatCallFinishReason? reason) {
-    finishReasonIndex = reason?.index;
-  }
-
   /// [ChatMember]s being dialed by this [ChatCall] at the moment.
   ///
   /// To understand whether the authenticated [MyUser] is dialed by this
@@ -85,6 +78,16 @@ class ChatCall extends ChatItem {
   /// `null`.
   @HiveField(11)
   final ChatMembersDialed? dialed;
+
+  ChatCallFinishReason? get finishReason => finishReasonIndex == null
+      ? null
+      : ChatCallFinishReason.values[finishReasonIndex!];
+  set finishReason(ChatCallFinishReason? reason) {
+    finishReasonIndex = reason?.index;
+  }
+
+  @override
+  String toString() => 'ChatCall($id)';
 }
 
 /// Member of a [ChatCall].
@@ -129,6 +132,10 @@ class ChatCallCredentials extends HiveObject {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ChatCallCredentials && val == other.val;
+
+  /// Returns a copy of these [ChatCallCredentials] with the given [val].
+  ChatCallCredentials copyWith({String? val}) =>
+      ChatCallCredentials(val ?? this.val);
 }
 
 /// Link for joining a [ChatCall] room on a media server.
