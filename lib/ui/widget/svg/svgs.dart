@@ -1295,8 +1295,8 @@ class SvgIcons {
 
   static const SvgData timer = SvgData(
     'assets/icons/timer.svg',
-    width: 17,
-    height: 17,
+    width: 17.07,
+    height: 17.07,
   );
 
   static const SvgData errorBig = SvgData(
