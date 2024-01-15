@@ -666,6 +666,12 @@ class ContactRepository extends DisposableInterface
 
           HiveChatContact? contactEntity;
           for (var node in versioned.events) {
+            if (contactEntity != null &&
+                contactEntity.value.id != node.contactId) {
+              _putChatContact(contactEntity);
+              contactEntity = null;
+            }
+
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
               contactEntity = HiveChatContact(
@@ -754,8 +760,8 @@ class ContactRepository extends DisposableInterface
 
               case ChatContactEventKind.created:
               case ChatContactEventKind.deleted:
-                // These events are handled elsewhere.
-                throw StateError('Unreachable');
+                // No-op as these events are handled elsewhere.
+                break;
             }
           }
 
