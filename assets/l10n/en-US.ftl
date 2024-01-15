@@ -689,6 +689,8 @@ label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
    *[other] Пересланные сообщения
 }
+label_gb_occupied = {$count} GB occupied
+label_gb_of_gb_occupied = {$a} of {$b} GB occupied
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -780,7 +782,7 @@ label_new_password = New password
 label_no_chat_found = No chat found
 label_no_chats = No chats
 label_no_contacts = No contacts
-label_no_limit = No Limit
+label_no_limit = ∞
 label_no_messages = No messages
 label_no_registration = no registration
 label_no_users = No users
@@ -876,8 +878,6 @@ label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_takes_gb = Takes {$count} GB
-label_takes_gb_of_gb = Takes {$a} of {$b} GB
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
 label_transition_count = Transitions: {$count}

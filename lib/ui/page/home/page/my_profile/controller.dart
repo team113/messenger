@@ -22,10 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import '/ui/widget/text_field.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart'
+    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
@@ -38,6 +38,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
@@ -72,10 +73,10 @@ class MyProfileController extends GetxController {
   /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
-  /// [TextFieldState] of a email text input.
+  /// [TextFieldState] of a [UserEmail] text input.
   late final TextFieldState email;
 
-  /// [TextFieldState] of a phone text input.
+  /// [TextFieldState] of a [UserPhone] text input.
   late final TextFieldState phone;
 
   /// Indicator whether there's an ongoing [toggleMute] happening.
@@ -172,6 +173,7 @@ class MyProfileController extends GetxController {
       approvable: true,
       onChanged: (s) {
         s.error.value = null;
+        s.resubmitOnError.value = false;
 
         if (s.text.isNotEmpty) {
           try {
@@ -187,38 +189,43 @@ class MyProfileController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty || (s.error.value != null && s.retry.isFalse)) {
+        if (s.text.isEmpty ||
+            (s.error.value != null && s.resubmitOnError.isFalse)) {
           return;
         }
-        s.retry.value = false;
 
-        UserPhone phone = UserPhone(s.text.replaceAll(' ', ''));
+        final phone = UserPhone(s.text.replaceAll(' ', ''));
+
         s.clear();
 
-        bool modal = true;
+        bool modalVisible = true;
 
-        s.editable.value = false;
-        s.status.value = RxStatus.loading();
+        _myUserService.addUserPhone(phone).onError(
+          (e, __) {
+            s.unchecked = phone.val;
 
-        _myUserService.addUserPhone(phone).onError((_, __) {
-          s.unchecked = phone.val;
-          s.error.value = 'err_data_transfer'.l10n;
-          s.unsubmit();
-          s.retry.value = true;
+            if (e is AddUserPhoneException) {
+              s.error.value = e.toMessage();
+              s.resubmitOnError.value =
+                  e.code == AddUserPhoneErrorCode.artemisUnknown;
+            } else {
+              s.error.value = 'err_data_transfer'.l10n;
+              s.resubmitOnError.value = true;
+            }
 
-          if (modal) {
-            Navigator.of(router.context!).pop();
-          }
-        });
+            s.unsubmit();
+
+            if (modalVisible) {
+              Navigator.of(router.context!).pop();
+            }
+          },
+        );
 
         await AddPhoneView.show(
           router.context!,
           phone: phone,
           timeout: true,
-        ).then((_) => modal = false);
-
-        s.editable.value = true;
-        s.status.value = RxStatus.empty();
+        ).then((_) => modalVisible = false);
       },
     );
 
@@ -226,7 +233,7 @@ class MyProfileController extends GetxController {
       approvable: true,
       onChanged: (s) {
         s.error.value = null;
-        s.retry.value = false;
+        s.resubmitOnError.value = false;
 
         if (s.text.isNotEmpty) {
           try {
@@ -242,29 +249,41 @@ class MyProfileController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty || (s.error.value != null && s.retry.isFalse)) {
+        if (s.text.isEmpty ||
+            (s.error.value != null && s.resubmitOnError.isFalse)) {
           return;
         }
-        s.retry.value = false;
 
         final email = UserEmail(s.text);
+
         s.clear();
 
-        bool modal = true;
+        bool modalVisible = true;
 
-        _myUserService.addUserEmail(email).onError((_, __) {
+        _myUserService.addUserEmail(email).onError((e, __) {
           s.unchecked = email.val;
-          s.error.value = 'err_data_transfer'.l10n;
-          s.unsubmit();
-          s.retry.value = true;
 
-          if (modal) {
+          if (e is AddUserEmailException) {
+            s.error.value = e.toMessage();
+            s.resubmitOnError.value =
+                e.code == AddUserEmailErrorCode.artemisUnknown;
+          } else {
+            s.error.value = 'err_data_transfer'.l10n;
+            s.resubmitOnError.value = true;
+          }
+
+          s.unsubmit();
+
+          if (modalVisible) {
             Navigator.of(router.context!).pop();
           }
         });
 
-        await AddEmailView.show(router.context!, email: email, timeout: true)
-            .then((_) => modal = false);
+        await AddEmailView.show(
+          router.context!,
+          email: email,
+          timeout: true,
+        ).then((_) => modalVisible = false);
       },
     );
 

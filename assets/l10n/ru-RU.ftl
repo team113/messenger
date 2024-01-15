@@ -714,6 +714,8 @@ label_forwarded_messages = {$count ->
     [1] Forwarded message
    *[other] Forwarded messages
 }
+label_gb_occupied = Занято {$count} ГБ
+label_gb_of_gb_occupied = Занято {$a} из {$b} ГБ
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
@@ -907,8 +909,6 @@ label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
-label_takes_gb = Занято {$count} ГБ
-label_takes_gb_of_gb = Занято {$a} из {$b} ГБ
 label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
 label_transition_count = Переходов: {$count}

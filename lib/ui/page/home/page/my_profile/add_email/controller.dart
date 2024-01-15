@@ -38,8 +38,8 @@ class AddEmailController extends GetxController {
   AddEmailController(
     this._myUserService, {
     this.initial,
-    bool timeout = false,
     this.pop,
+    bool timeout = false,
   }) {
     if (timeout) {
       _setResendEmailTimer();

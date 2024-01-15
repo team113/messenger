@@ -15,9 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/ui/page/home/widget/copy_or_share.dart';
-import '/ui/page/home/widget/info_tile.dart';
-import '/ui/widget/text_field.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,12 +36,15 @@ import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
@@ -172,7 +172,9 @@ class MyProfileView extends StatelessWidget {
                                   title: 'label_login'.l10n,
                                   content: c.myUser.value!.login.toString(),
                                   trailing: WidgetButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      // TODO: Implement [UserLogin] deleting.
+                                    },
                                     child: const SvgIcon(SvgIcons.delete),
                                   ),
                                 ),
@@ -457,7 +459,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
   });
 }
 
-/// Returns the add options content of a [ProfileTab.signing] section.
+/// Returns the additional inputs of a [ProfileTab.signing] section.
 Widget _addInfo(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -897,6 +899,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
   final gbs = (CacheWorker.instance.info.value.maxSize?.toDouble() ??
           (values.last * GB)) /
       GB;
+
   var index = values.indexWhere((e) => gbs <= e);
   if (index == -1) {
     index = values.length - 1;
@@ -907,135 +910,131 @@ Widget _storage(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     Column(
       children: [
-        Column(
-          children: [
-            Obx(() {
-              final int size = CacheWorker.instance.info.value.size;
-              final int max = CacheWorker.instance.info.value.maxSize ??
-                  (values.last * GB).toInt();
+        Obx(() {
+          final int size = CacheWorker.instance.info.value.size;
+          final int max = CacheWorker.instance.info.value.maxSize ??
+              (values.last * GB).toInt();
 
-              if (max >= 64 * GB) {
-                return Text(
-                  'label_takes_gb'
-                      .l10nfmt({'count': (size / GB).toPrecision(2)}),
-                );
-              } else if (max <= 0) {
-                return Text('label_takes_gb'.l10nfmt({'count': 0}));
-              }
+          if (max >= 64 * GB) {
+            return Text(
+              'label_gb_occupied'
+                  .l10nfmt({'count': (size / GB).toPrecision(2)}),
+            );
+          } else if (max <= 0) {
+            return Text('label_gb_occupied'.l10nfmt({'count': 0}));
+          }
 
-              return Text(
-                'label_takes_gb_of_gb'.l10nfmt({
-                  'a': (size / GB).toPrecision(2),
-                  'b': max ~/ GB,
-                }),
-              );
+          return Text(
+            'label_gb_of_gb_occupied'.l10nfmt({
+              'a': (size / GB).toPrecision(2),
+              'b': max ~/ GB,
             }),
-            SizedBox(
-              height: 100,
-              child: FlutterSlider(
-                handlerHeight: 24,
-                values: [v.toDouble()],
-                tooltip: FlutterSliderTooltip(disabled: true),
-                fixedValues: values.mapIndexed(
-                  (i, e) {
-                    return FlutterSliderFixedValue(
-                      percent: ((i / (values.length - 1)) * 100).round(),
-                      value: e * GB,
-                    );
-                  },
-                ).toList(),
-                trackBar: FlutterSliderTrackBar(
-                  inactiveTrackBar: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                  activeTrackBar: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: style.colors.primaryHighlight,
-                  ),
-                ),
-                onDragging: (i, lower, upper) {
-                  if (lower is double) {
-                    if (lower == 64.0 * GB) {
-                      CacheWorker.instance.setMaxSize(null);
-                    } else {
-                      CacheWorker.instance.setMaxSize(lower.round());
-                    }
-                  }
-                },
-                onDragCompleted: (i, lower, upper) {
-                  if (lower is double) {
-                    if (lower == 64.0 * GB) {
-                      CacheWorker.instance.setMaxSize(null);
-                    } else {
-                      CacheWorker.instance.setMaxSize(lower.round());
-                    }
-                  }
-                },
-                hatchMark: FlutterSliderHatchMark(
-                  labelsDistanceFromTrackBar: -48,
-                  density: 0.5, // means 50 lines, from 0 to 100 percent
-                  labels: [
-                    FlutterSliderHatchMarkLabel(
-                      percent: 0,
-                      label: Text(
-                        'label_off'.l10n,
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                    FlutterSliderHatchMarkLabel(
-                      percent: 16,
-                      label: Text(
-                        'label_count_gb'.l10nfmt({'count': 2}),
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                    FlutterSliderHatchMarkLabel(
-                      percent: 32,
-                      label: Text(
-                        'label_count_gb'.l10nfmt({'count': 4}),
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                    FlutterSliderHatchMarkLabel(
-                      percent: 49,
-                      label: Text(
-                        'label_count_gb'.l10nfmt({'count': 8}),
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                    FlutterSliderHatchMarkLabel(
-                      percent: 66,
-                      label: Text(
-                        'label_count_gb'.l10nfmt({'count': 16}),
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                    FlutterSliderHatchMarkLabel(
-                      percent: 83,
-                      label: Text(
-                        'label_count_gb'.l10nfmt({'count': 32}),
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                    FlutterSliderHatchMarkLabel(
-                      percent: 100,
-                      label: Text(
-                        'label_no_limit'.l10n,
-                        style: style.fonts.smallest.regular.secondary,
-                      ),
-                    ),
-                  ],
-                ),
+          );
+        }),
+        SizedBox(
+          height: 100,
+          child: FlutterSlider(
+            handlerHeight: 24,
+            values: [v.toDouble()],
+            tooltip: FlutterSliderTooltip(disabled: true),
+            fixedValues: values.mapIndexed(
+              (i, e) {
+                return FlutterSliderFixedValue(
+                  percent: ((i / (values.length - 1)) * 100).round(),
+                  value: e * GB,
+                );
+              },
+            ).toList(),
+            trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: style.colors.onBackgroundOpacity13,
+              ),
+              activeTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: style.colors.primaryHighlight,
               ),
             ),
-            const SizedBox(height: 8),
-            FieldButton(
-              onPressed: c.clearCache,
-              text: 'btn_clear_cache'.l10n,
-              style: style.fonts.normal.regular.primary,
+            onDragging: (i, lower, upper) {
+              if (lower is double) {
+                if (lower == 64.0 * GB) {
+                  CacheWorker.instance.setMaxSize(null);
+                } else {
+                  CacheWorker.instance.setMaxSize(lower.round());
+                }
+              }
+            },
+            onDragCompleted: (i, lower, upper) {
+              if (lower is double) {
+                if (lower == 64.0 * GB) {
+                  CacheWorker.instance.setMaxSize(null);
+                } else {
+                  CacheWorker.instance.setMaxSize(lower.round());
+                }
+              }
+            },
+            hatchMark: FlutterSliderHatchMark(
+              labelsDistanceFromTrackBar: -48,
+              density: 0.5,
+              labels: [
+                FlutterSliderHatchMarkLabel(
+                  percent: 0,
+                  label: Text(
+                    'label_off'.l10n,
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 16,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 2}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 32,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 4}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 49,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 8}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 66,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 16}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 83,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 32}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 100,
+                  label: Text(
+                    'label_no_limit'.l10n,
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        FieldButton(
+          onPressed: c.clearCache,
+          text: 'btn_clear_cache'.l10n,
+          style: style.fonts.normal.regular.primary,
         ),
       ],
     ),

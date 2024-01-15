@@ -38,7 +38,7 @@ class AddEmailView extends StatelessWidget {
   /// [UserEmail] to confirm.
   final UserEmail? email;
 
-  /// Indicator whether the resend timer should be started initially.
+  /// Indicator whether the resend [Timer] should be started initially.
   final bool timeout;
 
   /// Displays a [AddEmailView] wrapped in a [ModalPopup].

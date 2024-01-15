@@ -70,7 +70,7 @@ class OutlinedRoundedButton extends StatefulWidget {
   /// Background color of this button.
   final Color? color;
 
-  /// Background color of this button when it is disabled.
+  /// Background color of this button, when [onPressed] is `null`.
   final Color? disabled;
 
   /// Gradient to use when filling this button.
@@ -99,14 +99,14 @@ class OutlinedRoundedButton extends StatefulWidget {
   /// Optional [TextStyle] of this [OutlinedRoundedButton].
   final TextStyle? style;
 
-  /// Optional [Border] of this [OutlinedRoundedButton].
-  final Border? border;
+  /// Optional [BorderSide] of this [OutlinedRoundedButton].
+  final BorderSide? border;
 
   @override
   State<OutlinedRoundedButton> createState() => _OutlinedRoundedButtonState();
 }
 
-/// State of a [FieldButton] maintaining the [_hovered] indicator.
+/// State of a [OutlinedRoundedButton] maintaining the [_hovered] indicator.
 class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
   /// Indicator whether this [OutlinedRoundedButton] is hovered.
   bool _hovered = false;
@@ -120,7 +120,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
     );
 
     final border = OutlineInputBorder(
-      borderSide: widget.border?.bottom ?? BorderSide.none,
+      borderSide: widget.border ?? BorderSide.none,
       borderRadius: borderRadius,
     );
 

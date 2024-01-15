@@ -45,7 +45,7 @@ class CacheInfo extends HiveObject {
 
   /// Maximum allowed cache size in bytes.
   ///
-  /// `null` means that the [maxSize] has no limit.
+  /// `null` means no limit.
   int? maxSize;
 }
 

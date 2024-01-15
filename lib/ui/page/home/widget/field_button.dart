@@ -97,6 +97,7 @@ class _FieldButtonState extends State<FieldButton> {
           onPressed: widget.onPressed,
           style: (widget.style ?? style.fonts.medium.regular.onBackground)
               .copyWith(
+            // Exception, as [widget.style] may vary.
             color: widget.onPressed == null
                 ? style.colors.onBackgroundOpacity40
                 : widget.warning
@@ -112,7 +113,7 @@ class _FieldButtonState extends State<FieldButton> {
           ),
           headline: widget.headline,
           maxHeight: double.infinity,
-          border: Border.all(width: 0.5, color: style.colors.secondary),
+          border: BorderSide(width: 0.5, color: style.colors.secondary),
         ),
         if (widget.subtitle != null)
           Align(

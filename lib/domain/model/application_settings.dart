@@ -82,7 +82,8 @@ class ApplicationSettings extends HiveObject {
   @HiveField(9)
   CallButtonsPosition? callButtonsPosition;
 
-  /// Indicator whether work with us tab should be displayed in the navigation bar.
+  /// Indicator whether [WorkTabView] should be displayed in the
+  /// [CustomNavigationBar] of [HomeView].
   @HiveField(10)
   bool workWithUsTabEnabled;
 }

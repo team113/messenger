@@ -11,6 +11,13 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Work with us tab hiding and showing. ([#794], [#789])
+        - Cache maximum size slider. ([#794], [#789])
+
 ### Changed
 
 - UI:
@@ -27,7 +34,7 @@ All user visible changes to this project will be documented in this file. This p
     - Tuned up page transition animation. ([#775], [#573])
     - Profile page:
         - Redesigned direct chat link. ([#796], [#787])
-    - Redesigned profile page. ([#794], [#789])
+        - Redesigned sign in section. ([#794], [#789])
 
 ### Fixed
 
