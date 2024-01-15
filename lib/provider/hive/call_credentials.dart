@@ -48,13 +48,15 @@ class CallCredentialsHiveProvider
     await putSafe(id.val, creds);
   }
 
-  /// Returns the [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
+  /// Returns the [ChatCallCredentials] from [Hive] by the provided
+  /// [ChatItemId].
   ChatCallCredentials? get(ChatItemId id) {
     Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
-  /// Removes the [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
+  /// Removes the [ChatCallCredentials] from [Hive] by the provided
+  /// [ChatItemId].
   Future<void> remove(ChatItemId id) async {
     Log.debug('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

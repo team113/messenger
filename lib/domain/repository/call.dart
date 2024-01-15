@@ -117,19 +117,19 @@ abstract class AbstractCallRepository {
   Future<void> removeChatCallMember(ChatId chatId, UserId userId);
 
   /// Generates the [ChatCallCredentials] for a [Chat] identified by the
-  /// provided [id].
+  /// provided [chatId].
   ///
-  /// These [ChatCallCredentials] are considered temporary. Use
-  /// [transferCredentials] to persist them, once [ChatItemId] of the
-  /// [OngoingCall] is acquired.
-  ChatCallCredentials generateCredentials(ChatId id);
+  /// These [ChatCallCredentials] are considered backup and should be linked to
+  /// an [OngoingCall] by calling [linkCredentialsToCall] once its [ChatItemId]
+  /// is acquired.
+  ChatCallCredentials generateCredentials(ChatId chatId);
 
-  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
-  /// specified [OngoingCall].
-  void transferCredentials(ChatId chatId, ChatItemId callId);
+  /// Copies the [ChatCallCredentials] from the provided [Chat] and links them
+  /// to the specified [OngoingCall].
+  void linkCredentialsToCall(ChatId chatId, ChatItemId callId);
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
-  /// provided [id].
+  /// provided [callId].
   ChatCallCredentials getCredentials(ChatItemId callId);
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].

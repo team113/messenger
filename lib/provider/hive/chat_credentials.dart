@@ -22,7 +22,7 @@ import '/domain/model/chat.dart';
 import '/util/log.dart';
 import 'base.dart';
 
-/// [Hive] temporary storage for [ChatCallCredentials].
+/// [Hive] backup storage for [ChatCallCredentials].
 class ChatCredentialsHiveProvider
     extends HiveBaseProvider<ChatCallCredentials> {
   ChatCredentialsHiveProvider();

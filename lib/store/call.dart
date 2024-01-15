@@ -73,14 +73,14 @@ class CallRepository extends DisposableInterface
 
   /// Local [ChatCallCredentials] storage.
   ///
-  /// Stores [ChatCallCredentials] by ID of a [ChatCall].
+  /// Stores [ChatCallCredentials] by [ChatCall]'s [ChatItemId].
   final CallCredentialsHiveProvider _callCredentialsProvider;
 
   /// Local [ChatCallCredentials] backup storage.
   ///
   /// Stores [ChatCallCredentials] by [ChatId]. Used to prevent credentials from
   /// being re-generated if the app was restarted before calling
-  /// [transferCredentials] or on repeated [generateCredentials] calls.
+  /// [linkCredentialsToCall] or on repeated [generateCredentials] calls.
   final ChatCredentialsHiveProvider _chatCredentialsProvider;
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
@@ -264,7 +264,7 @@ class CallRepository extends DisposableInterface
     final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
       call.value.call.value = chatCall;
-      transferCredentials(chatCall.chatId, chatCall.id);
+      linkCredentialsToCall(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
@@ -332,7 +332,7 @@ class CallRepository extends DisposableInterface
     final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
       ongoing.value.call.value = chatCall;
-      transferCredentials(chatCall.chatId, chatCall.id);
+      linkCredentialsToCall(chatCall.chatId, chatCall.id);
     } else {
       throw CallAlreadyJoinedException(response.deviceId);
     }
@@ -420,8 +420,8 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  void transferCredentials(ChatId chatId, ChatItemId callId) {
-    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
+  void linkCredentialsToCall(ChatId chatId, ChatItemId callId) {
+    Log.debug('linkCredentialsToCall($chatId, $callId)', '$runtimeType');
 
     final ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds != null) {
