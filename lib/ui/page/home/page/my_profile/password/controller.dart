@@ -74,8 +74,6 @@ class ChangePasswordController extends GetxController {
     oldPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
-        newPassword.error.value = null;
-        repeatPassword.error.value = null;
         repeatPassword.unsubmit();
 
         try {
