@@ -54,6 +54,7 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
+import '/provider/hive/base.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -1471,6 +1472,7 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool updateVersion = true,
     bool ignoreVersion = false,
+    TransactionId? transaction,
   }) async {
     Log.debug(
       'put($chat, $pagination, $updateVersion, $ignoreVersion)',
@@ -1510,7 +1512,7 @@ class ChatRepository extends DisposableInterface
 
       // If version is ignored, there's no need to retrieve the stored chat.
       if (!ignoreVersion || !updateVersion) {
-        saved = await _chatLocal.get(chatId);
+        saved = await _chatLocal.get(chatId, transaction: transaction);
       }
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
@@ -1529,7 +1531,7 @@ class ChatRepository extends DisposableInterface
           chat.ver = saved.ver;
         }
 
-        await _chatLocal.put(chat);
+        await _chatLocal.put(chat, transaction: transaction);
       }
     }
 

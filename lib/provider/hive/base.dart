@@ -23,8 +23,10 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
 
 import '/domain/model/user.dart';
+import '/util/new_type.dart';
 
 /// Base class for data providers backed by [Hive].
 abstract class HiveBaseProvider<T> extends DisposableInterface {
@@ -170,6 +172,12 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// [Mutex] that guards [_box] access.
   final Mutex _mutex = Mutex();
 
+  /// [Mutex] that guards [_box] access when an transaction is active.
+  final Mutex _transactionMutex = Mutex();
+
+  /// [TransactionId] of an active transaction.
+  TransactionId? activeTransaction;
+
   /// Returns the [Box] storing data of this [HiveLazyProvider].
   LazyBox<T> get box => _box;
 
@@ -238,12 +246,15 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   /// Removes all entries from the [Box].
   @mustCallSuper
-  Future<void> clear() {
-    return _mutex.protect(() async {
-      if (_isReady && keysSafe.isNotEmpty) {
-        await _box.clear();
-      }
-    });
+  Future<void> clear({TransactionId? transaction}) {
+    return _transaction(
+      () => _mutex.protect(() async {
+        if (_isReady && keysSafe.isNotEmpty) {
+          await _box.clear();
+        }
+      }),
+      transaction,
+    );
   }
 
   /// Closes the [Box].
@@ -269,34 +280,84 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   }
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
-  Future<void> putSafe(dynamic key, T value) async {
-    return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        await _box.put(key, value);
-      }
-    });
+  Future<void> putSafe(
+    dynamic key,
+    T value, {
+    TransactionId? transaction,
+  }) async {
+    return _transaction(
+      () => _mutex.protect(() async {
+        if (_isReady && _box.isOpen) {
+          await _box.put(key, value);
+        }
+      }),
+      transaction,
+    );
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
-  Future<T?> getSafe(dynamic key, {T? defaultValue}) async {
-    return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        return _box.get(key, defaultValue: defaultValue);
-      }
-      return null;
-    });
+  Future<T?> getSafe(
+    dynamic key, {
+    T? defaultValue,
+    TransactionId? transaction,
+  }) async {
+    return _transaction(
+      () => _mutex.protect(() async {
+        if (_isReady && _box.isOpen) {
+          return _box.get(key, defaultValue: defaultValue);
+        }
+        return null;
+      }),
+      transaction,
+    );
   }
 
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
-  Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
-    return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        await _box.delete(key);
-      }
-      return Future.value();
-    });
+  Future<void> deleteSafe(
+    dynamic key, {
+    T? defaultValue,
+    TransactionId? transaction,
+  }) {
+    return _transaction(
+      () => _mutex.protect(() async {
+        if (_isReady && _box.isOpen) {
+          await _box.delete(key);
+        }
+        return Future.value();
+      }),
+      transaction,
+    );
+  }
+
+  /// Starts a transaction.
+  Future<TransactionId> startTransaction() async {
+    await _transactionMutex.acquire();
+
+    activeTransaction = TransactionId(const Uuid().v4());
+    return activeTransaction!;
+  }
+
+  /// Ends a transaction.
+  void endTransaction(TransactionId id) {
+    if (activeTransaction == id) {
+      _transactionMutex.release();
+      activeTransaction = null;
+    }
+  }
+
+  /// Wraps the provided [f] in a [_transactionMutex] if there is an active
+  /// transaction.
+  Future<K> _transaction<K>(
+    Future<K> Function() f,
+    TransactionId? transaction,
+  ) {
+    if (activeTransaction != null && activeTransaction != transaction) {
+      return _transactionMutex.protect(f);
+    } else {
+      return f();
+    }
   }
 }
 
@@ -323,6 +384,7 @@ abstract class IterableHiveProvider<T extends Object, K> {
   Future<void> clear();
 }
 
+/// Extension adding an ability to register [TypeAdapter]s for [Hive].
 extension HiveRegisterAdapter on HiveInterface {
   /// Tries to register the given [adapter].
   void maybeRegisterAdapter<A>(TypeAdapter<A> adapter) {
@@ -330,4 +392,9 @@ extension HiveRegisterAdapter on HiveInterface {
       Hive.registerAdapter<A>(adapter);
     }
   }
+}
+
+/// ID of a transaction.
+class TransactionId extends NewType<String> {
+  const TransactionId(super.val);
 }
