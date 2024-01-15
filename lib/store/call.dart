@@ -71,16 +71,12 @@ class CallRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// Local [ChatCallCredentials] storage.
-  ///
-  /// Stores [ChatCallCredentials] by [ChatCall]'s [ChatItemId].
+  /// [ChatCallCredentials] of [ChatCall]s local storage.
   final CallCredentialsHiveProvider _callCredentialsProvider;
 
-  /// Local [ChatCallCredentials] backup storage.
+  /// [ChatCallCredentials] of [Chat]s local storage.
   ///
-  /// Stores [ChatCallCredentials] by [ChatId]. Used to prevent credentials from
-  /// being re-generated if the app was restarted before calling
-  /// [linkCredentialsToCall] or on repeated [generateCredentials] calls.
+  /// Used to prevent the [ChatCallCredentials] from being re-generated.
   final ChatCredentialsHiveProvider _chatCredentialsProvider;
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
@@ -451,8 +447,10 @@ class CallRepository extends DisposableInterface
     ChatId chatId,
     ChatId newChatId,
   ) {
-    Log.debug('moveCredentials($callId, $newCallId, $chatId, $newChatId)',
-        '$runtimeType');
+    Log.debug(
+      'moveCredentials($callId, $newCallId, $chatId, $newChatId)',
+      '$runtimeType',
+    );
 
     ChatCallCredentials? chatCreds = _chatCredentialsProvider.get(chatId);
     ChatCallCredentials? callCreds = _callCredentialsProvider.get(callId);

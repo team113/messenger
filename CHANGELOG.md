@@ -41,7 +41,7 @@ All user visible changes to this project will be documented in this file. This p
         - Read partially message status missing in forwards. ([#776])
     - Media panel:
         - Dock animations lagging when dragging buttons. ([#774], [#698])
-        - Call participants may duplicate in rare cases. ([#759], [#743])
+        - Participants duplicating in rare cases. ([#759], [#743])
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
 
