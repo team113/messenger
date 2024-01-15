@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import '/provider/hive/base.dart';
 import '/store/pagination.dart';
 
 /// [PageProvider] fetching items from the remote in a GraphQL style.
@@ -84,6 +85,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
     T item, {
     bool ignoreBounds = false,
     int Function(T, T)? compare,
+    TransactionId? transaction,
   }) async {
     // No-op.
   }

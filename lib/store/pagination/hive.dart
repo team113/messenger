@@ -191,7 +191,11 @@ class HivePageProvider<T extends Object, C, K>
   }
 
   @override
-  Future<void> put(T item, {int Function(T, T)? compare}) async {
+  Future<void> put(
+    T item, {
+    int Function(T, T)? compare,
+    TransactionId? transaction,
+  }) async {
     // TODO: https://github.com/team113/messenger/issues/27
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to
@@ -201,7 +205,7 @@ class HivePageProvider<T extends Object, C, K>
     }
 
     if (compare == null) {
-      return _provider.put(item);
+      return _provider.put(item, transaction: transaction);
     }
 
     final Iterable<K> ordered = orderBy(_provider.keys).toList();
@@ -213,14 +217,14 @@ class HivePageProvider<T extends Object, C, K>
       if (firstItem != null && lastItem != null) {
         if (compare(item, lastItem) == 1) {
           if (isLast?.call(item) == true) {
-            await _provider.put(item);
+            await _provider.put(item, transaction: transaction);
           }
         } else if (compare(item, firstItem) == -1) {
           if (isFirst?.call(item) == true) {
-            await _provider.put(item);
+            await _provider.put(item, transaction: transaction);
           }
         } else {
-          await _provider.put(item);
+          await _provider.put(item, transaction: transaction);
         }
       }
     }

@@ -372,7 +372,7 @@ abstract class IterableHiveProvider<T extends Object, K> {
   FutureOr<Iterable<T>> get values;
 
   /// Puts the provided [item] to [Hive].
-  Future<void> put(T item);
+  Future<void> put(T item, {TransactionId? transaction});
 
   /// Returns a [T] item from [Hive] by its [key].
   FutureOr<T?> get(K key);

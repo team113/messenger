@@ -1491,7 +1491,7 @@ class ChatRepository extends DisposableInterface
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
-          await _pagination?.put(chat);
+          await _pagination?.put(chat, transaction: transaction);
         }
 
         return saved;
@@ -1538,7 +1538,7 @@ class ChatRepository extends DisposableInterface
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden) {
-      await _pagination?.put(chat);
+      await _pagination?.put(chat, transaction: transaction);
     }
 
     return rxChat;
