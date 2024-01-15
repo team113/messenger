@@ -664,19 +664,18 @@ class ContactRepository extends DisposableInterface
 
           _sessionLocal.setChatContactsListVersion(versioned.listVer);
 
+          HiveChatContact? contactEntity;
           for (var node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
-              _putChatContact(
-                HiveChatContact(
-                  ChatContact(
-                    node.contactId,
-                    name: node.name,
-                  ),
-                  versioned.ver,
-                  null,
-                  null,
+              contactEntity = HiveChatContact(
+                ChatContact(
+                  node.contactId,
+                  name: node.name,
                 ),
+                versioned.ver,
+                null,
+                null,
               );
 
               continue;
@@ -685,9 +684,8 @@ class ContactRepository extends DisposableInterface
               continue;
             }
 
-            HiveChatContact? contactEntity =
-                await _contactLocal.get(node.contactId) ??
-                    await _fetchById(node.contactId);
+            contactEntity ??= await _contactLocal.get(node.contactId) ??
+                await _fetchById(node.contactId);
             contactEntity?.ver = versioned.ver;
 
             if (contactEntity == null) {
@@ -759,7 +757,9 @@ class ContactRepository extends DisposableInterface
                 // These events are handled elsewhere.
                 throw StateError('Unreachable');
             }
+          }
 
+          if (contactEntity != null) {
             _putChatContact(contactEntity);
           }
         }
