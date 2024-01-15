@@ -59,6 +59,9 @@ abstract class ModalPopup {
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
+        transitionAnimationController:
+            BottomSheet.createAnimationController(Navigator.of(context))
+              ..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14),
@@ -102,12 +105,12 @@ abstract class ModalPopup {
         },
       );
     } else {
-      return showDialog(
+      return showGeneralDialog(
         context: context,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        builder: (context) {
-          return Center(
+        pageBuilder: (_, __, ___) {
+          final Widget body = Center(
             child: Container(
               constraints: modalConstraints,
               width: modalConstraints.maxWidth,
@@ -122,6 +125,17 @@ abstract class ModalPopup {
                 child: child,
               ),
             ),
+          );
+
+          return SafeArea(child: body);
+        },
+        barrierLabel:
+            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
+            child: child,
           );
         },
       );
