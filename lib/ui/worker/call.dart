@@ -22,7 +22,6 @@ import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/message_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -89,11 +88,11 @@ class CallWorker extends DisposableService {
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
 
-  /// [StreamSubscription] for canceling the [_outgoing] sound playing.
-  StreamSubscription? _outgoingAudio;
+  /// [AudioPlayback] for canceling the [_outgoing] sound playing.
+  AudioPlayback? outgoingAudio;
 
-  /// [StreamSubscription] for canceling the [_incoming] sound playing.
-  StreamSubscription? _incomingAudio;
+  /// [AudioPlayback] for canceling the [_incoming] sound playing.
+  AudioPlayback? incomingAudio;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
@@ -184,10 +183,20 @@ class CallWorker extends DisposableService {
 
               final chatOrFuture = _chatService.get(c.chatId.value);
               if (chatOrFuture is RxChat?) {
-                play(_outgoing, once: chatOrFuture?.chat.value.isGroup == true);
+                play(
+                  _outgoing,
+                  once: chatOrFuture?.chat.value.isGroup == true,
+                  speaker: c.videoState.value == LocalTrackState.enabling ||
+                      c.videoState.value == LocalTrackState.enabled,
+                );
               } else {
                 final chat = await chatOrFuture;
-                play(_outgoing, once: chat?.chat.value.isGroup == true);
+                play(
+                  _outgoing,
+                  once: chat?.chat.value.isGroup == true,
+                  speaker: c.videoState.value == LocalTrackState.enabling ||
+                      c.videoState.value == LocalTrackState.enabled,
+                );
               }
 
               // AudioUtils.once(AudioSource.asset(_outgoing));
@@ -254,6 +263,10 @@ class CallWorker extends DisposableService {
                     state != OngoingCallState.local) {
                   _workers.remove(event.key!)?.dispose();
                   if (_workers.isEmpty) {
+                    if (!outgoing) {
+                      return stop();
+                    }
+
                     final chatOrFuture = _chatService.get(c.chatId.value);
                     if (chatOrFuture is RxChat?) {
                       if (chatOrFuture?.chat.value.isGroup != true) {
@@ -341,8 +354,8 @@ class CallWorker extends DisposableService {
 
   @override
   void onClose() {
-    _outgoingAudio?.cancel();
-    _incomingAudio?.cancel();
+    outgoingAudio?.cancel();
+    incomingAudio?.cancel();
 
     _subscription.cancel();
     _storageSubscription?.cancel();
@@ -363,39 +376,39 @@ class CallWorker extends DisposableService {
     String asset, {
     bool fade = false,
     bool once = false,
+    bool speaker = true,
   }) async {
     final source = AudioSource.asset('audio/$asset');
 
     if (_myUser.value?.muted == null) {
       if (asset == _incoming) {
-        // final previous = _incomingAudio;
-
-        _incomingAudio?.cancel();
-        MessagePopup.success('3play(${(source as AssetAudioSource).asset})');
-        _incomingAudio = AudioUtils.play(
+        incomingAudio?.cancel();
+        incomingAudio = AudioUtils.play(
           source,
           fade: fade ? 1.seconds : Duration.zero,
+          speaker:
+              speaker ? AudioSpeakerKind.speaker : AudioSpeakerKind.earpiece,
         );
-
-        // previous?.cancel();
       } else {
-        // if (repeat) {
-        //   AudioUtils.once(source).then((_) => AudioUtils.once(source));
-        // } else {
-        final previous = _outgoingAudio;
-        print('_outgoingAudio');
-        _outgoingAudio = AudioUtils.play(
+        outgoingAudio?.cancel();
+        outgoingAudio = AudioUtils.play(
           source,
           fade: fade ? 1.seconds : Duration.zero,
+          speaker:
+              speaker ? AudioSpeakerKind.speaker : AudioSpeakerKind.earpiece,
           onDone: once
               ? () {
-                  print('once');
-                  _outgoingAudio = AudioUtils.play(source, onDone: () {});
+                  outgoingAudio?.cancel();
+                  outgoingAudio = AudioUtils.play(
+                    source,
+                    onDone: () {},
+                    speaker: speaker
+                        ? AudioSpeakerKind.speaker
+                        : AudioSpeakerKind.earpiece,
+                  );
                 }
               : null,
         );
-        previous?.cancel();
-        // }
       }
     }
   }
@@ -407,8 +420,8 @@ class CallWorker extends DisposableService {
       Vibration.cancel();
     }
 
-    _incomingAudio?.cancel();
-    _outgoingAudio?.cancel();
+    incomingAudio?.cancel();
+    outgoingAudio?.cancel();
   }
 
   /// Initializes [WebUtils] related functionality.

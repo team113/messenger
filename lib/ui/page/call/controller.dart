@@ -28,6 +28,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/ui/worker/call.dart';
 import 'package:messenger/util/log.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -70,6 +71,7 @@ class CallController extends GetxController {
     this._userService,
     this._myUserService,
     this._settingsRepository,
+    this._callWorker,
   );
 
   /// Duration of the current ongoing call.
@@ -280,8 +282,8 @@ class CallController extends GetxController {
   /// current frame.
   bool _secondaryRelocated = false;
 
-  /// [StreamSubscription] for canceling a reconnection sound.
-  StreamSubscription? _reconnectAudio;
+  /// [AudioPlayback] for canceling a reconnection sound.
+  AudioPlayback? _reconnectAudio;
 
   /// Max width of the minimized view in percentage of the screen width.
   static const double _maxWidth = 0.99;
@@ -333,6 +335,7 @@ class CallController extends GetxController {
   final UserService _userService;
 
   final MyUserService _myUserService;
+  final CallWorker _callWorker;
 
   bool get income =>
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirey' ||
@@ -565,257 +568,272 @@ class CallController extends GetxController {
 
   @override
   void onInit() {
-    super.onInit();
+    try {
+      fullscreen = RxBool(false);
+      isMobile = router.context?.isMobile ?? true;
+      minimized = RxBool(!isMobile && !WebUtils.isPopup);
 
-    _currentCall.value.init();
+      _currentCall.value.init();
 
-    Size size = router.context!.mediaQuerySize;
-
-    HardwareKeyboard.instance.addHandler(_onKey);
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
-    }
-
-    speakerSwitched = RxBool(false);
-
-    fullscreen = RxBool(false);
-    minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
-    isMobile = router.context!.isMobile;
-
-    final Rect? prefs =
-        _settingsRepository.getCallRect(_currentCall.value.chatId.value);
-
-    if (isMobile) {
       Size size = router.context!.mediaQuerySize;
-      width = RxDouble(prefs?.width ?? size.width);
-      height = RxDouble(prefs?.height ?? size.height);
-    } else {
-      width = RxDouble(
-        prefs?.width ??
-            min(
-              max(
-                min(
-                  500,
-                  size.shortestSide * _maxWidth,
-                ),
-                _minWidth,
-              ),
-              size.height * _maxHeight,
-            ),
-      );
-      height = RxDouble(prefs?.height ?? width.value);
-    }
 
-    final double secondarySize =
-        (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
-    secondaryWidth = RxDouble(secondarySize);
-    secondaryHeight = RxDouble(secondarySize);
-
-    left = size.width - width.value - 50 > 0
-        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
-        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
-    top = height.value + 50 < size.height
-        ? RxDouble(prefs?.top ?? 50)
-        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
-
-    _chatWorker = ever(
-      _currentCall.value.chatId,
-      (ChatId id) {
-        final chatOrFuture = _chatService.get(id);
-
-        if (chatOrFuture is RxChat?) {
-          _updateChat(chatOrFuture);
-        } else {
-          chatOrFuture.then(_updateChat);
-        }
-      },
-    );
-
-    _stateWorker = ever(state, (OngoingCallState state) {
-      switch (state) {
-        case OngoingCallState.active:
-          if (_durationTimer == null) {
-            SchedulerBinding.instance.addPostFrameCallback(
-              (_) {
-                dockRect.value = dockKey.globalPaintBounds;
-                relocateSecondary();
-              },
-            );
-            DateTime begunAt = DateTime.now();
-            _durationTimer = Timer.periodic(
-              const Duration(seconds: 1),
-              (_) {
-                duration.value = DateTime.now().difference(begunAt);
-                if (hoveredRendererTimeout > 0) {
-                  --hoveredRendererTimeout;
-                  if (hoveredRendererTimeout == 0) {
-                    hoveredRenderer.value = null;
-                    isCursorHidden.value = true;
-                  }
-                }
-              },
-            );
-
-            keepUi();
-            _ensureSpeakerphone();
-          }
-          break;
-
-        case OngoingCallState.joining:
-          SchedulerBinding.instance.addPostFrameCallback(
-            (_) => SchedulerBinding.instance.addPostFrameCallback(
-              (_) => relocateSecondary(),
-            ),
-          );
-          break;
-
-        case OngoingCallState.pending:
-        case OngoingCallState.local:
-        case OngoingCallState.ended:
-          // No-op.
-          break;
+      HardwareKeyboard.instance.addHandler(_onKey);
+      if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+        BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
       }
 
-      refresh();
-    });
+      final Rect? prefs =
+          _settingsRepository.getCallRect(_currentCall.value.chatId.value);
 
-    _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
-      fullscreen.value = v;
-      refresh();
-    });
-
-    _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
-      if (!e) {
-        hoveredRenderer.value = null;
-        if (_uiTimer?.isActive != true) {
-          if (displayMore.isTrue) {
-            keepUi();
-          } else {
-            keepUi(false);
-          }
-        }
-      }
-    });
-
-    // Constructs a list of [CallButton]s from the provided [list] of [String]s.
-    List<CallButton> toButtons(List<String>? list) {
-      List<CallButton>? persisted = list
-          ?.map((e) {
-            switch (e) {
-              case 'ScreenButton':
-                return ScreenButton(this);
-
-              case 'VideoButton':
-                return VideoButton(this);
-
-              case 'EndCallButton':
-                return EndCallButton(this);
-
-              case 'AudioButton':
-                return AudioButton(this);
-
-              case 'MoreButton':
-                return MoreButton(this);
-
-              case 'SettingsButton':
-                return SettingsButton(this);
-
-              case 'ParticipantsButton':
-                return ParticipantsButton(this);
-
-              case 'HandButton':
-                return HandButton(this);
-
-              case 'RemoteVideoButton':
-                return RemoteVideoButton(this);
-
-              case 'RemoteAudioButton':
-                return RemoteAudioButton(this);
-            }
-          })
-          .whereNotNull()
-          .toList();
-
-      // Add default [CallButton]s, if none are persisted.
-      if (persisted?.isNotEmpty != true) {
-        persisted = [
-          ScreenButton(this),
-          VideoButton(this),
-          EndCallButton(this),
-          AudioButton(this),
-          MoreButton(this),
-        ];
-      }
-
-      // Ensure [EndCallButton] is always in the list.
-      if (persisted!.whereType<EndCallButton>().isEmpty) {
-        persisted.add(EndCallButton(this));
-      }
-
-      // Ensure [MoreButton] is always in the list.
-      if (persisted.whereType<MoreButton>().isEmpty) {
-        persisted.add(MoreButton(this));
-      }
-
-      return persisted;
-    }
-
-    buttons = RxList(
-      toButtons(_settingsRepository.applicationSettings.value?.callButtons),
-    );
-
-    panel = RxList([
-      SettingsButton(this),
-      ParticipantsButton(this),
-      HandButton(this),
-      ScreenButton(this),
-      RemoteVideoButton(this),
-      RemoteAudioButton(this),
-      VideoButton(this),
-      AudioButton(this),
-    ]);
-
-    _buttonsWorker = ever(buttons, (List<CallButton> list) {
-      _settingsRepository
-          .setCallButtons(list.map((e) => e.runtimeType.toString()).toList());
-    });
-
-    List<String>? previous =
-        _settingsRepository.applicationSettings.value?.callButtons;
-    _settingsWorker = ever(
-      _settingsRepository.applicationSettings,
-      (ApplicationSettings? settings) {
-        if (!const ListEquality().equals(settings?.callButtons, previous)) {
-          if (settings != null) {
-            buttons.value = toButtons(settings.callButtons);
-          }
-          previous = settings?.callButtons;
-        }
-      },
-    );
-
-    _showUiWorker = ever(showUi, (bool showUi) {
-      if (displayMore.value && !showUi) {
-        displayMore.value = false;
-      }
-    });
-
-    _notificationsSubscription = _currentCall.value.notifications.listen((e) {
-      notifications.add(e);
-      _notificationTimers
-          .add(Timer(_notificationDuration, () => notifications.remove(e)));
-    });
-
-    _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
-      if (b) {
-        _reconnectAudio =
-            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
+      if (isMobile) {
+        Size size = router.context!.mediaQuerySize;
+        width = RxDouble(prefs?.width ?? size.width);
+        height = RxDouble(prefs?.height ?? size.height);
       } else {
-        _reconnectAudio?.cancel();
+        width = RxDouble(
+          prefs?.width ??
+              min(
+                max(
+                  min(
+                    500,
+                    size.shortestSide * _maxWidth,
+                  ),
+                  _minWidth,
+                ),
+                size.height * _maxHeight,
+              ),
+        );
+        height = RxDouble(prefs?.height ?? width.value);
       }
-    });
 
-    _initChat();
+      final double secondarySize =
+          (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
+      secondaryWidth = RxDouble(secondarySize);
+      secondaryHeight = RxDouble(secondarySize);
+
+      left = size.width - width.value - 50 > 0
+          ? RxDouble(prefs?.left ?? size.width - width.value - 50)
+          : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
+      top = height.value + 50 < size.height
+          ? RxDouble(prefs?.top ?? 50)
+          : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
+
+      _chatWorker = ever(
+        _currentCall.value.chatId,
+        (ChatId id) {
+          final chatOrFuture = _chatService.get(id);
+
+          if (chatOrFuture is RxChat?) {
+            _updateChat(chatOrFuture);
+          } else {
+            chatOrFuture.then(_updateChat);
+          }
+        },
+      );
+
+      _stateWorker = ever(state, (OngoingCallState state) {
+        switch (state) {
+          case OngoingCallState.active:
+            if (_durationTimer == null) {
+              SchedulerBinding.instance.addPostFrameCallback(
+                (_) {
+                  dockRect.value = dockKey.globalPaintBounds;
+                  relocateSecondary();
+                },
+              );
+              DateTime begunAt = DateTime.now();
+              _durationTimer = Timer.periodic(
+                const Duration(seconds: 1),
+                (_) {
+                  duration.value = DateTime.now().difference(begunAt);
+                  if (hoveredRendererTimeout > 0) {
+                    --hoveredRendererTimeout;
+                    if (hoveredRendererTimeout == 0) {
+                      hoveredRenderer.value = null;
+                      isCursorHidden.value = true;
+                    }
+                  }
+                },
+              );
+
+              keepUi();
+              _ensureSpeakerphone();
+            }
+            break;
+
+          case OngoingCallState.joining:
+            SchedulerBinding.instance.addPostFrameCallback(
+              (_) => SchedulerBinding.instance.addPostFrameCallback(
+                (_) => relocateSecondary(),
+              ),
+            );
+            break;
+
+          case OngoingCallState.pending:
+          case OngoingCallState.local:
+          case OngoingCallState.ended:
+            // No-op.
+            break;
+        }
+
+        refresh();
+      });
+
+      _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
+        fullscreen.value = v;
+        refresh();
+      });
+
+      _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
+        if (!e) {
+          hoveredRenderer.value = null;
+          if (_uiTimer?.isActive != true) {
+            if (displayMore.isTrue) {
+              keepUi();
+            } else {
+              keepUi(false);
+            }
+          }
+        }
+      });
+
+      // Constructs a list of [CallButton]s from the provided [list] of [String]s.
+      List<CallButton> toButtons(List<String>? list) {
+        List<CallButton>? persisted = list
+            ?.map((e) {
+              switch (e) {
+                case 'ScreenButton':
+                  return ScreenButton(this);
+
+                case 'VideoButton':
+                  return VideoButton(this);
+
+                case 'EndCallButton':
+                  return EndCallButton(this);
+
+                case 'AudioButton':
+                  return AudioButton(this);
+
+                case 'MoreButton':
+                  return MoreButton(this);
+
+                case 'SettingsButton':
+                  return SettingsButton(this);
+
+                case 'ParticipantsButton':
+                  return ParticipantsButton(this);
+
+                case 'HandButton':
+                  return HandButton(this);
+
+                case 'RemoteVideoButton':
+                  return RemoteVideoButton(this);
+
+                case 'RemoteAudioButton':
+                  return RemoteAudioButton(this);
+              }
+            })
+            .whereNotNull()
+            .toList();
+
+        // Add default [CallButton]s, if none are persisted.
+        if (persisted?.isNotEmpty != true) {
+          persisted = [
+            ScreenButton(this),
+            VideoButton(this),
+            EndCallButton(this),
+            AudioButton(this),
+            MoreButton(this),
+          ];
+        }
+
+        // Ensure [EndCallButton] is always in the list.
+        if (persisted!.whereType<EndCallButton>().isEmpty) {
+          persisted.add(EndCallButton(this));
+        }
+
+        // Ensure [MoreButton] is always in the list.
+        if (persisted.whereType<MoreButton>().isEmpty) {
+          persisted.add(MoreButton(this));
+        }
+
+        return persisted;
+      }
+
+      buttons = RxList(
+        toButtons(_settingsRepository.applicationSettings.value?.callButtons),
+      );
+
+      panel = RxList([
+        SettingsButton(this),
+        ParticipantsButton(this),
+        HandButton(this),
+        ScreenButton(this),
+        RemoteVideoButton(this),
+        RemoteAudioButton(this),
+        VideoButton(this),
+        AudioButton(this),
+      ]);
+
+      _buttonsWorker = ever(buttons, (List<CallButton> list) {
+        _settingsRepository
+            .setCallButtons(list.map((e) => e.runtimeType.toString()).toList());
+      });
+
+      List<String>? previous =
+          _settingsRepository.applicationSettings.value?.callButtons;
+      _settingsWorker = ever(
+        _settingsRepository.applicationSettings,
+        (ApplicationSettings? settings) {
+          if (!const ListEquality().equals(settings?.callButtons, previous)) {
+            if (settings != null) {
+              buttons.value = toButtons(settings.callButtons);
+            }
+            previous = settings?.callButtons;
+          }
+        },
+      );
+
+      _showUiWorker = ever(showUi, (bool showUi) {
+        if (displayMore.value && !showUi) {
+          displayMore.value = false;
+        }
+      });
+
+      _notificationsSubscription = _currentCall.value.notifications.listen((e) {
+        notifications.add(e);
+        _notificationTimers
+            .add(Timer(_notificationDuration, () => notifications.remove(e)));
+      });
+
+      _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
+        if (b) {
+          _reconnectAudio =
+              AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
+        } else {
+          _reconnectAudio?.cancel();
+        }
+      });
+
+      _initChat();
+    } catch (e) {
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => MessagePopup.error(e));
+      rethrow;
+    }
+
+    try {
+      speakerSwitched = RxBool(
+        _currentCall.value.videoState.value == LocalTrackState.enabling ||
+            _currentCall.value.videoState.value == LocalTrackState.enabled,
+      );
+    } catch (e) {
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => MessagePopup.error(e));
+      rethrow;
+    }
+
+    super.onInit();
   }
 
   @override
@@ -959,65 +977,58 @@ class CallController extends GetxController {
   ///
   /// Does nothing, if output device is a bluetooth headset.
   Future<void> toggleSpeaker() async {
-    if (PlatformUtils.isMobile) {
-      keepUi();
+    keepUi();
 
-      try {
-        final List<MediaDeviceDetails> outputs =
-            _currentCall.value.devices.output().toList();
-        if (outputs.length > 1) {
-          MediaDeviceDetails? device;
+    try {
+      final List<MediaDeviceDetails> outputs =
+          _currentCall.value.devices.output().toList();
 
-          if (PlatformUtils.isIOS) {
-            device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
-                e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
-          } else {
-            device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
-                e.deviceId() != 'ear-speaker' &&
-                e.deviceId() != 'speakerphone');
-          }
+      if (outputs.length > 1) {
+        MediaDeviceDetails? device;
 
-          if (device == null) {
-            // final isEarPiece =
-            //     _currentCall.value.audioDevice.value == 'ear-speaker' ||
-            //         _currentCall.value.audioDevice.value == 'ear-piece';
+        // if (PlatformUtils.isIOS) {
+        //   device = _currentCall.value.devices.output().firstWhereOrNull(
+        //       (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
+        // } else {
+        //   device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
+        //       e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
+        // }
 
-            // print(outputs.map((e) => e.deviceId()));
-            // print('${_currentCall.value.audioDevice.value}');
+        // if (device == null) {
+        // final isEarPiece =
+        //     _currentCall.value.audioDevice.value == 'ear-speaker' ||
+        //         _currentCall.value.audioDevice.value == 'ear-piece';
 
-            if (speakerSwitched.value) {
-              device = outputs.firstWhereOrNull((e) =>
-                  e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
-              // speakerSwitched.value = !(device != null);
-            } else {
-              device = outputs.firstWhereOrNull((e) =>
-                  e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
-              // speakerSwitched.value = (device != null);
-            }
+        // print(outputs.map((e) => e.deviceId()));
+        // print('${_currentCall.value.audioDevice.value}');
 
-            if (device == null) {
-              int selected = _currentCall.value.outputDevice.value == null
-                  ? 0
-                  : outputs.indexWhere(
-                      (e) =>
-                          e.deviceId() ==
-                          _currentCall.value.outputDevice.value!,
-                    );
-              selected += 1;
-              device = outputs[(selected) % outputs.length];
-            }
-          }
-
-          speakerSwitched.toggle();
-          await _currentCall.value.setOutputDevice(device.deviceId());
+        if (speakerSwitched.value) {
+          device = outputs.firstWhereOrNull((e) =>
+              e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+          _callWorker.outgoingAudio?.setSpeaker(AudioSpeakerKind.earpiece);
+        } else {
+          device = outputs.firstWhereOrNull((e) =>
+              e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+          _callWorker.outgoingAudio?.setSpeaker(AudioSpeakerKind.speaker);
         }
-      } catch (e) {
-        MessagePopup.error(e);
+
+        if (device == null) {
+          int selected = _currentCall.value.outputDevice.value == null
+              ? 0
+              : outputs.indexWhere(
+                  (e) => e.deviceId() == _currentCall.value.outputDevice.value!,
+                );
+          selected += 1;
+          device = outputs[(selected) % outputs.length];
+        }
+        // }
+
+        speakerSwitched.toggle();
+
+        await _currentCall.value.setOutputDevice(device.deviceId());
       }
-    } else {
-      // TODO: Ensure `medea_flutter_webrtc` supports Web output device
-      //       switching.
-      speakerSwitched.toggle();
+    } catch (e) {
+      MessagePopup.error(e);
     }
   }
 

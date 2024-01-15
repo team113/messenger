@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
+import 'package:just_audio/just_audio.dart' as ja;
 import 'package:media_kit/media_kit.dart';
 
 import 'log.dart';
@@ -34,7 +36,7 @@ class AudioUtilsImpl {
   Player? _player;
 
   /// [StreamController]s of [AudioSource]s added in [play].
-  final Map<AudioSource, StreamController<void>> _players = {};
+  final Map<AudioSource, AudioPlayback> _players = {};
 
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
@@ -66,90 +68,207 @@ class AudioUtilsImpl {
 
   /// Plays the provided [music] looped with the specified [fade].
   ///
-  /// Stopping the [music] means canceling the returned [StreamSubscription].
-  StreamSubscription<void> play(
+  /// Stopping the [music] means canceling the returned [AudioPlayback].
+  AudioPlayback play(
     AudioSource music, {
     Duration fade = Duration.zero,
+    AudioSpeakerKind speaker = AudioSpeakerKind.speaker,
     void Function()? onDone,
   }) {
     Log.debug('play($music)', '$runtimeType');
 
-    StreamController? controller = _players[music];
+    AudioPlayback? playback = _players[music];
     StreamSubscription? position;
 
-    if (controller == null) {
-      Player? player;
-      Timer? timer;
+    if (playback == null) {
+      playback = AudioPlayback();
 
-      controller = StreamController.broadcast(
-        onListen: () async {
-          Log.debug('play($music): onListen', '$runtimeType');
+      if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+        playback._controller = StreamController.broadcast(
+          onListen: () async {
+            Log.debug('play($music): onListen', '$runtimeType');
 
-          try {
-            player = Player();
-          } catch (e) {
-            // If [Player] isn't available on the current platform, this throws
-            // a `null check operator used on a null value`.
-            if (e is! TypeError) {
-              Log.error(
-                'Failed to initialize `Player`: ${e.toString()}',
-                '$runtimeType',
-              );
+            playback?._jaPlayer = ja.AudioPlayer();
+            await playback?._jaPlayer?.setLoopMode(ja.LoopMode.all);
+            await playback?._jaPlayer?.setAudioSource(music.source);
+
+            await playback?.setSpeaker(speaker);
+
+            await playback?._jaPlayer?.play();
+          },
+          onCancel: () async {
+            Log.debug('play($music): onCancel', '$runtimeType');
+
+            _players.remove(music);
+            position?.cancel();
+
+            Future<void>? dispose = playback?._jaPlayer?.dispose();
+            playback?._jaPlayer = null;
+            await dispose;
+          },
+        );
+      } else {
+        Timer? timer;
+
+        playback._controller = StreamController.broadcast(
+          onListen: () async {
+            Log.debug('play($music): onListen', '$runtimeType');
+
+            try {
+              playback?._player = Player();
+            } catch (e) {
+              // If [Player] isn't available on the current platform, this throws
+              // a `null check operator used on a null value`.
+              if (e is! TypeError) {
+                Log.error(
+                  'Failed to initialize `Player`: ${e.toString()}',
+                  '$runtimeType',
+                );
+              }
             }
-          }
 
-          Log.debug(
-            'play($music): devices = ${_player?.state.audioDevices.map((e) => e.name)}',
-            '$runtimeType',
-          );
+            Log.debug(
+              'play($music): devices = ${_player?.state.audioDevices.map((e) => '${e.name}: ${e.description}')}',
+              '$runtimeType',
+            );
 
-          await player?.open(music.media);
+            Log.debug('play($music), speaker($speaker)', '$runtimeType');
 
-          if (onDone == null) {
-            // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-            if (PlatformUtils.isWeb) {
-              position = player?.stream.completed.listen((e) async {
-                await player?.seek(Duration.zero);
-                await player?.play();
+            if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+              final session = await AudioSession.instance;
+
+              switch (speaker) {
+                case AudioSpeakerKind.speaker:
+                  await AndroidAudioManager().setSpeakerphoneOn(true);
+                  // await session.configure(AudioSessionConfiguration.music());
+                  break;
+
+                case AudioSpeakerKind.earpiece:
+                  print('AndroidAudioManager().setSpeakerphoneOn(false)');
+                  await AndroidAudioManager().setSpeakerphoneOn(false);
+
+                  final conf = AudioSessionConfiguration.speech();
+                  await session.configure(
+                    conf.copyWith(
+                      androidAudioAttributes: AndroidAudioAttributes(
+                        usage: AndroidAudioUsage.voiceCommunication,
+                        flags: conf.androidAudioAttributes!.flags,
+                        contentType: conf.androidAudioAttributes!.contentType,
+                      ),
+                      avAudioSessionCategory:
+                          AVAudioSessionCategory.playAndRecord,
+                    ),
+                  );
+                  break;
+              }
+            }
+
+            await playback?._player?.open(music.media);
+
+            if (onDone != null) {
+              bool first = true;
+
+              position = playback?._player?.stream.completed.listen((e) async {
+                if (first) {
+                  first = false;
+                } else {
+                  onDone();
+                }
               });
             } else {
-              await player?.setPlaylistMode(PlaylistMode.loop);
+              // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
+              if (PlatformUtils.isWeb) {
+                position =
+                    playback?._player?.stream.completed.listen((e) async {
+                  await playback?._player?.seek(Duration.zero);
+                  await playback?._player?.play();
+                });
+              } else {
+                await playback?._player?.setPlaylistMode(PlaylistMode.loop);
+              }
             }
-          }
 
-          if (fade != Duration.zero) {
-            await player?.setVolume(0);
-            timer = Timer.periodic(
-              Duration(microseconds: fade.inMicroseconds ~/ 10),
-              (timer) async {
-                if (timer.tick > 9) {
-                  timer.cancel();
-                } else {
-                  await player?.setVolume(100 * (timer.tick + 1) / 10);
-                }
-              },
-            );
-          }
+            if (fade != Duration.zero) {
+              await playback?._player?.setVolume(0);
+              timer = Timer.periodic(
+                Duration(microseconds: fade.inMicroseconds ~/ 10),
+                (timer) async {
+                  if (timer.tick > 9) {
+                    timer.cancel();
+                  } else {
+                    await playback?._player
+                        ?.setVolume(100 * (timer.tick + 1) / 10);
+                  }
+                },
+              );
+            }
 
-          Log.debug('play($music): onListen done', '$runtimeType');
-        },
-        onCancel: () async {
-          Log.debug('play($music): onCancel', '$runtimeType');
+            Log.debug('play($music): onListen done', '$runtimeType');
+          },
+          onCancel: () async {
+            Log.debug('play($music): onCancel', '$runtimeType');
 
-          _players.remove(music);
-          position?.cancel();
-          timer?.cancel();
+            _players.remove(music);
+            position?.cancel();
+            timer?.cancel();
 
-          Future<void>? dispose = player?.dispose();
-          player = null;
-          await dispose;
-        },
-      );
+            Future<void>? dispose = playback?._player?.dispose();
+            playback?._player = null;
+            await dispose;
+          },
+        );
+      }
 
-      _players[music] = controller;
+      _players[music] = playback;
     }
 
-    return controller.stream.listen((_) {}, onDone: onDone);
+    return _players[music]!..listen();
+  }
+}
+
+enum AudioSpeakerKind { earpiece, speaker }
+
+class AudioPlayback {
+  AudioPlayback();
+
+  Player? _player;
+  ja.AudioPlayer? _jaPlayer;
+
+  StreamController? _controller;
+  StreamSubscription? _subscription;
+
+  Future<void> setSpeaker(AudioSpeakerKind speaker) async {
+    Log.debug('setSpeaker($speaker)', '$runtimeType');
+
+    final session = await AudioSession.instance;
+
+    switch (speaker) {
+      case AudioSpeakerKind.speaker:
+        await session.configure(const AudioSessionConfiguration.speech());
+        break;
+
+      case AudioSpeakerKind.earpiece:
+        await session.configure(
+          const AudioSessionConfiguration(
+            androidAudioAttributes: AndroidAudioAttributes(
+              usage: AndroidAudioUsage.voiceCommunication,
+              flags: AndroidAudioFlags.none,
+              contentType: AndroidAudioContentType.speech,
+            ),
+            avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          ),
+        );
+        break;
+    }
+  }
+
+  void listen() {
+    _subscription ??= _controller?.stream.listen((_) {});
+  }
+
+  void cancel() {
+    _subscription?.cancel();
+    _subscription = null;
   }
 }
 
@@ -236,5 +355,14 @@ extension on AudioSource {
         AudioSourceKind.file =>
           Media('file:///${(this as FileAudioSource).file}'),
         AudioSourceKind.url => Media((this as UrlAudioSource).url),
+      };
+
+  ja.AudioSource get source => switch (kind) {
+        AudioSourceKind.asset =>
+          ja.AudioSource.asset('assets/${(this as AssetAudioSource).asset}'),
+        AudioSourceKind.file =>
+          ja.AudioSource.file((this as FileAudioSource).file),
+        AudioSourceKind.url =>
+          ja.AudioSource.uri(Uri.parse((this as UrlAudioSource).url)),
       };
 }

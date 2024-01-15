@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -49,8 +47,8 @@ class PlayableAsset extends StatefulWidget {
 
 /// State of a [PlayableAsset] maintaining the [_audio].
 class _PlayableAssetState extends State<PlayableAsset> {
-  /// [StreamSubscription] for the audio playback.
-  StreamSubscription? _audio;
+  /// [AudioPlayback] for the audio playback.
+  AudioPlayback? _audio;
 
   @override
   Widget build(BuildContext context) {

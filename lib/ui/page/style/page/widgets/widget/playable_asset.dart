@@ -46,8 +46,8 @@ class _PlayableAssetState extends State<PlayableAsset> {
   /// Indicator whether this [PlayableAsset] is hovered.
   bool _hovered = false;
 
-  /// [StreamSubscription] for the audio playback.
-  StreamSubscription? _audio;
+  /// [AudioPlayback] for the audio playback.
+  AudioPlayback? _audio;
 
   @override
   Widget build(BuildContext context) {

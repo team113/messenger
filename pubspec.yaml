@@ -124,6 +124,11 @@ dependencies:
   expandable_text: ^2.3.0
   syncfusion_flutter_sliders: ^24.1.43
   flutter_xlider: ^3.5.0
+  audio_session: ^0.1.18
+  just_audio: ^0.9.36
+  # audioplayers_android: ^4.0.3
+  # audioplayers_platform_interface: ^6.1.0
+  # audioplayers_darwin: ^5.0.2
 
 dev_dependencies:
   artemis: ^7.13.1
