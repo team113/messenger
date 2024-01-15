@@ -193,11 +193,10 @@ class ReactiveTextField extends StatelessWidget {
       final style = Theme.of(context).style;
 
       return Obx(() {
-        final RxStatus status = state.status.value;
         final bool hasSuffix = state.approvable ||
             suffix != null ||
             trailing != null ||
-            !status.isEmpty;
+            !state.status.value.isEmpty;
 
         return AnimatedButton(
           onPressed: state.approvable && state.changed.value
@@ -220,13 +219,13 @@ class ReactiveTextField extends StatelessWidget {
                 ? SizedBox(
                     height: 24,
                     child: ElasticAnimatedSwitcher(
-                      child: status.isLoading
+                      child: state.status.value.isLoading
                           ? const SvgImage.asset(
                               'assets/icons/timer.svg',
                               width: 17,
                               height: 17,
                             )
-                          : status.isSuccess
+                          : state.status.value.isSuccess
                               ? SizedBox(
                                   key: const ValueKey('Success'),
                                   width: 24,
@@ -238,7 +237,7 @@ class ReactiveTextField extends StatelessWidget {
                                 )
                               : (state.error.value != null &&
                                           treatErrorAsStatus) ||
-                                      status.isError
+                                      state.status.value.isError
                                   ? SizedBox(
                                       key: const ValueKey('Error'),
                                       width: 24,
