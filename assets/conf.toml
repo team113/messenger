@@ -98,3 +98,14 @@
 # Default:
 #   level = "debug" (if `kDebugMode` or `kProfileMode` is `true`)
 #   level = "info" (if `kReleaseMode` is `true`)
+
+[link]
+# Prefix of the direct chat link URL.
+#
+# The trailing `/` should be omitted.
+#
+# If empty, then the origin domain of the web application, or HTTP server for
+# native applications, is used.
+#
+# Default:
+#   prefix = ""
