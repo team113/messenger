@@ -110,6 +110,17 @@ class HomeController extends GetxController {
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
 
+  /// Returns list of the enabled [HomeTab]s.
+  List<HomeTab> get tabs {
+    final List<HomeTab> tabs = HomeTab.values.toList();
+
+    if (settings.value?.workWithUsTabEnabled == false) {
+      tabs.remove(HomeTab.work);
+    }
+
+    return tabs;
+  }
+
   @override
   void onInit() {
     super.onInit();

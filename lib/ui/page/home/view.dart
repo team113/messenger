@@ -178,10 +178,6 @@ class _HomeViewState extends State<HomeView> {
                         physics: const NeverScrollableScrollPhysics(),
                         controller: c.pages,
                         onPageChanged: (int i) {
-                          if (c.settings.value?.workWithUsTabEnabled == false) {
-                            i++;
-                          }
-
                           router.tab = HomeTab.values[i];
                           c.page.value = router.tab;
 
@@ -221,13 +217,13 @@ class _HomeViewState extends State<HomeView> {
                               items: [
                                 if (c.settings.value?.workWithUsTabEnabled !=
                                     false)
-                                  const CustomNavigationBarItem(
+                                  const CustomNavigationBarItem.work(
                                     child: SvgIcon(
                                       SvgIcons.partner,
                                       key: Key('WorkButton'),
                                     ),
                                   ),
-                                const CustomNavigationBarItem(
+                                const CustomNavigationBarItem.contacts(
                                   child: SvgImage.asset(
                                     'assets/icons/contacts.svg',
                                     key: Key('ContactsButton'),
@@ -235,7 +231,7 @@ class _HomeViewState extends State<HomeView> {
                                     height: 32,
                                   ),
                                 ),
-                                CustomNavigationBarItem(
+                                CustomNavigationBarItem.chats(
                                   badge: c.unreadChatsCount.value == 0
                                       ? null
                                       : '${c.unreadChatsCount.value}',
@@ -284,7 +280,7 @@ class _HomeViewState extends State<HomeView> {
                                     }),
                                   ),
                                 ),
-                                CustomNavigationBarItem(
+                                CustomNavigationBarItem.menu(
                                   child: ContextMenuRegion(
                                     key: const Key('MenuButton'),
                                     selector: c.profileKey,
@@ -330,8 +326,8 @@ class _HomeViewState extends State<HomeView> {
                                   ),
                                 ),
                               ],
-                              currentIndex: router.tab.index,
-                              onTap: c.pages.jumpToPage,
+                              currentIndex: c.tabs.indexOf(router.tab),
+                              onTap: (t) => c.pages.jumpToPage(t.index),
                             );
                           }),
                         );

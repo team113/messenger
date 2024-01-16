@@ -203,8 +203,8 @@ class ReactiveTextField extends StatelessWidget {
             !state.status.value.isEmpty;
 
         return AnimatedButton(
-          onPressed: (state.approvable && state.changed.value ||
-                  state.resubmitOnError.isTrue)
+          onPressed: state.approvable &&
+                  (state.changed.value || state.resubmitOnError.isTrue)
               ? state.isEmpty.value && !clearable
                   ? null
                   : state.submit

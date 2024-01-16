@@ -20,6 +20,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/animated_button.dart';
@@ -42,7 +43,7 @@ class CustomNavigationBar extends StatelessWidget {
   final List<CustomNavigationBarItem> items;
 
   /// Callback, called when an item in [items] list is pressed.
-  final Function(int)? onTap;
+  final Function(HomeTab)? onTap;
 
   /// Height of the [CustomNavigationBar].
   static const double height = 56;
@@ -93,7 +94,7 @@ class CustomNavigationBar extends StatelessWidget {
                           if (b.child != null)
                             _CustomNavigationBarButton(
                               selected: currentIndex == i,
-                              onPressed: () => onTap?.call(i),
+                              onPressed: () => onTap?.call(b.tab),
                               child: Container(
                                 width: 80,
                                 color: style.colors.transparent,
@@ -149,12 +150,69 @@ class CustomNavigationBar extends StatelessWidget {
 
 /// Single item of [CustomNavigationBar].
 class CustomNavigationBarItem {
-  const CustomNavigationBarItem({
+  const CustomNavigationBarItem._({
     this.key,
+    required this.tab,
     this.badge,
     this.badgeColor,
     this.child,
   });
+
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.work].
+  const CustomNavigationBarItem.work({
+    Key? key,
+    String? badge,
+    Color? badgeColor,
+    Widget? child,
+  }) : this._(
+          key: key,
+          tab: HomeTab.work,
+          badge: badge,
+          badgeColor: badgeColor,
+          child: child,
+        );
+
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.contacts].
+  const CustomNavigationBarItem.contacts({
+    Key? key,
+    String? badge,
+    Color? badgeColor,
+    Widget? child,
+  }) : this._(
+          key: key,
+          tab: HomeTab.contacts,
+          badge: badge,
+          badgeColor: badgeColor,
+          child: child,
+        );
+
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.chats].
+  const CustomNavigationBarItem.chats({
+    Key? key,
+    String? badge,
+    Color? badgeColor,
+    Widget? child,
+  }) : this._(
+          key: key,
+          tab: HomeTab.chats,
+          badge: badge,
+          badgeColor: badgeColor,
+          child: child,
+        );
+
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.menu].
+  const CustomNavigationBarItem.menu({
+    Key? key,
+    String? badge,
+    Color? badgeColor,
+    Widget? child,
+  }) : this._(
+          key: key,
+          tab: HomeTab.menu,
+          badge: badge,
+          badgeColor: badgeColor,
+          child: child,
+        );
 
   /// Unique [Key] of this [CustomNavigationBarItem].
   final Key? key;
@@ -167,6 +225,9 @@ class CustomNavigationBarItem {
 
   /// [Widget] to display.
   final Widget? child;
+
+  /// [HomeTab] that this [CustomNavigationBarItem] represents.
+  final HomeTab tab;
 }
 
 /// [AnimatedButton] with [AnimatedScale] representing a single button of

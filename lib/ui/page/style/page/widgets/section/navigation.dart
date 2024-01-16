@@ -81,29 +81,29 @@ class NavigationSection {
           (p) {
             return CustomNavigationBar(
               currentIndex: p.value,
-              onTap: (i) => p.value = i,
+              onTap: (t) => p.value = t.index,
               items: [
-                const CustomNavigationBarItem(
+                const CustomNavigationBarItem.work(
                   child: SvgImage.asset(
                     'assets/icons/partner.svg',
                     width: 36,
                     height: 28,
                   ),
                 ),
-                const CustomNavigationBarItem(
+                const CustomNavigationBarItem.contacts(
                   child: SvgImage.asset(
                     'assets/icons/contacts.svg',
                     width: 32,
                     height: 32,
                   ),
                 ),
-                CustomNavigationBarItem(
+                CustomNavigationBarItem.chats(
                   child: Transform.translate(
                     offset: const Offset(0, 0.5),
                     child: const SvgIcon(SvgIcons.chats),
                   ),
                 ),
-                const CustomNavigationBarItem(
+                const CustomNavigationBarItem.menu(
                   child: AvatarWidget(radius: AvatarRadius.small),
                 ),
               ],
