@@ -191,10 +191,7 @@ class HivePageProvider<T extends Object, C, K>
   }
 
   @override
-  Future<void> put(
-    T item, {
-    int Function(T, T)? compare,
-  }) async {
+  Future<void> put(T item, {int Function(T, T)? compare}) async {
     // TODO: https://github.com/team113/messenger/issues/27
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to

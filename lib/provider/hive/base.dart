@@ -170,7 +170,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// [Mutex] that guards [_box] access.
   final Mutex _mutex = Mutex();
 
-  /// [Mutex] that guards [_box] access when an transaction is active.
+  /// [Mutex] that guards [_box] access when a transaction is active.
   final Mutex _transactionMutex = Mutex();
 
   /// Returns the [Box] storing data of this [HiveLazyProvider].
@@ -286,26 +286,6 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
     );
   }
 
-  /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
-  Future<void> _putSafe(dynamic key, T value) async {
-    return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        await _box.put(key, value);
-      }
-    });
-  }
-
-  /// Exception-safe wrapper for [Box.get] returning the value associated with
-  /// the given [key], if any.
-  Future<T?> _getSafe(dynamic key, {T? defaultValue}) async {
-    return _mutex.protect(() async {
-      if (_isReady && _box.isOpen) {
-        return _box.get(key, defaultValue: defaultValue);
-      }
-      return null;
-    });
-  }
-
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
@@ -328,6 +308,26 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
     } finally {
       _transactionMutex.release();
     }
+  }
+
+  /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
+  Future<void> _putSafe(dynamic key, T value) async {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        await _box.put(key, value);
+      }
+    });
+  }
+
+  /// Exception-safe wrapper for [Box.get] returning the value associated with
+  /// the given [key], if any.
+  Future<T?> _getSafe(dynamic key, {T? defaultValue}) async {
+    return _mutex.protect(() async {
+      if (_isReady && _box.isOpen) {
+        return _box.get(key, defaultValue: defaultValue);
+      }
+      return null;
+    });
   }
 }
 
