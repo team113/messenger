@@ -368,9 +368,9 @@ extension HiveRegisterAdapter on HiveInterface {
 class HiveTransaction<T> {
   HiveTransaction(this.put, this.get);
 
-  /// Puts the provided [item].
+  /// Puts the provided value.
   final Future<void> Function(dynamic key, T value) put;
 
-  /// Returns a [T] item by its [key].
+  /// Returns a [T] item by its key.
   final Future<T?> Function(dynamic key) get;
 }

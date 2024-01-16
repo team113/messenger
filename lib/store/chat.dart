@@ -1598,6 +1598,11 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
+        final HiveRxChat? chat = chats[chatId];
+        if (chat == null || (chat.ver != null && chat.ver! < event.value.ver)) {
+          _add(event.value);
+        }
+
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
           _recentLocal.remove(chatId);
