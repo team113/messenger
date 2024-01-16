@@ -59,7 +59,7 @@ class SearchField extends StatelessWidget {
               child: Transform.translate(
                 offset: const Offset(0, 1),
                 child: ReactiveTextField(
-                  key: const Key('SearchField'),
+                  key: const Key('SearchTextField'),
                   state: state,
                   hint: hint ?? 'label_search'.l10n,
                   maxLines: 1,
