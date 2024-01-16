@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,14 +18,14 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mutex/mutex.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/user.dart';
 import '/util/log.dart';
 import 'base.dart';
 
-/// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s and secondary
-/// by [ChatId].
-class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
+/// [Hive] storage for [UserId]s sorted by the [PreciseDateTime]s and secondary
+/// by [UserId].
+class BlocklistSortingHiveProvider extends HiveBaseProvider<UserId> {
   /// [Mutex] guarding synchronized access to the [put] and [remove].
   final Mutex _mutex = Mutex();
 
@@ -33,19 +33,19 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'recent_chat';
+  String get boxName => 'blocklist_sorting';
 
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
-    Hive.maybeRegisterAdapter(ChatIdAdapter());
+    Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
-  /// Returns a list of [ChatId]s from [Hive].
-  Iterable<ChatId> get values => valuesSafe;
+  /// Returns a list of [UserId]s from [Hive].
+  Iterable<UserId> get values => valuesSafe;
 
-  /// Puts the provided [ChatId] by the provided [key] to [Hive].
-  Future<void> put(PreciseDateTime key, ChatId item) async {
+  /// Puts the provided [UserId] by the provided [key] to [Hive].
+  Future<void> put(PreciseDateTime key, UserId item) async {
     Log.debug('put($key, $item)', '$runtimeType');
 
     final String i = '${key.toUtc().toString()}_$item';
@@ -62,8 +62,8 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
     }
   }
 
-  /// Removes the provided [ChatId] from [Hive].
-  Future<void> remove(ChatId item) async {
+  /// Removes the provided [UserId] from [Hive].
+  Future<void> remove(UserId item) async {
     Log.debug('remove($item)', '$runtimeType');
 
     await _mutex.protect(() async {
