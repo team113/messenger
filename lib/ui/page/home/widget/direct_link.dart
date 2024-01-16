@@ -156,7 +156,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         child: ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
-          label: '${Config.origin}/',
+          label: '${Config.link}/',
         ),
       );
     } else {
@@ -195,7 +195,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     child: WidgetButton(
                       onPressed: () {
                         final share =
-                            '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+                            '${Config.link}${Routes.chatDirectLink}/${_state.text}';
 
                         if (PlatformUtils.isMobile) {
                           Share.share(share);
@@ -208,7 +208,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         fromMe: true,
                         style: style.fonts.medium.regular.primary,
                         text:
-                            '${Config.origin}${Routes.chatDirectLink}/${_state.text}',
+                            '${Config.link}${Routes.chatDirectLink}/${_state.text}',
                       ),
                     ),
                   ),
@@ -224,7 +224,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         ),
                         child: QrImageView(
                           data:
-                              '${Config.origin}${Routes.chatDirectLink}/${widget.link?.slug.val}',
+                              '${Config.link}${Routes.chatDirectLink}/${widget.link?.slug.val}',
                           version: QrVersions.auto,
                           size: 300.0,
                         ),
@@ -252,7 +252,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 child: WidgetButton(
                   onPressed: () {
                     final share =
-                        '${Config.origin}${Routes.chatDirectLink}/${_state.text}';
+                        '${Config.link}${Routes.chatDirectLink}/${_state.text}';
 
                     if (PlatformUtils.isMobile) {
                       Share.share(share);
