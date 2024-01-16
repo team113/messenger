@@ -25,7 +25,11 @@ import 'package:get/get.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart' show CallAlreadyExistsException;
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
@@ -261,10 +265,14 @@ class ChatInfoController extends GetxController {
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     try {
-      _callService.call(chatId, withVideo: withVideo);
+      await _callService.call(chatId, withVideo: withVideo);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
-    } catch (e) {
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     }
   }
