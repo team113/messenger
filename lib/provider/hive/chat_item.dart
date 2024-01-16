@@ -97,9 +97,9 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
   Future<Iterable<HiveChatItem>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChatItem item, {TransactionId? transaction}) async {
+  Future<void> put(HiveChatItem item) async {
     Log.debug('put($item)', '$runtimeType');
-    await putSafe(item.value.key.toString(), item, transaction: transaction);
+    await putSafe(item.value.key.toString(), item);
   }
 
   @override

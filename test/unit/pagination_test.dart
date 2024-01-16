@@ -26,7 +26,6 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/base.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/store/model/chat_item.dart';
 import 'package:messenger/store/model/page_info.dart';
@@ -354,7 +353,6 @@ class _ListPageProvider implements PageProvider<int, int, int> {
     int item, {
     bool ignoreBounds = false,
     int Function(int, int)? compare,
-    TransactionId? transaction,
   }) async {}
 
   @override

@@ -112,15 +112,15 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   Future<Iterable<HiveChat>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChat item, {TransactionId? transaction}) async {
+  Future<void> put(HiveChat item) async {
     Log.debug('put($item)', '$runtimeType');
-    await putSafe(item.value.id.val, item, transaction: transaction);
+    await putSafe(item.value.id.val, item);
   }
 
   @override
-  Future<HiveChat?> get(ChatId key, {TransactionId? transaction}) async {
+  Future<HiveChat?> get(ChatId key) async {
     Log.debug('get($key)', '$runtimeType');
-    return await getSafe(key.val, transaction: transaction);
+    return await getSafe(key.val);
   }
 
   @override

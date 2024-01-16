@@ -22,7 +22,6 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '/provider/hive/base.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -314,11 +313,7 @@ class Pagination<T, C, K> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(
-    T item, {
-    bool ignoreBounds = false,
-    TransactionId? transaction,
-  }) async {
+  Future<void> put(T item, {bool ignoreBounds = false}) async {
     if (_disposed) {
       return;
     }
@@ -347,11 +342,7 @@ class Pagination<T, C, K> {
       items[onKey(item)] = item;
     }
 
-    await provider.put(
-      item,
-      compare: put ? null : compare,
-      transaction: transaction,
-    );
+    await provider.put(item, compare: put ? null : compare);
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
@@ -418,11 +409,7 @@ abstract class PageProvider<T, C, K> {
   FutureOr<Page<T, C>?> before(T? item, C? cursor, int count);
 
   /// Adds the provided [item] to this [PageProvider].
-  Future<void> put(
-    T item, {
-    int Function(T, T)? compare,
-    TransactionId? transaction,
-  });
+  Future<void> put(T item, {int Function(T, T)? compare});
 
   /// Removes the item specified by its [key] from this [PageProvider].
   Future<void> remove(K key);

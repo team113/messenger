@@ -54,7 +54,6 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
-import '/provider/hive/base.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -1472,7 +1471,6 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool updateVersion = true,
     bool ignoreVersion = false,
-    TransactionId? transaction,
   }) async {
     Log.debug(
       'put($chat, $pagination, $updateVersion, $ignoreVersion)',
@@ -1491,7 +1489,7 @@ class ChatRepository extends DisposableInterface
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
-          await _pagination?.put(chat, transaction: transaction);
+          await _pagination?.put(chat);
         }
 
         return saved;
@@ -1512,7 +1510,7 @@ class ChatRepository extends DisposableInterface
 
       // If version is ignored, there's no need to retrieve the stored chat.
       if (!ignoreVersion || !updateVersion) {
-        saved = await _chatLocal.get(chatId, transaction: transaction);
+        saved = await _chatLocal.get(chatId);
       }
 
       // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
@@ -1531,14 +1529,14 @@ class ChatRepository extends DisposableInterface
           chat.ver = saved.ver;
         }
 
-        await _chatLocal.put(chat, transaction: transaction);
+        await _chatLocal.put(chat);
       }
     }
 
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden) {
-      await _pagination?.put(chat, transaction: transaction);
+      await _pagination?.put(chat);
     }
 
     return rxChat;

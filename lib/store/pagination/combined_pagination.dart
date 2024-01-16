@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:get/get.dart';
 
-import '/provider/hive/base.dart';
 import '/store/pagination.dart';
 import '/util/obs/obs.dart';
 
@@ -82,13 +81,9 @@ class CombinedPagination<T, K> {
       paginations.firstWhereOrNull((e) => e.p.hasNext.isTrue)?.p.next();
 
   /// Adds the provided [item] to the [paginations].
-  Future<void> put(
-    T item, {
-    bool ignoreBounds = false,
-    TransactionId? transaction,
-  }) async {
+  Future<void> put(T item, {bool ignoreBounds = false}) async {
     for (final p in paginations.where((p) => p.addIf(item)).map((e) => e.p)) {
-      await p.put(item, ignoreBounds: ignoreBounds, transaction: transaction);
+      await p.put(item, ignoreBounds: ignoreBounds);
     }
   }
 

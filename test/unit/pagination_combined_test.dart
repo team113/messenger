@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/hive/base.dart';
 import 'package:messenger/store/model/page_info.dart';
 import 'package:messenger/store/pagination.dart';
 import 'package:messenger/store/pagination/combined_pagination.dart';
@@ -151,7 +150,6 @@ class _ListPageProvider implements PageProvider<int, int, int> {
     int item, {
     bool ignoreBounds = false,
     int Function(int, int)? compare,
-    TransactionId? transaction,
   }) async {}
 
   @override

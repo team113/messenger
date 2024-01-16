@@ -41,7 +41,6 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
-import '/provider/hive/base.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
@@ -1133,12 +1132,8 @@ class HiveRxChat extends RxChat {
         break;
 
       case ChatEventsKind.event:
-        TransactionId? transaction;
-        try {
-          transaction = await _chatLocal.startTransaction();
-
-          HiveChat? chatEntity =
-              await _chatLocal.get(id, transaction: transaction);
+        await _chatLocal.txn((txn) async {
+          HiveChat? chatEntity = await txn.get(id.val);
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
@@ -1513,13 +1508,10 @@ class HiveRxChat extends RxChat {
           }
 
           if (shouldPutChat) {
-            await _chatRepository.put(chatEntity, transaction: transaction);
+            await txn.put(chatEntity.value.id.val, chatEntity);
           }
-        } finally {
-          if (transaction != null) {
-            _chatLocal.endTransaction(transaction);
-          }
-        }
+        });
+
         break;
     }
   }
