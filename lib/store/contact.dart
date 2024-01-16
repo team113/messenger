@@ -664,33 +664,10 @@ class ContactRepository extends DisposableInterface
 
           _sessionLocal.setChatContactsListVersion(versioned.listVer);
 
-          HiveChatContact? contactEntity;
+          Map<ChatContactId, HiveChatContact> contacts = {};
           for (var node in versioned.events) {
-            if (contactEntity != null &&
-                contactEntity.value.id != node.contactId) {
-              _putChatContact(contactEntity);
-              contactEntity = null;
-            }
-
-            if (node.kind == ChatContactEventKind.created) {
-              node as EventChatContactCreated;
-              contactEntity = HiveChatContact(
-                ChatContact(
-                  node.contactId,
-                  name: node.name,
-                ),
-                versioned.ver,
-                null,
-                null,
-              );
-
-              continue;
-            } else if (node.kind == ChatContactEventKind.deleted) {
-              remove(node.contactId);
-              continue;
-            }
-
-            contactEntity ??= await _contactLocal.get(node.contactId) ??
+            HiveChatContact? contactEntity = contacts[node.contactId] ??
+                await _contactLocal.get(node.contactId) ??
                 await _fetchById(node.contactId);
             contactEntity?.ver = versioned.ver;
 
@@ -700,6 +677,8 @@ class ContactRepository extends DisposableInterface
               // the current events can be ignored.
               return;
             }
+
+            contacts[node.contactId] = contactEntity;
 
             switch (node.kind) {
               case ChatContactEventKind.emailAdded:
@@ -759,14 +738,27 @@ class ContactRepository extends DisposableInterface
                 break;
 
               case ChatContactEventKind.created:
+                node as EventChatContactCreated;
+                contacts[node.contactId] = HiveChatContact(
+                  ChatContact(
+                    node.contactId,
+                    name: node.name,
+                  ),
+                  versioned.ver,
+                  null,
+                  null,
+                );
+                break;
+
               case ChatContactEventKind.deleted:
-                // No-op as these events are handled elsewhere.
+                contacts.remove(node.contactId);
+                remove(node.contactId);
                 break;
             }
           }
 
-          if (contactEntity != null) {
-            _putChatContact(contactEntity);
+          for (HiveChatContact contact in contacts.values) {
+            _putChatContact(contact);
           }
         }
     }
