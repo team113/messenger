@@ -376,7 +376,7 @@ class UserTextStatus extends NewType<String> {
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].
 @HiveType(typeId: ModelTypeId.blocklistRecord)
-class BlocklistRecord {
+class BlocklistRecord implements Comparable<BlocklistRecord> {
   BlocklistRecord({
     required this.userId,
     this.reason,
@@ -401,6 +401,12 @@ class BlocklistRecord {
 
   @override
   int get hashCode => Object.hash(at, reason);
+
+  @override
+  int compareTo(BlocklistRecord other) {
+    final int result = other.at.compareTo(at);
+    return result == 0 ? userId.compareTo(other.userId) : result;
+  }
 }
 
 /// Reason of blocking a [User] by the authenticated [MyUser].

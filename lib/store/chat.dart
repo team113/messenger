@@ -1598,11 +1598,6 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        final HiveRxChat? chat = chats[chatId];
-        if (chat == null || (chat.ver != null && chat.ver! < event.value.ver)) {
-          _add(event.value);
-        }
-
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
           _recentLocal.remove(chatId);
@@ -1841,7 +1836,8 @@ class ChatRepository extends DisposableInterface
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
-            Page<HiveChat, FavoriteChatsCursor> page = await _favoriteChats(
+            final Page<HiveChat, FavoriteChatsCursor> page =
+                await _favoriteChats(
               after: after,
               first: first,
               before: before,

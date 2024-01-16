@@ -45,6 +45,7 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
+import 'provider/hive/blocklist_sorting.dart';
 import 'provider/hive/call_credentials.dart';
 import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
@@ -54,11 +55,11 @@ import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
 import 'provider/hive/favorite_chat.dart';
 import 'provider/hive/favorite_contact.dart';
-import 'provider/hive/session_data.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
+import 'provider/hive/session_data.dart';
 import 'provider/hive/user.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
@@ -469,6 +470,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(SessionDataHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
+                deps.put(BlocklistSortingHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(FavoriteContactHiveProvider()).init(userId: me),
                 deps.put(ContactSortingHiveProvider()).init(userId: me),
@@ -543,7 +545,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               BlocklistRepository blocklistRepository = BlocklistRepository(
                 graphQlProvider,
                 Get.find(),
+                Get.find(),
                 userRepository,
+                Get.find(),
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
               AbstractMyUserRepository myUserRepository =
@@ -595,6 +599,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(SessionDataHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
+              deps.put(BlocklistSortingHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(FavoriteContactHiveProvider()).init(userId: me),
               deps.put(ContactSortingHiveProvider()).init(userId: me),
@@ -691,7 +696,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
               Get.find(),
+              Get.find(),
               userRepository,
+              Get.find(),
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
             AbstractMyUserRepository myUserRepository =
