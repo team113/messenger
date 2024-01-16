@@ -214,118 +214,135 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: Obx(() {
                             return CustomNavigationBar(
-                              items: [
-                                if (c.settings.value?.workWithUsTabEnabled !=
-                                    false)
-                                  const CustomNavigationBarItem.work(
-                                    child: SvgIcon(
-                                      SvgIcons.partner,
-                                      key: Key('WorkButton'),
-                                    ),
-                                  ),
-                                const CustomNavigationBarItem.contacts(
-                                  child: SvgImage.asset(
-                                    'assets/icons/contacts.svg',
-                                    key: Key('ContactsButton'),
-                                    width: 32,
-                                    height: 32,
-                                  ),
-                                ),
-                                CustomNavigationBarItem.chats(
-                                  badge: c.unreadChatsCount.value == 0
-                                      ? null
-                                      : '${c.unreadChatsCount.value}',
-                                  badgeColor: c.myUser.value?.muted != null
-                                      ? style.colors.secondaryHighlightDarkest
-                                      : style.colors.danger,
-                                  child: ContextMenuRegion(
-                                    key: const Key('ChatsButton'),
-                                    selector: c.chatsKey,
-                                    alignment: Alignment.bottomCenter,
-                                    margin: const EdgeInsets.only(bottom: 4),
-                                    actions: [
-                                      if (c.myUser.value?.muted != null)
-                                        ContextMenuButton(
-                                          key: const Key('UnmuteChatsButton'),
-                                          label: 'btn_unmute_chats'.l10n,
-                                          onPressed: () => c.toggleMute(true),
-                                        )
-                                      else
-                                        ContextMenuButton(
-                                          key: const Key('MuteChatsButton'),
-                                          label: 'btn_mute_chats'.l10n,
-                                          onPressed: () => c.toggleMute(false),
-                                        ),
-                                    ],
-                                    child: Obx(() {
-                                      final Widget child;
+                              items: c.tabs.map((e) {
+                                switch (e) {
+                                  case HomeTab.work:
+                                    return const CustomNavigationBarItem.work(
+                                      child: SvgIcon(
+                                        SvgIcons.partner,
+                                        key: Key('WorkButton'),
+                                      ),
+                                    );
 
-                                      if (c.myUser.value?.muted != null) {
-                                        child = const SvgIcon(
-                                          SvgIcons.chatsMuted,
-                                          key: Key('Muted'),
-                                        );
-                                      } else {
-                                        child = const SvgIcon(
-                                          SvgIcons.chats,
-                                          key: Key('Unmuted'),
-                                        );
-                                      }
+                                  case HomeTab.contacts:
+                                    return const CustomNavigationBarItem
+                                        .contacts(
+                                      child: SvgImage.asset(
+                                        'assets/icons/contacts.svg',
+                                        key: Key('ContactsButton'),
+                                        width: 32,
+                                        height: 32,
+                                      ),
+                                    );
 
-                                      return SafeAnimatedSwitcher(
-                                        key: c.chatsKey,
-                                        duration: 200.milliseconds,
-                                        child: child,
-                                      );
-                                    }),
-                                  ),
-                                ),
-                                CustomNavigationBarItem.menu(
-                                  child: ContextMenuRegion(
-                                    key: const Key('MenuButton'),
-                                    selector: c.profileKey,
-                                    alignment: Alignment.bottomRight,
-                                    margin: const EdgeInsets.only(bottom: 4),
-                                    actions: [
-                                      ContextMenuButton(
-                                        label: 'label_presence_present'.l10n,
-                                        onPressed: () =>
-                                            c.setPresence(Presence.present),
-                                        trailing: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: style.colors.acceptAuxiliary,
+                                  case HomeTab.chats:
+                                    return CustomNavigationBarItem.chats(
+                                      badge: c.unreadChatsCount.value == 0
+                                          ? null
+                                          : '${c.unreadChatsCount.value}',
+                                      badgeColor: c.myUser.value?.muted != null
+                                          ? style
+                                              .colors.secondaryHighlightDarkest
+                                          : style.colors.danger,
+                                      child: ContextMenuRegion(
+                                        key: const Key('ChatsButton'),
+                                        selector: c.chatsKey,
+                                        alignment: Alignment.bottomCenter,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 4),
+                                        actions: [
+                                          if (c.myUser.value?.muted != null)
+                                            ContextMenuButton(
+                                              key: const Key(
+                                                  'UnmuteChatsButton'),
+                                              label: 'btn_unmute_chats'.l10n,
+                                              onPressed: () =>
+                                                  c.toggleMute(true),
+                                            )
+                                          else
+                                            ContextMenuButton(
+                                              key: const Key('MuteChatsButton'),
+                                              label: 'btn_mute_chats'.l10n,
+                                              onPressed: () =>
+                                                  c.toggleMute(false),
+                                            ),
+                                        ],
+                                        child: Obx(() {
+                                          final Widget child;
+
+                                          if (c.myUser.value?.muted != null) {
+                                            child = const SvgIcon(
+                                              SvgIcons.chatsMuted,
+                                              key: Key('Muted'),
+                                            );
+                                          } else {
+                                            child = const SvgIcon(
+                                              SvgIcons.chats,
+                                              key: Key('Unmuted'),
+                                            );
+                                          }
+
+                                          return SafeAnimatedSwitcher(
+                                            key: c.chatsKey,
+                                            duration: 200.milliseconds,
+                                            child: child,
+                                          );
+                                        }),
+                                      ),
+                                    );
+
+                                  case HomeTab.menu:
+                                    return CustomNavigationBarItem.menu(
+                                      child: ContextMenuRegion(
+                                        key: const Key('MenuButton'),
+                                        selector: c.profileKey,
+                                        alignment: Alignment.bottomRight,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 4),
+                                        actions: [
+                                          ContextMenuButton(
+                                            label:
+                                                'label_presence_present'.l10n,
+                                            onPressed: () =>
+                                                c.setPresence(Presence.present),
+                                            trailing: Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: style
+                                                    .colors.acceptAuxiliary,
+                                              ),
+                                            ),
+                                          ),
+                                          ContextMenuButton(
+                                            label: 'label_presence_away'.l10n,
+                                            onPressed: () =>
+                                                c.setPresence(Presence.away),
+                                            trailing: Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: style.colors.warning,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                        child: Padding(
+                                          key: c.profileKey,
+                                          padding:
+                                              const EdgeInsets.only(bottom: 2),
+                                          child: AvatarWidget.fromMyUser(
+                                            c.myUser.value,
+                                            radius: AvatarRadius.normal,
+                                            onForbidden: c.updateAvatar,
                                           ),
                                         ),
                                       ),
-                                      ContextMenuButton(
-                                        label: 'label_presence_away'.l10n,
-                                        onPressed: () =>
-                                            c.setPresence(Presence.away),
-                                        trailing: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: style.colors.warning,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    child: Padding(
-                                      key: c.profileKey,
-                                      padding: const EdgeInsets.only(bottom: 2),
-                                      child: AvatarWidget.fromMyUser(
-                                        c.myUser.value,
-                                        radius: AvatarRadius.normal,
-                                        onForbidden: c.updateAvatar,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                    );
+                                }
+                              }),
                               currentIndex: c.tabs.indexOf(router.tab),
                               onTap: (t) => c.pages.jumpToPage(t.index),
                             );

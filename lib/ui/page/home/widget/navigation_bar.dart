@@ -40,7 +40,7 @@ class CustomNavigationBar extends StatelessWidget {
 
   /// List of [CustomNavigationBarItem]s that this [CustomNavigationBar]
   /// consists of.
-  final List<CustomNavigationBarItem> items;
+  final Iterable<CustomNavigationBarItem> items;
 
   /// Callback, called when an item in [items] list is pressed.
   final Function(HomeTab)? onTap;
@@ -93,6 +93,7 @@ class CustomNavigationBar extends StatelessWidget {
                         children: [
                           if (b.child != null)
                             _CustomNavigationBarButton(
+                              key: b.key ?? Key(b.tab.name),
                               selected: currentIndex == i,
                               onPressed: () => onTap?.call(b.tab),
                               child: Container(
@@ -234,6 +235,7 @@ class CustomNavigationBarItem {
 /// [CustomNavigationBar].
 class _CustomNavigationBarButton extends StatelessWidget {
   const _CustomNavigationBarButton({
+    super.key,
     this.selected = false,
     this.onPressed,
     required this.child,

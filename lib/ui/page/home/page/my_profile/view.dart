@@ -517,6 +517,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           label: 'label_add_phone'.l10n,
           floatingLabelBehavior: FloatingLabelBehavior.always,
           hint: '+34 123 123 53 53',
+          clearable: false,
           formatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[\d+ ]')),
           ],
@@ -527,6 +528,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           label: 'label_add_email'.l10n,
           floatingLabelBehavior: FloatingLabelBehavior.always,
           hint: 'example@dummy.com',
+          clearable: false,
         );
 
         return Column(

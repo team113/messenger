@@ -197,7 +197,6 @@ class MyProfileController extends GetxController {
         final phone = UserPhone(s.text.replaceAll(' ', ''));
 
         s.clear();
-        s.resubmitOnError.value = false;
 
         bool modalVisible = true;
 
@@ -258,7 +257,6 @@ class MyProfileController extends GetxController {
         final email = UserEmail(s.text);
 
         s.clear();
-        s.resubmitOnError.value = false;
 
         bool modalVisible = true;
 
