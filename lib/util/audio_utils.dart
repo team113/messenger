@@ -244,7 +244,13 @@ class AudioPlayback {
 
     switch (speaker) {
       case AudioSpeakerKind.speaker:
-        await session.configure(const AudioSessionConfiguration.speech());
+        await session.configure(
+          const AudioSessionConfiguration.music().copyWith(
+            avAudioSessionCategoryOptions:
+                AVAudioSessionCategoryOptions.defaultToSpeaker,
+            avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          ),
+        );
         break;
 
       case AudioSpeakerKind.earpiece:
@@ -255,6 +261,9 @@ class AudioPlayback {
               flags: AndroidAudioFlags.none,
               contentType: AndroidAudioContentType.speech,
             ),
+            avAudioSessionMode: AVAudioSessionMode.voiceChat,
+            avAudioSessionCategoryOptions:
+                AVAudioSessionCategoryOptions.defaultToSpeaker,
             avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
           ),
         );
