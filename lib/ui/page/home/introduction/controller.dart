@@ -57,7 +57,7 @@ class IntroductionController extends GetxController {
 
   /// Origin to display withing the [link] field.
   late final String _origin =
-      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}${Routes.chatDirectLink}/';
+      '${Config.link.substring(Config.link.indexOf(':') + 3)}${Routes.chatDirectLink}/';
 
   /// Creates a [ChatDirectLink] from the [link].
   Future<void> createLink() async {
