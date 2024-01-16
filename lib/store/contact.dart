@@ -666,6 +666,25 @@ class ContactRepository extends DisposableInterface
 
           Map<ChatContactId, HiveChatContact> contacts = {};
           for (var node in versioned.events) {
+            if (node.kind == ChatContactEventKind.created) {
+              node as EventChatContactCreated;
+              contacts[node.contactId] = HiveChatContact(
+                ChatContact(
+                  node.contactId,
+                  name: node.name,
+                ),
+                versioned.ver,
+                null,
+                null,
+              );
+
+              continue;
+            } else if (node.kind == ChatContactEventKind.deleted) {
+              contacts.remove(node.contactId);
+              remove(node.contactId);
+              continue;
+            }
+
             HiveChatContact? contactEntity = contacts[node.contactId] ??
                 await _contactLocal.get(node.contactId) ??
                 await _fetchById(node.contactId);
@@ -738,21 +757,8 @@ class ContactRepository extends DisposableInterface
                 break;
 
               case ChatContactEventKind.created:
-                node as EventChatContactCreated;
-                contacts[node.contactId] = HiveChatContact(
-                  ChatContact(
-                    node.contactId,
-                    name: node.name,
-                  ),
-                  versioned.ver,
-                  null,
-                  null,
-                );
-                break;
-
               case ChatContactEventKind.deleted:
-                contacts.remove(node.contactId);
-                remove(node.contactId);
+                // No-op as these events are handled elsewhere.
                 break;
             }
           }
