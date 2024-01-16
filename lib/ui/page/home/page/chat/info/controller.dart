@@ -268,6 +268,8 @@ class ChatInfoController extends GetxController {
       await _callService.call(chatId, withVideo: withVideo);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {

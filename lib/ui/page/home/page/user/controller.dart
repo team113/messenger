@@ -44,6 +44,7 @@ import '/provider/gql/exceptions.dart'
         ClearChatException,
         FavoriteChatContactException,
         HideChatException,
+        JoinChatCallException,
         ToggleChatMuteException,
         UnfavoriteChatContactException,
         UnfavoriteChatException,
@@ -272,6 +273,8 @@ class UserController extends GetxController {
   Future<void> call(bool withVideo) async {
     try {
       await _callService.call(user!.user.value.dialog, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {

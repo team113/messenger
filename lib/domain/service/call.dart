@@ -161,6 +161,9 @@ class CallService extends DisposableService {
     } on CallAlreadyJoinedException catch (e) {
       _callsRepo.leave(chatId, e.deviceId);
       _callsRepo.remove(chatId);
+
+      // TODO: Try joining the [OngoingCall] again, instead of throwing the
+      //       exception here.
       rethrow;
     } catch (e) {
       // If any other error occurs, it's guaranteed that the broken call will be

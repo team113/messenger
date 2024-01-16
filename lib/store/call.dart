@@ -422,8 +422,7 @@ class CallRepository extends DisposableInterface
     final ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds != null) {
       // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      final ChatCallCredentials credsCopy = creds.copyWith();
-      _callCredentialsProvider.put(callId, credsCopy);
+      _callCredentialsProvider.put(callId, creds.copyWith());
     }
   }
 
@@ -452,23 +451,21 @@ class CallRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    ChatCallCredentials? chatCreds = _chatCredentialsProvider.get(chatId);
-    ChatCallCredentials? callCreds = _callCredentialsProvider.get(callId);
+    final ChatCallCredentials? chatCreds = _chatCredentialsProvider.get(chatId);
+    final ChatCallCredentials? callCreds = _callCredentialsProvider.get(callId);
 
     if (chatCreds != null) {
-      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      chatCreds = chatCreds.copyWith();
-
       _chatCredentialsProvider.remove(chatId);
-      _chatCredentialsProvider.put(newChatId, chatCreds);
+
+      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
+      _chatCredentialsProvider.put(newChatId, chatCreds.copyWith());
     }
 
     if (callCreds != null) {
-      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
-      callCreds = callCreds.copyWith();
-
       _callCredentialsProvider.remove(callId);
-      _callCredentialsProvider.put(newCallId, callCreds);
+
+      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
+      _callCredentialsProvider.put(newCallId, callCreds.copyWith());
     }
   }
 

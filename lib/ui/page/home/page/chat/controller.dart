@@ -75,6 +75,7 @@ import '/provider/gql/exceptions.dart'
         FavoriteChatException,
         HideChatException,
         HideChatItemException,
+        JoinChatCallException,
         PostChatMessageException,
         ReadChatException,
         RemoveChatMemberException,
@@ -507,6 +508,8 @@ class ChatController extends GetxController {
   Future<void> call(bool withVideo) async {
     try {
       await _callService.call(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
@@ -520,6 +523,8 @@ class ChatController extends GetxController {
   Future<void> joinCall() async {
     try {
       await _callService.join(id, withVideo: false);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallDoesNotExistException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
