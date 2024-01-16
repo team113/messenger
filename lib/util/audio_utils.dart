@@ -89,12 +89,33 @@ class AudioUtilsImpl {
             Log.debug('play($music): onListen', '$runtimeType');
 
             playback?._jaPlayer = ja.AudioPlayer();
-            await playback?._jaPlayer?.setLoopMode(ja.LoopMode.all);
+
+            if (onDone == null) {
+              await playback?._jaPlayer?.setLoopMode(ja.LoopMode.all);
+            }
+
             await playback?._jaPlayer?.setAudioSource(music.source);
 
-            await playback?.setSpeaker(speaker);
+            final AudioSession session = await AudioSession.instance;
+            final bool hasBluetooth =
+                (await session.getDevices(includeInputs: false)).any(
+              (e) =>
+                  e.type == AudioDeviceType.wiredHeadset ||
+                  e.type == AudioDeviceType.wiredHeadphones ||
+                  e.type == AudioDeviceType.bluetoothA2dp ||
+                  e.type == AudioDeviceType.bluetoothLe ||
+                  e.type == AudioDeviceType.bluetoothSco ||
+                  e.type == AudioDeviceType.airPlay,
+            );
+
+            await playback?.setSpeaker(
+              // AudioSpeakerKind.speaker,
+              hasBluetooth ? AudioSpeakerKind.headphones : speaker,
+            );
 
             await playback?._jaPlayer?.play();
+
+            onDone?.call();
           },
           onCancel: () async {
             Log.debug('play($music): onCancel', '$runtimeType');
@@ -133,35 +154,6 @@ class AudioUtilsImpl {
             );
 
             Log.debug('play($music), speaker($speaker)', '$runtimeType');
-
-            if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-              final session = await AudioSession.instance;
-
-              switch (speaker) {
-                case AudioSpeakerKind.speaker:
-                  await AndroidAudioManager().setSpeakerphoneOn(true);
-                  // await session.configure(AudioSessionConfiguration.music());
-                  break;
-
-                case AudioSpeakerKind.earpiece:
-                  print('AndroidAudioManager().setSpeakerphoneOn(false)');
-                  await AndroidAudioManager().setSpeakerphoneOn(false);
-
-                  final conf = AudioSessionConfiguration.speech();
-                  await session.configure(
-                    conf.copyWith(
-                      androidAudioAttributes: AndroidAudioAttributes(
-                        usage: AndroidAudioUsage.voiceCommunication,
-                        flags: conf.androidAudioAttributes!.flags,
-                        contentType: conf.androidAudioAttributes!.contentType,
-                      ),
-                      avAudioSessionCategory:
-                          AVAudioSessionCategory.playAndRecord,
-                    ),
-                  );
-                  break;
-              }
-            }
 
             await playback?._player?.open(music.media);
 
@@ -226,7 +218,7 @@ class AudioUtilsImpl {
   }
 }
 
-enum AudioSpeakerKind { earpiece, speaker }
+enum AudioSpeakerKind { headphones, earpiece, speaker }
 
 class AudioPlayback {
   AudioPlayback();
@@ -243,7 +235,34 @@ class AudioPlayback {
     final session = await AudioSession.instance;
 
     switch (speaker) {
+      case AudioSpeakerKind.headphones:
+        if (PlatformUtils.isAndroid) {
+          await AndroidAudioManager().startBluetoothSco();
+          await AndroidAudioManager().setBluetoothScoOn(true);
+        }
+
+        await session.configure(
+          const AudioSessionConfiguration.music().copyWith(
+            androidAudioAttributes: const AndroidAudioAttributes(
+              contentType: AndroidAudioContentType.speech,
+              usage: AndroidAudioUsage.voiceCommunication,
+            ),
+            androidAudioFocusGainType:
+                AndroidAudioFocusGainType.gainTransientExclusive,
+            avAudioSessionCategoryOptions:
+                AVAudioSessionCategoryOptions.defaultToSpeaker |
+                    AVAudioSessionCategoryOptions.allowBluetooth,
+            avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          ),
+        );
+        break;
+
       case AudioSpeakerKind.speaker:
+        if (PlatformUtils.isAndroid) {
+          await AndroidAudioManager().stopBluetoothSco();
+          await AndroidAudioManager().setBluetoothScoOn(false);
+        }
+
         await session.configure(
           const AudioSessionConfiguration.music().copyWith(
             avAudioSessionCategoryOptions:
@@ -254,6 +273,11 @@ class AudioPlayback {
         break;
 
       case AudioSpeakerKind.earpiece:
+        if (PlatformUtils.isAndroid) {
+          await AndroidAudioManager().stopBluetoothSco();
+          await AndroidAudioManager().setBluetoothScoOn(false);
+        }
+
         await session.configure(
           const AudioSessionConfiguration(
             androidAudioAttributes: AndroidAudioAttributes(

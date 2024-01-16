@@ -31,6 +31,7 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/ui/worker/call.dart';
 import 'package:messenger/util/log.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:proximity_screen_lock/proximity_screen_lock.dart';
 
 import '/config.dart';
 import '/domain/model/application_settings.dart';
@@ -151,7 +152,7 @@ class CallController extends GetxController {
   final RxBool cameraSwitched = RxBool(false);
 
   /// Indicator whether the speaker was switched or not.
-  late final RxBool speakerSwitched;
+  late final Rx<AudioSpeakerKind> speaker;
 
   /// Indicator whether the buttons panel is open or not.
   final RxBool isPanelOpen = RxBool(false);
@@ -335,7 +336,7 @@ class CallController extends GetxController {
   final UserService _userService;
 
   final MyUserService _myUserService;
-  final CallWorker _callWorker;
+  final CallWorker? _callWorker;
 
   bool get income =>
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirey' ||
@@ -823,14 +824,38 @@ class CallController extends GetxController {
     }
 
     try {
-      speakerSwitched = RxBool(
-        _currentCall.value.videoState.value == LocalTrackState.enabling ||
-            _currentCall.value.videoState.value == LocalTrackState.enabled,
-      );
+      final MediaDeviceDetails? device = _determineOutput();
+      if (device != null) {
+        speaker = Rx(device.speaker);
+        _currentCall.value.setOutputDevice(device.deviceId());
+      } else {
+        speaker = Rx(
+          PlatformUtils.isWeb ||
+                  (_currentCall.value.videoState.value ==
+                          LocalTrackState.enabling ||
+                      _currentCall.value.videoState.value ==
+                          LocalTrackState.enabled)
+              ? AudioSpeakerKind.speaker
+              : AudioSpeakerKind.earpiece,
+        );
+
+        _currentCall.value.enumerateDevices().then((_) {
+          final MediaDeviceDetails? device = _determineOutput();
+          if (device != null) {
+            speaker.value = device.speaker;
+            _currentCall.value.setOutputDevice(device.deviceId());
+          }
+        });
+      }
     } catch (e) {
       SchedulerBinding.instance
           .addPostFrameCallback((_) => MessagePopup.error(e));
       rethrow;
+    }
+
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      ProximityScreenLock.isProximityLockSupported()
+          .then((v) => v ? ProximityScreenLock.setActive(true) : null);
     }
 
     super.onInit();
@@ -880,6 +905,11 @@ class CallController extends GetxController {
     _notificationTimers.clear();
     _chatSubscription?.cancel();
 
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      ProximityScreenLock.isProximityLockSupported()
+          .then((v) => v ? ProximityScreenLock.setActive(false) : null);
+    }
+
     // AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
   }
 
@@ -921,10 +951,8 @@ class CallController extends GetxController {
             await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
-          await _currentCall.value.setScreenShareEnabled(
-            true,
-            deviceId: display.deviceId(),
-          );
+          await _currentCall.value
+              .setScreenShareEnabled(true, deviceId: display.deviceId());
         }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
@@ -1002,30 +1030,51 @@ class CallController extends GetxController {
         // print(outputs.map((e) => e.deviceId()));
         // print('${_currentCall.value.audioDevice.value}');
 
-        if (speakerSwitched.value) {
-          device = outputs.firstWhereOrNull((e) =>
-              e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
-          _callWorker.outgoingAudio?.setSpeaker(AudioSpeakerKind.earpiece);
-        } else {
-          device = outputs.firstWhereOrNull((e) =>
-              e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
-          _callWorker.outgoingAudio?.setSpeaker(AudioSpeakerKind.speaker);
+        int index = outputs.indexWhere(
+          (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+        );
+
+        if (index == -1) {
+          index = 0;
         }
 
-        if (device == null) {
-          int selected = _currentCall.value.outputDevice.value == null
-              ? 0
-              : outputs.indexWhere(
-                  (e) => e.deviceId() == _currentCall.value.outputDevice.value!,
-                );
-          selected += 1;
-          device = outputs[(selected) % outputs.length];
+        ++index;
+        if (index >= outputs.length) {
+          index = 0;
         }
+
+        final MediaDeviceDetails output = outputs[index];
+        speaker.value = output.speaker;
+        // _callWorker?.outgoingAudio?.setSpeaker(speaker.value);
+
+        MessagePopup.success('Output: ${output.deviceId()}, ${output.label()}');
+
+        await _currentCall.value.setOutputDevice(output.deviceId());
+
+        // if (speakerSwitched.value) {
+        //   device = outputs.firstWhereOrNull((e) =>
+        //       e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
+        //   _callWorker?.outgoingAudio?.setSpeaker(AudioSpeakerKind.earpiece);
+        // } else {
+        //   device = outputs.firstWhereOrNull((e) =>
+        //       e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
+        //   _callWorker?.outgoingAudio?.setSpeaker(AudioSpeakerKind.speaker);
         // }
 
-        speakerSwitched.toggle();
+        // if (device == null) {
+        //   int selected = _currentCall.value.outputDevice.value == null
+        //       ? 0
+        //       : outputs.indexWhere(
+        //           (e) => e.deviceId() == _currentCall.value.outputDevice.value!,
+        //         );
+        //   selected += 1;
+        //   device = outputs[(selected) % outputs.length];
+        // }
+        // // }
 
-        await _currentCall.value.setOutputDevice(device.deviceId());
+        // speakerSwitched.toggle();
+
+        // await _currentCall.value.setOutputDevice(device.deviceId());
       }
     } catch (e) {
       MessagePopup.error(e);
@@ -2299,6 +2348,31 @@ class CallController extends GetxController {
       }
     }
   }
+
+  MediaDeviceDetails? _determineOutput() {
+    var device = _currentCall.value.devices
+        .output()
+        .firstWhereOrNull((e) => e.speaker == AudioSpeakerKind.headphones);
+
+    if (device == null) {
+      final bool speaker = PlatformUtils.isWeb
+          ? true
+          : _currentCall.value.videoState.value == LocalTrackState.enabling ||
+              _currentCall.value.videoState.value == LocalTrackState.enabled;
+
+      if (speaker) {
+        device = _currentCall.value.devices
+            .output()
+            .firstWhereOrNull((e) => e.speaker == AudioSpeakerKind.speaker);
+      }
+
+      device ??= _currentCall.value.devices
+          .output()
+          .firstWhereOrNull((e) => e.speaker == AudioSpeakerKind.earpiece);
+    }
+
+    return device;
+  }
 }
 
 /// X-axis scale mode.
@@ -2338,4 +2412,16 @@ class Participant {
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.device;
+}
+
+extension on MediaDeviceDetails {
+  AudioSpeakerKind get speaker {
+    if (deviceId() == 'ear-piece' || deviceId() == 'ear-speaker') {
+      return AudioSpeakerKind.earpiece;
+    } else if (deviceId() == 'speakerphone' || deviceId() == 'speaker') {
+      return AudioSpeakerKind.speaker;
+    } else {
+      return AudioSpeakerKind.headphones;
+    }
+  }
 }

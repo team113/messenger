@@ -144,7 +144,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   (constraints.maxHeight / 60) * (widget.icon?.height ?? 60),
               child: Transform.translate(
                 offset: widget.offset ?? Offset.zero,
-                child: SvgIcon(widget.icon!),
+                child: Opacity(
+                  opacity: widget.onPressed == null ? 0.25 : 1,
+                  child: SvgIcon(widget.icon!),
+                ),
               ),
             ),
           );
@@ -190,6 +193,20 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         child: button,
       );
     }
+
+    // if (widget.onPressed == null) {
+    //   button = DecoratedBox(
+    //     position: DecorationPosition.foreground,
+    //     decoration: BoxDecoration(
+    //       color: style.colors.onBackgroundOpacity13,
+    //       shape: BoxShape.circle,
+    //     ),
+    //     child: Opacity(
+    //       opacity: 0.5,
+    //       child: button,
+    //     ),
+    //   );
+    // }
 
     return widget.text == null
         ? button

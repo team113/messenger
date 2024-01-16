@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/util/platform_utils.dart';
@@ -42,7 +43,7 @@ class CallView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
+        Get.findOrNull(),
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {

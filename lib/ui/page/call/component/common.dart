@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/audio_utils.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '../controller.dart';
 import '../widget/call_button.dart';
@@ -501,15 +503,17 @@ class SpeakerButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hinted ? hint : null,
-        asset: c.speakerSwitched.value
-            ? SvgIcons.callIncomingAudioOn
-            : SvgIcons.callIncomingAudioOff,
+        asset: switch (c.speaker.value) {
+          AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
+          AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
+          AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
+        },
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
-        onPressed: c.toggleSpeaker,
+        onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
       );
     });
   }

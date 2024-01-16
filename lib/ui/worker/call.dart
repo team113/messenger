@@ -182,22 +182,15 @@ class CallWorker extends DisposableService {
               //   if (chat?.chat.value.isGroup != true) {
 
               final chatOrFuture = _chatService.get(c.chatId.value);
-              if (chatOrFuture is RxChat?) {
-                play(
-                  _outgoing,
-                  once: chatOrFuture?.chat.value.isGroup == true,
-                  speaker: c.videoState.value == LocalTrackState.enabling ||
-                      c.videoState.value == LocalTrackState.enabled,
-                );
-              } else {
-                final chat = await chatOrFuture;
-                play(
-                  _outgoing,
-                  once: chat?.chat.value.isGroup == true,
-                  speaker: c.videoState.value == LocalTrackState.enabling ||
-                      c.videoState.value == LocalTrackState.enabled,
-                );
-              }
+              final chat =
+                  chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+
+              play(
+                _outgoing,
+                once: chat?.chat.value.isGroup == true,
+                speaker: c.videoState.value == LocalTrackState.enabling ||
+                    c.videoState.value == LocalTrackState.enabled,
+              );
 
               // AudioUtils.once(AudioSource.asset(_outgoing));
               //   }
@@ -268,15 +261,12 @@ class CallWorker extends DisposableService {
                     }
 
                     final chatOrFuture = _chatService.get(c.chatId.value);
-                    if (chatOrFuture is RxChat?) {
-                      if (chatOrFuture?.chat.value.isGroup != true) {
-                        stop();
-                      }
-                    } else {
-                      final chat = await chatOrFuture;
-                      if (chat?.chat.value.isGroup != true) {
-                        stop();
-                      }
+                    final chat = chatOrFuture is RxChat?
+                        ? chatOrFuture
+                        : await chatOrFuture;
+
+                    if (chat?.chat.value.isGroup != true) {
+                      stop();
                     }
                   }
                 }

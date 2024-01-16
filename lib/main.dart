@@ -35,6 +35,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
+import 'package:messenger/util/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -393,18 +394,5 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
-  }
-}
-
-/// Extension adding ability to find non-strict dependencies from a
-/// [GetInterface].
-extension on GetInterface {
-  /// Returns the [S] dependency, if it [isRegistered].
-  S? findOrNull<S>({String? tag}) {
-    if (isRegistered<S>(tag: tag)) {
-      return find<S>(tag: tag);
-    }
-
-    return null;
   }
 }

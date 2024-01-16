@@ -395,7 +395,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         child: Obx(() {
           final bool active = c.state.value == OngoingCallState.active;
           final bool group = c.chat.value != null && c.isGroup;
-          final bool dialog = c.chat.value != null && c.isDialog;
+          // final bool dialog = c.chat.value != null && c.isDialog;
           final bool incoming = !isOutgoing;
 
           bool showUi = (c.chat.value != null && !group || incoming) &&

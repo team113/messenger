@@ -89,6 +89,7 @@ class PlatformUtilsImpl {
 
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
+  // bool get isWeb => true;
 
   // TODO: Remove when jonataslaw/getx#1936 is fixed:
   //       https://github.com/jonataslaw/getx/issues/1936

@@ -126,6 +126,7 @@ dependencies:
   flutter_xlider: ^3.5.0
   audio_session: ^0.1.18
   just_audio: ^0.9.36
+  proximity_screen_lock: ^1.1.0
   # audioplayers_android: ^4.0.3
   # audioplayers_platform_interface: ^6.1.0
   # audioplayers_darwin: ^5.0.2
