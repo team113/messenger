@@ -708,7 +708,7 @@ class ContactsTabView extends StatelessWidget {
                     children: [
                       ShadowedRoundedButton(
                         onPressed: c.toggleSelecting,
-                        child: Text(
+                        title: Text(
                           'btn_cancel'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
@@ -721,7 +721,7 @@ class ContactsTabView extends StatelessWidget {
                             ? null
                             : () => _removeContacts(context, c),
                         color: style.colors.primary,
-                        child: Text(
+                        title: Text(
                           'btn_delete_count'.l10nfmt({
                             'count': c.selectedContacts.length,
                           }),

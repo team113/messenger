@@ -275,8 +275,8 @@ class SearchController extends GetxController {
 
   /// Returns an item by its index from the search results.
   ///
-  /// Returned item is either a [RxUser] or [RxChatContact].
-  dynamic getIndex(int i) {
+  /// Returned item is either [RxUser], [RxChat] or [RxChatContact].
+  dynamic elementAt(int i) {
     return [
       ...chats.values,
       ...recent.values,

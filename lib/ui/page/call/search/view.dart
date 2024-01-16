@@ -25,13 +25,15 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/recent_chat.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
-import '/ui/widget/text_field.dart';
 import 'controller.dart';
+import 'widget/search_field.dart';
 
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
@@ -47,6 +49,7 @@ class SearchView extends StatelessWidget {
     this.onSubmit,
     this.onBack,
     this.onSelected,
+    this.darken = false,
   });
 
   /// [SearchCategory]ies to search through.
@@ -84,6 +87,8 @@ class SearchView extends StatelessWidget {
   /// If `null`, then no back button will be displayed.
   final VoidCallback? onBack;
 
+  final bool darken;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -107,20 +112,11 @@ class SearchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               ModalPopupHeader(onBack: onBack, text: title),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Center(
-                  child: ReactiveTextField(
-                    key: const Key('SearchTextField'),
-                    state: c.search,
-                    label: 'label_search'.l10n,
-                    style: style.fonts.normal.regular.onBackground,
-                    onChanged: () => c.query.value = c.search.text,
-                  ),
-                ),
+              SearchField(
+                c.search,
+                onChanged: () => c.query.value = c.search.text,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: 9),
               Expanded(
                 child: Obx(() {
                   if (c.recent.isEmpty &&
@@ -161,52 +157,91 @@ class SearchView extends StatelessWidget {
                       controller: c.scrollController,
                       delegate: FlutterListViewDelegate(
                         (context, i) {
-                          final dynamic e = c.getIndex(i);
+                          final dynamic userOrContact = c.elementAt(i);
                           Widget child;
 
-                          if (e is RxUser) {
+                          if (userOrContact is RxUser) {
                             child = Obx(() {
+                              if (userOrContact.dialog.value != null) {
+                                return RecentChatTile(
+                                  userOrContact.dialog.value!,
+                                  me: c.me,
+                                  onTap: () => c.select(user: userOrContact),
+                                  selected:
+                                      c.selectedUsers.contains(userOrContact),
+                                  trailing: [
+                                    SelectedDot(
+                                      selected: c.selectedUsers
+                                          .contains(userOrContact),
+                                      size: 20,
+                                    )
+                                  ],
+                                );
+                              }
+
                               return SelectedTile(
-                                key: Key('SearchUser_${e.id}'),
-                                user: e,
-                                selected: c.selectedUsers.contains(e),
+                                key: Key('SearchUser_${userOrContact.id}'),
+                                user: userOrContact,
+                                selected:
+                                    c.selectedUsers.contains(userOrContact),
                                 darken: 0.05,
                                 onAvatarTap: null,
                                 onTap: selectable
-                                    ? () => c.select(user: e)
+                                    ? () => c.select(user: userOrContact)
                                     : enabled
-                                        ? () => onPressed?.call(e)
+                                        ? () => onPressed?.call(userOrContact)
                                         : null,
                               );
                             });
-                          } else if (e is RxChatContact) {
+                          } else if (userOrContact is RxChatContact) {
                             child = Obx(() {
+                              if (userOrContact.user.value?.dialog.value !=
+                                  null) {
+                                return RecentChatTile(
+                                  userOrContact.user.value!.dialog.value!,
+                                  me: c.me,
+                                  onTap: () => c.select(contact: userOrContact),
+                                  selected: c.selectedContacts
+                                      .contains(userOrContact),
+                                  trailing: [
+                                    SelectedDot(
+                                      selected: c.selectedContacts
+                                          .contains(userOrContact),
+                                      size: 20,
+                                    )
+                                  ],
+                                );
+                              }
+
                               return SelectedTile(
-                                key: Key('SearchContact_${e.id}'),
-                                contact: e,
+                                key: Key('SearchContact_${userOrContact.id}'),
+                                contact: userOrContact,
                                 darken: 0.05,
-                                selected: c.selectedContacts.contains(e),
+                                selected:
+                                    c.selectedContacts.contains(userOrContact),
                                 onAvatarTap: null,
                                 onTap: selectable
-                                    ? () => c.select(contact: e)
+                                    ? () => c.select(contact: userOrContact)
                                     : enabled
-                                        ? () => onPressed?.call(e)
+                                        ? () => onPressed?.call(userOrContact)
                                         : null,
                               );
                             });
-                          } else if (e is RxChat) {
+                          } else if (userOrContact is RxChat) {
                             child = Obx(() {
-                              return SelectedTile(
-                                key: Key('SearchChat_${e.id}'),
-                                chat: e,
-                                darken: 0.05,
-                                selected: c.selectedChats.contains(e),
-                                onAvatarTap: null,
-                                onTap: selectable
-                                    ? () => c.select(chat: e)
-                                    : enabled
-                                        ? () => onPressed?.call(e)
-                                        : null,
+                              return RecentChatTile(
+                                userOrContact,
+                                me: c.me,
+                                onTap: () => c.select(chat: userOrContact),
+                                selected:
+                                    c.selectedChats.contains(userOrContact),
+                                trailing: [
+                                  SelectedDot(
+                                    selected:
+                                        c.selectedChats.contains(userOrContact),
+                                    size: 20,
+                                  )
+                                ],
                               );
                             });
                           } else {
@@ -248,7 +283,7 @@ class SearchView extends StatelessWidget {
                             c.selectedUsers.isNotEmpty) &&
                         this.enabled;
 
-                    return OutlinedRoundedButton(
+                    return ShadowedRoundedButton(
                       key: const Key('SearchSubmitButton'),
                       maxWidth: double.infinity,
                       title: Text(
