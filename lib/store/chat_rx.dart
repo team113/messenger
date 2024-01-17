@@ -1133,7 +1133,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.event:
         await _chatLocal.txn((txn) async {
-          HiveChat? chatEntity = await txn.get(id.val);
+          final HiveChat? chatEntity = await txn.get(id.val);
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
@@ -1514,7 +1514,6 @@ class HiveRxChat extends RxChat {
             await txn.put(chatEntity.value.id.val, chatEntity);
           }
         });
-
         break;
     }
   }
