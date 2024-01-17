@@ -1053,8 +1053,16 @@ class OngoingCall {
     Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
     if (deviceId != outputDevice.value) {
-      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
+      final String? previous = outputDevice.value;
+
       outputDevice.value = deviceId;
+
+      try {
+        await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
+      } catch (e) {
+        outputDevice.value = previous;
+        rethrow;
+      }
     }
   }
 

@@ -503,7 +503,7 @@ class SpeakerButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hinted ? hint : null,
-        asset: switch (c.speaker.value) {
+        asset: switch (c.output) {
           AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
           AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
           AudioSpeakerKind.headphones => SvgIcons.callHeadphones,

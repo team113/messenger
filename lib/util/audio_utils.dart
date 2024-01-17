@@ -261,10 +261,16 @@ class AudioPlayback {
         if (PlatformUtils.isAndroid) {
           await AndroidAudioManager().stopBluetoothSco();
           await AndroidAudioManager().setBluetoothScoOn(false);
+          await AndroidAudioManager().setSpeakerphoneOn(true);
         }
 
         await session.configure(
           const AudioSessionConfiguration.music().copyWith(
+            androidAudioAttributes: const AndroidAudioAttributes(
+              contentType: AndroidAudioContentType.music,
+              flags: AndroidAudioFlags.none,
+              usage: AndroidAudioUsage.notification,
+            ),
             avAudioSessionCategoryOptions:
                 AVAudioSessionCategoryOptions.defaultToSpeaker,
             avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
@@ -274,8 +280,11 @@ class AudioPlayback {
 
       case AudioSpeakerKind.earpiece:
         if (PlatformUtils.isAndroid) {
+          await AndroidAudioManager()
+              .setMode(AndroidAudioHardwareMode.inCommunication);
           await AndroidAudioManager().stopBluetoothSco();
           await AndroidAudioManager().setBluetoothScoOn(false);
+          await AndroidAudioManager().setSpeakerphoneOn(false);
         }
 
         await session.configure(
