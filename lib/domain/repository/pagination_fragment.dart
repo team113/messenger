@@ -17,10 +17,12 @@
 
 import 'package:get/get.dart';
 
+import '/util/obs/rxmap.dart';
+
 /// Result of a search query.
-abstract class SearchResult<K extends Comparable, T> {
+abstract class PaginationFragment<K extends Comparable, T> {
   /// Found [T] items themselves.
-  final RxMap<K, T> items = RxMap<K, T>();
+  final RxObsMap<K, T> items = RxObsMap<K, T>();
 
   /// Reactive [RxStatus] of [items] being fetched.
   ///
@@ -35,12 +37,21 @@ abstract class SearchResult<K extends Comparable, T> {
   /// Indicates whether the [items] have next page.
   RxBool get hasNext;
 
+  /// Indicates whether the [items] have previous page.
+  RxBool get hasPrevious;
+
   /// Indicates whether the [next] page of [items] is being fetched.
   RxBool get nextLoading;
 
-  /// Disposes this [SearchResult].
+  /// Indicates whether the [previous] page of [items] is being fetched.
+  RxBool get previousLoading;
+
+  /// Disposes this [PaginationFragment].
   void dispose();
 
   /// Fetches next page of the [items].
   Future<void> next();
+
+  /// Fetches previous page of the [items].
+  Future<void> previous();
 }

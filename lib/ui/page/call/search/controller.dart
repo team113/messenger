@@ -27,7 +27,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -83,10 +83,10 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<SearchResult<UserId, RxUser>?> usersSearch = Rx(null);
+  final Rx<PaginationFragment<UserId, RxUser>?> usersSearch = Rx(null);
 
   /// [ChatContact]s search results.
-  final Rx<SearchResult<ChatContactId, RxChatContact>?> contactsSearch =
+  final Rx<PaginationFragment<ChatContactId, RxChatContact>?> contactsSearch =
       Rx(null);
 
   /// Status of a [_search] completion.
@@ -353,7 +353,7 @@ class SearchController extends GetxController {
             ? RxStatus.loadingMore()
             : RxStatus.loading();
 
-        final SearchResult<ChatContactId, RxChatContact> result =
+        final PaginationFragment<ChatContactId, RxChatContact> result =
             _contactService.search(name: name, email: email, phone: phone);
 
         contactsSearch.value?.dispose();
@@ -426,7 +426,7 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-        final SearchResult<UserId, RxUser> result =
+        final PaginationFragment<UserId, RxUser> result =
             _userService.search(num: num, name: name, login: login, link: link);
 
         usersSearch.value?.dispose();

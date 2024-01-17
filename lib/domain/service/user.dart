@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/util/log.dart';
 import 'disposable_service.dart';
@@ -40,7 +40,7 @@ class UserService extends DisposableService {
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
   /// Searches [User]s by the given criteria.
-  SearchResult<UserId, RxUser> search({
+  PaginationFragment<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,

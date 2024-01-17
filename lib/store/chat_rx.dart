@@ -38,6 +38,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
@@ -49,6 +50,7 @@ import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
+import '/store/pagination_fragment.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -128,8 +130,10 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
-  /// [Pagination] loading a fragment of [messages] with pagination.
-  Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>? _fragment;
+  // /// [Pagination] loading a fragment of [messages] with pagination.
+  // Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>? _fragment;
+
+  final List<MessagesFragment> _fragments = [];
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
@@ -198,17 +202,16 @@ class HiveRxChat extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxBool get hasNext => _fragment?.hasNext ?? _pagination.hasNext;
+  RxBool get hasNext => _pagination.hasNext;
 
   @override
-  RxBool get nextLoading => _fragment?.nextLoading ?? _pagination.nextLoading;
+  RxBool get nextLoading => _pagination.nextLoading;
 
   @override
-  RxBool get hasPrevious => _fragment?.hasPrevious ?? _pagination.hasPrevious;
+  RxBool get hasPrevious => _pagination.hasPrevious;
 
   @override
-  RxBool get previousLoading =>
-      _fragment?.previousLoading ?? _pagination.previousLoading;
+  RxBool get previousLoading => _pagination.previousLoading;
 
   @override
   UserCallCover? get callCover {
@@ -386,7 +389,18 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.success();
     }
 
-    _subscribeFor(_pagination);
+    _paginationSubscription = _pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _add(event.value!.value);
+          break;
+
+        case OperationKind.removed:
+          messages.removeWhere((e) => e.value.id == event.value!.value.id);
+          break;
+      }
+    });
 
     await _local.init(userId: me);
 
@@ -416,7 +430,9 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
     _pagination.dispose();
-    _fragment?.dispose();
+    for (var e in _fragments) {
+      e.dispose();
+    }
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     await _local.close();
@@ -479,12 +495,6 @@ class HiveRxChat extends RxChat {
   }) async {
     Log.debug('around($item, $reply, $forward)', '$runtimeType($id)');
 
-    if (item != null) {
-      return _loadFragmentAround(item, reply: reply, forward: forward);
-    } else if (_fragment != null) {
-      return _disposeFragment();
-    }
-
     if (id.isLocal ||
         status.value.isSuccess ||
         (hasNext.isFalse && hasPrevious.isFalse)) {
@@ -521,8 +531,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await (_fragment?.next ?? _pagination.next).call();
-    _maybeMergeFragment();
+    await _pagination.next.call();
 
     status.value = RxStatus.success();
 
@@ -537,7 +546,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await (_fragment?.previous ?? _pagination.previous).call();
+    await _pagination.previous.call();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -743,7 +752,9 @@ class HiveRxChat extends RxChat {
   Future<void> put(HiveChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
     await _pagination.put(item, ignoreBounds: ignoreBounds);
-    await _fragment?.put(item, ignoreBounds: ignoreBounds);
+    for (var e in _fragments) {
+      await e.pagination.put(item, ignoreBounds: ignoreBounds);
+    }
   }
 
   @override
@@ -754,7 +765,9 @@ class HiveRxChat extends RxChat {
 
     if (key != null) {
       _pagination.remove(key);
-      _fragment?.remove(key);
+      for (var e in _fragments) {
+        await e.pagination.remove(key);
+      }
 
       final HiveChat? chatEntity = await _chatLocal.get(id);
       if (chatEntity?.value.lastItem?.id == itemId) {
@@ -864,7 +877,9 @@ class HiveRxChat extends RxChat {
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
     await _pagination.clear();
-    await _fragment?.clear();
+    for (var e in _fragments) {
+      await e.pagination.clear();
+    }
   }
 
   // TODO: Remove when backend supports welcome messages.
@@ -890,42 +905,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
-
-  /// Adds the provided [ChatItem] to the [messages] list, initializing the
-  /// [FileAttachment]s, if any.
-  void _add(ChatItem item) {
-    Log.debug('_add($item)', '$runtimeType($id)');
-
-    if (!PlatformUtils.isWeb) {
-      if (item is ChatMessage) {
-        for (var a in item.attachments.whereType<FileAttachment>()) {
-          a.init();
-        }
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          for (var a in nested.attachments.whereType<FileAttachment>()) {
-            a.init();
-          }
-        }
-      }
-    }
-
-    final int i = messages.indexWhere((e) => e.value.id == item.id);
-    if (i == -1) {
-      messages.insertAfter(
-        Rx(item),
-        (e) => item.key.compareTo(e.value.key) == 1,
-      );
-    } else {
-      messages[i].value = item;
-    }
-  }
-
-  /// Loads the [messages] page around the specified [item], [reply] or
-  /// [forward].
-  Future<void> _loadFragmentAround(
+  Future<PaginationFragment<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
@@ -936,7 +916,10 @@ class HiveRxChat extends RxChat {
     );
 
     final HiveChatItem? hiveItem = _pagination.items[item.key] ??
-        _fragment?.items[item.key] ??
+        _fragments
+            .firstWhereOrNull((e) => e.pagination.items[item.key] != null)
+            ?.pagination
+            .items[item.key] ??
         await get(item.key.id, key: item.key);
 
     final ChatItemsCursor? cursor;
@@ -976,88 +959,55 @@ class HiveRxChat extends RxChat {
       key = hiveItem?.value.key;
     }
 
-    if (_pagination.items[key] != null) {
-      if (_fragment != null) {
-        _disposeFragment();
-      }
+    MessagesFragment? fragment = _fragments.firstWhereOrNull(
+      (e) => e.items[key] != null,
+    );
 
-      return;
+    if (fragment != null) {
+      return fragment;
     }
 
     if (cursor == null) {
       throw ArgumentError.value(item, 'item', 'Cursor not found.');
     }
 
-    _fragment = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
-      onKey: (e) => e.value.key,
-      provider: HiveGraphQlPageProvider(
-        hiveProvider: _provider.hiveProvider.copyWith(
-          readOnly: !_local.keys.contains(key),
+    fragment = MessagesFragment(
+      pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+        onKey: (e) => e.value.key,
+        provider: HiveGraphQlPageProvider(
+          hiveProvider: _provider.hiveProvider.copyWith(
+            readOnly: !_local.keys.contains(key),
+          ),
+          graphQlProvider: _provider.graphQlProvider,
         ),
-        graphQlProvider: _provider.graphQlProvider,
+        compare: (a, b) => a.value.key.compareTo(b.value.key),
       ),
-      compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
 
-    await _fragment!.around(cursor: cursor, key: key);
-
-    if (_fragment != null) {
-      _subscribeFor(_fragment!);
-
-      messages.clear();
-      _fragment?.items.values.forEach((e) => _add(e.value));
-    }
+    await fragment.init(key: key, cursor: cursor);
+    _fragments.add(fragment);
+    return fragment;
   }
 
-  /// Tries merging the [_fragment] into the [_pagination], if their bounds
-  /// touch.
-  void _maybeMergeFragment() async {
-    Log.debug('_mergeFragment()', '$runtimeType($id)');
+  @override
+  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
-    if (_fragment != null && _pagination.maybeMerge(_fragment!)) {
-      for (var e in _pagination.items.values) {
-        _add(e.value);
-      }
+  /// Adds the provided [ChatItem] to the [messages] list, initializing the
+  /// [FileAttachment]s, if any.
+  void _add(ChatItem item) {
+    Log.debug('_add($item)', '$runtimeType($id)');
 
-      _subscribeFor(_pagination);
+    item.init();
 
-      _fragment?.dispose();
-      _fragment = null;
+    final int i = messages.indexWhere((e) => e.value.id == item.id);
+    if (i == -1) {
+      messages.insertAfter(
+        Rx(item),
+        (e) => item.key.compareTo(e.value.key) == 1,
+      );
+    } else {
+      messages[i].value = item;
     }
-  }
-
-  /// Disposes the [_fragment] and subscribes for the [_pagination].
-  void _disposeFragment() {
-    _fragment?.dispose();
-    _fragment = null;
-
-    messages.clear();
-    for (var e in _pagination.items.values) {
-      _add(e.value);
-    }
-
-    _subscribeFor(_pagination);
-  }
-
-  /// Subscribes to the the provided [pagination] changes.
-  void _subscribeFor(
-    Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination,
-  ) {
-    Log.debug('_subscribeFor($pagination)', '$runtimeType($id)');
-
-    _paginationSubscription?.cancel();
-    _paginationSubscription = pagination.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          _add(event.value!.value);
-          break;
-
-        case OperationKind.removed:
-          messages.removeWhere((e) => e.value.id == event.value!.value.id);
-          break;
-      }
-    });
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.
@@ -1255,10 +1205,10 @@ class HiveRxChat extends RxChat {
         _chatEvent,
         onError: (e) async {
           if (e is StaleVersionException) {
-            _subscribeFor(_pagination);
-
-            _fragment?.dispose();
-            _fragment = null;
+            for (var e in _fragments) {
+              e.dispose();
+            }
+            _fragments.clear();
 
             messages.clear();
 

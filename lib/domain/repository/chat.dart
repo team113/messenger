@@ -31,6 +31,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
@@ -301,11 +302,7 @@ abstract class RxChat implements Comparable<RxChat> {
   ///
   /// If [reply] or [forward] is provided, then the [item] is considered as a
   /// quote of the specified [reply] of [forward].
-  Future<void> around({
-    ChatItem? item,
-    ChatItemId? reply,
-    ChatItemId? forward,
-  });
+  Future<void> around({ChatItem? item});
 
   /// Fetches the next [messages] page.
   Future<void> next();
@@ -334,4 +331,11 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
+
+  /// Loads a fragment around the provided [item] and it's [reply] or [forward].
+  Future<PaginationFragment<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  });
 }

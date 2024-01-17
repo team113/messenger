@@ -21,6 +21,7 @@ import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import 'attachment.dart';
 import 'chat.dart';
 import 'chat_item_quote.dart';
@@ -65,6 +66,9 @@ abstract class ChatItem {
   ///
   /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
   ChatItemKey get key => ChatItemKey(at, id);
+
+  /// Initializes this [ChatItem].
+  void init();
 }
 
 /// Message in a [Chat].
@@ -121,6 +125,15 @@ class ChatMessage extends ChatItem {
           ),
         );
   }
+
+  @override
+  void init() {
+    if (!PlatformUtils.isWeb) {
+      for (var a in attachments.whereType<FileAttachment>()) {
+        a.init();
+      }
+    }
+  }
 }
 
 /// Quote of a [ChatItem] forwarded to some [Chat].
@@ -140,6 +153,18 @@ class ChatForward extends ChatItem {
   /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
   @HiveField(5)
   final ChatItemQuote quote;
+
+  @override
+  void init() {
+    if (!PlatformUtils.isWeb) {
+      ChatItemQuote nested = quote;
+      if (nested is ChatMessageQuote) {
+        for (var a in nested.attachments.whereType<FileAttachment>()) {
+          a.init();
+        }
+      }
+    }
+  }
 }
 
 /// Unique ID of a [ChatItem].

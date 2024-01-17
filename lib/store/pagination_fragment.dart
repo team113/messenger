@@ -19,14 +19,17 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/repository/search.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/repository/pagination_fragment.dart';
+import '/provider/hive/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'pagination.dart';
 
-/// Implementation of a [SearchResult].
-class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
-  SearchResultImpl({
+/// Implementation of a [PaginationFragment].
+class PaginationFragmentImpl<K extends Comparable, T>
+    implements PaginationFragment<K, T> {
+  PaginationFragmentImpl({
     this.pagination,
     List<FutureOr<Map<K, T>>> initial = const [],
   }) {
@@ -41,7 +44,7 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
       }
     }
 
-    this.items.value = items.fold({}, (p, e) => p..addAll(e));
+    this.items.value = items.fold(ObsMap<K, T>(), (p, e) => p..addAll(e));
 
     if (pagination != null) {
       _paginationSubscription = pagination!.changes.listen((event) {
@@ -75,7 +78,7 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
   }
 
   @override
-  final RxMap<K, T> items = RxMap<K, T>();
+  final RxObsMap<K, T> items = RxObsMap<K, T>();
 
   @override
   final Rx<RxStatus> status = Rx(RxStatus.empty());
@@ -90,7 +93,13 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
   RxBool get hasNext => pagination?.hasNext ?? RxBool(false);
 
   @override
+  RxBool get hasPrevious => pagination?.hasPrevious ?? RxBool(false);
+
+  @override
   RxBool get nextLoading => pagination?.nextLoading ?? RxBool(false);
+
+  @override
+  RxBool get previousLoading => pagination?.previousLoading ?? RxBool(false);
 
   @override
   void dispose() {
@@ -120,6 +129,107 @@ class SearchResultImpl<K extends Comparable, T> implements SearchResult<K, T> {
       }
 
       status.value = RxStatus.success();
+    }
+  }
+
+  @override
+  Future<void> previous() async {
+    Log.debug('previous()', '$runtimeType');
+
+    if (pagination != null && previousLoading.isFalse) {
+      if (status.value.isSuccess) {
+        status.value = RxStatus.loadingMore();
+      }
+
+      // TODO: Probably shouldn't do that in the store.
+      int length = items.length;
+      for (int i = 0; i < 10; i++) {
+        await pagination!.previous();
+
+        if (length != items.length || hasPrevious.isFalse) {
+          break;
+        }
+      }
+
+      status.value = RxStatus.success();
+    }
+  }
+}
+
+/// Implementation of a [PaginationFragment] for [ChatItem]s.
+class MessagesFragment
+    implements PaginationFragment<ChatItemKey, Rx<ChatItem>> {
+  MessagesFragment({required this.pagination});
+
+  @override
+  final RxObsMap<ChatItemKey, Rx<ChatItem>> items =
+      RxObsMap<ChatItemKey, Rx<ChatItem>>();
+
+  @override
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Pagination fetching [items].
+  final Pagination<HiveChatItem, Object, ChatItemKey> pagination;
+
+  /// [StreamSubscription] to the [Pagination.changes].
+  StreamSubscription? _paginationSubscription;
+
+  @override
+  RxBool get hasNext => pagination.hasNext;
+
+  @override
+  RxBool get hasPrevious => pagination.hasPrevious;
+
+  @override
+  RxBool get nextLoading => pagination.nextLoading;
+
+  @override
+  RxBool get previousLoading => pagination.previousLoading;
+
+  /// Initializes this [MessagesFragment].
+  Future<void> init({ChatItemKey? key, Object? cursor}) async {
+    Log.debug('init($key, $cursor)', '$runtimeType');
+
+    _paginationSubscription = pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+          items[event.key!] = Rx(event.value!.value..init());
+          break;
+
+        case OperationKind.removed:
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
+    });
+
+    await pagination.around(key: key, cursor: cursor);
+    status.value = RxStatus.success();
+  }
+
+  @override
+  void dispose() {
+    Log.debug('dispose()', '$runtimeType');
+
+    _paginationSubscription?.cancel();
+    pagination.dispose();
+  }
+
+  @override
+  Future<void> next() async {
+    Log.debug('next()', '$runtimeType');
+
+    if (nextLoading.isFalse) {
+      await pagination.next();
+    }
+  }
+
+  @override
+  Future<void> previous() async {
+    Log.debug('previous()', '$runtimeType');
+
+    if (previousLoading.isFalse) {
+      await pagination.previous();
     }
   }
 }

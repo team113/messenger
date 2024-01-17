@@ -29,7 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/user.dart';
@@ -42,7 +42,7 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
-import 'search.dart';
+import 'pagination_fragment.dart';
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository extends DisposableInterface
@@ -113,7 +113,7 @@ class UserRepository extends DisposableInterface
   }
 
   @override
-  SearchResult<UserId, RxUser> search({
+  PaginationFragment<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -122,7 +122,7 @@ class UserRepository extends DisposableInterface
     Log.debug('search($num, $name, $login, $link)', '$runtimeType');
 
     if (num == null && name == null && login == null && link == null) {
-      return SearchResultImpl();
+      return PaginationFragmentImpl();
     }
 
     Pagination<RxUser, UsersCursor, UserId>? pagination;
@@ -156,7 +156,8 @@ class UserRepository extends DisposableInterface
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
-    final SearchResultImpl<UserId, RxUser> searchResult = SearchResultImpl(
+    final PaginationFragmentImpl<UserId, RxUser> searchResult =
+        PaginationFragmentImpl(
       pagination: pagination,
       initial: [
         {for (var u in users) u.id: u},

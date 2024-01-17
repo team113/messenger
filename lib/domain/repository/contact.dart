@@ -23,7 +23,7 @@ import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 import '/util/obs/obs.dart';
-import 'search.dart';
+import 'pagination_fragment.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
@@ -78,7 +78,7 @@ abstract class AbstractContactRepository {
   Future<void> unfavoriteChatContact(ChatContactId id);
 
   /// Searches [ChatContact]s by the given criteria.
-  SearchResult<ChatContactId, RxChatContact> search({
+  PaginationFragment<ChatContactId, RxChatContact> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,

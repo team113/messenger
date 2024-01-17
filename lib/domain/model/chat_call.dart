@@ -91,6 +91,11 @@ class ChatCall extends ChatItem {
 
   @override
   String toString() => 'ChatCall($id)';
+
+  @override
+  void init() {
+    // No-op.
+  }
 }
 
 /// Member of a [ChatCall].

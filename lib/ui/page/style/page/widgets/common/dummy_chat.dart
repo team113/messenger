@@ -24,6 +24,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
@@ -124,4 +125,13 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Future<PaginationFragment<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) {
+    throw UnimplementedError();
+  }
 }
