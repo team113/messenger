@@ -18,8 +18,11 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:collection/collection.dart';
 import 'package:just_audio/just_audio.dart' as ja;
+import 'package:medea_jason/medea_jason.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:messenger/util/media_utils.dart';
 
 import 'log.dart';
 import 'platform_utils.dart';
@@ -107,6 +110,9 @@ class AudioUtilsImpl {
                   e.type == AudioDeviceType.bluetoothSco ||
                   e.type == AudioDeviceType.airPlay,
             );
+
+            print(
+                '!!!!!! hasBluetooth: $hasBluetooth, ${(await session.getDevices(includeInputs: false)).map((e) => e.name)}');
 
             await playback?.setSpeaker(
               // AudioSpeakerKind.speaker,
@@ -231,6 +237,27 @@ class AudioPlayback {
 
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
     Log.debug('setSpeaker($speaker)', '$runtimeType');
+
+    if (PlatformUtils.isIOS) {
+      final devices = await MediaUtils.enumerateDevices();
+      final device = devices.firstWhereOrNull((e) => e.speaker == speaker);
+      if (device != null) {
+        await MediaUtils.setOutputDevice(device.deviceId());
+      }
+
+      // if (speaker == AudioSpeakerKind.earpiece) {
+      //   final session = await AudioSession.instance;
+      //   await session.configure(
+      //     const AudioSessionConfiguration(
+      //       avAudioSessionMode: AVAudioSessionMode.voiceChat,
+      //       avAudioSessionCategoryOptions:
+      //           AVAudioSessionCategoryOptions.defaultToSpeaker,
+      //       avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      //     ),
+      //   );
+      // }
+      return;
+    }
 
     final session = await AudioSession.instance;
 
@@ -407,4 +434,16 @@ extension on AudioSource {
         AudioSourceKind.url =>
           ja.AudioSource.uri(Uri.parse((this as UrlAudioSource).url)),
       };
+}
+
+extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
+  AudioSpeakerKind get speaker {
+    if (deviceId() == 'ear-speaker' || deviceId() == 'ear-piece') {
+      return AudioSpeakerKind.earpiece;
+    } else if (deviceId() == 'speakerphone' || deviceId() == 'speaker') {
+      return AudioSpeakerKind.speaker;
+    } else {
+      return AudioSpeakerKind.headphones;
+    }
+  }
 }

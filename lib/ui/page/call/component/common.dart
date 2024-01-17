@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_to_airplay/flutter_to_airplay.dart';
 import 'package:get/get.dart';
 import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -500,22 +501,72 @@ class SpeakerButton extends CallButton {
     bool big = false,
     bool expanded = false,
   }) {
-    return Obx(() {
-      return CallButtonWidget(
-        hint: hinted ? hint : null,
-        asset: switch (c.output) {
-          AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
-          AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
-          AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
-        },
-        hinted: hinted,
-        expanded: expanded,
-        withBlur: blur,
-        big: big,
-        constrained: c.isMobile,
-        onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
-      );
-    });
+    return Stack(
+      children: [
+        Obx(() {
+          return CallButtonWidget(
+            hint: hinted ? hint : null,
+            asset: switch (c.output) {
+              AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
+              AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
+              AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
+            },
+            hinted: hinted,
+            expanded: expanded,
+            withBlur: blur,
+            big: big,
+            constrained: c.isMobile,
+            onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
+          );
+        }),
+        // if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
+        //   const Positioned.fill(
+        //     child: AirPlayRoutePickerView(
+        //       tintColor: Colors.transparent,
+        //       activeTintColor: Colors.transparent,
+        //       backgroundColor: Colors.transparent,
+        //     ),
+        //   ),
+      ],
+    );
+  }
+}
+
+class AirPlayButton extends CallButton {
+  const AirPlayButton(super.c);
+
+  @override
+  String get hint => 'AirPlay';
+
+  @override
+  Widget build({
+    bool hinted = true,
+    bool blur = false,
+    bool big = false,
+    bool expanded = false,
+  }) {
+    return Stack(
+      children: [
+        CallButtonWidget(
+          hint: hinted ? hint : null,
+          asset: SvgIcons.airPlay,
+          hinted: hinted,
+          expanded: expanded,
+          withBlur: blur,
+          big: big,
+          constrained: c.isMobile,
+          onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
+        ),
+        if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
+          const Positioned.fill(
+            child: AirPlayRoutePickerView(
+              tintColor: Colors.transparent,
+              activeTintColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+      ],
+    );
   }
 }
 

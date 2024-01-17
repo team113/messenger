@@ -287,11 +287,11 @@ Widget mobileCall(CallController c, BuildContext context) {
               );
             }),
 
-            if (isOutgoing)
-              const Padding(
-                padding: EdgeInsets.all(21.0),
-                child: Center(child: DoubleBounceLoadingIndicator()),
-              ),
+            // if (isOutgoing)
+            //   const Padding(
+            //     padding: EdgeInsets.all(21.0),
+            //     child: Center(child: DoubleBounceLoadingIndicator()),
+            //   ),
           ],
         );
       }));
@@ -443,6 +443,10 @@ Widget mobileCall(CallController c, BuildContext context) {
             const SizedBox(height: 12),
             buttons(
               [
+                // if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
+                //   padding(
+                //     AirPlayButton(c).build(expanded: c.isPanelOpen.value),
+                //   ),
                 // if (PlatformUtils.isMobile)
                 padding(
                   c.videoState.value.isEnabled
@@ -453,6 +457,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 //   padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
+                // padding(SettingsButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
               ],
             ),
@@ -578,35 +583,31 @@ Widget mobileCall(CallController c, BuildContext context) {
                           child: buttons(
                             isOutgoing
                                 ? [
+                                    // if (PlatformUtils.isIOS &&
+                                    //     !PlatformUtils.isWeb)
+                                    //   padding(
+                                    //     AirPlayButton(c).build(
+                                    //         expanded: c.isPanelOpen.value),
+                                    //   ),
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
-                                            ? SwitchButton(c).build(
-                                                blur: true,
-                                                hinted: false,
-                                              )
-                                            : SpeakerButton(c).build(
-                                                blur: true,
-                                                hinted: false,
-                                              ),
+                                            ? SwitchButton(c)
+                                                .build(hinted: false)
+                                            : SpeakerButton(c)
+                                                .build(hinted: false),
                                       ),
                                     padding(
-                                      AudioButton(c).build(
-                                        blur: true,
-                                        hinted: false,
-                                      ),
+                                      AudioButton(c).build(hinted: false),
                                     ),
                                     padding(
-                                      VideoButton(c).build(
-                                        blur: true,
-                                        hinted: false,
-                                      ),
+                                      VideoButton(c).build(hinted: false),
                                     ),
+                                    // padding(
+                                    //   SettingsButton(c).build(hinted: false),
+                                    // ),
                                     padding(
-                                      CancelButton(c).build(
-                                        blur: true,
-                                        hinted: false,
-                                      ),
+                                      CancelButton(c).build(hinted: false),
                                     ),
                                   ]
                                 : [

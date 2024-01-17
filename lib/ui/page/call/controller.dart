@@ -1038,7 +1038,7 @@ class CallController extends GetxController {
         _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
 
         MessagePopup.success(
-          '${output.deviceId()}, ${output.label()}, $index/${outputs.length}',
+          '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
         );
 
         await _currentCall.value.setOutputDevice(output.deviceId());
@@ -2379,16 +2379,4 @@ class Participant {
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.device;
-}
-
-extension on MediaDeviceDetails {
-  AudioSpeakerKind get speaker {
-    if (deviceId() == 'ear-piece' || deviceId() == 'ear-speaker') {
-      return AudioSpeakerKind.earpiece;
-    } else if (deviceId() == 'speakerphone' || deviceId() == 'speaker') {
-      return AudioSpeakerKind.speaker;
-    } else {
-      return AudioSpeakerKind.headphones;
-    }
-  }
 }

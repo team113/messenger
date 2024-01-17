@@ -1085,6 +1085,10 @@ btn_one_time_account =
     аккаунт
 btn_work = Работа
 btn_work_with_us = Работайте с нами
+btn_download = Скачать
+btn_download_all = Скачать всё
+btn_download_all_as = Скачать всё как
+btn_download_as = Скачать как
 btn_download_application = Скачать приложение
 label_sign_up = Регистрация
 btn_continue_with_email = Продолжить с e-mail

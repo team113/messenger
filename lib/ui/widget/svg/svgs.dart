@@ -2085,4 +2085,10 @@ class SvgIcons {
     width: 17,
     height: 13,
   );
+
+  static const SvgData airPlay = SvgData(
+    'assets/icons/airplay.svg',
+    width: 32,
+    height: 32,
+  );
 }

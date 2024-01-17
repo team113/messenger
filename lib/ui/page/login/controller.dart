@@ -574,6 +574,8 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
+      print('!!!!! Here: ${_authService.credentials.value}');
+
       _redirect();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;

@@ -156,6 +156,10 @@ class MediaUtilsImpl {
         .toList();
   }
 
+  Future<void> setOutputDevice(String deviceId) async {
+    await mediaManager?.setOutputAudioId(deviceId);
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   MediaStreamSettings _mediaStreamSettings({
