@@ -54,10 +54,12 @@ class ParticipantView extends StatelessWidget {
     required Rx<OngoingCall> call,
     required Rx<Duration> duration,
   }) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
-      mobilePadding: const EdgeInsets.all(0),
       child: ParticipantView(call: call, duration: duration),
+      background: style.colors.background,
     );
   }
 

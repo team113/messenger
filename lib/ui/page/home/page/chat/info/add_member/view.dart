@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -37,9 +38,11 @@ class AddChatMemberView extends StatelessWidget {
 
   /// Displays an [AddChatMemberView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
-      mobilePadding: const EdgeInsets.all(0),
+      background: style.colors.background,
       child: AddChatMemberView(chatId: chatId),
     );
   }

@@ -73,14 +73,15 @@ class ChatForwardView extends StatelessWidget {
     List<Attachment> attachments = const [],
     void Function()? onSent,
   }) {
+    final Style style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
         maxHeight: 800,
       ),
-      mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.all(0),
+      background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
         from: from,
