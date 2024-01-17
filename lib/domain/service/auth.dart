@@ -118,6 +118,11 @@ class AuthService extends GetxService {
   String? init() {
     Log.debug('init()', '$runtimeType');
 
+    ever(
+      status,
+      (status) => Log.debug('isSuccess: ${status.isSuccess}', '$runtimeType'),
+    );
+
     // Try to refresh session, otherwise just force logout.
     _authRepository.authExceptionHandler = (e) async {
       if (credentials.value?.rememberedSession.expireAt
@@ -144,7 +149,9 @@ class AuthService extends GetxService {
             _authRepository.token = creds.session.token;
             _authRepository.applyToken();
             credentials.value = creds;
+            print('_________ 1');
             status.value = RxStatus.success();
+            status.value = RxStatus.loadingMore();
             _credentialsTimer?.cancel();
           }
         } else {
@@ -165,6 +172,7 @@ class AuthService extends GetxService {
       if (remembered == null) {
         if (session.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
           _authorized(creds!);
+          print('_________ 2');
           status.value = RxStatus.success();
           return null;
         }
@@ -175,6 +183,7 @@ class AuthService extends GetxService {
             .isBefore(PreciseDateTime.now().toUtc())) {
           renewSession();
         }
+        print('_________ 3');
         status.value = RxStatus.success();
         return null;
       }
@@ -253,12 +262,14 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
+    print('_________ 4');
     status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
         var data = await _authRepository.signUp();
         _authorized(data);
         _credentialsProvider.set(data);
+        print('_________ 5');
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -273,6 +284,7 @@ class AuthService extends GetxService {
       try {
         _authorized(creds);
         _credentialsProvider.set(creds);
+        print('_________ 6');
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -320,6 +332,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     status.value = RxStatus.loadingMore();
+
     return _tokenGuard.protect(() async {
       try {
         Credentials data = await _authRepository.signIn(
@@ -329,6 +342,7 @@ class AuthService extends GetxService {
           email: email,
           phone: phone,
         );
+        print('!!!!! Here4: $data');
         _authorized(data);
         _credentialsProvider.set(data);
         status.value = RxStatus.success();
@@ -350,6 +364,7 @@ class AuthService extends GetxService {
     await _tokenGuard.protect(() async {
       _authorized(credentials);
       _credentialsProvider.set(credentials);
+      print('_________ 7');
       status.value = RxStatus.success();
     });
   }
@@ -434,6 +449,7 @@ class AuthService extends GetxService {
           _authorized(data);
           _credentialsProvider.set(data);
 
+          print('_________ 8');
           status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
@@ -452,8 +468,12 @@ class AuthService extends GetxService {
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
+    print('!!!!!! HERE3: creds = $creds');
+
     _authRepository.token = creds.session.token;
     credentials.value = creds;
+
+    print('!!!!!! HERE4: credentials.value = ${credentials.value}');
     _refreshTimer?.cancel();
 
     final Duration period = _refreshTaskInterval -
@@ -471,6 +491,7 @@ class AuthService extends GetxService {
       }
     });
 
+    print('_________ 9');
     status.value = RxStatus.loadingMore();
   }
 
@@ -479,6 +500,7 @@ class AuthService extends GetxService {
     _credentialsProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
+    print('_________ 10');
     status.value = RxStatus.empty();
     _refreshTimer?.cancel();
     return Routes.auth;

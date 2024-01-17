@@ -1410,33 +1410,33 @@ class ChatRepository extends DisposableInterface
     // Favorite [HiveChat]s will be putted to [Hive] through
     // [HiveGraphQlPageProvider].
     if (!WebUtils.isPopup || chat.value.favoritePosition == null) {
-      await _chatLocal.txn((txn) async {
-        HiveChat? saved;
+      // await _chatLocal.txn((txn) async {
+      HiveChat? saved;
 
-        // If version is ignored, there's no need to retrieve the stored chat.
-        if (!ignoreVersion || !updateVersion) {
-          saved = await _chatLocal.get(chatId);
+      // If version is ignored, there's no need to retrieve the stored chat.
+      if (!ignoreVersion || !updateVersion) {
+        saved = await _chatLocal.get(chatId);
+      }
+
+      // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+      chat.value.firstItem ??=
+          saved?.value.firstItem ?? rxChat.chat.value.firstItem;
+
+      if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
+        _recentLocal.put(chat.value.updatedAt, chatId);
+
+        if (chat.value.favoritePosition != null) {
+          _favoriteLocal.put(chat.value.favoritePosition!, chatId);
         }
 
-        // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-        chat.value.firstItem ??=
-            saved?.value.firstItem ?? rxChat.chat.value.firstItem;
-
-        if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
-          _recentLocal.put(chat.value.updatedAt, chatId);
-
-          if (chat.value.favoritePosition != null) {
-            _favoriteLocal.put(chat.value.favoritePosition!, chatId);
-          }
-
-          // Set the version to the [saved] one, if not [updateVersion].
-          if (saved != null && !updateVersion) {
-            chat.ver = saved.ver;
-          }
-
-          await _chatLocal.put(chat);
+        // Set the version to the [saved] one, if not [updateVersion].
+        if (saved != null && !updateVersion) {
+          chat.ver = saved.ver;
         }
-      });
+
+        await _chatLocal.put(chat);
+      }
+      // });
     }
 
     // [pagination] is `true`, if the [chat] is received from [Pagination],

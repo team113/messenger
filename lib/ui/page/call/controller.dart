@@ -30,6 +30,7 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/ui/worker/call.dart';
 import 'package:messenger/util/log.dart';
+import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:proximity_screen_lock/proximity_screen_lock.dart';
 
@@ -415,6 +416,8 @@ class CallController extends GetxController {
   /// [Timer]s removing items from the [notifications] after the
   /// [_notificationDuration].
   final List<Timer> _notificationTimers = [];
+
+  final Mutex _outputGuard = Mutex();
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -1017,34 +1020,46 @@ class CallController extends GetxController {
     keepUi();
 
     try {
-      final List<MediaDeviceDetails> outputs =
-          _currentCall.value.devices.output().toList();
+      await _outputGuard.protect(() async {
+        final List<MediaDeviceDetails> outputs =
+            _currentCall.value.devices.output().toList();
 
-      if (outputs.length > 1) {
-        int index = outputs.indexWhere(
-          (e) => e.deviceId() == _currentCall.value.outputDevice.value,
-        );
+        if (outputs.length > 1) {
+          int index = outputs.indexWhere(
+            (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+          );
 
-        if (index == -1) {
-          index = 0;
+          if (index == -1) {
+            index = 0;
+          }
+
+          ++index;
+          if (index >= outputs.length) {
+            index = 0;
+          }
+
+          final MediaDeviceDetails output = outputs[index];
+
+          if (state.value != OngoingCallState.joining &&
+              state.value != OngoingCallState.active) {
+            await _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
+          }
+
+          Log.debug(
+            'Switching output to `${output.deviceId()}` (${output.label()}, isFailed: ${output.isFailed()}), the whole list of `output` devices is: ${outputs.map((e) => 'id: ${e.deviceId()}, name: ${e.label()}, isFailed: ${e.isFailed()}')}',
+          );
+
+          MessagePopup.success(
+            '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
+          );
+
+          await _currentCall.value.setOutputDevice(output.deviceId());
+          Log.debug('Switching is done!');
         }
-
-        ++index;
-        if (index >= outputs.length) {
-          index = 0;
-        }
-
-        final MediaDeviceDetails output = outputs[index];
-        _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
-
-        MessagePopup.success(
-          '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
-        );
-
-        await _currentCall.value.setOutputDevice(output.deviceId());
-      }
+      });
     } catch (e) {
       MessagePopup.error(e);
+      rethrow;
     }
   }
 

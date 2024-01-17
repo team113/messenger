@@ -64,13 +64,17 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> signIn(UserPassword password,
-      {UserLogin? login,
-      UserNum? num,
-      UserEmail? email,
-      UserPhone? phone}) async {
+  Future<Credentials> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  }) async {
+    print('!!!! Here1');
     var response =
         await _graphQlProvider.signIn(password, login, num, email, phone, true);
+    print('!!!! Here2: $response');
     return response.toModel();
   }
 
