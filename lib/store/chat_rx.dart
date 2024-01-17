@@ -1103,7 +1103,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.event:
         await _chatLocal.txn((txn) async {
-          final HiveChat? chatEntity = await txn.get(id);
+          final HiveChat? chatEntity = await txn.get(id.val);
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
 
