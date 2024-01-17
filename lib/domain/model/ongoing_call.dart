@@ -488,7 +488,7 @@ class OngoingCall {
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls.remove(chatId.value);
-              calls.removeCredentials(node.call.id);
+              calls.removeCredentials(node.call.chatId, node.call.id);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -505,7 +505,7 @@ class OngoingCall {
 
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
-                for (var m in dialed.members) {
+                for (final ChatMember m in dialed.members) {
                   addDialing(m.user.id);
                 }
               }
@@ -521,10 +521,11 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  for (var m in (v?.chat.value.members ?? []).where((e) =>
-                      e.user.id != me.id.userId &&
-                      dialed.answeredMembers
-                          .none((a) => a.user.id == e.user.id))) {
+                  for (final ChatMember m in (v?.chat.value.members ?? [])
+                      .where((e) =>
+                          e.user.id != me.id.userId &&
+                          dialed.answeredMembers
+                              .none((a) => a.user.id == e.user.id))) {
                     addDialing(m.user.id);
                   }
                 }
@@ -572,10 +573,10 @@ class OngoingCall {
               '$runtimeType($id)',
             );
 
-            for (var event in versioned.events) {
+            for (final ChatCallEvent event in versioned.events) {
               switch (event.kind) {
                 case ChatCallEventKind.roomReady:
-                  var node = event as EventChatCallRoomReady;
+                  final node = event as EventChatCallRoomReady;
 
                   if (!_background) {
                     await _joinRoom(node.joinLink);
@@ -588,15 +589,15 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.finished:
-                  var node = event as EventChatCallFinished;
+                  final node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
-                    calls.removeCredentials(node.call.id);
+                    calls.removeCredentials(node.call.chatId, node.call.id);
                     calls.remove(chatId.value);
                   }
                   break;
 
                 case ChatCallEventKind.memberLeft:
-                  var node = event as EventChatCallMemberLeft;
+                  final node = event as EventChatCallMemberLeft;
                   if (calls.me == node.user.id) {
                     calls.remove(chatId.value);
                   }
@@ -615,7 +616,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.memberJoined:
-                  var node = event as EventChatCallMemberJoined;
+                  final node = event as EventChatCallMemberJoined;
 
                   final CallMemberId redialedId =
                       CallMemberId(node.user.id, null);
@@ -645,7 +646,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.handLowered:
-                  var node = event as EventChatCallHandLowered;
+                  final node = event as EventChatCallHandLowered;
 
                   // Ignore the event, if it's our hand and is already lowered.
                   if (node.user.id == _me.userId &&
@@ -665,7 +666,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.handRaised:
-                  var node = event as EventChatCallHandRaised;
+                  final node = event as EventChatCallHandRaised;
 
                   // Ignore the event, if it's our hand and is already raised.
                   if (node.user.id == _me.userId &&
@@ -685,7 +686,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.declined:
-                  var node = event as EventChatCallDeclined;
+                  final node = event as EventChatCallDeclined;
                   final CallMemberId id = CallMemberId(node.user.id, null);
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id)?.dispose();
@@ -693,7 +694,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.callMoved:
-                  var node = event as EventChatCallMoved;
+                  final node = event as EventChatCallMoved;
                   chatId.value = node.newChatId;
                   call.value = node.newCall;
 
@@ -709,12 +710,12 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.redialed:
-                  var node = event as EventChatCallMemberRedialed;
+                  final node = event as EventChatCallMemberRedialed;
                   addDialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
-                  var node = event as EventChatCallAnswerTimeoutPassed;
+                  final node = event as EventChatCallAnswerTimeoutPassed;
 
                   if (node.user?.id != null) {
                     final CallMemberId id = CallMemberId(node.user!.id, null);

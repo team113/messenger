@@ -123,4 +123,6 @@ class ModelTypeId {
   static const thumbhash = 103;
   static const mediaButtonsPosition = 105;
   static const favoriteChatContactsCursor = 104;
+  static const callButtonsPosition = 106;
+  static const hiveBlocklistRecord = 107;
 }

@@ -34,6 +34,7 @@ import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
@@ -50,6 +51,8 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatAvatarAdapter());

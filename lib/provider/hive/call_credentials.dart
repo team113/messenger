@@ -19,21 +19,23 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatCallCredentials].
-class ChatCallCredentialsHiveProvider
+class CallCredentialsHiveProvider
     extends HiveBaseProvider<ChatCallCredentials> {
-  ChatCallCredentialsHiveProvider();
+  CallCredentialsHiveProvider();
 
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'chat_call_credentials';
+  String get boxName => 'call_credentials';
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ChatCallCredentialsAdapter());
   }
 
@@ -41,12 +43,22 @@ class ChatCallCredentialsHiveProvider
   Iterable<ChatCallCredentials> get items => valuesSafe;
 
   /// Puts the provided [ChatCallCredentials] to [Hive].
-  Future<void> put(ChatItemId id, ChatCallCredentials creds) =>
-      putSafe(id.val, creds);
+  Future<void> put(ChatItemId id, ChatCallCredentials creds) async {
+    Log.debug('put($id, $creds)', '$runtimeType');
+    await putSafe(id.val, creds);
+  }
 
-  /// Returns a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
-  ChatCallCredentials? get(ChatItemId id) => getSafe(id.val);
+  /// Returns the [ChatCallCredentials] from [Hive] by the provided
+  /// [ChatItemId].
+  ChatCallCredentials? get(ChatItemId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
 
-  /// Removes a [ChatCallCredentials] from [Hive] by the provided [ChatItemId].
-  Future<void> remove(ChatItemId id) => deleteSafe(id.val);
+  /// Removes the [ChatCallCredentials] from [Hive] by the provided
+  /// [ChatItemId].
+  Future<void> remove(ChatItemId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 }

@@ -51,7 +51,8 @@ import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
 import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
-import 'provider/hive/chat_call_credentials.dart';
+import 'provider/hive/call_credentials.dart';
+import 'provider/hive/chat_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
@@ -555,7 +556,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
-                deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+                deps.put(CallCredentialsHiveProvider()).init(userId: me),
+                deps.put(ChatCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
@@ -584,6 +586,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 CallRepository(
                   graphQlProvider,
                   userRepository,
+                  Get.find(),
                   Get.find(),
                   settingsRepository,
                   me: me,
@@ -621,7 +624,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               BlocklistRepository blocklistRepository = BlocklistRepository(
                 graphQlProvider,
                 Get.find(),
+                Get.find(),
                 userRepository,
+                Get.find(),
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
               AbstractMyUserRepository myUserRepository =
@@ -680,7 +685,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
-              deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+              deps.put(CallCredentialsHiveProvider()).init(userId: me),
+              deps.put(ChatCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
@@ -732,6 +738,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               graphQlProvider,
               userRepository,
               Get.find(),
+              Get.find(),
               settingsRepository,
               me: me,
             );
@@ -768,7 +775,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
               Get.find(),
+              Get.find(),
               userRepository,
+              Get.find(),
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
             AbstractMyUserRepository myUserRepository =

@@ -38,6 +38,7 @@ import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -66,7 +67,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Callback that is called when [MyUser]'s password is changed.
   late final void Function() onPasswordUpdated;
 
-  /// GraphQL's Endpoint provider.
+  /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [MyUser] local [Hive] storage.
@@ -781,7 +782,9 @@ class MyUserRepository implements AbstractMyUserRepository {
             userEntity.value.blocklistCount =
                 userEntity.value.blocklistCount! + 1;
           }
-          _blocklistRepo.put(event.user);
+          _blocklistRepo.put(
+            HiveBlocklistRecord(event.user.value.isBlocked!, null),
+          );
           break;
 
         case MyUserEventKind.blocklistRecordRemoved:

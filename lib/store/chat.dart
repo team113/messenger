@@ -23,7 +23,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -41,6 +40,7 @@ import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -1006,8 +1006,10 @@ class ChatRepository extends DisposableInterface
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) =>
-      _callRepo.removeCredentials(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+    // Log.debug('removeCredentials($callId)', '$runtimeType');
+    return _callRepo.removeCredentials(chatId, callId);
+  }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
   void addCall(ChatCall call) => _callRepo.add(call);
@@ -1398,12 +1400,6 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    // [pagination] is `true`, if the [chat] is received from [Pagination], thus
-    // otherwise we should try putting it to it.
-    if (!pagination && !chat.value.isHidden) {
-      await _pagination?.put(chat);
-    }
-
     final HiveRxChat rxChat = _add(chat, pagination: pagination);
 
     // TODO: https://github.com/team113/messenger/issues/27
@@ -1417,7 +1413,7 @@ class ChatRepository extends DisposableInterface
       HiveChat? saved;
 
       // If version is ignored, there's no need to retrieve the stored chat.
-      if (!ignoreVersion) {
+      if (!ignoreVersion || !updateVersion) {
         saved = await _chatLocal.get(chatId);
       }
 
@@ -1425,7 +1421,7 @@ class ChatRepository extends DisposableInterface
       chat.value.firstItem ??=
           saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-      if (saved == null || saved.ver < chat.ver) {
+      if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
         _recentLocal.put(chat.value.updatedAt, chatId);
 
         if (chat.value.favoritePosition != null) {
@@ -1433,12 +1429,18 @@ class ChatRepository extends DisposableInterface
         }
 
         // Set the version to the [saved] one, if not [updateVersion].
-        // if (saved != null && !updateVersion) {
-        //   chat.ver = saved.ver;
-        // }
+        if (saved != null && !updateVersion) {
+          chat.ver = saved.ver;
+        }
 
         await _chatLocal.put(chat);
       }
+    }
+
+    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
+    if (!pagination && !chat.value.isHidden) {
+      await _pagination?.put(chat);
     }
 
     return rxChat;
@@ -1733,7 +1735,8 @@ class ChatRepository extends DisposableInterface
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
-            Page<HiveChat, FavoriteChatsCursor> page = await _favoriteChats(
+            final Page<HiveChat, FavoriteChatsCursor> page =
+                await _favoriteChats(
               after: after,
               first: first,
               before: before,
@@ -1790,7 +1793,7 @@ class ChatRepository extends DisposableInterface
           _putEntry(
             chatData,
             pagination: true,
-            ignoreVersion: true,
+            ignoreVersion: event.op == OperationKind.added,
             updateVersion: false,
           );
           break;
