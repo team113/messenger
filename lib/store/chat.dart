@@ -1894,26 +1894,18 @@ class ChatRepository extends DisposableInterface
     _paginationSubscription = _pagination!.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
+        case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
           _putEntry(
             chatData,
             pagination: true,
-            ignoreVersion: true,
+            ignoreVersion: event.op == OperationKind.added,
             updateVersion: false,
           );
           break;
 
         case OperationKind.removed:
           remove(event.value!.value.id);
-          break;
-
-        case OperationKind.updated:
-          final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(
-            chatData,
-            pagination: true,
-            updateVersion: false,
-          );
           break;
       }
     });

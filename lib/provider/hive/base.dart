@@ -171,7 +171,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   final Mutex _mutex = Mutex();
 
   /// [Mutex] that guards [_box] access when a transaction is active.
-  final Mutex _transactionMutex = Mutex();
+  final Mutex _transaction = Mutex();
 
   /// Returns the [Box] storing data of this [HiveLazyProvider].
   LazyBox<T> get box => _box;
@@ -242,7 +242,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// Removes all entries from the [Box].
   @mustCallSuper
   Future<void> clear() {
-    return _transactionMutex.protect(
+    return _transaction.protect(
       () => _mutex.protect(() async {
         if (_isReady && keysSafe.isNotEmpty) {
           await _box.clear();
@@ -274,14 +274,14 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   }
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
-  Future<void> putSafe(dynamic key, T value) async {
-    return _transactionMutex.protect(() => _putSafe(key, value));
+  Future<void> putSafe(dynamic key, T value) {
+    return _transaction.protect(() => _putSafe(key, value));
   }
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
-  Future<T?> getSafe(dynamic key, {T? defaultValue}) async {
-    return _transactionMutex.protect(
+  Future<T?> getSafe(dynamic key, {T? defaultValue}) {
+    return _transaction.protect(
       () => _getSafe(key, defaultValue: defaultValue),
     );
   }
@@ -289,29 +289,29 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// Exception-safe wrapper for [BoxBase.delete] deleting the given [key] from
   /// the [box].
   Future<void> deleteSafe(dynamic key, {T? defaultValue}) {
-    return _transactionMutex.protect(
+    return _transaction.protect(
       () => _mutex.protect(() async {
         if (_isReady && _box.isOpen) {
           await _box.delete(key);
         }
+
         return Future.value();
       }),
     );
   }
 
   /// Runs a transaction in this [HiveLazyProvider].
-  Future<void> txn(Future<void> Function(HiveTransaction<T>) callback) async {
-    await _transactionMutex.acquire();
-
-    try {
-      await callback(HiveTransaction(_putSafe, _getSafe));
-    } finally {
-      _transactionMutex.release();
-    }
+  ///
+  /// __Note__, that [putSafe], [getSafe] and [deleteSafe] get locked, thus use
+  /// [HiveTransaction] provided in the [callback] to access those methods.
+  Future<void> txn(Future<void> Function(HiveTransaction<T>) callback) {
+    return _transaction.protect(
+      () => callback(HiveTransaction(_putSafe, _getSafe)),
+    );
   }
 
   /// Exception-safe wrapper for [BoxBase.put] saving the [key] - [value] pair.
-  Future<void> _putSafe(dynamic key, T value) async {
+  Future<void> _putSafe(dynamic key, T value) {
     return _mutex.protect(() async {
       if (_isReady && _box.isOpen) {
         await _box.put(key, value);
@@ -321,11 +321,12 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   /// Exception-safe wrapper for [Box.get] returning the value associated with
   /// the given [key], if any.
-  Future<T?> _getSafe(dynamic key, {T? defaultValue}) async {
+  Future<T?> _getSafe(dynamic key, {T? defaultValue}) {
     return _mutex.protect(() async {
       if (_isReady && _box.isOpen) {
         return _box.get(key, defaultValue: defaultValue);
       }
+
       return null;
     });
   }
@@ -364,9 +365,11 @@ extension HiveRegisterAdapter on HiveInterface {
   }
 }
 
-/// [Hive] transaction.
+/// Entity accessing [put] and [get] throughout the transaction.
+///
+/// Intended to be used for [HiveBaseProvider] transactions.
 class HiveTransaction<T> {
-  HiveTransaction(this.put, this.get);
+  const HiveTransaction(this.put, this.get);
 
   /// Puts the provided value.
   final Future<void> Function(dynamic key, T value) put;
