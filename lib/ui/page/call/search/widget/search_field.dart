@@ -89,7 +89,7 @@ class SearchField extends StatelessWidget {
               } else {
                 child = AnimatedButton(
                   key: const Key('ClearButton'),
-                  onPressed: state.clear,
+                  onPressed: () => state.text = '',
                   child: Container(
                     padding: const EdgeInsets.only(right: 20, left: 6),
                     width: 46,

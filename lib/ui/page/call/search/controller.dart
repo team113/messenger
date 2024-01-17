@@ -462,7 +462,7 @@ class SearchController extends GetxController {
 
     final MyUser? myUser = _myUserService.myUser.value;
 
-    if (queryString.isNotEmpty && myUser != null) {
+    if (myUser != null) {
       final ChatId monologId = _chatService.monolog;
 
       final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
@@ -470,6 +470,12 @@ class SearchController extends GetxController {
           monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
 
       if (monolog != null) {
+        if (queryString.isEmpty) {
+          // Display [monolog] as the first item if the [query] is empty.
+          chats.value = {monologId: monolog, ...chats};
+          return;
+        }
+
         final String title = monolog.title.value;
         final String? name = myUser.name?.val;
         final String? login = myUser.login?.val;
@@ -498,18 +504,16 @@ class SearchController extends GetxController {
       sorted.sort();
 
       chats.value = {
-        for (var c in sorted.where((p) {
-          if (p.id.isLocal && !p.id.isLocalWith(me) || p.chat.value.isHidden) {
-            return false;
-          }
+        for (final RxChat chat in sorted.where((c) {
+          final bool isHiddenOrLocalDialog =
+              c.id.isLocal && !c.id.isLocalWith(me) || c.chat.value.isHidden;
+          final bool matchesQuery = query.value.isNotEmpty
+              ? c.title.toLowerCase().contains(query.value.toLowerCase())
+              : true;
 
-          if (query.value.isNotEmpty) {
-            return p.title.toLowerCase().contains(query.value.toLowerCase());
-          }
-
-          return true;
+          return matchesQuery && !isHiddenOrLocalDialog;
         }))
-          c.chat.value.id: c,
+          chat.chat.value.id: chat,
       };
 
       _populateMonolog();
@@ -520,10 +524,10 @@ class SearchController extends GetxController {
   void _populateRecent() {
     if (categories.contains(SearchCategory.recent)) {
       recent.value = {
-        for (var u in _chatService.chats.values
+        for (final RxUser u in _chatService.chats.values
             .map((e) {
               if (e.chat.value.isDialog && !e.chat.value.id.isLocal) {
-                RxUser? user = e.members.values
+                final RxUser? user = e.members.values
                     .firstWhereOrNull((u) => u.user.value.id != me);
 
                 if (user != null &&
@@ -550,43 +554,45 @@ class SearchController extends GetxController {
 
   /// Updates the [contacts] according to the [query].
   void _populateContacts() {
-    if (categories.contains(SearchCategory.contact) &&
-        contactsSearch.value?.items.isNotEmpty == true) {
-      Map<UserId, RxChatContact> allContacts = {
-        for (var u in contactsSearch.value!.items.values.where((e) {
-          if (e.user.value != null &&
-              chat?.members.containsKey(e.id) != true &&
-              !recent.containsKey(e.id) &&
-              chats.values.none((c) =>
-                  c.chat.value.isDialog && c.members.containsKey(e.id))) {
-            return true;
-          }
+    if (categories.contains(SearchCategory.contact)) {
+      final fetched = _contactService.paginated.values;
+      final searched = contactsSearch.value?.items.values;
 
+      final allContacts = {...fetched, ...?searched};
+      allContacts.toList().sort();
+
+      // Predicate to check whether the [RxChatContact] is in [recent], [chats]
+      // or current [chat].
+      bool inOtherCategory(RxChatContact c) {
+        final RxUser? user = c.user.value;
+        if (user == null) {
           return false;
-        }))
-          u.user.value!.id: u,
-      };
+        }
+
+        final bool inCurrentChat = chat?.members.containsKey(user.id) ?? false;
+        final bool inRecent = recent.containsKey(user.id);
+        final bool inChats = chats.values.any(
+          (chat) =>
+              chat.chat.value.isDialog && chat.members.containsKey(user.id),
+        );
+
+        return inCurrentChat || inRecent || inChats;
+      }
+
+      bool matchesQuery(RxChatContact contact) {
+        if (query.value.isNotEmpty) {
+          return contact.user.value!.user.value.name!.val
+              .toLowerCase()
+              .contains(query.value.toLowerCase().trim());
+        }
+
+        return true;
+      }
 
       contacts.value = {
-        for (var u in selectedContacts.where((e) {
-          if (!recent.containsKey(e.id) &&
-              !allContacts.containsKey(e.user.value!.id)) {
-            if (query.value.isNotEmpty) {
-              if (e.contact.value.name.val
-                      .toLowerCase()
-                      .contains(query.value.toLowerCase()) ==
-                  true) {
-                return true;
-              }
-            } else {
-              return true;
-            }
-          }
-
-          return false;
-        }))
-          u.user.value!.id: u,
-        ...allContacts,
+        for (final RxChatContact c
+            in allContacts.whereNot(inOtherCategory).where(matchesQuery))
+          c.user.value!.id: c,
       };
     } else {
       contacts.value = {};
