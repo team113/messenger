@@ -1511,7 +1511,7 @@ class ChatRepository extends DisposableInterface
 
         // If version is ignored, there's no need to retrieve the stored chat.
         if (!ignoreVersion || !updateVersion) {
-          saved = await txn.get(chatId);
+          saved = await txn.get(chatId.val);
         }
 
         // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
@@ -1530,7 +1530,7 @@ class ChatRepository extends DisposableInterface
             chat.ver = saved.ver;
           }
 
-          await txn.put(chat.value.id, chat);
+          await txn.put(chat.value.id.val, chat);
         }
       });
     }
