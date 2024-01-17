@@ -30,7 +30,6 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
-import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -43,9 +42,11 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
@@ -459,8 +460,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var myUserProvider = MyUserHiveProvider();
@@ -480,6 +483,8 @@ void main() async {
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -515,7 +520,9 @@ void main() async {
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
+        blocklistSortingProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -526,10 +533,11 @@ void main() async {
         callRectProvider,
       ),
     );
-    AbstractCallRepository callRepository = CallRepository(
+    final callRepository = CallRepository(
       graphQlProvider,
       userRepository,
       callCredentialsProvider,
+      chatCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );

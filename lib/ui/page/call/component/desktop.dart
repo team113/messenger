@@ -144,15 +144,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   c.state.value != OngoingCallState.joining &&
                                   !isOutgoing;
 
-                          final bool isDialog =
-                              c.chat.value?.chat.value.isDialog == true;
-
                           final Widget child;
 
                           if (!isIncoming) {
                             child = _primaryView(c);
                           } else {
-                            if (isDialog) {
+                            if (c.isDialog) {
                               final User? user = c.chat.value?.members.values
                                       .firstWhereOrNull(
                                         (e) => e.id != c.me.id.userId,

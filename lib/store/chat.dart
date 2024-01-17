@@ -1082,9 +1082,9 @@ class ChatRepository extends DisposableInterface
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) async {
-    Log.debug('removeCredentials($id)', '$runtimeType');
-    await _callRepo.removeCredentials(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('removeCredentials($callId)', '$runtimeType');
+    return _callRepo.removeCredentials(chatId, callId);
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
@@ -1467,7 +1467,7 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool ignoreVersion = false,
   }) async {
-    Log.debug('put($chat, $pagination)', '$runtimeType');
+    Log.debug('put($chat, $pagination, $ignoreVersion)', '$runtimeType');
 
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
@@ -1571,6 +1571,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [ChatHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
+    Log.debug('_initLocalSubscription()', '$runtimeType');
+
     _localSubscription = StreamIterator(_chatLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;
@@ -1583,11 +1585,6 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        final HiveRxChat? chat = chats[chatId];
-        if (chat == null || (chat.ver != null && chat.ver! < event.value.ver)) {
-          _add(event.value);
-        }
-
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
           _recentLocal.remove(chatId);
@@ -1754,7 +1751,22 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _putEntry(ChatData(event.value!, null, null), pagination: true);
+          final ChatItem? last = event.value!.value.lastItem;
+
+          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
+          // and might not be happening remotely at all.
+          _putEntry(
+            ChatData(
+              event.value!
+                ..value.ongoingCall = null
+                ..value.lastItem = last is ChatCall
+                    ? (last..conversationStartedAt = null)
+                    : last,
+              null,
+              null,
+            ),
+            pagination: true,
+          );
           break;
 
         case OperationKind.removed:
@@ -1811,7 +1823,8 @@ class ChatRepository extends DisposableInterface
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
-            Page<HiveChat, FavoriteChatsCursor> page = await _favoriteChats(
+            final Page<HiveChat, FavoriteChatsCursor> page =
+                await _favoriteChats(
               after: after,
               first: first,
               before: before,

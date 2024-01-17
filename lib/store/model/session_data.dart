@@ -49,4 +49,9 @@ class SessionData extends HiveObject {
   /// remote, meaning no queries should be made.
   @HiveField(4)
   bool? contactsSynchronized;
+
+  /// Persisted indicator whether all blocked [User]s are synchronized with the
+  /// remote, meaning no queries should be made.
+  @HiveField(5)
+  bool? blocklistSynchronized;
 }
