@@ -150,4 +150,15 @@ class ApplicationSettingsHiveProvider
       (box.get(0) ?? ApplicationSettings())..callButtonsPosition = position,
     );
   }
+
+  /// Stores a new [enabled] value of [ApplicationSettings.workWithUsTabEnabled]
+  /// to [Hive].
+  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
+    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
+
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..workWithUsTabEnabled = enabled,
+    );
+  }
 }

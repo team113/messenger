@@ -184,6 +184,18 @@ class SvgIcons {
     height: 21,
   );
 
+  static const SvgData passwordSmall = SvgData(
+    'assets/icons/password_small.svg',
+    width: 17.1,
+    height: 19,
+  );
+
+  static const SvgData passwordSmallWhite = SvgData(
+    'assets/icons/password_small_white.svg',
+    width: 17.1,
+    height: 19,
+  );
+
   static const SvgData qrCode = SvgData(
     'assets/icons/qr_code.svg',
     width: 20,
@@ -386,6 +398,12 @@ class SvgIcons {
     'assets/icons/chats.svg',
     width: 39.26,
     height: 33.5,
+  );
+
+  static const SvgData contacts = SvgData(
+    'assets/icons/contacts.svg',
+    width: 32,
+    height: 32,
   );
 
   static const SvgData chatsMuted = SvgData(
@@ -1711,5 +1729,11 @@ class SvgIcons {
     'assets/icons/unblock.svg',
     width: 16,
     height: 16,
+  );
+
+  static const SvgData menuNav = SvgData(
+    'assets/icons/menu_nav.svg',
+    width: 32,
+    height: 32,
   );
 }
