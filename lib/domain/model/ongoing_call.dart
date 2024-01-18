@@ -1058,7 +1058,7 @@ class OngoingCall {
       outputDevice.value = deviceId;
 
       try {
-        await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
+        await MediaUtils.setOutputDevice(deviceId);
       } catch (e) {
         outputDevice.value = previous;
         rethrow;
@@ -1893,7 +1893,7 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickOutputDevice(previous: $previous, added: $added, removed: $removed)',
+      '_pickOutputDevice(previous: ${previous.map((e) => e.label())}, added: ${added.map((e) => e.label())}, removed: ${removed.map((e) => e.label())})',
       '$runtimeType',
     );
 
@@ -1922,7 +1922,7 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickAudioDevice(previous: $previous, added: $added, removed: $removed)',
+      '_pickAudioDevice(previous: ${previous.map((e) => e.label())}, added: ${added.map((e) => e.label())}, removed: ${removed.map((e) => e.label())})',
       '$runtimeType',
     );
 
@@ -1949,7 +1949,7 @@ class OngoingCall {
     List<MediaDeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickVideoDevice(previous: $previous, removed: $removed)',
+      '_pickVideoDevice(previous: ${previous.map((e) => e.label())}, removed: ${removed.map((e) => e.label())})',
       '$runtimeType',
     );
 

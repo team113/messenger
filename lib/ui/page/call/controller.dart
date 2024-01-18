@@ -1020,43 +1020,60 @@ class CallController extends GetxController {
     keepUi();
 
     try {
-      await _outputGuard.protect(() async {
-        final List<MediaDeviceDetails> outputs =
-            _currentCall.value.devices.output().toList();
+      // await _outputGuard.protect(() async {
+      final List<MediaDeviceDetails> outputs =
+          _currentCall.value.devices.output().toList();
 
-        if (outputs.length > 1) {
-          int index = outputs.indexWhere(
-            (e) => e.deviceId() == _currentCall.value.outputDevice.value,
-          );
+      if (outputs.length > 1) {
+        int index = outputs.indexWhere(
+          (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+        );
 
-          if (index == -1) {
-            index = 0;
-          }
-
-          ++index;
-          if (index >= outputs.length) {
-            index = 0;
-          }
-
-          final MediaDeviceDetails output = outputs[index];
-
-          if (state.value != OngoingCallState.joining &&
-              state.value != OngoingCallState.active) {
-            await _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
-          }
-
-          Log.debug(
-            'Switching output to `${output.deviceId()}` (${output.label()}, isFailed: ${output.isFailed()}), the whole list of `output` devices is: ${outputs.map((e) => 'id: ${e.deviceId()}, name: ${e.label()}, isFailed: ${e.isFailed()}')}',
-          );
-
-          MessagePopup.success(
-            '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
-          );
-
-          await _currentCall.value.setOutputDevice(output.deviceId());
-          Log.debug('Switching is done!');
+        if (index == -1) {
+          index = 0;
         }
-      });
+
+        ++index;
+        if (index >= outputs.length) {
+          index = 0;
+        }
+
+        // iOS doesn't allow to use ear-piece, when there're any Bluetooth
+        // devices connected.
+        if (PlatformUtils.isIOS) {
+          if (outputs.any((e) => e.speaker == AudioSpeakerKind.headphones)) {
+            if (outputs[index].speaker == AudioSpeakerKind.earpiece) {
+              ++index;
+              if (index >= outputs.length) {
+                index = 0;
+              }
+            }
+          }
+        }
+
+        final MediaDeviceDetails output = outputs[index];
+
+        await _currentCall.value.setOutputDevice(output.deviceId());
+
+        if (state.value != OngoingCallState.joining &&
+            state.value != OngoingCallState.active) {
+          await _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
+        }
+
+        Log.debug(
+          'Switching output to `${output.deviceId()}` (${output.label()}, isFailed: ${output.isFailed()}), the whole list of `output` devices is: ${outputs.map((e) => 'id: ${e.deviceId()}, name: ${e.label()}, isFailed: ${e.isFailed()}')}',
+        );
+
+        MessagePopup.success(
+          '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
+        );
+
+        Log.debug('Switching is done!');
+      }
+      // });
+    } on InvalidOutputAudioDeviceIdException catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

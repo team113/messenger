@@ -135,13 +135,13 @@ btn_call_screen_on_desc =
     Демонстрация
     экрана
 btn_call_settings = Настройки звонка
-btn_call_switch_camera = Переключить камеру
+btn_call_switch_camera = Сменить камеру
 btn_call_switch_camera_desc =
-    Переключить
+    Сменить
     камеру
-btn_call_toggle_speaker = Переключить динамик
+btn_call_toggle_speaker = Сменить динамик
 btn_call_toggle_speaker_desc =
-    Переключить
+    Сменить
     динамик
 btn_call_uncenter = Убрать из центра
 btn_call_video_off = Выключить камеру

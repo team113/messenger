@@ -457,7 +457,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 //   padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
-                // padding(SettingsButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(SettingsButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
               ],
             ),
@@ -587,27 +587,45 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     //     !PlatformUtils.isWeb)
                                     //   padding(
                                     //     AirPlayButton(c).build(
-                                    //         expanded: c.isPanelOpen.value),
+                                    //       expanded: c.isPanelOpen.value,
+                                    //       opaque: true,
+                                    //     ),
                                     //   ),
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
-                                            ? SwitchButton(c)
-                                                .build(hinted: false)
-                                            : SpeakerButton(c)
-                                                .build(hinted: false),
+                                            ? SwitchButton(c).build(
+                                                hinted: false,
+                                                opaque: true,
+                                              )
+                                            : SpeakerButton(c).build(
+                                                hinted: false,
+                                                opaque: true,
+                                              ),
                                       ),
                                     padding(
-                                      AudioButton(c).build(hinted: false),
+                                      AudioButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
                                     ),
                                     padding(
-                                      VideoButton(c).build(hinted: false),
+                                      VideoButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
                                     ),
-                                    // padding(
-                                    //   SettingsButton(c).build(hinted: false),
-                                    // ),
                                     padding(
-                                      CancelButton(c).build(hinted: false),
+                                      SettingsButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
+                                    padding(
+                                      CancelButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
                                     ),
                                   ]
                                 : [

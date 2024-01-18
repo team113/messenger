@@ -105,6 +105,7 @@ class VideoButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
@@ -117,6 +118,7 @@ class VideoButton extends CallButton {
         big: big,
         withBlur: blur,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: c.toggleVideo,
       );
     });
@@ -147,6 +149,7 @@ class AudioButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
@@ -159,6 +162,7 @@ class AudioButton extends CallButton {
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: c.toggleAudio,
       );
     });
@@ -241,7 +245,12 @@ class SettingsButton extends CallButton {
   String get hint => 'btn_call_settings'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+  Widget build({
+    bool hinted = true,
+    bool big = false,
+    bool expanded = false,
+    bool opaque = false,
+  }) {
     return CallButtonWidget(
       hint: hint,
       asset: SvgIcons.callSettings,
@@ -249,6 +258,7 @@ class SettingsButton extends CallButton {
       expanded: expanded,
       big: big,
       constrained: c.isMobile,
+      opaque: opaque,
       onPressed: () => c.openSettings(router.context!),
     );
   }
@@ -440,6 +450,7 @@ class CancelButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     final style = Theme.of(router.context!).style;
 
@@ -452,6 +463,7 @@ class CancelButton extends CallButton {
       withBlur: blur,
       big: big,
       constrained: c.isMobile,
+      opaque: opaque,
       onPressed: c.drop,
     );
   }
@@ -500,6 +512,7 @@ class SpeakerButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Stack(
       children: [
@@ -516,6 +529,7 @@ class SpeakerButton extends CallButton {
             withBlur: blur,
             big: big,
             constrained: c.isMobile,
+            opaque: opaque,
             onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
           );
         }),
@@ -544,6 +558,7 @@ class AirPlayButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Stack(
       children: [
@@ -554,6 +569,7 @@ class AirPlayButton extends CallButton {
           expanded: expanded,
           withBlur: blur,
           big: big,
+          opaque: opaque,
           constrained: c.isMobile,
           onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
         ),
@@ -585,6 +601,7 @@ class SwitchButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       return CallButtonWidget(
@@ -596,6 +613,7 @@ class SwitchButton extends CallButton {
         expanded: expanded,
         withBlur: blur,
         big: big,
+        opaque: opaque,
         constrained: c.isMobile,
         onPressed: c.switchCamera,
       );

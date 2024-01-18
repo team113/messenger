@@ -983,8 +983,8 @@ class SvgIcons {
 
   static const SvgData callHeadphones = SvgData(
     'assets/icons/call_headphones.svg',
-    width: 30.07,
-    height: 26.5,
+    width: 28.93,
+    height: 25.5,
   );
 
   static const SvgData callIncomingAudioOn = SvgData(

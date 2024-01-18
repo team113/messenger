@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'log.dart';
@@ -137,6 +138,8 @@ class MediaUtilsImpl {
   Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
+    Log.debug('enumerateDevices($kind)', '$runtimeType');
+
     _devices = (await mediaManager?.enumerateDevices() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .where((e) => kind == null || e.kind() == kind)
@@ -157,6 +160,16 @@ class MediaUtilsImpl {
   }
 
   Future<void> setOutputDevice(String deviceId) async {
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+      await AVAudioSession().setCategory(
+        AVAudioSessionCategory.playAndRecord,
+        AVAudioSessionCategoryOptions.allowBluetooth |
+            AVAudioSessionCategoryOptions.allowBluetoothA2dp |
+            AVAudioSessionCategoryOptions.allowAirPlay,
+        AVAudioSessionMode.voiceChat,
+      );
+    }
+
     await mediaManager?.setOutputAudioId(deviceId);
   }
 

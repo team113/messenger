@@ -123,6 +123,11 @@ class CallRepository extends DisposableInterface
       return ongoing;
     }
 
+    // If [ChatCall] is already finished, then there's no reason to add it.
+    if (call.finishReason != null) {
+      return null;
+    }
+
     if (ongoing == null) {
       ongoing = Rx<OngoingCall>(
         OngoingCall(

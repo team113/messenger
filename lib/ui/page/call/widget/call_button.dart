@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/themes.dart';
 import '/ui/page/call/controller.dart';
@@ -37,6 +38,7 @@ class CallButtonWidget extends StatelessWidget {
     this.color,
     this.border,
     this.constrained = false,
+    this.opaque = false,
     bool big = false,
   }) : size = constrained
             ? null
@@ -76,6 +78,8 @@ class CallButtonWidget extends StatelessWidget {
   /// Border style of this [CallButtonWidget].
   final BoxBorder? border;
 
+  final bool opaque;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -85,7 +89,10 @@ class CallButtonWidget extends StatelessWidget {
       child: RoundFloatingButton(
         icon: asset,
         offset: offset,
-        color: color ?? style.colors.onSecondaryOpacity50,
+        color: color ??
+            (opaque
+                ? style.colors.onSecondaryOpacity88
+                : style.colors.onSecondaryOpacity50),
         hint: !expanded && hinted ? hint : null,
         text: hinted && (expanded || constrained) ? hint : null,
         minified: !constrained,

@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:messenger/domain/model/ongoing_call.dart';
 import 'package:messenger/util/media_utils.dart';
 
 import 'log.dart';
@@ -99,6 +100,8 @@ class AudioUtilsImpl {
     void Function()? onDone,
   }) {
     Log.debug('play($music)', '$runtimeType');
+
+    // return AudioPlayback();
 
     AudioPlayback? playback = _players[music];
     StreamSubscription? position;
@@ -267,19 +270,94 @@ class AudioPlayback {
     );
 
     if (PlatformUtils.isIOS) {
-      final devices = await MediaUtils.enumerateDevices();
-      final device = devices.firstWhereOrNull((e) => e.speaker == speaker);
-      if (device != null) {
-        await MediaUtils.setOutputDevice(device.deviceId());
+      // await AVAudioSession().setCategory(AVAudioSessionCategory.playAndRecord);
+
+      // final devices = await MediaUtils.enumerateDevices();
+      // print(
+      //   '`medea_jason` enumerateDevices: ${devices.output().map((e) => e.label())}',
+      // );
+
+      // final outputs =
+      //     await (await AudioSession.instance).getDevices(includeInputs: false);
+      // print(
+      //   '`AudioSession` outputs: ${outputs.map((e) => e.name)}',
+      // );
+
+      // final device = devices.firstWhereOrNull((e) => e.speaker == speaker);
+      // if (device != null) {
+      //   await MediaUtils.setOutputDevice(device.deviceId());
+      // }
+
+      final session = await AudioSession.instance;
+
+      switch (speaker) {
+        case AudioSpeakerKind.headphones:
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.allowBluetooth |
+                AVAudioSessionCategoryOptions.allowBluetoothA2dp |
+                AVAudioSessionCategoryOptions.allowAirPlay,
+            AVAudioSessionMode.voiceChat,
+          );
+          await AVAudioSession()
+              .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
+          // await session.configure(
+          //   AudioSessionConfiguration(
+          //     avAudioSessionMode: AVAudioSessionMode.voiceChat,
+          //     avAudioSessionCategoryOptions:
+          //         AVAudioSessionCategoryOptions.defaultToSpeaker |
+          //             AVAudioSessionCategoryOptions.allowBluetooth,
+          //     avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          //   ),
+          // );
+          break;
+
+        case AudioSpeakerKind.earpiece:
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.none,
+            AVAudioSessionMode.voiceChat,
+          );
+          await AVAudioSession()
+              .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
+          // await session.configure(
+          //   const AudioSessionConfiguration(
+          //     avAudioSessionMode: AVAudioSessionMode.voiceChat,
+          //     avAudioSessionCategoryOptions:
+          //         AVAudioSessionCategoryOptions.defaultToSpeaker,
+          //     avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          //   ),
+          // );
+          break;
+
+        case AudioSpeakerKind.speaker:
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.defaultToSpeaker,
+            AVAudioSessionMode.voiceChat,
+          );
+          await AVAudioSession()
+              .overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
+          // await session.configure(
+          //   const AudioSessionConfiguration(
+          //     avAudioSessionMode: AVAudioSessionMode.videoChat,
+          //     avAudioSessionCategoryOptions:
+          //         AVAudioSessionCategoryOptions.defaultToSpeaker,
+          //     avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          //   ),
+          // );
+          break;
       }
       return;
     }
 
     final session = await AudioSession.instance;
     await session.configure(
-      const AudioSessionConfiguration(
+      AudioSessionConfiguration(
         androidAudioAttributes: AndroidAudioAttributes(
-          usage: AndroidAudioUsage.voiceCommunication,
+          usage: speaker == AudioSpeakerKind.speaker
+              ? AndroidAudioUsage.notificationRingtone
+              : AndroidAudioUsage.voiceCommunication,
           flags: AndroidAudioFlags.none,
           contentType: AndroidAudioContentType.speech,
         ),

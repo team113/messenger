@@ -1242,32 +1242,18 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-      return EventChatCallStarted(
-        e.chatId,
-        node.call.toModel(),
-      );
+      return EventChatCallStarted(e.chatId, node.call.toModel());
     } else if (e.$$typename == 'EventChatDirectLinkUsageCountUpdated') {
       var node = e
           as ChatEventsVersionedMixin$Events$EventChatDirectLinkUsageCountUpdated;
-      return EventChatDirectLinkUsageCountUpdated(
-        e.chatId,
-        node.usageCount,
-      );
+      return EventChatDirectLinkUsageCountUpdated(e.chatId, node.usageCount);
     } else if (e.$$typename == 'EventChatCallFinished') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-      return EventChatCallFinished(
-        e.chatId,
-        node.call.toModel(),
-        node.reason,
-      );
+      return EventChatCallFinished(e.chatId, node.call.toModel(), node.reason);
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
       _userRepo.put(node.user.toHive());
-      return EventChatCallMemberLeft(
-        e.chatId,
-        node.user.toModel(),
-        node.at,
-      );
+      return EventChatCallMemberLeft(e.chatId, node.user.toModel(), node.at);
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
       _userRepo.put(node.user.toHive());
@@ -1291,18 +1277,11 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatDelivered') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
-      return EventChatDelivered(
-        e.chatId,
-        node.at,
-      );
+      return EventChatDelivered(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatRead') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
       _userRepo.put(node.byUser.toHive());
-      return EventChatRead(
-        e.chatId,
-        node.byUser.toModel(),
-        node.at,
-      );
+      return EventChatRead(e.chatId, node.byUser.toModel(), node.at);
     } else if (e.$$typename == 'EventChatCallDeclined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
       _userRepo.put(node.user.toHive());
