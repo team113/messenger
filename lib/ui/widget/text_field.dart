@@ -327,18 +327,10 @@ class ReactiveTextField extends StatelessWidget {
               enabled: enabled,
               decoration: InputDecoration(
                 alignLabelWithHint: true,
-
-                // Make font size smaller to fix label animation when this
-                // [ReactiveTextField] gets focus.
-                labelStyle: floatingLabelBehavior ==
-                        FloatingLabelBehavior.always
-                    ? floatingLabel?.copyWith(
-                        fontSize:
-                            (decoration.floatingLabelStyle?.fontSize ?? 18) -
-                                1.1,
-                      )
-                    : null,
-
+                labelStyle:
+                    floatingLabelBehavior == FloatingLabelBehavior.always
+                        ? floatingLabel
+                        : null,
                 floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value

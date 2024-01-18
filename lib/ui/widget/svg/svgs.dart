@@ -400,6 +400,12 @@ class SvgIcons {
     height: 33.5,
   );
 
+  static const SvgData contacts = SvgData(
+    'assets/icons/contacts.svg',
+    width: 32,
+    height: 32,
+  );
+
   static const SvgData chatsMuted = SvgData(
     'assets/icons/chats_muted.svg',
     width: 39.26,

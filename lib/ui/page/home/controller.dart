@@ -65,7 +65,7 @@ class HomeController extends GetxController {
   late final Rx<HomeTab> page;
 
   /// Reactive [MyUser.unreadChatsCount] value.
-  final Rx<int> unreadChatsCount = Rx<int>(0);
+  final RxInt unreadChats = RxInt(0);
 
   /// [Timer] for discarding any horizontal movement in a [PageView] when
   /// non-`null`.
@@ -110,7 +110,7 @@ class HomeController extends GetxController {
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
 
-  /// Returns list of the enabled [HomeTab]s.
+  /// Returns the [List] of the [HomeTab]s to display.
   List<HomeTab> get tabs {
     final List<HomeTab> tabs = HomeTab.values.toList();
 
@@ -127,9 +127,10 @@ class HomeController extends GetxController {
     page = Rx<HomeTab>(router.tab);
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
-    unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
-    _myUserSubscription = _myUserService.myUser.listen((u) =>
-        unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
+    unreadChats.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
+    _myUserSubscription = _myUserService.myUser.listen(
+      (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
+    );
 
     sideBarWidth =
         RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
