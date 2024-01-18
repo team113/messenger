@@ -1002,6 +1002,7 @@ class ChatController extends GetxController {
             duration: 300.milliseconds,
             curve: Curves.ease,
           );
+          _ignorePositionChanges = false;
         });
       }
 
@@ -1052,6 +1053,11 @@ class ChatController extends GetxController {
       } finally {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           listController.jumpTo(listController.offset);
+          listController.sliverController.jumpToIndex(
+            initIndex,
+            offset: initOffset,
+            offsetBasedOnBottom: false,
+          );
           _ignorePositionChanges = false;
 
           elements.remove(_topLoader?.id);
@@ -1670,6 +1676,8 @@ class ChatController extends GetxController {
     RxChat? chat,
     PaginationFragment<ChatItemKey, Rx<ChatItem>>? fragment,
   }) {
+    _messagesSubscription?.cancel();
+
     if (chat != null) {
       _messagesSubscription = chat.messages.changes.listen((e) {
         switch (e.op) {

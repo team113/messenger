@@ -130,9 +130,6 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
-  // /// [Pagination] loading a fragment of [messages] with pagination.
-  // Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>? _fragment;
-
   final List<MessagesFragment> _fragments = [];
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
@@ -488,12 +485,8 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> around({
-    ChatItem? item,
-    ChatItemId? reply,
-    ChatItemId? forward,
-  }) async {
-    Log.debug('around($item, $reply, $forward)', '$runtimeType($id)');
+  Future<void> around() async {
+    Log.debug('around()', '$runtimeType($id)');
 
     if (id.isLocal ||
         status.value.isSuccess ||
@@ -508,15 +501,12 @@ class HiveRxChat extends RxChat {
     // Ensure [_local] storage is initialized.
     await _local.init(userId: me);
 
-    HiveChatItem? lastRead;
+    HiveChatItem? item;
     if (chat.value.lastReadItem != null) {
-      lastRead = await get(chat.value.lastReadItem!);
+      item = await get(chat.value.lastReadItem!);
     }
 
-    await _pagination.around(
-      cursor: _lastReadItemCursor,
-      key: lastRead?.value.key,
-    );
+    await _pagination.around(cursor: _lastReadItemCursor, key: item?.value.key);
 
     status.value = RxStatus.success();
 
@@ -531,7 +521,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.next.call();
+    await _pagination.next();
 
     status.value = RxStatus.success();
 
@@ -546,7 +536,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.previous.call();
+    await _pagination.previous();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
