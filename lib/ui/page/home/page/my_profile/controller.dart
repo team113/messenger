@@ -24,7 +24,8 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart'
+    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
@@ -37,10 +38,13 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'add_email/view.dart';
+import 'add_phone/controller.dart';
 
 export 'view.dart';
 
@@ -69,10 +73,19 @@ class MyProfileController extends GetxController {
   /// [ScrollablePositionedList].
   int listInitIndex = 0;
 
+  /// [TextFieldState] of a [UserEmail] text input.
+  late final TextFieldState email;
+
+  /// [TextFieldState] of a [UserPhone] text input.
+  late final TextFieldState phone;
+
   /// Indicator whether there's an ongoing [toggleMute] happening.
   ///
   /// Used to discard repeated toggling.
   final RxBool isMuting = RxBool(false);
+
+  /// Indicator whether the [ProfileTab.signing] section is expanded.
+  final RxBool expanded = RxBool(false);
 
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
@@ -115,9 +128,13 @@ class MyProfileController extends GetxController {
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
-      _devicesSubscription =
-          MediaUtils.onDeviceChange.listen((e) => devices.value = e);
-      MediaUtils.enumerateDevices().then((e) => devices.value = e);
+      try {
+        _devicesSubscription =
+            MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+        MediaUtils.enumerateDevices().then((e) => devices.value = e);
+      } catch (_) {
+        // No-op, shouldn't break the view.
+      }
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -155,6 +172,124 @@ class MyProfileController extends GetxController {
         }
       }
     });
+
+    phone = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+        s.resubmitOnError.value = false;
+
+        if (s.text.isNotEmpty) {
+          try {
+            final phone = UserPhone(s.text.replaceAll(' ', ''));
+
+            if (myUser.value!.phones.confirmed.contains(phone) ||
+                myUser.value?.phones.unconfirmed == phone) {
+              s.error.value = 'err_you_already_add_this_phone'.l10n;
+            }
+          } on FormatException {
+            s.error.value = 'err_incorrect_phone'.l10n;
+          }
+        }
+      },
+      onSubmitted: (s) async {
+        if (s.text.isEmpty ||
+            (s.error.value != null && s.resubmitOnError.isFalse)) {
+          return;
+        }
+
+        final phone = UserPhone(s.text.replaceAll(' ', ''));
+
+        s.clear();
+
+        bool modalVisible = true;
+
+        _myUserService.addUserPhone(phone).onError(
+          (e, __) {
+            s.unchecked = phone.val;
+
+            if (e is AddUserPhoneException) {
+              s.error.value = e.toMessage();
+              s.resubmitOnError.value =
+                  e.code == AddUserPhoneErrorCode.artemisUnknown;
+            } else {
+              s.error.value = 'err_data_transfer'.l10n;
+              s.resubmitOnError.value = true;
+            }
+
+            s.unsubmit();
+
+            if (modalVisible) {
+              Navigator.of(router.context!).pop();
+            }
+          },
+        );
+
+        await AddPhoneView.show(
+          router.context!,
+          phone: phone,
+          timeout: true,
+        ).then((_) => modalVisible = false);
+      },
+    );
+
+    email = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        s.error.value = null;
+        s.resubmitOnError.value = false;
+
+        if (s.text.isNotEmpty) {
+          try {
+            final email = UserEmail(s.text);
+
+            if (myUser.value!.emails.confirmed.contains(email) ||
+                myUser.value?.emails.unconfirmed == email) {
+              s.error.value = 'err_you_already_add_this_email'.l10n;
+            }
+          } catch (e) {
+            s.error.value = 'err_incorrect_email'.l10n;
+          }
+        }
+      },
+      onSubmitted: (s) async {
+        if (s.text.isEmpty ||
+            (s.error.value != null && s.resubmitOnError.isFalse)) {
+          return;
+        }
+
+        final email = UserEmail(s.text);
+
+        s.clear();
+
+        bool modalVisible = true;
+
+        _myUserService.addUserEmail(email).onError((e, __) {
+          s.unchecked = email.val;
+
+          if (e is AddUserEmailException) {
+            s.error.value = e.toMessage();
+            s.resubmitOnError.value =
+                e.code == AddUserEmailErrorCode.artemisUnknown;
+          } else {
+            s.error.value = 'err_data_transfer'.l10n;
+            s.resubmitOnError.value = true;
+          }
+
+          s.unsubmit();
+
+          if (modalVisible) {
+            Navigator.of(router.context!).pop();
+          }
+        });
+
+        await AddEmailView.show(
+          router.context!,
+          email: email,
+          timeout: true,
+        ).then((_) => modalVisible = false);
+      },
+    );
 
     super.onInit();
   }
@@ -301,6 +436,10 @@ class MyProfileController extends GetxController {
 
   /// Deletes the cache used by the application.
   Future<void> clearCache() => CacheWorker.instance.clear();
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
+      _settingsRepo.setWorkWithUsTabEnabled(enabled);
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
