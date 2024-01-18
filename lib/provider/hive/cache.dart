@@ -58,4 +58,14 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
 
     return putSafe(0, info);
   }
+
+  /// Updates the stored [CacheInfo.maxSize] with the provided.
+  Future<void> setMaxSize(int? maxSize) {
+    Log.trace('setMaxSize($maxSize)', '$runtimeType');
+
+    final CacheInfo info = this.info;
+    info.maxSize = maxSize;
+
+    return putSafe(0, info);
+  }
 }

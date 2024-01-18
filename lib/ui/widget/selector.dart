@@ -194,15 +194,23 @@ class _SelectorState<T> extends State<Selector<T>> {
               (contextBox?.size.width ?? widget.width) / 2 -
               widget.margin.right +
               widget.margin.left;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
+
+          bottom = MediaQuery.of(context).size.height -
+              offset.dy +
+              widget.margin.bottom;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0),
-            offset.dy - widget.margin.bottom,
+            offset.dy,
           );
 
-          right = constraints.maxWidth - offset.dx;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
+          right = constraints.maxWidth -
+              offset.dx -
+              widget.margin.right +
+              widget.margin.left;
+          bottom = MediaQuery.of(context).size.height -
+              offset.dy +
+              widget.margin.bottom;
         } else if (widget.alignment == Alignment.topRight) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0),

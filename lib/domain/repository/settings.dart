@@ -87,4 +87,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.callButtonsPosition] value.
   Future<void> setCallButtonsPosition(CallButtonsPosition position);
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled);
 }

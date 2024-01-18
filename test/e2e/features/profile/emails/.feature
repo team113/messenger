@@ -23,15 +23,12 @@ Feature: User email
 
     When I tap `MenuButton` button
     And I tap `Signing` button
-    And I tap `AddEmail` button
-    Then I wait until `Email` is present
-
-    When I fill `Email` field with "example@gmail.com"
-    And I tap `Proceed` button
+    And I fill `Email` field with "example@gmail.com"
+    And I tap `Approve` button
     And I tap `CloseButton` button
     Then I wait until `UnconfirmedEmail` is present
 
-    When I tap `UnconfirmedEmail` widget
+    When I tap `VerifyEmail` widget
     And I wait until `ConfirmationCode` is present
     And I fill `ConfirmationCode` field with "1234"
     And I tap `Proceed` button
@@ -39,4 +36,4 @@ Feature: User email
 
     When I tap `DeleteEmail` widget
     And I tap `Proceed` button
-    Then I wait until `AddEmail` is present
+    Then I wait until `ConfirmedEmail` is absent
