@@ -20,9 +20,8 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../configuration.dart';
 import '../parameters/iterable_amount.dart';
@@ -66,21 +65,22 @@ final StepDefinitionGeneric seeChatMessages =
 final StepDefinitionGeneric seeChatMessage = when1<String, CustomWorld>(
   'I see {string} message',
   (String text, context) async {
-    final RxChat chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)]!;
+    final controller =
+        Get.find<ChatController>(tag: router.route.split('/').last);
 
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final ChatMessage? message = chat.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .firstWhereOrNull((e) => e.text?.val == text);
+        final ChatMessageElement? message = controller.elements.values
+            .whereType<ChatMessageElement>()
+            .firstWhereOrNull(
+              (e) => (e.item.value as ChatMessage).text?.val == text,
+            );
 
         return await context.world.appDriver.isPresent(
           context.world.appDriver
-              .findByKeySkipOffstage('Message_${message?.id}'),
+              .findByKeySkipOffstage('Message_${message?.id.id}'),
         );
       },
     );

@@ -427,7 +427,7 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
     _pagination.dispose();
-    for (var e in _fragments) {
+    for (var e in _fragments.toList()) {
       e.dispose();
     }
     _messagesSubscription?.cancel();
