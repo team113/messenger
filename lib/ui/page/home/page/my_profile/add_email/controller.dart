@@ -35,7 +35,16 @@ enum AddEmailFlowStage { code }
 
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
-  AddEmailController(this._myUserService, {this.initial, this.pop});
+  AddEmailController(
+    this._myUserService, {
+    this.initial,
+    this.pop,
+    bool timeout = false,
+  }) {
+    if (timeout) {
+      _setResendEmailTimer();
+    }
+  }
 
   /// Callback, called when a [AddEmailView] this controller is bound to should
   /// be popped from the [Navigator].

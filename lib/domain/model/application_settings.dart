@@ -35,6 +35,7 @@ class ApplicationSettings extends HiveObject {
     this.loadImages = true,
     this.pinnedActions = const [],
     this.callButtonsPosition = CallButtonsPosition.appBar,
+    this.workWithUsTabEnabled = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -80,6 +81,11 @@ class ApplicationSettings extends HiveObject {
   /// [CallButtonsPosition] of the call buttons in [Chat].
   @HiveField(9)
   CallButtonsPosition? callButtonsPosition;
+
+  /// Indicator whether [WorkTabView] should be displayed in the
+  /// [CustomNavigationBar] of [HomeView].
+  @HiveField(10)
+  bool workWithUsTabEnabled;
 }
 
 /// Possible call buttons position.
