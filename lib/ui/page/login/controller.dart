@@ -160,8 +160,14 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     login = TextFieldState(
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) => password.focus.requestFocus(),
+      onChanged: (s) {
+        s.error.value = null;
+        password.unsubmit();
+      },
+      onSubmitted: (s) {
+        password.focus.requestFocus();
+        s.unsubmit();
+      },
     );
 
     password = TextFieldState(
@@ -183,9 +189,14 @@ class LoginController extends GetxController {
       onChanged: (s) {
         s.error.value = null;
         repeatPassword.error.value = null;
+        repeatPassword.unsubmit();
       },
-      onSubmitted: (s) => repeatPassword.focus.requestFocus(),
+      onSubmitted: (s) {
+        repeatPassword.focus.requestFocus();
+        s.unsubmit();
+      },
     );
+
     repeatPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
@@ -542,6 +553,7 @@ class LoginController extends GetxController {
 
     newPassword.editable.value = false;
     repeatPassword.editable.value = false;
+    newPassword.status.value = RxStatus.loading();
     repeatPassword.status.value = RxStatus.loading();
 
     try {
@@ -566,6 +578,7 @@ class LoginController extends GetxController {
       repeatPassword.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
+      newPassword.status.value = RxStatus.empty();
       repeatPassword.status.value = RxStatus.empty();
       newPassword.editable.value = true;
       repeatPassword.editable.value = true;

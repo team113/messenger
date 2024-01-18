@@ -27,7 +27,11 @@ import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart' show CallDoesNotExistException;
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallIsInPopupException;
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
@@ -40,6 +44,7 @@ import '/provider/gql/exceptions.dart'
         ClearChatException,
         FavoriteChatContactException,
         HideChatException,
+        JoinChatCallException,
         ToggleChatMuteException,
         UnfavoriteChatContactException,
         UnfavoriteChatException,
@@ -268,7 +273,13 @@ class UserController extends GetxController {
   Future<void> call(bool withVideo) async {
     try {
       await _callService.call(user!.user.value.dialog, withVideo: withVideo);
-    } on CallDoesNotExistException catch (e) {
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyExistsException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     }
   }

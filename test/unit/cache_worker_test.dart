@@ -113,11 +113,11 @@ void main() async {
       await worker.add(base64Decode('$i' * 4 * 3000));
     }
 
-    expect(worker.info.value.size >= worker.info.value.maxSize, true);
+    expect(worker.info.value.size >= worker.info.value.maxSize!, true);
 
     await worker.ensureOptimized();
 
-    expect(worker.info.value.size >= worker.info.value.maxSize, false);
+    expect(worker.info.value.size >= worker.info.value.maxSize!, false);
 
     final List<FileSystemEntity> files = cache.listSync();
     expect(files.length < 100, true);
