@@ -178,10 +178,8 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (raw != null) {
-      print('!!!! Here3 getting result...');
       QueryResult result =
           await (await _newClient(raw)).mutate(options).timeout(timeout);
-      print('!!!! Here3 result: $result');
       GraphQlProviderExceptions.fire(result, onException);
       return result;
     } else {

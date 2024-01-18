@@ -664,8 +664,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       ];
     }
 
-    print(
-        '???????? _auth.status.value.isSuccess: ${_state._auth.status.value.isSuccess}');
     if (_state._auth.status.value.isSuccess) {
       pages.add(MaterialPage(
         key: const ValueKey('HomePage'),

@@ -567,8 +567,6 @@ class LoginController extends GetxController {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
 
-      print('!!!!! Here1: ${_authService.credentials.value}');
-
       await _authService.signIn(
         UserPassword(password.text),
         login: userLogin,
@@ -577,9 +575,7 @@ class LoginController extends GetxController {
         phone: phone,
       );
 
-      print('!!!!! Here2: ${_authService.credentials.value}');
-
-      // _redirect();
+      _redirect();
     } on FormatException {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
