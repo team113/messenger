@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,18 +33,23 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/recent_chat.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/my_user.dart';
@@ -65,10 +70,8 @@ void main() async {
 
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
-  var sessionProvider = Get.put(SessionDataHiveProvider());
-  await sessionProvider.init();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
   var myUserProvider = Get.put(MyUserHiveProvider());
   await myUserProvider.init();
   await myUserProvider.clear();
@@ -76,45 +79,77 @@ void main() async {
   await draftProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
   await mediaSettingsProvider.init();
   var applicationSettingsProvider = ApplicationSettingsHiveProvider();
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var recentChatProvider = RecentChatHiveProvider();
+  await recentChatProvider.init();
+  var favoriteChatProvider = FavoriteChatHiveProvider();
+  await favoriteChatProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
+
+  var chatData = {
+    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+    'name': 'null',
+    'members': {'nodes': []},
+    'kind': 'GROUP',
+    'isHidden': false,
+    'muted': null,
+    'directLink': null,
+    'createdAt': '2021-12-15T15:11:18.316846+00:00',
+    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+    'lastReads': [],
+    'lastDelivery': '1970-01-01T00:00:00+00:00',
+    'lastItem': null,
+    'lastReadItem': null,
+    'unreadCount': 0,
+    'totalCount': 0,
+    'ongoingCall': null,
+    'ver': '0',
+  };
 
   var recentChats = {
     'recentChats': {
-      'nodes': [
+      'edges': [
         {
-          'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-          'name': 'null',
-          'members': {'nodes': []},
-          'kind': 'GROUP',
-          'isHidden': false,
-          'muted': null,
-          'directLink': null,
-          'createdAt': '2021-12-15T15:11:18.316846+00:00',
-          'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-          'lastReads': [],
-          'lastDelivery': '1970-01-01T00:00:00+00:00',
-          'lastItem': null,
-          'lastReadItem': null,
-          'gallery': {'nodes': []},
-          'unreadCount': 0,
-          'totalCount': 0,
-          'ongoingCall': null,
-          'ver': '0'
+          'node': chatData,
+          'cursor': 'cursor',
         }
-      ]
+      ],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
     }
   };
 
@@ -123,19 +158,18 @@ void main() async {
     'num': '1234567890123456',
     'login': null,
     'name': null,
-    'bio': null,
     'emails': {'confirmed': []},
     'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
     'chatDirectLink': null,
     'hasPassword': false,
     'unreadChatsCount': 0,
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -163,30 +197,40 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getBlacklist(
-    first: 120,
+  when(graphQlProvider.getBlocklist(
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
   )).thenAnswer(
-    (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+    (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
   );
 
   AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
-      sessionProvider,
+      credentialsProvider,
     ),
   );
   await authService.init();
 
-  UserRepository userRepository = Get.put(
-      UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+  UserRepository userRepository =
+      Get.put(UserRepository(graphQlProvider, userProvider));
+
+  BlocklistRepository blocklistRepository = Get.put(
+    BlocklistRepository(
+      graphQlProvider,
+      blockedUsersProvider,
+      blocklistSortingProvider,
+      userRepository,
+      sessionProvider,
+    ),
+  );
+
   AbstractMyUserRepository myUserRepository = MyUserRepository(
     graphQlProvider,
     myUserProvider,
-    blacklistedUsersProvider,
-    galleryItemProvider,
+    blocklistRepository,
     userRepository,
   );
   MyUserService myUserService =
@@ -200,14 +244,25 @@ void main() async {
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     any,
+    any,
   )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.recentChats(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
+    noFavorite: anyNamed('noFavorite'),
+    withOngoingCalls: anyNamed('withOngoingCalls'),
   )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+  when(graphQlProvider.favoriteChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
   when(graphQlProvider.getUser(any))
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
@@ -269,13 +324,14 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -284,6 +340,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -326,13 +384,14 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -341,6 +400,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -383,7 +444,6 @@ void main() async {
             'lastDelivery': '1970-01-01T00:00:00+00:00',
             'lastItem': null,
             'lastReadItem': null,
-            'gallery': {'nodes': []},
             'unreadCount': 0,
             'totalCount': 0,
             'ongoingCall': null,
@@ -404,13 +464,14 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -419,6 +480,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -458,13 +521,14 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -473,6 +537,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -523,13 +589,14 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -538,6 +605,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -579,13 +648,14 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -594,6 +664,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,

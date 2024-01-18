@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,14 +23,13 @@ import 'package:flutter/widgets.dart';
 class MockedPlatformRouteInformationProvider
     extends PlatformRouteInformationProvider {
   MockedPlatformRouteInformationProvider()
-      : super(initialRouteInformation: const RouteInformation());
+      : super(initialRouteInformation: RouteInformation(uri: Uri.parse('/')));
 
-  /// Returns null `location` on test start.
   @override
-  RouteInformation get value => const RouteInformation(location: '/');
-
-  /// Throws `_CastError` on test end.
-  @override
-  void routerReportsNewRouteInformation(RouteInformation routeInformation,
-      {RouteInformationReportingType? type}) {}
+  void routerReportsNewRouteInformation(
+    RouteInformation routeInformation, {
+    RouteInformationReportingType? type,
+  }) {
+    // No-op.
+  }
 }

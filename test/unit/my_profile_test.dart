@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,12 +23,14 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
@@ -39,31 +41,43 @@ void main() async {
   Hive.init('./test/.temp_hive/profile_unit');
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
 
-    final getStorage = SessionDataHiveProvider();
+    final getStorage = CredentialsHiveProvider();
     final graphQlProvider = FakeGraphQlProvider();
 
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        blocklistSortingProvider,
+        userRepository,
+        sessionProvider,
+      ),
+    );
+
     var profileService = Get.put(
       MyUserService(
         Get.find(),
         MyUserRepository(
           graphQlProvider,
           myUserProvider,
-          blacklistedUsersProvider,
-          galleryItemProvider,
+          blocklistRepository,
           userRepository,
         ),
       ),
@@ -85,10 +99,8 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'num': '1234567890123456',
     'login': null,
     'name': null,
-    'bio': null,
     'emails': {'confirmed': []},
     'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
     'chatDirectLink': null,
     'hasPassword': false,
     'unreadChatsCount': 0,
@@ -97,7 +109,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -126,12 +138,12 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
-    BlacklistCursor? after,
-    BlacklistCursor? before,
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
+    BlocklistCursor? after,
+    BlocklistCursor? before,
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
   }
 }

@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -26,10 +26,10 @@ Feature: Localization
     And I tap `Language` button
     And I tap `ChangeLanguage` button
     And I tap `Language_ru` button
-    And I tap `Proceed` button
-    Then I wait until text "Профиль" is present
+    And I tap `CloseButton` button
+    Then I wait until text "Аккаунт" is present
 
     When I tap `ChangeLanguage` button
     And I tap `Language_en` button
-    And I tap `Proceed` button
-    Then I wait until text "Profile" is present
+    And I tap `CloseButton` button
+    Then I wait until text "Account" is present

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -74,7 +74,8 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
       ObsList(List<E>.unmodifiable(elements));
 
   /// [StreamController] of changes of this list.
-  final _changes = StreamController<ListChangeNotification<E>>.broadcast();
+  final _changes =
+      StreamController<ListChangeNotification<E>>.broadcast(sync: true);
 
   /// Returns stream of changes of this list.
   Stream<ListChangeNotification<E>> get changes => _changes.stream;

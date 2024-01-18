@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,7 +47,7 @@ class FloatingSnackBar extends StatefulWidget {
 
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(String title, {double bottom = 16}) {
-    final fonts = Theme.of(router.context!).fonts;
+    final style = Theme.of(router.context!).style;
 
     OverlayEntry? entry;
 
@@ -60,7 +60,7 @@ class FloatingSnackBar extends StatefulWidget {
           entry = null;
         },
         bottom: bottom,
-        child: Text(title, style: fonts.titleMedium),
+        child: Text(title, style: style.fonts.normal.regular.onBackground),
       ),
     );
 
@@ -119,7 +119,7 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                       BoxShadow(
                         color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
+                        blurStyle: BlurStyle.outer.workaround,
                       ),
                     ],
                   ),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,13 +27,22 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric longPressContact = when1<String, CustomWorld>(
   'I long press {string} contact',
   (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(
-      'Contact_${context.world.contacts[name]}',
-      FindType.key,
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.nativeDriver.longPress(finder);
-    await context.world.appDriver.waitForAppToSettle();
+      try {
+        final finder = context.world.appDriver.findBy(
+          'Contact_${context.world.contacts[name]}',
+          FindType.key,
+        );
+
+        await context.world.appDriver.nativeDriver.longPress(finder);
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      } catch (_) {
+        return false;
+      }
+    });
   },
 );

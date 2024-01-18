@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,9 @@ import 'package:flutter/material.dart';
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
     if (dart.library.html) 'src/web.dart';
+import 'svgs.dart';
+
+export 'svgs.dart';
 
 /// SVG images renderer.
 ///
@@ -31,23 +34,6 @@ import 'src/interface.dart'
 ///   renderer;
 /// - [Image.network] is used on web with html-renderer.
 class SvgImage extends StatelessWidget {
-  const SvgImage._({
-    super.key,
-    this.asset,
-    this.file,
-    this.bytes,
-    this.alignment,
-    this.fit,
-    this.width,
-    this.height,
-    this.placeholderBuilder,
-    this.semanticsLabel,
-    this.excludeFromSemantics,
-  }) : assert(
-          asset != null || file != null || bytes != null,
-          'Asset, file or bytes must be provided',
-        );
-
   /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
   ///
   /// The key will be derived from the `assetName`, `package`, and `bundle`
@@ -58,28 +44,18 @@ class SvgImage extends StatelessWidget {
   /// widget should be placed in a context that sets tight layout constraints.
   /// Otherwise, the image dimensions will change as the image is loaded, which
   /// will result in ugly layout changes.
-  factory SvgImage.asset(
-    String asset, {
-    Key? key,
-    Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.contain,
-    double? width,
-    double? height,
-    WidgetBuilder? placeholderBuilder,
-    String? semanticsLabel,
-    bool excludeFromSemantics = false,
-  }) =>
-      SvgImage._(
-        asset: asset,
-        key: key,
-        alignment: alignment,
-        fit: fit,
-        width: width,
-        height: height,
-        placeholderBuilder: placeholderBuilder,
-        semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics,
-      );
+  const SvgImage.asset(
+    this.asset, {
+    super.key,
+    this.alignment = Alignment.center,
+    this.fit = BoxFit.contain,
+    this.width,
+    this.height,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.excludeFromSemantics = false,
+  })  : file = null,
+        bytes = null;
 
   /// Instantiates a widget rendering an SVG picture from an [Uint8List].
   ///
@@ -87,28 +63,18 @@ class SvgImage extends StatelessWidget {
   /// widget should be placed in a context setting layout constraints tightly.
   /// Otherwise, the image dimensions will change as the image is loaded, which
   /// will result in ugly layout changes.
-  factory SvgImage.bytes(
-    Uint8List bytes, {
-    Key? key,
-    Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.cover,
-    double? width,
-    double? height,
-    WidgetBuilder? placeholderBuilder,
-    String? semanticsLabel,
-    bool excludeFromSemantics = false,
-  }) =>
-      SvgImage._(
-        bytes: bytes,
-        key: key,
-        alignment: alignment,
-        fit: fit,
-        width: width,
-        height: height,
-        placeholderBuilder: placeholderBuilder,
-        semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics,
-      );
+  const SvgImage.bytes(
+    this.bytes, {
+    super.key,
+    this.alignment = Alignment.center,
+    this.fit = BoxFit.cover,
+    this.width,
+    this.height,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.excludeFromSemantics = false,
+  })  : file = null,
+        asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [File].
   ///
@@ -116,28 +82,35 @@ class SvgImage extends StatelessWidget {
   /// widget should be placed in a context setting layout constraints tightly.
   /// Otherwise, the image dimensions will change as the image is loaded, which
   /// will result in ugly layout changes.
-  factory SvgImage.file(
-    File file, {
-    Key? key,
-    Alignment alignment = Alignment.center,
-    BoxFit fit = BoxFit.cover,
+  const SvgImage.file(
+    this.file, {
+    super.key,
+    this.alignment = Alignment.center,
+    this.fit = BoxFit.cover,
+    this.width,
+    this.height,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.excludeFromSemantics = false,
+  })  : bytes = null,
+        asset = null;
+
+  /// Instantiates a widget rendering an SVG picture from a [SvgData].
+  SvgImage.icon(
+    SvgData data, {
+    super.key,
+    this.alignment = Alignment.center,
+    this.fit = BoxFit.contain,
     double? width,
     double? height,
-    WidgetBuilder? placeholderBuilder,
-    String? semanticsLabel,
-    bool excludeFromSemantics = false,
-  }) =>
-      SvgImage._(
-        file: file,
-        key: key,
-        alignment: alignment,
-        fit: fit,
-        width: width,
-        height: height,
-        placeholderBuilder: placeholderBuilder,
-        semanticsLabel: semanticsLabel,
-        excludeFromSemantics: excludeFromSemantics,
-      );
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.excludeFromSemantics = false,
+  })  : asset = data.asset,
+        file = null,
+        bytes = null,
+        width = width ?? data.width,
+        height = height ?? data.height;
 
   /// Path to an asset containing an SVG image to display.
   final String? asset;

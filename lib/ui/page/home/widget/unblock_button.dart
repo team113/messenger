@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,7 +31,7 @@ class UnblockButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Container(
       key: const Key('UnblockButton'),
@@ -60,7 +60,7 @@ class UnblockButton extends StatelessWidget {
                 child: Text(
                   'btn_unblock'.l10n,
                   textAlign: TextAlign.center,
-                  style: fonts.bodyLarge!.copyWith(color: style.colors.primary),
+                  style: style.fonts.medium.regular.primary,
                 ),
               ),
             ],

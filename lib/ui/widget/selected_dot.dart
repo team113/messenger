@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import 'animated_switcher.dart';
 
 /// Animated [CircleAvatar] representing a selection circle.
 class SelectedDot extends StatelessWidget {
@@ -28,6 +29,7 @@ class SelectedDot extends StatelessWidget {
     this.size = 24,
     this.darken = 0,
     this.inverted = true,
+    this.outlined = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -43,13 +45,16 @@ class SelectedDot extends StatelessWidget {
   /// to its base one when [selected] is `true`.
   final bool inverted;
 
+  /// Indicator whether this [SelectedDot] should be outlined.
+  final bool outlined;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return SizedBox(
       width: 30,
-      child: AnimatedSwitcher(
+      child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: selected
             ? CircleAvatar(
@@ -69,12 +74,23 @@ class SelectedDot extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: style.colors.secondaryHighlightDark.darken(darken),
-                    width: 1,
+                    color: outlined
+                        ? style.colors.primary
+                        : style.colors.secondaryHighlightDark.darken(darken),
+                    width: 1.5,
                   ),
                 ),
                 width: size,
                 height: size,
+                child: outlined
+                    ? Center(
+                        child: Icon(
+                          Icons.check,
+                          color: style.colors.primary,
+                          size: 14,
+                        ),
+                      )
+                    : null,
               ),
       ),
     );

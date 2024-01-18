@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,16 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
+import '/domain/model/file.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {
@@ -72,7 +75,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       final Uint8List? bytes =
           (oldWidget.attachment as LocalAttachment).file.bytes.value;
       if (bytes != null && size == bytes.length) {
-        FIFOCache.set(sha256.convert(bytes).toString(), bytes);
+        CacheWorker.instance.add(bytes);
       }
     }
 
@@ -81,14 +84,18 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final Attachment attachment = widget.attachment;
 
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
 
+    final Widget child;
+
     if (isImage) {
       if (attachment is LocalAttachment) {
-        return Obx(() {
+        child = Obx(() {
           if (attachment.file.bytes.value == null) {
             return const Center(
               child: SizedBox(
@@ -105,21 +112,34 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 height: widget.height,
               );
             } else {
+              final Size? dimensions = attachment.file.dimensions.value;
+              final double ratio =
+                  (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
+
               return Image.memory(
                 attachment.file.bytes.value!,
-                fit: widget.fit,
+                fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
-                height: widget.height,
+                height: widget.height ??
+                    max(100, min(dimensions?.height ?? 300, 300)),
               );
             }
           }
         });
       } else {
-        return RetryImage.attachment(
+        final ImageFile file = attachment.original as ImageFile;
+        final double ratio = (file.width ?? 300) / (file.height ?? 300);
+
+        child = RetryImage.attachment(
           attachment as ImageAttachment,
-          fit: widget.fit,
+          fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
-          height: widget.height,
+          minWidth: 75,
+          height: widget.height ??
+              max(
+                100,
+                min(file.height?.toDouble() ?? 300, 300),
+              ),
           onForbidden: widget.onError,
           cancelable: true,
           autoLoad: widget.autoLoad,
@@ -127,34 +147,69 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       }
     } else {
       if (attachment is LocalAttachment) {
-        return Obx(() {
-          if (attachment.file.bytes.value == null) {
-            return const Center(
-              child: SizedBox(
-                width: 40,
-                height: 40,
-                child: CircularProgressIndicator(),
-              ),
-            );
-          } else {
-            return Center(
-              child: VideoThumbnail.bytes(
-                bytes: attachment.file.bytes.value!,
+        if (attachment.file.path == null) {
+          child = Obx(() {
+            if (attachment.file.bytes.value == null) {
+              return const Center(
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            } else {
+              return VideoThumbnail.bytes(
+                attachment.file.bytes.value!,
                 height: widget.height,
-              ),
-            );
-          }
-        });
-      } else {
-        return Center(
-          child: VideoThumbnail.url(
-            url: attachment.original.url,
-            checksum: attachment.original.checksum,
+                width: widget.width,
+              );
+            }
+          });
+        } else {
+          child = VideoThumbnail.file(
+            attachment.file.path!,
             height: widget.height,
-            onError: widget.onError,
-          ),
+            width: widget.width,
+          );
+        }
+      } else {
+        child = VideoThumbnail.url(
+          attachment.original.url,
+          checksum: attachment.original.checksum,
+          height: widget.height,
+          width: widget.width,
+          onError: widget.onError,
         );
       }
     }
+
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        child,
+        Obx(() {
+          if (attachment.isDownloading) {
+            return Positioned(
+              top: 10,
+              right: 10,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: style.colors.onBackgroundOpacity27,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Center(
+                    child: Icon(Icons.download, color: style.colors.onPrimary),
+                  ),
+                ),
+              ),
+            );
+          } else {
+            return const SizedBox();
+          }
+        }),
+      ],
+    );
   }
 }

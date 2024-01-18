@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -27,16 +27,19 @@ Feature: Text messages selection and copying
     And I tap `Send` button
     Then I wait until status of "For selection" message is sent
 
-    When I long press "For selection" message
+    # TODO: Remove pause when flutter/flutter#124787 is fixed:
+    #       https://github.com/flutter/flutter/issues/124787
+    When I pause for 2 seconds
+    And I long press "For selection" message
     And I tap `CopyButton` button
     Then copied text is "For selection"
 
-    When I select "For selection" message from 2 to 10 symbols
+    When I select "For selection" message from 2 to 12 symbols
     And I long press "For selection" message
     And I tap `CopyButton` button
-    Then copied text is "r select"
+    Then copied text is "r selectio"
 
-    When I tap "For selection" message
+    When I select "For selection" message from 0 to 13 symbols
     And I long press "For selection" message
     And I tap `CopyButton` button
     Then copied text is "For selection"

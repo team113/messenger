@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,8 +35,10 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/chat_call_credentials.dart';
+import '/provider/hive/call_credentials.dart';
+import '/provider/hive/chat_credentials.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
@@ -48,7 +50,8 @@ class CallRepository extends DisposableInterface
   CallRepository(
     this._graphQlProvider,
     this._userRepo,
-    this._credentialsProvider,
+    this._callCredentialsProvider,
+    this._chatCredentialsProvider,
     this._settingsRepo, {
     required this.me,
   });
@@ -68,15 +71,16 @@ class CallRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [ChatCallCredentialsHiveProvider] persisting the [ChatCallCredentials].
-  final ChatCallCredentialsHiveProvider _credentialsProvider;
+  /// [ChatCallCredentials] of [ChatCall]s local storage.
+  final CallCredentialsHiveProvider _callCredentialsProvider;
+
+  /// [ChatCallCredentials] of [Chat]s local storage.
+  ///
+  /// Used to prevent the [ChatCallCredentials] from being re-generated.
+  final ChatCredentialsHiveProvider _chatCredentialsProvider;
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
-
-  /// Temporary [ChatCallCredentials] of the [Chat]s containing just started
-  /// [OngoingCall]s.
-  final Map<ChatId, ChatCallCredentials> _credentials = {};
 
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamSubscription? _events;
@@ -93,12 +97,16 @@ class CallRepository extends DisposableInterface
 
   @override
   void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+
     _subscribe(3);
     super.onInit();
   }
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
     _events?.cancel();
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
@@ -110,6 +118,8 @@ class CallRepository extends DisposableInterface
 
   @override
   Rx<OngoingCall>? add(ChatCall call) {
+    Log.debug('add($call)', '$runtimeType');
+
     Rx<OngoingCall>? ongoing = calls[call.chatId];
 
     // If we're already in this call or call already exists, then ignore it.
@@ -147,6 +157,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) {
+    Log.debug(
+      'addStored($stored, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     Rx<OngoingCall>? ongoing = calls[stored.chatId];
 
     if (ongoing == null) {
@@ -175,11 +190,16 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  void move(ChatId chatId, ChatId newChatId) => calls.move(chatId, newChatId);
+  void move(ChatId chatId, ChatId newChatId) {
+    Log.debug('move($chatId, $newChatId)', '$runtimeType');
+    calls.move(chatId, newChatId);
+  }
 
   @override
   Rx<OngoingCall>? remove(ChatId chatId) {
-    Rx<OngoingCall>? call = calls.remove(chatId);
+    Log.debug('remove($chatId)', '$runtimeType');
+
+    final Rx<OngoingCall>? call = calls.remove(chatId);
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
 
@@ -187,7 +207,10 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  bool contains(ChatId chatId) => calls.containsKey(chatId);
+  bool contains(ChatId chatId) {
+    Log.debug('contains($chatId)', '$runtimeType');
+    return calls.containsKey(chatId);
+  }
 
   @override
   Future<Rx<OngoingCall>> start(
@@ -196,6 +219,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) async {
+    Log.debug(
+      'start($chatId, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     // TODO: Call should be displayed right away.
     if (chatId.isLocal && ensureRemoteDialog != null) {
       chatId = (await ensureRemoteDialog!.call(chatId))!.id;
@@ -220,7 +248,7 @@ class CallRepository extends DisposableInterface
 
     calls[call.value.chatId.value] = call;
 
-    var response = await _graphQlProvider.startChatCall(
+    final response = await _graphQlProvider.startChatCall(
       call.value.chatId.value,
       call.value.creds!,
       call.value.videoState.value == LocalTrackState.enabling ||
@@ -229,7 +257,7 @@ class CallRepository extends DisposableInterface
 
     call.value.deviceId = response.deviceId;
 
-    var chatCall = _chatCall(response.event);
+    final ChatCall? chatCall = _chatCall(response.event);
     if (chatCall != null) {
       call.value.call.value = chatCall;
       transferCredentials(chatCall.chatId, chatCall.id);
@@ -249,6 +277,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = false,
     bool withScreen = false,
   }) async {
+    Log.debug(
+      'join($chatId, $callId, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     Rx<OngoingCall>? ongoing = calls[chatId];
 
     if (ongoing == null ||
@@ -305,21 +338,28 @@ class CallRepository extends DisposableInterface
 
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
+    Log.debug('leave($chatId, $deviceId)', '$runtimeType');
     await _graphQlProvider.leaveChatCall(chatId, deviceId);
   }
 
   @override
   Future<void> decline(ChatId chatId) async {
+    Log.debug('decline($chatId)', '$runtimeType');
+
     await _graphQlProvider.declineChatCall(chatId);
     calls.remove(chatId);
   }
 
   @override
-  Future<void> toggleHand(ChatId chatId, bool raised) =>
-      _graphQlProvider.toggleChatCallHand(chatId, raised);
+  Future<void> toggleHand(ChatId chatId, bool raised) async {
+    Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
+    await _graphQlProvider.toggleChatCallHand(chatId, raised);
+  }
 
   @override
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
+    Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
+
     final Rx<OngoingCall>? ongoing = calls[chatId];
     final CallMemberId id = CallMemberId(memberId, null);
 
@@ -339,6 +379,7 @@ class CallRepository extends DisposableInterface
 
   @override
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
+    Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
     // TODO: Implement optimism, if possible.
     await _graphQlProvider.removeChatCallMember(chatId, userId);
   }
@@ -348,19 +389,27 @@ class CallRepository extends DisposableInterface
     ChatId chatId,
     List<UserId> additionalMemberIds,
     ChatName? groupName,
-  ) =>
-      _graphQlProvider.transformDialogCallIntoGroupCall(
-        chatId,
-        additionalMemberIds,
-        groupName,
-      );
+  ) async {
+    Log.debug(
+      'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.transformDialogCallIntoGroupCall(
+      chatId,
+      additionalMemberIds,
+      groupName,
+    );
+  }
 
   @override
-  ChatCallCredentials generateCredentials(ChatId id) {
-    ChatCallCredentials? creds = _credentials[id];
+  ChatCallCredentials generateCredentials(ChatId chatId) {
+    Log.debug('generateCredentials($chatId)', '$runtimeType');
+
+    ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
-      _credentials[id] = creds;
+      _chatCredentialsProvider.put(chatId, creds);
     }
 
     return creds;
@@ -368,36 +417,64 @@ class CallRepository extends DisposableInterface
 
   @override
   void transferCredentials(ChatId chatId, ChatItemId callId) {
-    ChatCallCredentials? creds = _credentials[chatId];
+    Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
+
+    final ChatCallCredentials? creds = _chatCredentialsProvider.get(chatId);
     if (creds != null) {
-      _credentialsProvider.put(callId, creds);
-      _credentials.remove(chatId);
+      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
+      _callCredentialsProvider.put(callId, creds.copyWith());
     }
   }
 
   @override
-  ChatCallCredentials getCredentials(ChatItemId id) {
-    ChatCallCredentials? creds = _credentialsProvider.get(id);
+  ChatCallCredentials getCredentials(ChatItemId callId) {
+    Log.debug('getCredentials($callId)', '$runtimeType');
+
+    ChatCallCredentials? creds = _callCredentialsProvider.get(callId);
     if (creds == null) {
       creds = ChatCallCredentials(const Uuid().v4());
-      _credentialsProvider.put(id, creds);
+      _callCredentialsProvider.put(callId, creds);
     }
 
     return creds;
   }
 
   @override
-  void moveCredentials(ChatItemId callId, ChatItemId newCallId) {
-    ChatCallCredentials? creds = _credentialsProvider.get(callId);
-    if (creds != null) {
-      _credentialsProvider.remove(callId);
-      _credentialsProvider.put(newCallId, creds);
+  void moveCredentials(
+    ChatItemId callId,
+    ChatItemId newCallId,
+    ChatId chatId,
+    ChatId newChatId,
+  ) {
+    Log.debug(
+      'moveCredentials($callId, $newCallId, $chatId, $newChatId)',
+      '$runtimeType',
+    );
+
+    final ChatCallCredentials? chatCreds = _chatCredentialsProvider.get(chatId);
+    final ChatCallCredentials? callCreds = _callCredentialsProvider.get(callId);
+
+    if (chatCreds != null) {
+      _chatCredentialsProvider.remove(chatId);
+
+      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
+      _chatCredentialsProvider.put(newChatId, chatCreds.copyWith());
+    }
+
+    if (callCreds != null) {
+      _callCredentialsProvider.remove(callId);
+
+      // [Hive] doesn't allow to store the same [HiveObject] in multiple boxes.
+      _callCredentialsProvider.put(newCallId, callCreds.copyWith());
     }
   }
 
   @override
-  Future<void> removeCredentials(ChatItemId id) {
-    return _credentialsProvider.remove(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) async {
+    Log.debug('removeCredentials($callId)', '$runtimeType');
+
+    await _chatCredentialsProvider.remove(chatId);
+    await _callCredentialsProvider.remove(callId);
   }
 
   @override
@@ -405,18 +482,23 @@ class CallRepository extends DisposableInterface
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
+    Log.debug('heartbeat($id, $deviceId)', '$runtimeType');
+
     return _graphQlProvider
         .callEvents(id, deviceId)
         .asyncExpand((event) async* {
-      var events = CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+      Log.trace('heartbeat($id): ${event.data}', '$runtimeType');
+
+      final events =
+          CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const ChatCallEventsInitialized();
       } else if (events.$$typename == 'ChatCall') {
-        var call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
+        final call = events as CallEvents$Subscription$ChatCallEvents$ChatCall;
         yield ChatCallEventsChatCall(call.toModel(), call.ver);
       } else if (events.$$typename == 'ChatCallEventsVersioned') {
-        var mixin = events as ChatCallEventsVersionedMixin;
+        final mixin = events as ChatCallEventsVersionedMixin;
         yield ChatCallEventsEvent(
           CallEventsVersioned(
             mixin.events.map((e) => _callEvent(e)).toList(),
@@ -431,41 +513,49 @@ class CallRepository extends DisposableInterface
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which
   /// updates will be notified via events.
-  Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) =>
-      _graphQlProvider
-          .incomingCallsTopEvents(count)
-          .asyncExpand((event) async* {
-        var events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
-            .incomingChatCallsTopEvents;
+  Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) {
+    Log.debug('_incomingEvents($count)', '$runtimeType');
 
-        if (events.$$typename == 'SubscriptionInitialized') {
-          yield const IncomingChatCallsTopInitialized();
-        } else if (events.$$typename == 'IncomingChatCallsTop') {
-          var list = (events
-                  as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
-              .list;
-          for (var u in list.map((e) => e.members).expand((e) => e)) {
-            _userRepo.put(u.user.toHive());
-          }
-          yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
-        } else if (events.$$typename ==
-            'EventIncomingChatCallsTopChatCallAdded') {
-          var data = events
-              as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
-          yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
-        } else if (events.$$typename ==
-            'EventIncomingChatCallsTopChatCallRemoved') {
-          var data = events
-              as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
-          yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
+    return _graphQlProvider
+        .incomingCallsTopEvents(count)
+        .asyncExpand((event) async* {
+      Log.trace('_incomingEvents($count): ${event.data}', '$runtimeType');
+
+      final events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
+          .incomingChatCallsTopEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        yield const IncomingChatCallsTopInitialized();
+      } else if (events.$$typename == 'IncomingChatCallsTop') {
+        final list = (events
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
+            .list;
+        for (final u in list.map((e) => e.members).expand((e) => e)) {
+          _userRepo.put(u.user.toHive());
         }
-      });
+        yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
+      } else if (events.$$typename ==
+          'EventIncomingChatCallsTopChatCallAdded') {
+        final data = events
+            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
+        yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
+      } else if (events.$$typename ==
+          'EventIncomingChatCallsTopChatCallRemoved') {
+        final data = events
+            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
+        yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
+      }
+    });
+  }
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
+    Log.trace('_callEvent($e)', '$runtimeType');
+
     if (e.$$typename == 'EventChatCallFinished') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
-      for (var m in node.call.members) {
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallFinished(
@@ -476,7 +566,7 @@ class CallRepository extends DisposableInterface
         node.reason,
       );
     } else if (e.$$typename == 'EventChatCallRoomReady') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
       return EventChatCallRoomReady(
         node.callId,
@@ -485,10 +575,10 @@ class CallRepository extends DisposableInterface
         node.joinLink,
       );
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberLeft;
       _userRepo.put(node.user.toHive());
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMemberLeft(
@@ -500,9 +590,9 @@ class CallRepository extends DisposableInterface
         node.deviceId,
       );
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberJoined;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMemberJoined(
@@ -514,9 +604,9 @@ class CallRepository extends DisposableInterface
         node.deviceId,
       );
     } else if (e.$$typename == 'EventChatCallMemberRedialed') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberRedialed;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMemberRedialed(
@@ -528,9 +618,9 @@ class CallRepository extends DisposableInterface
         node.byUser.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-      var node = e
+      final node = e
           as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallAnswerTimeoutPassed(
@@ -542,9 +632,9 @@ class CallRepository extends DisposableInterface
         node.userId,
       );
     } else if (e.$$typename == 'EventChatCallHandLowered') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallHandLowered(
@@ -555,9 +645,9 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
+      final node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
       _userRepo.put(node.user.toHive());
-      for (var m in [...node.call.members, ...node.newCall.members]) {
+      for (final m in [...node.call.members, ...node.newCall.members]) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallMoved(
@@ -572,9 +662,9 @@ class CallRepository extends DisposableInterface
         node.newCall.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallHandRaised') {
-      var node =
+      final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallHandRaised;
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallHandRaised(
@@ -585,9 +675,10 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallDeclined') {
-      var node = e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
       _userRepo.put(node.user.toHive());
-      for (var m in node.call.members) {
+      for (final m in node.call.members) {
         _userRepo.put(m.user.toHive());
       }
       return EventChatCallDeclined(
@@ -597,6 +688,18 @@ class CallRepository extends DisposableInterface
         node.call.toModel(),
         node.user.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+      final node = e
+          as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      for (final m in node.call.members) {
+        _userRepo.put(m.user.toHive());
+      }
+      return EventChatCallConversationStarted(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.call.toModel(),
+      );
     } else {
       throw UnimplementedError('Unknown ChatCallEvent: ${e.$$typename}');
     }
@@ -604,18 +707,20 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].
   ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
+    Log.trace('_chatCall($m)', '$runtimeType');
+
     for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
-        var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-        for (var m in node.call.members) {
+        final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+        for (final m in node.call.members) {
           _userRepo.put(m.user.toHive());
         }
         return node.call.toModel();
       } else if (e.$$typename == 'EventChatCallMemberJoined') {
-        var node =
+        final node =
             e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
 
-        for (var m in node.call.members) {
+        for (final m in node.call.members) {
           _userRepo.put(m.user.toHive());
         }
         return node.call.toModel();
@@ -627,9 +732,17 @@ class CallRepository extends DisposableInterface
 
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
   void _subscribe(int count) {
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_subscribe($count)', '$runtimeType');
+
     _events?.cancel();
     _events = _incomingEvents(count).listen(
       (e) async {
+        Log.debug('_subscribe($count): ${e.kind}', '$runtimeType');
+
         switch (e.kind) {
           case IncomingChatCallsTopEventKind.initialized:
             // No-op.

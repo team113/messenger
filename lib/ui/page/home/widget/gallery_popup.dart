@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,30 +18,35 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
+import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/call/widget/round_button.dart';
-import '/ui/page/home/page/chat/widget/video.dart';
+import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
-import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'gallery_button.dart';
 
 /// Item in a [GalleryPopup].
 ///
@@ -52,7 +57,10 @@ class GalleryItem {
     required this.link,
     required this.name,
     required this.size,
+    this.width,
+    this.height,
     this.checksum,
+    this.thumbhash,
     this.isVideo = false,
     this.onError,
   });
@@ -62,14 +70,20 @@ class GalleryItem {
     String link,
     String name, {
     int? size,
+    int? width,
+    int? height,
     String? checksum,
+    ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
         link: link,
         name: name,
         size: size,
+        width: width,
+        height: height,
         checksum: checksum,
+        thumbhash: thumbhash,
         isVideo: false,
         onError: onError,
       );
@@ -100,11 +114,20 @@ class GalleryItem {
   /// SHA-256 checksum of the file this [GalleryItem] represents.
   final String? checksum;
 
+  /// [ThumbHash] of the image this [GalleryItem] represents.
+  final ThumbHash? thumbhash;
+
   /// Name of the file this [GalleryItem] represents.
   final String name;
 
   /// Size in bytes of the file this [GalleryItem] represents.
   final int? size;
+
+  /// Width of the image this [GalleryItem] represents.
+  final int? width;
+
+  /// Height of the image this [GalleryItem] represents.
+  final int? height;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
   final FutureOr<void> Function()? onError;
@@ -113,13 +136,13 @@ class GalleryItem {
 /// Animated gallery of [GalleryItem]s.
 class GalleryPopup extends StatefulWidget {
   const GalleryPopup({
-    Key? key,
+    super.key,
     this.children = const [],
     this.initial = 0,
     this.initialKey,
     this.onPageChanged,
     this.onTrashPressed,
-  }) : super(key: key);
+  });
 
   /// [List] of [GalleryItem]s to display in a gallery.
   final List<GalleryItem> children;
@@ -173,7 +196,32 @@ class _GalleryPopupState extends State<GalleryPopup>
     with TickerProviderStateMixin {
   /// [AnimationController] controlling the opening and closing gallery
   /// animation.
-  late final AnimationController _fading;
+  late final AnimationController _fading = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 250),
+    debugLabel: '$runtimeType',
+  )..addStatusListener(
+      (status) {
+        switch (status) {
+          case AnimationStatus.dismissed:
+            _curveOut = Curves.easeOutQuint;
+            _pageController.dispose();
+            _ignoreSnappingTimer?.cancel();
+            _sliding?.dispose();
+            _pop?.call();
+            break;
+
+          case AnimationStatus.reverse:
+          case AnimationStatus.forward:
+            // No-op.
+            break;
+
+          case AnimationStatus.completed:
+            _curveOut = Curves.easeInQuint;
+            break;
+        }
+      },
+    );
 
   /// [AnimationController] controlling the sliding upward or downward
   /// animation.
@@ -185,9 +233,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PageController] controlling the [PageView].
   late final PageController _pageController;
 
-  /// [Map] of [MeeduPlayerController] controlling the video playback used to
+  /// [Map] of [VideoController] controlling the video playback used to
   /// play/pause the active videos on keyboard presses.
-  final Map<int, MeeduPlayerController> _videoControllers = {};
+  final Map<int, VideoController> _videoControllers = {};
 
   /// [CurvedAnimation] of the [_sliding] animation.
   late CurvedAnimation _curve;
@@ -250,35 +298,27 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Indicator whether the currently visible [GalleryItem] is zoomed.
   bool _isZoomed = false;
 
+  /// [PhotoViewController] for zooming [PhotoViewGallery] in and out.
+  final PhotoViewController _photoController = PhotoViewController();
+
+  // TODO: This is a hack for a feature that should be implemented in
+  //       `photo_view` directly:
+  //       https://github.com/bluefireteam/photo_view/issues/425
+  /// [AnimationController] animating the [_photoController] scaling in.
+  late final AnimationController _photo = AnimationController(
+    vsync: this,
+    debugLabel: '$runtimeType',
+    duration: const Duration(milliseconds: 200),
+  )..addListener(() {
+      _photoController.scale = 1 +
+          CurveTween(curve: Curves.ease).evaluate(_photo) * (_photoScale - 1);
+    });
+
+  /// Scale to apply the [_photoController] to during its [_photo] animation.
+  double _photoScale = 1;
+
   @override
   void initState() {
-    _fading = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-      debugLabel: '$runtimeType',
-    )..addStatusListener(
-        (status) {
-          switch (status) {
-            case AnimationStatus.dismissed:
-              _curveOut = Curves.easeOutQuint;
-              _pageController.dispose();
-              _ignoreSnappingTimer?.cancel();
-              _sliding?.dispose();
-              _pop?.call();
-              break;
-
-            case AnimationStatus.reverse:
-            case AnimationStatus.forward:
-              // No-op.
-              break;
-
-            case AnimationStatus.completed:
-              _curveOut = Curves.easeInQuint;
-              break;
-          }
-        },
-      );
-
     _bounds = _calculatePosition() ?? Rect.largest;
 
     _page = widget.initial;
@@ -306,15 +346,26 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     Future.delayed(Duration.zero, _displayControls);
 
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack);
+    }
+
     super.initState();
   }
 
   @override
   void dispose() {
+    _photo.dispose();
+    _fading.dispose();
     _onFullscreen?.cancel();
     if (_isFullscreen.isTrue) {
       _exitFullscreen();
     }
+
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.dispose();
   }
 
@@ -439,51 +490,67 @@ class _GalleryPopupState extends State<GalleryPopup>
           },
           wantKeepAlive: false,
           builder: (BuildContext context, int index) {
-            GalleryItem e = widget.children[index];
-
-            if (!e.isVideo) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(e.link),
-                initialScale: PhotoViewComputedScale.contained * 0.99,
-                minScale: PhotoViewComputedScale.contained * 0.99,
-                maxScale: PhotoViewComputedScale.contained * 3,
-                errorBuilder: (_, __, ___) {
-                  return InitCallback(
-                    callback: e.onError,
-                    child: const SizedBox(
-                      height: 300,
-                      child: Center(child: CustomProgressIndicator()),
-                    ),
-                  );
-                },
-              );
-            }
+            final GalleryItem e = widget.children[index];
 
             return PhotoViewGalleryPageOptions.customChild(
+              controller: _photoController,
               disableGestures: e.isVideo,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 1),
-                child: Video(
-                  e.link,
-                  showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                  onClose: _dismiss,
-                  isFullscreen: _isFullscreen,
-                  toggleFullscreen: () {
-                    node.requestFocus();
-                    _toggleFullscreen();
-                  },
-                  onController: (c) {
-                    if (c == null) {
-                      _videoControllers.remove(index);
-                    } else {
-                      _videoControllers[index] = c;
-                    }
-                  },
-                  onError: e.onError,
-                ),
-              ),
+              initialScale: PhotoViewComputedScale.contained,
               minScale: PhotoViewComputedScale.contained,
               maxScale: PhotoViewComputedScale.contained * 3,
+              scaleStateCycle: (s) {
+                switch (s) {
+                  case PhotoViewScaleState.initial:
+                    _animatePhotoScaleTo(
+                      (PhotoViewComputedScale.contained * 2).multiplier,
+                    );
+                    return PhotoViewScaleState.zoomedIn;
+
+                  case PhotoViewScaleState.covering:
+                    return PhotoViewScaleState.covering;
+
+                  case PhotoViewScaleState.originalSize:
+                    return PhotoViewScaleState.initial;
+
+                  case PhotoViewScaleState.zoomedIn:
+                  case PhotoViewScaleState.zoomedOut:
+                    return PhotoViewScaleState.initial;
+
+                  default:
+                    return PhotoViewScaleState.initial;
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 1),
+                child: e.isVideo
+                    ? VideoView(
+                        e.link,
+                        checksum: e.checksum,
+                        showInterfaceFor: _isInitialPage ? 3.seconds : null,
+                        onClose: _dismiss,
+                        isFullscreen: _isFullscreen,
+                        toggleFullscreen: () {
+                          node.requestFocus();
+                          _toggleFullscreen();
+                        },
+                        onController: (c) {
+                          if (c == null) {
+                            _videoControllers.remove(index);
+                          } else {
+                            _videoControllers[index] = c;
+                          }
+                        },
+                        onError: e.onError,
+                      )
+                    : RetryImage(
+                        e.link,
+                        width: e.width?.toDouble(),
+                        height: e.height?.toDouble(),
+                        checksum: e.checksum,
+                        thumbhash: e.thumbhash,
+                        onForbidden: e.onError,
+                      ),
+              ),
             );
           },
           itemCount: widget.children.length,
@@ -532,6 +599,14 @@ class _GalleryPopupState extends State<GalleryPopup>
               onPressed: () => _download(widget.children[_page]),
             ),
             ContextMenuButton(
+              label: 'btn_download_as'.l10n,
+              onPressed: () => _downloadAs(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () => _saveToGallery(widget.children[_page]),
+            ),
+            ContextMenuButton(
               label: 'btn_info'.l10n,
               onPressed: () {},
             ),
@@ -539,8 +614,9 @@ class _GalleryPopupState extends State<GalleryPopup>
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: e.isVideo
-                ? Video(
+                ? VideoView(
                     e.link,
+                    checksum: e.checksum,
                     showInterfaceFor: _isInitialPage ? 3.seconds : null,
                     onClose: _dismiss,
                     isFullscreen: _isFullscreen,
@@ -567,16 +643,33 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: PlatformUtils.isWeb
-                        ? WebImage(
-                            e.link,
-                            onForbidden: e.onError,
-                          )
-                        : RetryImage(
-                            e.link,
-                            checksum: e.checksum,
-                            onForbidden: e.onError,
-                          ),
+                    child: FittedBox(
+                      fit: _isFullscreen.isTrue
+                          ? BoxFit.contain
+                          : BoxFit.scaleDown,
+                      child: ConstrainedBox(
+                        constraints:
+                            const BoxConstraints(minWidth: 1, minHeight: 1),
+                        child: PlatformUtils.isWeb
+                            ? WebImage(
+                                e.link,
+                                onForbidden: e.onError,
+
+                                // TODO: Wait for HTML to support specifying
+                                //       download name:
+                                //       https://github.com/whatwg/html/issues/2722
+                                // name: e.name,
+                              )
+                            : RetryImage(
+                                e.link,
+                                width: e.width?.toDouble(),
+                                height: e.height?.toDouble(),
+                                checksum: e.checksum,
+                                thumbhash: e.thumbhash,
+                                onForbidden: e.onError,
+                              ),
+                      ),
+                    ),
                   ),
           ),
         );
@@ -586,8 +679,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Returns the [List] of [GalleryPopup] interface [Widget]s.
   List<Widget> _buildInterface() {
-    final style = Theme.of(context).style;
-
     bool left = _page > 0;
     bool right = _page < widget.children.length - 1;
 
@@ -609,42 +700,29 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.centerLeft,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayLeft && left) || _showControls ? 1 : 0,
+                opacity: _displayLeft || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: WidgetButton(
-                    onPressed: left
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page - 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
+                    onPressed: left ? () => _animateToPage(_page - 1) : null,
                     child: Container(
                       padding: const EdgeInsets.only(left: 8, right: 8),
                       width: 60 + 16,
                       height: double.infinity,
                       child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: style.colors.onSecondaryOpacity50,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_left_rounded,
-                                color: left
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
+                        child: GalleryButton(
+                          onPressed:
+                              left ? () => _animateToPage(_page - 1) : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 1),
+                            child: Center(
+                              child: Transform.translate(
+                                offset: const Offset(-1, 0),
+                                child: SvgIcon(
+                                  left
+                                      ? SvgIcons.arrowLeft
+                                      : SvgIcons.arrowLeftDisabled,
+                                ),
                               ),
                             ),
                           ),
@@ -662,42 +740,29 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.centerRight,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
-                opacity: (_displayRight && right) || _showControls ? 1 : 0,
+                opacity: _displayRight || _showControls ? 1 : 0,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 32, bottom: 32),
                   child: WidgetButton(
-                    onPressed: right
-                        ? () {
-                            node.requestFocus();
-                            _pageController.animateToPage(
-                              _page + 1,
-                              curve: Curves.linear,
-                              duration: const Duration(milliseconds: 200),
-                            );
-                          }
-                        : null,
+                    onPressed: right ? () => _animateToPage(_page + 1) : null,
                     child: Container(
                       padding: const EdgeInsets.only(left: 8, right: 8),
                       width: 60 + 16,
                       height: double.infinity,
                       child: Center(
-                        child: ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(60),
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: style.colors.onSecondaryOpacity50,
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 1),
-                              child: Icon(
-                                Icons.keyboard_arrow_right_rounded,
-                                color: right
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondary,
-                                size: 36,
+                        child: GalleryButton(
+                          onPressed:
+                              right ? () => _animateToPage(_page + 1) : null,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 1),
+                            child: Center(
+                              child: Transform.translate(
+                                offset: const Offset(1, 0),
+                                child: SvgIcon(
+                                  right
+                                      ? SvgIcons.arrowRight
+                                      : SvgIcons.arrowRightDisabled,
+                                ),
                               ),
                             ),
                           ),
@@ -719,19 +784,9 @@ class _GalleryPopupState extends State<GalleryPopup>
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
                 opacity: (_displayClose || _showControls) ? 1 : 0,
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: style.colors.onSecondaryOpacity50,
-                    onPressed: _dismiss,
-                    withBlur: true,
-                    child: Icon(
-                      Icons.close_rounded,
-                      color: style.colors.onPrimary,
-                      size: 28,
-                    ),
-                  ),
+                child: GalleryButton(
+                  onPressed: _dismiss,
+                  icon: SvgIcons.close,
                 ),
               ),
             ),
@@ -747,18 +802,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                 child: AnimatedOpacity(
                   duration: const Duration(milliseconds: 250),
                   opacity: (_displayFullscreen || _showControls) ? 1 : 0,
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
-                      onPressed: _toggleFullscreen,
-                      withBlur: true,
-                      assetWidth: 22,
-                      asset: _isFullscreen.value
-                          ? 'fullscreen_exit_white'
-                          : 'fullscreen_enter_white',
-                    ),
+                  child: GalleryButton(
+                    onPressed: _toggleFullscreen,
+                    icon: _isFullscreen.value
+                        ? SvgIcons.fullscreenExit
+                        : SvgIcons.fullscreenEnter,
                   ),
                 ),
               ),
@@ -818,19 +866,12 @@ class _GalleryPopupState extends State<GalleryPopup>
               alignment: Alignment.topLeft,
               child: Padding(
                 padding: const EdgeInsets.only(left: 8, top: 8),
-                child: SizedBox(
-                  width: 60,
-                  height: 60,
-                  child: RoundFloatingButton(
-                    color: style.colors.onSecondaryOpacity50,
-                    onPressed: () {
-                      widget.onTrashPressed?.call(_page);
-                      _dismiss();
-                    },
-                    withBlur: true,
-                    assetWidth: 27.21,
-                    asset: 'delete',
-                  ),
+                child: GalleryButton(
+                  onPressed: () {
+                    widget.onTrashPressed?.call(_page);
+                    _dismiss();
+                  },
+                  icon: SvgIcons.deleteBig,
                 ),
               ),
             ),
@@ -839,6 +880,16 @@ class _GalleryPopupState extends State<GalleryPopup>
     ]);
 
     return widgets;
+  }
+
+  /// Animates the [_pageController] to the provided [page].
+  void _animateToPage(int page) {
+    node.requestFocus();
+    _pageController.animateToPage(
+      page,
+      curve: Curves.linear,
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
   /// Starts a dismiss animation.
@@ -897,30 +948,16 @@ class _GalleryPopupState extends State<GalleryPopup>
     if (k is KeyUpEvent) {
       if (k.physicalKey == PhysicalKeyboardKey.arrowRight) {
         if (_page < widget.children.length - 1) {
-          _pageController.animateToPage(
-            _page + 1,
-            curve: Curves.linear,
-            duration: const Duration(milliseconds: 200),
-          );
+          _animateToPage(_page + 1);
         }
       } else if (k.physicalKey == PhysicalKeyboardKey.arrowLeft) {
         if (_page > 0) {
-          _pageController.animateToPage(
-            _page - 1,
-            curve: Curves.linear,
-            duration: const Duration(milliseconds: 200),
-          );
+          _animateToPage(_page - 1);
         }
       } else if (k.physicalKey == PhysicalKeyboardKey.escape) {
         _dismiss();
       } else if (k.physicalKey == PhysicalKeyboardKey.space) {
-        _videoControllers.forEach((_, v) {
-          if (v.playerStatus.playing) {
-            v.pause();
-          } else {
-            v.play();
-          }
-        });
+        _videoControllers.forEach((_, v) => v.player.playOrPause());
       }
     }
   }
@@ -962,18 +999,10 @@ class _GalleryPopupState extends State<GalleryPopup>
       if (!_ignorePageSnapping && !horizontalPriority) {
         if (s.scrollDelta.dy > 0 && _page > 0) {
           _resetSnappingTimer();
-          _pageController.animateToPage(
-            _page - 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.linear,
-          );
+          _animateToPage(_page - 1);
         } else if (s.scrollDelta.dy < 0 && _page < widget.children.length - 1) {
           _resetSnappingTimer();
-          _pageController.animateToPage(
-            _page + 1,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.linear,
-          );
+          _animateToPage(_page + 1);
         }
       }
     }
@@ -1019,14 +1048,25 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   /// Downloads the provided [GalleryItem].
-  Future<void> _download(GalleryItem item) async {
+  Future<void> _download(GalleryItem item, {String? to}) async {
     try {
       try {
-        await PlatformUtils.download(item.link, item.name, item.size);
+        await CacheWorker.instance
+            .download(
+              item.link,
+              item.name,
+              item.size,
+              checksum: item.checksum,
+              to: to,
+            )
+            .future;
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.download(item.link, item.name, item.size);
+          return SchedulerBinding.instance.addPostFrameCallback((_) {
+            item = widget.children[_page];
+            _download(item, to: to);
+          });
         } else {
           rethrow;
         }
@@ -1039,30 +1079,64 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] using `save as` dialog.
+  Future<void> _downloadAs(GalleryItem item) async {
+    try {
+      String? to = await FilePicker.platform.saveFile(
+        fileName: item.name,
+        type: item.isVideo ? FileType.video : FileType.image,
+        lockParentWindow: true,
+      );
+
+      if (to != null) {
+        _download(item, to: to);
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> _saveToGallery(GalleryItem item) async {
-    try {
-      try {
-        await PlatformUtils.saveToGallery(item.link, item.name);
-      } catch (_) {
-        if (item.onError != null) {
-          await item.onError?.call();
-          await PlatformUtils.saveToGallery(item.link, item.name);
-        } else {
-          rethrow;
-        }
-      }
+    // Tries downloading the [item].
+    Future<void> download() async {
+      await PlatformUtils.saveToGallery(
+        item.link,
+        item.name,
+        checksum: item.checksum,
+        size: item.size,
+        isImage: !item.isVideo,
+      );
 
       if (mounted) {
         MessagePopup.success(item.isVideo
             ? 'label_video_saved_to_gallery'.l10n
             : 'label_image_saved_to_gallery'.l10n);
       }
+    }
+
+    try {
+      try {
+        await download();
+      } on DioException catch (e) {
+        if (item.onError != null && e.response?.statusCode == 403) {
+          await item.onError?.call();
+          await Future.delayed(Duration.zero);
+          await download();
+        } else {
+          rethrow;
+        }
+      }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
@@ -1070,17 +1144,26 @@ class _GalleryPopupState extends State<GalleryPopup>
   Future<void> _share(GalleryItem item) async {
     try {
       try {
-        await PlatformUtils.share(item.link, item.name);
+        await PlatformUtils.share(
+          item.link,
+          item.name,
+          checksum: item.checksum,
+        );
       } catch (_) {
         if (item.onError != null) {
           await item.onError?.call();
-          await PlatformUtils.share(item.link, item.name);
+          await PlatformUtils.share(
+            item.link,
+            item.name,
+            checksum: item.checksum,
+          );
         } else {
           rethrow;
         }
       }
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
     }
   }
 
@@ -1094,6 +1177,25 @@ class _GalleryPopupState extends State<GalleryPopup>
         setState(() => _showControls = false);
       }
     });
+  }
+
+  /// Animates the [_photoController] to the provided [scale] by starting the
+  /// [_photo] animation.
+  void _animatePhotoScaleTo(double scale) {
+    _photoScale = scale;
+    _photo
+      ..reset()
+      ..forward();
+  }
+
+  /// Invokes [_dismiss].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    _dismiss();
+    return true;
   }
 }
 

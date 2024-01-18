@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,11 +22,12 @@ import '/themes.dart';
 /// Simple [GestureDetector]-based button without any decorations.
 class WidgetButton extends StatelessWidget {
   const WidgetButton({
-    Key? key,
+    super.key,
     required this.child,
     this.behavior,
     this.onPressed,
-  }) : super(key: key);
+    this.onLongPress,
+  });
 
   /// [Widget] to press.
   final Widget child;
@@ -37,6 +38,9 @@ class WidgetButton extends StatelessWidget {
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
+  /// Callback, called when the [child] is long-pressed.
+  final void Function()? onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -45,6 +49,7 @@ class WidgetButton extends StatelessWidget {
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        onLongPress: onLongPress,
         behavior: behavior,
         child: Container(
           color: style.colors.transparent,

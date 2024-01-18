@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -47,6 +48,9 @@ class CameraSwitchController extends GetxController {
   /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
 
+  /// Error message to display, if any.
+  final RxnString error = RxnString();
+
   /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
 
@@ -66,11 +70,18 @@ class CameraSwitchController extends GetxController {
     _devicesSubscription = MediaUtils.onDeviceChange
         .listen((e) => devices.value = e.video().toList());
 
-    await WebUtils.cameraPermission();
-    devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.VideoInput);
+    try {
+      await WebUtils.cameraPermission();
+      devices.value =
+          await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
 
-    initRenderer();
+      initRenderer();
+    } on UnsupportedError {
+      error.value = 'err_media_devices_are_null'.l10n;
+    } catch (e) {
+      error.value = e.toString();
+      rethrow;
+    }
 
     super.onInit();
   }
@@ -78,7 +89,9 @@ class CameraSwitchController extends GetxController {
   @override
   void onClose() {
     renderer.value?.dispose();
+    renderer.value = null;
     _localTrack?.free();
+    _localTrack = null;
     _cameraWorker?.dispose();
     _devicesSubscription?.cancel();
     super.onClose();
@@ -96,9 +109,11 @@ class CameraSwitchController extends GetxController {
     }
 
     renderer.value?.dispose();
+    renderer.value = null;
     _localTrack?.free();
+    _localTrack = null;
 
-    final String? camera = this.camera.value;
+    String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
       final List<LocalMediaTrack> tracks =
@@ -112,6 +127,11 @@ class CameraSwitchController extends GetxController {
       }
 
       if (_localTrack != null) {
+        if (camera == null) {
+          camera = _localTrack?.getTrack().deviceId();
+          this.camera.value = camera;
+        }
+
         final RtcVideoRenderer renderer = RtcVideoRenderer(_localTrack!);
         await renderer.initialize();
 

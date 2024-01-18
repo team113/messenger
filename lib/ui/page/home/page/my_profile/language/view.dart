@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,10 +21,8 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import 'controller.dart';
 
 /// View for changing the [L10n.chosen].
@@ -49,8 +47,6 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
-
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {
@@ -81,7 +77,13 @@ class LanguageSelectionView extends StatelessWidget {
                             'name': e.name,
                           }),
                           selected: c.selected.value == e,
-                          onPressed: () => c.selected.value = e,
+                          onPressed: () async {
+                            c.selected.value = e;
+
+                            if (c.selected.value != null) {
+                              await c.setLocalization(c.selected.value!);
+                            }
+                          },
                         );
                       });
                     },
@@ -91,28 +93,6 @@ class LanguageSelectionView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
-              Padding(
-                padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    'btn_proceed'.l10n,
-                    style: fonts.bodyMedium!.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
-                  ),
-                  onPressed: () {
-                    if (c.selected.value != null) {
-                      c.setLocalization(c.selected.value!);
-                    }
-
-                    Navigator.of(context).pop();
-                  },
-                  color: style.colors.primary,
-                ),
-              ),
-              const SizedBox(height: 16),
             ],
           ),
         );

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.
 class ChatDirectLinkView extends StatelessWidget {
-  const ChatDirectLinkView(this._slug, {Key? key}) : super(key: key);
+  const ChatDirectLinkView(this._slug, {super.key});
 
   /// [String] to be parsed as a [ChatDirectLinkSlug] of this page.
   final String _slug;

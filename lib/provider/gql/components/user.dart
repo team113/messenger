@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,19 +18,21 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio
-    show MultipartFile, Options, FormData, DioError;
+    show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/gallery_item.dart';
+import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import '/util/log.dart';
 
 /// [MyUser] related functionality.
 mixin UserGraphQlMixin {
@@ -42,6 +44,8 @@ mixin UserGraphQlMixin {
   ///
   /// Mandatory.
   Future<GetMyUser$Query> getMyUser() async {
+    Log.debug('getMyUser()', '$runtimeType');
+
     QueryResult res =
         await client.query(QueryOptions(document: GetMyUserQuery().document));
     return GetMyUser$Query.fromJson(res.data!);
@@ -53,8 +57,11 @@ mixin UserGraphQlMixin {
   ///
   /// Optional.
   Future<GetUser$Query> getUser(UserId id) async {
+    Log.debug('getUser($id)', '$runtimeType');
+
     final variables = GetUserArguments(id: id);
     QueryResult res = await client.query(QueryOptions(
+      operationName: 'GetUser',
       document: GetUserQuery(variables: variables).document,
       variables: variables.toJson(),
     ));
@@ -70,17 +77,31 @@ mixin UserGraphQlMixin {
   ///
   /// Searching by [name] is fuzzy.
   ///
-  /// It's allowed to specify both [first] and [last] at the same time,
-  /// provided that [after] and [before] are equal. In such case the returned
-  /// page will include the [User] pointed by the cursor and the requested
-  /// number of [User]s preceding and following it.
-  ///
-  /// If it's desired to receive the [User] pointed by the cursor without
-  /// querying in both directions, one can specify [first] or [last] as 0.
-  ///
   /// ### Authentication
   ///
   /// Optional.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [User]s are sorted depending on the provided arguments:
+  ///
+  /// - If one of the [num]/[login]/[link] arguments is specified, then an exact
+  /// [User] is returned.
+  ///
+  /// - If the [name] argument is specified, then returned [User]s are sorted
+  /// primarily by the `Levenshtein distance` of their [name]s, and secondary by
+  /// their IDs (if the `Levenshtein distance` is the same), in descending
+  /// order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [User] pointed by the cursor and the
+  /// requested count of [User]s preceding and following it.
+  ///
+  /// If it's desired to receive the [User], pointed by the cursor, without
+  /// querying in both directions, one can specify [first] or [last] count as 0.
   Future<SearchUsers$Query> searchUsers({
     UserNum? num,
     UserLogin? login,
@@ -91,6 +112,11 @@ mixin UserGraphQlMixin {
     int? last,
     UsersCursor? before,
   }) async {
+    Log.debug(
+      'searchUsers($num, $login, $link, $name, $first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
     final variables = SearchUsersArguments(
       num: num,
       login: login,
@@ -125,6 +151,8 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [name] already.
   Future<MyUserEventsVersionedMixin?> updateUserName(UserName? name) async {
+    Log.debug('updateUserName($name)', '$runtimeType');
+
     final variables = UpdateUserNameArguments(name: name);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -133,33 +161,6 @@ mixin UserGraphQlMixin {
       ),
     );
     return UpdateUserName$Mutation.fromJson(res.data!).updateUserName;
-  }
-
-  /// Updates [MyUser.bio] field for the authenticated [MyUser].
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserBioUpdated] (if [bio] argument is specified);
-  /// - [EventUserBioDeleted] (if [bio] argument is absent or is `null`).
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [bio] already.
-  Future<MyUserEventsVersionedMixin?> updateUserBio(UserBio? bio) async {
-    final variables = UpdateUserBioArguments(bio: bio);
-    QueryResult res = await client.mutate(
-      MutationOptions(
-        document: UpdateUserBioMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
@@ -181,6 +182,8 @@ mixin UserGraphQlMixin {
   Future<MyUserEventsVersionedMixin?> updateUserStatus(
     UserTextStatus? text,
   ) async {
+    Log.debug('updateUserStatus($text)', '$runtimeType');
+
     final variables = UpdateUserStatusArguments(text: text);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -207,6 +210,8 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [login] already.
   Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin login) async {
+    Log.debug('updateUserLogin($login)', '$runtimeType');
+
     final variables = UpdateUserLoginArguments(login: login);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -239,7 +244,10 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] has the provided [presence] value already.
   Future<MyUserEventsVersionedMixin?> updateUserPresence(
-      Presence presence) async {
+    Presence presence,
+  ) async {
+    Log.debug('updateUserPresence($presence)', '$runtimeType');
+
     final variables = UpdateUserPresenceArguments(presence: presence);
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -270,7 +278,11 @@ mixin UserGraphQlMixin {
   /// Each time renews the password (recalculates hash) even if it's the same
   /// one.
   Future<MyUserEventsVersionedMixin?> updateUserPassword(
-      UserPassword? oldPassword, UserPassword newPassword) async {
+    UserPassword? oldPassword,
+    UserPassword newPassword,
+  ) async {
+    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
+
     final variables = UpdateUserPasswordArguments(
       old: oldPassword,
       kw$new: newPassword,
@@ -309,6 +321,8 @@ mixin UserGraphQlMixin {
   ///
   /// Once deleted [MyUser] cannot be deleted again.
   Future<MyUserEventsVersionedMixin> deleteMyUser() async {
+    Log.debug('deleteMyUser()', '$runtimeType');
+
     QueryResult res = await client
         .mutate(MutationOptions(document: DeleteMyUserMutation().document));
     return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser;
@@ -366,6 +380,8 @@ mixin UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
   Stream<QueryResult> myUserEvents(MyUserVersion? Function() ver) {
+    Log.debug('myUserEvents(ver)', '$runtimeType');
+
     final variables = MyUserEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
@@ -432,6 +448,8 @@ mixin UserGraphQlMixin {
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
   Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
+    Log.debug('userEvents($id, ver)', '$runtimeType');
+
     final variables = UserEventsArguments(id: id, ver: ver());
     return client.subscribe(
       SubscriptionOptions(
@@ -460,6 +478,8 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [email] in his [MyUser.emails] already.
   Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail email) async {
+    Log.debug('deleteUserEmail($email)', '$runtimeType');
+
     final variables = DeleteUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserEmail',
@@ -486,6 +506,8 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [phone] in his [MyUser.phones] already.
   Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
+    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+
     final variables = DeleteUserPhoneArguments(phone: phone);
     final QueryResult result = await client.mutate(MutationOptions(
       operationName: 'DeleteUserPhone',
@@ -523,7 +545,12 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the provided [email]
   /// is already present in a [MyUser.emails] field (either in confirmed or
   /// unconfirmed sub-field).
-  Future<MyUserEventsVersionedMixin?> addUserEmail(UserEmail email) async {
+  Future<MyUserEventsVersionedMixin?> addUserEmail(
+    UserEmail email, {
+    RawClientOptions? raw,
+  }) async {
+    Log.debug('addUserEmail($email, $raw)', '$runtimeType');
+
     final variables = AddUserEmailArguments(email: email);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -531,6 +558,7 @@ mixin UserGraphQlMixin {
         document: AddUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => AddUserEmailException(
           (AddUserEmail$Mutation.fromJson(data).addUserEmail
                   as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
@@ -569,6 +597,8 @@ mixin UserGraphQlMixin {
   /// already is present in a [MyUser.phones] field (either in confirmed or
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserPhone(UserPhone phone) async {
+    Log.debug('addUserPhone($phone)', '$runtimeType');
+
     final variables = AddUserPhoneArguments(phone: phone);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -603,7 +633,11 @@ mixin UserGraphQlMixin {
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-      ConfirmationCode code) async {
+    ConfirmationCode code, {
+    RawClientOptions? raw,
+  }) async {
+    Log.debug('confirmEmailCode($code, $raw)', '$runtimeType');
+
     final variables = ConfirmUserEmailArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -611,6 +645,7 @@ mixin UserGraphQlMixin {
         document: ConfirmUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: raw,
       onException: (data) => ConfirmUserEmailException((ConfirmUserEmail$Mutation
                       .fromJson(data)
                   .confirmUserEmail
@@ -639,7 +674,10 @@ mixin UserGraphQlMixin {
   /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
   /// already.
   Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-      ConfirmationCode code) async {
+    ConfirmationCode code,
+  ) async {
+    Log.debug('confirmPhoneCode($code)', '$runtimeType');
+
     final variables = ConfirmUserPhoneArguments(code: code);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -678,12 +716,15 @@ mixin UserGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time generates a new [ConfirmationCode].
-  Future<void> resendEmail() async {
+  Future<void> resendEmail({RawClientOptions? raw}) async {
+    Log.debug('resendEmail($raw)', '$runtimeType');
+
     await client.mutate(
       MutationOptions(
         operationName: 'ResendUserEmailConfirmation',
         document: ResendUserEmailConfirmationMutation().document,
       ),
+      raw: raw,
       onException: (data) => ResendUserEmailConfirmationException(
           ResendUserEmailConfirmation$Mutation.fromJson(data)
                   .resendUserEmailConfirmation
@@ -713,6 +754,8 @@ mixin UserGraphQlMixin {
   ///
   /// Each time generates a new [ConfirmationCode].
   Future<void> resendPhone() async {
+    Log.debug('resendPhone()', '$runtimeType');
+
     await client.mutate(
       MutationOptions(
         operationName: 'ResendUserPhoneConfirmation',
@@ -747,7 +790,10 @@ mixin UserGraphQlMixin {
   /// [MyUser] has an active [ChatDirectLink] with such [ChatDirectLinkSlug]
   /// already.
   Future<MyUserEventsVersionedMixin?> createUserDirectLink(
-      ChatDirectLinkSlug slug) async {
+    ChatDirectLinkSlug slug,
+  ) async {
+    Log.debug('createUserDirectLink($slug)', '$runtimeType');
+
     final variables = CreateUserDirectLinkArguments(slug: slug);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -780,6 +826,8 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] has no active [ChatDirectLink]s already.
   Future<MyUserEventsVersionedMixin?> deleteUserDirectLink() async {
+    Log.debug('deleteUserDirectLink()', '$runtimeType');
+
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteUserDirectLink',
@@ -793,8 +841,12 @@ mixin UserGraphQlMixin {
         .deleteChatDirectLink as MyUserEventsVersionedMixin?;
   }
 
-  /// Updates or resets the [MyUser.avatar] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated MyUser.
+  /// Updates or resets the [MyUser.avatar] field with the provided image
+  /// [file].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
   ///
   /// ### Authentication
   ///
@@ -803,33 +855,80 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserAvatarUpdated] (if [id] argument is specified);
-  /// - [EventUserAvatarDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserAvatarUpdated] (if image [file] is provided);
+  /// - [EventUserAvatarDeleted] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as
-  /// his avatar already.
+  /// [MyUser] uses the specified image [file] already as his avatar with the
+  /// same crop area.
   Future<MyUserEventsVersionedMixin?> updateUserAvatar(
-      GalleryItemId? id, CropAreaInput? crop) async {
-    final variables = UpdateUserAvatarArguments(id: id, crop: crop);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateUserAvatar',
-        document: UpdateUserAvatarMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateUserAvatarException(
-          UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
-              as UpdateUserAvatarErrorCode),
+    dio.MultipartFile? file,
+    CropAreaInput? crop, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    Log.debug(
+      'updateUserAvatar($file, $crop, onSendProgress)',
+      '$runtimeType',
     );
-    return (UpdateUserAvatar$Mutation.fromJson(result.data!).updateUserAvatar
-        as MyUserEventsVersionedMixin?);
+
+    final variables = UpdateUserAvatarArguments(file: null, crop: crop);
+    final query = MutationOptions(
+      operationName: 'UpdateUserAvatar',
+      document: UpdateUserAvatarMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        file == null
+            ? encodedBody
+            : dio.FormData.fromMap({
+                'operations': encodedBody,
+                'map': '{ "file": ["variables.upload"] }',
+                'file': file,
+              }),
+        options: file == null
+            ? null
+            : dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateUserAvatarException(
+          (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
+                  as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
+              .code,
+        ),
+      );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
+      return (UpdateUserAvatar$Mutation.fromJson(response.data['data'])
+          .updateUserAvatar as MyUserEventsVersionedMixin?);
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateUserAvatarException(
+          UpdateUserAvatarErrorCode.invalidSize,
+        );
+      }
+
+      rethrow;
+    }
   }
 
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
+  /// Updates or resets the [MyUser.callCover] field with the provided image
+  /// [file].
+  ///
+  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
+  /// containing the uploaded file and the file argument itself must be `null`,
+  /// otherwise this mutation will fail.
   ///
   /// ### Authentication
   ///
@@ -838,29 +937,72 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
-  /// - [EventUserCallCoverUpdated] (if [id] argument is specified);
-  /// - [EventUserCallCoverDeleted] (if [id] argument is absent or is `null`).
+  /// - [EventUserCallCoverUpdated] (if image [file] is provided);
+  /// - [EventUserCallCoverDeleted] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
-  /// [MyUser] uses the provided [GalleryItem] with the same crop area as his
-  /// callCover already.
+  /// [MyUser] uses the specified image [file] already as his callCover with the
+  /// same crop area.
   Future<MyUserEventsVersionedMixin?> updateUserCallCover(
-      GalleryItemId? id, CropAreaInput? crop) async {
-    final variables = UpdateUserCallCoverArguments(id: id, crop: crop);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateUserCallCover',
-        document: UpdateUserCallCoverMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateUserCallCoverException(
-          UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
-              as UpdateUserCallCoverErrorCode),
+    dio.MultipartFile? file,
+    CropAreaInput? crop, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    Log.debug(
+      'updateUserCallCover($file, $crop, onSendProgress)',
+      '$runtimeType',
     );
-    return (UpdateUserCallCover$Mutation.fromJson(result.data!)
-        .updateUserCallCover as MyUserEventsVersionedMixin?);
+
+    final variables = UpdateUserCallCoverArguments(file: null, crop: crop);
+    final query = MutationOptions(
+      operationName: 'UpdateUserCallCover',
+      document: UpdateUserCallCoverMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    try {
+      var response = await client.post(
+        file == null
+            ? encodedBody
+            : dio.FormData.fromMap({
+                'operations': encodedBody,
+                'map': '{ "file": ["variables.upload"] }',
+                'file': file,
+              }),
+        options: file == null
+            ? null
+            : dio.Options(contentType: 'multipart/form-data'),
+        onSendProgress: onSendProgress,
+        onException: (data) => UpdateUserCallCoverException(
+          (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
+                  as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
+              .code,
+        ),
+      );
+
+      if (response.data['data'] == null) {
+        throw GraphQlException(
+          [GraphQLError(message: response.data.toString())],
+        );
+      }
+
+      return (UpdateUserCallCover$Mutation.fromJson(response.data['data'])
+          .updateUserCallCover as MyUserEventsVersionedMixin?);
+    } on dio.DioException catch (e) {
+      if (e.response?.statusCode == 413) {
+        throw const UpdateUserCallCoverException(
+          UpdateUserCallCoverErrorCode.invalidSize,
+        );
+      }
+
+      rethrow;
+    }
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser]. Overrides
@@ -890,6 +1032,8 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] is muted already `until` the specified [DateTime] (or unmuted).
   Future<MyUserEventsVersionedMixin?> toggleMyUserMute(Muting? mute) async {
+    Log.debug('toggleMyUserMute($mute)', '$runtimeType');
+
     final variables = ToggleMyUserMuteArguments(mute: mute);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -903,95 +1047,6 @@ mixin UserGraphQlMixin {
     );
     return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
         as MyUserEventsVersionedMixin?);
-  }
-
-  /// Adds a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  ///
-  /// HTTP request for this mutation must be `Content-Type: multipart/form-data`
-  /// containing the uploaded file and the file argument itself must be `null`,
-  /// otherwise this mutation will fail.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserGalleryItemAdded].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time adds a new unique [GalleryItem].
-  Future<MyUserEventsVersionedMixin?> uploadUserGalleryItem(
-    dio.MultipartFile? galleryItem, {
-    void Function(int count, int total)? onSendProgress,
-  }) async {
-    final variables = UploadUserGalleryItemArguments(upload: null);
-    final query = MutationOptions(
-      operationName: 'UploadUserGalleryItem',
-      document: UploadUserGalleryItemMutation(variables: variables).document,
-      variables: variables.toJson(),
-    );
-
-    final request = query.asRequest;
-    final body = const RequestSerializer().serializeRequest(request);
-    final encodedBody = json.encode(body);
-
-    try {
-      var response = await client.post(
-        dio.FormData.fromMap({
-          'operations': encodedBody,
-          'map': '{ "file": ["variables.upload"] }',
-          'file': galleryItem,
-        }),
-        options: dio.Options(contentType: 'multipart/form-data'),
-        onSendProgress: onSendProgress,
-        onException: (data) => UploadUserGalleryItemException(
-            (UploadUserGalleryItem$Mutation.fromJson(data).uploadUserGalleryItem
-                    as UploadUserGalleryItem$Mutation$UploadUserGalleryItem$UploadUserGalleryItemError)
-                .code),
-      );
-
-      return (UploadUserGalleryItem$Mutation.fromJson(response.data['data'])
-          .uploadUserGalleryItem as MyUserEventsVersionedMixin?);
-    } on dio.DioError catch (e) {
-      if (e.response?.statusCode == 413) {
-        throw const UploadUserGalleryItemException(
-          UploadUserGalleryItemErrorCode.tooBigSize,
-        );
-      }
-
-      rethrow;
-    }
-  }
-
-  /// Removes the specified [GalleryItem] from the authenticated [MyUser]'s
-  /// gallery.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserGalleryItemDeleted].
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [MyUserEvent]) if the specified
-  /// [GalleryItem] was deleted already (or if it never existed).
-  Future<MyUserEventsVersionedMixin?> deleteUserGalleryItem(
-      GalleryItemId id) async {
-    final variables = DeleteUserGalleryItemArguments(id: id);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserGalleryItem',
-      document: DeleteUserGalleryItemMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserGalleryItem$Mutation.fromJson(result.data!)
-        .deleteUserGalleryItem;
   }
 
   /// Keeps the authenticated [MyUser] online while subscribed.
@@ -1024,6 +1079,8 @@ mixin UserGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Stream<QueryResult> keepOnline() {
+    Log.debug('keepOnline()', '$runtimeType');
+
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'KeepOnline',
@@ -1032,12 +1089,12 @@ mixin UserGraphQlMixin {
     );
   }
 
-  /// Blacklists the specified [User] for the authenticated [MyUser].
+  /// Blocks the specified [User] for the authenticated [MyUser].
   ///
-  /// Blacklisted [User]s are not able to communicate with the authenticated
-  /// [MyUser] directly (in [Chat]-dialogs).
+  /// Blocked [User]s are not able to communicate with the authenticated
+  /// [MyUser] directly (in [Chat]-dialogs) and add him to [Chat]-groups.
   ///
-  /// [MyUser]'s blacklist can be obtained via `Query.blacklist`.
+  /// [MyUser]'s blocklist can be obtained via [getBlocklist].
   ///
   /// ### Authentication
   ///
@@ -1045,36 +1102,39 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordAdded].
+  /// Only the following BlocklistEvent may be produced on success:
+  /// - [EventBlocklistRecordAdded].
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> blacklistUser(
+  /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
+  /// [User] is blocked by the authenticated [MyUser] already with the same
+  /// [BlocklistReason].
+  Future<BlocklistEventsVersionedMixin?> blockUser(
     UserId id,
-    BlacklistReason? reason,
+    BlocklistReason? reason,
   ) async {
-    final variables = BlacklistUserArguments(id: id, reason: reason);
+    Log.debug('blockUser($id, $reason)', '$runtimeType');
+
+    final variables = BlockUserArguments(id: id, reason: reason);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'BlacklistUser',
-        document: BlacklistUserMutation(variables: variables).document,
+        operationName: 'BlockUser',
+        document: BlockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => BlacklistUserException(
-          BlacklistUser$Mutation.fromJson(data).blacklistUser
-              as BlacklistUserErrorCode),
+      onException: (data) => BlockUserException(
+        BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
+      ),
     );
-    return BlacklistUser$Mutation.fromJson(result.data!).blacklistUser
-        as BlacklistEventsVersionedMixin?;
+    return BlockUser$Mutation.fromJson(result.data!).blockUser
+        as BlocklistEventsVersionedMixin?;
   }
 
-  /// Removes the specified [User] from the blacklist of the authenticated
+  /// Removes the specified [User] from the blocklist of the authenticated
   /// [MyUser].
   ///
-  /// Reverses the action of [blacklistUser].
+  /// Reverses the action of [blockUser].
   ///
   /// ### Authentication
   ///
@@ -1082,57 +1142,61 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [BlacklistEvent] may be produced on success:
-  /// - [EventBlacklistRecordRemoved].
+  /// Only the following [BlocklistEvent] may be produced on success:
+  /// - [EventBlocklistRecordRemoved].
   ///
-  /// ### Idempotent
+  /// Idempotent
   ///
-  /// Succeeds as no-op (and returns no [BlacklistEvent]) if the specified
-  /// [User] is not blacklisted by the authenticated [MyUser] already.
-  Future<BlacklistEventsVersionedMixin?> unblacklistUser(UserId id) async {
-    final variables = UnblacklistUserArguments(id: id);
+  /// Succeeds as no-op (and returns no [BlocklistEvent]) if the specified
+  /// [User] is not blocked by the authenticated [MyUser] already.
+  Future<BlocklistEventsVersionedMixin?> unblockUser(UserId id) async {
+    Log.debug('unblockUser($id)', '$runtimeType');
+
+    final variables = UnblockUserArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'UnblacklistUser',
-        document: UnblacklistUserMutation(variables: variables).document,
+        operationName: 'UnblockUser',
+        document: UnblockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UnblacklistUserException(
-          UnblacklistUser$Mutation.fromJson(data).unblacklistUser
-              as UnblacklistUserErrorCode),
+      onException: (data) => UnblockUserException(
+        UnblockUser$Mutation.fromJson(data).unblockUser as UnblockUserErrorCode,
+      ),
     );
-    return UnblacklistUser$Mutation.fromJson(result.data!).unblacklistUser
-        as BlacklistEventsVersionedMixin?;
+    return UnblockUser$Mutation.fromJson(result.data!).unblockUser
+        as BlocklistEventsVersionedMixin?;
   }
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
+  /// Returns [User]s blocked by this [MyUser] as [BlocklistRecord]s.
   ///
   /// ### Sorting
   ///
-  /// Returned [User]s are sorted primarily by their blacklisting [DateTime],
-  /// and secondary by their IDs (if the blacklisting [DateTime] is the same),
-  /// in descending order.
+  /// Returned [User]s are sorted primarily by their blocking [DateTime], and
+  /// secondary by their IDs (if the blocking [DateTime] is the same), in
+  /// descending order.
   ///
   /// ### Pagination
   ///
   /// It's allowed to specify both [first] and [last] counts at the same time,
   /// provided that [after] and [before] cursors are equal. In such case the
-  /// returned page will include the [User] pointed by the cursor and the
-  /// requested count of [User]s preceding and following it.
+  /// returned page will include the [BlocklistRecord] pointed by the cursor and
+  /// the requested count of [BlocklistRecord]s preceding and following it.
   ///
-  /// If it's desired to receive the [User], pointed by the cursor, without
-  /// querying in both directions, one can specify [first] or [last] count as 0.
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
+  /// If it's desired to receive the [BlocklistRecord], pointed by the cursor,
+  /// without querying in both directions, one can specify [first] or [last]
+  /// count as 0.
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
     int? first,
-    BlacklistCursor? after,
+    BlocklistCursor? after,
     int? last,
-    BlacklistCursor? before,
+    BlocklistCursor? before,
   }) async {
-    final variables = GetBlacklistArguments(
+    Log.debug(
+      'getBlocklist($first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
+    final variables = GetBlocklistArguments(
       first: first,
       after: after,
       last: last,
@@ -1140,11 +1204,99 @@ mixin UserGraphQlMixin {
     );
     final QueryResult result = await client.query(
       QueryOptions(
-        operationName: 'GetBlacklist',
-        document: GetBlacklistQuery(variables: variables).document,
+        operationName: 'GetBlocklist',
+        document: GetBlocklistQuery(variables: variables).document,
         variables: variables.toJson(),
       ),
     );
-    return GetBlacklist$Query.fromJson(result.data!).blacklist;
+    return GetBlocklist$Query.fromJson(result.data!).blocklist;
+  }
+
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
+  ///
+  /// ### Localization
+  ///
+  /// You may provide the device's preferred locale via the `Accept-Language`
+  /// HTTP header, which will localize notifications to that device using the
+  /// best match of the supported locales.
+  ///
+  /// In order to change the locale of the device, you should re-register it
+  /// supplying the desired locale (use [unregisterFcmDevice], and then
+  /// [registerFcmDevice] once again).
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `null` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds if the specified [token] is registered already.
+  Future<void> registerFcmDevice(
+    FcmRegistrationToken token,
+    String? locale,
+  ) async {
+    Log.debug('registerFcmDevice($token, $locale)', '$runtimeType');
+
+    final variables = RegisterFcmDeviceArguments(token: token);
+    final query = MutationOptions(
+      operationName: 'RegisterFcmDevice',
+      document: RegisterFcmDeviceMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': token,
+      }),
+      options: dio.Options(
+        headers: {
+          if (locale != null) 'Accept-Language': locale,
+        },
+      ),
+      onException: (data) => RegisterFcmDeviceException(
+        RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
+            as RegisterFcmDeviceErrorCode,
+      ),
+    );
+  }
+
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `true` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds if the specified [token] is not registered already.
+  Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
+    Log.debug('unregisterFcmDevice($token)', '$runtimeType');
+
+    final variables = UnregisterFcmDeviceArguments(token: token);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UnregisterFcmDevice',
+        document: UnregisterFcmDeviceMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UnregisterFcmDevice$Mutation.fromJson(result.data!)
+        .unregisterFcmDevice;
   }
 }

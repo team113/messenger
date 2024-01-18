@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -58,21 +58,6 @@ class WebStoredCall {
     this.state = OngoingCallState.local,
   });
 
-  /// [ChatCall] of this [WebStoredCall].
-  final ChatCall? call;
-
-  /// [ChatId] of this [WebStoredCall].
-  final ChatId chatId;
-
-  /// Stored [OngoingCall.creds].
-  final ChatCallCredentials? creds;
-
-  /// Stored [OngoingCall.deviceId].
-  final ChatCallDeviceId? deviceId;
-
-  /// Stored [OngoingCall.state].
-  final OngoingCallState state;
-
   /// Constructs a [WebStoredCall] from the provided [data].
   factory WebStoredCall.fromJson(Map<dynamic, dynamic> data) {
     return WebStoredCall(
@@ -82,14 +67,14 @@ class WebStoredCall {
           : ChatCall(
               ChatItemId(data['call']['id']),
               ChatId(data['call']['chatId']),
-              UserId(data['call']['authorId']),
+              User(
+                UserId(data['call']['author']['id']),
+                UserNum(data['call']['author']['num']),
+                name: data['call']['author']['name'] == null
+                    ? null
+                    : UserName(data['call']['author']['name']),
+              ),
               PreciseDateTime.parse(data['call']['at']),
-              caller: data['call']['caller'] == null
-                  ? null
-                  : User(
-                      UserId(data['call']['caller']['id']),
-                      UserNum(data['call']['caller']['num']),
-                    ),
               members: (data['call']['members'] as List<dynamic>)
                   .map((e) => ChatCallMember(
                         user: User(
@@ -136,6 +121,21 @@ class WebStoredCall {
     );
   }
 
+  /// [ChatCall] of this [WebStoredCall].
+  final ChatCall? call;
+
+  /// [ChatId] of this [WebStoredCall].
+  final ChatId chatId;
+
+  /// Stored [OngoingCall.creds].
+  final ChatCallCredentials? creds;
+
+  /// Stored [OngoingCall.deviceId].
+  final ChatCallDeviceId? deviceId;
+
+  /// Stored [OngoingCall.state].
+  final OngoingCallState state;
+
   /// Returns a [Map] containing this [WebStoredCall] data.
   Map<String, dynamic> toJson() {
     return {
@@ -145,14 +145,12 @@ class WebStoredCall {
           : {
               'id': call!.id.val,
               'chatId': call!.chatId.val,
-              'authorId': call!.authorId.val,
               'at': call!.at.toString(),
-              'caller': call!.caller == null
-                  ? null
-                  : {
-                      'id': call!.caller?.id.val,
-                      'num': call!.caller?.num.val,
-                    },
+              'author': {
+                'id': call!.author.id.val,
+                'num': call!.author.num.val,
+                'name': call!.author.name?.val,
+              },
               'members': call!.members
                   .map((e) => {
                         'user': {
@@ -190,6 +188,9 @@ class WebStoredCall {
       'state': state.index,
     };
   }
+
+  @override
+  String toString() => 'WebStoredCall(${call?.id})';
 }
 
 /// Extension adding a conversion from an [OngoingCall] to a [WebStoredCall].

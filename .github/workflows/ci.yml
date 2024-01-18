@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.10"
+  FLUTTER_VER: "3.16"
 
 jobs:
 
@@ -24,6 +24,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
       - build
+      - build-linux
       - copyright
       - dartanalyze
       - dartdoc
@@ -47,14 +48,14 @@ jobs:
   copyright:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: make copyright check=yes
 
   dartanalyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -68,7 +69,7 @@ jobs:
   dartfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -78,7 +79,7 @@ jobs:
       - run: make flutter.fmt check=yes
 
   helm-lint:
-    name: Lint Helm chart
+    name: helm lint
     if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
     strategy:
       fail-fast: false
@@ -86,7 +87,7 @@ jobs:
         chart: ["messenger"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: azure/setup-helm@v3
 
       - run: make helm.lint chart=${{ matrix.chart }}
@@ -94,7 +95,7 @@ jobs:
   pubspec:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -121,51 +122,75 @@ jobs:
           - apk
           - appbundle
           - ios
-          - linux
           - macos
           - web
           - windows
-    # TODO: Change `linux` platform to `ubuntu-latest` when 22.04 is out of beta.
-    runs-on: ${{ ((matrix.platform == 'ios' || matrix.platform == 'macos')
-                                               && 'macos-latest')
-              || (matrix.platform == 'windows' && 'windows-latest')
-              || (matrix.platform == 'linux'   && 'ubuntu-22.04')
-              ||                                  'ubuntu-latest' }}
+    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
+              || (matrix.platform == 'windows'           && 'windows-latest')
+              ||                                            'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
 
-      - run: sudo apt-get update -y
-        if: ${{ matrix.platform == 'linux' }}
-      - run: sudo apt-get install -y
-                          ninja-build
-                          libunwind-dev
-                          libgtk-3-dev
-                          libgstreamer1.0-dev
-                          libgstreamer-plugins-base1.0-dev
-                          libpulse-dev
-                          libmpv-dev
-                          mpv
-        if: ${{ matrix.platform == 'linux' }}
+      - name: Configure FCM (Firebase Cloud Messaging)
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
+        run: |
+          set -ex
+          npm install -g firebase-tools
+          dart pub global activate flutterfire_cli
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' \
+          > ${{ runner.temp }}/service_account.json
+
+          make fcm.conf project-id=${{ secrets.FCM_PROJECT_ID }} \
+                        platforms="android,ios,web" \
+                        web-id=${{ secrets.FCM_WEB_APP_ID }} \
+                        bundle-id=${{ secrets.FCM_BUNDLE_ID }}
+        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
+      - name: Configure FCM (Firebase Cloud Messaging) service worker
+        run: echo '${{ secrets.GOOGLE_SERVICES_JS }}'
+             > web/firebase-messaging-sw.js
+        if: ${{ matrix.platform == 'web' }}
 
       - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'windows' }}
+        if: ${{ contains('macos windows', matrix.platform) }}
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - run: make flutter.pub
 
       - run: make flutter.build platform=${{ matrix.platform }}
+                  dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
+                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}'
         if: ${{ matrix.platform == 'web' }}
+
+      # TODO: Use `split-debug-info` for Windows once Sentry supports it:
+      #       https://github.com/getsentry/sentry-dart/issues/433
+      #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
+                  split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
-                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}'
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Parse application name from Git repository name
@@ -188,23 +213,18 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
-      - uses: thedoctor0/zip-release@0.7.1
+      - uses: thedoctor0/zip-release@0.7.6
         with:
+          custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'ios'
                           && 'build/ios/iphoneos/dist')
-                      || (matrix.platform == 'linux'
-                          && 'build/linux/x64/release/bundle')
                       || (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
-                          && 'build/windows/runner/Release')
+                          && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
-        if: ${{ matrix.platform == 'ios'
-             || matrix.platform == 'linux'
-             || matrix.platform == 'macos'
-             || matrix.platform == 'web'
-             || matrix.platform == 'windows' }}
+        if: ${{ contains('ios macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
@@ -219,9 +239,120 @@ jobs:
               ||     'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 1
+
+      # Globstar is supported in Bash 4.0+, `macos-latest` runner uses Bash 3.2.
+      - name: Prepare `*.dSYM` debug symbols
+        run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
+        if: ${{ contains('ios macos', matrix.platform) }}
+      - name: Prepare debug web source maps
+        run: |
+          shopt -s globstar
+
+          mkdir -p debug/
+          mv build/web/**/*.map debug/
+          cd build/web && cp --parents **/*.js ../../debug/
+        if: ${{ matrix.platform == 'web' }}
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
+          directory: debug
+        if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debug-${{ matrix.platform }}-${{ github.run_number }}
+          path: debug-${{ matrix.platform }}.zip
+          if-no-files-found: error
+          retention-days: 1
+        if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
+
+  build-linux:
+    name: build (linux)
+    runs-on: ubuntu-latest
+    # Pin glibc to 2.31 version for better compatibility.
+    container: debian:bullseye
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Unshallow the repository in order for `PubspecBuilder` and its
+          # `git describe` to work.
+          fetch-depth: 0
+
+      - run: apt-get update -y
+      - run: apt-get install -y
+                     ninja-build
+                     libunwind-dev
+                     libgtk-3-dev
+                     libpulse-dev
+                     libmpv-dev
+                     mpv
+                     jq
+                     curl
+                     git
+                     make
+                     procps
+                     cmake
+                     clang
+                     zip
+
+      - run: git config --global --add safe.directory '*'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+      - run: flutter config --enable-linux-desktop
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - run: make flutter.pub
+
+      # TODO: Use `split-debug-info` when Sentry supports Linux debug symbols.
+      #       https://github.com/getsentry/sentry-dart/issues/433
+      - run: make flutter.build platform=linux
+                  dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
+                            SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
+                            SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
+
+      - name: Parse application name from Git repository name
+        id: app
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.repository }}
+          regex: '^${{ github.repository_owner }}/(.+)$'
+
+      - run: mkdir artifacts/
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-linux.zip
+          directory: build/linux/x64/release/bundle
+
+      - name: Generate SHA256 checksums
+        run: ${{ 'ls -1 | xargs -I {} sh -c "sha256sum {} > {}.sha256sum"' }}
+        working-directory: artifacts/
+      - name: Show generated SHA256 checksums
+        run: ${{ 'cat *.sha256sum' }}
+        working-directory: artifacts/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-linux-${{ github.run_number }}
           path: artifacts/
           if-no-files-found: error
           retention-days: 1
@@ -229,7 +360,7 @@ jobs:
   dartdoc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -240,49 +371,49 @@ jobs:
 
       - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dartdoc-${{ github.run_number }}
-          path: doc/api
+          path: doc/api/
           if-no-files-found: error
         if: ${{ github.ref == 'refs/heads/main'
              || startsWith(github.ref, 'refs/tags/v') }}
 
   docker:
-    needs: ["build"]
+    needs: ["build", "build-linux"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/setup-buildx-action@v2
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-web-${{ github.run_number }}
       - run: mkdir -p build/web/
       - run: unzip *.zip -d build/web/
 
       - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-apk-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-ios-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
@@ -292,7 +423,7 @@ jobs:
 
       - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: docker-${{ github.run_number }}
           path: .cache/image.tar
@@ -307,10 +438,30 @@ jobs:
   ###########
 
   test-e2e:
-    name: E2E tests
+    name: test (E2E)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ (github.event_name == 'pull_request') && 2 || 1 }}
+      - name: Retrieve commit messages
+        id: commit
+        run: |
+          echo "messages=$(git log --grep='\[debug\]' \
+                                   --grep='\[trace\]' \
+                                   --format=%s)" \
+          >> $GITHUB_OUTPUT
+
+      - name: Determine log level
+        id: log
+        run: |
+          echo "level=${{ (contains(steps.commit.outputs.messages, '[debug]')
+                           && 'debug')
+                       || (contains(steps.commit.outputs.messages, '[trace]')
+                           && 'trace')
+                       ||     'info' }}"
+          >> $GITHUB_OUTPUT
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -318,7 +469,7 @@ jobs:
           cache: true
 
       - name: Login to private E2E container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ secrets.E2E_REGISTRY }}
           username: ${{ secrets.E2E_USER }}
@@ -327,7 +478,7 @@ jobs:
       - run: make flutter.pub
 
       - name: Prepare E2E environment
-        uses: SpicyPizza/create-envfile@v1
+        uses: SpicyPizza/create-envfile@v2
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
@@ -343,20 +494,32 @@ jobs:
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
-      - uses: nanasess/setup-chromedriver@v1
+      #
+      # Use `grep` to remove the meaningless logs from the output.
+      - uses: nanasess/setup-chromedriver@v2
       - run: |
-          chromedriver --port=4444 --enable-chrome-logs --disable-dev-shm-usage &
-          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes
+          chromedriver --port=4444 --enable-chrome-logs \
+                       --disable-dev-shm-usage \
+                       2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
+          make test.e2e start-app=yes device=web-server pull=yes no-cache=yes \
+               dart-env='SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}'
+        env:
+          OMIT: |
+            [
+              ":INFO:CONSOLE\\(51109\\)] ",
+              "\"Got object store box in database",
+              "\\[CONFIG\\]: Remote configuration fetch failed"
+            ]
 
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
       - run: sudo chmod -R 755 .cache/
 
   test-unit:
-    name: Unit tests
+    name: test (unit)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -374,8 +537,8 @@ jobs:
   # Releasing #
   #############
 
-  release-docker:
-    name: Release Docker image
+  docker-push:
+    name: docker push
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
     needs:
@@ -402,10 +565,10 @@ jobs:
                     && secrets.DOCKERHUB_BOT_USER == ''))
              ) }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: docker-${{ github.run_number }}
           path: .cache/
@@ -414,7 +577,7 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Login to ${{ matrix.registry }} container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ matrix.registry }}
           username: ${{ (matrix.registry == 'docker.io'
@@ -439,7 +602,7 @@ jobs:
              && startsWith(github.ref, 'refs/tags/v') }}
       - name: Form version Docker tags
         id: tags
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           result-encoding: string
           script: |
@@ -491,104 +654,8 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true'
              && matrix.registry == 'quay.io' }}
 
-  release-github:
-    name: Release on GitHub
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - build
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - release-docker
-      - test-e2e
-      - test-unit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-      - name: Verify Git tag version matches `pubspec.yaml` version
-        run: |
-          test "${{ steps.semver.outputs.group1 }}" \
-            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
-
-      - name: Parse CHANGELOG link
-        id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
-      - name: Parse milestone link
-        id: milestone
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-apk-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-appbundle-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-ios-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-linux-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-macos-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-web-${{ github.run_number }}
-          path: artifacts/
-      - uses: actions/download-artifact@v3
-        with:
-          name: build-windows-${{ github.run_number }}
-          path: artifacts/
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: dartdoc-${{ github.run_number }}
-          path: .cache/dartdoc/
-      - uses: thedoctor0/zip-release@0.7.1
-        with:
-          filename: artifacts/docs.zip
-          path: .cache/dartdoc/
-      - name: Generate dartdoc SHA256 checksum
-        run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
-        working-directory: artifacts/
-
-      - name: Show artifacts SHA256 checksums
-        run: cat *.sha256sum
-        working-directory: artifacts/
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ steps.semver.outputs.group1 }}
-          body: >
-            [Changelog](${{ steps.changelog.outputs.link }}) |
-            [Milestone](${{ steps.milestone.outputs.link }})
-          files: |
-            artifacts/*.apk
-            artifacts/*.aab
-            artifacts/*.zip
-            artifacts/*.sha256sum
-          fail_on_unmatched_files: true
-          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
-
-  release-helm:
-    name: Release Helm chart
+  helm-push:
+    name: helm push
     if: ${{ startsWith(github.ref, 'refs/tags/helm/') }}
     needs: ["helm-lint"]
     strategy:
@@ -603,7 +670,7 @@ jobs:
                             format('refs/tags/helm/{0}/', matrix.chart))
              }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: azure/setup-helm@v3
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -689,6 +756,104 @@ jobs:
           git push --force origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
 
+  release-github:
+    name: release (GitHub)
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - build
+      - build-linux
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - docker-push
+      - test-e2e
+      - test-unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+      - name: Verify Git tag version matches `pubspec.yaml` version
+        run: |
+          test "${{ steps.semver.outputs.group1 }}" \
+            == "$(grep -m1 'version: ' pubspec.yaml | cut -d ' ' -f2)"
+
+      - name: Parse CHANGELOG link
+        id: changelog
+        run: echo ::set-output
+                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+      - name: Parse milestone link
+        id: milestone
+        run: echo ::set-output
+                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-apk-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-appbundle-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ios-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-linux-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-macos-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-web-${{ github.run_number }}
+          path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows-${{ github.run_number }}
+          path: artifacts/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dartdoc-${{ github.run_number }}
+          path: .cache/dartdoc/
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          custom: --symlinks  # preserve symlinks, instead of copying files
+          filename: artifacts/docs.zip
+          path: .cache/dartdoc/
+      - name: Generate dartdoc SHA256 checksum
+        run: sh -c "sha256sum docs.zip > docs.zip.sha256sum"
+        working-directory: artifacts/
+
+      - name: Show artifacts SHA256 checksums
+        run: cat *.sha256sum
+        working-directory: artifacts/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.semver.outputs.group1 }}
+          body: >
+            [Changelog](${{ steps.changelog.outputs.link }}) |
+            [Milestone](${{ steps.milestone.outputs.link }})
+          files: |
+            artifacts/*.apk
+            artifacts/*.aab
+            artifacts/*.zip
+            artifacts/*.sha256sum
+          fail_on_unmatched_files: true
+          prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
+
 
 
 
@@ -697,19 +862,19 @@ jobs:
   #############
 
   deploy-docs:
-    name: Deploy documentation
+    name: deploy (dartdoc)
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["dartdoc"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: gh-pages
 
       - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
@@ -723,3 +888,62 @@ jobs:
           keep_files: true
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
+
+  deploy-sentry:
+    name: deploy (symbols, Sentry)
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs: ["release-github"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-apk-${{ github.run_number }}
+          path: debug/
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-appbundle-${{ github.run_number }}
+          path: debug/
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-ios-${{ github.run_number }}
+          path: debug/
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-macos-${{ github.run_number }}
+          path: debug/
+      - name: Unzip debug symbols
+        run: |
+          set -e
+          for f in debug/debug-*.zip
+            do unzip "$f" -d "${f%.zip}/"
+          done
+      - uses: actions/download-artifact@v4
+        with:
+          name: debug-web-${{ github.run_number }}
+      # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
+      - run: mkdir -p build/web/
+      - name: Unzip web source maps
+        run: unzip debug-*.zip -d build/web/
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+
+      - run: make sentry.upload
+                  project=${{ secrets.SENTRY_PROJECT }}
+                  org=${{ secrets.SENTRY_ORG }}
+                  token=${{ secrets.SENTRY_TOKEN }}
+                  release=${{ steps.semver.outputs.group1 }}
+                  url=${{ secrets.SENTRY_URL }}

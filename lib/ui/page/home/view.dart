@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,14 +22,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -40,14 +37,20 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/work/view.dart';
 import 'widget/animated_slider.dart';
-import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {Key? key}) : super(key: key);
+  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  ///
+  /// Should also mean that sign up operation just has been occurred.
+  final bool signedUp;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -81,9 +84,6 @@ class _HomeViewState extends State<HomeView> {
     _deps?.dispose();
   }
 
-  /// Called when a dependency of this [State] object changes.
-  ///
-  /// Used to get the [Router] widget from context.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -98,32 +98,50 @@ class _HomeViewState extends State<HomeView> {
 
     if (_deps == null) {
       return Scaffold(
-        backgroundColor: style.colors.onPrimary,
-        body: const Center(child: CustomProgressIndicator()),
+        // For web, background color is displayed in `index.html` file.
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
+        body: const Stack(
+          children: [
+            SvgImage.asset(
+              'assets/images/background_light.svg',
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+            Center(child: CustomProgressIndicator.primary()),
+          ],
+        ),
       );
     }
 
     return GetBuilder(
-      init: HomeController(Get.find(), Get.find(), Get.find()),
+      init: HomeController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        signedUp: widget.signedUp,
+      ),
       builder: (HomeController c) {
-        /// Claim priority of the "Back" button dispatcher.
+        // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
         if (!context.isNarrow) {
           c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
         }
 
-        /// Side bar uses a little trick to be responsive:
-        ///
-        /// 1. On mobile, side bar is full-width and the navigator's first page
-        ///    is transparent, both visually and tactile. As soon as a new page
-        ///    populates the route stack, it becomes reactive to touches.
-        ///    Navigator is drawn above the side bar in this case.
-        ///
-        /// 2. On desktop/tablet side bar is always shown and occupies the space
-        ///    determined by the `sideBarWidth` value.
-        ///    Navigator is drawn under the side bar (so the page animation is
-        ///    correct).
+        // Side bar uses a little trick to be responsive:
+        //
+        // 1. On mobile, side bar is full-width and the navigator's first page
+        //    is transparent, both visually and tactile. As soon as a new page
+        //    populates the route stack, it becomes reactive to touches.
+        //    Navigator is drawn above the side bar in this case.
+        //
+        // 2. On desktop/tablet side bar is always shown and occupies the space
+        //    determined by the `sideBarWidth` value.
+        //    Navigator is drawn under the side bar (so the page animation is
+        //    correct).
         final sideBar = AnimatedOpacity(
           duration: 200.milliseconds,
           opacity: context.isNarrow && router.route != Routes.home ? 0 : 1,
@@ -151,25 +169,35 @@ class _HomeViewState extends State<HomeView> {
                           }
                         }
                       },
-                      child: Obx(() {
-                        return PageView(
-                          physics: c.verticalScrollTimer.value == null &&
-                                  router.navigation.value
-                              ? null
-                              : const NeverScrollableScrollPhysics(),
-                          controller: c.pages,
-                          onPageChanged: (int i) {
-                            router.tab = HomeTab.values[i];
-                            c.page.value = router.tab;
-                          },
-                          // [KeepAlivePage] used to keep the tabs' states.
-                          children: const [
-                            KeepAlivePage(child: ContactsTabView()),
-                            KeepAlivePage(child: ChatsTabView()),
-                            KeepAlivePage(child: MenuTabView()),
-                          ],
-                        );
-                      }),
+                      child: PageView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: c.pages,
+                        onPageChanged: (int i) {
+                          router.tab = HomeTab.values[i];
+                          c.page.value = router.tab;
+
+                          if (!context.isNarrow) {
+                            switch (router.tab) {
+                              case HomeTab.menu:
+                                router.me();
+                                break;
+
+                              default:
+                                if (router.route == Routes.me) {
+                                  router.home();
+                                }
+                                break;
+                            }
+                          }
+                        },
+                        // [KeepAlivePage] used to keep the tabs' states.
+                        children: const [
+                          KeepAlivePage(child: WorkTabView()),
+                          KeepAlivePage(child: ContactsTabView()),
+                          KeepAlivePage(child: ChatsTabView()),
+                          KeepAlivePage(child: MenuTabView()),
+                        ],
+                      ),
                     ),
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
@@ -179,119 +207,45 @@ class _HomeViewState extends State<HomeView> {
                           isOpen: router.navigation.value,
                           beginOffset: const Offset(0.0, 5),
                           translate: false,
-                          child: CustomNavigationBar(
-                            items: [
-                              CustomNavigationBarItem(
-                                key: const Key('ContactsButton'),
-                                child: SvgImage.asset(
-                                  'assets/icons/contacts.svg',
-                                  width: 32,
-                                  height: 32,
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                key: const Key('ChatsButton'),
-                                badge: c.unreadChatsCount.value == 0
-                                    ? null
-                                    : '${c.unreadChatsCount.value}',
-                                badgeColor: c.myUser.value?.muted != null
-                                    ? style.colors.secondaryHighlightDarkest
-                                    : style.colors.dangerColor,
-                                child: ContextMenuRegion(
-                                  selector: c.chatsKey,
-                                  alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  actions: [
-                                    if (c.myUser.value?.muted != null)
-                                      ContextMenuButton(
-                                        key: const Key('UnmuteChatsButton'),
-                                        label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () => c.toggleMute(true),
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        key: const Key('MuteChatsButton'),
-                                        label: 'btn_mute_chats'.l10n,
-                                        onPressed: () => c.toggleMute(false),
-                                      ),
-                                  ],
-                                  child: Obx(() {
-                                    final Widget child;
+                          child: Obx(() {
+                            return CustomNavigationBar(
+                              items: c.tabs.map((e) {
+                                switch (e) {
+                                  case HomeTab.work:
+                                    return const CustomNavigationBarItem.work();
 
-                                    if (c.myUser.value?.muted != null) {
-                                      child = SvgImage.asset(
-                                        'assets/icons/chats_muted.svg',
-                                        key: const Key('Muted'),
-                                        width: 39.26,
-                                        height: 33.5,
-                                      );
-                                    } else {
-                                      child = SvgImage.asset(
-                                        'assets/icons/chats.svg',
-                                        key: const Key('Unmuted'),
-                                        width: 39.26,
-                                        height: 33.5,
-                                      );
-                                    }
+                                  case HomeTab.contacts:
+                                    return const CustomNavigationBarItem
+                                        .contacts();
 
-                                    return AnimatedSwitcher(
-                                      key: c.chatsKey,
-                                      duration: 200.milliseconds,
-                                      child: child,
-                                    );
-                                  }),
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                key: const Key('MenuButton'),
-                                child: ContextMenuRegion(
-                                  selector: c.profileKey,
-                                  alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  actions: [
-                                    ContextMenuButton(
-                                      label: 'label_presence_present'.l10n,
-                                      onPressed: () =>
-                                          c.setPresence(Presence.present),
-                                      showTrailing: true,
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                    ),
-                                    ContextMenuButton(
-                                      label: 'label_presence_away'.l10n,
-                                      onPressed: () =>
-                                          c.setPresence(Presence.away),
-                                      showTrailing: true,
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.orange,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  child: Padding(
-                                    key: c.profileKey,
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: 15,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            currentIndex: router.tab.index,
-                            onTap: c.pages.jumpToPage,
-                          ),
+                                  case HomeTab.chats:
+                                    return Obx(() {
+                                      return CustomNavigationBarItem.chats(
+                                        unread: c.unreadChats.value.toString(),
+                                        danger: c.myUser.value?.muted == null,
+                                        selector: c.chatsKey,
+                                        onMute: c.toggleMute,
+                                      );
+                                    });
+
+                                  case HomeTab.menu:
+                                    return Obx(() {
+                                      return CustomNavigationBarItem.menu(
+                                        acceptAuxiliary:
+                                            style.colors.acceptAuxiliary,
+                                        warning: style.colors.warning,
+                                        onPresence: c.setPresence,
+                                        onAvatar: c.updateAvatar,
+                                        selector: c.profileKey,
+                                        myUser: c.myUser.value,
+                                      );
+                                    });
+                                }
+                              }).toList(),
+                              currentIndex: c.tabs.indexOf(router.tab),
+                              onTap: (i) => c.pages.jumpToPage(c.tabs[i].index),
+                            );
+                          }),
                         );
                       }),
                     ),
@@ -315,8 +269,8 @@ class _HomeViewState extends State<HomeView> {
           ),
         );
 
-        /// Nested navigation widget that displays [navigator] in an [Expanded]
-        /// to take all the remaining from the [sideBar] space.
+        // Nested navigation widget that displays [navigator] in an [Expanded]
+        // to take all the remaining from the [sideBar] space.
         Widget navigation = IgnorePointer(
           ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
@@ -341,30 +295,25 @@ class _HomeViewState extends State<HomeView> {
           }),
         );
 
-        /// Navigator should be drawn under or above the [sideBar] for the
-        /// animations to look correctly.
-        ///
-        /// [Container]s are required for the [sideBar] to keep its state.
-        /// Otherwise, [Stack] widget will be updated, which will lead its
-        /// children to be updated as well.
+        // Navigator should be drawn under or above the [sideBar] for the
+        // animations to look correctly.
+        //
+        // [SizedBox]es are required for the [sideBar] to keep its state.
+        // Otherwise, [Stack] widget will be updated, which will lead its
+        // children to be updated as well.
         return CallOverlayView(
           child: Obx(() {
             return Stack(
               key: const Key('HomeView'),
               children: [
-                Container(
-                  color: style.colors.onPrimary,
-                  width: double.infinity,
-                  height: double.infinity,
-                ),
                 _background(c),
                 if (c.authStatus.value.isSuccess) ...[
-                  Container(child: context.isNarrow ? null : navigation),
+                  SizedBox(child: context.isNarrow ? null : navigation),
                   sideBar,
-                  Container(child: context.isNarrow ? navigation : null),
+                  SizedBox(child: context.isNarrow ? navigation : null),
                 ] else
                   const Scaffold(
-                    body: Center(child: CustomProgressIndicator()),
+                    body: Center(child: CustomProgressIndicator.primary()),
                   )
               ],
             );
@@ -385,6 +334,8 @@ class _HomeViewState extends State<HomeView> {
           if (c.background.value != null) {
             image = Image.memory(
               c.background.value!,
+              width: double.infinity,
+              height: double.infinity,
               key: Key('Background_${c.background.value?.lengthInBytes}'),
               fit: BoxFit.cover,
             );
@@ -394,26 +345,18 @@ class _HomeViewState extends State<HomeView> {
 
           return Stack(
             children: [
-              Positioned.fill(
+              const Positioned.fill(
                 child: SvgImage.asset(
                   'assets/images/background_light.svg',
-                  key: const Key('DefaultBackground'),
+                  key: Key('DefaultBackground'),
                   width: double.infinity,
                   height: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
               Positioned.fill(
-                child: AnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: 250.milliseconds,
-                  layoutBuilder: (child, previous) {
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [...previous, if (child != null) child]
-                          .map((e) => Positioned.fill(child: e))
-                          .toList(),
-                    );
-                  },
                   child: image,
                 ),
               ),

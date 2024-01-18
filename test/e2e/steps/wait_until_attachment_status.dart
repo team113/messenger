@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,55 +15,57 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
+import '../parameters/sending_status.dart';
 import '../world/custom_world.dart';
 
 /// Waits until [LocalAttachment.status] of the specified [Attachment] becomes
-/// the provided [SendingStatus].
+/// the provided [MessageSentStatus].
 ///
 /// Examples:
 /// - Then I wait until status of "test.txt" attachment is sending
 /// - Then I wait until status of "test.jpg" attachment is error
 /// - Then I wait until status of "test.doc" attachment is sent
 final StepDefinitionGeneric waitUntilAttachmentStatus =
-    then2<String, SendingStatus, CustomWorld>(
+    then2<String, MessageSentStatus, CustomWorld>(
   'I wait until status of {string} attachment is {sending}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        Attachment attachment = chat!.messages
+        RxChat? chat = Get.find<ChatService>()
+            .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
+        Attachment? attachment = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .expand((e) => e.attachments)
-            .firstWhere((a) => a.filename == name);
+            .firstWhereOrNull((a) => a.filename == name);
 
         Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('AttachmentStatus_${attachment.id}');
+            .findByKeySkipOffstage('AttachmentStatus_${attachment?.id}');
 
-        if (await context.world.appDriver.isPresent(finder)) {
-          return status == SendingStatus.sending
+        if (attachment != null &&
+            await context.world.appDriver.isPresent(finder)) {
+          return status == MessageSentStatus.sending
               ? context.world.appDriver.isPresent(
                   context.world.appDriver.findByDescendant(
                     finder,
                     context.world.appDriver.findByKeySkipOffstage('Sending'),
                   ),
                 )
-              : status == SendingStatus.error
+              : status == MessageSentStatus.error
                   ? context.world.appDriver.isPresent(
                       context.world.appDriver.findByDescendant(
                         finder,

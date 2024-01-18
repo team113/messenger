@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,10 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../model/chat.dart';
-import '../model/my_user.dart';
-import '../model/session.dart';
-import '../model/user.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/fcm_registration_token.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/provider/gql/exceptions.dart';
 
 /// Authentication repository interface.
@@ -38,13 +39,6 @@ abstract class AbstractAuthRepository {
   /// reconnection right away this method may be used.
   void applyToken();
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  Future<bool> checkUserIdentifiable(
-      UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone);
-
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser].
   ///
@@ -54,25 +48,48 @@ abstract class AbstractAuthRepository {
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
-  Future<Credentials> signIn(UserPassword password,
-      {UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone});
+  Future<Credentials> signIn(
+    UserPassword password, {
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 
   /// Deletes a [Session] of the [MyUser] identified by the [token] of this
   /// repository.
-  Future<void> logout();
+  ///
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
+  Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]);
+
+  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
+  ///
+  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
+  /// [confirmSignUpEmail] in order to successfully sign up.
+  ///
+  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
+  Future<void> signUpWithEmail(UserEmail email);
+
+  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
+  Future<Credentials> confirmSignUpEmail(ConfirmationCode code);
+
+  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
+  /// [signUpWithEmail].
+  Future<void> resendSignUpEmail();
 
   /// Validates the current [AccessToken].
   Future<void> validateToken();
 
   /// Refreshes the current [AccessToken].
   ///
-  /// Invalidates the provided [RememberToken] and returns a new one, which
+  /// Invalidates the provided [RefreshToken] and returns a new one, which
   /// should be used instead.
   ///
   /// The renewed [Session] has its own expiration after renewal, so to renew it
-  /// again use this method with the new returned [RememberToken] (omit using
+  /// again use this method with the new returned [RefreshToken] (omit using
   /// old ones).
-  Future<Credentials> renewSession(RememberToken token);
+  Future<Credentials> renewSession(RefreshToken token);
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).

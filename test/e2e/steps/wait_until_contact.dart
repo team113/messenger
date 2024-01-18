@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ final StepDefinitionGeneric untilContactExists =
         await context.world.appDriver.waitForAppToSettle();
 
         final RxChatContact? contact =
-            Get.find<ContactService>().contacts[context.world.contacts[name]];
+            Get.find<ContactService>().paginated[context.world.contacts[name]];
 
         final Finder finder = context.world.appDriver
             .findByKeySkipOffstage('Contact_${contact?.id}');

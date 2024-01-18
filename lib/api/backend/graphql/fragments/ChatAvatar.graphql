@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -29,22 +29,22 @@ fragment ChatAvatar on ChatAvatar {
     }
     full {
         __typename
-        ...File
+        ...ImageFile
     }
     big {
         __typename
-        ...File
+        ...ImageFile
     }
     medium {
         __typename
-        ...File
+        ...ImageFile
     }
     small {
         __typename
-        ...File
+        ...ImageFile
     }
     original {
         __typename
-        ...File
+        ...ImageFile
     }
 }

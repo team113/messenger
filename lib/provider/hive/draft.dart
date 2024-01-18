@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
@@ -25,14 +26,14 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
+import '/util/log.dart';
 import 'base.dart';
 import 'chat_item.dart';
 
@@ -46,7 +47,10 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+
     Hive.maybeRegisterAdapter(AttachmentIdAdapter());
+    Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatCallAdapter());
     Hive.maybeRegisterAdapter(ChatCallMemberAdapter());
     Hive.maybeRegisterAdapter(ChatCallQuoteAdapter());
@@ -72,36 +76,52 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveChatCallAdapter());
     Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
     Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
     Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());
     Hive.maybeRegisterAdapter(MediaTypeAdapter());
     Hive.maybeRegisterAdapter(NativeFileAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
+    Hive.maybeRegisterAdapter(UserAvatarAdapter());
+    Hive.maybeRegisterAdapter(UserCallCoverAdapter());
+    Hive.maybeRegisterAdapter(UserIdAdapter());
+    Hive.maybeRegisterAdapter(UserNameAdapter());
+    Hive.maybeRegisterAdapter(UserNumAdapter());
+    Hive.maybeRegisterAdapter(UserTextStatusAdapter());
   }
 
   /// Returns a list of [ChatMessage]s from [Hive].
   Iterable<ChatMessage> get drafts => valuesSafe;
 
   /// Puts the provided [ChatMessage] to [Hive].
-  Future<void> put(ChatId id, ChatMessage draft) => putSafe(id.val, draft);
+  Future<void> put(ChatId id, ChatMessage draft) async {
+    Log.debug('put($id, $draft)', '$runtimeType');
+    await putSafe(id.val, draft);
+  }
 
   /// Returns a [ChatMessage] from [Hive] by the provided [id].
-  ChatMessage? get(ChatId id) => getSafe(id.val);
+  ChatMessage? get(ChatId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
-  Future<void> remove(ChatId id) => deleteSafe(id.val);
+  Future<void> remove(ChatId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 
   /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
   Future<void> move(ChatId oldKey, ChatId newKey) async {
+    Log.debug('move($oldKey, $newKey)', '$runtimeType');
+
     final ChatMessage? value = get(oldKey);
     if (value != null) {
       remove(oldKey);

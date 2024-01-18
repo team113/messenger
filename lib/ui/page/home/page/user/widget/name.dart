@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,9 +38,9 @@ class UserNameCopyable extends StatelessWidget {
     return Paddings.basic(
       CopyableTextField(
         key: const Key('NameField'),
-        state: TextFieldState(text: name?.val ?? num.val),
+        state:
+            TextFieldState(text: name?.val ?? num.toString(), editable: false),
         label: 'label_name'.l10n,
-        copy: name?.val ?? num.val,
       ),
     );
   }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,12 +40,12 @@ class CallCoverWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Stack(
       children: [
         if (cover == null)
-          SvgImage.asset(
+          const SvgImage.asset(
             'assets/images/background_dark.svg',
             width: double.infinity,
             height: double.infinity,
@@ -53,7 +53,7 @@ class CallCoverWidget extends StatelessWidget {
           ),
         if (user != null)
           LayoutBuilder(builder: (context, constraints) {
-            final String? title = user?.name?.val ?? user?.num.val;
+            final String? title = user?.name?.val ?? user?.num.toString();
             final int? color = user?.num.val.sum();
 
             final Color gradient;
@@ -83,16 +83,15 @@ class CallCoverWidget extends StatelessWidget {
                 child: Text(
                   title ?? '??',
                   textAlign: TextAlign.center,
-                  style: fonts.titleSmall!.copyWith(
-                    fontSize: (fonts.titleSmall!.fontSize! *
+                  style: style.fonts.normal.bold.onPrimary.copyWith(
+                    fontSize: (style.fonts.normal.bold.onPrimary.fontSize! *
                             constraints.biggest.shortestSide /
                             100)
                         .clamp(15, 108),
-                    color: style.colors.onPrimary,
                   ),
 
                   // Disable the accessibility size settings for this [Text].
-                  textScaleFactor: 1,
+                  textScaler: const TextScaler.linear(1),
                 ),
               ),
             );
@@ -102,6 +101,7 @@ class CallCoverWidget extends StatelessWidget {
             cover!.full.url,
             key: Key(cover!.full.url),
             checksum: cover!.full.checksum,
+            thumbhash: cover!.full.thumbhash,
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

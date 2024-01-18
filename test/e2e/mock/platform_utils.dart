@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,17 +28,27 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   String? clipboard;
 
   @override
+  Future<bool> get isActive => Future.value(true);
+
+  @override
+  Stream<bool> get onActivityChanged => Stream.value(true);
+
+  @override
   Future<File?> download(
     String url,
     String filename,
     int? size, {
+    String? path,
+    String? checksum,
     Function(int count, int total)? onReceiveProgress,
     CancelToken? cancelToken,
+    bool temporary = false,
+    int retries = 5,
   }) async {
     int total = 100;
     for (int count = 0; count <= total; count++) {
       if (cancelToken?.isCancelled == true) {
-        break;
+        return null;
       }
       await Future.delayed(50.milliseconds);
       onReceiveProgress?.call(count, total);
@@ -49,4 +59,9 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
   @override
   void copy({String? text}) => clipboard = text;
+
+  @override
+  void keepActive([bool active = true]) {
+    // No-op.
+  }
 }

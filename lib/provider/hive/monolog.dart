@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/chat.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ChatId] of a [Chat]-monolog of the authenticated
@@ -31,12 +32,19 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ChatIdAdapter());
   }
 
   /// Returns the stored [ChatId] from [Hive].
-  ChatId? get() => getSafe(0);
+  ChatId? get() {
+    Log.debug('get()', '$runtimeType');
+    return getSafe(0);
+  }
 
   /// Saves the provided [ChatId] to [Hive].
-  Future<void> set(ChatId id) => putSafe(0, id);
+  Future<void> set(ChatId id) async {
+    Log.debug('set($id)', '$runtimeType');
+    await putSafe(0, id);
+  }
 }

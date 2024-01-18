@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@ import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
@@ -33,7 +34,9 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
+import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
 import 'parameters/favorite_status.dart';
 import 'parameters/fetch_status.dart';
@@ -47,15 +50,22 @@ import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
+import 'steps/has_blocked_users.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
+import 'steps/chat_is_hidden.dart';
 import 'steps/chat_is_muted.dart';
+import 'steps/chats_availability.dart';
 import 'steps/contact.dart';
+import 'steps/contact_is_deleted.dart';
 import 'steps/contact_is_favorite.dart';
+import 'steps/dismiss_chat.dart';
+import 'steps/dismiss_contact.dart';
 import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
+import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
 import 'steps/in_chat_with.dart';
@@ -67,16 +77,24 @@ import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
+import 'steps/popup_windows.dart';
+import 'steps/reads_message.dart';
 import 'steps/restart_app.dart';
+import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
+import 'steps/see_chat_dismissed.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
+import 'steps/see_chats.dart';
+import 'steps/see_contact_dismissed.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
+import 'steps/see_contacts.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
@@ -88,6 +106,7 @@ import 'steps/sees_muted_chat.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/set_login.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
@@ -97,6 +116,7 @@ import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
 import 'steps/text_field.dart';
+import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
 import 'steps/users.dart';
@@ -119,43 +139,70 @@ final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
         attachFile,
+        blockedCountUsers,
         cancelFileDownload,
         changeChatAvatar,
         chatIsFavorite,
+        chatIsIndeedHidden,
         chatIsMuted,
+        chatsAvailability,
         checkCopyText,
         contact,
         contactIsFavorite,
+        contactIsIndeedDeleted,
         copyFromField,
+        countUsers,
+        dismissChat,
+        dismissContact,
         downloadFile,
         dragChatDown,
         dragContactDown,
         fillField,
         fillFieldN,
+        fillFieldWithMyCredential,
+        fillFieldWithUserCredential,
         goToUserPage,
+        hasContacts,
         hasDialogWithMe,
+        hasFavoriteContacts,
+        hasFavoriteGroups,
+        hasGroups,
+
+        // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
+        // regular expression in the provided order.
+        haveGroup2Named,
+        haveGroup1Named,
         haveGroupNamed,
+
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
         iAmInMonolog,
+        iTapChatGroup,
         iTapChatWith,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
+        longPressMonolog,
         longPressWidget,
         monologAvailability,
         noInternetConnection,
         openChatInfo,
         pasteToField,
+        popupWindows,
+        readsMessage,
         restartApp,
         returnToPreviousPage,
+        rightClickMessage,
         rightClickWidget,
         scrollAndSee,
+        scrollToBottom,
         scrollUntilPresent,
+        seeBlockedUsers,
+        seeChatAsDismissed,
         seeChatAsFavorite,
         seeChatAsMuted,
         seeChatAvatarAs,
@@ -163,20 +210,29 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatInSearchResults,
         seeChatMessages,
         seeChatSelection,
+        seeContactAsDismissed,
         seeContactAsFavorite,
         seeContactPosition,
         seeContactSelection,
+        seeCountChats,
+        seeCountContacts,
+        seeCountFavoriteChats,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
-        seeUserInSearchResults,
+        seeMonologInSearchResults,
+        seeNoChatsDismissed,
+        seeNoContactsDismissed,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
         sendsMessageToMe,
         sendsMessageWithException,
+        setLogin,
+        setMyLogin,
         signInAs,
         tapChat,
         tapContact,
@@ -194,6 +250,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,
+        updateAppVersion,
         updateAvatar,
         updateName,
         user,
@@ -222,17 +279,19 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
+        CredentialsParameter(),
         DownloadStatusParameter(),
+        EnabledParameter(),
         ExceptionParameter(),
         FavoriteStatusParameter(),
         ImageFetchStatusParameter(),
         IterableAmountParameter(),
+        MessageSentStatusParameter(),
         MutedStatusParameter(),
         OnlineStatusParameter(),
         PositionStatusParameter(),
         SearchCategoryParameter(),
         SelectionStatusParameter(),
-        SendingStatusParameter(),
         UsersParameter(),
         WidgetKeyParameter(),
       ]
@@ -246,30 +305,39 @@ Future<void> appInitializationFn(World world) {
 }
 
 /// Creates a new [Session] for an [User] identified by the provided [name].
-Future<CustomUser> createUser(
-  TestUser user,
-  CustomWorld world, {
+Future<CustomUser> createUser({
+  TestUser? user,
+  CustomWorld? world,
   UserPassword? password,
 }) async {
   final provider = GraphQlProvider();
   final result = await provider.signUp();
 
   final CustomUser customUser = CustomUser(
-    Session(
-      result.createUser.session.token,
-      result.createUser.session.expireAt,
-    ),
-    result.createUser.user.id,
+    result.toModel(),
     result.createUser.user.num,
   );
 
-  world.sessions[user.name] = customUser;
+  if (user != null && world != null) {
+    world.sessions[user.name] = customUser;
 
-  provider.token = result.createUser.session.token;
-  await provider.updateUserName(UserName(user.name));
-  if (password != null) {
-    await provider.updateUserPassword(null, password);
+    provider.token = result.createUser.session.token;
+    await provider.updateUserName(UserName(user.name));
+    if (password != null) {
+      await provider.updateUserPassword(null, password);
+
+      final result = await provider.signIn(
+        password,
+        null,
+        customUser.userNum,
+        null,
+        null,
+        true,
+      );
+      world.sessions[user.name]?.credentials = result.toModel();
+    }
   }
+
   provider.disconnect();
 
   return customUser;

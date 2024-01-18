@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,11 +22,11 @@ import 'package:flutter/material.dart';
 /// [AnimatedSwitcher] with an optional [delay].
 class AnimatedDelayedSwitcher extends StatefulWidget {
   const AnimatedDelayedSwitcher({
-    Key? key,
+    super.key,
     this.delay = Duration.zero,
     this.duration = const Duration(milliseconds: 300),
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [Duration] of the delay.
   final Duration delay;

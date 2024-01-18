@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,17 +26,23 @@ part 'contact.g.dart';
 /// Version of a [ChatContact]'s state.
 @HiveType(typeId: ModelTypeId.chatContactVersion)
 class ChatContactVersion extends Version {
-  ChatContactVersion(String val) : super(val);
+  ChatContactVersion(super.val);
 }
 
 /// Cursor used for a subscription to [ChatContactEvent]s.
 @HiveType(typeId: ModelTypeId.chatContactsListVersion)
 class ChatContactsListVersion extends Version {
-  ChatContactsListVersion(String val) : super(val);
+  ChatContactsListVersion(super.val);
 }
 
 /// Cursor used for [ChatContact]s pagination.
 @HiveType(typeId: ModelTypeId.chatContactsCursor)
 class ChatContactsCursor extends NewType<String> {
-  ChatContactsCursor(String val) : super(val);
+  ChatContactsCursor(super.val);
+}
+
+/// Cursor used for favorite [ChatContact]s pagination.
+@HiveType(typeId: ModelTypeId.favoriteChatContactsCursor)
+class FavoriteChatContactsCursor extends NewType<String> {
+  FavoriteChatContactsCursor(super.val);
 }

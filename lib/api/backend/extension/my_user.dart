@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,11 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '../schema.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
+import '/store/model/my_user.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [MyUserMixin].
@@ -32,7 +33,6 @@ extension MyUserConversion on MyUserMixin {
         online: online.$$typename == 'UserOnline',
         login: login,
         name: name,
-        bio: bio,
         hasPassword: hasPassword,
         unreadChatsCount: unreadChatsCount,
         chatDirectLink: chatDirectLink != null
@@ -42,7 +42,6 @@ extension MyUserConversion on MyUserMixin {
               )
             : null,
         avatar: avatar?.toModel(),
-        gallery: gallery.nodes.map((e) => e.toModel()).toList(),
         status: status,
         presenceIndex: presence.index,
         emails: MyUserEmails(
@@ -65,17 +64,26 @@ extension MyUserConversion on MyUserMixin {
   HiveMyUser toHive() => HiveMyUser(toModel(), ver);
 }
 
-/// Extension adding models construction from
-/// [MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
-extension EventMyUserGalleryItemAdded$GalleryItemConversion
-    on MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem {
-  /// Constructs a new [ImageGalleryItem] from this
-  /// [MyUserEventsVersionedMixin$Events$EventUserGalleryItemAdded$GalleryItem].
-  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+/// Extension adding models construction from a
+/// [MyUserEvents$Subscription$MyUserEvents$MyUser].
+extension MyUserEventsMyUserConversion
+    on MyUserEvents$Subscription$MyUserEvents$MyUser {
+  /// Constructs a new [HiveMyUser] from this
+  /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
+  HiveMyUser toHive() =>
+      HiveMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
 }
 
-/// Extension adding models construction from [MyUserMixin$Gallery$Nodes].
-extension MyUserMixinGalleryNodesConversion on MyUserMixin$Gallery$Nodes {
-  /// Constructs a new [ImageGalleryItem] from this [MyUserMixin$Gallery$Nodes].
-  ImageGalleryItem toModel() => (this as ImageGalleryItemMixin).toModel();
+/// Extension adding models construction from a [BlocklistRecordMixin].
+extension BlocklistRecordConversion on BlocklistRecordMixin {
+  /// Constructs a new [BlocklistRecord] from this [BlocklistRecordMixin].
+  BlocklistRecord toModel() => BlocklistRecord(
+        userId: user.id,
+        reason: reason,
+        at: at,
+      );
+
+  /// Constructs a new [HiveBlocklistRecord] from this [BlocklistRecordMixin].
+  HiveBlocklistRecord toHive({BlocklistCursor? cursor}) =>
+      HiveBlocklistRecord(toModel(), cursor);
 }

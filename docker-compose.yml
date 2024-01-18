@@ -2,7 +2,7 @@
 # - `z` makes bind mount content shared among multiple containers.
 # - `Z` makes bind mount content private and unshared.
 
-version: "2"
+version: "2.4"
 
 services:
   frontend:
@@ -21,20 +21,30 @@ services:
   backend:
     container_name: ${COMPOSE_PROJECT_NAME}-backend
     image: ${COMPOSE_BACKEND}
-    depends_on: ["baza-storage", "cockroachdb", "mailhog"]
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+      baza-storage:
+        condition: service_started
+      mailhog:
+        condition: service_started
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
       CONF.FCM.SA_KEY: ${COMPOSE_FCM_SA_KEY}
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
+      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.PUBLIC_IP: 127.0.0.1
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
       CONF.STORAGE.FILE.S3.HOST: baza-storage
       CONF.SMTP.HOST: mailhog
     ports:
-      - 3478:3478                # backend medea stun
+      - 3478:3478                # backend medea stun tcp
+      - 3478:3478/udp            # backend medea stun udp
       - 8081:7777                # backend http
-      - 8090:8090                # backend medea ws
+      - 8090:8090                # backend medea http (ws)
       - 49066-49100:49166-49200  # backend medea turn
+      - 19305:19305              # backend medea webrtc tcp
+      - 19305:19305/udp          # backend medea webrtc udp
     expose:
       - 9372   # backend metrics
       - 10025  # backend healthz
@@ -52,11 +62,18 @@ services:
     volumes:
       - ./.cache/cockroachdb/data/:/cockroach/cockroach-data/:Z
       - ./dev/cockroachdb/logs.yaml:/logs.yaml:ro,Z
+    healthcheck:
+      # https://www.cockroachlabs.com/docs/monitoring-and-alerting.html#health-ready-1
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
   cockroachdb-pgweb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb-pgweb
     image: sosedoff/pgweb:latest
-    depends_on: ["cockroachdb"]
-    restart: on-failure
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://root@127.0.0.1:26257/defaultdb?sslmode=disable
     network_mode: service:cockroachdb

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ import '../conditional_backdrop.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// [Participant] overlay displaying its `muted` and `video status` icons.
@@ -53,12 +54,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       bool isMuted;
 
-      if (participant.source == MediaSourceKind.Display ||
+      if (participant.source == MediaSourceKind.display ||
           participant.member.isDialing.isTrue) {
         isMuted = false;
       } else {
@@ -71,70 +72,53 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       bool isAudioDisabled = participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
-          participant.source != MediaSourceKind.Display &&
+          participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
       final List<Widget> additionally = [];
 
       if (isAudioDisabled) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 3, right: 3),
-            child: SvgImage.asset(
-              'assets/icons/audio_off_small.svg',
-              width: 20.88,
-              height: 17,
-              fit: BoxFit.fitWidth,
-            ),
+          const Padding(
+            padding: EdgeInsets.only(left: 3, right: 3),
+            child: SvgIcon(SvgIcons.audioOffSmall),
           ),
         );
       } else if (isMuted) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: SvgImage.asset(
-              'assets/icons/microphone_off_small.svg',
-              height: 16.5,
-            ),
+          const Padding(
+            padding: EdgeInsets.only(left: 2, right: 2),
+            child: SvgIcon(SvgIcons.microphoneOffSmall),
           ),
         );
       }
 
       if (participant.member.quality.value <= 1) {
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 3),
-            child: SvgImage.asset(
-              'assets/icons/low_signal_level.svg',
-              height: 15.5,
-            ),
+          const Padding(
+            padding: EdgeInsets.only(left: 2, right: 3),
+            child: SvgIcon(SvgIcons.lowSignalSmall),
           ),
         );
       }
 
-      if (participant.source == MediaSourceKind.Display) {
+      if (participant.source == MediaSourceKind.display) {
         if (additionally.isNotEmpty) {
           additionally.add(const SizedBox(width: 4));
         }
 
         if (isVideoDisabled) {
           additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgImage.asset(
-                'assets/icons/screen_share_small.svg',
-                height: 12,
-              ),
+            const Padding(
+              padding: EdgeInsets.only(left: 4, right: 4),
+              child: SvgIcon(SvgIcons.screenShareSmall),
             ),
           );
         } else {
           additionally.add(
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SvgImage.asset(
-                'assets/icons/screen_share_small.svg',
-                height: 12,
-              ),
+            const Padding(
+              padding: EdgeInsets.only(left: 4, right: 4),
+              child: SvgIcon(SvgIcons.screenShareSmall),
             ),
           );
         }
@@ -143,13 +127,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           additionally.add(const SizedBox(width: 4));
         }
         additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 5, right: 5),
-            child: SvgImage.asset(
-              'assets/icons/video_off_small.svg',
-              width: 19.8,
-              height: 17,
-            ),
+          const Padding(
+            padding: EdgeInsets.only(left: 5, right: 5),
+            child: SvgIcon(SvgIcons.videoOffSmall),
           ),
         );
       }
@@ -158,9 +138,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
         padding: const EdgeInsets.only(left: 3, right: 3),
         child: Text(
           participant.user.value?.user.value.name?.val ??
-              participant.user.value?.user.value.num.val ??
+              participant.user.value?.user.value.num.toString() ??
               'dot'.l10n * 3,
-          style: fonts.bodyMedium!.copyWith(color: style.colors.onPrimary),
+          style: style.fonts.normal.regular.onPrimary,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -177,7 +157,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
               CustomBoxShadow(
                 color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
-                blurStyle: BlurStyle.outer,
+                blurStyle: BlurStyle.outer.workaround,
               )
             ],
           ),
@@ -188,8 +168,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color: preferBackdrop
-                    ? style.colors.onSecondaryOpacity20
-                    : style.colors.onSecondary,
+                    ? style.colors.primaryAuxiliaryOpacity25
+                    : style.colors.primaryDarkOpacity70,
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -230,15 +210,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8, left: 8),
-                child: AnimatedSwitcher(
+                child: SafeAnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
-                  layoutBuilder: (current, previous) => Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (previous.isNotEmpty) previous.first,
-                      if (current != null) current,
-                    ],
-                  ),
                   child: child,
                 ),
               ),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,37 +16,165 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import 'tab/color.dart';
-import 'tab/text.dart';
-import 'tab/element.dart';
+import '/routes.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/keep_alive.dart';
+import '/ui/page/style/controller.dart';
+import '/ui/page/style/widget/style_card.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
+import 'page/colors/view.dart';
+import 'page/icons/view.dart';
+import 'page/typography/view.dart';
+import 'page/widgets/view.dart';
 
 /// View of the [Routes.style] page.
 class StyleView extends StatelessWidget {
-  const StyleView({Key? key}) : super(key: key);
+  const StyleView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const TabBar(
-            tabs: [
-              Tab(text: 'Шрифты'),
-              Tab(text: 'Цвета'),
-              Tab(text: 'Графика'),
+    final style = Theme.of(context).style;
+
+    return GetBuilder(
+      init: StyleController(),
+      builder: (StyleController c) {
+        return Scaffold(
+          backgroundColor: style.colors.background,
+          extendBodyBehindAppBar: true,
+          appBar: CustomAppBar(
+            leading: [
+              StyledBackButton(
+                onPressed: ModalRoute.of(context)?.canPop == true
+                    ? Navigator.of(context).pop
+                    : () => router.home(),
+              ),
+            ],
+            title: Center(
+              child: ListView(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                children: StyleTab.values.map((e) => _button(c, e)).toList(),
+              ),
+            ),
+            actions: [
+              Obx(() {
+                return WidgetButton(
+                  onPressed: c.inverted.toggle,
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: SizedBox(
+                        width: 23,
+                        key: c.inverted.value
+                            ? const Key('Dark')
+                            : const Key('Light'),
+                        child: SvgIcon(
+                          c.inverted.value
+                              ? SvgIcons.darkMode
+                              : SvgIcons.lightMode,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
-        ),
-        body: const TabBarView(
-          children: [
-            FontStyleTabView(),
-            ColorStyleTabView(),
-            ElementStyleTabView(),
-          ],
-        ),
-      ),
+          body: _page(c, context),
+        );
+      },
     );
+  }
+
+  /// Returns the [StyleTab] pages view.
+  Widget _page(StyleController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      children: [
+        // For web, background color is displayed in `index.html` file.
+        if (!PlatformUtils.isWeb)
+          IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.background,
+            ),
+          ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Obx(() {
+              return AnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: SvgImage.asset(
+                  key: Key(c.inverted.value ? 'dark' : 'light'),
+                  'assets/images/background_${c.inverted.value ? 'dark' : 'light'}.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              );
+            }),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: PageView(
+            controller: c.pages,
+            onPageChanged: (i) => c.tab.value = StyleTab.values[i],
+            physics: const NeverScrollableScrollPhysics(),
+            children: StyleTab.values.map((e) {
+              return KeepAlivePage(
+                child: switch (e) {
+                  StyleTab.colors => Obx(() {
+                      return ColorsView(inverted: c.inverted.value);
+                    }),
+                  StyleTab.typography => const TypographyView(),
+                  StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                  StyleTab.icons => const SelectionArea(child: IconsView()),
+                },
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Returns a button representing the provided [StyleTab].
+  Widget _button(StyleController c, StyleTab tab) {
+    return Obx(() {
+      final bool selected = c.tab.value == tab;
+
+      return switch (tab) {
+        StyleTab.colors => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgIcon(SvgIcons.palette),
+          ),
+        StyleTab.typography => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgIcon(SvgIcons.typography),
+          ),
+        StyleTab.widgets => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgIcon(SvgIcons.widgets),
+          ),
+        StyleTab.icons => StyleCard(
+            inverted: selected,
+            onPressed: () => c.pages.jumpToPage(tab.index),
+            child: const SvgIcon(SvgIcons.icons),
+          ),
+      };
+    });
   }
 }

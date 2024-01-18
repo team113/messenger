@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,16 +20,18 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
+import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
+import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
+import '../widget/double_bounce_indicator.dart';
 import '../widget/floating_fit/view.dart';
-import '../widget/hint.dart';
 import '../widget/minimizable_view.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
@@ -39,14 +41,11 @@ import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/animated_cliprrect.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/animated_slider.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -64,7 +63,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
     // Call stackable content.
     List<Widget> content = [
-      SvgImage.asset(
+      const SvgImage.asset(
         'assets/images/background_dark.svg',
         width: double.infinity,
         height: double.infinity,
@@ -132,63 +131,22 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : null;
 
-                // Builds the [Participant] with a [AnimatedClipRRect].
-                Widget builder(bool animated) {
-                  final Widget stack = Stack(
-                    children: [
-                      const ParticipantDecoratorWidget(),
-                      IgnorePointer(
-                        child: ParticipantWidget(
-                          e,
-                          offstageUntilDetermined: true,
-                        ),
-                      ),
-                      ParticipantOverlayWidget(
-                        e,
-                        muted: muted,
-                        hovered: animated,
-                        preferBackdrop: !c.minimized.value,
-                      ),
-                    ],
-                  );
-
-                  return AnimatedClipRRect(
-                    key: Key(e.member.id.toString()),
-                    borderRadius: animated
-                        ? BorderRadius.circular(10)
-                        : BorderRadius.zero,
-                    child: AnimatedContainer(
-                      duration: 200.milliseconds,
-                      decoration: BoxDecoration(
-                        color: animated
-                            ? style.colors.backgroundAuxiliaryLight
-                            : style.colors.transparent,
-                      ),
-                      width: animated
-                          ? MediaQuery.of(context).size.width - 20
-                          : null,
-                      height: animated
-                          ? MediaQuery.of(context).size.height / 2
-                          : null,
-                      child: stack,
-                    ),
-                  );
-                }
-
                 return ContextMenuRegion(
                   actions: [
-                    if (center == e)
-                      ContextMenuButton(
-                        label: 'btn_call_uncenter'.l10n,
-                        onPressed: c.focusAll,
-                        trailing: const Icon(Icons.center_focus_weak),
-                      )
-                    else
-                      ContextMenuButton(
-                        label: 'btn_call_center'.l10n,
-                        onPressed: () => c.center(e),
-                        trailing: const Icon(Icons.center_focus_strong),
-                      ),
+                    if (c.primary.length + c.secondary.length > 1) ...[
+                      if (center == e)
+                        ContextMenuButton(
+                          label: 'btn_call_uncenter'.l10n,
+                          onPressed: c.focusAll,
+                          trailing: const SvgIcon(SvgIcons.uncenterVideo),
+                        )
+                      else
+                        ContextMenuButton(
+                          label: 'btn_call_center'.l10n,
+                          onPressed: () => c.center(e),
+                          trailing: const SvgIcon(SvgIcons.centerVideo),
+                        ),
+                    ],
                     if (e.member.id != c.me.id) ...[
                       if (e.video.value?.direction.value.isEmitting ?? false)
                         ContextMenuButton(
@@ -196,9 +154,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                               ? 'btn_call_disable_video'.l10n
                               : 'btn_call_enable_video'.l10n,
                           onPressed: () => c.toggleVideoEnabled(e),
-                          trailing: e.video.value?.renderer.value != null
-                              ? const Icon(Icons.videocam)
-                              : const Icon(Icons.videocam_off),
+                          trailing: SvgIcon(
+                            e.video.value?.renderer.value != null
+                                ? SvgIcons.incomingVideoOn
+                                : SvgIcons.incomingVideoOff,
+                          ),
                         ),
                       if (e.audio.value?.direction.value.isEmitting ?? false)
                         ContextMenuButton(
@@ -207,14 +167,16 @@ Widget mobileCall(CallController c, BuildContext context) {
                                   ? 'btn_call_disable_audio'.l10n
                                   : 'btn_call_enable_audio'.l10n,
                           onPressed: () => c.toggleAudioEnabled(e),
-                          trailing: e.video.value?.renderer.value != null
-                              ? const Icon(Icons.volume_up)
-                              : const Icon(Icons.volume_off),
+                          trailing: SvgIcon(
+                            e.audio.value?.renderer.value != null
+                                ? SvgIcons.incomingAudioOn
+                                : SvgIcons.incomingAudioOff,
+                          ),
                         ),
                       if (e.member.isDialing.isFalse)
                         ContextMenuButton(
                           label: 'btn_call_remove_participant'.l10n,
-                          trailing: const Icon(Icons.remove_circle),
+                          trailing: const SvgIcon(SvgIcons.removeFromCall),
                           onPressed: () =>
                               c.removeChatCallMember(e.member.id.userId),
                         ),
@@ -224,23 +186,34 @@ Widget mobileCall(CallController c, BuildContext context) {
                             ? 'btn_call_video_off'.l10n
                             : 'btn_call_video_on'.l10n,
                         onPressed: c.toggleVideo,
-                        trailing: c.videoState.value.isEnabled
-                            ? const Icon(Icons.videocam)
-                            : const Icon(Icons.videocam_off),
+                        trailing: SvgIcon(
+                          c.videoState.value.isEnabled
+                              ? SvgIcons.cameraOn
+                              : SvgIcons.cameraOff,
+                        ),
                       ),
                       ContextMenuButton(
                         label: c.audioState.value.isEnabled
                             ? 'btn_call_audio_off'.l10n
                             : 'btn_call_audio_on'.l10n,
                         onPressed: c.toggleAudio,
-                        trailing: e.video.value?.renderer.value != null
-                            ? const Icon(Icons.mic)
-                            : const Icon(Icons.mic_off),
+                        trailing: SvgIcon(
+                          c.audioState.value.isEnabled
+                              ? SvgIcons.micOn
+                              : SvgIcons.micOff,
+                        ),
                       ),
                     ],
                   ],
                   unconstrained: true,
-                  builder: builder,
+                  builder: (animated) {
+                    return AnimatedParticipant(
+                      e,
+                      muted: muted,
+                      rounded: animated,
+                      withBlur: !c.minimized.value,
+                    );
+                  },
                 );
               });
             },
@@ -256,7 +229,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 as RtcVideoRenderer?;
 
         if (c.videoState.value != LocalTrackState.disabled && local != null) {
-          return RtcVideoView(local, mirror: true, fit: BoxFit.cover);
+          return RtcVideoView(local, fit: BoxFit.cover);
         }
 
         return Stack(
@@ -308,52 +281,45 @@ Widget mobileCall(CallController c, BuildContext context) {
                 );
               }
 
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
             }),
 
             if (isOutgoing)
-              Padding(
-                padding: const EdgeInsets.all(21.0),
-                child: Center(
-                  child: SpinKitDoubleBounce(
-                    color: style.colors.secondaryHighlight,
-                    size: 66,
-                    duration: const Duration(milliseconds: 4500),
-                  ),
-                ),
+              const Padding(
+                padding: EdgeInsets.all(21.0),
+                child: Center(child: DoubleBounceLoadingIndicator()),
               ),
           ],
         );
       }));
     }
 
-    // If there's any error to show, display it.
+    // If there's any notifications to show, display them.
     overlay.add(
-      Obx(() {
-        return AnimatedSwitcher(
-          duration: 200.milliseconds,
-          child: c.errorTimeout.value != 0 &&
-                  c.minimizing.isFalse &&
-                  c.minimized.isFalse
-              ? SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10, right: 10),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 280,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () => c.errorTimeout.value = 0,
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-        );
-      }),
+      Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
+          child: Obx(() {
+            if (c.notifications.isEmpty) {
+              return const SizedBox();
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: c.notifications.reversed.take(3).map((e) {
+                return CallNotificationWidget(
+                  e,
+                  onClose: () => c.notifications.remove(e),
+                );
+              }).toList(),
+            );
+          }),
+        ),
+      ),
     );
 
     Widget padding(Widget child) => Padding(
@@ -373,7 +339,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Dimmed container if any video is displayed while calling.
       Obx(() {
         return IgnorePointer(
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: (c.state.value != OngoingCallState.active &&
                     c.state.value != OngoingCallState.joining &&
@@ -429,6 +395,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         child: Obx(() {
           bool showUi =
               (c.state.value != OngoingCallState.active && !c.minimized.value);
+
           return AnimatedSlider(
             duration: const Duration(milliseconds: 400),
             isOpen: showUi,
@@ -470,114 +437,49 @@ Widget mobileCall(CallController c, BuildContext context) {
                 if (PlatformUtils.isMobile)
                   padding(
                     c.videoState.value.isEnabled
-                        ? withDescription(
-                            SwitchButton(c).build(),
-                            AnimatedOpacity(
-                              opacity: c.isPanelOpen.value ? 1 : 0,
-                              duration: 200.milliseconds,
-                              child: Text('btn_call_switch_camera_desc'.l10n),
-                            ),
-                          )
-                        : withDescription(
-                            SpeakerButton(c).build(),
-                            AnimatedOpacity(
-                              opacity: c.isPanelOpen.value ? 1 : 0,
-                              duration: 200.milliseconds,
-                              child: Text('btn_call_toggle_speaker_desc'.l10n),
-                            ),
-                          ),
+                        ? SwitchButton(c).build(expanded: c.isPanelOpen.value)
+                        : SpeakerButton(c).build(expanded: c.isPanelOpen.value),
                   ),
                 if (PlatformUtils.isDesktop)
-                  padding(withDescription(
-                    ScreenButton(c).build(),
-                    AnimatedOpacity(
-                      opacity: c.isPanelOpen.value ? 1 : 0,
-                      duration: 200.milliseconds,
-                      child: Text(
-                        c.screenShareState.value == LocalTrackState.enabled ||
-                                c.screenShareState.value ==
-                                    LocalTrackState.enabling
-                            ? 'btn_call_screen_off_desc'.l10n
-                            : 'btn_call_screen_on_desc'.l10n,
-                      ),
-                    ),
-                  )),
-                padding(withDescription(
-                  AudioButton(c).build(),
-                  AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text(
-                      c.audioState.value == LocalTrackState.enabled ||
-                              c.audioState.value == LocalTrackState.enabling
-                          ? 'btn_call_audio_off_desc'.l10n
-                          : 'btn_call_audio_on_desc'.l10n,
-                    ),
-                  ),
-                )),
-                padding(withDescription(
-                  VideoButton(c).build(),
-                  AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text(
-                      c.videoState.value == LocalTrackState.enabled ||
-                              c.videoState.value == LocalTrackState.enabling
-                          ? 'btn_call_video_off_desc'.l10n
-                          : 'btn_call_video_on_desc'.l10n,
-                    ),
-                  ),
-                )),
-                padding(withDescription(
-                  DropButton(c).build(),
-                  AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text('btn_call_end_desc'.l10n),
-                  ),
-                )),
+                  padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
               ],
             ),
             const SizedBox(height: 32),
             buttons(
               [
-                padding(withDescription(
-                  ParticipantsButton(c).build(),
-                  Text('btn_participants_desc'.l10n),
-                )),
-                padding(withDescription(
-                  HandButton(c).build(),
-                  AnimatedOpacity(
-                    opacity: c.isPanelOpen.value ? 1 : 0,
-                    duration: 200.milliseconds,
-                    child: Text(c.me.isHandRaised.value
-                        ? 'btn_call_hand_down_desc'.l10n
-                        : 'btn_call_hand_up_desc'.l10n),
-                  ),
-                )),
-                padding(withDescription(
-                  RemoteAudioButton(c).build(),
-                  Text(c.isRemoteAudioEnabled.value
-                      ? 'btn_call_remote_audio_off_desc'.l10n
-                      : 'btn_call_remote_audio_on_desc'.l10n),
-                )),
-                padding(withDescription(
-                  RemoteVideoButton(c).build(),
-                  Text(c.isRemoteVideoEnabled.value
-                      ? 'btn_call_remote_video_off_desc'.l10n
-                      : 'btn_call_remote_video_on_desc'.l10n),
-                )),
+                padding(ParticipantsButton(c).build(expanded: true)),
+                padding(HandButton(c).build(expanded: true)),
+                padding(RemoteAudioButton(c).build(expanded: true)),
+                padding(RemoteVideoButton(c).build(expanded: true)),
               ],
             ),
             const SizedBox(height: 20),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 366),
-              child: _chat(context, c),
+              child: ChatInfoCard(
+                chat: c.chat.value,
+                duration: c.duration.value,
+                trailing: 'label_a_of_b'.l10nfmt({
+                  'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
+                  'b': '${c.chat.value?.members.length}',
+                }),
+                subtitle: c.chat.value?.members.values
+                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
+                        ?.user
+                        .value
+                        .status
+                        ?.val ??
+                    'label_online'.l10n,
+                onTap: () => c.openAddMember(context),
+              ),
             ),
           ];
         }
 
-        return AnimatedSwitcher(
+        return SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
           child: c.state.value == OngoingCallState.active ||
                   c.state.value == OngoingCallState.joining
@@ -600,8 +502,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                       controller: c.panelController,
                       boxShadow: null,
                       color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? style.colors.onSecondaryOpacity88
-                          : style.colors.onSecondaryOpacity60,
+                          ? style.colors.primaryDarkOpacity90
+                          : style.colors.primaryDarkOpacity70,
                       backdropEnabled: true,
                       backdropOpacity: 0,
                       minHeight: min(c.size.height - 45, 130),
@@ -680,14 +582,18 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     padding(CancelButton(c).build(blur: true)),
                                   ]
                                 : [
-                                    padding(AcceptAudioButton(
-                                      c,
-                                      highlight: !c.withVideo,
-                                    ).build(expanded: true)),
-                                    padding(AcceptVideoButton(
-                                      c,
-                                      highlight: c.withVideo,
-                                    ).build(expanded: true)),
+                                    padding(
+                                      AcceptAudioButton(
+                                        c,
+                                        highlight: !c.withVideo,
+                                      ).build(expanded: true),
+                                    ),
+                                    padding(
+                                      AcceptVideoButton(
+                                        c,
+                                        highlight: c.withVideo,
+                                      ).build(expanded: true),
+                                    ),
                                     padding(
                                       DeclineButton(c).build(expanded: true),
                                     ),
@@ -760,103 +666,5 @@ Widget mobileCall(CallController c, BuildContext context) {
         }),
       );
     });
-  });
-}
-
-/// Builds a tile representation of the [CallController.chat].
-Widget _chat(BuildContext context, CallController c) {
-  return Obx(() {
-    final (style, fonts) = Theme.of(context).styles;
-
-    final RxChat? chat = c.chat.value;
-
-    final Set<UserId> actualMembers =
-        c.members.keys.map((k) => k.userId).toSet();
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: style.cardRadius,
-          color: style.colors.transparent,
-        ),
-        child: Material(
-          type: MaterialType.card,
-          borderRadius: style.cardRadius,
-          color: style.colors.onSecondaryOpacity50,
-          child: InkWell(
-            borderRadius: style.cardRadius,
-            onTap: () => c.openAddMember(context),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 9 + 3, 12, 9 + 3),
-              child: Row(
-                children: [
-                  AvatarWidget.fromRxChat(chat, radius: 30),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                chat?.title.value ?? 'dot'.l10n * 3,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: fonts.headlineLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              c.duration.value.hhMmSs(),
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.onPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Row(
-                            children: [
-                              Text(
-                                c.chat.value?.members.values
-                                        .firstWhereOrNull(
-                                          (e) => e.id != c.me.id.userId,
-                                        )
-                                        ?.user
-                                        .value
-                                        .status
-                                        ?.val ??
-                                    'label_online'.l10n,
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                'label_a_of_b'.l10nfmt({
-                                  'a': '${actualMembers.length}',
-                                  'b': '${c.chat.value?.members.length}',
-                                }),
-                                style: fonts.labelLarge!.copyWith(
-                                  color: style.colors.onPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   });
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -86,11 +86,12 @@ class SearchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('SearchView'),
       init: SearchController(
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -114,7 +115,7 @@ class SearchView extends StatelessWidget {
                     key: const Key('SearchTextField'),
                     state: c.search,
                     label: 'label_search'.l10n,
-                    style: fonts.titleMedium,
+                    style: style.fonts.normal.regular.onBackground,
                     onChanged: () => c.query.value = c.search.text,
                   ),
                 ),
@@ -148,15 +149,20 @@ class SearchView extends StatelessWidget {
                     return const Center(child: CustomProgressIndicator());
                   }
 
+                  final int childCount = c.chats.length +
+                      c.contacts.length +
+                      c.users.length +
+                      c.recent.length;
+
                   return Scrollbar(
-                    controller: c.controller,
+                    controller: c.scrollController,
                     child: FlutterListView(
                       key: const Key('SearchScrollable'),
-                      controller: c.controller,
+                      controller: c.scrollController,
                       delegate: FlutterListViewDelegate(
                         (context, i) {
                           final dynamic e = c.getIndex(i);
-                          final Widget child;
+                          Widget child;
 
                           if (e is RxUser) {
                             child = Obx(() {
@@ -207,12 +213,26 @@ class SearchView extends StatelessWidget {
                             child = const SizedBox();
                           }
 
+                          if (i == childCount - 1) {
+                            Widget widget = child;
+                            child = Obx(() {
+                              if (c.searchStatus.value.isLoadingMore) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    widget,
+                                    const CustomProgressIndicator(),
+                                  ],
+                                );
+                              } else {
+                                return widget;
+                              }
+                            });
+                          }
+
                           return child;
                         },
-                        childCount: c.chats.length +
-                            c.contacts.length +
-                            c.users.length +
-                            c.recent.length,
+                        childCount: childCount,
                         disableCacheItems: true,
                       ),
                     ),
@@ -224,9 +244,9 @@ class SearchView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() {
-                    final bool enabled = this.enabled &&
-                        (c.selectedContacts.isNotEmpty ||
-                            c.selectedUsers.isNotEmpty);
+                    final bool enabled = (c.selectedContacts.isNotEmpty ||
+                            c.selectedUsers.isNotEmpty) &&
+                        this.enabled;
 
                     return OutlinedRoundedButton(
                       key: const Key('SearchSubmitButton'),
@@ -235,11 +255,9 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: fonts.titleLarge!.copyWith(
-                          color: enabled
-                              ? style.colors.onPrimary
-                              : style.colors.onBackground,
-                        ),
+                        style: enabled
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
                       ),
                       onPressed:
                           enabled ? () => onSubmit?.call(c.selected()) : null,

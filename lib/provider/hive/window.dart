@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 
 import '/store/model/window_preferences.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for the [WindowPreferences].
@@ -32,14 +33,20 @@ class WindowPreferencesHiveProvider
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(WindowPreferencesAdapter());
   }
 
   /// Returns the stored [WindowPreferences] from [Hive].
-  WindowPreferences? get() => getSafe(0);
+  WindowPreferences? get() {
+    Log.debug('get()', '$runtimeType');
+    return getSafe(0);
+  }
 
   /// Stores the new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
+    Log.debug('set($size, $position)', '$runtimeType');
+
     final WindowPreferences? stored = get();
     putSafe(
       0,

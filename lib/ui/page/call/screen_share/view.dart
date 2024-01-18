@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,9 +23,10 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
+import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for selecting display for screen sharing.
@@ -53,7 +54,7 @@ class ScreenShareView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget framelessBuilder = const SizedBox(
       height: videoHeight,
@@ -64,7 +65,7 @@ class ScreenShareView extends StatelessWidget {
       init: ScreenShareController(
         Get.find(),
         call: call,
-        pop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (ScreenShareController c) {
         return Obx(() {
@@ -98,8 +99,7 @@ class ScreenShareView extends StatelessWidget {
                                               width: 4,
                                             )
                                           : null,
-                                      source: MediaSourceKind.Display,
-                                      mirror: false,
+                                      source: MediaSourceKind.display,
                                       fit: BoxFit.contain,
                                       enableContextMenu: false,
                                       respectAspectRatio: true,
@@ -120,20 +120,13 @@ class ScreenShareView extends StatelessWidget {
               const SizedBox(height: 25),
               Padding(
                 padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
+                child: PrimaryButton(
                   key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  title: Text(
-                    'btn_share'.l10n,
-                    style: fonts.bodyMedium!.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
-                  ),
+                  title: 'btn_share'.l10n,
                   onPressed: () {
                     c.freeTracks();
                     Navigator.of(context).pop(c.selected.value);
                   },
-                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 12),

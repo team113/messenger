@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -26,21 +26,24 @@ Feature: Monolog
   Scenario: Message can be posted in local monolog
     When I fill `MessageField` field with "Hello, my monolog"
     And I tap `Send` button
-    Then I wait until status of "Hello, my monolog" message is sent
+    Then I wait until status of "Hello, my monolog" message is read
     And monolog is indeed remote
 
   Scenario: Call can be made in local monolog
+    Given popup windows are disabled
     When I tap `AudioCall` button
     Then monolog is indeed remote
 
   Scenario: User renames local monolog
     When I open chat's info
+    And I tap `MoreButton` button
+    And I tap `EditButton` button
     And I fill `RenameChatField` field with "My monolog"
     And I tap `Approve` button
     Then monolog is indeed remote
 
   Scenario: User adds local chat monolog to favorites
-    When I open chat's info
+    When I long press monolog
     And I tap `FavoriteChatButton` button
     Then monolog is indeed remote
     And I see monolog as favorite
@@ -50,6 +53,7 @@ Feature: Monolog
     And I scroll `ChatInfoScrollable` until `HideChatButton` is present
     And I tap `HideChatButton` button
     And I tap `Proceed` button
+    And I pause for 1 second
     Then I wait until `ChatMonolog` is absent
     And monolog is indeed remote
 

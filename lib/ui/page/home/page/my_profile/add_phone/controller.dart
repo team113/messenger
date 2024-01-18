@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,7 +35,16 @@ enum AddPhoneFlowStage { code }
 
 /// Controller of a [AddPhoneView].
 class AddPhoneController extends GetxController {
-  AddPhoneController(this._myUserService, {this.initial, this.pop});
+  AddPhoneController(
+    this._myUserService, {
+    this.initial,
+    this.pop,
+    bool timeout = false,
+  }) {
+    if (timeout) {
+      _setResendPhoneTimer();
+    }
+  }
 
   /// Callback, called when a [AddPhoneView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -76,8 +85,15 @@ class AddPhoneController extends GetxController {
     phone = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            UserPhone(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_phone'.l10n;
+        }
       },
       onSubmitted: (s) async {
         UserPhone? phone;
@@ -120,8 +136,15 @@ class AddPhoneController extends GetxController {
 
     phoneCode = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            ConfirmationCode(s.text.toLowerCase());
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {

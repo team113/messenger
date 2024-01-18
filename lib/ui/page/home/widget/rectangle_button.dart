@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/selected_dot.dart';
 
 /// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
@@ -28,6 +30,8 @@ class RectangleButton extends StatelessWidget {
     this.onPressed,
     required this.label,
     this.trailingColor,
+    this.radio = false,
+    this.toggleable = false,
   });
 
   /// Label of this [RectangleButton].
@@ -37,23 +41,30 @@ class RectangleButton extends StatelessWidget {
   /// [Icons.check] should be displayed in a trailing.
   final bool selected;
 
+  /// Indicator whether this [RectangleButton] is radio button.
+  final bool radio;
+
   /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
 
   /// [Color] of the trailing background, when [selected] is `true`.
   final Color? trailingColor;
 
+  /// Indicator whether [onPressed] can be invoked when [selected].
+  final bool toggleable;
+
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color:
-          selected ? style.colors.primary : style.colors.onPrimary.darken(0.05),
+      color: selected && !radio
+          ? style.colors.primary
+          : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: selected ? null : onPressed,
+        onTap: selected && !toggleable ? null : onPressed,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
@@ -63,11 +74,9 @@ class RectangleButton extends StatelessWidget {
                   label,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: fonts.labelLarge!.copyWith(
-                    color: selected
-                        ? style.colors.onPrimary
-                        : style.colors.onBackground,
-                  ),
+                  style: selected && !radio
+                      ? style.fonts.normal.regular.onPrimary
+                      : style.fonts.normal.regular.onBackground,
                 ),
               ),
               const SizedBox(width: 12),
@@ -75,19 +84,25 @@ class RectangleButton extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   height: 20,
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: selected
                         ? CircleAvatar(
-                            backgroundColor: style.colors.onPrimary,
+                            backgroundColor: radio
+                                ? style.colors.primary
+                                : style.colors.onPrimary,
                             radius: 12,
                             child: Icon(
                               Icons.check,
-                              color: style.colors.primary,
+                              color: radio
+                                  ? style.colors.onPrimary
+                                  : style.colors.primary,
                               size: 12,
                             ),
                           )
-                        : const SizedBox(),
+                        : radio
+                            ? const SelectedDot()
+                            : const SizedBox(),
                   ),
                 )
               else
@@ -97,7 +112,7 @@ class RectangleButton extends StatelessWidget {
                   child: CircleAvatar(
                     backgroundColor: trailingColor,
                     radius: 12,
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
                           ? Icon(

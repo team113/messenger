@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -24,8 +24,8 @@ Feature: Chats selection
     And I have "Alice and Charlie" group with Charlie
     And I wait until text "Alice and Charlie" is present
 
-    When I long press "Alice and Bob" chat
-    And I tap `SelectChatButton` button
+    When I tap `ChatsMenu` button
+    And I tap `SelectChatsButton` button
     Then I see "Alice and Bob" chat as unselected
     And I see "Alice and Charlie" chat as unselected
 

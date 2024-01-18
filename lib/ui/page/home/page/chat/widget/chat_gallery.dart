@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -79,12 +79,17 @@ class _ChatGalleryState extends State<ChatGallery> {
           ),
         );
       } else if (o.attachment is ImageAttachment) {
+        file as ImageFile;
+
         gallery.add(
           GalleryItem.image(
             file.url,
             o.attachment.filename,
             size: file.size,
+            width: file.width,
+            height: file.height,
             checksum: file.checksum,
+            thumbhash: (o.attachment as ImageAttachment).big.thumbhash,
             onError: () async {
               await o.onForbidden?.call();
               setState(() {});

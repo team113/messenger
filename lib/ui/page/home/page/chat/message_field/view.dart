@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,10 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CloseButton;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -28,25 +30,28 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/chat/widget/attachment_selector.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'widget/chat_button.dart';
+import 'widget/close_button.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -99,25 +104,25 @@ class MessageFieldView extends StatelessWidget {
     return Theme.of(context).copyWith(
       shadowColor: style.colors.onBackgroundOpacity27,
       iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: InputDecorationTheme(
-        border: border,
-        errorBorder: border,
-        enabledBorder: border,
-        focusedBorder: border,
-        disabledBorder: border,
-        focusedErrorBorder: border,
-        focusColor: style.colors.onPrimary,
-        fillColor: style.colors.onPrimary,
-        hoverColor: style.colors.transparent,
-        filled: true,
-        isDense: true,
-        contentPadding: EdgeInsets.fromLTRB(
-          15,
-          PlatformUtils.isDesktop ? 30 : 23,
-          15,
-          0,
-        ),
-      ),
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+            border: border,
+            errorBorder: border,
+            enabledBorder: border,
+            focusedBorder: border,
+            disabledBorder: border,
+            focusedErrorBorder: border,
+            focusColor: style.colors.onPrimary,
+            fillColor: style.colors.onPrimary,
+            hoverColor: style.colors.transparent,
+            filled: true,
+            isDense: true,
+            contentPadding: EdgeInsets.fromLTRB(
+              15,
+              PlatformUtils.isDesktop ? 30 : 23,
+              15,
+              0,
+            ),
+          ),
     );
   }
 
@@ -126,7 +131,8 @@ class MessageFieldView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: controller ?? MessageFieldController(Get.find(), Get.find()),
+      init: controller ??
+          MessageFieldController(Get.find(), Get.find(), Get.find()),
       global: false,
       builder: (MessageFieldController c) {
         return Theme(
@@ -175,31 +181,7 @@ class MessageFieldView extends StatelessWidget {
 
         Widget? previews;
 
-        if (c.edited.value != null) {
-          previews = SingleChildScrollView(
-            controller: c.scrollController,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              child: Dismissible(
-                key: Key('${c.edited.value?.id}'),
-                direction: DismissDirection.horizontal,
-                onDismissed: (_) => c.edited.value = null,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: WidgetButton(
-                    onPressed: () => onItemPressed?.call(c.edited.value!.id),
-                    child: _buildPreview(
-                      context,
-                      c.edited.value!,
-                      c,
-                      onClose: () => c.edited.value = null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        } else if (c.quotes.isNotEmpty) {
+        if (c.quotes.isNotEmpty) {
           previews = ReorderableListView(
             scrollController: c.scrollController,
             shrinkWrap: true,
@@ -320,7 +302,6 @@ class MessageFieldView extends StatelessWidget {
                 child: child,
               );
             },
-            reverse: true,
             padding: const EdgeInsets.symmetric(horizontal: 1),
             children: c.replied.map((e) {
               return ReorderableDragStartListener(
@@ -360,15 +341,33 @@ class MessageFieldView extends StatelessWidget {
             color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
+              alignment: Alignment.bottomCenter,
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
-                padding: c.replied.isNotEmpty || c.attachments.isNotEmpty
+                padding: c.replied.isNotEmpty ||
+                        c.attachments.isNotEmpty ||
+                        c.edited.value != null
                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
                     : EdgeInsets.zero,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (c.edited.value != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: WidgetButton(
+                          onPressed: () =>
+                              onItemPressed?.call(c.edited.value!.id),
+                          child: _buildPreview(
+                            context,
+                            c.edited.value!,
+                            c,
+                            onClose: () => c.edited.value = null,
+                            edited: true,
+                          ),
+                        ),
+                      ),
                     if (previews != null)
                       ConstrainedBox(
                         constraints: this.constraints ??
@@ -425,99 +424,107 @@ class MessageFieldView extends StatelessWidget {
   /// Builds a visual representation of the send field itself along with its
   /// buttons.
   Widget _buildField(MessageFieldController c, BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
-    return Container(
-      constraints: const BoxConstraints(minHeight: 56),
-      decoration: BoxDecoration(color: style.cardColor),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          WidgetButton(
-            onPressed: canAttach
-                ? !PlatformUtils.isMobile || PlatformUtils.isWeb
-                    ? c.pickFile
-                    : () async {
-                        c.field.focus.unfocus();
-                        await AttachmentSourceSelector.show(
-                          context,
-                          onPickFile: c.pickFile,
-                          onTakePhoto: c.pickImageFromCamera,
-                          onPickMedia: c.pickMedia,
-                          onTakeVideo: c.pickVideoFromCamera,
-                        );
-                      }
-                : null,
-            child: SizedBox(
-              width: 56,
-              height: 56,
-              child: Center(
-                child: SvgImage.asset(
-                  'assets/icons/attach.svg',
-                  height: 22,
-                  width: 22,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                bottom: 13,
-              ),
-              child: Transform.translate(
-                offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                child: ReactiveTextField(
-                  onChanged: onChanged,
-                  key: fieldKey ?? const Key('MessageField'),
-                  state: c.field,
-                  hint: 'label_send_message_hint'.l10n,
-                  minLines: 1,
-                  maxLines: 7,
-                  filled: false,
-                  dense: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  style: fonts.bodyLarge,
-                  type: TextInputType.multiline,
-                  textInputAction: TextInputAction.newline,
-                ),
-              ),
-            ),
-          ),
-          Obx(() {
-            return GestureDetector(
-              onLongPress: canForward ? c.forwarding.toggle : null,
-              child: WidgetButton(
-                onPressed: c.field.submit,
+    return LayoutBuilder(builder: (context, constraints) {
+      return Container(
+        key: c.fieldKey,
+        constraints: const BoxConstraints(minHeight: 56),
+        decoration: BoxDecoration(color: style.cardColor),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            WidgetButton(
+              onPressed: canAttach ? c.toggleMore : null,
+              child: AnimatedButton(
                 child: SizedBox(
-                  width: 56,
+                  width: 50,
                   height: 56,
                   child: Center(
-                    child: AnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: c.forwarding.value
-                          ? SvgImage.asset(
-                              'assets/icons/forward.svg',
-                              width: 26,
-                              height: 22,
-                            )
-                          : SvgImage.asset(
-                              'assets/icons/send.svg',
-                              key: sendKey ?? const Key('Send'),
-                              height: 22.85,
-                              width: 25.18,
-                            ),
-                    ),
+                    child: Obx(() {
+                      return AnimatedScale(
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.bounceInOut,
+                        scale: c.moreOpened.value ? 1.1 : 1,
+                        child: const SvgIcon(SvgIcons.chatMore),
+                      );
+                    }),
                   ),
                 ),
               ),
-            );
-          }),
-        ],
-      ),
-    );
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                  bottom: 13,
+                ),
+                child: Transform.translate(
+                  offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                  child: ReactiveTextField(
+                    onChanged: onChanged,
+                    key: fieldKey ?? const Key('MessageField'),
+                    state: c.field,
+                    hint: 'label_send_message_hint'.l10n,
+                    minLines: 1,
+                    maxLines: 7,
+                    filled: false,
+                    dense: true,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    style: style.fonts.medium.regular.onBackground,
+                    type: TextInputType.multiline,
+                    textInputAction: TextInputAction.newline,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Obx(() {
+              int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                c.canPin.value = c.buttons.length < take;
+              });
+
+              final bool sendable = !c.field.isEmpty.value ||
+                  c.attachments.isNotEmpty ||
+                  c.replied.isNotEmpty;
+
+              final List<Widget> children;
+
+              if (sendable || c.buttons.isEmpty) {
+                children = [
+                  Obx(() {
+                    return SafeAnimatedSwitcher(
+                      duration: 300.milliseconds,
+                      child: ChatButtonWidget.send(
+                        key: c.forwarding.value
+                            ? const Key('Forward')
+                            : sendKey ?? const Key('Send'),
+                        forwarding: c.forwarding.value,
+                        onPressed: c.field.submit,
+                        onLongPress: canForward ? c.forwarding.toggle : null,
+                      ),
+                    );
+                  })
+                ];
+              } else {
+                children = c.buttons
+                    .take(take)
+                    .toList()
+                    .reversed
+                    .map((e) => ChatButtonWidget(e))
+                    .toList();
+              }
+
+              return Wrap(children: children);
+            }),
+            const SizedBox(width: 3),
+          ],
+        ),
+      );
+    });
   }
 
   /// Returns a visual representation of the provided [Attachment].
@@ -538,7 +545,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       if (isImage || isVideo) {
         // TODO: Backend should support single attachment updating.
@@ -577,13 +584,15 @@ class MessageFieldView extends StatelessWidget {
                               .removeWhere((o) => o.value == attachments[i]);
                         },
                         children: attachments.map((o) {
-                          if (o is ImageAttachment ||
-                              (o is LocalAttachment && o.file.isImage)) {
+                          if (o is ImageAttachment) {
                             return GalleryItem.image(
                               o.original.url,
                               o.filename,
                               size: o.original.size,
+                              width: (o.original as ImageFile).width,
+                              height: (o.original as ImageFile).height,
                               checksum: o.original.checksum,
+                              thumbhash: o.big.thumbhash,
                             );
                           }
                           return GalleryItem.video(
@@ -639,12 +648,15 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: fonts.bodySmall,
+                      style: style.fonts.small.regular.onBackground,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(p.extension(e.filename), style: fonts.bodySmall!)
+                  Text(
+                    p.extension(e.filename),
+                    style: style.fonts.small.regular.onBackground,
+                  )
                 ],
               ),
             ),
@@ -657,7 +669,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: fonts.bodySmall!.copyWith(color: style.colors.secondary),
+                style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -705,7 +717,7 @@ class MessageFieldView extends StatelessWidget {
                                 child: Center(
                                   child: Icon(
                                     Icons.error,
-                                    color: style.colors.dangerColor,
+                                    color: style.colors.danger,
                                   ),
                                 ),
                               )
@@ -720,40 +732,17 @@ class MessageFieldView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4, top: 4),
                     child: Obx(() {
-                      final Widget child;
-
-                      if (c.hoveredAttachment.value == e ||
-                          PlatformUtils.isMobile) {
-                        child = InkWell(
-                          key: const Key('RemovePickedFile'),
-                          onTap: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
-                          child: Container(
-                            width: 15,
-                            height: 15,
-                            margin: const EdgeInsets.only(left: 8, bottom: 8),
-                            child: Container(
-                              key: const Key('Close'),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: style.cardColor,
-                              ),
-                              alignment: Alignment.center,
-                              child: SvgImage.asset(
-                                'assets/icons/close_primary.svg',
-                                width: 7,
-                                height: 7,
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        child = const SizedBox();
-                      }
-
-                      return AnimatedSwitcher(
+                      return AnimatedOpacity(
                         duration: 200.milliseconds,
-                        child: child,
+                        opacity: c.hoveredAttachment.value == e ||
+                                PlatformUtils.isMobile
+                            ? 1
+                            : 0,
+                        child: CloseButton(
+                          key: const Key('RemovePickedFile'),
+                          onPressed: () =>
+                              c.attachments.removeWhere((a) => a.value == e),
+                        ),
                       );
                     }),
                   ),
@@ -764,11 +753,20 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
+    return ObxValue(
+      (p) {
+        return Opacity(
+          opacity: 1 - p.value,
+          child: Dismissible(
+            key: Key(e.id.val),
+            direction: DismissDirection.up,
+            onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+            onUpdate: (d) => p.value = d.progress,
+            child: attachment(),
+          ),
+        );
+      },
+      RxDouble(0),
     );
   }
 
@@ -778,10 +776,42 @@ class MessageFieldView extends StatelessWidget {
     ChatItem item,
     MessageFieldController c, {
     void Function()? onClose,
+    bool edited = false,
   }) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
-    final bool fromMe = item.authorId == c.me;
+    final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
+
+    final bool fromMe = item.author.id == c.me;
+
+    if (edited) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                'label_message_editing'.l10n,
+                style: style.fonts.medium.regular.primary,
+              ),
+            ),
+            AnimatedButton(
+              key: const Key('CancelEditButton'),
+              onPressed: onClose,
+              child: Text(
+                'btn_cancel'.l10n,
+                style: style.fonts.small.regular.primary,
+              ),
+            )
+          ],
+        ),
+      );
+    }
 
     Widget? content;
     final List<Widget> additional = [];
@@ -813,6 +843,7 @@ class MessageFieldView extends StatelessWidget {
                   : RetryImage(
                       image.small.url,
                       checksum: image.small.checksum,
+                      thumbhash: image.small.thumbhash,
                       fit: BoxFit.cover,
                       height: double.infinity,
                       width: double.infinity,
@@ -828,7 +859,7 @@ class MessageFieldView extends StatelessWidget {
           item.text!.val,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: fonts.bodyLarge,
+          style: style.fonts.medium.regular.onBackground,
         );
       }
     } else if (item is ChatCall) {
@@ -849,7 +880,7 @@ class MessageFieldView extends StatelessWidget {
               .localizedString();
         }
       } else {
-        title = item.authorId == c.me
+        title = item.author.id == c.me
             ? 'label_outgoing_call'.l10n
             : 'label_incoming_call'.l10n;
       }
@@ -859,17 +890,19 @@ class MessageFieldView extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : '_blue'}.svg',
-                    height: 13,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : '_blue'}.svg',
-                    height: 15,
-                  ),
+            child: SvgIcon(
+              item.withVideo
+                  ? isMissed && !fromMe
+                      ? SvgIcons.callVideoMissed
+                      : SvgIcons.callVideo
+                  : isMissed && !fromMe
+                      ? SvgIcons.callAudioMissed
+                      : SvgIcons.callAudio,
+            ),
           ),
-          Flexible(child: Text(title, style: fonts.bodyLarge)),
+          Flexible(
+            child: Text(title, style: style.fonts.medium.regular.onBackground),
+          ),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -878,9 +911,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: fonts.headlineSmall!.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: style.fonts.small.regular.secondary,
               ),
             ),
           ],
@@ -888,104 +919,70 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n, style: fonts.bodyLarge);
+      content = Text(
+        'label_forwarded_message'.l10n,
+        style: style.fonts.medium.regular.onBackground,
+      );
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(), style: fonts.bodyLarge);
+      content = Text(
+        item.action.toString(),
+        style: style.fonts.medium.regular.onBackground,
+      );
     } else {
-      content = Text('err_unknown'.l10n, style: fonts.bodyLarge);
+      content = Text(
+        'err_unknown'.l10n,
+        style: style.fonts.medium.regular.onBackground,
+      );
     }
 
-    final Widget expanded;
+    final Widget expanded = FutureBuilder<RxUser?>(
+      future: userOrFuture is RxUser? ? null : userOrFuture,
+      initialData: userOrFuture is RxUser? ? userOrFuture : null,
+      builder: (context, snapshot) {
+        final Color color = snapshot.data?.user.value.id == c.me
+            ? style.colors.primary
+            : style.colors.userColors[
+                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+                    style.colors.userColors.length];
 
-    if (c.edited.value != null) {
-      expanded = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(width: 12),
-          SvgImage.asset('assets/icons/edit.svg', width: 17, height: 17),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(width: 2, color: style.colors.primary),
-                ),
-              ),
-              margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-              padding: const EdgeInsets.only(left: 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'label_edit'.l10n,
-                    style: fonts.bodyLarge!.copyWith(
-                      color: style.colors.primary,
-                    ),
-                  ),
-                  if (content != null) ...[
-                    const SizedBox(height: 2),
-                    DefaultTextStyle.merge(maxLines: 1, child: content),
-                  ],
-                  if (additional.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Row(children: additional),
-                  ],
-                ],
-              ),
-            ),
+        return Container(
+          key: Key('Reply_${c.replied.indexOf(item)}'),
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(width: 2, color: color)),
           ),
-        ],
-      );
-    } else {
-      expanded = FutureBuilder<RxUser?>(
-        future: c.getUser(item.authorId),
-        builder: (context, snapshot) {
-          final Color color = snapshot.data?.user.value.id == c.me
-              ? style.colors.primary
-              : style.colors.userColors[
-                  (snapshot.data?.user.value.num.val.sum() ?? 3) %
-                      style.colors.userColors.length];
-
-          return Container(
-            key: Key('Reply_${c.replied.indexOf(item)}'),
-            decoration: BoxDecoration(
-              border: Border(left: BorderSide(width: 2, color: color)),
-            ),
-            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            padding: const EdgeInsets.only(left: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                snapshot.data != null
-                    ? Obx(() {
-                        return Text(
-                          snapshot.data!.user.value.name?.val ??
-                              snapshot.data!.user.value.num.val,
-                          style: fonts.bodyLarge!.copyWith(color: color),
-                        );
-                      })
-                    : Text(
-                        'dot'.l10n * 3,
-                        style: fonts.bodyLarge!.copyWith(
-                          color: style.colors.primary,
-                        ),
-                      ),
-                if (content != null) ...[
-                  const SizedBox(height: 2),
-                  DefaultTextStyle.merge(maxLines: 1, child: content),
-                ],
-                if (additional.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(children: additional),
-                ],
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+          padding: const EdgeInsets.only(left: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              snapshot.data != null
+                  ? Obx(() {
+                      return Text(
+                        snapshot.data!.user.value.name?.val ??
+                            snapshot.data!.user.value.num.toString(),
+                        style: style.fonts.medium.regular.onBackground
+                            .copyWith(color: color),
+                      );
+                    })
+                  : Text(
+                      'dot'.l10n * 3,
+                      style: style.fonts.medium.regular.primary,
+                    ),
+              if (content != null) ...[
+                const SizedBox(height: 2),
+                DefaultTextStyle.merge(maxLines: 1, child: content),
               ],
-            ),
-          );
-        },
-      );
-    }
+              if (additional.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Row(children: additional),
+              ],
+            ],
+          ),
+        );
+      },
+    );
 
     return MouseRegion(
       opaque: false,
@@ -1002,36 +999,19 @@ class MessageFieldView extends StatelessWidget {
           children: [
             Expanded(child: expanded),
             Obx(() {
-              final Widget child;
-
-              if (c.hoveredReply.value == item || PlatformUtils.isMobile) {
-                child = WidgetButton(
-                  key: const Key('CancelReplyButton'),
-                  onPressed: onClose,
-                  child: Container(
-                    width: 15,
-                    height: 15,
-                    margin: const EdgeInsets.only(right: 4, top: 4),
-                    child: Container(
-                      key: const Key('Close'),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: style.cardColor,
-                      ),
-                      alignment: Alignment.center,
-                      child: SvgImage.asset(
-                        'assets/icons/close_primary.svg',
-                        width: 7,
-                        height: 7,
-                      ),
-                    ),
+              return AnimatedOpacity(
+                duration: 200.milliseconds,
+                opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
+                    ? 1
+                    : 0,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                  child: CloseButton(
+                    key: const Key('CancelReplyButton'),
+                    onPressed: onClose,
                   ),
-                );
-              } else {
-                child = const SizedBox();
-              }
-
-              return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+                ),
+              );
             }),
           ],
         ),

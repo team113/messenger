@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,37 +23,15 @@ import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/util/log.dart';
 
 /// Authentication related functionality.
 mixin AuthGraphQlMixin {
   GraphQlClient get client;
-  AccessToken? get token;
-  set token(AccessToken? value);
 
-  /// Indicates whether some [User] can be identified by the given [num],
-  /// [login], [email] or [phone].
-  ///
-  /// Exactly one of [num]/[login]/[email]/[phone] arguments must be specified.
-  ///
-  /// ### Authentication
-  ///
-  /// None.
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
-    final variables = CheckUserIdentifiableArguments(
-      num: num,
-      login: login,
-      email: email,
-      phone: phone,
-    );
-    final QueryResult result = await client.query(QueryOptions(
-      operationName: 'CheckUserIdentifiable',
-      document: CheckUserIdentifiableQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return CheckUserIdentifiable$Query.fromJson(result.data!)
-        .checkUserIdentifiable;
-  }
+  AccessToken? get token;
+
+  set token(AccessToken? value);
 
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
@@ -74,6 +52,8 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
+    Log.debug('signUp($remember)', '$runtimeType');
+
     final variables = SignUpArguments(remember: remember);
     final QueryResult result = await client.query(QueryOptions(
       document: SignUpMutation(variables: variables).document,
@@ -97,6 +77,8 @@ mixin AuthGraphQlMixin {
   /// Succeeds as no-op if the [Session] with the provided [AccessToken] has
   /// been deleted already.
   Future<void> deleteSession() async {
+    Log.debug('deleteSession()', '$runtimeType');
+
     if (token != null) {
       final variables = DeleteSessionArguments(token: token!);
       final QueryResult result = await client.query(QueryOptions(
@@ -124,12 +106,18 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session].
   Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
-      UserPassword password,
-      UserLogin? login,
-      UserNum? num,
-      UserEmail? email,
-      UserPhone? phone,
-      bool remember) async {
+    UserPassword password,
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    bool remember,
+  ) async {
+    Log.debug(
+      'signIn(***, $login, $num, $email, $phone, $remember)',
+      '$runtimeType',
+    );
+
     final variables = SignInArguments(
       password: password,
       login: login,
@@ -147,7 +135,7 @@ mixin AuthGraphQlMixin {
           (SignIn$Mutation.fromJson(data).createSession
                   as SignIn$Mutation$CreateSession$CreateSessionError)
               .code),
-      raw: true,
+      raw: const RawClientOptions(),
     );
     return SignIn$Mutation.fromJson(result.data!).createSession
         as SignIn$Mutation$CreateSession$CreateSessionOk;
@@ -159,19 +147,21 @@ mixin AuthGraphQlMixin {
   ///
   /// Mandatory.
   Future<ValidateToken$Query> validateToken() async {
-    QueryResult res = await client
+    Log.debug('validateToken()', '$runtimeType');
+
+    final QueryResult res = await client
         .query(QueryOptions(document: ValidateTokenQuery().document));
     return ValidateToken$Query.fromJson(res.data!);
   }
 
   /// Renews a [Session] of the authenticated [MyUser] identified by the
-  /// provided [RememberToken].
+  /// provided [RefreshToken].
   ///
-  /// Invalidates the provided [RememberToken] and returns a new one, which
+  /// Invalidates the provided [RefreshToken] and returns a new one, which
   /// should be used instead.
   ///
   /// The renewed [Session] has its own expiration after renewal, so to renew it
-  /// again use this mutation with the new returned [RememberToken] (omit using
+  /// again use this mutation with the new returned [RefreshToken] (omit using
   /// old ones).
   ///
   /// The expiration of the renewed [RememberedSession] is not prolonged
@@ -185,8 +175,10 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Non-idempotent
   ///
-  /// Each time creates a new [Session] and generates a new [RememberToken].
-  Future<RenewSession$Mutation> renewSession(RememberToken token) async {
+  /// Each time creates a new [Session] and generates a new [RefreshToken].
+  Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
+    Log.debug('renewSession($token)', '$runtimeType');
+
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -197,7 +189,7 @@ mixin AuthGraphQlMixin {
           (RenewSession$Mutation.fromJson(data).renewSession
                   as RenewSession$Mutation$RenewSession$RenewSessionError)
               .code),
-      raw: true,
+      raw: const RawClientOptions(),
     );
     return RenewSession$Mutation.fromJson(result.data!);
   }
@@ -224,11 +216,21 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time sends a new unique password recovery [ConfirmationCode].
-  Future<void> recoverUserPassword(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
+  Future<void> recoverUserPassword(
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+  ) async {
+    Log.debug(
+      'recoverUserPassword($login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
-          'Exactly one of num/login/email/phone should be specified.');
+        'Exactly one of num/login/email/phone should be specified.',
+      );
     }
 
     final variables = RecoverUserPasswordArguments(
@@ -243,9 +245,6 @@ mixin AuthGraphQlMixin {
         document: RecoverUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => RecoverUserPasswordException(
-          RecoverUserPassword$Mutation.fromJson(data).recoverUserPassword
-              as RecoverUserPasswordErrorCode),
     );
   }
 
@@ -264,8 +263,18 @@ mixin AuthGraphQlMixin {
   /// ### Idempotent
   ///
   /// [ConfirmationCode] can be validated unlimited number of times (for now).
-  Future<void> validateUserPasswordRecoveryCode(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone, ConfirmationCode code) async {
+  Future<void> validateUserPasswordRecoveryCode(
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    ConfirmationCode code,
+  ) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code)',
+      '$runtimeType',
+    );
+
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
           'Exactly one of num/login/email/phone should be specified.');
@@ -321,6 +330,11 @@ mixin AuthGraphQlMixin {
     ConfirmationCode code,
     UserPassword newPassword,
   ) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, newPassword)',
+      '$runtimeType',
+    );
+
     if ([login, num, email, phone].where((e) => e != null).length != 1) {
       throw ArgumentError(
         'Exactly one of num/login/email/phone should be specified.',

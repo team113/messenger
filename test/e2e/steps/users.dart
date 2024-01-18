@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,8 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -35,18 +37,22 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     var password = UserPassword('123');
 
     final CustomUser me = await createUser(
-      user,
-      context.world,
+      user: user,
+      world: context.world,
       password: password,
     );
     context.world.me = me.userId;
 
-    await Get.find<AuthService>().signIn(
-      password,
-      num: context.world.sessions[user.name]?.userNum,
-    );
+    await Get.find<AuthService>()
+        .signIn(password, num: context.world.sessions[user.name]?.userNum);
 
     router.home();
+
+    // Ensure business logic is initialized.
+    await context.world.appDriver.waitUntil(() async {
+      return Get.isRegistered<ChatService>() &&
+          Get.isRegistered<MyUserService>();
+    });
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
@@ -59,10 +65,15 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
 final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
   'I sign in as {user}',
   (TestUser user, context) async {
-    var password = UserPassword('123');
+    try {
+      await Get.find<AuthService>()
+          .signInWith(context.world.sessions[user.name]!.credentials);
+    } catch (_) {
+      var password = UserPassword('123');
 
-    await Get.find<AuthService>()
-        .signIn(password, num: context.world.sessions[user.name]!.userNum);
+      await Get.find<AuthService>()
+          .signIn(password, num: context.world.sessions[user.name]!.userNum);
+    }
 
     router.home();
   },
@@ -76,7 +87,7 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 /// - `Given user Bob`
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
   'user {user}',
-  (TestUser name, context) => createUser(name, context.world),
+  (TestUser name, context) => createUser(user: name, world: context.world),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
@@ -88,8 +99,24 @@ final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
 final twoUsers = given2<TestUser, TestUser, CustomWorld>(
   'users {user} and {user}',
   (TestUser user1, TestUser user2, context) async {
-    await createUser(user1, context.world);
-    await createUser(user2, context.world);
+    await createUser(user: user1, world: context.world);
+    await createUser(user: user2, world: context.world);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates the provided count of new [User]s with the provided name.
+///
+/// Examples:
+/// - `Given 10 users Bob`
+/// - `Given 20 users Charlie`
+final countUsers = given2<int, TestUser, CustomWorld>(
+  '{int} users {user}',
+  (int count, TestUser user, context) async {
+    for (int i = 0; i < count; i++) {
+      await createUser(user: user, world: context.world);
+    }
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

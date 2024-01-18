@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,8 +23,10 @@ import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/cache.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -50,12 +52,12 @@ class _DataAttachmentState extends State<DataAttachment> {
     final Attachment e = widget.attachment;
 
     return Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
+      final style = Theme.of(context).style;
 
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus.value) {
+        switch (e.downloadStatus) {
           case DownloadStatus.inProgress:
             leading = InkWell(
               key: const Key('CancelDownloading'),
@@ -80,12 +82,12 @@ class _DataAttachmentState extends State<DataAttachment> {
                     ],
                     stops: [
                       0,
-                      e.progress.value,
-                      e.progress.value,
+                      e.downloading?.progress.value ?? 0,
+                      e.downloading?.progress.value ?? 0,
                     ],
                   ),
                 ),
-                child: Center(
+                child: const Center(
                   child: SvgImage.asset(
                     'assets/icons/cancel.svg',
                     width: 9,
@@ -108,10 +110,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               child: Center(
                 child: Transform.translate(
                   offset: const Offset(0.3, -0.5),
-                  child: SvgImage.asset(
-                    'assets/icons/file.svg',
-                    height: 12.5,
-                  ),
+                  child: const SvgIcon(SvgIcons.fileSmallWhite),
                 ),
               ),
             );
@@ -132,8 +131,8 @@ class _DataAttachmentState extends State<DataAttachment> {
                   color: style.colors.primary,
                 ),
               ),
-              child: KeyedSubtree(
-                key: const Key('Sent'),
+              child: const KeyedSubtree(
+                key: Key('Sent'),
                 child: Center(
                   child: SvgImage.asset(
                     'assets/icons/arrow_down.svg',
@@ -164,7 +163,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.check_circle,
               key: const Key('Sent'),
               size: 29,
-              color: style.colors.acceptAuxiliaryColor,
+              color: style.colors.acceptAuxiliary,
             );
             break;
 
@@ -173,7 +172,7 @@ class _DataAttachmentState extends State<DataAttachment> {
               Icons.error_outline,
               key: const Key('Error'),
               size: 29,
-              color: style.colors.dangerColor,
+              color: style.colors.danger,
             );
             break;
         }
@@ -192,7 +191,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 const SizedBox(width: 6),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
                     child: leading,
@@ -209,14 +208,14 @@ class _DataAttachmentState extends State<DataAttachment> {
                           Flexible(
                             child: Text(
                               p.basenameWithoutExtension(e.filename),
-                              style: fonts.bodyLarge,
+                              style: style.fonts.medium.regular.onBackground,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
                             p.extension(e.filename),
-                            style: fonts.bodyLarge,
+                            style: style.fonts.medium.regular.onBackground,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -234,9 +233,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                             }),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: fonts.headlineSmall!.copyWith(
-                              color: style.colors.secondary,
-                            ),
+                            style: style.fonts.small.regular.secondary,
                           ),
                         ],
                       ),

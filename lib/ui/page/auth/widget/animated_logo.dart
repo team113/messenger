@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,61 +16,37 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 
-/// Animated logo, displaying the provided [riveAsset], when higher than 250
-/// pixels, or otherwise the specified [svgAsset].
+/// Animated logo, displaying the [SvgImage] based on the provided [index].
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo({
-    super.key,
-    required this.svgAsset,
-    this.riveAsset = 'assets/images/logo/logo.riv',
-    this.onInit,
-  });
+  const AnimatedLogo({super.key, this.index = 0});
 
-  /// Path to an asset to put into the [RiveAnimation].
-  final String riveAsset;
-
-  /// Callback, called when underlying [RiveAnimation] has been initialized.
-  final void Function(Artboard)? onInit;
-
-  /// Path to an asset to put into the [SvgImage].
-  final String svgAsset;
+  /// Index of logo animation.
+  ///
+  /// Should be in 0..9 range inclusive.
+  final int index;
 
   @override
   Widget build(BuildContext context) {
-    // Height being a point to switch between [RiveAnimation] and [SvgImage].
-    const double height = 250;
+    return Stack(
+      children: [
+        // Load the whole [SvgImage]s beforehand to reduce possible frame drops.
+        ...List.generate(10, (i) => SvgIcons.head[i])
+            .map((e) => Offstage(child: SvgIcon(e))),
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final Widget child;
-
-      if (constraints.maxHeight < height) {
-        child = SvgImage.asset(
-          svgAsset,
+        // Animation itself.
+        SvgImage.asset(
+          'assets/images/logo/head_$index.svg',
+          height: 166,
           fit: BoxFit.contain,
           placeholderBuilder: (context) {
             return const Center(child: CustomProgressIndicator());
           },
-        );
-      } else {
-        child = RiveAnimation.asset(riveAsset, onInit: onInit);
-      }
-
-      return ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 350),
-        child: AnimatedSize(
-          curve: Curves.ease,
-          duration: const Duration(milliseconds: 200),
-          child: SizedBox(
-            height: constraints.maxHeight >= height ? height : 140,
-            child: child,
-          ),
         ),
-      );
-    });
+      ],
+    );
   }
 }

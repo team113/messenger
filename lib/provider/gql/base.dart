@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,9 +18,10 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio show DioError, Options, Response;
+import 'package:dio/dio.dart' as dio show DioException, Options, Response;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
+import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
@@ -28,7 +29,11 @@ import '/domain/model/session.dart';
 import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import '/util/rate_limiter.dart';
 import 'exceptions.dart';
+import 'websocket/interface.dart'
+    if (dart.library.io) 'websocket/io.dart'
+    if (dart.library.html) 'websocket/web.dart' as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase {
@@ -52,7 +57,7 @@ class GraphQlProviderBase {
   set token(AccessToken? value) => _client.token = value;
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
-  void reconnect() => _client.reconnect();
+  Future<void> reconnect() => _client.reconnect();
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() => _client.disconnect();
@@ -120,6 +125,16 @@ class GraphQlClient {
   /// Indicator whether the [_wsLink] is connected.
   bool _wsConnected = false;
 
+  /// [RateLimiter] limiting the [subscribe] requests to the backend per second.
+  final RateLimiter _subscriptionLimiter = RateLimiter(
+    per: const Duration(milliseconds: 500),
+  );
+
+  /// [RateLimiter] limiting the [query] requests to the backend per second.
+  final RateLimiter _queryLimiter = RateLimiter(
+    per: const Duration(milliseconds: 500),
+  );
+
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
     if (_client != null && _currentToken == token) {
@@ -129,7 +144,7 @@ class GraphQlClient {
       if (_client != null && _currentToken == token) {
         return _client!;
       } else {
-        _client = _newClient();
+        _client = await _newClient();
         _currentToken = token;
         return _client!;
       }
@@ -139,11 +154,14 @@ class GraphQlClient {
   /// Resolves a single query according to the [QueryOptions] specified and
   /// returns a [Future] which resolves with the [QueryResult] or throws an
   /// [Exception].
-  Future<QueryResult> query(QueryOptions options,
-          [Exception Function(Map<String, dynamic>)? handleException]) =>
+  Future<QueryResult> query(
+    QueryOptions options, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) =>
       _middleware(() async {
-        QueryResult result =
-            await (await client).query(options).timeout(timeout);
+        final QueryResult result = await _queryLimiter.execute(
+          () async => await (await client).query(options).timeout(timeout),
+        );
         GraphQlProviderExceptions.fire(result, handleException);
         return result;
       });
@@ -152,16 +170,16 @@ class GraphQlClient {
   /// and returns a [Future] which resolves with the [QueryResult] or throws an
   /// [Exception].
   ///
-  /// If [raw] is `true` then the request is immediately performed on a new
+  /// If [raw] is non-`null`, then the request is immediately performed on a new
   /// [GraphQLClient] and without [AuthorizationException] handling.
   Future<QueryResult> mutate(
     MutationOptions options, {
-    bool raw = false,
+    RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw) {
+    if (raw != null) {
       QueryResult result =
-          await _newClient(true).mutate(options).timeout(timeout);
+          await (await _newClient(raw)).mutate(options).timeout(timeout);
       GraphQlProviderExceptions.fire(result, onException);
       return result;
     } else {
@@ -177,7 +195,7 @@ class GraphQlClient {
   /// Subscribes to a GraphQL subscription according to the [options] specified.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
-    Version? Function()? ver,
+    FutureOr<Version?> Function()? ver,
   }) {
     return SubscriptionHandle(_subscribe, options, ver: ver).stream;
   }
@@ -195,13 +213,13 @@ class GraphQlClient {
         authorized.headers!['Authorization'] = 'Bearer $token';
 
         try {
-          return await PlatformUtils.dio.post<T>(
+          return await (await PlatformUtils.dio).post<T>(
             '${Config.url}:${Config.port}${Config.graphql}',
             data: data,
             options: authorized,
             onSendProgress: onSendProgress,
           );
-        } on dio.DioError catch (e) {
+        } on dio.DioException catch (e) {
           if (e.response != null) {
             if (onException != null &&
                 e.response?.data is Map<String, dynamic> &&
@@ -215,16 +233,22 @@ class GraphQlClient {
       });
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
-  void reconnect() {
+  Future<void> reconnect() async {
+    Log.debug('reconnect()', '$runtimeType');
+
     if (_client == null || _currentToken != token) {
-      _client = _newClient();
+      _client = await _newClient();
       _currentToken = token;
     }
   }
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() {
+    Log.debug('disconnect()', '$runtimeType');
+
     _disposeWebSocket();
+    _queryLimiter.clear();
+    _subscriptionLimiter.clear();
     _client = null;
   }
 
@@ -236,7 +260,9 @@ class GraphQlClient {
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
   Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
-    var stream = (await client).subscribe(options);
+    final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
+      () async => (await client).subscribe(options),
+    );
 
     final connection = SubscriptionConnection(
       stream.expand((event) {
@@ -283,7 +309,7 @@ class GraphQlClient {
       _reconnectPeriodMillis = maxReconnectPeriodMillis;
     }
 
-    Log.print('Reconnecting in $_reconnectPeriodMillis ms...', 'WebSocket');
+    Log.info('Reconnecting in $_reconnectPeriodMillis ms...', 'WebSocket');
 
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
@@ -291,12 +317,12 @@ class GraphQlClient {
     // Try to reconnect again in [_reconnectPeriodMillis].
     _backoffTimer = Timer(
       Duration(milliseconds: _reconnectPeriodMillis),
-      () {
+      () async {
         if (_reconnectPeriodMillis == 0) {
           _reconnectPeriodMillis = minReconnectPeriodMillis ~/ 2;
         }
 
-        _client = _newClient();
+        _client = await _newClient();
 
         // Populate the [_checkConnectionTimer] to check if any connection was
         // established and attempt to reconnect again if not.
@@ -310,23 +336,36 @@ class GraphQlClient {
   }
 
   /// Populates the [_wsLink] with a new [WebSocketLink].
-  void _newWebSocket() {
+  Future<void> _newWebSocket() async {
+    Log.debug('_newWebSocket()', '$runtimeType');
+
     _wsLink = WebSocketLink(
       Config.ws,
       config: SocketClientConfig(
         initialPayload: {'ticket': token?.val},
+        headers: {
+          if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
+        },
         autoReconnect: false,
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          var socket =
-              WebSocketChannel.connect(uri, protocols: protocols).forGraphQL();
+          var socket = websocket
+              .connect(
+                uri,
+                protocols: protocols,
+                customClient: PlatformUtils.isWeb
+                    ? null
+                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
+              )
+              .forGraphQL();
+
           socket.stream = socket.stream.handleError((_, __) => false);
 
           _channelSubscription = socket.stream.listen(
             (_) {
               if (!_wsConnected) {
-                Log.print('Connected', 'WebSocket');
+                Log.info('Connected', 'WebSocket');
                 _checkConnectionTimer?.cancel();
                 _backoffTimer?.cancel();
                 _wsConnected = true;
@@ -354,6 +393,7 @@ class GraphQlClient {
 
   /// Disposes the [_wsLink] and related resources.
   void _disposeWebSocket() {
+    Log.debug('_disposeWebSocket()', '$runtimeType');
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
     _channelSubscription?.cancel();
@@ -362,20 +402,29 @@ class GraphQlClient {
   }
 
   /// Creates a new [GraphQLClient].
-  GraphQLClient _newClient([bool raw = false]) {
-    final httpLink = HttpLink('${Config.url}:${Config.port}${Config.graphql}');
-    final AuthLink authLink = AuthLink(getToken: () => 'Bearer $token');
+  Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
+    Log.debug('_newClient($raw)', '$runtimeType');
+
+    final httpLink = HttpLink(
+      '${Config.url}:${Config.port}${Config.graphql}',
+      defaultHeaders: {
+        if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
+      },
+    );
+
+    final AccessToken? bearer = raw?.token ?? token;
+    final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
     final Link httpAuthLink =
-        token != null ? authLink.concat(httpLink) : httpLink;
+        bearer != null ? authLink.concat(httpLink) : httpLink;
     Link link = httpAuthLink;
 
     // Update the WebSocket connection if not [raw].
-    if (!raw) {
+    if (raw == null) {
       _disposeWebSocket();
 
       // WebSocket connection is meaningful only if the token is provided.
       if (token != null) {
-        _newWebSocket();
+        await _newWebSocket();
         link = Link.split(
           (request) => request.isSubscription,
           _wsLink!,
@@ -442,7 +491,7 @@ class SubscriptionHandle {
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
   /// required.
-  final Version? Function()? ver;
+  final FutureOr<Version?> Function()? ver;
 
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
@@ -475,16 +524,15 @@ class SubscriptionHandle {
 
   /// Subscribes to the events.
   Future<void> _subscribe() async {
+    Log.debug('subscribe()', '$runtimeType');
+
     _subscription?.cancel();
 
     try {
       _subscription = (await _listen(_options)).listen(
         (e) {
           if (_backoff != null) {
-            Log.print(
-              'Successfully resubscribed 👍',
-              _options.operationName,
-            );
+            Log.info('Successfully resubscribed 👍', _options.operationName);
 
             _backoffDuration = Duration.zero;
             _backoff?.cancel();
@@ -504,6 +552,7 @@ class SubscriptionHandle {
             _resubscribe();
           }
         },
+        cancelOnError: true,
       );
     } catch (e) {
       _controller.addError(e);
@@ -512,11 +561,11 @@ class SubscriptionHandle {
   }
 
   /// Resubscribes to the events.
-  void _resubscribe({bool noVersion = false}) {
-    Log.print('Reconnecting in $_backoffDuration...', _options.operationName);
+  void _resubscribe({bool noVersion = false}) async {
+    Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
 
     if (ver != null) {
-      _options.variables['ver'] = noVersion ? null : ver!()?.val;
+      _options.variables['ver'] = noVersion ? null : (await ver!())?.val;
     }
 
     if (_backoff?.isActive != true) {
@@ -529,4 +578,12 @@ class SubscriptionHandle {
       }
     }
   }
+}
+
+/// Options for raw [GraphQlClient] instance.
+class RawClientOptions {
+  const RawClientOptions([this.token]);
+
+  /// [AccessToken] to pass to raw [GraphQlClient].
+  final AccessToken? token;
 }

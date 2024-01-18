@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,7 +22,6 @@ import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/util/obs/obs.dart';
 
 import '../parameters/favorite_status.dart';
 import '../world/custom_world.dart';
@@ -43,10 +42,13 @@ final StepDefinitionGeneric contactIsFavorite =
     provider.token = authService.credentials.value!.session.token;
 
     if (status == FavoriteStatus.favorite) {
-      final RxObsMap<ChatContactId, RxChatContact> favorites =
-          Get.find<ContactService>().favorites;
+      final List<RxChatContact> favorites = Get.find<ContactService>()
+          .paginated
+          .values
+          .where((e) => e.contact.value.favoritePosition != null)
+          .toList();
 
-      final sortFavorites = favorites.values.toList()
+      final sortFavorites = favorites
         ..sort(
           (a, b) => a.contact.value.favoritePosition!
               .compareTo(b.contact.value.favoritePosition!),

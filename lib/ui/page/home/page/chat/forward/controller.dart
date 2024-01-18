@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,6 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
@@ -43,10 +44,12 @@ export 'view.dart';
 class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.text,
     this.pop,
     this.attachments = const [],
+    this.onSent,
     required this.from,
     required this.quotes,
   });
@@ -65,13 +68,16 @@ class ChatForwardController extends GetxController {
 
   /// Callback, called when a [ChatForwardView] this controller is bound to
   /// should be popped from the [Navigator].
-  final void Function()? pop;
+  final void Function([bool])? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [Attachment]s to attach to the [quotes].
   final List<Attachment> attachments;
+
+  /// Callback, called when the [quotes] are sent.
+  final void Function()? onSent;
 
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
@@ -81,6 +87,9 @@ class ChatForwardController extends GetxController {
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
+
+  /// [AbstractSettingsRepository], used to create a [MessageFieldController].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
@@ -93,6 +102,7 @@ class ChatForwardController extends GetxController {
     send = MessageFieldController(
       _chatService,
       _userService,
+      _settingsRepository,
       text: text,
       quotes: quotes,
       attachments: attachments,
@@ -168,7 +178,8 @@ class ChatForwardController extends GetxController {
           ];
 
           await Future.wait(futures);
-          pop?.call();
+          pop?.call(true);
+          onSent?.call();
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {
@@ -190,7 +201,7 @@ class ChatForwardController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Adds the specified [details] files to the [attachments].
   void dropFiles(DropDoneDetails details) async {

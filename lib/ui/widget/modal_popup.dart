@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
 import 'widget_button.dart';
 
@@ -57,6 +58,10 @@ abstract class ModalPopup {
         backgroundColor: style.colors.onPrimary,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
+        elevation: 0,
+        transitionAnimationController:
+            BottomSheet.createAnimationController(Navigator.of(context))
+              ..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14),
@@ -100,12 +105,12 @@ abstract class ModalPopup {
         },
       );
     } else {
-      return showDialog(
+      return showGeneralDialog(
         context: context,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        builder: (context) {
-          return Center(
+        pageBuilder: (_, __, ___) {
+          final Widget body = Center(
             child: Container(
               constraints: modalConstraints,
               width: modalConstraints.maxWidth,
@@ -120,6 +125,17 @@ abstract class ModalPopup {
                 child: child,
               ),
             ),
+          );
+
+          return SafeArea(child: body);
+        },
+        barrierLabel:
+            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
+          return FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
+            child: child,
           );
         },
       );
@@ -149,44 +165,46 @@ class ModalPopupHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
-      child: Row(
-        children: [
-          if (onBack != null)
-            WidgetButton(
-              onPressed: onBack,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: style.colors.primary,
+      child: Center(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (onBack != null)
+              WidgetButton(
+                onPressed: onBack,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  child: SvgIcon(SvgIcons.backSmall),
                 ),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-          if (text != null)
-            Expanded(
-              child: Center(child: Text(text!, style: fonts.headlineMedium)),
-            )
-          else
-            const Spacer(),
-          if (!context.isMobile && close)
-            WidgetButton(
-              key: const Key('CloseButton'),
-              onPressed: Navigator.of(context).pop,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Icon(Icons.close, size: 18, color: style.colors.primary),
-              ),
-            )
-          else
-            const SizedBox(width: 40),
-        ],
+              )
+            else
+              const SizedBox(width: 40),
+            if (text != null)
+              Expanded(
+                child: Center(
+                  child:
+                      Text(text!, style: style.fonts.big.regular.onBackground),
+                ),
+              )
+            else
+              const Spacer(),
+            if (!context.isMobile && close)
+              WidgetButton(
+                key: const Key('CloseButton'),
+                onPressed: Navigator.of(context).pop,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  child: SvgIcon(SvgIcons.closeSmallPrimary),
+                ),
+              )
+            else
+              const SizedBox(width: 40),
+          ],
+        ),
       ),
     );
   }

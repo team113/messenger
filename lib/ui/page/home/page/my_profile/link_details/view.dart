@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,7 +35,7 @@ class LinkDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return AnimatedSizeAndFade(
       fadeDuration: const Duration(milliseconds: 250),
@@ -53,9 +53,7 @@ class LinkDetailsView extends StatelessWidget {
                 children: [
                   TextSpan(text: 'label_direct_chat_link_description'.l10n),
                 ],
-                style: fonts.bodyMedium!.copyWith(
-                  color: style.colors.secondary,
-                ),
+                style: style.fonts.normal.regular.secondary,
               ),
             ),
           ),

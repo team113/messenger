@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +26,7 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/audio_utils.dart';
 import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
@@ -399,7 +398,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 /// Stateful component of a [ReorderableFit].
 class _ReorderableFit<T extends Object> extends StatefulWidget {
   const _ReorderableFit({
-    Key? key,
+    super.key,
     required this.children,
     required this.itemBuilder,
     this.decoratorBuilder,
@@ -431,7 +430,7 @@ class _ReorderableFit<T extends Object> extends StatefulWidget {
     this.allowDraggingLast = true,
     this.itemConstraints,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   /// Builder building the provided item.
   final Widget Function(T data) itemBuilder;
@@ -545,24 +544,14 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   /// [GlobalKey] of this [_ReorderableFit].
   final GlobalKey _fitKey = GlobalKey();
 
-  /// [AudioPlayer] playing a pop sound.
-  AudioPlayer? _audioPlayer;
-
   /// [_ReorderableItem] being dragged that has already broke its dough.
   _ReorderableItem<T>? _doughDragged;
 
   @override
   void initState() {
     _items = widget.children.map((e) => _ReorderableItem(e)).toList();
-    _initAudio();
+    AudioUtils.ensureInitialized();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer?.dispose();
-    _audioPlayer = null;
-    super.dispose();
   }
 
   @override
@@ -644,12 +633,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
-                      _audioPlayer?.play(
-                        AssetSource('audio/pop.mp3'),
-                        volume: 0.3,
-                        position: Duration.zero,
-                        mode: PlayerMode.lowLatency,
-                      );
+                      AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
                     },
                   ),
           ),
@@ -888,8 +872,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                         spacing: 0,
                         runSpacing: 0,
                         children: _items
-                            .mapIndexed(
-                              (i, e) => SizedBox(
+                            .map(
+                              (e) => SizedBox(
                                 width: widget.wrapSize,
                                 height: widget.wrapSize,
                                 child: widget.overlayBuilder!(e.item),
@@ -996,28 +980,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       setState(() {});
     }
   }
-
-  /// Initializes the [_audioPlayer].
-  Future<void> _initAudio() async {
-    // [AudioPlayer] constructor creates a hanging [Future], which can't be
-    // awaited.
-    runZonedGuarded(
-      () => _audioPlayer = AudioPlayer(),
-      (e, _) {
-        if (e is MissingPluginException) {
-          _audioPlayer = null;
-        } else {
-          throw e;
-        }
-      },
-    );
-  }
 }
 
 /// [_ReorderableItem] wrapped in a [DraggableDough].
 class _ReorderableDraggable<T extends Object> extends StatefulWidget {
   const _ReorderableDraggable({
-    Key? key,
+    super.key,
     required this.item,
     required this.sharedKey,
     required this.cellKey,
@@ -1030,7 +998,7 @@ class _ReorderableDraggable<T extends Object> extends StatefulWidget {
     this.useLongPress = false,
     this.enabled = true,
     this.itemConstraints,
-  }) : super(key: key);
+  });
 
   /// Item stored in this [_ReorderableDraggable].
   final T item;
@@ -1197,13 +1165,13 @@ class _ReorderableDraggableState<T extends Object>
 /// specified reactive [constraints].
 class _Resizable extends StatelessWidget {
   const _Resizable({
-    Key? key,
+    super.key,
     required this.cellKey,
     required this.layout,
     required this.position,
     required this.constraints,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// [GlobalKey] of a cell this [_Resizable] occupies.
   final GlobalKey cellKey;

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ final StepDefinitionGeneric seesAs =
   '{user} sees {user} as {status}',
   (TestUser user1, TestUser user2, OnlineStatus status, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user1.name]?.session.token;
+    provider.token = context.world.sessions[user1.name]?.token;
 
     await context.world.appDriver.waitUntil(() async {
       var response =

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@
 
 import 'dart:async';
 import 'dart:html' as html;
-import 'dart:ui' as ui;
+import 'dart:ui_web' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -85,19 +85,27 @@ class _WebImageState extends State<WebImage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        if (_loading) const Center(child: CircularProgressIndicator()),
-        if (!_backoffRunning)
-          IgnorePointer(
-            child: _HtmlImage(
-              src: widget.src,
-              onLoaded: () => _loading = false,
-              onError: _backoff,
-            ),
-          ),
-      ],
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      return ConstrainedBox(
+        constraints: constraints,
+        child: Stack(
+          children: [
+            if (_loading)
+              const Positioned.fill(
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            if (!_backoffRunning)
+              IgnorePointer(
+                child: _HtmlImage(
+                  src: widget.src,
+                  onLoaded: () => _loading = false,
+                  onError: _backoff,
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 
   /// Loads the image header from the [WebImage.src] to ensure that image can be
@@ -119,11 +127,11 @@ class _WebImageState extends State<WebImage> {
           Response? data;
 
           try {
-            data = await PlatformUtils.dio.head(widget.src);
-          } on DioError catch (e) {
+            data = await (await PlatformUtils.dio).head(widget.src);
+          } on DioException catch (e) {
             if (e.response?.statusCode == 403) {
               await widget.onForbidden?.call();
-              _cancelToken.cancel();
+              return;
             }
           }
 
@@ -179,6 +187,9 @@ class _HtmlImageState extends State<_HtmlImage> {
   /// Subscription for [html.ImageElement.onError] stream.
   StreamSubscription? _errorSubscription;
 
+  /// Type of platform view to pass to [HtmlElementView].
+  late String _viewType;
+
   @override
   void initState() {
     _initImageElement();
@@ -207,18 +218,20 @@ class _HtmlImageState extends State<_HtmlImage> {
 
   @override
   Widget build(BuildContext context) {
-    return HtmlElementView(
-      viewType: '${_elementId}__webImageViewType__${widget.src}__',
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: HtmlElementView(viewType: _viewType),
     );
   }
 
   /// Registers the actual HTML element representing an image.
   void _initImageElement() {
     _elementId = platformViewsRegistry.getNextPlatformViewId();
+    _viewType = '${_elementId}__webImageViewType__${widget.src}__';
 
-    // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
-      '${_elementId}__webImageViewType__${widget.src}__',
+      _viewType,
       (int viewId) {
         _element = html.ImageElement(src: widget.src)
           ..style.width = '100%'

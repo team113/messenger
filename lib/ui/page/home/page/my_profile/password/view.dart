@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -42,7 +42,7 @@ class ChangePasswordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: ChangePasswordController(Get.find()),
@@ -65,9 +65,7 @@ class ChangePasswordView extends StatelessWidget {
                         c.stage.value == ChangePasswordFlowStage.set
                             ? 'label_password_set'.l10n
                             : 'label_password_changed'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style: style.fonts.normal.regular.secondary,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -76,9 +74,7 @@ class ChangePasswordView extends StatelessWidget {
                       maxWidth: double.infinity,
                       title: Text(
                         'btn_close'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
-                          color: style.colors.onPrimary,
-                        ),
+                        style: style.fonts.normal.regular.onPrimary,
                       ),
                       onPressed: Navigator.of(context).pop,
                       color: style.colors.primary,
@@ -100,9 +96,7 @@ class ChangePasswordView extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 25),
                         child: Text(
                           'label_password_not_set_info'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.secondary,
-                          ),
+                          style: style.fonts.normal.regular.secondary,
                         ),
                       )
                     else
@@ -114,9 +108,10 @@ class ChangePasswordView extends StatelessWidget {
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: c.obscurePassword.toggle,
                           treatErrorAsStatus: false,
-                          trailing: SvgImage.asset(
-                            'assets/icons/visible_${c.obscurePassword.value ? 'off' : 'on'}.svg',
-                            width: 17.07,
+                          trailing: SvgIcon(
+                            c.obscurePassword.value
+                                ? SvgIcons.visibleOff
+                                : SvgIcons.visibleOn,
                           ),
                         ),
                       ),
@@ -127,9 +122,10 @@ class ChangePasswordView extends StatelessWidget {
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: c.obscureNewPassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgImage.asset(
-                        'assets/icons/visible_${c.obscureNewPassword.value ? 'off' : 'on'}.svg',
-                        width: 17.07,
+                      trailing: SvgIcon(
+                        c.obscureNewPassword.value
+                            ? SvgIcons.visibleOff
+                            : SvgIcons.visibleOn,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -140,9 +136,10 @@ class ChangePasswordView extends StatelessWidget {
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: c.obscureRepeatPassword.toggle,
                       treatErrorAsStatus: false,
-                      trailing: SvgImage.asset(
-                        'assets/icons/visible_${c.obscureRepeatPassword.value ? 'off' : 'on'}.svg',
-                        width: 17.07,
+                      trailing: SvgIcon(
+                        c.obscureRepeatPassword.value
+                            ? SvgIcons.visibleOff
+                            : SvgIcons.visibleOn,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -162,11 +159,9 @@ class ChangePasswordView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: enabled
-                                ? style.colors.onPrimary
-                                : style.colors.onBackground,
-                          ),
+                          style: enabled
+                              ? style.fonts.normal.regular.onPrimary
+                              : style.fonts.normal.regular.onBackground,
                         ),
                         onPressed: enabled ? c.changePassword : null,
                         color: style.colors.primary,

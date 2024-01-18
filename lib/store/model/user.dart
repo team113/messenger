@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,11 +26,11 @@ part 'user.g.dart';
 /// Version of an [User]'s state.
 @HiveType(typeId: ModelTypeId.userVersion)
 class UserVersion extends Version {
-  UserVersion(String val) : super(val);
+  UserVersion(super.val);
 }
 
 /// Cursor used for [User]s pagination.
 @HiveType(typeId: ModelTypeId.usersCursor)
 class UsersCursor extends NewType<String> {
-  UsersCursor(String val) : super(val);
+  UsersCursor(super.val);
 }

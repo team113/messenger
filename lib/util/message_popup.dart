@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -53,7 +53,7 @@ class MessagePopup {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
   }) {
-    final (style, fonts) = Theme.of(router.context!).styles;
+    final style = Theme.of(router.context!).style;
 
     return ModalPopup.show(
       context: router.context!,
@@ -76,9 +76,7 @@ class MessagePopup {
                           child: RichText(
                             text: TextSpan(
                               children: description,
-                              style: fonts.labelLarge!.copyWith(
-                                color: style.colors.secondary,
-                              ),
+                              style: style.fonts.normal.regular.secondary,
                             ),
                           ),
                         ),
@@ -100,9 +98,7 @@ class MessagePopup {
                   maxWidth: double.infinity,
                   title: Text(
                     'btn_proceed'.l10n,
-                    style: fonts.bodyMedium!.copyWith(
-                      color: style.colors.onPrimary,
-                    ),
+                    style: style.fonts.normal.regular.onPrimary,
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
                   color: style.colors.primary,

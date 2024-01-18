@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,14 +25,15 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.title,
     this.leading = const [],
     this.actions = const [],
     this.padding,
     this.border,
     this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
-  }) : super(key: key);
+    this.top = true,
+  });
 
   /// Primary centered [Widget] of this [CustomAppBar].
   final Widget? title;
@@ -52,6 +53,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;
 
+  /// Indicator whether [SafeArea.top] padding should be applied.
+  final bool top;
+
   /// Height of the [CustomAppBar].
   static const double height = 60;
 
@@ -60,16 +64,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
-    final double top = MediaQuery.of(context).padding.top;
+    double topPadding = 0;
+    if (top) {
+      topPadding = MediaQuery.of(context).padding.top;
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (top != 0)
+        if (topPadding != 0)
           Container(
-            height: top,
+            height: topPadding,
             width: double.infinity,
             color: style.colors.transparent,
           ),
@@ -84,7 +91,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   CustomBoxShadow(
                     blurRadius: 8,
                     color: style.colors.onBackgroundOpacity13,
-                    blurStyle: BlurStyle.outer,
+                    blurStyle: BlurStyle.outer.workaround,
                   ),
                 ],
               ),
@@ -108,9 +115,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ...leading,
                       Expanded(
                         child: DefaultTextStyle.merge(
-                          style: fonts.headlineMedium,
-                          child:
-                              Center(child: title ?? const SizedBox.shrink()),
+                          style: style.fonts.big.regular.onBackground,
+                          child: Center(
+                            child: title ?? const SizedBox.shrink(),
+                          ),
                         ),
                       ),
                       ...actions,

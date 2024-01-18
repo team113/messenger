@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,17 +36,15 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return OutlinedRoundedButton(
       maxWidth: double.infinity,
       title: Text(
         title,
-        style: fonts.titleLarge!.copyWith(
-          color: onPressed == null
-              ? style.colors.onBackground
-              : style.colors.onPrimary,
-        ),
+        style: onPressed == null
+            ? style.fonts.medium.regular.onBackground
+            : style.fonts.medium.regular.onPrimary,
       ),
       onPressed: onPressed,
       color: style.colors.primary,

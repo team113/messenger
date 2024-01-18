@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -89,12 +89,8 @@ class CameraSwitchView extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: local == null
-                                  ? Center(
-                                      child: SvgImage.asset(
-                                        'assets/icons/no_video.svg',
-                                        width: 48.54,
-                                        height: 42,
-                                      ),
+                                  ? const Center(
+                                      child: SvgIcon(SvgIcons.noVideo),
                                     )
                                   : webrtc.VideoView(
                                       local.inner,
@@ -108,6 +104,19 @@ class CameraSwitchView extends StatelessWidget {
                       }),
                     ),
                     const SizedBox(height: 25),
+                    Obx(() {
+                      if (c.error.value == null) {
+                        return const SizedBox();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          c.error.value!,
+                          style: style.fonts.normal.regular.danger,
+                        ),
+                      );
+                    }),
                     Obx(() {
                       return ListView.separated(
                         shrinkWrap: true,

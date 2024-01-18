@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,9 +36,8 @@ extension ChatCallConversion on ChatCallMixin {
   ChatCall toModel() => ChatCall(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
-        caller: caller?.toModel(),
         members: members.map((e) => e.toModel()).toList(),
         withVideo: withVideo,
         conversationStartedAt: conversationStartedAt,

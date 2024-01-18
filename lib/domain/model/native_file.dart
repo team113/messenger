@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
@@ -39,7 +40,9 @@ class NativeFile {
     Uint8List? bytes,
     Stream<List<int>>? stream,
     this.mime,
+    Size? dimensions,
   })  : bytes = Rx(bytes),
+        dimensions = Rx(dimensions),
         _readStream = stream {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
@@ -54,6 +57,10 @@ class NativeFile {
           mime = MediaType.parse(type);
         }
       }
+    }
+
+    if (bytes != null) {
+      _determineDimension();
     }
   }
 
@@ -90,8 +97,10 @@ class NativeFile {
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
-  @HiveField(4)
   MediaType? mime;
+
+  /// [Size] of the image this [NativeFile] represents, if [isImage].
+  final Rx<Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
@@ -202,8 +211,28 @@ class NativeFile {
         _readStream = null;
       }
 
+      await _determineDimension();
+
       return bytes.value;
     });
+  }
+
+  /// Determines the [dimensions].
+  Future<void> _determineDimension() async {
+    // Decode the file, if it [isImage].
+    //
+    // Throws an error, if decoding fails.
+    if (dimensions.value == null && isImage && bytes.value != null) {
+      // TODO: Validate SVGs and retrieve its width and height.
+      if (!isSvg) {
+        final decoded = await instantiateImageCodec(bytes.value!);
+        final frame = await decoded.getNextFrame();
+        dimensions.value = Size(
+          frame.image.width.toDouble(),
+          frame.image.height.toDouble(),
+        );
+      }
+    }
   }
 
   /// Constructs a [Stream] from the [bytes].
@@ -219,26 +248,18 @@ class MediaTypeAdapter extends TypeAdapter<MediaType> {
 
   @override
   MediaType read(BinaryReader reader) {
-    final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
     return MediaType(
-      fields[0] as String,
-      fields[1] as String,
-      (fields[2] as Map).cast<String, String>(),
+      reader.read() as String,
+      reader.read() as String,
+      (reader.read() as Map).cast<String, String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, MediaType obj) {
     writer
-      ..writeByte(3)
-      ..writeByte(0)
       ..write(obj.type)
-      ..writeByte(1)
       ..write(obj.subtype)
-      ..writeByte(2)
       ..write(obj.parameters);
   }
 }

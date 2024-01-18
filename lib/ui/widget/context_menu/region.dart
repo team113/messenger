@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
 import 'menu.dart';
+import 'menu_overlay.dart';
 import 'mobile.dart';
 
 /// Region of a context menu over a [child], showed on a secondary mouse click
@@ -126,7 +127,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether [ContextMenu] is displayed.
   bool _displayed = false;
 
-  /// [OverlayEntry] displaying a currently opened [ContextMenu].
+  /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
 
   @override
@@ -170,7 +171,11 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           unconstrained: widget.unconstrained,
           onOpened: () => _displayed = true,
           onClosed: () => _displayed = false,
-          child: widget.builder == null ? child : widget.builder!(_displayed),
+          child: widget.builder == null
+              ? child
+              // Wrap [widget.builder] with [Builder] to trigger
+              // [ContextMenuRegion.builder] on [setState].
+              : Builder(builder: (_) => widget.builder!(_displayed)),
         );
       } else {
         menu = GestureDetector(
@@ -211,13 +216,22 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(BuildContext context, Offset position) async {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
-    if (widget.actions.isEmpty) {
+    if (_displayed || widget.actions.isEmpty) {
       return;
     }
 
     HapticFeedback.lightImpact();
+
+    _displayed = true;
+    if (widget.indicateOpenedMenu) {
+      _darkened = true;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -226,10 +240,25 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         width: widget.width,
         margin: widget.margin,
         buttonBuilder: (i, b) {
+          if (PlatformUtils.isMobile) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                b,
+                if (i < widget.actions.length - 1)
+                  Container(
+                    color: style.colors.onBackgroundOpacity7,
+                    height: 1,
+                    width: double.infinity,
+                  ),
+              ],
+            );
+          }
+
           return Padding(
             padding: EdgeInsets.only(
-              top: i == 0 ? 6 : 0,
-              bottom: i == widget.actions.length - 1 ? 6 : 0,
+              top: i == 0 ? 4 : 0,
+              bottom: i == widget.actions.length - 1 ? 4 : 0,
             ),
             child: b,
           );
@@ -238,11 +267,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           if (b is ContextMenuButton) {
             return Row(
               children: [
-                if (b.leading != null) ...[
-                  b.leading!,
-                  const SizedBox(width: 12),
-                ],
-                Text(b.label, style: fonts.labelLarge),
+                Text(b.label, style: style.fonts.normal.regular.onBackground),
                 if (b.trailing != null) ...[
                   const SizedBox(width: 12),
                   b.trailing!,
@@ -257,58 +282,32 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         buttonKey: widget.selector,
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
       );
-    } else {
-      _displayed = true;
-      if (widget.indicateOpenedMenu) {
-        _darkened = true;
-      }
 
+      _displayed = false;
+      if (widget.indicateOpenedMenu) {
+        _darkened = false;
+      }
       if (mounted) {
         setState(() {});
       }
-
+    } else {
       _entry = OverlayEntry(builder: (_) {
-        return LayoutBuilder(builder: (_, constraints) {
-          double qx = 1, qy = 1;
-          if (position.dx > (constraints.maxWidth) / 2) qx = -1;
-          if (position.dy > (constraints.maxHeight) / 2) qy = -1;
-          final Alignment alignment = Alignment(qx, qy);
-
-          return Listener(
-            onPointerUp: (d) {
-              _entry?.remove();
-
-              _displayed = false;
-              if (widget.indicateOpenedMenu) {
-                _darkened = false;
-              }
-
-              if (mounted) {
-                setState(() {});
-              }
-            },
-            child: Container(
-              color: style.colors.transparent,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    left:
-                        position.dx + widget.margin.left - widget.margin.right,
-                    top: position.dy + widget.margin.top - widget.margin.bottom,
-                    child: FractionalTranslation(
-                      translation: Offset(
-                        alignment.x > 0 ? 0 : -1,
-                        alignment.y > 0 ? 0 : -1,
-                      ),
-                      child: ContextMenu(actions: widget.actions),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
-        });
+        return Listener(
+          onPointerUp: (d) {
+            _displayed = false;
+            if (widget.indicateOpenedMenu) {
+              _darkened = false;
+            }
+            if (mounted) {
+              setState(() {});
+            }
+          },
+          child: ContextMenuOverlay(
+            position: position,
+            actions: widget.actions,
+            onDismissed: _entry?.remove,
+          ),
+        );
       });
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);

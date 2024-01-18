@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,18 +32,13 @@ class ChatInfo extends ChatItem {
   ChatInfo(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
-    required this.author,
     required this.action,
   });
 
-  /// [User] who triggered this [ChatInfo].
-  @HiveField(5)
-  final User author;
-
   /// [ChatInfoAction] taken upon the [Chat].
-  @HiveField(6)
+  @HiveField(5)
   final ChatInfoAction action;
 }
 
@@ -99,7 +94,7 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
   /// [User] who became a [ChatMember].
   ///
-  /// If the same as [ChatItem.authorId], then the [User] joined the [Chat] by
+  /// If the same as [ChatItem.author], then the [User] joined the [Chat] by
   /// himself.
   @HiveField(0)
   final User user;
@@ -119,7 +114,7 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
   /// [User] who was removed from the [Chat].
   ///
-  /// If the same as [ChatItem.authorId], then the [User] left the [Chat] by
+  /// If the same as [ChatItem.author], then the [User] left the [Chat] by
   /// himself.
   @HiveField(0)
   final User user;

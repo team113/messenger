@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,14 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/chat.dart';
-import '/store/chat.dart';
 import '/store/event/chat.dart';
 import '/store/model/chat.dart';
 
 /// Tag representing a [FavoriteChatsEvents] kind.
 enum FavoriteChatsEventsKind {
   initialized,
-  chatsList,
   event,
 }
 
@@ -42,20 +40,6 @@ class FavoriteChatsEventsInitialized extends FavoriteChatsEvents {
 
   @override
   FavoriteChatsEventsKind get kind => FavoriteChatsEventsKind.initialized;
-}
-
-/// Initial state of the favorite [Chat]s list.
-class FavoriteChatsEventsChatsList extends FavoriteChatsEvents {
-  const FavoriteChatsEventsChatsList(this.chatList, this.ver);
-
-  /// Initial state itself.
-  final List<ChatData> chatList;
-
-  /// Version of the initial favorite [Chat]s list.
-  final FavoriteChatsListVersion ver;
-
-  @override
-  FavoriteChatsEventsKind get kind => FavoriteChatsEventsKind.chatsList;
 }
 
 /// [FavoriteChatsEventsVersioned] happening in the favorite [Chat]s list.

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,15 +32,18 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/recent_chat.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -50,7 +53,7 @@ import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'my_profile_gallery_test.mocks.dart';
+import 'chat_avatar_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
@@ -60,24 +63,22 @@ void main() async {
     'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
     'num': '7461878581615099',
     'name': 'user',
-    'bio': null,
     'avatar': null,
     'callCover': null,
-    'gallery': {'nodes': []},
     'mutualContactsCount': 0,
     'online': {'__typename': 'UserOnline'},
     'presence': 'PRESENT',
     'status': null,
     'isDeleted': false,
     'dialog': null,
-    'isBlacklisted': {'blacklisted': false, 'ver': '1'},
+    'isBlocked': {'ver': '1'},
     'ver': '2'
   };
 
-  var sessionProvider = SessionDataHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await sessionProvider.init();
+  await credentialsProvider.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
@@ -88,11 +89,10 @@ void main() async {
   var userHiveProvider = UserHiveProvider();
   await userHiveProvider.init();
   await userHiveProvider.clear();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
-  await galleryItemProvider.clear();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
   await draftProvider.clear();
@@ -106,12 +106,17 @@ void main() async {
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var recentChatProvider = RecentChatHiveProvider();
+  await recentChatProvider.init();
+  var favoriteChatProvider = FavoriteChatHiveProvider();
+  await favoriteChatProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   Get.put(myUserProvider);
-  Get.put(galleryItemProvider);
   Get.put(userHiveProvider);
   Get.put(chatHiveProvider);
-  Get.put(sessionProvider);
+  Get.put(credentialsProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
 
   when(graphQlProvider.incomingCallsTopEvents(3))
@@ -177,21 +182,19 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userHiveProvider,
-      galleryItemProvider,
-    );
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userHiveProvider);
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -199,6 +202,8 @@ void main() async {
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
+      recentChatProvider,
+      favoriteChatProvider,
       callRepository,
       draftProvider,
       userRepository,
@@ -247,7 +252,7 @@ void main() async {
       file: captureThat(isNotNull, named: 'file'),
       onSendProgress: null,
     )).thenThrow(
-      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.tooBigSize),
+      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
     );
 
     when(graphQlProvider.updateChatAvatar(
@@ -270,21 +275,19 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
 
-    UserRepository userRepository = UserRepository(
-      graphQlProvider,
-      userHiveProvider,
-      galleryItemProvider,
-    );
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        UserRepository(graphQlProvider, userHiveProvider);
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -292,6 +295,8 @@ void main() async {
     ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
+      recentChatProvider,
+      favoriteChatProvider,
       callRepository,
       draftProvider,
       userRepository,
@@ -319,7 +324,8 @@ void main() async {
     }
 
     if (exception !=
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.tooBigSize)) {
+        const UpdateChatAvatarException(
+            UpdateChatAvatarErrorCode.invalidSize)) {
       fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
     }
 

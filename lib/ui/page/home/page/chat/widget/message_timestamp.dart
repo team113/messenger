@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// [Row] displaying the provided [status] and [at] stylized to be a status of
 /// some [ChatItem].
@@ -31,6 +32,7 @@ class MessageTimestamp extends StatelessWidget {
     this.status,
     this.date = false,
     this.read = false,
+    this.halfRead = false,
     this.delivered = false,
     this.inverted = false,
     this.fontSize,
@@ -49,6 +51,10 @@ class MessageTimestamp extends StatelessWidget {
   /// meaning it should display an appropriate icon.
   final bool read;
 
+  /// Indicator whether this [MessageTimestamp] is considered to be read only
+  /// partially, meaning it should display an appropriate icon.
+  final bool halfRead;
+
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
   /// meaning it should display an appropriate icon.
   final bool delivered;
@@ -62,54 +68,71 @@ class MessageTimestamp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     final bool isSent = status == SendingStatus.sent;
     final bool isDelivered = isSent && delivered;
     final bool isRead = isSent && read;
+    final bool isHalfRead = isSent && halfRead;
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        SelectionContainer.disabled(
+          child: Text(
+            date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
+            style: (inverted
+                    ? style.fonts.smaller.regular.onPrimary
+                    : style.fonts.smaller.regular.secondary)
+                .copyWith(
+              fontSize:
+                  fontSize ?? style.fonts.smaller.regular.onBackground.fontSize,
+            ),
+          ),
+        ),
         if (status != null &&
             (isSent || isDelivered || isRead || isSending || isError)) ...[
-          Icon(
-            (isRead || isDelivered)
-                ? Icons.done_all
-                : isSending
-                    ? Icons.access_alarm
-                    : isError
-                        ? Icons.error_outline
-                        : Icons.done,
-            color: isRead
-                ? style.colors.primary
-                : isError
-                    ? style.colors.dangerColor
-                    : style.colors.secondary,
-            size: 12,
+          const SizedBox(width: 3),
+          SizedBox(
             key: Key(
               isError
                   ? 'Error'
                   : isSending
                       ? 'Sending'
-                      : 'Sent',
+                      : isRead
+                          ? isHalfRead
+                              ? 'HalfRead'
+                              : 'Read'
+                          : 'Sent',
+            ),
+            width: 17,
+            child: SvgIcon(
+              isRead
+                  ? isHalfRead
+                      ? inverted
+                          ? SvgIcons.halfReadWhite
+                          : SvgIcons.halfRead
+                      : inverted
+                          ? SvgIcons.readWhite
+                          : SvgIcons.read
+                  : isDelivered
+                      ? inverted
+                          ? SvgIcons.deliveredWhite
+                          : SvgIcons.delivered
+                      : isError
+                          ? SvgIcons.error
+                          : isSending
+                              ? inverted
+                                  ? SvgIcons.sendingWhite
+                                  : SvgIcons.sending
+                              : inverted
+                                  ? SvgIcons.sentWhite
+                                  : SvgIcons.sent,
             ),
           ),
-          const SizedBox(width: 3),
         ],
-        SelectionContainer.disabled(
-          child: Text(
-            date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
-            style: fonts.labelSmall!.copyWith(
-              fontSize: fontSize ?? fonts.labelSmall!.fontSize,
-              color: inverted
-                  ? style.colors.secondaryHighlightDark
-                  : style.colors.secondary,
-            ),
-          ),
-        ),
       ],
     );
   }

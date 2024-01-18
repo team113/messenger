@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,15 +18,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../domain/model/ongoing_call.dart';
-import '../../call/controller.dart';
+import '/domain/model/ongoing_call.dart';
+import '/ui/page/call/controller.dart';
 import 'controller.dart';
 
 /// View of an [OngoingCall]s overlay.
 ///
 /// Builds [CallView]s in a [Stack] with a [child] as a first element.
 class CallOverlayView extends StatelessWidget {
-  const CallOverlayView({required this.child, Key? key}) : super(key: key);
+  const CallOverlayView({required this.child, super.key});
 
   /// Overlay's [Stack] first child.
   final Widget child;
@@ -40,21 +40,19 @@ class CallOverlayView extends StatelessWidget {
           return Stack(
             children: [
               child,
-              ...c.calls
-                  .map(
-                    (e) => Obx(
-                      () => e.call.value.state.value == OngoingCallState.ended
-                          ? Container()
-                          : Listener(
-                              onPointerDown: (_) => c.orderFirst(e),
-                              child: CallView(
-                                e.call,
-                                key: e.key,
-                              ),
-                            ),
-                    ),
-                  )
-                  .toList(),
+              ...c.calls.map(
+                (e) => Obx(
+                  () => e.call.value.state.value == OngoingCallState.ended
+                      ? const SizedBox()
+                      : Listener(
+                          onPointerDown: (_) => c.orderFirst(e),
+                          child: CallView(
+                            e.call,
+                            key: e.key,
+                          ),
+                        ),
+                ),
+              ),
             ],
           );
         },

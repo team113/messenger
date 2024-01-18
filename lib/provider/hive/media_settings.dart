@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/media_settings.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [MediaSettings].
@@ -30,6 +31,7 @@ class MediaSettingsHiveProvider extends HiveBaseProvider<MediaSettings> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(MediaSettingsAdapter());
   }
 
@@ -37,17 +39,26 @@ class MediaSettingsHiveProvider extends HiveBaseProvider<MediaSettings> {
   MediaSettings? get settings => getSafe(0);
 
   /// Saves the provided [MediaSettings] in [Hive].
-  Future<void> set(MediaSettings mediaSettings) => putSafe(0, mediaSettings);
+  Future<void> set(MediaSettings mediaSettings) async {
+    Log.debug('set($mediaSettings)', '$runtimeType');
+    await putSafe(0, mediaSettings);
+  }
 
   /// Stores a new video device [id] to [Hive].
-  Future<void> setVideoDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..videoDevice = id);
+  Future<void> setVideoDevice(String id) async {
+    Log.debug('setVideoDevice($id)', '$runtimeType');
+    await putSafe(0, (box.get(0) ?? MediaSettings())..videoDevice = id);
+  }
 
   /// Stores a new audio device [id] to [Hive].
-  Future<void> setAudioDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..audioDevice = id);
+  Future<void> setAudioDevice(String id) async {
+    Log.debug('setAudioDevice($id)', '$runtimeType');
+    await putSafe(0, (box.get(0) ?? MediaSettings())..audioDevice = id);
+  }
 
   /// Stores a new output device [id] to [Hive].
-  Future<void> setOutputDevice(String id) =>
-      putSafe(0, (box.get(0) ?? MediaSettings())..outputDevice = id);
+  Future<void> setOutputDevice(String id) async {
+    Log.debug('setOutputDevice($id)', '$runtimeType');
+    await putSafe(0, (box.get(0) ?? MediaSettings())..outputDevice = id);
+  }
 }

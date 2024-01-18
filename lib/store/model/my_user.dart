@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,17 +26,17 @@ part 'my_user.g.dart';
 /// Version of [MyUser]'s state.
 @HiveType(typeId: ModelTypeId.myUserVersion)
 class MyUserVersion extends Version {
-  MyUserVersion(String val) : super(val);
+  MyUserVersion(super.val);
 }
 
 /// Version of a [ChatDirectLink]'s state.
 @HiveType(typeId: ModelTypeId.chatDirectLinkVersion)
 class ChatDirectLinkVersion extends Version {
-  ChatDirectLinkVersion(String val) : super(val);
+  ChatDirectLinkVersion(super.val);
 }
 
-/// Cursor of blacklisted [User]s.
-@HiveType(typeId: ModelTypeId.blacklistCursor)
-class BlacklistCursor extends NewType<String> {
-  BlacklistCursor(String val) : super(val);
+/// Cursor of blocked [User]s.
+@HiveType(typeId: ModelTypeId.blocklistCursor)
+class BlocklistCursor extends NewType<String> {
+  BlocklistCursor(super.val);
 }

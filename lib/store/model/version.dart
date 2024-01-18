@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,9 +19,7 @@ import '/util/new_type.dart';
 
 /// [String] tracking state's actuality.
 abstract class Version extends NewType<String> implements Comparable<Version> {
-  Version(String val)
-      : internal = BigInt.parse(val),
-        super(val);
+  Version(super.val) : internal = BigInt.parse(val);
 
   /// Parsed value of this [Version].
   final BigInt internal;

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,27 +17,35 @@
 
 import 'dart:async';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
+import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'component/more.dart';
+import 'widget/buttons.dart';
 
 export 'view.dart';
 
@@ -45,9 +53,11 @@ export 'view.dart';
 class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
-    this._userService, {
+    this._userService,
+    this._settingsRepository, {
     this.onSubmit,
     this.onChanged,
+    this.onCall,
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
@@ -109,7 +119,21 @@ class MessageFieldController extends GetxController {
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
-    _editedWorker ??= ever(edited, (_) => onChanged?.call());
+    _editedWorker ??= ever(edited, (item) {
+      if (item != null) {
+        field.text = item.text?.val ?? '';
+        this.attachments.value =
+            item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
+        replied.value =
+            item.repliesTo.map((e) => e.original).whereNotNull().toList();
+      } else {
+        field.text = '';
+        this.attachments.clear();
+        replied.clear();
+      }
+
+      onChanged?.call();
+    });
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.
@@ -118,6 +142,9 @@ class MessageFieldController extends GetxController {
   /// Callback, called on the [field], [attachments], [replied], [edited]
   /// changes.
   final void Function()? onChanged;
+
+  /// Callback, called when make [OngoingCall] action is triggered.
+  final void Function(bool)? onCall;
 
   /// [TextFieldState] for a [ChatMessageText].
   late final TextFieldState field;
@@ -132,7 +159,7 @@ class MessageFieldController extends GetxController {
   late final RxList<ChatItemQuoteInput> quotes;
 
   /// [ChatItem] being edited.
-  final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
+  final Rx<ChatMessage?> edited = Rx<ChatMessage?>(null);
 
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
@@ -146,33 +173,132 @@ class MessageFieldController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// Indicator whether the more panel is opened.
+  final RxBool moreOpened = RxBool(false);
+
+  /// [GlobalKey] of the text field itself.
+  final GlobalKey fieldKey = GlobalKey();
+
+  /// [ChatButton]s displayed in the more panel.
+  late final RxList<ChatButton> panel = RxList([
+    const AudioMessageButton(),
+    const VideoMessageButton(),
+    const DonateButton(),
+    const StickerButton(),
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
+      TakePhotoButton(pickImageFromCamera),
+      if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),
+      GalleryButton(pickMedia),
+      FileButton(pickFile),
+    ] else
+      AttachmentButton(pickFile),
+    if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
+        onCall != null) ...[
+      AudioCallButton(() => onCall?.call(false)),
+      VideoCallButton(() => onCall?.call(true)),
+    ],
+  ]);
+
+  /// [ChatButton]s displayed (pinned) in the text field.
+  late final RxList<ChatButton> buttons;
+
+  /// Indicator whether any more [ChatButton] can be added to the [buttons].
+  final RxBool canPin = RxBool(true);
+
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
   /// [Chat]s service uploading the [attachments].
-  final ChatService _chatService;
+  final ChatService? _chatService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
-  final UserService _userService;
+  final UserService? _userService;
 
-  /// Worker reacting on the [replied] changes.
+  /// [AbstractSettingsRepository], used to get the [buttons] value.
+  final AbstractSettingsRepository? _settingsRepository;
+
+  /// [Worker] reacting on the [replied] changes.
   Worker? _repliesWorker;
 
-  /// Worker reacting on the [attachments] changes.
+  /// [Worker] reacting on the [attachments] changes.
   Worker? _attachmentsWorker;
 
-  /// Worker reacting on the [edited] changes.
+  /// [Worker] reacting on the [edited] changes.
   Worker? _editedWorker;
 
+  /// [Worker] capturing any [buttons] changes to update the
+  /// [ApplicationSettings.pinnedActions] value.
+  Worker? _buttonsWorker;
+
+  /// [Worker] capturing [inCall] changes to update the [panel] value.
+  Worker? _inCallWorker;
+
+  /// [Worker] reacting on the [RouterState.routes] changes hiding the
+  /// [_moreEntry].
+  Worker? _routesWorker;
+
+  /// [OverlayEntry] of the [MessageFieldMore].
+  OverlayEntry? _moreEntry;
+
   /// Returns [MyUser]'s [UserId].
-  UserId? get me => _chatService.me;
+  UserId? get me => _chatService?.me;
+
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?>? get _settings =>
+      _settingsRepository?.applicationSettings;
+
+  /// Sets the reactive [inCall] indicator, determining whether
+  /// [AudioCallButton] and [VideoCallButton] buttons should be enabled or not.
+  set inCall(RxBool inCall) {
+    if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
+        onCall != null) {
+      _updateButtons(inCall.value);
+      _inCallWorker?.dispose();
+      _inCallWorker = ever(inCall, _updateButtons);
+    }
+  }
+
+  @override
+  void onInit() {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
+    buttons = RxList(
+      _toButtons(_settingsRepository?.applicationSettings.value?.pinnedActions),
+    );
+
+    _buttonsWorker = ever(buttons, (List<ChatButton> list) {
+      _settingsRepository?.setPinnedActions(
+        list.map((e) => e.runtimeType.toString()).toList(),
+      );
+    });
+
+    String route = router.route;
+    _routesWorker = ever(router.routes, (routes) {
+      if (router.route != route) {
+        _moreEntry?.remove();
+        _moreEntry = null;
+      }
+    });
+
+    super.onInit();
+  }
 
   @override
   void onClose() {
+    _moreEntry?.remove();
     _repliesWorker?.dispose();
     _attachmentsWorker?.dispose();
     _editedWorker?.dispose();
-    clear();
+    _buttonsWorker?.dispose();
+    _routesWorker?.dispose();
+    _inCallWorker?.dispose();
+
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.remove(_onBack);
+    }
+
     super.onClose();
   }
 
@@ -183,18 +309,43 @@ class MessageFieldController extends GetxController {
     forwarding.value = false;
     field.clear();
     field.unsubmit();
+    onChanged?.call();
+  }
+
+  /// Toggles the [moreOpened] and populates the [_moreEntry].
+  void toggleMore() {
+    if (moreOpened.isFalse) {
+      _moreEntry = OverlayEntry(
+        builder: (_) => MessageFieldMore(
+          this,
+          onDismissed: () {
+            _moreEntry?.remove();
+            _moreEntry = null;
+          },
+        ),
+      );
+      router.overlay!.insert(_moreEntry!);
+    }
+
+    moreOpened.toggle();
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) async => _userService?.get(id);
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickMedia() =>
-      _pickAttachment(PlatformUtils.isIOS ? FileType.media : FileType.image);
+  Future<void> pickMedia() {
+    field.focus.unfocus();
+    return _pickAttachment(
+      PlatformUtils.isIOS ? FileType.media : FileType.image,
+    );
+  }
 
   /// Opens the camera app and adds the captured image to the [attachments].
   Future<void> pickImageFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? photo = await ImagePicker().pickImage(
       source: ImageSource.camera,
@@ -210,6 +361,8 @@ class MessageFieldController extends GetxController {
 
   /// Opens the camera app and adds the captured video to the [attachments].
   Future<void> pickVideoFromCamera() async {
+    field.focus.unfocus();
+
     // TODO: Remove the limitations when bigger files are supported on backend.
     final XFile? video = await ImagePicker().pickVideo(
       source: ImageSource.camera,
@@ -223,7 +376,10 @@ class MessageFieldController extends GetxController {
 
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickFile() => _pickAttachment(FileType.any);
+  Future<void> pickFile() {
+    field.focus.unfocus();
+    return _pickAttachment(FileType.any);
+  }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
@@ -239,6 +395,7 @@ class MessageFieldController extends GetxController {
       type: type,
       allowMultiple: true,
       withReadStream: true,
+      lockParentWindow: true,
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -260,12 +417,12 @@ class MessageFieldController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
-    if (file.size < maxAttachmentSize) {
+    if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        Attachment uploaded = await _chatService!.uploadAttachment(attachment);
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
@@ -280,5 +437,52 @@ class MessageFieldController extends GetxController {
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
+  }
+
+  /// Invokes [toggleMore], if [moreOpened].
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
+  /// `true`, if back button should be intercepted, or otherwise returns
+  /// `false`.
+  bool _onBack(bool _, RouteInfo __) {
+    if (moreOpened.isTrue) {
+      toggleMore();
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Updates the [panel] and the [buttons] from that [panel], disabling or
+  /// enabling the [AudioCallButton] and [VideoCallButton] according to the
+  /// provided [inCall] value.
+  void _updateButtons(bool inCall) {
+    panel.value = panel.map((button) {
+      if (button is AudioCallButton) {
+        return AudioCallButton(inCall ? null : () => onCall?.call(false));
+      }
+
+      if (button is VideoCallButton) {
+        return VideoCallButton(inCall ? null : () => onCall?.call(true));
+      }
+
+      return button;
+    }).toList();
+
+    buttons.value = _toButtons(
+      _settingsRepository?.applicationSettings.value?.pinnedActions,
+    );
+  }
+
+  /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.
+  List<ChatButton> _toButtons(List<String>? list) {
+    final List<ChatButton>? persisted = list
+        ?.map(
+          (e) => panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
+        )
+        .whereNotNull()
+        .toList();
+
+    return persisted ?? [];
   }
 }

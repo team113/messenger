@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,7 +39,7 @@ final StepDefinitionGeneric sendsAttachmentToMe =
   '{user} sends {string} attachment to me',
   (TestUser user, String filename, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     final String? type = MimeResolver.lookup(filename);
     final MediaType? mime = type != null ? MediaType.parse(type) : null;

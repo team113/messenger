@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -119,10 +119,13 @@ class AddChatMemberController extends GetxController {
     }
   }
 
-  /// Fetches the [chat].
-  void _fetchChat() async {
+  /// Fetches the [chat], or [pop]s, if it's `null`.
+  Future<void> _fetchChat() async {
     chat.value = null;
-    chat.value = await _chatService.get(chatId);
+
+    final FutureOr<RxChat?> fetched = _chatService.get(chatId);
+    chat.value = fetched is RxChat? ? fetched : await fetched;
+
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();

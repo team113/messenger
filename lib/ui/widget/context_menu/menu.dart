@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,14 +22,25 @@ import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({super.key, required this.actions});
+  const ContextMenu({
+    super.key,
+    required this.actions,
+    this.enlarged,
+  });
 
   /// List of [Widget]s to display in this [ContextMenu].
   final List<Widget> actions;
 
+  /// Indicator whether this [ContextMenu] should be enlarged.
+  ///
+  /// Intended to be used only for [Routes.style] page.
+  final bool? enlarged;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final bool isMobile = enlarged ?? context.isMobile;
 
     final List<Widget> widgets = [];
 
@@ -38,7 +49,7 @@ class ContextMenu extends StatelessWidget {
       widgets.add(actions[i]);
 
       // Adds a divider if required.
-      if (context.isMobile && i < actions.length - 1) {
+      if (isMobile && i < actions.length - 1) {
         widgets.add(
           Container(
             color: style.colors.onBackgroundOpacity7,
@@ -54,15 +65,11 @@ class ContextMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.contextMenuBackgroundColor,
         borderRadius: style.contextMenuRadius,
-        border: Border.all(
-          color: style.colors.secondaryHighlightDarkest,
-          width: 0.5,
-        ),
         boxShadow: [
           BoxShadow(
             blurRadius: 12,
-            color: style.colors.onBackgroundOpacity20,
-            blurStyle: BlurStyle.outer,
+            color: style.colors.onBackgroundOpacity27,
+            blurStyle: BlurStyle.outer.workaround,
           )
         ],
       ),
@@ -73,9 +80,9 @@ class ContextMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!context.isMobile) const SizedBox(height: 6),
+              if (!isMobile) const SizedBox(height: 4),
               ...widgets,
-              if (!context.isMobile) const SizedBox(height: 6),
+              if (!isMobile) const SizedBox(height: 4),
             ],
           ),
         ),
@@ -107,30 +114,31 @@ class ContextMenuDivider extends StatelessWidget with ContextMenuItem {
 /// [ContextMenuItem] representing a styled button used in [ContextMenu].
 class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   const ContextMenuButton({
-    Key? key,
+    super.key,
     required this.label,
-    this.leading,
     this.trailing,
-    this.showTrailing = false,
+    this.inverted,
+    this.enlarged,
     this.onPressed,
-  }) : super(key: key);
+  });
 
   /// Label of this [ContextMenuButton].
   final String label;
 
-  /// Optional leading widget, typically an [Icon].
-  final Widget? leading;
-
   /// Optional trailing widget.
   final Widget? trailing;
 
-  /// Indicator whether the [trailing] should always be displayed.
+  /// Optional inverted [trailing] widget, displayed when this
+  /// [ContextMenuButton] is hovered.
+  final Widget? inverted;
+
+  /// Indicator whether this [ContextMenuButton] should be enlarged.
   ///
-  /// On mobile platforms the provided [trailing] is always displayed.
-  final bool showTrailing;
+  /// Intended to be used only for [Routes.style] page.
+  final bool? enlarged;
 
   /// Callback, called when button is pressed.
-  final VoidCallback? onPressed;
+  final void Function()? onPressed;
 
   @override
   State<ContextMenuButton> createState() => _ContextMenuButtonState();
@@ -143,7 +151,9 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
+
+    final bool isMobile = widget.enlarged ?? context.isMobile;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => isMouseOver = true),
@@ -156,16 +166,21 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: context.isMobile
-              ? const EdgeInsets.symmetric(horizontal: 18, vertical: 15)
-              : const EdgeInsets.fromLTRB(12, 6, 12, 6),
-          margin:
-              context.isMobile ? null : const EdgeInsets.fromLTRB(6, 0, 6, 0),
+          padding: isMobile
+              ? EdgeInsets.fromLTRB(
+                  widget.trailing == null ? 18 : 5,
+                  15,
+                  18,
+                  15,
+                )
+              : EdgeInsets.fromLTRB(widget.trailing == null ? 8 : 0, 6, 12, 6),
+          margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            color: isMouseOver
-                ? context.isMobile
+            borderRadius:
+                isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
+            color: isMouseOver && widget.onPressed != null
+                ? isMobile
                     ? style.contextMenuHoveredColor
                     : style.colors.primary
                 : style.colors.transparent,
@@ -173,39 +188,42 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.leading != null) ...[
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme:
-                        IconThemeData(color: style.colors.primaryHighlight),
+              if (widget.trailing != null) ...[
+                if (isMobile)
+                  SizedBox(
+                    width: 40,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: widget.trailing!,
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: 36,
+                    child: Transform.scale(
+                      scale: 0.8,
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: isMouseOver && widget.onPressed != null
+                            ? (widget.inverted ?? widget.trailing)
+                            : widget.trailing,
+                      ),
+                    ),
                   ),
-                  child: widget.leading!,
-                ),
-                const SizedBox(width: 14),
               ],
               Text(
                 widget.label,
-                style: fonts.titleMedium!.copyWith(
-                  color: (isMouseOver && !context.isMobile)
-                      ? style.colors.onPrimary
-                      : style.colors.onBackground,
-                  fontSize: context.isMobile
-                      ? fonts.bodyLarge!.fontSize
-                      : fonts.bodySmall!.fontSize,
+                style: (widget.onPressed == null
+                        ? style.fonts.normal.regular.secondaryHighlightDarkest
+                        : (isMouseOver && !isMobile
+                            ? style.fonts.normal.regular.onPrimary
+                            : style.fonts.normal.regular.onBackground))
+                    .copyWith(
+                  fontSize: isMobile
+                      ? style.fonts.medium.regular.onBackground.fontSize
+                      : style.fonts.small.regular.onBackground.fontSize,
                 ),
               ),
-              if ((PlatformUtils.isMobile || widget.showTrailing) &&
-                  widget.trailing != null) ...[
-                const SizedBox(width: 36),
-                const Spacer(),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    iconTheme:
-                        IconThemeData(color: style.colors.primaryHighlight),
-                  ),
-                  child: widget.trailing!,
-                ),
-              ],
             ],
           ),
         ),

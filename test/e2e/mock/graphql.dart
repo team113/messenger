@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -49,7 +49,7 @@ class MockGraphQlProvider extends GraphQlProvider {
   set token(AccessToken? value) => _client.token = value;
 
   @override
-  void reconnect() => _client.reconnect();
+  Future<void> reconnect() => _client.reconnect();
 
   @override
   void disconnect() => _client.disconnect();
@@ -59,8 +59,9 @@ class MockGraphQlProvider extends GraphQlProvider {
 
   @override
   Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code,
-  ) async {
+    ConfirmationCode code, {
+    RawClientOptions? raw,
+  }) async {
     return null;
   }
 
@@ -111,7 +112,7 @@ class MockGraphQlClient extends GraphQlClient {
   @override
   Future<QueryResult> mutate(
     MutationOptions options, {
-    bool raw = false,
+    RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (delay != null) {

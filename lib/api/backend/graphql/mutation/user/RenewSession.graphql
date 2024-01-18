@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,13 +15,13 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation RenewSession($token: RememberToken!) {
+mutation RenewSession($token: RefreshToken!) {
     renewSession(token: $token) {
         __typename
         ... on RenewSessionOk {
             user {
                 __typename
-                ...MyUser
+                id
             }
             session {
                 expireAt

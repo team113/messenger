@@ -41,6 +41,10 @@ FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d '"'))
 
+FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
+FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
+FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
+
 
 
 
@@ -64,6 +68,9 @@ down: docker.down
 
 
 e2e: test.e2e
+
+
+fcm: fcm.conf
 
 
 fmt: flutter.fmt
@@ -119,6 +126,7 @@ endif
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
+#	                   [split-debug-info=(no|yes)]
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -139,17 +147,11 @@ else
 			                   dockerized=no
 endif
 else
-# TODO: `--split-debug-info` should be used on any non-Web platform.
-#       1) macOS/iOS `--split-debug-info` can be tracked here:
-#          https://github.com/getsentry/sentry-dart/issues/444
-#       2) Linux/Windows `--split-debug-info` can be tracked here:
-#          https://github.com/getsentry/sentry-dart/issues/433
 	flutter build $(or $(platform),apk) --release \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
+		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
-		    --split-debug-info=symbols \
-		    $(if $(call eq,$(split-per-abi),yes),--split-per-abi,), \
-		) \
+			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)
 endif
@@ -167,7 +169,7 @@ ifeq ($(dockerized),yes)
 			make flutter.clean dockerized=no
 else
 	flutter clean
-	rm -rf .cache/pub/ doc/ \
+	rm -rf .cache/pub/ debug/ doc/ \
 	       lib/api/backend/*.dart \
 	       lib/api/backend/*.g.dart \
 	       lib/api/backend/*.graphql.dart \
@@ -202,6 +204,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.gen overwrite=$(overwrite) dockerized=no
 else
+	rm -f lib/pubspec.g.dart
 	dart run build_runner build \
 		$(if $(call eq,$(overwrite),no),,--delete-conflicting-outputs)
 endif
@@ -253,6 +256,7 @@ endif
 #	              [gen=(yes|no)] [clean=(no|yes)]
 #	              [( [start-app=no]
 #	               | start-app=yes [no-cache=(no|yes)] [pull=(no|yes)] )]
+#	              [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 
 test.e2e:
 ifeq ($(clean),yes)
@@ -276,7 +280,8 @@ else
 	flutter drive --headless -d $(or $(device),chrome) \
 		--web-renderer html --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
-		--target=test/e2e/suite.dart
+		--target=test/e2e/suite.dart \
+		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 endif
 ifeq ($(start-app),yes)
 	@make docker.down
@@ -774,6 +779,31 @@ endif
 
 
 
+#####################
+# Firebase commands #
+#####################
+
+# Configure FCM (Firebase Cloud Messaging).
+#
+# Usage:
+#	make fcm.conf [project-id=($(FCM_PROJECT_ID)|<project-id>)]
+#	              [platforms=android,ios,macos,web|<platforms>]
+#	              [web-id=($(FCM_WEB_ID)|<web-id>)]
+#	              [bundle-id=($(FCM_BUNDLE_ID)|<bundle-id>)]
+
+fcm.conf:
+	flutterfire configure -y \
+		--project=$(or $(project-id),$(FCM_PROJECT)) \
+		--platforms=$(strip $(or $(platforms),\
+		                    android$(comma)ios$(comma)macos$(comma)web)) \
+		--ios-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--macos-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--android-package-name=$(or $(bundle-id),$(FCM_BUNDLE)) \
+		--web-app-id=$(or $(web-id),$(FCM_WEB))
+
+
+
+
 ################
 # Git commands #
 ################
@@ -795,20 +825,58 @@ endif
 
 
 
+###################
+# Sentry commands #
+###################
+
+# Upload debug symbols to Sentry.
+#
+# Usage:
+#	make sentry.upload [project=($(SENTRY_PROJECT)|<project>)]
+#	                   [org=($(SENTRY_ORG)|<org>)]
+#	                   [token=($(SENTRY_AUTH_TOKEN)|<token>)]
+#	                   [release=($(SENTRY_RELEASE)|<release>)]
+#	                   [url=($(SENTRY_URL)|<url>)]
+
+sentry-project=$(strip $(or $(SENTRY_PROJECT),\
+	$(shell grep 'SENTRY_PROJECT=' .env | cut -d'=' -f2)))
+sentry-org=$(strip $(or $(SENTRY_ORG),\
+	$(shell grep 'SENTRY_ORG=' .env | cut -d'=' -f2)))
+sentry-token=$(strip $(or $(SENTRY_AUTH_TOKEN),\
+	$(shell grep 'SENTRY_AUTH_TOKEN=' .env | cut -d'=' -f2)))
+sentry-release=$(strip $(or $(SENTRY_RELEASE),\
+	$(shell grep 'SENTRY_RELEASE=' .env | cut -d'=' -f2),\
+	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2)))
+sentry-url=$(strip $(or $(url),$(SENTRY_URL),\
+	$(shell grep 'SENTRY_URL=' .env | cut -d'=' -f2)))
+
+sentry.upload:
+	SENTRY_PROJECT=$(or $(project),$(sentry-project)) \
+	SENTRY_ORG=$(or $(org),$(sentry-org)) \
+	SENTRY_AUTH_TOKEN=$(or $(token),$(sentry-token)) \
+	SENTRY_RELEASE=$(NAME)@$(or $(release),$(sentry-release)) \
+	$(if $(call eq,$(sentry-url),),,SENTRY_URL=$(sentry-url)) \
+	dart run sentry_dart_plugin
+
+
+
+
 ##################
 # .PHONY section #
 ##################
 
-.PHONY: build clean deps docs down e2e fmt gen lint release run test up \
+.PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
+        fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
         minikube.boot \
+        sentry.upload \
         test.e2e test.unit

@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,9 @@ Feature: Favorite contacts
     And contacts Bob and Charlie
     And I wait until `HomeView` is present
     And I tap `ContactsButton` button
+    And I wait until `ContactsTab` is present
+    And I wait until "Bob" contact is present
+    And I wait until "Charlie" contact is present
 
   Scenario: User adds contact to favorites
     When I long press "Bob" contact

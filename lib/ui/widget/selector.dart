@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,7 +29,7 @@ import '/util/platform_utils.dart';
 /// Intended to be displayed with the [show] method.
 class Selector<T> extends StatefulWidget {
   const Selector({
-    Key? key,
+    super.key,
     required this.items,
     required this.itemBuilder,
     this.buttonBuilder,
@@ -41,7 +41,7 @@ class Selector<T> extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     required this.isMobile,
-  }) : super(key: key);
+  });
 
   /// [List] of items to select from.
   final List<T> items;
@@ -192,23 +192,32 @@ class _SelectorState<T> extends State<Selector<T>> {
 
           left = offset.dx -
               (contextBox?.size.width ?? widget.width) / 2 -
-              widget.margin.right;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
+              widget.margin.right +
+              widget.margin.left;
+
+          bottom = MediaQuery.of(context).size.height -
+              offset.dy +
+              widget.margin.bottom;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0),
-            offset.dy - widget.margin.bottom,
+            offset.dy,
           );
 
-          right = constraints.maxWidth - offset.dx;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
+          right = constraints.maxWidth -
+              offset.dx -
+              widget.margin.right +
+              widget.margin.left;
+          bottom = MediaQuery.of(context).size.height -
+              offset.dy +
+              widget.margin.bottom;
         } else if (widget.alignment == Alignment.topRight) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0),
             offset.dy - widget.margin.bottom,
           );
 
-          left = offset.dx - widget.margin.right;
+          left = offset.dx - widget.margin.right + widget.margin.left;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.bottomCenter) {
           offset = Offset(
@@ -224,7 +233,7 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (buttonBox?.size.height ?? 0),
           );
 
-          left = offset.dx - widget.margin.right;
+          left = offset.dx - widget.margin.right + widget.margin.left;
           top = offset.dy - widget.margin.bottom;
         } else if (widget.alignment == Alignment.bottomLeft) {
           offset = Offset(
@@ -232,7 +241,11 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy + (buttonBox?.size.height ?? 0),
           );
 
-          right = constraints.maxWidth - 100 - offset.dx;
+          right = constraints.maxWidth -
+              100 -
+              offset.dx -
+              widget.margin.left +
+              widget.margin.right;
           top = offset.dy - widget.margin.bottom;
         } else {
           offset = Offset(
@@ -301,16 +314,14 @@ class _SelectorState<T> extends State<Selector<T>> {
             child: Listener(
               onPointerUp: (d) => Navigator.of(context).pop(),
               child: Container(
-                margin: widget.margin,
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,
                   borderRadius: style.contextMenuRadius,
-                  border: Border.all(color: style.colors.secondary, width: 0.5),
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 12,
                       color: style.colors.onBackgroundOpacity27,
-                      blurStyle: BlurStyle.outer,
+                      blurStyle: BlurStyle.outer.workaround,
                     )
                   ],
                 ),

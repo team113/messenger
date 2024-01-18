@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/store/event/chat_call.dart';
 import '/store/model/chat_call.dart';
+import '/util/log.dart';
 
 /// [ChatCall] related functionality.
 mixin CallGraphQlMixin {
@@ -74,6 +75,11 @@ mixin CallGraphQlMixin {
     int? last,
     IncomingChatCallsCursor? before,
   }) async {
+    Log.debug(
+      'incomingCalls($first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
     final variables = IncomingCallsArguments(
       first: first,
       after: after,
@@ -137,6 +143,8 @@ mixin CallGraphQlMixin {
     ChatItemId id,
     ChatCallDeviceId deviceId,
   ) {
+    Log.debug('callEvents($id, $deviceId)', '$runtimeType');
+
     final variables = CallEventsArguments(id: id, deviceId: deviceId);
     return client.subscribe(
       SubscriptionOptions(
@@ -187,6 +195,8 @@ mixin CallGraphQlMixin {
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
   Stream<QueryResult> incomingCallsTopEvents(int count) {
+    Log.debug('incomingCallsTopEvents($count)', '$runtimeType');
+
     final variables = IncomingCallsTopEventsArguments(count: count);
     return client.subscribe(
       SubscriptionOptions(
@@ -225,6 +235,8 @@ mixin CallGraphQlMixin {
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
+    Log.debug('startChatCall($chatId, $creds)', '$runtimeType');
+
     final variables = StartCallArguments(
       chatId: chatId,
       creds: creds,
@@ -272,6 +284,8 @@ mixin CallGraphQlMixin {
   /// [MyUser] joined the current [ChatCall] already (is a member of it).
   Future<JoinCall$Mutation$JoinChatCall$JoinChatCallOk> joinChatCall(
       ChatId chatId, ChatCallCredentials creds) async {
+    Log.debug('joinChatCall($chatId, $creds)', '$runtimeType');
+
     final variables = JoinCallArguments(chatId: chatId, creds: creds);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -312,6 +326,8 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     ChatCallDeviceId deviceId,
   ) async {
+    Log.debug('leaveChatCall($chatId, $deviceId)', '$runtimeType');
+
     final variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -350,6 +366,8 @@ mixin CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if there is no current
   /// [ChatCall], or it is declined by the authenticated [MyUser] already.
   Future<ChatEventsVersionedMixin?> declineChatCall(ChatId chatId) async {
+    Log.debug('declineChatCall($chatId)', '$runtimeType');
+
     final variables = DeclineCallArguments(chatId: chatId);
     final QueryResult result = await client.query(
       QueryOptions(
@@ -391,7 +409,11 @@ mixin CallGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatCallEvent]) if the authenticated
   /// [MyUser] has raised/lowered his hand already.
   Future<ChatCallEventsVersionedMixin?> toggleChatCallHand(
-      ChatId chatId, bool raised) async {
+    ChatId chatId,
+    bool raised,
+  ) async {
+    Log.debug('toggleChatCallHand($chatId, $raised)', '$runtimeType');
+
     final variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -435,6 +457,8 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     UserId memberId,
   ) async {
+    Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
+
     final variables = RedialChatCallMemberArguments(
       chatId: chatId,
       memberId: memberId,
@@ -488,6 +512,11 @@ mixin CallGraphQlMixin {
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
+    Log.debug(
+      'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
+      '$runtimeType',
+    );
+
     final variables = TransformDialogCallIntoGroupCallArguments(
       chatId: chatId,
       additionalMemberIds: additionalMemberIds,
@@ -536,6 +565,8 @@ mixin CallGraphQlMixin {
     ChatId chatId,
     UserId userId,
   ) async {
+    Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
+
     final variables = RemoveChatCallMemberArguments(
       chatId: chatId,
       userId: userId,

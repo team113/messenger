@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,20 +23,6 @@ void main() {
   group('TextFieldState works correctly', () {
     // Dummy callback to ensure it's being called.
     final _Mock mock = _Mock();
-
-    test('TextFieldState.onChanged has correct debounce', () async {
-      final TextFieldState state = TextFieldState(onChanged: mock.dummy)
-        ..controller.text = 'zhorenty';
-
-      verifyNever(mock.dummy.call(state));
-
-      await Future.delayed(TextFieldState.debounce);
-
-      expect(state.changed.value, true);
-      expect(state.controller.text, 'zhorenty');
-
-      verify(mock.dummy.call(state)).called(1);
-    });
 
     test('TextFieldState.onSubmitted is called', () {
       final TextFieldState state = TextFieldState(onSubmitted: mock.dummy)

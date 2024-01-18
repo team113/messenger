@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,7 +27,7 @@ import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// [AvatarWidget] with caption and subtitle texts used to display
-/// [ChatCall.caller] and [OngoingCall] state.
+/// [ChatCall.author] and [OngoingCall] state.
 class CallTitle extends StatelessWidget {
   const CallTitle(
     this.me, {
@@ -62,7 +62,7 @@ class CallTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return DefaultTextStyle.merge(
       maxLines: 1,
@@ -78,13 +78,13 @@ class CallTitle extends StatelessWidget {
             title,
             avatar,
             me,
-            radius: 32,
+            radius: AvatarRadius.larger,
             opacity: 0.8,
           ),
           const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: fonts.displayLarge!.copyWith(color: style.colors.onPrimary),
+            style: style.fonts.largest.bold.onPrimary,
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
@@ -93,12 +93,7 @@ class CallTitle extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (withDots) const SizedBox(width: 13),
-                Text(
-                  state!,
-                  style: fonts.headlineMedium!.copyWith(
-                    color: style.colors.onPrimary,
-                  ),
-                ),
+                Text(state!, style: style.fonts.big.regular.onPrimary),
                 if (withDots) const AnimatedDots(),
               ],
             ),

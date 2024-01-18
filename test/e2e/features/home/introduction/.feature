@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -17,29 +17,7 @@
 
 Feature: Introduction
 
-  Scenario: Introduction is displayed and password can be set
+  Scenario: Introduction is displayed
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present
 
-    When I tap `SetPasswordButton` button
-    Then I wait until `PasswordStage` is present
-
-    When I fill `PasswordField` field with "123"
-    And I fill `RepeatPasswordField` field with "123"
-    And I copy from `NumCopyable` field
-    And I tap `ChangePasswordButton` button
-    Then I wait until `SuccessStage` is present
-    And I tap `CloseButton` button
-
-    When I tap `MenuButton` button
-    And I scroll `MenuListView` until `LogoutButton` is present
-    And I tap `LogoutButton` button
-    And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
-
-    When I tap `SignInButton` button
-    And I wait until `LoginView` is present
-    And I paste to `UsernameField` field
-    And I fill `PasswordField` field with "123"
-    And I tap `LoginButton` button
-    Then I wait until `HomeView` is present

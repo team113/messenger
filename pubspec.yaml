@@ -1,29 +1,30 @@
 name: messenger
-version: 0.1.0-alpha.8
+version: 0.1.0-alpha.11.1
 publish_to: none
 
 environment:
-  flutter: ">=3.10.0"
-  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.16.0"
+  sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
-  audioplayers: ^4.0.1
-  back_button_interceptor: ^6.0.2
+  back_button_interceptor: ^7.0.0
   callkeep: ^0.3.3
-  carousel_slider: ^4.2.1
-  chewie: ^1.5.0
-  collection: ^1.17.0
+  collection: ^1.17.2
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
+  device_info_plus: ^9.0.2
   dio: ^5.1.2
   dough:
     git:
       url: https://github.com/krida2000/dough
       path: packages/dough/
   email_validator: ^2.1.17
-  file_picker: ^5.3.0
+  ffi: ^2.0.2
+  file_picker: ^6.1.1
+  firebase_core: ^2.24.2
+  firebase_messaging: ^14.7.9
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
@@ -34,97 +35,116 @@ dependencies:
   flutter_background_service_ios: ^2.4.0
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^14.0.0+2
-  flutter_meedu_videoplayer: ^4.2.11-dev-7
+  flutter_local_notifications: ^16.1.0
+  flutter_markdown: ^0.6.17+2
+  flutter_slidable: ^3.0.1
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.6
+  flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
+  flutter_xlider: ^3.5.0
   get: ^4.6.5
-  graphql_flutter: ^5.1.2
+  graphql_flutter: ^5.2.0-beta.6
   hive_flutter: ^1.1.0
   hive: ^2.2.3
   http: ^0.13.6
   http_parser: ^4.0.2
-  image_gallery_saver: ^1.7.1
+  image_gallery_saver: ^2.0.3
   image_picker:
     git:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
   js: ^0.6.5
+  log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.0-dev+rev.d1fa5bf748084feb988aa858487411164de58b7b
-  medea_jason: 0.3.0-dev+rev.d675a58f7a3b5c4e0508f0692405d2e1f26e9dd2
-  media_kit_libs_ios_video: ^1.0.4
+  medea_flutter_webrtc: 0.9.0
+  medea_jason: 0.4.1-dev+rev.9aac4059ecdf75afa741a11a9d21e1648012eba6
+  media_kit: ^1.1.5
+  media_kit_libs_android_video: ^1.3.2
+  media_kit_libs_ios_video: ^1.1.3
+  media_kit_libs_linux: ^1.1.1
+  media_kit_libs_macos_video: ^1.1.3
+  media_kit_libs_windows_video: ^1.0.7
+  media_kit_native_event_loop: ^1.0.7
+  media_kit_video: ^1.1.6
   mime: ^1.0.4
   mutex: ^3.0.1
-  # TODO: Switch to pub.dev version when the following pull request is merged
-  #       into it:
-  #       https://github.com/crazecoder/open_file/pull/205
-  open_file:
-    git:
-      url: https://github.com/adaptolearning/open_file
+  open_file: ^3.3.2
   path: ^1.8.2
-  path_provider: ^2.0.15
-  path_provider_android: ^2.0.22
+  path_provider: ^2.1.0
+  path_provider_android: ^2.1.0
   permission_handler: ^10.2.0
   photo_view: ^0.14.0
   platform_detect: ^2.0.7
-  rive: ^0.10.4
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
-  sentry_flutter: ^7.5.2
+  sentry_flutter: ^7.9.0
   share_plus: ^7.0.0
+  shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
+  sound_fonts: ^0.1.1
+  qr_flutter: ^4.1.0
+  stdlibc: ^0.1.4
   toml: ^0.14.0
-  universal_io: ^2.2.0
-  url_launcher: ^6.1.11
+  universal_io: ^2.2.2
+  url_launcher: ^6.1.12
   uuid: ^3.0.7
-  vibration: ^1.7.7
-  wakelock: ^0.6.2
+  vibration: ^1.8.1
+  wakelock_plus: ^1.1.1
   web_socket_channel: ^2.4.0
-  window_manager: ^0.3.2
+  win_toast: ^0.3.0
+  win32: ^5.0.6
+  window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
 
 dev_dependencies:
-  artemis: ^7.13.0-beta.1
-  build: ^2.4.0
-  build_runner: ^2.4.2
-  dartdoc: ^6.2.2
+  artemis: ^7.13.1
+  build: ^2.4.1
+  build_runner: ^2.4.6
+  dartdoc: ^7.0.2
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
     git:
       url: https://github.com/jonsamwell/flutter_gherkin.git
       ref: ea59f6376f2d78e5b2140980e74879b862218ea1
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
   flutter_test:
     sdk: flutter
+  http_mock_adapter: ^0.6.0
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
   hive_generator: ^2.0.0
   json_serializable: ^6.6.2
-  mockito: ^5.3.2
+  mockito: ^5.4.2
   sentry_dart_plugin: ^1.2.0
   yaml: ^3.1.2
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^5.12.0
-  # TODO: Remove when `medea_jason` updates.
-  flutter_rust_bridge: ^1.77.1
-  # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc: ^0.8.2
-  # TODO: Remove when `sentry_flutter` updates.
-  package_info_plus: ^4.0.0
-  # TODO: Remove when creativecreatorormaybenot/wakelock#195 is released to
-  #       `pub.dev`:
-  #       https://github.com/creativecreatorormaybenot/wakelock/pull/195
-  win32: ^4.1.3
+  analyzer: ^6.2.0
+  # TODO: Remove when `artemis` updates.
+  gql: ^1.0.0
+  # TODO: Remove when `artemis` updates.
+  gql_exec: ^1.0.0
+  # TODO: Remove when `artemis` updates.
+  gql_http_link: ^1.0.0
+  # TODO: Remove when `artemis` updates.
+  gql_link: ^1.0.0
+  # TODO: Remove when hivedb/hive#1034 is fixed:
+  #       https://github.com/hivedb/hive/issues/1034
+  hive:
+    git:
+      url: https://github.com/krida2000/git-hive.git
+  # TODO: Remove when `artemis` updates.
+  http: ^1.1.0
+  # TODO: Remove when `graphql` updates.
+  uuid: ^3.0.7
 
 flutter:
   uses-material-design: true
@@ -133,22 +153,23 @@ flutter:
     - assets/conf.toml
     - assets/fonts/
     - assets/icons/
+    - assets/icons/application/
     - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
+    - assets/images/media_buttons/
     - assets/l10n/
   fonts:
-    - family: SFUI
+    - family: Roboto
       fonts:
-        - asset: assets/fonts/SFUIDisplay-Regular.ttf
+        - asset: assets/fonts/Roboto-Regular.ttf
           weight: 400
-        - asset: assets/fonts/SFUIDisplay-Light.ttf
-          weight: 300
-        - asset: assets/fonts/SFUIDisplay-Bold.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
 
 sentry:
-  upload_native_symbols: true
+  upload_debug_symbols: true
   upload_source_maps: true
-  include_native_sources: true
+  upload_sources: true
   wait_for_processing: true
+  ignore_missing: true

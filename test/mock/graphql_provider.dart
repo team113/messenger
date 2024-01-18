@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -64,8 +64,37 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     bool noFavorite = false,
   }) async =>
       Contacts$Query.fromJson({
-        'chatContacts': {'nodes': [], 'ver': '0'}
+        'chatContacts': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          },
+          'ver': '0',
+        }
       }).chatContacts;
+
+  @override
+  Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
+    int? first,
+    FavoriteChatContactsCursor? after,
+    int? last,
+    FavoriteChatContactsCursor? before,
+  }) async =>
+      FavoriteContacts$Query.fromJson({
+        'favoriteChatContacts': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          },
+          'ver': '0',
+        }
+      }).favoriteChatContacts;
 
   @override
   Future<RecentChats$Query> recentChats({
@@ -77,7 +106,34 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     bool? withOngoingCalls,
   }) async =>
       RecentChats$Query.fromJson({
-        'recentChats': {'nodes': []}
+        'recentChats': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          }
+        }
+      });
+
+  @override
+  Future<FavoriteChats$Query> favoriteChats({
+    int? first,
+    FavoriteChatsCursor? after,
+    int? last,
+    FavoriteChatsCursor? before,
+  }) async =>
+      FavoriteChats$Query.fromJson({
+        'favoriteChats': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          }
+        }
       });
 
   @override

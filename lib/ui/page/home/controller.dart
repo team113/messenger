@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,12 +32,22 @@ import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/util/message_popup.dart';
+import 'introduction/controller.dart';
 
 export 'view.dart';
 
 /// [Routes.home] page controller.
 class HomeController extends GetxController {
-  HomeController(this._auth, this._myUserService, this._settings);
+  HomeController(
+    this._auth,
+    this._myUserService,
+    this._settings, {
+    this.signedUp = false,
+  });
+
+  /// Indicator whether the [IntroductionView] should be displayed with
+  /// [IntroductionViewStage.signUp] initial stage.
+  final bool signedUp;
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -55,7 +65,7 @@ class HomeController extends GetxController {
   late final Rx<HomeTab> page;
 
   /// Reactive [MyUser.unreadChatsCount] value.
-  final Rx<int> unreadChatsCount = Rx<int>(0);
+  final RxInt unreadChats = RxInt(0);
 
   /// [Timer] for discarding any horizontal movement in a [PageView] when
   /// non-`null`.
@@ -97,15 +107,30 @@ class HomeController extends GetxController {
   /// Returns the background's [Uint8List].
   Rx<Uint8List?> get background => _settings.background;
 
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
+
+  /// Returns the [List] of the [HomeTab]s to display.
+  List<HomeTab> get tabs {
+    final List<HomeTab> tabs = HomeTab.values.toList();
+
+    if (settings.value?.workWithUsTabEnabled == false) {
+      tabs.remove(HomeTab.work);
+    }
+
+    return tabs;
+  }
+
   @override
   void onInit() {
     super.onInit();
     page = Rx<HomeTab>(router.tab);
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
-    unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
-    _myUserSubscription = _myUserService.myUser.listen((u) =>
-        unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
+    unreadChats.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
+    _myUserSubscription = _myUserService.myUser.listen(
+      (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
+    );
 
     sideBarWidth =
         RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
@@ -174,6 +199,11 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> updateAvatar() async {
+    await _myUserService.refresh();
+  }
+
   /// Refreshes the controller on [router] change.
   ///
   /// Required in order for the [BottomNavigatorBar] to rebuild.
@@ -188,8 +218,18 @@ class HomeController extends GetxController {
 
   /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
   void _displayIntroduction(MyUser myUser) {
-    if (!myUser.hasPassword) {
-      IntroductionView.show(router.context!)
+    IntroductionViewStage? stage;
+
+    if (!myUser.hasPassword &&
+        myUser.emails.confirmed.isEmpty &&
+        myUser.phones.confirmed.isEmpty) {
+      stage = IntroductionViewStage.oneTime;
+    } else if (signedUp) {
+      stage = IntroductionViewStage.signUp;
+    }
+
+    if (stage != null) {
+      IntroductionView.show(router.context!, initial: stage)
           .then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);

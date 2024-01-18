@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -37,7 +37,7 @@ final StepDefinitionGeneric sendsMessageToMe =
   '{user} sends {string} message to me',
   (TestUser user, String msg, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
     await provider.postChatMessage(
       context.world.sessions[user.name]!.dialog!,
       text: ChatMessageText(msg),
@@ -52,14 +52,14 @@ final StepDefinitionGeneric sendsMessageToMe =
 /// their [Chat]-dialog ensuring the thrown exception is of the provided kind.
 ///
 /// Examples:
-/// - Bob sends message to me and receives blacklisted exception
+/// - Bob sends message to me and receives blocked exception
 /// - Charlie sends message to me and receives no exception
 final StepDefinitionGeneric sendsMessageWithException =
     and2<TestUser, ExceptionType, CustomWorld>(
   '{user} sends message to me and receives {exception} exception',
   (TestUser user, ExceptionType type, context) async {
     final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.session.token;
+    provider.token = context.world.sessions[user.name]?.token;
 
     Object? exception;
 
@@ -73,10 +73,10 @@ final StepDefinitionGeneric sendsMessageWithException =
     }
 
     switch (type) {
-      case ExceptionType.blacklisted:
+      case ExceptionType.blocked:
         assert(
           exception is PostChatMessageException &&
-              exception.code == PostChatMessageErrorCode.blacklisted,
+              exception.code == PostChatMessageErrorCode.blocked,
         );
         break;
 

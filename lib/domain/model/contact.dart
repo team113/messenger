@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,7 +28,7 @@ part 'contact.g.dart';
 ///
 /// It may be linked with some real [User]s, but also may not.
 @HiveType(typeId: ModelTypeId.chatContact)
-class ChatContact extends HiveObject {
+class ChatContact extends HiveObject implements Comparable<ChatContact> {
   ChatContact(
     this.id, {
     required this.name,
@@ -79,12 +79,37 @@ class ChatContact extends HiveObject {
   /// [MyUser].
   @HiveField(6)
   ChatContactFavoritePosition? favoritePosition;
+
+  @override
+  int compareTo(ChatContact other) {
+    int? result;
+
+    if (favoritePosition != null && other.favoritePosition == null) {
+      return -1;
+    } else if (favoritePosition == null && other.favoritePosition != null) {
+      return 1;
+    } else if (favoritePosition != null && other.favoritePosition != null) {
+      result ??= other.favoritePosition!.compareTo(favoritePosition!);
+    }
+
+    result ??= name.val.compareTo(other.name.val);
+
+    if (result == 0) {
+      return id.val.compareTo(other.id.val);
+    }
+
+    return result;
+  }
 }
 
 /// Unique ID of a [ChatContact].
 @HiveType(typeId: ModelTypeId.chatContactId)
-class ChatContactId extends NewType<String> {
-  const ChatContactId(String val) : super(val);
+class ChatContactId extends NewType<String>
+    implements Comparable<ChatContactId> {
+  const ChatContactId(super.val);
+
+  @override
+  int compareTo(ChatContactId other) => val.compareTo(other.val);
 }
 
 /// Position of a [ChatContact] in a favorites list of the authenticated
@@ -92,7 +117,7 @@ class ChatContactId extends NewType<String> {
 @HiveType(typeId: ModelTypeId.chatContactFavoritePosition)
 class ChatContactFavoritePosition extends NewType<double>
     implements Comparable<ChatContactFavoritePosition> {
-  const ChatContactFavoritePosition(double val) : super(val);
+  const ChatContactFavoritePosition(super.val);
 
   factory ChatContactFavoritePosition.parse(String val) =>
       ChatContactFavoritePosition(double.parse(val));

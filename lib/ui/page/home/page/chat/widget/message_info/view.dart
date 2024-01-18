@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -60,7 +61,7 @@ class MessageInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: MessageInfoController(Get.find(), reads: reads),
@@ -85,10 +86,10 @@ class MessageInfo extends StatelessWidget {
                     children: [
                       Text(
                         'ID${'colon_space'.l10n}$id',
-                        style: fonts.bodySmall,
+                        style: style.fonts.small.regular.onBackground,
                       ),
                       const SizedBox(width: 8),
-                      SvgImage.asset('assets/icons/copy.svg', height: 12),
+                      const SvgIcon(SvgIcons.copySmall),
                     ],
                   ),
                 ),
@@ -120,18 +121,15 @@ class MessageInfo extends StatelessWidget {
                           filled: false,
                           dense: true,
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: fonts.bodyLarge,
+                          style: style.fonts.medium.regular.onBackground,
                           onChanged: () => c.query.value = c.search.text,
                         ),
                       ),
                     ),
-                    leading: [
+                    leading: const [
                       Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 12),
-                        child: SvgImage.asset(
-                          'assets/icons/search.svg',
-                          width: 17.77,
-                        ),
+                        padding: EdgeInsets.only(left: 20, right: 12),
+                        child: SvgIcon(SvgIcons.search),
                       )
                     ],
                     actions: [
@@ -142,16 +140,13 @@ class MessageInfo extends StatelessWidget {
                             c.search.unsubmit();
                             c.query.value = '';
                           },
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 12, right: 18),
-                            child: SvgImage.asset(
-                              'assets/icons/close_primary.svg',
-                              height: 15,
-                            ),
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 12, right: 18),
+                            child: SvgIcon(SvgIcons.closePrimary),
                           ),
                         );
 
-                        return AnimatedSwitcher(
+                        return SafeAnimatedSwitcher(
                           duration: 250.milliseconds,
                           child: c.search.isEmpty.value ? null : close,
                         );
@@ -189,7 +184,7 @@ class MessageInfo extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   'label_nothing_found'.l10n,
-                                  style: fonts.labelMedium,
+                                  style: style.fonts.small.regular.onBackground,
                                 ),
                               ),
                             )
@@ -207,11 +202,10 @@ class MessageInfo extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    'label_read_at'
-                                        .l10nfmt({'date': time.yMdHm}),
-                                    style: fonts.bodySmall!.copyWith(
-                                      color: style.colors.secondary,
-                                    ),
+                                    'label_read_at'.l10nfmt({
+                                      'date': time.yMdHm,
+                                    }),
+                                    style: style.fonts.small.regular.secondary,
                                   ),
                                 ],
                               );

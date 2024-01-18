@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -70,9 +70,9 @@ class _AnimatedTypingState extends State<AnimatedTyping>
       builder: (BuildContext context, _) {
         final Color begin =
             widget.inverted ? style.colors.onPrimary : style.colors.primary;
-        const Color end = Color(0xFFB6DCFF);
+        final Color end = style.colors.primaryHighlightLightest;
 
-        const double size = 4;
+        const double size = 3;
         const double spacing = 1.6;
 
         final Color? color1 = ColorTween(begin: begin, end: end).lerp(
@@ -83,6 +83,7 @@ class _AnimatedTypingState extends State<AnimatedTyping>
             sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: size,

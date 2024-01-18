@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,6 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/image_gallery_item.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/service/my_user.dart';
@@ -39,8 +38,7 @@ final StepDefinitionGeneric updateAvatar = then<CustomWorld>(
     final NativeFile file =
         NativeFile(name: 'avatar.png', size: bytes.length, bytes: bytes);
 
-    final ImageGalleryItem? galleryItem = await service.uploadGalleryItem(file);
-    await service.updateAvatar(galleryItem?.id);
+    await service.updateAvatar(file);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

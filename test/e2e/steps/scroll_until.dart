@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,28 +15,32 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
+import '../world/custom_world.dart';
 
 /// Scrolls the provided [Scrollable] until the specified [WidgetKey] is present
 /// within that list.
 ///
 /// Examples:
 /// - Then I scroll `Menu` until `LogoutButton` is present
-final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
-    then2<WidgetKey, WidgetKey, FlutterWorld>(
+final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
+    then2<WidgetKey, WidgetKey, CustomWorld>(
   RegExp(r'I scroll {key} until {key} is present'),
-  (WidgetKey list, WidgetKey key, StepContext<FlutterWorld> context) async {
+  (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.scrollUntilVisible(
+    await context.world.appDriver.scrollIntoVisible(
       context.world.appDriver.findByKeySkipOffstage(key.name),
-      scrollable: find.descendant(
+      find.descendant(
         of: find.byKey(Key(list.name)),
         matching: find.byWidgetPredicate((widget) {
           // TODO: Find a proper way to differentiate [Scrollable]s from
@@ -48,9 +52,79 @@ final StepDefinitionGeneric<FlutterWorld> scrollUntilPresent =
           return false;
         }),
       ),
-      dy: 100,
+      dy: 200,
     );
 
     await context.world.appDriver.waitForAppToSettle();
   },
 );
+
+/// Scrolls the provided [Scrollable] to bottom.
+///
+/// Examples:
+/// - Then I scroll `Menu` to bottom
+final StepDefinitionGeneric<CustomWorld> scrollToBottom =
+    then1<WidgetKey, CustomWorld>(
+  RegExp(r'I scroll {key} to bottom'),
+  (WidgetKey list, StepContext<CustomWorld> context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    Finder scrollable = find.descendant(
+      of: find.byKey(Key(list.name)),
+      matching: find.byWidgetPredicate((widget) {
+        // TODO: Find a proper way to differentiate [Scrollable]s from
+        //       [TextField]s:
+        //       https://github.com/flutter/flutter/issues/76981
+        if (widget is Scrollable) {
+          return widget.restorationId == null;
+        }
+        return false;
+      }),
+    );
+
+    final ScrollableState state = context.world.appDriver.nativeDriver
+        .state(scrollable) as ScrollableState;
+    final ScrollPosition position = state.position;
+
+    position.jumpTo(position.maxScrollExtent);
+
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);
+
+/// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
+/// replacement.
+extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
+    on AppDriverAdapter {
+  /// Scrolls the [scrollable] by [dy] until the [finder] is visible.
+  Future<void> scrollIntoVisible(
+    Finder finder,
+    Finder scrollable, {
+    double dy = 100,
+  }) async {
+    final WidgetTester tester = (nativeDriver as WidgetTester);
+
+    final double height =
+        (tester.view.physicalSize / tester.view.devicePixelRatio).height;
+
+    for (int i = 0; i < 500; ++i) {
+      final ScrollableState state = tester.state(scrollable) as ScrollableState;
+      final ScrollPosition position = state.position;
+
+      if (await isPresent(finder)) {
+        await Scrollable.ensureVisible(finder.evaluate().single);
+
+        // If [finder] is present and it's within our view, then break the loop.
+        if (tester.getCenter(finder.first).dy <= height - dy ||
+            position.pixels >= position.maxScrollExtent) {
+          break;
+        }
+      }
+
+      // Or otherwise keep on scrolling the [scrollable].
+      position.jumpTo(min(position.pixels + dy, position.maxScrollExtent));
+
+      await tester.pump();
+    }
+  }
+}

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/ui/worker/cache.dart';
 
 /// [CustomParameter] representing a [DownloadStatus].
 class DownloadStatusParameter extends CustomParameter<DownloadStatus> {

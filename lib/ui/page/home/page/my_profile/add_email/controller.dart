@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,7 +35,16 @@ enum AddEmailFlowStage { code }
 
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
-  AddEmailController(this._myUserService, {this.initial, this.pop});
+  AddEmailController(
+    this._myUserService, {
+    this.initial,
+    this.pop,
+    bool timeout = false,
+  }) {
+    if (timeout) {
+      _setResendEmailTimer();
+    }
+  }
 
   /// Callback, called when a [AddEmailView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -76,8 +85,15 @@ class AddEmailController extends GetxController {
     email = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            UserEmail(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
       },
       onSubmitted: (s) async {
         UserEmail? email;
@@ -118,8 +134,15 @@ class AddEmailController extends GetxController {
 
     emailCode = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
+        try {
+          if (s.text.isNotEmpty) {
+            ConfirmationCode(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        }
       },
       onSubmitted: (s) async {
         if (s.text.isEmpty) {

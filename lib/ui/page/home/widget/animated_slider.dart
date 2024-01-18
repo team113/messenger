@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 /// Widget doing a slide transition of its child every time [isOpen] changes.
 class AnimatedSlider extends StatefulWidget {
   const AnimatedSlider({
-    Key? key,
+    super.key,
     this.child,
     required this.duration,
     this.reverseDuration,
@@ -31,7 +31,7 @@ class AnimatedSlider extends StatefulWidget {
     this.endOffset = const Offset(0.0, 0.0),
     this.translate = true,
     this.listener,
-  }) : super(key: key);
+  });
 
   /// Widget to animate on [isOpen] changes.
   final Widget? child;

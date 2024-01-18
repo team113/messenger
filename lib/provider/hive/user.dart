@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,13 +21,12 @@ import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'user.g.dart';
@@ -42,18 +41,19 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
-    Hive.maybeRegisterAdapter(BlacklistRecordAdapter());
+    Log.debug('registerAdapters()', '$runtimeType');
+
+    Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
+    Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
     Hive.maybeRegisterAdapter(ChatIdAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveUserAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
+    Hive.maybeRegisterAdapter(ThumbHashAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
-    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
     Hive.maybeRegisterAdapter(UserNameAdapter());
@@ -66,13 +66,22 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
   Iterable<HiveUser> get users => valuesSafe;
 
   /// Puts the provided [User] to [Hive].
-  Future<void> put(HiveUser user) => putSafe(user.value.id.val, user);
+  Future<void> put(HiveUser user) async {
+    Log.debug('put($user)', '$runtimeType');
+    await putSafe(user.value.id.val, user);
+  }
 
   /// Returns a [User] from [Hive] by its [id].
-  HiveUser? get(UserId id) => getSafe(id.val);
+  HiveUser? get(UserId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
 
   /// Removes an [User] from [Hive] by its [id].
-  Future<void> remove(UserId id) => deleteSafe(id.val);
+  Future<void> remove(UserId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
+  }
 }
 
 /// Persisted in [Hive] storage [User]'s [value].
@@ -81,7 +90,7 @@ class HiveUser extends HiveObject {
   HiveUser(
     this.value,
     this.ver,
-    this.blacklistedVer,
+    this.blockedVer,
   );
 
   /// Persisted [User] model.
@@ -95,10 +104,13 @@ class HiveUser extends HiveObject {
   @HiveField(1)
   UserVersion ver;
 
-  /// Version of the authenticated [MyUser]'s blacklist state.
+  /// Version of the authenticated [MyUser]'s blocklist state.
   ///
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
   @HiveField(2)
-  MyUserVersion blacklistedVer;
+  MyUserVersion blockedVer;
+
+  @override
+  String toString() => '$runtimeType($value, $ver, $blockedVer)';
 }

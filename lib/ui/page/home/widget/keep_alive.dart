@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,10 +22,7 @@ import 'package:flutter/material.dart';
 /// Required in [PageView]s since switching the page resets the state of the
 /// widget.
 class KeepAlivePage extends StatefulWidget {
-  const KeepAlivePage({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
+  const KeepAlivePage({super.key, required this.child});
 
   /// [Widget] to keep state of.
   final Widget child;

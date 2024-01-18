@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,11 +24,9 @@ import '../model/my_user.dart';
 import '../model/user.dart';
 import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
-import '/domain/repository/user.dart';
+import '/util/log.dart';
 import '/routes.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -50,11 +48,10 @@ class MyUserService extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => _userRepo.blacklist;
-
   @override
   void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+
     assert(_auth.initialized);
     _userRepo.init(
       onPasswordUpdated: _onPasswordUpdated,
@@ -65,6 +62,8 @@ class MyUserService extends DisposableService {
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
     _userRepo.dispose();
     super.onClose();
   }
@@ -72,22 +71,24 @@ class MyUserService extends DisposableService {
   /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///
   /// If [name] is `null`, then resets [MyUser.name] field.
-  Future<void> updateUserName(UserName? name) => _userRepo.updateUserName(name);
+  Future<void> updateUserName(UserName? name) async {
+    Log.debug('updateUserName($name)', '$runtimeType');
+    await _userRepo.updateUserName(name);
+  }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
   /// Throws [UpdateUserLoginException].
-  Future<void> updateUserLogin(UserLogin login) =>
-      _userRepo.updateUserLogin(login);
-
-  /// Updates [MyUser.bio] field for the authenticated [MyUser].
-  ///
-  /// If [bio] is `null`, then resets [MyUser.bio] field.
-  Future<void> updateUserBio(UserBio? bio) => _userRepo.updateUserBio(bio);
+  Future<void> updateUserLogin(UserLogin login) async {
+    Log.debug('updateUserLogin($login)', '$runtimeType');
+    await _userRepo.updateUserLogin(login);
+  }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
-  Future<void> updateUserStatus(UserTextStatus? status) =>
-      _userRepo.updateUserStatus(status);
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    Log.debug('updateUserStatus($status)', '$runtimeType');
+    await _userRepo.updateUserStatus(status);
+  }
 
   /// Updates password for the authenticated [MyUser].
   ///
@@ -99,122 +100,167 @@ class MyUserService extends DisposableService {
   Future<void> updateUserPassword({
     UserPassword? oldPassword,
     required UserPassword newPassword,
-  }) =>
-      _passwordChangeGuard.protect(() async {
-        await _userRepo.updateUserPassword(oldPassword, newPassword);
+  }) async {
+    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
-        await _auth.signIn(
-          newPassword,
-          num: myUser.value?.num,
-        );
-      });
+    await _passwordChangeGuard.protect(() async {
+      await _userRepo.updateUserPassword(oldPassword, newPassword);
+      await _auth.signIn(newPassword, num: myUser.value?.num);
+    });
+  }
 
   /// Updates [MyUser.presence] to the provided value.
-  Future<void> updateUserPresence(Presence presence) =>
-      _userRepo.updateUserPresence(presence);
+  Future<void> updateUserPresence(Presence presence) async {
+    Log.debug('updateUserPresence($presence)', '$runtimeType');
+    await _userRepo.updateUserPresence(presence);
+  }
 
   /// Deletes the authenticated [MyUser] completely.
   ///
   /// __This action cannot be reverted.__
   Future<void> deleteMyUser() async {
+    Log.debug('deleteMyUser()', '$runtimeType');
+
     await _userRepo.deleteMyUser();
     _onUserDeleted();
   }
 
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
-  Future<void> deleteUserEmail(UserEmail email) =>
-      _userRepo.deleteUserEmail(email);
+  Future<void> deleteUserEmail(UserEmail email) async {
+    Log.debug('deleteUserEmail($email)', '$runtimeType');
+    await _userRepo.deleteUserEmail(email);
+  }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
-  Future<void> deleteUserPhone(UserPhone phone) =>
-      _userRepo.deleteUserPhone(phone);
+  Future<void> deleteUserPhone(UserPhone phone) async {
+    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+    await _userRepo.deleteUserPhone(phone);
+  }
 
   /// Adds a new [email] address for the authenticated [MyUser].
   ///
   /// Sets the given [email] address as an [MyUserEmails.unconfirmed] sub-field
   /// of a [MyUser.emails] field and sends to this address an email message with
   /// a [ConfirmationCode].
-  Future<void> addUserEmail(UserEmail email) => _userRepo.addUserEmail(email);
+  Future<void> addUserEmail(UserEmail email) async {
+    Log.debug('addUserEmail($email)', '$runtimeType');
+    await _userRepo.addUserEmail(email);
+  }
 
   /// Adds a new [phone] number for the authenticated [MyUser].
   ///
   /// Sets the given [phone] number as an [MyUserPhones.unconfirmed] sub-field
   /// of a [MyUser.phones] field and sends to this number SMS with a
   /// [ConfirmationCode].
-  Future<void> addUserPhone(UserPhone phone) => _userRepo.addUserPhone(phone);
+  Future<void> addUserPhone(UserPhone phone) async {
+    Log.debug('addUserPhone($phone)', '$runtimeType');
+    await _userRepo.addUserPhone(phone);
+  }
 
   /// Confirms the given [MyUserEmails.unconfirmed] address with the provided
   /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
   /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  Future<void> confirmEmailCode(ConfirmationCode code) =>
-      _userRepo.confirmEmailCode(code);
+  Future<void> confirmEmailCode(ConfirmationCode code) async {
+    Log.debug('confirmEmailCode($code)', '$runtimeType');
+    await _userRepo.confirmEmailCode(code);
+  }
 
   /// Confirms the given [MyUserPhones.unconfirmed] number with the provided
   /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
   /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  Future<void> confirmPhoneCode(ConfirmationCode code) =>
-      _userRepo.confirmPhoneCode(code);
+  Future<void> confirmPhoneCode(ConfirmationCode code) async {
+    Log.debug('confirmPhoneCode($code)', '$runtimeType');
+    await _userRepo.confirmPhoneCode(code);
+  }
 
   /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address for
   /// the authenticated [MyUser].
-  Future<void> resendEmail() => _userRepo.resendEmail();
+  Future<void> resendEmail() async {
+    Log.debug('resendEmail()', '$runtimeType');
+    await _userRepo.resendEmail();
+  }
 
   /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
   /// the authenticated [MyUser].
-  Future<void> resendPhone() => _userRepo.resendPhone();
+  Future<void> resendPhone() async {
+    Log.debug('resendPhone()', '$runtimeType');
+    await _userRepo.resendPhone();
+  }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
   /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) =>
-      _userRepo.createChatDirectLink(slug);
+  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
+    Log.debug('createChatDirectLink($slug)', '$runtimeType');
+    await _userRepo.createChatDirectLink(slug);
+  }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink() => _userRepo.deleteChatDirectLink();
+  Future<void> deleteChatDirectLink() async {
+    Log.debug('deleteChatDirectLink()', '$runtimeType');
+    await _userRepo.deleteChatDirectLink();
+  }
 
-  /// Uploads a new [GalleryItem] to the gallery of the authenticated [MyUser].
-  Future<ImageGalleryItem?> uploadGalleryItem(
-    NativeFile galleryItem, {
+  /// Updates or resets the [MyUser.avatar] field with the provided image
+  /// [file].
+  Future<void> updateAvatar(
+    NativeFile? file, {
     void Function(int count, int total)? onSendProgress,
-  }) =>
-      _userRepo.uploadGalleryItem(galleryItem, onSendProgress: onSendProgress);
+  }) async {
+    Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
+    await _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
+  }
 
-  /// Removes the specified [GalleryItem] from the authenticated [MyUser]'s
-  /// gallery.
-  Future<void> deleteGalleryItem(GalleryItemId id) =>
-      _userRepo.deleteGalleryItem(id);
-
-  /// Updates or resets the [MyUser.avatar] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> updateAvatar(GalleryItemId? id) => _userRepo.updateAvatar(id);
-
-  /// Updates or resets the [MyUser.callCover] field with the provided
-  /// [GalleryItem] from the gallery of the authenticated [MyUser].
-  Future<void> updateCallCover(GalleryItemId? id) =>
-      _userRepo.updateCallCover(id);
+  /// Updates or resets the [MyUser.callCover] field with the provided image
+  /// [file].
+  Future<void> updateCallCover(
+    NativeFile? file, {
+    void Function(int count, int total)? onSendProgress,
+  }) async {
+    Log.debug('updateCallCover($file, onSendProgress)', '$runtimeType');
+    await _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
+  }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
-  Future<void> toggleMute(MuteDuration? mute) => _userRepo.toggleMute(mute);
+  Future<void> toggleMute(MuteDuration? mute) async {
+    Log.debug('toggleMute($mute)', '$runtimeType');
+    await _userRepo.toggleMute(mute);
+  }
 
   /// Removes [MyUser] from the local data storage.
-  Future<void> clearCached() async => await _userRepo.clearCache();
+  Future<void> clearCached() async {
+    Log.debug('clearCached()', '$runtimeType');
+    await _userRepo.clearCache();
+  }
+
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> refresh() async {
+    Log.debug('refresh()', '$runtimeType');
+    await _userRepo.refresh();
+  }
 
   /// Callback to be called when [MyUser]'s password is updated.
   ///
   /// Performs log out if the current [AccessToken] is not valid.
-  Future<void> _onPasswordUpdated() => _passwordChangeGuard.protect(() async {
-        bool isTokenValid = await _auth.validateToken();
-        if (!isTokenValid) {
-          router.go(await _auth.logout());
-        }
-      });
+  Future<void> _onPasswordUpdated() async {
+    Log.debug('_onPasswordUpdated()', '$runtimeType');
+
+    await _passwordChangeGuard.protect(() async {
+      final bool isTokenValid = await _auth.validateToken();
+      if (!isTokenValid) {
+        router.go(await _auth.logout());
+      }
+    });
+  }
 
   /// Callback to be called when [MyUser] is deleted.
   ///
   /// Performs log out and clears [MyUser] store.
   Future<void> _onUserDeleted() async {
+    Log.debug('_onUserDeleted()', '$runtimeType');
+
     _auth.logout();
     router.auth();
     await clearCached();

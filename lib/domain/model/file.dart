@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,16 +15,17 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
 
 import '../model_type_id.dart';
 import '/config.dart';
+import '/util/new_type.dart';
 
 part 'file.g.dart';
 
 /// File on a file storage.
-@HiveType(typeId: ModelTypeId.storageFile)
-class StorageFile extends HiveObject {
+abstract class StorageFile extends HiveObject {
   StorageFile({
     required this.relativeRef,
     this.checksum,
@@ -70,4 +71,78 @@ class StorageFile extends HiveObject {
 
   /// Returns an absolute URL to this [StorageFile] on a file storage.
   String get url => '${Config.files}$relativeRef';
+
+  /// Returns the name of this [StorageFile].
+  String get name {
+    final basename = DateFormat('yyyy_MM_dd_H_m_s').format(DateTime.now());
+    return [basename, _extension].nonNulls.join('.');
+  }
+
+  /// Returns the extension parsed from the [relativeRef], excluding the dot, if
+  /// any.
+  ///
+  /// ```dart
+  /// var file = StorageFile(relativeRef: 'http://site/.jpg');
+  /// print(file._extension); // => 'jpg'
+  ///
+  /// var file = StorageFile(relativeRef: 'http://site/noExtension');
+  /// print(file._extension); // => 'null'
+  /// ```
+  String? get _extension {
+    final index = url.lastIndexOf('.');
+    if (index < 0 || index + 1 >= url.length) {
+      return null;
+    }
+
+    final result = url.substring(index + 1).toLowerCase();
+    if (result.contains('/')) {
+      return null;
+    }
+
+    return result;
+  }
+}
+
+/// Plain-[StorageFile] on a file storage.
+@HiveType(typeId: ModelTypeId.plainFile)
+class PlainFile extends StorageFile {
+  PlainFile({
+    required super.relativeRef,
+    super.checksum,
+    super.size,
+  });
+}
+
+/// Image-[StorageFile] on a file storage.
+@HiveType(typeId: ModelTypeId.imageFile)
+class ImageFile extends StorageFile {
+  ImageFile({
+    required super.relativeRef,
+    super.checksum,
+    super.size,
+    this.width,
+    this.height,
+    this.thumbhash,
+  });
+
+  /// Width of this [ImageFile] in pixels.
+  @HiveField(3)
+  final int? width;
+
+  /// Height of this [ImageFile] in pixels.
+  @HiveField(4)
+  final int? height;
+
+  /// [ThumbHash] of this [ImageFile].
+  @HiveField(5)
+  final ThumbHash? thumbhash;
+}
+
+/// [Base64URL][1]-encoded [ThumbHash][2].
+///
+/// [1]: https://base64.guru/standards/base64url
+/// [2]: https://evanw.github.io/thumbhash/
+@HiveType(typeId: ModelTypeId.thumbhash)
+class ThumbHash extends NewType<String> {
+  const ThumbHash(super.val);
 }

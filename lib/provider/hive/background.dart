@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@ import 'dart:typed_data';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model_type_id.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'background.g.dart';
@@ -34,6 +35,7 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
 
   @override
   void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(HiveBackgroundAdapter());
   }
 
@@ -41,10 +43,16 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
   Uint8List? get bytes => getSafe(0)?.bytes;
 
   /// Saves the provided [Uint8List] to [Hive].
-  Future<void> set(Uint8List bytes) => putSafe(0, HiveBackground(bytes));
+  Future<void> set(Uint8List bytes) async {
+    Log.debug('set(${bytes.length})', '$runtimeType');
+    await putSafe(0, HiveBackground(bytes));
+  }
 
   /// Deletes the stored [Uint8List].
-  Future<void> delete() => deleteSafe(0);
+  Future<void> delete() async {
+    Log.debug('delete()', '$runtimeType');
+    await deleteSafe(0);
+  }
 }
 
 /// Persisted in [Hive] storage background's [Uint8List] value.

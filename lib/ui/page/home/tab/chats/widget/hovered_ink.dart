@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ import '/ui/page/home/widget/avatar.dart';
 /// [InkResponse.hoverColor].
 class InkWellWithHover extends StatefulWidget {
   const InkWellWithHover({
-    Key? key,
+    super.key,
     this.selected = false,
     this.selectedColor,
     this.selectedHoverColor,
@@ -38,7 +38,7 @@ class InkWellWithHover extends StatefulWidget {
     this.onTap,
     this.folded = false,
     required this.child,
-  }) : super(key: key);
+  });
 
   /// Indicator whether this [InkWellWithHover] is selected.
   final bool selected;
@@ -107,7 +107,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                   : widget.unselectedColor,
           child: InkWell(
             borderRadius: widget.borderRadius,
-            onTap: widget.onTap?.call,
+            onTap: widget.onTap,
             onHover: (v) => setState(() => hovered = v),
             hoverColor: style.colors.transparent,
             child: Stack(
@@ -125,7 +125,7 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
                       boxShadow: [
                         CustomBoxShadow(
                           color: style.colors.secondaryHighlightDarkest,
-                          blurStyle: BlurStyle.outer,
+                          blurStyle: BlurStyle.outer.workaround,
                           blurRadius: 4,
                         ),
                       ],

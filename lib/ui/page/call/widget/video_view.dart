@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -34,12 +35,11 @@ class RtcVideoView extends StatefulWidget {
   const RtcVideoView(
     this.renderer, {
     super.key,
-    this.source = MediaSourceKind.Device,
+    this.source = MediaSourceKind.device,
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
     this.label,
-    this.mirror = false,
     this.muted = false,
     this.border,
     this.respectAspectRatio = false,
@@ -53,9 +53,6 @@ class RtcVideoView extends StatefulWidget {
 
   /// [MediaSourceKind] of this [RtcVideoView].
   final MediaSourceKind source;
-
-  /// Indicator whether this video should be horizontally mirrored or not.
-  final bool mirror;
 
   /// [BoxFit] mode of this video.
   final BoxFit? fit;
@@ -98,22 +95,25 @@ class RtcVideoView extends StatefulWidget {
     BoxConstraints constraints,
     BuildContext context,
   ) {
-    if (source == MediaSourceKind.Display ||
-        (renderer.width == 0 && renderer.height == 0)) {
+    if (source == MediaSourceKind.display ||
+        (renderer.width.value == 0 && renderer.height.value == 0)) {
       return BoxFit.contain;
     } else {
       bool contain = false;
 
+      final double aspectRatio = renderer.width.value / renderer.height.value;
+
       if (context.isMobile) {
         // Video is horizontal.
-        if (renderer.aspectRatio >= 1) {
+        if (aspectRatio >= 1) {
           double width = constraints.maxWidth;
-          double height =
-              renderer.height * (constraints.maxWidth / renderer.width);
+          double height = renderer.height.value *
+              (constraints.maxWidth / renderer.width.value);
           double factor = constraints.maxHeight / height;
           contain = factor >= 3.0;
           if (factor < 1) {
-            width = renderer.width * (constraints.maxHeight / renderer.height);
+            width = renderer.width.value *
+                (constraints.maxHeight / renderer.height.value);
             height = constraints.maxHeight;
             factor = constraints.maxWidth / width;
             contain = factor >= 2.5;
@@ -121,28 +121,30 @@ class RtcVideoView extends StatefulWidget {
         }
         // Video is vertical.
         else {
-          double width =
-              renderer.width * (constraints.maxHeight / renderer.height);
+          double width = renderer.width.value *
+              (constraints.maxHeight / renderer.height.value);
           double height = constraints.maxHeight;
           double factor = constraints.maxWidth / width;
           contain = factor >= 3.9;
           if (factor < 1) {
             width = constraints.maxWidth;
-            height = renderer.height * (constraints.maxWidth / renderer.width);
+            height = renderer.height.value *
+                (constraints.maxWidth / renderer.width.value);
             factor = constraints.maxHeight / height;
             contain = factor >= 3.0;
           }
         }
       } else {
         // Video is horizontal.
-        if (renderer.aspectRatio >= 1) {
+        if (aspectRatio >= 1) {
           double width = constraints.maxWidth;
-          double height =
-              renderer.height * (constraints.maxWidth / renderer.width);
+          double height = renderer.height.value *
+              (constraints.maxWidth / renderer.width.value);
           double factor = constraints.maxHeight / height;
           contain = factor >= 2.41;
           if (factor < 1) {
-            width = renderer.width * (constraints.maxHeight / renderer.height);
+            width = renderer.width.value *
+                (constraints.maxHeight / renderer.height.value);
             height = constraints.maxHeight;
             factor = constraints.maxWidth / width;
             contain = factor >= 1.5;
@@ -150,14 +152,15 @@ class RtcVideoView extends StatefulWidget {
         }
         // Video is vertical.
         else {
-          double width =
-              renderer.width * (constraints.maxHeight / renderer.height);
+          double width = renderer.width.value *
+              (constraints.maxHeight / renderer.height.value);
           double height = constraints.maxHeight;
           double factor = constraints.maxWidth / width;
           contain = factor >= 2.0;
           if (factor < 1) {
             width = constraints.maxWidth;
-            height = renderer.height * (constraints.maxWidth / renderer.width);
+            height = renderer.height.value *
+                (constraints.maxWidth / renderer.width.value);
             factor = constraints.maxHeight / height;
             contain = factor >= 2.2;
           }
@@ -179,26 +182,25 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
-      mirror: widget.mirror,
+      mirror: widget.renderer.mirror,
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
-      autoRotate: !widget.mirror,
     );
 
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
-      if (widget.renderer.height == 0) {
+      if (widget.renderer.height.value == 0) {
         _waitTilSizeDetermined();
         return Stack(
           children: [
             Offstage(child: video),
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CustomProgressIndicator(size: 64))
+            const Center(child: CustomProgressIndicator.big())
           ],
         );
       }
@@ -208,37 +210,41 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // otherwise.
     Widget aspected(BoxFit? fit) {
       if (widget.respectAspectRatio && fit != BoxFit.cover) {
-        if (widget.renderer.inner.videoHeight == 0) {
-          _waitTilSizeDetermined();
-          if (widget.framelessBuilder != null) {
-            return widget.framelessBuilder!();
+        return Obx(() {
+          if (widget.renderer.height.value == 0) {
+            _waitTilSizeDetermined();
+            if (widget.framelessBuilder != null) {
+              return widget.framelessBuilder!();
+            }
+
+            return Stack(
+              children: [
+                Offstage(child: video),
+                const Center(child: CustomProgressIndicator.big())
+              ],
+            );
           }
 
-          return Stack(
-            children: [
-              Offstage(child: video),
-              const Center(child: CustomProgressIndicator(size: 64))
-            ],
+          return AspectRatio(
+            aspectRatio:
+                widget.renderer.width.value / widget.renderer.height.value,
+            child: video,
           );
-        }
-
-        return AspectRatio(
-          aspectRatio: widget.renderer.inner.videoWidth /
-              widget.renderer.inner.videoHeight,
-          child: video,
-        );
+        });
       }
 
       if (fit == BoxFit.contain) {
-        if (widget.renderer.inner.videoHeight == 0) {
-          return video;
-        }
+        return Obx(() {
+          if (widget.renderer.height.value == 0) {
+            return video;
+          }
 
-        return AspectRatio(
-          aspectRatio: widget.renderer.inner.videoWidth /
-              widget.renderer.inner.videoHeight,
-          child: video,
-        );
+          return AspectRatio(
+            aspectRatio:
+                widget.renderer.width.value / widget.renderer.height.value,
+            child: video,
+          );
+        });
       }
 
       return video;
@@ -269,7 +275,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         RtcVideoRenderer renderer = widget.renderer;
 
         BoxFit? fit;
-        if (widget.source != MediaSourceKind.Display) {
+        if (widget.source != MediaSourceKind.display) {
           fit = widget.fit;
         }
 
@@ -285,7 +291,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           alignment: Alignment.bottomCenter,
           children: [
             outlined(fit),
-            AnimatedSwitcher(
+            SafeAnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
               child: widget.muted || widget.label != null
                   ? Container(
@@ -302,10 +308,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                         children: [
                           if (widget.muted) const SizedBox(width: 1),
                           if (widget.muted)
-                            SvgImage.asset(
-                              'assets/icons/microphone_off_small.svg',
-                              width: 11,
-                            ),
+                            const SvgIcon(SvgIcons.microphoneOffSmall),
                           Flexible(
                             child: AnimatedSize(
                               duration: const Duration(milliseconds: 200),
@@ -316,9 +319,8 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                                       ),
                                       child: Text(
                                         widget.label!,
-                                        style: fonts.headlineSmall!.copyWith(
-                                          color: style.colors.onPrimary,
-                                        ),
+                                        style:
+                                            style.fonts.small.regular.onPrimary,
                                         maxLines: 1,
                                         overflow: TextOverflow.clip,
                                       ),
@@ -340,9 +342,9 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   /// Recursively waits for the [RtcVideoRenderer]'s size to be determined and
   /// requests a rebuild when it becomes determined.
   void _waitTilSizeDetermined() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        if (widget.renderer.inner.videoHeight == 0) {
+        if (widget.renderer.height.value == 0) {
           _waitTilSizeDetermined();
         } else {
           setState(() => widget.onSizeDetermined?.call());

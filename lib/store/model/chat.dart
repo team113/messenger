@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,17 +27,23 @@ part 'chat.g.dart';
 /// Version of a [Chat]'s state.
 @HiveType(typeId: ModelTypeId.chatVersion)
 class ChatVersion extends Version {
-  ChatVersion(String val) : super(val);
+  ChatVersion(super.val);
 }
 
 /// Cursor used for recent [Chat]s pagination.
 @HiveType(typeId: ModelTypeId.recentChatsCursor)
 class RecentChatsCursor extends NewType<String> {
-  RecentChatsCursor(String val) : super(val);
+  RecentChatsCursor(super.val);
+}
+
+/// Cursor used for favorite [Chat]s pagination.
+@HiveType(typeId: ModelTypeId.favoriteChatsCursor)
+class FavoriteChatsCursor extends NewType<String> {
+  FavoriteChatsCursor(super.val);
 }
 
 /// Version of a favorite [Chat]s list.
 @HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
 class FavoriteChatsListVersion extends Version {
-  FavoriteChatsListVersion(String val) : super(val);
+  FavoriteChatsListVersion(super.val);
 }

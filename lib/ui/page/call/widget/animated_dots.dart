@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -64,13 +64,13 @@ class _AnimatedDotsState extends State<AnimatedDots> {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return SizedBox(
       width: 13,
       child: Text(
         'dot'.l10n * _count,
-        style: fonts.titleMedium!.copyWith(color: style.colors.onPrimary),
+        style: style.fonts.normal.regular.onPrimary,
       ),
     );
   }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -396,5 +396,88 @@ List<String?>?
         v
             ?.map((e) =>
                 fromDartChatContactsCursorNullableToGraphQLChatContactsCursorNullable(
+                    e))
+            .toList();
+
+// FavoriteChatContactsCursor
+
+FavoriteChatContactsCursor
+    fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
+            String v) =>
+        FavoriteChatContactsCursor(v);
+String fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(
+        FavoriteChatContactsCursor v) =>
+    v.toString();
+List<FavoriteChatContactsCursor>
+    fromGraphQLListFavoriteChatContactsCursorToDartListFavoriteChatContactsCursor(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
+                    e as String))
+            .toList();
+List<String>
+    fromDartListFavoriteChatContactsCursorToGraphQLListFavoriteChatContactsCursor(
+            List<FavoriteChatContactsCursor> v) =>
+        v
+            .map((e) =>
+                fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(
+                    e))
+            .toList();
+List<FavoriteChatContactsCursor>?
+    fromGraphQLListNullableFavoriteChatContactsCursorToDartListNullableFavoriteChatContactsCursor(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLFavoriteChatContactsCursorToDartFavoriteChatContactsCursor(
+                    e as String))
+            .toList();
+List<String>?
+    fromDartListNullableFavoriteChatContactsCursorToGraphQLListNullableFavoriteChatContactsCursor(
+            List<FavoriteChatContactsCursor>? v) =>
+        v
+            ?.map((e) =>
+                fromDartFavoriteChatContactsCursorToGraphQLFavoriteChatContactsCursor(
+                    e))
+            .toList();
+
+FavoriteChatContactsCursor?
+    fromGraphQLFavoriteChatContactsCursorNullableToDartFavoriteChatContactsCursorNullable(
+            String? v) =>
+        v == null ? null : FavoriteChatContactsCursor(v);
+String?
+    fromDartFavoriteChatContactsCursorNullableToGraphQLFavoriteChatContactsCursorNullable(
+            FavoriteChatContactsCursor? v) =>
+        v?.toString();
+List<FavoriteChatContactsCursor?>
+    fromGraphQLListFavoriteChatContactsCursorNullableToDartListFavoriteChatContactsCursorNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLFavoriteChatContactsCursorNullableToDartFavoriteChatContactsCursorNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListFavoriteChatContactsCursorNullableToGraphQLListFavoriteChatContactsCursorNullable(
+            List<FavoriteChatContactsCursor?> v) =>
+        v
+            .map((e) =>
+                fromDartFavoriteChatContactsCursorNullableToGraphQLFavoriteChatContactsCursorNullable(
+                    e))
+            .toList();
+List<FavoriteChatContactsCursor?>?
+    fromGraphQLListNullableFavoriteChatContactsCursorNullableToDartListNullableFavoriteChatContactsCursorNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLFavoriteChatContactsCursorNullableToDartFavoriteChatContactsCursorNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableFavoriteChatContactsCursorNullableToGraphQLListNullableFavoriteChatContactsCursorNullable(
+            List<FavoriteChatContactsCursor?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartFavoriteChatContactsCursorNullableToGraphQLFavoriteChatContactsCursorNullable(
                     e))
             .toList();

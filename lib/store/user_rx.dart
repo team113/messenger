@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,12 +21,14 @@ import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 
@@ -36,10 +38,26 @@ class HiveRxUser extends RxUser {
     this._userRepository,
     this._userLocal,
     HiveUser hiveUser,
-  ) : user = Rx<User>(hiveUser.value);
+  )   : user = Rx<User>(hiveUser.value),
+        lastSeen = Rx(hiveUser.value.lastSeenAt) {
+    // Start the [_lastSeenTimer] right away.
+    _runLastSeenTimer();
+
+    // Re-run [_runLastSeenTimer], if [User.lastSeenAt] has been changed.
+    PreciseDateTime? at = user.value.lastSeenAt;
+    _worker = ever(user, (User user) {
+      if (at != user.lastSeenAt) {
+        _runLastSeenTimer();
+        at = user.lastSeenAt;
+      }
+    });
+  }
 
   @override
   final Rx<User> user;
+
+  @override
+  final Rx<PreciseDateTime?> lastSeen;
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
@@ -48,7 +66,7 @@ class HiveRxUser extends RxUser {
   final UserHiveProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
-  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+  Rx<RxChat?>? _dialog;
 
   /// [UserRepository.userEvents] subscription.
   ///
@@ -60,19 +78,44 @@ class HiveRxUser extends RxUser {
   /// [_remoteSubscription] is up only if this counter is greater than zero.
   int _listeners = 0;
 
+  /// [Timer] refreshing the [lastSeen] to synchronize its updates.
+  Timer? _lastSeenTimer;
+
+  /// [Worker] reacting on [User] changes.
+  Worker? _worker;
+
   @override
   Rx<RxChat?> get dialog {
-    final ChatId id = user.value.dialog;
+    Log.debug('get dialog', '$runtimeType($id)');
 
-    if (_dialog.value == null) {
-      _userRepository.getChat?.call(id).then((v) => _dialog.value = v);
+    final ChatId dialogId = user.value.dialog;
+    if (_dialog == null) {
+      final FutureOr<RxChat?> chatOrFuture =
+          _userRepository.getChat?.call(dialogId);
+
+      if (chatOrFuture is RxChat?) {
+        _dialog = Rx(chatOrFuture);
+      } else {
+        _dialog = Rx(null);
+        chatOrFuture.then((v) => _dialog?.value = v);
+      }
     }
 
-    return _dialog;
+    return _dialog!;
+  }
+
+  /// Disposes this [HiveRxUser].
+  void dispose() {
+    Log.debug('dispose()', '$runtimeType($id)');
+
+    _lastSeenTimer?.cancel();
+    _worker?.dispose();
   }
 
   @override
   void listenUpdates() {
+    Log.debug('listenUpdates()', '$runtimeType($id)');
+
     if (_listeners++ == 0) {
       _initRemoteSubscription();
     }
@@ -80,7 +123,14 @@ class HiveRxUser extends RxUser {
 
   @override
   void stopUpdates() {
+    Log.debug('stopUpdates()', '$runtimeType($id)');
+
     if (--_listeners == 0) {
+      Log.debug(
+        '_remoteSubscription?.close(immediate: true)',
+        '$runtimeType($id)',
+      );
+
       _remoteSubscription?.close(immediate: true);
       _remoteSubscription = null;
     }
@@ -88,6 +138,8 @@ class HiveRxUser extends RxUser {
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
+    Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
+
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
@@ -99,10 +151,12 @@ class HiveRxUser extends RxUser {
   Future<void> _userEvent(UserEvents events) async {
     switch (events.kind) {
       case UserEventsKind.initialized:
-        // No-op.
+        Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
         break;
 
       case UserEventsKind.user:
+        Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
+
         events as UserEventsUser;
         var saved = _userLocal.get(id);
         if (saved == null || saved.ver < events.user.ver) {
@@ -114,8 +168,17 @@ class HiveRxUser extends RxUser {
         var userEntity = _userLocal.get(id);
         var versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
+          Log.debug(
+            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
           return;
         }
+
+        Log.debug(
+          '_userEvent(${events.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
 
         userEntity.ver = versioned.ver;
         for (var event in versioned.events) {
@@ -127,15 +190,6 @@ class HiveRxUser extends RxUser {
             case UserEventKind.avatarUpdated:
               event as EventUserAvatarUpdated;
               userEntity.value.avatar = event.avatar;
-              break;
-
-            case UserEventKind.bioDeleted:
-              userEntity.value.bio = null;
-              break;
-
-            case UserEventKind.bioUpdated:
-              event as EventUserBioUpdated;
-              userEntity.value.bio = event.bio;
               break;
 
             case UserEventKind.cameOffline:
@@ -155,18 +209,6 @@ class HiveRxUser extends RxUser {
             case UserEventKind.callCoverUpdated:
               event as EventUserCallCoverUpdated;
               userEntity.value.callCover = event.callCover;
-              break;
-
-            case UserEventKind.galleryItemAdded:
-              event as EventUserGalleryItemAdded;
-              userEntity.value.gallery ??= [];
-              userEntity.value.gallery?.insert(0, event.galleryItem);
-              break;
-
-            case UserEventKind.galleryItemDeleted:
-              event as EventUserGalleryItemDeleted;
-              userEntity.value.gallery
-                  ?.removeWhere((item) => item.id == event.galleryItemId);
               break;
 
             case UserEventKind.nameDeleted:
@@ -201,12 +243,12 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.blacklistEvent:
+      case UserEventsKind.blocklistEvent:
         var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsBlacklistEventsEvent).event;
+        var versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
-        if (userEntity != null && userEntity.blacklistedVer > versioned.ver) {
+        if (userEntity != null && userEntity.blockedVer > versioned.ver) {
           break;
         }
 
@@ -215,21 +257,89 @@ class HiveRxUser extends RxUser {
         }
         break;
 
-      case UserEventsKind.isBlacklisted:
-        var versioned = events as UserEventsIsBlacklisted;
+      case UserEventsKind.isBlocked:
+        var versioned = events as UserEventsIsBlocked;
         var userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
-          if (userEntity.blacklistedVer > versioned.ver) {
+          if (userEntity.blockedVer > versioned.ver) {
             break;
           }
 
-          userEntity.value.isBlacklisted = versioned.record;
-          userEntity.blacklistedVer = versioned.ver;
+          userEntity.value.isBlocked = versioned.record;
+          userEntity.blockedVer = versioned.ver;
           _userLocal.put(userEntity);
         }
         break;
     }
+  }
+
+  // TODO: Cover with unit tests.
+  /// Starts the [_lastSeenTimer] refreshing the [lastSeen].
+  void _runLastSeenTimer() {
+    Log.debug('_runLastSeenTimer()', '$runtimeType($id)');
+
+    _lastSeenTimer?.cancel();
+    if (user.value.lastSeenAt == null) {
+      return;
+    }
+
+    final DateTime now = DateTime.now();
+    final Duration difference =
+        now.difference(user.value.lastSeenAt!.val).abs();
+
+    final Duration delay;
+    final Duration period;
+
+    if (difference.inHours < 1) {
+      period = const Duration(minutes: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerMinute -
+            difference.inMicroseconds % Duration.microsecondsPerMinute,
+      );
+    } else if (difference.inDays < 1) {
+      period = const Duration(hours: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerHour -
+            difference.inMicroseconds % Duration.microsecondsPerHour,
+      );
+    } else {
+      period = const Duration(days: 1);
+      delay = Duration(
+        microseconds: Duration.microsecondsPerDay -
+            difference.inMicroseconds % Duration.microsecondsPerDay,
+      );
+    }
+
+    lastSeen.value = user.value.lastSeenAt;
+    lastSeen.refresh();
+
+    _lastSeenTimer = Timer(
+      delay,
+      () {
+        Log.debug(
+          '_runLastSeenTimer(): delay($delay) has passed',
+          '$runtimeType($id)',
+        );
+
+        lastSeen.value = user.value.lastSeenAt;
+        lastSeen.refresh();
+
+        _lastSeenTimer?.cancel();
+        _lastSeenTimer = Timer.periodic(
+          period,
+          (timer) {
+            Log.debug(
+              '_runLastSeenTimer(): period($period) has passed',
+              '$runtimeType($id)',
+            );
+
+            lastSeen.value = user.value.lastSeenAt;
+            lastSeen.refresh();
+          },
+        );
+      },
+    );
   }
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -56,7 +56,8 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
       ObsMap(Map<K, V>.fromEntries(entries));
 
   /// [StreamController] of record of changes of this [ObsMap].
-  final _changes = StreamController<MapChangeNotification<K, V>>.broadcast();
+  final _changes =
+      StreamController<MapChangeNotification<K, V>>.broadcast(sync: true);
 
   /// Returns stream of record of changes of this [ObsMap].
   Stream<MapChangeNotification<K, V>> get changes => _changes.stream;

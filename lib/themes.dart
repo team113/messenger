@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,18 +17,79 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sound_fonts/sound_fonts.dart';
+
+import 'ui/widget/custom_page.dart';
+import 'util/platform_utils.dart';
+
+part 'themes.g.dart';
 
 /// Application themes constants.
+@SoundFonts({
+  'largest': {
+    'bold': ['onBackground', 'onPrimary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
+  },
+  'larger': {
+    'regular': ['onBackground', 'secondary']
+  },
+  'large': {
+    'regular': ['onBackground', 'secondary']
+  },
+  'big': {
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
+  },
+  'medium': {
+    'regular': [
+      'onBackground',
+      'onPrimary',
+      'primary',
+      'primaryHighlightLightest',
+      'secondary',
+    ],
+  },
+  'normal': {
+    'bold': ['onBackground', 'onPrimary'],
+    'regular': [
+      'danger',
+      'onBackground',
+      'onPrimary',
+      'primary',
+      'secondary',
+      'secondaryHighlightDarkest',
+    ],
+  },
+  'small': {
+    'regular': [
+      'danger',
+      'onBackground',
+      'onPrimary',
+      'primary',
+      'secondary',
+      'secondaryHighlight',
+      'secondaryHighlightDarkest',
+    ],
+  },
+  'smaller': {
+    'bold': ['onPrimary', 'secondary'],
+    'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
+  },
+  'smallest': {
+    'regular': ['onBackground', 'onPrimary', 'secondary']
+  },
+})
 class Themes {
   /// Returns a light theme.
   static ThemeData light() {
     final Palette colors = Palette(
       primary: const Color(0xFF63B4FF),
-      primaryHighlight: Colors.blue,
+      primaryHighlight: const Color(0xFF2196F3),
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
-      onPrimary: Colors.white,
+      primaryDark: const Color(0xFF1F3C5D),
+      primaryAuxiliary: const Color(0xFF165084),
+      onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
@@ -37,260 +98,283 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
-      background: const Color(0xFFF5F8FA),
+      background: const Color(0xFFF2F5F8),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
-      onBackground: Colors.black,
+      onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
-      acceptColor: const Color(0x7F34B139),
-      acceptAuxiliaryColor: Colors.green,
-      declineColor: const Color(0x7FFF0000),
-      dangerColor: Colors.red,
-      warningColor: Colors.orange,
-      userColors: [
-        Colors.purple,
-        Colors.deepPurple,
-        Colors.indigo,
-        Colors.blue,
-        Colors.cyan,
-        Colors.lightGreen,
-        Colors.lime,
-        Colors.amber,
-        Colors.orange,
-        Colors.deepOrange,
+      almostTransparent: const Color(0x01000000),
+      accept: const Color(0x7F34B139),
+      acceptAuxiliary: const Color(0xFF4CAF50),
+      acceptLight: const Color(0xFFBFE3B9),
+      acceptLighter: const Color(0xFFD9FDD3),
+      acceptLightest: const Color(0xFFF2FDED),
+      decline: const Color(0x7FFF0000),
+      danger: const Color(0xFFF44336),
+      warning: const Color(0xFFFF9800),
+      userColors: const [
+        Color(0xFFD2B334),
+        Color(0xFF2192FF),
+        Color(0xFF9C27B0),
+        Color(0xFFFF9800),
+        Color(0xFF0094A7),
+        Color(0xFF7F81FF),
+        Color(0xFFFF5722),
+        Color(0xFFC70100),
+        Color(0xFF8BC34A),
+        Color(0xFF16712D),
+        Color(0xFFFF5B89),
+        Color(0xFF332FD0),
+        Color(0xFFB96215),
+        Color(0xFF00BF79),
+        Color(0xFF00ACCF),
+        Color(0xFFED36FF),
+        Color(0xFF00CC25),
+        Color(0xFFFF1008),
+        Color(0xFFCB9F7A),
       ],
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'SFUI',
-      fontFamilyFallback: const ['.SF UI Display'],
+      fontFamily: 'Roboto',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
+      height: 1.3,
+      letterSpacing: 0,
+      wordSpacing: 0,
     );
 
-    final TextTheme fonts = Typography.blackCupertino.copyWith(
-      displayLarge:
-          textStyle.copyWith(fontSize: 27, fontWeight: FontWeight.bold),
-      displayMedium:
-          textStyle.copyWith(fontWeight: FontWeight.w300, fontSize: 24),
-      displaySmall:
-          textStyle.copyWith(fontWeight: FontWeight.w600, fontSize: 11),
-      headlineLarge: textStyle.copyWith(fontSize: 18),
-      headlineMedium:
-          textStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w300),
-      headlineSmall: textStyle.copyWith(fontSize: 13),
-      titleLarge: textStyle.copyWith(fontWeight: FontWeight.w300),
-      titleMedium: textStyle.copyWith(fontSize: 15),
-      titleSmall: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
-      labelLarge: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-      labelMedium:
-          textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
-      labelSmall: textStyle.copyWith(
-        fontSize: 11,
-        fontWeight: FontWeight.w300,
-        letterSpacing: 0.4,
+    final Fonts fonts = Fonts(
+      style: textStyle,
+      primary: colors.primary,
+      primaryHighlightLightest: colors.primaryHighlightLightest,
+      onBackground: colors.onBackground,
+      secondary: colors.secondary,
+      secondaryHighlight: colors.secondaryHighlight,
+      secondaryHighlightDarkest: colors.secondaryHighlightDarkest,
+      onPrimary: colors.onPrimary,
+      danger: colors.danger,
+      bold: FontWeight.w700,
+      regular: FontWeight.w400,
+      largest: 27,
+      larger: 24,
+      large: 21,
+      big: 18,
+      medium: 17,
+      normal: 15,
+      small: 13,
+      smaller: 11,
+      smallest: 9,
+    );
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: colors.transparent,
+        statusBarColor: colors.transparent,
+        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.dark,
       ),
-      bodyLarge: textStyle,
-      bodyMedium: textStyle.copyWith(fontSize: 15, fontWeight: FontWeight.w300),
-      bodySmall: textStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w300),
     );
 
     final ThemeData theme = ThemeData.light();
 
     return theme.copyWith(
-        extensions: [
-          Style(
-            colors: colors,
-            barrierColor: colors.onBackgroundOpacity50,
-            cardBlur: 5,
-            cardBorder:
-                Border.all(color: colors.secondaryHighlightDark, width: 0.5),
-            cardColor: colors.onPrimaryOpacity95,
-            cardHoveredBorder: Border.all(
-              color: colors.primaryHighlightShiniest,
-              width: 0.5,
-            ),
-            cardRadius: BorderRadius.circular(14),
-            cardSelectedBorder:
-                Border.all(color: colors.primaryHighlightShiny, width: 0.5),
-            contextMenuBackgroundColor: colors.secondaryHighlight,
-            contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
-            contextMenuRadius: BorderRadius.circular(10),
-            linkStyle: TextStyle(
-              color: colors.primary,
-              decoration: TextDecoration.underline,
-              decorationThickness: 2,
-            ),
-            messageColor: colors.onPrimary,
-            primaryBorder: Border.all(
-              color: colors.secondaryHighlightDark,
-              width: 0.5,
-            ),
-            readMessageColor: colors.primaryHighlightShiniest,
-            secondaryBorder: Border.all(
-              color: colors.primaryHighlightLightest,
-              width: 0.5,
-            ),
-            sidebarColor: colors.onPrimaryOpacity50,
-            systemMessageBorder: Border.all(
-              color: colors.secondaryHighlightDarkest,
-              width: 0.5,
-            ),
-            systemMessageColor: colors.secondaryHighlight,
-            systemMessageStyle:
-                fonts.bodySmall!.copyWith(color: colors.secondary),
-            unreadMessageColor: colors.backgroundAuxiliaryLightest,
+      extensions: [
+        Style(
+          colors: colors,
+          fonts: fonts,
+          barrierColor: colors.onBackgroundOpacity50,
+          cardBlur: 5,
+          cardBorder:
+              Border.all(color: colors.secondaryHighlightDark, width: 0.5),
+          cardColor: colors.onPrimaryOpacity95,
+          cardHoveredColor: colors.backgroundAuxiliaryLightest,
+          cardHoveredBorder: Border.all(
+            color: colors.primaryHighlightShiniest,
+            width: 0.5,
           ),
-        ],
-        scaffoldBackgroundColor: colors.transparent,
-        appBarTheme: theme.appBarTheme.copyWith(
-          backgroundColor: colors.onPrimaryOpacity25,
-          foregroundColor: colors.secondary,
-          iconTheme: theme.appBarTheme.iconTheme?.copyWith(
-            color: colors.secondary,
+          cardRadius: BorderRadius.circular(14),
+          cardSelectedBorder:
+              Border.all(color: colors.primaryHighlightShiny, width: 0.5),
+          contextMenuBackgroundColor: colors.onPrimary,
+          contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
+          contextMenuRadius: BorderRadius.circular(11),
+          linkStyle: textStyle.copyWith(color: colors.primary),
+          messageColor: colors.onPrimary,
+          primaryBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            width: 0.5,
           ),
-          actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
-            color: colors.secondary,
+          readMessageColor: colors.acceptLighter,
+          secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
+          sidebarColor: colors.onPrimaryOpacity50,
+          systemMessageBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            width: 0.5,
           ),
-          systemOverlayStyle: SystemUiOverlayStyle(
-            systemNavigationBarColor: colors.primaryHighlight,
-            statusBarColor: colors.transparent,
-          ),
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle:
-              fonts.headlineMedium!.copyWith(color: colors.onBackground),
+          systemMessageColor: colors.secondaryHighlight,
+          systemMessageStyle: fonts.small.regular.secondary,
+          systemMessagePrimary: fonts.small.regular.primary,
+          unreadMessageColor: colors.acceptLightest,
         ),
-        tabBarTheme: theme.tabBarTheme.copyWith(
-          labelColor: colors.primary,
-          unselectedLabelColor: colors.secondary,
-        ),
-        primaryIconTheme: const IconThemeData.fallback().copyWith(
+      ],
+      scaffoldBackgroundColor: colors.transparent,
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: colors.onPrimaryOpacity25,
+        foregroundColor: colors.secondary,
+        iconTheme: theme.appBarTheme.iconTheme?.copyWith(
           color: colors.secondary,
         ),
-        iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
-        textTheme: fonts,
-        inputDecorationTheme: theme.inputDecorationTheme.copyWith(
-          focusColor: colors.primary,
-          hoverColor: colors.transparent,
-          fillColor: colors.primary,
-          hintStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          labelStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          errorStyle: fonts.headlineSmall!.copyWith(color: colors.dangerColor),
-          helperStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          prefixStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          suffixStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          counterStyle: fonts.bodySmall!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          floatingLabelStyle: fonts.bodyMedium!
-              .copyWith(color: colors.secondaryHighlightDarkest),
-          errorMaxLines: 5,
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(color: colors.primary),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              color: colors.secondaryHighlightDarkest,
-            ),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              color: colors.secondaryHighlightDarkest,
-            ),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: BorderSide(
-              color: colors.secondaryHighlightDarkest,
-            ),
-          ),
+        actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
+          color: colors.secondary,
         ),
-        textSelectionTheme: theme.textSelectionTheme.copyWith(
-          cursorColor: colors.primary,
-          selectionHandleColor: colors.primary,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: fonts.big.regular.onBackground,
+      ),
+      tabBarTheme: theme.tabBarTheme.copyWith(
+        labelColor: colors.primary,
+        unselectedLabelColor: colors.secondary,
+      ),
+      primaryIconTheme: const IconThemeData.fallback().copyWith(
+        color: colors.secondary,
+      ),
+      splashColor: colors.transparent,
+      iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
+      textTheme: Typography.blackCupertino.copyWith(
+        displayLarge: fonts.largest.regular.onBackground,
+        displayMedium: fonts.larger.regular.onBackground,
+        displaySmall: fonts.large.regular.onBackground,
+        headlineLarge: fonts.big.regular.onBackground,
+        headlineMedium: fonts.big.regular.onBackground,
+        headlineSmall: fonts.small.regular.onBackground,
+        titleLarge: fonts.medium.regular.onBackground,
+        titleMedium: fonts.normal.regular.onBackground,
+        titleSmall: fonts.normal.bold.onBackground,
+        labelLarge: fonts.normal.regular.onBackground,
+        labelMedium: fonts.small.regular.onBackground,
+        labelSmall: fonts.smaller.regular.onBackground,
+        bodyLarge: fonts.medium.regular.onBackground,
+        bodyMedium: fonts.normal.regular.onBackground,
+        bodySmall: fonts.small.regular.onBackground,
+      ),
+      inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+        focusColor: colors.primary,
+        hoverColor: colors.transparent,
+        fillColor: colors.primary,
+        hintStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        labelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        errorStyle: fonts.small.regular.danger,
+        helperStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        counterStyle: fonts.small.regular.secondaryHighlightDarkest,
+        floatingLabelStyle: fonts.big.regular.secondary,
+        errorMaxLines: 5,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.primary),
         ),
-        floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.danger),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+          borderSide: BorderSide(color: colors.danger),
+        ),
+      ),
+      textSelectionTheme: theme.textSelectionTheme.copyWith(
+        cursorColor: colors.primary,
+        selectionHandleColor: colors.primary,
+      ),
+      floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+      ),
+      bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+        backgroundColor: colors.primaryHighlightShiniest,
+        selectedItemColor: colors.primary,
+        unselectedItemColor: colors.secondary,
+      ),
+      progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
+        color: colors.primary,
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: colors.secondary,
+          textStyle: fonts.medium.regular.secondary,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          backgroundColor: colors.transparent,
+          foregroundColor: colors.secondary,
+          minimumSize: const Size(100, 60),
+          maximumSize: const Size(250, 60),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          side: BorderSide(width: 1, color: colors.secondary),
+          textStyle: fonts.medium.regular.secondary,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
-          foregroundColor: colors.onPrimary,
-        ),
-        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-          backgroundColor: colors.primaryHighlightShiniest,
-          selectedItemColor: colors.primary,
-          unselectedItemColor: colors.secondary,
-        ),
-        progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
-          color: colors.primary,
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: colors.secondary,
-            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
           ),
+          padding: const EdgeInsets.all(12),
+          textStyle: fonts.normal.regular.secondary,
         ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            backgroundColor: colors.transparent,
-            foregroundColor: colors.secondary,
-            minimumSize: const Size(100, 60),
-            maximumSize: const Size(250, 60),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            side: BorderSide(width: 1, color: colors.secondary),
-            textStyle: fonts.bodyLarge!.copyWith(color: colors.secondary),
-          ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.all(12),
-            textStyle: fonts.titleMedium!.copyWith(color: colors.secondary),
-          ),
-        ),
-        scrollbarTheme: theme.scrollbarTheme.copyWith(
-          interactive: true,
-          thickness: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.dragged) ||
-                states.contains(MaterialState.hovered)) {
-              return 6;
-            }
+      ),
+      scrollbarTheme: theme.scrollbarTheme.copyWith(
+        interactive: true,
+        thickness: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.dragged) ||
+              states.contains(MaterialState.hovered)) {
+            return 6;
+          }
 
-            return 4;
-          }),
-        ),
-        radioTheme: theme.radioTheme.copyWith(
-          fillColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
-              return Colors.white;
-            }
+          return 4;
+        }),
+      ),
+      radioTheme: theme.radioTheme.copyWith(
+        fillColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return Colors.white;
+          }
 
-            return colors.primary;
-          }),
-        ),
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
-          },
-        ));
+          return colors.primary;
+        }),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
+        },
+      ),
+    );
   }
 
   /// Returns a dark theme.
@@ -303,16 +387,11 @@ class Themes {
 /// Shadow cast by a box that allows to customize its [blurStyle].
 class CustomBoxShadow extends BoxShadow {
   const CustomBoxShadow({
-    Color color = const Color(0xFF000000),
-    Offset offset = Offset.zero,
-    double blurRadius = 0.0,
+    super.color,
+    super.offset,
+    super.blurRadius,
     BlurStyle blurStyle = BlurStyle.normal,
-  })  : _blurStyle = blurStyle,
-        super(
-          color: color,
-          offset: offset,
-          blurRadius: blurRadius,
-        );
+  }) : _blurStyle = blurStyle;
 
   /// Style to use for blur in [MaskFilter] object.
   final BlurStyle _blurStyle;
@@ -336,10 +415,12 @@ class CustomBoxShadow extends BoxShadow {
 class Style extends ThemeExtension<Style> {
   const Style({
     required this.colors,
+    required this.fonts,
     required this.barrierColor,
     required this.cardBlur,
     required this.cardBorder,
     required this.cardColor,
+    required this.cardHoveredColor,
     required this.cardHoveredBorder,
     required this.cardRadius,
     required this.cardSelectedBorder,
@@ -355,11 +436,15 @@ class Style extends ThemeExtension<Style> {
     required this.systemMessageBorder,
     required this.systemMessageColor,
     required this.systemMessageStyle,
+    required this.systemMessagePrimary,
     required this.unreadMessageColor,
   });
 
   /// [Palette] to use in the application.
   final Palette colors;
+
+  /// [Fonts] to use in the application.
+  final Fonts fonts;
 
   /// [Color] of the modal background barrier.
   final Color barrierColor;
@@ -372,6 +457,9 @@ class Style extends ThemeExtension<Style> {
 
   /// Background [Color] of card-like [Widget]s.
   final Color cardColor;
+
+  /// Background [Color] of card-like [Widget]s when hovered.
+  final Color cardHoveredColor;
 
   /// [Border] to apply to hovered card-like [Widget]s.
   final Border cardHoveredBorder;
@@ -419,6 +507,9 @@ class Style extends ThemeExtension<Style> {
   /// [TextStyle] of system messages.
   final TextStyle systemMessageStyle;
 
+  /// [TextStyle] of system messages with a primary color.
+  final TextStyle systemMessagePrimary;
+
   /// Background [Color] of unread [ChatMessage]s, [ChatForward]s and
   /// [ChatCall]s posted by the authenticated [MyUser].
   final Color unreadMessageColor;
@@ -426,10 +517,12 @@ class Style extends ThemeExtension<Style> {
   @override
   ThemeExtension<Style> copyWith({
     Palette? colors,
+    Fonts? fonts,
     Color? barrierColor,
     double? cardBlur,
     Border? cardBorder,
     Color? cardColor,
+    Color? cardHoveredColor,
     Border? cardHoveredBorder,
     BorderRadius? cardRadius,
     Border? cardSelectedBorder,
@@ -445,14 +538,17 @@ class Style extends ThemeExtension<Style> {
     Border? systemMessageBorder,
     Color? systemMessageColor,
     TextStyle? systemMessageStyle,
+    TextStyle? systemMessagePrimary,
     Color? unreadMessageColor,
   }) {
     return Style(
       colors: colors ?? this.colors,
+      fonts: fonts ?? this.fonts,
       barrierColor: barrierColor ?? this.barrierColor,
       cardBlur: cardBlur ?? this.cardBlur,
       cardBorder: cardBorder ?? this.cardBorder,
       cardColor: cardColor ?? this.cardColor,
+      cardHoveredColor: cardHoveredColor ?? this.cardHoveredColor,
       cardHoveredBorder: cardHoveredBorder ?? this.cardHoveredBorder,
       cardRadius: cardRadius ?? this.cardRadius,
       cardSelectedBorder: cardSelectedBorder ?? this.cardSelectedBorder,
@@ -470,6 +566,7 @@ class Style extends ThemeExtension<Style> {
       systemMessageBorder: systemMessageBorder ?? this.systemMessageBorder,
       systemMessageColor: systemMessageColor ?? this.systemMessageColor,
       systemMessageStyle: systemMessageStyle ?? this.systemMessageStyle,
+      systemMessagePrimary: systemMessagePrimary ?? this.systemMessagePrimary,
       unreadMessageColor: unreadMessageColor ?? this.unreadMessageColor,
     );
   }
@@ -482,10 +579,13 @@ class Style extends ThemeExtension<Style> {
 
     return Style(
       colors: Palette.lerp(colors, other.colors, t),
+      fonts: Fonts.lerp(fonts, other.fonts, t),
       barrierColor: Color.lerp(barrierColor, other.barrierColor, t)!,
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardHoveredColor:
+          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
       cardHoveredBorder:
           Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
@@ -519,6 +619,11 @@ class Style extends ThemeExtension<Style> {
         other.systemMessageStyle,
         t,
       )!,
+      systemMessagePrimary: TextStyle.lerp(
+        systemMessagePrimary,
+        other.systemMessagePrimary,
+        t,
+      )!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
@@ -529,10 +634,17 @@ class Style extends ThemeExtension<Style> {
 class Palette {
   Palette({
     required this.primary,
+    Color? primaryOpacity20,
     required this.primaryHighlight,
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
     required this.primaryHighlightLightest,
+    required this.primaryDark,
+    Color? primaryDarkOpacity70,
+    Color? primaryDarkOpacity90,
+    required this.primaryAuxiliary,
+    Color? primaryAuxiliaryOpacity25,
+    Color? primaryAuxiliaryOpacity90,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
@@ -546,6 +658,7 @@ class Palette {
     required this.secondaryHighlightDark,
     required this.secondaryHighlightDarkest,
     Color? secondaryOpacity87,
+    Color? secondaryOpacity40,
     required this.onSecondary,
     Color? onSecondaryOpacity20,
     Color? onSecondaryOpacity50,
@@ -564,18 +677,31 @@ class Palette {
     Color? onBackgroundOpacity27,
     Color? onBackgroundOpacity40,
     Color? onBackgroundOpacity50,
+    Color? onBackgroundOpacity70,
     required this.transparent,
-    required this.acceptColor,
-    required this.acceptAuxiliaryColor,
-    required this.declineColor,
-    required this.dangerColor,
-    required this.warningColor,
+    required this.almostTransparent,
+    required this.accept,
+    required this.acceptAuxiliary,
+    required this.acceptLight,
+    required this.acceptLighter,
+    required this.acceptLightest,
+    required this.decline,
+    required this.danger,
+    required this.warning,
     required this.userColors,
-  })  : onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
+  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+        primaryDarkOpacity70 =
+            primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
+        primaryDarkOpacity90 =
+            primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
+        primaryAuxiliaryOpacity25 =
+            primaryAuxiliaryOpacity25 ?? primaryAuxiliary.withOpacity(0.25),
+        onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
         onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
         onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
         onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
         secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
+        secondaryOpacity40 = secondaryOpacity40 ?? secondary.withOpacity(0.40),
         onSecondaryOpacity20 =
             onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
         onSecondaryOpacity50 =
@@ -597,12 +723,64 @@ class Palette {
         onBackgroundOpacity40 =
             onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50);
+            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+        onBackgroundOpacity70 =
+            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70);
 
   /// Primary [Color] of the application.
   ///
   /// Used to highlight the active interface elements.
   final Color primary;
+
+  /// 20% opacity of the [primary] color.
+  ///
+  /// Used to highlight chat messages.
+  final Color primaryOpacity20;
+
+  /// Highlight [Color] of the [primary] elements.
+  ///
+  /// Used to highlight [primary] elements when hovering or activated.
+  final Color primaryHighlight;
+
+  /// Highlight [Color] to draw attention to specific [primary] elements.
+  ///
+  /// Used as a border of the selected [ChatTile]s and [ContactTile]s.
+  final Color primaryHighlightShiny;
+
+  /// The shiniest and most contrasting [primary] highlight [Color].
+  ///
+  /// Used to highlight read [ChatMessage]s and [ChatForward]s.
+  final Color primaryHighlightShiniest;
+
+  /// Lightest [primary] highlight [Color].
+  ///
+  /// Used as a border of [ChatMessage]s and [ChatForward]s.
+  final Color primaryHighlightLightest;
+
+  /// Dark [Color] of the [primary] elements.
+  ///
+  /// Used to darken the [primary] elements when hovering or activated.
+  final Color primaryDark;
+
+  /// 70% opacity of the [primaryDark] color.
+  ///
+  /// Used for `Draggable` panel elements.
+  final Color primaryDarkOpacity70;
+
+  /// 90% opacity of the [primaryDark] color.
+  ///
+  /// Used for [Launchpad] background color.
+  final Color primaryDarkOpacity90;
+
+  /// [Color] responsible for the helper primary color.
+  ///
+  /// Used for alternative primary in case we need to darken.
+  final Color primaryAuxiliary;
+
+  /// 25% opacity of the [primaryAuxiliary] color.
+  ///
+  /// Used as [DockDecorator] color.
+  final Color primaryAuxiliaryOpacity25;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -629,26 +807,6 @@ class Palette {
   /// Used to highlight some [DragTarget]s and backgrounds.
   final Color onPrimaryOpacity7;
 
-  /// Highlight [Color] of the [primary] elements.
-  ///
-  /// Used to highlight [primary] elements when hovering or activated.
-  final Color primaryHighlight;
-
-  /// Highlight [Color] to draw attention to specific [primary] elements.
-  ///
-  /// Used as a border of the selected [ChatTile]s and [ContactTile]s.
-  final Color primaryHighlightShiny;
-
-  /// The shiniest and most contrasting [primary] highlight [Color].
-  ///
-  /// Used to highlight read [ChatMessage]s and [ChatForward]s.
-  final Color primaryHighlightShiniest;
-
-  /// Lightest [primary] highlight [Color].
-  ///
-  /// Used as a border of [ChatMessage]s and [ChatForward]s.
-  final Color primaryHighlightLightest;
-
   /// Secondary [Color] used alongside with [primary].
   ///
   /// Used for texts, icons, outlines.
@@ -658,6 +816,11 @@ class Palette {
   ///
   /// Used as the muted indicator background in calls.
   final Color secondaryOpacity87;
+
+  /// 40% opacity of the [secondary] color.
+  ///
+  /// Used as the muted indicator background in calls.
+  final Color secondaryOpacity40;
 
   /// Background [Color] of the [secondary] elements.
   ///
@@ -731,6 +894,11 @@ class Palette {
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
 
+  /// 70% opacity of the [onBackground] color.
+  ///
+  /// Used to darken inactive interface elements.
+  final Color onBackgroundOpacity70;
+
   /// 50% opacity of the [onBackground] color.
   ///
   /// Used as a play video circle button background.
@@ -772,28 +940,36 @@ class Palette {
   /// brightness.
   final Color transparent;
 
-  /// Indicator of an affirmative color to visually confirm elements of the user
-  /// interface.
-  ///
-  /// Used in accept call button.
-  final Color acceptColor;
+  /// Almost transparent [Color].
+  final Color almostTransparent;
 
-  /// [Color] is used as an auxiliary color to display pleasant action
-  /// confirmation messages.
-  final Color acceptAuxiliaryColor;
+  /// Indicator of an affirmative color of confirmable elements.
+  final Color accept;
+
+  /// [Color] displaying pleasant action confirmation messages.
+  final Color acceptAuxiliary;
+
+  /// Light variant of the [accept] color.
+  final Color acceptLight;
+
+  /// Lighter variant of the [accept] color.
+  final Color acceptLighter;
+
+  /// Lightest variant of the [accept] color.
+  final Color acceptLightest;
 
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
   ///
   /// Used in decline call button.
-  final Color declineColor;
+  final Color decline;
 
   /// [Color] used to indicate dangerous or critical elements in the user
   /// interface.
-  final Color dangerColor;
+  final Color danger;
 
   /// [Color] used to indicate caution, risk, or a potential threat.
-  final Color warningColor;
+  final Color warning;
 
   /// [Color]s associated with the [User].
   ///
@@ -809,6 +985,10 @@ class Palette {
 
     return Palette(
       primary: Color.lerp(color.primary, other.primary, t)!,
+      primaryAuxiliary:
+          Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
+      primaryAuxiliaryOpacity25: Color.lerp(
+          color.primaryAuxiliaryOpacity25, other.primaryAuxiliaryOpacity25, t)!,
       primaryHighlight:
           Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
       primaryHighlightShiny: Color.lerp(
@@ -820,6 +1000,11 @@ class Palette {
           color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
       primaryHighlightLightest: Color.lerp(
           color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
+      primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
+      primaryDarkOpacity70: Color.lerp(
+          color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,
+      primaryDarkOpacity90: Color.lerp(
+          color.primaryDarkOpacity90, other.primaryDarkOpacity90, t)!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
@@ -878,26 +1063,52 @@ class Palette {
       onBackgroundOpacity50: Color.lerp(
           color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
-      acceptColor: Color.lerp(color.acceptColor, other.acceptColor, t)!,
-      acceptAuxiliaryColor: Color.lerp(
-          color.acceptAuxiliaryColor, other.acceptAuxiliaryColor, t)!,
-      declineColor: Color.lerp(color.declineColor, other.declineColor, t)!,
-      dangerColor: Color.lerp(color.dangerColor, other.dangerColor, t)!,
-      warningColor: Color.lerp(color.warningColor, other.warningColor, t)!,
+      almostTransparent:
+          Color.lerp(color.almostTransparent, other.almostTransparent, t)!,
+      accept: Color.lerp(color.accept, other.accept, t)!,
+      acceptAuxiliary:
+          Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+      acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
+      acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
+      acceptLightest:
+          Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
+      decline: Color.lerp(color.decline, other.decline, t)!,
+      danger: Color.lerp(color.danger, other.danger, t)!,
+      warning: Color.lerp(color.warning, other.warning, t)!,
       userColors:
           other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );
   }
 }
 
-/// Extension adding [Style] and [TextTheme] handy getters from the [ThemeData].
+/// Extension adding [Style] handy getter from the [ThemeData].
 extension ThemeStylesExtension on ThemeData {
-  /// Returns the [TextTheme] of this [ThemeData].
-  TextTheme get fonts => textTheme;
-
   /// Returns the [Style] of this [ThemeData].
   Style get style => extension<Style>()!;
+}
 
-  /// Returns a record containing the [style] and [fonts].
-  (Style, TextTheme) get styles => (style, fonts);
+/// Adds the ability to get HEX value of the color.
+extension HexColor on Color {
+  /// Returns a HEX string value of this color.
+  String toHex({bool withAlpha = true}) => '#'
+      '${(withAlpha ? alpha.toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
+      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+}
+
+// TODO: Remove, when flutter/flutter#132839 is fixed:
+//       https://github.com/flutter/flutter/issues/132839
+/// Extension adding workaround of [BlurStyle.outer] rendered incorrectly on
+/// iOS.
+extension BlurStylePlatformExtension on BlurStyle {
+  /// Returns the [BlurStyle.outer], if not [PlatformUtilsImpl.isIOS], or
+  /// [BlurStyle.normal] otherwise.
+  BlurStyle get workaround {
+    if (PlatformUtils.isIOS) {
+      return BlurStyle.normal;
+    }
+
+    return BlurStyle.outer;
+  }
 }

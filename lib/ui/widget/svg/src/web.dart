@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -198,7 +198,7 @@ class _FileSvgLoader implements _SvgLoader {
 /// `html` renderer and through [SvgPicture.memory] on `CanvasKit` renderer.
 class _BrowserSvg extends StatefulWidget {
   const _BrowserSvg({
-    Key? key,
+    super.key,
     required this.loader,
     required this.width,
     required this.height,
@@ -207,7 +207,7 @@ class _BrowserSvg extends StatefulWidget {
     required this.fit,
     required this.placeholderBuilder,
     required this.semanticsLabel,
-  }) : super(key: key);
+  });
 
   /// Loader to load the SVG from.
   final _SvgLoader loader;
@@ -295,7 +295,7 @@ class _BrowserSvgState extends State<_BrowserSvg> {
         }
       }
     } catch (e, stack) {
-      Log.error('Error loading SVG: $e\n$stack');
+      Log.error('Error loading SVG: $e\n$stack', '$runtimeType');
     }
   }
 

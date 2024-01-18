@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,26 +23,33 @@ import '../model/contact.dart';
 import '../model/user.dart';
 import '../repository/user.dart';
 import '/util/obs/obs.dart';
+import 'search.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
-  /// Returns reactive observable map of [ChatContact]s.
+  /// Returns reactive map of [ChatContact]s in the current pagination view.
+  RxObsMap<ChatContactId, RxChatContact> get paginated;
+
+  /// Returns reactive map of all [RxChatContact]s stored.
   RxObsMap<ChatContactId, RxChatContact> get contacts;
 
-  /// Returns reactive map of favorite [ChatContact]s.
-  RxObsMap<ChatContactId, RxChatContact> get favorites;
-
   /// Returns the initialization [RxStatus] of this repository and its
-  /// [contacts] and [favorites].
+  /// [paginated].
   Rx<RxStatus> get status;
 
-  /// Initializes this repository.
-  Future<void> init();
+  /// Indicates whether the [paginated] have next page.
+  RxBool get hasNext;
 
-  /// Disposes this repository.
-  void dispose();
+  /// Indicates whether a next page of the [paginated] is loading.
+  RxBool get nextLoading;
 
-  /// Clears the stored [contacts].
+  /// Returns a [ChatContact] by the provided [id].
+  RxChatContact? get(ChatContactId id);
+
+  /// Fetches the next [paginated] page.
+  Future<void> next();
+
+  /// Clears the stored [paginated].
   Future<void> clearCache();
 
   /// Creates a new [ChatContact] with the specified [User] in the current
@@ -69,10 +76,17 @@ abstract class AbstractContactRepository {
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
   Future<void> unfavoriteChatContact(ChatContactId id);
+
+  /// Searches [ChatContact]s by the given criteria.
+  SearchResult<ChatContactId, RxChatContact> search({
+    UserName? name,
+    UserEmail? email,
+    UserPhone? phone,
+  });
 }
 
 /// Unified reactive [ChatContact] entity.
-abstract class RxChatContact {
+abstract class RxChatContact implements Comparable<RxChatContact> {
   /// Reactive value of the [ChatContact] this [RxChatContact] represents.
   Rx<ChatContact> get contact;
 

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,6 +27,7 @@ import '/domain/model/user.dart';
 enum ChatCallEventKind {
   answerTimeoutPassed,
   callMoved,
+  conversationStarted,
   declined,
   finished,
   handLowered,
@@ -354,4 +355,22 @@ class EventChatCallAnswerTimeoutPassed extends ChatCallEvent {
 
   @override
   ChatCallEventKind get kind => ChatCallEventKind.answerTimeoutPassed;
+}
+
+/// Event of an audio/video conversation being started in a [ChatCall], meaning
+/// that enough [ChatCallMember]s joined the `Medea` room after ringing had been
+/// finished.
+class EventChatCallConversationStarted extends ChatCallEvent {
+  const EventChatCallConversationStarted(
+    super.callId,
+    super.chatId,
+    super.at,
+    this.call,
+  );
+
+  /// [ChatCall] the conversation started in.
+  final ChatCall call;
+
+  @override
+  ChatCallEventKind get kind => ChatCallEventKind.conversationStarted;
 }

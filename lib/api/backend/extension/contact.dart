@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/user.dart';
+import '/store/model/contact.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [ChatContactMixin].
@@ -39,5 +40,9 @@ extension ChatContactConversion on ChatContactMixin {
   List<HiveUser> getHiveUsers() => users.map((e) => e.toHive()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
-  HiveChatContact toHive() => HiveChatContact(toModel(), ver);
+  HiveChatContact toHive({
+    ChatContactsCursor? cursor,
+    FavoriteChatContactsCursor? favoriteCursor,
+  }) =>
+      HiveChatContact(toModel(), ver, cursor, favoriteCursor);
 }

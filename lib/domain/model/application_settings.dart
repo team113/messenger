@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,9 +32,10 @@ class ApplicationSettings extends HiveObject {
     this.callButtons = const [],
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
-    this.sortContactsByName = true,
     this.loadImages = true,
-    this.timelineEnabled = false,
+    this.pinnedActions = const [],
+    this.callButtonsPosition = CallButtonsPosition.appBar,
+    this.workWithUsTabEnabled = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -69,16 +70,44 @@ class ApplicationSettings extends HiveObject {
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
 
-  /// Indicator whether [ChatContact]s should be sorted by their names.
-  @HiveField(7)
-  bool sortContactsByName;
-
   /// Indicator whether [ImageAttachment]s should be loaded automatically.
-  @HiveField(8)
+  @HiveField(7)
   bool loadImages;
 
-  /// Indicator whether [ChatItem.at] labels should be displayed as a timeline
-  /// in a [Chat].
+  /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
+  @HiveField(8)
+  List<String> pinnedActions;
+
+  /// [CallButtonsPosition] of the call buttons in [Chat].
   @HiveField(9)
-  bool timelineEnabled;
+  CallButtonsPosition? callButtonsPosition;
+
+  /// Indicator whether [WorkTabView] should be displayed in the
+  /// [CustomNavigationBar] of [HomeView].
+  @HiveField(10)
+  bool workWithUsTabEnabled;
+}
+
+/// Possible call buttons position.
+@HiveType(typeId: ModelTypeId.callButtonsPosition)
+enum CallButtonsPosition {
+  /// [AppBar] position.
+  @HiveField(0)
+  appBar,
+
+  /// [ContextMenu] position.
+  @HiveField(1)
+  contextMenu,
+
+  /// Top position in [ChatView] body.
+  @HiveField(2)
+  top,
+
+  /// Bottom position in [ChatView] body.
+  @HiveField(3)
+  bottom,
+
+  /// [ChatMoreWidget] button position.
+  @HiveField(4)
+  more,
 }

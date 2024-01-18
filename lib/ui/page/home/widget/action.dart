@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,22 +41,15 @@ class ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Padding(
       padding: Insets.dense.add(const EdgeInsets.only(bottom: 8)),
       child: FieldButton(
         onPressed: onPressed,
         text: text,
-        style: fonts.titleMedium!.copyWith(
-          color: style.colors.primary,
-        ),
-        trailing: trailing != null
-            ? Transform.translate(
-                offset: const Offset(0, -1),
-                child: Transform.scale(scale: 1.15, child: trailing),
-              )
-            : null,
+        style: style.fonts.normal.regular.primary,
+        trailing: trailing,
       ),
     );
   }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/controller.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -50,7 +51,7 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fonts = Theme.of(context).fonts;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: StatusController(Get.find()),
@@ -70,7 +71,7 @@ class StatusView extends StatelessWidget {
                   shrinkWrap: true,
                   children: [
                     if (expanded) ...[
-                      _padding(
+                      Paddings.basic(
                         ReactiveTextField(
                           key: const Key('StatusField'),
                           state: c.status,
@@ -87,13 +88,7 @@ class StatusView extends StatelessWidget {
                               ? null
                               : Transform.translate(
                                   offset: const Offset(0, -1),
-                                  child: Transform.scale(
-                                    scale: 1.15,
-                                    child: SvgImage.asset(
-                                      'assets/icons/copy.svg',
-                                      height: 15,
-                                    ),
-                                  ),
+                                  child: const SvgIcon(SvgIcons.copy),
                                 ),
                         ),
                       ),
@@ -103,7 +98,7 @@ class StatusView extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'label_presence'.l10n,
-                            style: fonts.headlineMedium,
+                            style: style.fonts.big.regular.onBackground,
                           ),
                         ),
                       ),
@@ -115,7 +110,10 @@ class StatusView extends StatelessWidget {
                           child: RectangleButton(
                             selected: c.presence.value == e,
                             label: e.localizedString() ?? '',
-                            onPressed: () => c.presence.value = e,
+                            onPressed: () {
+                              c.presence.value = e;
+                              Navigator.of(context).pop();
+                            },
                             trailingColor: e.getColor(),
                           ),
                         );
@@ -131,8 +129,4 @@ class StatusView extends StatelessWidget {
       },
     );
   }
-
-  /// Basic [Padding] wrapper.
-  Widget _padding(Widget child) =>
-      Padding(padding: const EdgeInsets.all(8), child: child);
 }

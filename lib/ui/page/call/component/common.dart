@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,12 +19,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controller.dart';
+import '../widget/call_button.dart';
 import '../widget/call_title.dart';
+import '../widget/dock.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 
 /// Button in a [CallView].
 ///
@@ -49,37 +52,12 @@ abstract class CallButton {
       other is CallButton && runtimeType == other.runtimeType;
 
   /// Builds the [Widget] representation of this [CallButton].
-  Widget build({bool hinted = true});
-
-  /// Returns a styled [RoundFloatingButton] with the provided parameters.
-  Widget _common({
-    required String asset,
-    VoidCallback? onPressed,
-    bool hinted = true,
-    bool expanded = false,
-    bool withBlur = false,
-    Color? color,
-    double assetWidth = 60,
-    BoxBorder? border,
-  }) {
-    final style = Theme.of(router.context!).style;
-
-    return RoundFloatingButton(
-      asset: asset,
-      assetWidth: assetWidth,
-      color: color ?? style.colors.onSecondaryOpacity50,
-      hint: !expanded && hinted ? hint : null,
-      text: expanded ? hint : null,
-      withBlur: withBlur,
-      border: border,
-      onPressed: onPressed,
-    );
-  }
+  Widget build({bool hinted = true, bool big = false, bool expanded = false});
 }
 
 /// [CallButton] toggling a more panel.
 class MoreButton extends CallButton {
-  const MoreButton(CallController c) : super(c);
+  const MoreButton(super.c);
 
   @override
   bool get isRemovable => false;
@@ -88,10 +66,14 @@ class MoreButton extends CallButton {
   String get hint => 'btn_call_more'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
-    return _common(
-      asset: 'more',
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callMore,
       hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
       onPressed: c.toggleMore,
     );
   }
@@ -99,24 +81,40 @@ class MoreButton extends CallButton {
 
 /// [CallButton] toggling a local video.
 class VideoButton extends CallButton {
-  const VideoButton(CallController c) : super(c);
+  const VideoButton(super.c);
 
   @override
   String get hint {
     bool isVideo = c.videoState.value == LocalTrackState.enabled ||
         c.videoState.value == LocalTrackState.enabling;
-    return isVideo ? 'btn_call_video_off'.l10n : 'btn_call_video_on'.l10n;
+
+    return c.isMobile
+        ? isVideo
+            ? 'btn_call_video_off_desc'.l10n
+            : 'btn_call_video_on_desc'.l10n
+        : isVideo
+            ? 'btn_call_video_off'.l10n
+            : 'btn_call_video_on'.l10n;
   }
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build({
+    bool hinted = true,
+    bool blur = false,
+    bool big = false,
+    bool expanded = false,
+  }) {
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
-      return _common(
-        asset: 'video_${isVideo ? 'on' : 'off'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset: isVideo ? SvgIcons.callVideoOn : SvgIcons.callVideoOff,
         hinted: hinted,
+        expanded: expanded,
+        big: big,
         withBlur: blur,
+        constrained: c.isMobile,
         onPressed: c.toggleVideo,
       );
     });
@@ -125,24 +123,40 @@ class VideoButton extends CallButton {
 
 /// [CallButton] toggling a local audio.
 class AudioButton extends CallButton {
-  const AudioButton(CallController c) : super(c);
+  const AudioButton(super.c);
 
   @override
   String get hint {
     bool isAudio = c.audioState.value == LocalTrackState.enabled ||
         c.audioState.value == LocalTrackState.enabling;
-    return isAudio ? 'btn_call_audio_off'.l10n : 'btn_call_audio_on'.l10n;
+
+    return c.isMobile
+        ? isAudio
+            ? 'btn_call_audio_off_desc'.l10n
+            : 'btn_call_audio_on_desc'.l10n
+        : isAudio
+            ? 'btn_call_audio_off'.l10n
+            : 'btn_call_audio_on'.l10n;
   }
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build({
+    bool hinted = true,
+    bool blur = false,
+    bool big = false,
+    bool expanded = false,
+  }) {
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
-      return _common(
-        asset: 'microphone_${isAudio ? 'on' : 'off'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset: isAudio ? SvgIcons.callMicrophoneOn : SvgIcons.callMicrophoneOff,
         hinted: hinted,
+        expanded: expanded,
         withBlur: blur,
+        big: big,
+        constrained: c.isMobile,
         onPressed: c.toggleAudio,
       );
     });
@@ -151,23 +165,35 @@ class AudioButton extends CallButton {
 
 /// [CallButton] toggling a local screen-sharing.
 class ScreenButton extends CallButton {
-  const ScreenButton(CallController c) : super(c);
+  const ScreenButton(super.c);
 
   @override
   String get hint {
     bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
-    return isScreen ? 'btn_call_screen_off'.l10n : 'btn_call_screen_on'.l10n;
+
+    return c.isMobile
+        ? isScreen
+            ? 'btn_call_screen_off_desc'.l10n
+            : 'btn_call_screen_on_desc'.l10n
+        : isScreen
+            ? 'btn_call_screen_off'.l10n
+            : 'btn_call_screen_on'.l10n;
   }
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
       bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
-      return _common(
-        asset: 'screen_share_${isScreen ? 'off' : 'on'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset:
+            isScreen ? SvgIcons.callScreenShareOff : SvgIcons.callScreenShareOn,
         hinted: hinted,
+        expanded: expanded,
+        big: big,
+        constrained: c.isMobile,
         onPressed: () => c.toggleScreenShare(router.context!),
       );
     });
@@ -176,19 +202,29 @@ class ScreenButton extends CallButton {
 
 /// [CallButton] toggling hand.
 class HandButton extends CallButton {
-  const HandButton(CallController c) : super(c);
+  const HandButton(super.c);
 
   @override
-  String get hint => c.me.isHandRaised.value
-      ? 'btn_call_hand_down'.l10n
-      : 'btn_call_hand_up'.l10n;
+  String get hint => c.isMobile
+      ? c.me.isHandRaised.value
+          ? 'btn_call_hand_down_desc'.l10n
+          : 'btn_call_hand_up_desc'.l10n
+      : c.me.isHandRaised.value
+          ? 'btn_call_hand_down'.l10n
+          : 'btn_call_hand_up'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
-      return _common(
-        asset: 'hand_${c.me.isHandRaised.value ? 'down' : 'up'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset: c.me.isHandRaised.value
+            ? SvgIcons.callHandDown
+            : SvgIcons.callHandUp,
         hinted: hinted,
+        expanded: expanded,
+        big: big,
+        constrained: c.isMobile,
         onPressed: c.toggleHand,
       );
     });
@@ -197,16 +233,20 @@ class HandButton extends CallButton {
 
 /// [CallButton] invoking the [CallController.openSettings].
 class SettingsButton extends CallButton {
-  const SettingsButton(CallController c) : super(c);
+  const SettingsButton(super.c);
 
   @override
   String get hint => 'btn_call_settings'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
-    return _common(
-      asset: 'settings_small',
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callSettings,
       hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
       onPressed: () => c.openSettings(router.context!),
     );
   }
@@ -214,16 +254,22 @@ class SettingsButton extends CallButton {
 
 /// [CallButton] invoking the [CallController.openAddMember].
 class ParticipantsButton extends CallButton {
-  const ParticipantsButton(CallController c) : super(c);
+  const ParticipantsButton(super.c);
 
   @override
-  String get hint => 'btn_participants'.l10n;
+  String get hint =>
+      c.isMobile ? 'btn_participants_desc'.l10n : 'btn_participants'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
-    return _common(
-      asset: 'add_user_small',
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callParticipants,
+      offset: const Offset(2, 0),
       hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
       onPressed: () => c.openAddMember(router.context!),
     );
   }
@@ -231,19 +277,29 @@ class ParticipantsButton extends CallButton {
 
 /// [CallButton] toggling the remote video.
 class RemoteVideoButton extends CallButton {
-  const RemoteVideoButton(CallController c) : super(c);
+  const RemoteVideoButton(super.c);
 
   @override
-  String get hint => c.isRemoteVideoEnabled.value
-      ? 'btn_call_remote_video_off'.l10n
-      : 'btn_call_remote_video_on'.l10n;
+  String get hint => c.isMobile
+      ? c.isRemoteVideoEnabled.value
+          ? 'btn_call_remote_video_off_desc'.l10n
+          : 'btn_call_remote_video_on_desc'.l10n
+      : c.isRemoteVideoEnabled.value
+          ? 'btn_call_remote_video_off'.l10n
+          : 'btn_call_remote_video_on'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
-      return _common(
-        asset: 'incoming_video_${c.isRemoteVideoEnabled.value ? 'on' : 'off'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset: c.isRemoteVideoEnabled.value
+            ? SvgIcons.callIncomingVideoOn
+            : SvgIcons.callIncomingVideoOff,
         hinted: hinted,
+        expanded: expanded,
+        big: big,
+        constrained: c.isMobile,
         onPressed: c.toggleRemoteVideos,
       );
     });
@@ -252,19 +308,29 @@ class RemoteVideoButton extends CallButton {
 
 /// [CallButton] toggling the remote audio.
 class RemoteAudioButton extends CallButton {
-  const RemoteAudioButton(CallController c) : super(c);
+  const RemoteAudioButton(super.c);
 
   @override
-  String get hint => c.isRemoteAudioEnabled.value
-      ? 'btn_call_remote_audio_off'.l10n
-      : 'btn_call_remote_audio_on'.l10n;
+  String get hint => c.isMobile
+      ? c.isRemoteAudioEnabled.value
+          ? 'btn_call_remote_audio_off_desc'.l10n
+          : 'btn_call_remote_audio_on_desc'.l10n
+      : c.isRemoteAudioEnabled.value
+          ? 'btn_call_remote_audio_off'.l10n
+          : 'btn_call_remote_audio_on'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
-      return _common(
-        asset: 'speaker_${c.isRemoteAudioEnabled.value ? 'on' : 'off'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset: c.isRemoteAudioEnabled.value
+            ? SvgIcons.callIncomingAudioOn
+            : SvgIcons.callIncomingAudioOff,
         hinted: hinted,
+        expanded: expanded,
+        big: big,
+        constrained: c.isMobile,
         onPressed: c.toggleRemoteAudios,
       );
     });
@@ -282,16 +348,19 @@ class AcceptAudioButton extends CallButton {
   String get hint => 'btn_call_answer_with_audio'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool expanded = false}) {
+  Widget build({bool hinted = true, bool expanded = false, bool big = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _common(
-      asset: expanded ? 'audio_call_start' : 'audio_call',
-      assetWidth: expanded ? 29 : 24,
-      color: style.colors.acceptColor,
+    return CallButtonWidget(
+      hint: hint,
+      asset:
+          expanded ? SvgIcons.acceptAudioCall : SvgIcons.acceptAudioCallSmall,
+      color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      big: big,
+      constrained: c.isMobile,
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
@@ -311,15 +380,18 @@ class AcceptVideoButton extends CallButton {
   String get hint => 'btn_call_answer_with_video'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool expanded = false}) {
+  Widget build({bool hinted = true, bool expanded = false, bool big = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _common(
-      asset: 'video_on',
-      color: style.colors.acceptColor,
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callVideoOn,
+      color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      big: big,
+      constrained: c.isMobile,
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
@@ -330,62 +402,54 @@ class AcceptVideoButton extends CallButton {
 
 /// [RoundFloatingButton] declining a call.
 class DeclineButton extends CallButton {
-  const DeclineButton(CallController c) : super(c);
+  const DeclineButton(super.c);
 
   @override
   String get hint => 'btn_call_decline'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool expanded = false}) {
+  Widget build({bool hinted = true, bool expanded = false, bool big = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _common(
-      asset: 'call_end',
-      color: style.colors.declineColor,
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callEndBig,
+      color: style.colors.decline,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
+      big: big,
+      constrained: c.isMobile,
       onPressed: c.decline,
-    );
-  }
-}
-
-/// [RoundFloatingButton] dropping a call.
-class DropButton extends CallButton {
-  const DropButton(CallController c) : super(c);
-
-  @override
-  String get hint => 'btn_call_end'.l10n;
-
-  @override
-  Widget build({bool hinted = true}) {
-    final style = Theme.of(router.context!).style;
-
-    return _common(
-      asset: 'call_end',
-      color: style.colors.declineColor,
-      hinted: hinted,
-      onPressed: c.drop,
     );
   }
 }
 
 /// [RoundFloatingButton] canceling an outgoing call.
 class CancelButton extends CallButton {
-  const CancelButton(CallController c) : super(c);
+  const CancelButton(super.c);
 
   @override
   String get hint => 'btn_call_cancel'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build({
+    bool hinted = true,
+    bool blur = false,
+    bool big = false,
+    bool expanded = false,
+  }) {
     final style = Theme.of(router.context!).style;
 
-    return _common(
-      asset: 'call_end',
-      color: style.colors.declineColor,
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callEndBig,
+      color: style.colors.decline,
       hinted: hinted,
+      expanded: expanded,
       withBlur: blur,
+      big: big,
+      constrained: c.isMobile,
       onPressed: c.drop,
     );
   }
@@ -393,22 +457,27 @@ class CancelButton extends CallButton {
 
 /// [CallButton] ending the call.
 class EndCallButton extends CallButton {
-  const EndCallButton(CallController c) : super(c);
+  const EndCallButton(super.c);
 
   @override
   bool get isRemovable => false;
 
   @override
-  String get hint => 'btn_call_end'.l10n;
+  String get hint =>
+      c.isMobile ? 'btn_call_end_desc'.l10n : 'btn_call_end'.l10n;
 
   @override
-  Widget build({bool hinted = true}) {
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     final style = Theme.of(router.context!).style;
 
-    return _common(
-      asset: 'call_end',
-      color: style.colors.declineColor,
+    return CallButtonWidget(
+      asset: SvgIcons.callEndBig,
+      hint: hint,
+      color: style.colors.decline,
       hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
       onPressed: c.drop,
     );
   }
@@ -416,18 +485,31 @@ class EndCallButton extends CallButton {
 
 /// [RoundFloatingButton] switching a speaker output.
 class SpeakerButton extends CallButton {
-  const SpeakerButton(CallController c) : super(c);
+  const SpeakerButton(super.c);
 
   @override
-  String get hint => 'btn_call_toggle_speaker'.l10n;
+  String get hint => c.isMobile
+      ? 'btn_call_toggle_speaker_desc'.l10n
+      : 'btn_call_toggle_speaker'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build({
+    bool hinted = true,
+    bool blur = false,
+    bool big = false,
+    bool expanded = false,
+  }) {
     return Obx(() {
-      return _common(
-        asset: 'speaker_${c.speakerSwitched.value ? 'on' : 'off'}',
+      return CallButtonWidget(
+        hint: hint,
+        asset: c.isRemoteAudioEnabled.value
+            ? SvgIcons.callIncomingAudioOn
+            : SvgIcons.callIncomingAudioOff,
         hinted: hinted,
+        expanded: expanded,
         withBlur: blur,
+        big: big,
+        constrained: c.isMobile,
         onPressed: c.toggleSpeaker,
       );
     });
@@ -436,43 +518,35 @@ class SpeakerButton extends CallButton {
 
 /// [RoundFloatingButton] switching a local video stream.
 class SwitchButton extends CallButton {
-  const SwitchButton(CallController c) : super(c);
+  const SwitchButton(super.c);
 
   @override
-  String get hint => 'btn_call_switch_camera'.l10n;
+  String get hint => c.isMobile
+      ? 'btn_call_switch_camera_desc'.l10n
+      : 'btn_call_switch_camera'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool blur = false}) {
+  Widget build({
+    bool hinted = true,
+    bool blur = false,
+    bool big = false,
+    bool expanded = false,
+  }) {
     return Obx(() {
-      return _common(
-        asset: 'camera_${c.cameraSwitched.value ? 'front' : 'back'}',
-        assetWidth: 28,
+      return CallButtonWidget(
+        hint: hint,
+        asset: c.cameraSwitched.value
+            ? SvgIcons.callCameraFront
+            : SvgIcons.callCameraBack,
         hinted: hinted,
+        expanded: expanded,
         withBlur: blur,
+        big: big,
+        constrained: c.isMobile,
         onPressed: c.switchCamera,
       );
     });
   }
-}
-
-/// Returns a [Column] consisting of the [child] with the provided
-/// [description].
-Widget withDescription(Widget child, Widget description) {
-  final (style, fonts) = Theme.of(router.context!).styles;
-
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      child,
-      const SizedBox(height: 6),
-      DefaultTextStyle(
-        style: fonts.bodySmall!.copyWith(color: style.colors.onPrimary),
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        child: description,
-      ),
-    ],
-  );
 }
 
 /// Returns a [Widget] building the title call information.

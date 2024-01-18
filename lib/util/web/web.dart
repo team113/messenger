@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,6 +28,7 @@ import 'dart:js';
 import 'dart:js_util';
 import 'dart:math';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
@@ -38,6 +39,7 @@ import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
 import '../platform_utils.dart';
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/routes.dart';
@@ -111,9 +113,8 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
-/// Helper providing direct access to browser-only features.
-///
-/// Does nothing on desktop or mobile.
+/// Helper providing access to features having different implementations in
+/// browser and on native platforms.
 class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
@@ -235,6 +236,23 @@ class WebUtils {
         html.document.removeEventListener('mouseenter', enterListener);
         html.document.removeEventListener('mouseleave', leaveListener);
       },
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the browser's broadcast channel changes.
+  static Stream<dynamic> get onBroadcastMessage {
+    StreamController<dynamic>? controller;
+    StreamSubscription? subscription;
+
+    final channel = html.BroadcastChannel('fcm');
+
+    controller = StreamController(
+      onListen: () {
+        subscription = channel.onMessage.listen((e) => controller?.add(e.data));
+      },
+      onCancel: () => subscription?.cancel(),
     );
 
     return controller.stream;
@@ -500,7 +518,7 @@ class WebUtils {
 
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
-    final Response response = await PlatformUtils.dio.head(url);
+    final Response response = await (await PlatformUtils.dio).head(url);
     if (response.statusCode != 200) {
       throw Exception('Cannot download file');
     }
@@ -520,8 +538,12 @@ class WebUtils {
         await html.window.navigator.permissions?.query({'name': 'camera'});
 
     if (status?.state != 'granted') {
-      html.MediaStream stream =
-          await html.window.navigator.getUserMedia(video: true);
+      final html.MediaStream? stream = await html.window.navigator.mediaDevices
+          ?.getUserMedia({'video': true});
+
+      if (stream == null) {
+        throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
 
       for (var e in stream.getTracks()) {
         e.stop();
@@ -535,8 +557,12 @@ class WebUtils {
         await html.window.navigator.permissions?.query({'name': 'microphone'});
 
     if (status?.state != 'granted') {
-      html.MediaStream stream =
-          await html.window.navigator.getUserMedia(audio: true);
+      final html.MediaStream? stream = await html.window.navigator.mediaDevices
+          ?.getUserMedia({'audio': true});
+
+      if (stream == null) {
+        throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
 
       for (var e in stream.getTracks()) {
         e.stop();
@@ -572,6 +598,18 @@ class WebUtils {
   /// Sets callback to be fired whenever Rust code panics.
   static void onPanic(void Function(String)? cb) {
     // No-op.
+  }
+
+  /// Deletes the loader element.
+  static void deleteLoader() {
+    html.document.getElementById('loader')?.remove();
+  }
+
+  /// Returns the `User-Agent` header to put in the network queries.
+  static Future<String> get userAgent async {
+    final info = await DeviceInfoPlugin().webBrowserInfo;
+    return info.userAgent ??
+        '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
 }
 

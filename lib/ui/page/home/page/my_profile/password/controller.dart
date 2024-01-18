@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -74,20 +74,7 @@ class ChangePasswordController extends GetxController {
     oldPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
-        newPassword.error.value = null;
-        repeatPassword.error.value = null;
-        try {
-          UserPassword(s.text);
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) => newPassword.focus.requestFocus(),
-    );
-    newPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        repeatPassword.error.value = null;
+        repeatPassword.unsubmit();
 
         try {
           UserPassword(s.text);
@@ -95,12 +82,35 @@ class ChangePasswordController extends GetxController {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
-      onSubmitted: (s) => repeatPassword.focus.requestFocus(),
+      onSubmitted: (s) {
+        newPassword.focus.requestFocus();
+        s.unsubmit();
+      },
     );
+
+    newPassword = TextFieldState(
+      onChanged: (s) {
+        s.error.value = null;
+        repeatPassword.error.value = null;
+        repeatPassword.unsubmit();
+
+        try {
+          UserPassword(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) {
+        repeatPassword.focus.requestFocus();
+        s.unsubmit();
+      },
+    );
+
     repeatPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
         newPassword.error.value = null;
+
         if (s.text != newPassword.text && newPassword.isValidated) {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
@@ -141,6 +151,7 @@ class ChangePasswordController extends GetxController {
       oldPassword.editable.value = false;
       newPassword.editable.value = false;
       repeatPassword.editable.value = false;
+      newPassword.status.value = RxStatus.loading();
       repeatPassword.status.value = RxStatus.loading();
       try {
         final bool hadPassword = myUser.value?.hasPassword ?? false;
@@ -158,6 +169,7 @@ class ChangePasswordController extends GetxController {
         repeatPassword.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {
+        newPassword.status.value = RxStatus.empty();
         repeatPassword.status.value = RxStatus.empty();
         oldPassword.editable.value = true;
         newPassword.editable.value = true;

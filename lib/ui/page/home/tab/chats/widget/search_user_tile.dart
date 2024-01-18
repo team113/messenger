@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -49,7 +49,7 @@ class SearchUserTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return Obx(() {
       final ChatId? chatId =
@@ -73,19 +73,15 @@ class SearchUserTile extends StatelessWidget {
           subtitle: [
             const SizedBox(height: 5),
             Text(
-              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num.val ?? user?.user.value.num.val)?.replaceAllMapped(
-                RegExp(r'.{4}'),
-                (match) => '${match.group(0)} ',
-              )}',
-              style: fonts.labelMedium!.copyWith(
-                color:
-                    selected ? style.colors.onPrimary : style.colors.secondary,
-              ),
+              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num ?? user?.user.value.num)}',
+              style: selected
+                  ? style.fonts.small.regular.onPrimary
+                  : style.fonts.small.regular.secondary,
             ),
           ],
           trailing: [
-            if (user?.user.value.isBlacklisted != null ||
-                contact?.user.value?.user.value.isBlacklisted != null)
+            if (user?.user.value.isBlocked != null ||
+                contact?.user.value?.user.value.isBlocked != null)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(

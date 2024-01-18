@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,14 +21,13 @@ import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
-import '/domain/model/gallery_item.dart';
-import '/domain/model/image_gallery_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 part 'my_user.g.dart';
@@ -43,24 +42,24 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(BlacklistReasonAdapter());
-    Hive.maybeRegisterAdapter(BlacklistRecordAdapter());
+    Log.debug('registerAdapters()', '$runtimeType');
+
+    Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
+    Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkSlugAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkVersionAdapter());
     Hive.maybeRegisterAdapter(CropPointAdapter());
-    Hive.maybeRegisterAdapter(GalleryItemIdAdapter());
     Hive.maybeRegisterAdapter(HiveMyUserAdapter());
-    Hive.maybeRegisterAdapter(ImageGalleryItemAdapter());
+    Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(MyUserAdapter());
     Hive.maybeRegisterAdapter(MyUserEmailsAdapter());
     Hive.maybeRegisterAdapter(MyUserPhonesAdapter());
     Hive.maybeRegisterAdapter(MyUserVersionAdapter());
+    Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
-    Hive.maybeRegisterAdapter(StorageFileAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
-    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
@@ -75,7 +74,10 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   HiveMyUser? get myUser => getSafe(0);
 
   /// Saves the provided [MyUser] in [Hive].
-  Future<void> set(HiveMyUser user) => putSafe(0, user);
+  Future<void> set(HiveMyUser user) async {
+    Log.debug('set($user)', '$runtimeType');
+    await putSafe(0, user);
+  }
 }
 
 /// Persisted in [Hive] storage [MyUser]'s [value].
@@ -96,4 +98,7 @@ class HiveMyUser extends HiveObject {
   /// tracking state's actuality.
   @HiveField(1)
   MyUserVersion ver;
+
+  @override
+  String toString() => '$runtimeType($value, $ver)';
 }

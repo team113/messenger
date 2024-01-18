@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -55,6 +55,7 @@ class MyUserWorker extends DisposableService {
 
   @override
   void onClose() {
+    _updateBadge(0);
     _worker?.dispose();
     router.prefix.value = null;
     _updateBadge(0);

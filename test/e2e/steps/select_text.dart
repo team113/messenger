@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -64,10 +64,10 @@ final StepDefinitionGeneric selectMessageText =
 
     // Returns an [Offset] of the provided [paragraph].
     Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
-      const Rect caret = Rect.fromLTWH(0.0, 0.0, 2.0, 20.0);
+      const Rect caret = Rect.fromLTWH(0.0, 6.0, 2.0, 20.0);
       final Offset localOffset =
           paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
-      return paragraph.localToGlobal(localOffset);
+      return paragraph.localToGlobal(localOffset + const Offset(0, 10));
     }
 
     final TestGesture gesture =
@@ -75,12 +75,16 @@ final StepDefinitionGeneric selectMessageText =
       textOffsetToPosition(paragraph, from),
       kind: PointerDeviceKind.mouse,
     );
-    await gesture
-        .moveTo(textOffsetToPosition(paragraph, from).translate(0, 10));
+
+    await context.world.appDriver.nativeDriver
+        .pump(const Duration(milliseconds: 100));
+
     await gesture.moveTo(textOffsetToPosition(paragraph, to));
-    await context.world.appDriver.nativeDriver.pump();
-    await gesture.cancel();
-    await context.world.appDriver.nativeDriver.pump();
+
+    await context.world.appDriver.nativeDriver
+        .pump(const Duration(milliseconds: 500));
+
+    await gesture.up();
   },
 );
 

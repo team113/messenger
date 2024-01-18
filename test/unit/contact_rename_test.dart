@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,8 +28,10 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/contact_sorting.dart';
+import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/favorite_contact.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
@@ -42,11 +44,9 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
-  var sessionData = Get.put(SessionDataHiveProvider());
-  await sessionData.init();
-  await sessionData.clear();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
+  var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
+  await credentialsHiveProvider.init();
+  await credentialsHiveProvider.clear();
   var userHiveProvider = Get.put(UserHiveProvider());
   await userHiveProvider.init();
   var contactProvider = Get.put(ContactHiveProvider());
@@ -54,32 +54,66 @@ void main() async {
   await contactProvider.clear();
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
+  var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
+  await sessionDataHiveProvider.init();
+  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
+  await favoriteContactHiveProvider.init();
+  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
+  await contactSortingHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.contactsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   setUp(() async {
     Get.reset();
-    await sessionData.clear();
+    await credentialsHiveProvider.clear();
     await contactProvider.clear();
   });
 
-  var chatContactsData = {
-    'nodes': [
-      {
-        '__typename': 'ChatContact',
-        'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
-        'name': 'test',
-        'users': [],
-        'groups': [],
-        'emails': [],
-        'phones': [],
-        'favoritePosition': null,
-        'ver': '123456'
-      }
-    ],
+  var chatContact = {
+    '__typename': 'ChatContact',
+    'id': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+    'name': 'test',
+    'users': [],
+    'groups': [],
+    'emails': [],
+    'phones': [],
+    'favoritePosition': null,
     'ver': '0'
+  };
+
+  var chatContactsData = {
+    'nodes': [chatContact],
+    'ver': '0'
+  };
+
+  var chatContacts = {
+    'chatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
+  };
+
+  var favoriteChatContacts = {
+    'favoriteChatContacts': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    }
   };
 
   var updateChatContact = {
@@ -99,16 +133,17 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo =
-        UserRepository(graphQlProvider, userHiveProvider, galleryItemProvider);
+    UserRepository userRepo = UserRepository(graphQlProvider, userHiveProvider);
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(
       ContactRepository(
         graphQlProvider,
         contactProvider,
+        favoriteContactHiveProvider,
+        contactSortingHiveProvider,
         userRepo,
-        sessionData,
+        sessionDataHiveProvider,
       ),
     );
 
@@ -132,13 +167,25 @@ void main() async {
       ]),
     );
 
-    when(graphQlProvider.recentChats(
-      first: 120,
+    when(graphQlProvider.chatContacts(
+      first: anyNamed('first'),
+      noFavorite: true,
+      before: null,
       after: null,
       last: null,
+    )).thenAnswer((_) =>
+        Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
+
+    when(graphQlProvider.favoriteChatContacts(
+      first: anyNamed('first'),
       before: null,
+      after: null,
+      last: null,
     )).thenAnswer(
-        (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
+      (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
+          .favoriteChatContacts),
+    );
+
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(
@@ -148,8 +195,8 @@ void main() async {
       ),
     ).thenAnswer(
       (_) => Future.value(UpdateChatContactName$Mutation.fromJson(
-                  updateChatContact)
-              .updateChatContactName
+        updateChatContact,
+      ).updateChatContactName
           as UpdateChatContactName$Mutation$UpdateChatContactName$ChatContactEventsVersioned),
     );
 
@@ -185,11 +232,6 @@ void main() async {
         )
       ]),
     );
-
-    when(graphQlProvider.recentChats(
-            first: 120, after: null, last: null, before: null))
-        .thenAnswer(
-            (_) => Future.value(RecentChats$Query.fromJson(chatContactsData)));
 
     when(
       graphQlProvider.changeContactName(

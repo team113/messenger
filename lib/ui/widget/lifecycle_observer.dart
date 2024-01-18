@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,42 +17,38 @@
 
 import 'package:flutter/material.dart';
 
-/// Reporter of [AppLifecycleState] changes via a [didChangeAppLifecycleState].
+/// Reporter of [AppLifecycleState] changes via a [onStateChange].
 class LifecycleObserver extends StatefulWidget {
   const LifecycleObserver({
-    Key? key,
+    super.key,
     required this.child,
-    this.didChangeAppLifecycleState,
-  }) : super(key: key);
+    this.onStateChange,
+  });
 
   /// [Widget] to wrap this [LifecycleObserver] into.
   final Widget child;
 
   /// Callback, called when the [AppLifecycleState] is changed.
-  final void Function(AppLifecycleState state)? didChangeAppLifecycleState;
+  final void Function(AppLifecycleState state)? onStateChange;
 
   @override
   State<LifecycleObserver> createState() => _LifecycleObserverState();
 }
 
 /// State of a [LifecycleObserver] used to observe the [AppLifecycleState].
-class _LifecycleObserverState extends State<LifecycleObserver>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
+class _LifecycleObserverState extends State<LifecycleObserver> {
+  /// [AppLifecycleListener] listening for [AppLifecycleState] changes.
+  late final AppLifecycleListener _listener;
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    widget.didChangeAppLifecycleState?.call(state);
-    super.didChangeAppLifecycleState(state);
+  void initState() {
+    _listener = AppLifecycleListener(onStateChange: widget.onStateChange);
+    super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _listener.dispose();
     super.dispose();
   }
 

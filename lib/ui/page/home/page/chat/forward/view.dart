@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,10 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
@@ -38,12 +41,13 @@ import 'controller.dart';
 /// Intended to be displayed with the [show] method.
 class ChatForwardView extends StatelessWidget {
   const ChatForwardView({
-    Key? key,
+    super.key,
     required this.from,
     required this.quotes,
     this.text,
     this.attachments = const [],
-  }) : super(key: key);
+    this.onSent,
+  });
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
@@ -57,6 +61,9 @@ class ChatForwardView extends StatelessWidget {
   /// Initial [Attachment]s to attach to the provided [quotes].
   final List<Attachment> attachments;
 
+  /// Callback, called when the [quotes] are sent.
+  final void Function()? onSent;
+
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
@@ -64,6 +71,7 @@ class ChatForwardView extends StatelessWidget {
     List<ChatItemQuoteInput> quotes, {
     String? text,
     List<Attachment> attachments = const [],
+    void Function()? onSent,
   }) {
     return ModalPopup.show(
       context: context,
@@ -77,8 +85,9 @@ class ChatForwardView extends StatelessWidget {
         key: const Key('ChatForwardView'),
         from: from,
         quotes: quotes,
-        attachments: attachments,
         text: text,
+        attachments: attachments,
+        onSent: onSent,
       ),
     );
   }
@@ -91,11 +100,13 @@ class ChatForwardView extends StatelessWidget {
       init: ChatForwardController(
         Get.find(),
         Get.find(),
+        Get.find(),
         from: from,
         quotes: quotes,
         text: text,
         attachments: attachments,
-        pop: () => Navigator.of(context).pop(true),
+        onSent: onSent,
+        pop: context.popModal,
       ),
       builder: (ChatForwardController c) {
         return Obx(() {
@@ -142,7 +153,7 @@ class ChatForwardView extends StatelessWidget {
                   ),
                 ),
                 IgnorePointer(
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.isDraggingFiles.value
                         ? Container(
@@ -159,13 +170,9 @@ class ChatForwardView extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                       color: style.colors.onBackgroundOpacity27,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: style.colors.onPrimary,
-                                      ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),

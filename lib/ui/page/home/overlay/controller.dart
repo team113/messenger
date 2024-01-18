@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -61,6 +61,9 @@ class CallOverlayController extends GetxController {
     _subscription = _callService.calls.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
+          // Unfocus any inputs being active.
+          FocusManager.instance.primaryFocus?.unfocus();
+
           bool window = false;
 
           var ongoingCall = event.value!.value;

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,14 +29,21 @@ import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
+import '../widget/dock_decorator.dart';
+import '../widget/double_bounce_indicator.dart';
+import '../widget/drop_box.dart';
+import '../widget/drop_box_area.dart';
 import '../widget/hint.dart';
+import '../widget/launchpad.dart';
+import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
-import '../widget/tooltip_button.dart';
+import '../widget/title_bar.dart';
 import '../widget/video_view.dart';
+import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
@@ -46,8 +53,8 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
@@ -57,13 +64,13 @@ import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
 Widget desktopCall(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
       List<Widget> content = [
-        SvgImage.asset(
+        const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
           height: double.infinity,
@@ -95,7 +102,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: style.colors.onSecondaryOpacity20,
+                color: style.colors.primaryAuxiliaryOpacity25,
               ),
             ),
           );
@@ -137,15 +144,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   c.state.value != OngoingCallState.joining &&
                                   !isOutgoing;
 
-                          final bool isDialog =
-                              c.chat.value?.chat.value.isDialog == true;
-
                           final Widget child;
 
                           if (!isIncoming) {
                             child = _primaryView(c);
                           } else {
-                            if (isDialog) {
+                            if (c.isDialog) {
                               final User? user = c.chat.value?.members.values
                                       .firstWhereOrNull(
                                         (e) => e.id != c.me.id.userId,
@@ -180,7 +184,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             }
                           }
 
-                          return AnimatedSwitcher(
+                          return SafeAnimatedSwitcher(
                             duration: 400.milliseconds,
                             child: child,
                           );
@@ -231,7 +235,39 @@ Widget desktopCall(CallController c, BuildContext context) {
             );
           }
 
-          return AnimatedSwitcher(duration: 200.milliseconds, child: child);
+          return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
+        }),
+
+        // Reconnection indicator.
+        Obx(() {
+          final Widget child = IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.onBackgroundOpacity70,
+              padding: const EdgeInsets.all(21.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!Config.disableInfiniteAnimations)
+                      const DoubleBounceLoadingIndicator(),
+                    const SizedBox(height: 16),
+                    Text(
+                      'label_reconnecting_ellipsis'.l10n,
+                      style: style.fonts.normal.regular.onPrimary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          return AnimatedOpacity(
+            opacity: c.connectionLost.isTrue ? 1 : 0,
+            duration: 200.milliseconds,
+            child: child,
+          );
         }),
 
         possibleContainer(),
@@ -263,17 +299,55 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
 
         // Empty drop zone if [secondary] is empty.
-        _secondaryTarget(c),
+        Obx(() {
+          final Axis secondaryAxis =
+              c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
+
+          /// Pre-calculate the [ReorderableFit]'s size.
+          final double panelSize = max(
+            ReorderableFit.calculateSize(
+              maxSize: c.size.shortestSide / 4,
+              constraints: Size(c.size.width, c.size.height - 45),
+              axis: c.size.width >= c.size.height
+                  ? Axis.horizontal
+                  : Axis.vertical,
+              length: c.secondary.length,
+            ),
+            130,
+          );
+
+          return SafeAnimatedSwitcher(
+            key: const Key('SecondaryTargetAnimatedSwitcher'),
+            duration: 200.milliseconds,
+            child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
+                ? DropBoxArea<_DragData>(
+                    size: panelSize,
+                    axis: secondaryAxis,
+                    visible: c.primaryDrags.value >= 1,
+                    onWillAccept: (d) => d?.chatId == c.chatId.value,
+                    onAccept: (_DragData d) {
+                      if (secondaryAxis == Axis.horizontal) {
+                        c.secondaryAlignment.value = Alignment.centerRight;
+                      } else {
+                        c.secondaryAlignment.value = Alignment.topCenter;
+                      }
+
+                      c.unfocus(d.participant);
+                    },
+                  )
+                : const SizedBox(),
+          );
+        })
       ]);
 
-      /// Builds the [Dock] containing the [CallController.buttons].
+      // Builds the [Dock] containing the [CallController.buttons].
       Widget dock() {
         return Obx(() {
           final bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
                   !c.started;
 
-          bool showBottomUi = (c.showUi.isTrue ||
+          final bool showBottomUi = (c.showUi.isTrue ||
               c.draggedButton.value != null ||
               c.state.value != OngoingCallState.active ||
               (c.state.value == OngoingCallState.active &&
@@ -282,251 +356,117 @@ Widget desktopCall(CallController c, BuildContext context) {
                   c.focused.isEmpty &&
                   c.paneled.isEmpty));
 
-          return AnimatedPadding(
-            key: const Key('DockedAnimatedPadding'),
-            padding: const EdgeInsets.only(bottom: 5),
-            curve: Curves.ease,
-            duration: 200.milliseconds,
-            child: AnimatedSwitcher(
-              key: const Key('DockedAnimatedSwitcher'),
-              duration: 200.milliseconds,
-              child: AnimatedSlider(
-                key: const Key('DockedPanelPadding'),
-                isOpen: showBottomUi,
-                duration: 400.milliseconds,
-                translate: false,
-                listener: () =>
-                    Future.delayed(Duration.zero, c.relocateSecondary),
-                child: MouseRegion(
-                  onEnter: (d) => c.keepUi(true),
-                  onHover: (d) => c.keepUi(true),
-                  onExit: c.showUi.value && !c.displayMore.value
-                      ? (d) => c.keepUi(false)
-                      : (d) => c.keepUi(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: style.colors.transparent,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        CustomBoxShadow(
-                          color: style.colors.onBackgroundOpacity20,
-                          blurRadius: 8,
-                          blurStyle: BlurStyle.outer,
-                        )
-                      ],
-                    ),
-                    margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                    child: ConditionalBackdropFilter(
-                      key: c.dockKey,
-                      borderRadius: BorderRadius.circular(30),
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: style.colors.onSecondaryOpacity20,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 13,
-                          horizontal: 5,
-                        ),
-                        child: Obx(() {
-                          final bool answer =
-                              (c.state.value != OngoingCallState.joining &&
-                                  c.state.value != OngoingCallState.active &&
-                                  !isOutgoing);
+          final bool answer = (c.state.value != OngoingCallState.joining &&
+              c.state.value != OngoingCallState.active &&
+              !isOutgoing);
 
-                          if (answer) {
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(width: 11),
-                                SizedBox.square(
-                                  dimension: CallController.buttonSize,
-                                  child: AcceptAudioButton(
-                                    c,
-                                    highlight: !c.withVideo,
-                                  ).build(),
-                                ),
-                                const SizedBox(width: 24),
-                                SizedBox.square(
-                                  dimension: CallController.buttonSize,
-                                  child: AcceptVideoButton(
-                                    c,
-                                    highlight: c.withVideo,
-                                  ).build(),
-                                ),
-                                const SizedBox(width: 24),
-                                SizedBox.square(
-                                  dimension: CallController.buttonSize,
-                                  child: DeclineButton(c).build(),
-                                ),
-                                const SizedBox(width: 11),
-                              ],
-                            );
-                          } else {
-                            return Dock<CallButton>(
-                              items: c.buttons,
-                              itemWidth: CallController.buttonSize,
-                              itemBuilder: (e) => e.build(
-                                hinted: c.draggedButton.value == null,
-                              ),
-                              onReorder: (buttons) {
-                                c.buttons.clear();
-                                c.buttons.addAll(buttons);
-                                c.relocateSecondary();
-                              },
-                              onDragStarted: (b) {
-                                c.showDragAndDropButtonsHint = false;
-                                c.draggedButton.value = b;
-                              },
-                              onDragEnded: (_) => c.draggedButton.value = null,
-                              onLeave: (_) => c.displayMore.value = true,
-                              onWillAccept: (d) => d?.c == c,
-                            );
-                          }
-                        }),
+          final Widget child;
+
+          if (answer) {
+            child = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 11),
+                AcceptAudioButton(c, highlight: !c.withVideo).build(),
+                const SizedBox(width: 24),
+                AcceptVideoButton(c, highlight: c.withVideo).build(),
+                const SizedBox(width: 24),
+                DeclineButton(c).build(),
+                const SizedBox(width: 11),
+              ],
+            );
+          } else {
+            child = Dock<CallButton>(
+              items: c.buttons,
+              itemWidth: CallController.buttonSize,
+              itemBuilder: (e) => e.build(
+                hinted: c.draggedButton.value == null,
+              ),
+              onReorder: (buttons) {
+                c.buttons.clear();
+                c.buttons.addAll(buttons);
+                c.relocateSecondary();
+              },
+              onDragStarted: (b) {
+                c.showDragAndDropButtonsHint = false;
+                c.draggedButton.value = b;
+              },
+              onDragEnded: (_) => c.draggedButton.value = null,
+              onLeave: (_) => c.displayMore.value = true,
+              onWillAccept: (d) => d?.c == c,
+            );
+          }
+
+          return DockDecorator(
+            show: showBottomUi,
+            dockKey: c.dockKey,
+            onAnimation: () =>
+                Future.delayed(Duration.zero, c.relocateSecondary),
+            onEnter: (d) => c.keepUi(true),
+            onHover: (d) => c.keepUi(true),
+            onExit: c.showUi.value && !c.displayMore.value
+                ? (d) => c.keepUi(false)
+                : (d) => c.keepUi(),
+            child: child,
+          );
+        });
+      }
+
+      // Builds the [Launchpad] panel containing the [CallController.panel].
+      Widget launchpad() {
+        return Obx(() {
+          bool enabled = c.displayMore.isTrue &&
+              c.primaryDrags.value == 0 &&
+              c.secondaryDrags.value == 0;
+
+          return Flexible(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 150),
+              opacity: c.displayMore.value ? 1 : 0,
+              child: IgnorePointer(
+                ignoring: !c.displayMore.value,
+                child: Launchpad(
+                  onEnter: enabled ? (d) => c.keepUi(true) : null,
+                  onHover: enabled ? (d) => c.keepUi(true) : null,
+                  onExit: enabled ? (d) => c.keepUi() : null,
+                  onAccept: (CallButton data) {
+                    c.buttons.remove(data);
+                    c.draggedButton.value = null;
+                  },
+                  onWillAccept: (CallButton? a) =>
+                      a?.c == c && a?.isRemovable == true,
+                  children: c.panel.map((e) {
+                    return DelayedDraggable(
+                      feedback: Transform.translate(
+                        offset: const Offset(
+                          CallController.buttonSize / 2 * -1,
+                          CallController.buttonSize / 2 * -1,
+                        ),
+                        child: e.build(),
                       ),
-                    ),
-                  ),
+                      data: e,
+                      onDragStarted: () {
+                        c.showDragAndDropButtonsHint = false;
+                        c.draggedButton.value = e;
+                      },
+                      onDragCompleted: () => c.draggedButton.value = null,
+                      onDragEnd: (_) => c.draggedButton.value = null,
+                      onDraggableCanceled: (_, __) =>
+                          c.draggedButton.value = null,
+                      maxSimultaneousDrags: e.isRemovable ? null : 0,
+                      dragAnchorStrategy: pointerDragAnchorStrategy,
+                      child: e.build(
+                        hinted: false,
+                        big: true,
+                        expanded: true,
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             ),
           );
         });
-      }
-
-      /// Builds the more panel containing the [CallController.panel].
-      Widget launchpad() {
-        Widget builder(
-          BuildContext context,
-          List<CallButton?> candidate,
-          List<dynamic> rejected,
-        ) {
-          return Obx(() {
-            bool enabled = c.displayMore.isTrue &&
-                c.primaryDrags.value == 0 &&
-                c.secondaryDrags.value == 0;
-
-            return MouseRegion(
-              onEnter: enabled ? (d) => c.keepUi(true) : null,
-              onHover: enabled ? (d) => c.keepUi(true) : null,
-              onExit: enabled ? (d) => c.keepUi() : null,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: style.colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    CustomBoxShadow(
-                      color: style.colors.onBackgroundOpacity20,
-                      blurRadius: 8,
-                      blurStyle: BlurStyle.outer,
-                    )
-                  ],
-                ),
-                margin: const EdgeInsets.all(2),
-                child: ConditionalBackdropFilter(
-                  borderRadius: BorderRadius.circular(30),
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: Obx(() {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      decoration: BoxDecoration(
-                        color: candidate.any((e) => e?.c == c)
-                            ? style.colors.onSecondaryOpacity88
-                            : style.colors.onSecondaryOpacity60,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 440),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 35),
-                            Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.start,
-                              alignment: WrapAlignment.center,
-                              spacing: 4,
-                              runSpacing: 21,
-                              children: c.panel.map((e) {
-                                return SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: Column(
-                                    children: [
-                                      DelayedDraggable(
-                                        feedback: Transform.translate(
-                                          offset: const Offset(
-                                            CallController.buttonSize / 2 * -1,
-                                            CallController.buttonSize / 2 * -1,
-                                          ),
-                                          child: SizedBox(
-                                            height: CallController.buttonSize,
-                                            width: CallController.buttonSize,
-                                            child: e.build(),
-                                          ),
-                                        ),
-                                        data: e,
-                                        onDragStarted: () {
-                                          c.showDragAndDropButtonsHint = false;
-                                          c.draggedButton.value = e;
-                                        },
-                                        onDragCompleted: () =>
-                                            c.draggedButton.value = null,
-                                        onDragEnd: (_) =>
-                                            c.draggedButton.value = null,
-                                        onDraggableCanceled: (_, __) =>
-                                            c.draggedButton.value = null,
-                                        maxSimultaneousDrags:
-                                            e.isRemovable ? null : 0,
-                                        dragAnchorStrategy:
-                                            pointerDragAnchorStrategy,
-                                        child: e.build(hinted: false),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        e.hint,
-                                        style: fonts.labelSmall!.copyWith(
-                                          color: style.colors.onPrimary,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-            );
-          });
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 30),
-          child: Obx(() {
-            return AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: c.displayMore.value
-                  ? DragTarget<CallButton>(
-                      onAccept: (CallButton data) {
-                        c.buttons.remove(data);
-                        c.draggedButton.value = null;
-                      },
-                      onWillAccept: (CallButton? a) =>
-                          a?.c == c && a?.isRemovable == true,
-                      builder: builder,
-                    )
-                  : Container(),
-            );
-          }),
-        );
       }
 
       // Footer part of the call with buttons.
@@ -555,7 +495,7 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Display the more hint, if not dismissed.
         Obx(() {
-          return AnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             duration: 150.milliseconds,
             child: c.showDragAndDropButtonsHint && c.displayMore.value
                 ? Align(
@@ -596,7 +536,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         IgnorePointer(
           child: Obx(() {
             bool preferTitle = c.state.value != OngoingCallState.active;
-            return AnimatedSwitcher(
+            return SafeAnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: preferTitle &&
                       c.primary
@@ -632,7 +572,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           final bool preferTitle =
               c.state.value != OngoingCallState.active && !isOutgoing;
 
-          return AnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcherCallTitle'),
             duration: const Duration(milliseconds: 200),
             child: preferTitle
@@ -688,7 +628,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: style.colors.onSecondaryOpacity20,
+                        color: style.colors.primaryAuxiliaryOpacity25,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
@@ -697,9 +637,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       child: Text(
                         'label_call_title'.l10nfmt(c.titleArguments),
-                        style: fonts.labelMedium!.copyWith(
-                          color: style.colors.onPrimary,
-                        ),
+                        style: style.fonts.small.regular.onPrimary,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -783,7 +721,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   (c.focused.isEmpty &&
                       c.primary.length + c.secondary.length > 1));
 
-          return AnimatedSwitcher(
+          return SafeAnimatedSwitcher(
             duration: 150.milliseconds,
             child: c.showDragAndDropVideosHint && mayDragVideo
                 ? Padding(
@@ -809,45 +747,32 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                     ),
                   )
-                : Container(),
+                : const SizedBox(),
           );
         }),
 
-        // If there's any error to show, display it.
-        Obx(() {
-          return AnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.errorTimeout.value != 0
-                ? Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.topCenter
-                            ? 10 + c.secondaryHeight.value
-                            : 10,
-                        right: c.secondary.isNotEmpty &&
-                                c.secondaryAlignment.value ==
-                                    Alignment.centerRight
-                            ? 10 + c.secondaryWidth.value
-                            : 10,
-                      ),
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: '${c.error}.',
-                          onTap: () {
-                            c.errorTimeout.value = 0;
-                          },
-                          isError: true,
-                        ),
-                      ),
-                    ),
-                  )
-                : Container(),
-          );
-        }),
+        // If there's any notifications to show, display them.
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationWidget(
+                    e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
+          ),
+        ),
 
         Obx(() {
           if (c.minimized.value && !c.fullscreen.value) {
@@ -884,7 +809,23 @@ Widget desktopCall(CallController c, BuildContext context) {
                       )
                     ],
                   ),
-                  child: _titleBar(context, c),
+                  child: Obx(
+                    () => TitleBar(
+                      title: 'label_call_title'.l10nfmt(c.titleArguments),
+                      chat: c.chat.value,
+                      fullscreen: c.fullscreen.value,
+                      height: CallController.titleHeight,
+                      toggleFullscreen: c.toggleFullscreen,
+                      onTap: WebUtils.isPopup
+                          ? null
+                          : () {
+                              router.chat(c.chatId.value);
+                              if (c.fullscreen.value) {
+                                c.toggleFullscreen();
+                              }
+                            },
+                    ),
+                  ),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),
@@ -1116,105 +1057,21 @@ Widget desktopCall(CallController c, BuildContext context) {
   );
 }
 
-/// Title bar of the call containing information about the call and control
-/// buttons.
-Widget _titleBar(BuildContext context, CallController c) => Obx(() {
-      final (style, fonts) = Theme.of(context).styles;
-
-      return Container(
-        key: const ValueKey('TitleBar'),
-        color: style.colors.backgroundAuxiliaryLight,
-        height: CallController.titleHeight,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Handles double tap to toggle fullscreen.
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onDoubleTap: c.toggleFullscreen,
-            ),
-
-            // Left part of the title bar that displays the recipient or
-            // the caller, its avatar and the call's state.
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: c.size.width - 60),
-                child: InkWell(
-                  onTap: WebUtils.isPopup
-                      ? null
-                      : () {
-                          router.chat(c.chatId.value);
-                          if (c.fullscreen.value) {
-                            c.toggleFullscreen();
-                          }
-                        },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(c.chat.value, radius: 8),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          'label_call_title'.l10nfmt(c.titleArguments),
-                          style: fonts.labelMedium!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Right part of the title bar that displays buttons.
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 3),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TooltipButton(
-                      onTap: c.toggleFullscreen,
-                      hint: c.fullscreen.value
-                          ? 'btn_fullscreen_exit'.l10n
-                          : 'btn_fullscreen_enter'.l10n,
-                      child: SvgImage.asset(
-                        'assets/icons/fullscreen_${c.fullscreen.value ? 'exit' : 'enter'}.svg',
-                        width: 12,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-
 /// [ReorderableFit] of the [CallController.primary] participants.
 Widget _primaryView(CallController c) {
-  final style = Theme.of(router.context!).style;
+  void onDragEnded(_DragData d) {
+    c.primaryDrags.value = 0;
+    c.draggedRenderer.value = null;
+    c.doughDraggedRenderer.value = null;
+    c.hoveredRenderer.value = d.participant;
+    c.hoveredRendererTimeout = 5;
+    c.isCursorHidden.value = false;
+  }
 
-  return Obx(() {
-    void onDragEnded(_DragData d) {
-      c.primaryDrags.value = 0;
-      c.draggedRenderer.value = null;
-      c.doughDraggedRenderer.value = null;
-      c.hoveredRenderer.value = d.participant;
-      c.hoveredRendererTimeout = 5;
-      c.isCursorHidden.value = false;
-    }
-
-    return Stack(
-      children: [
-        ReorderableFit<_DragData>(
+  return Stack(
+    children: [
+      Obx(() {
+        return ReorderableFit<_DragData>(
           key: const Key('PrimaryFitView'),
           allowEmptyTarget: true,
           onAdded: (d, i) => c.focus(d.participant),
@@ -1222,7 +1079,7 @@ Widget _primaryView(CallController c) {
             if (d?.chatId == c.chatId.value) {
               if (d?.participant.member.id.userId != c.me.id.userId ||
                   d?.participant.video.value?.source !=
-                      MediaSourceKind.Display) {
+                      MediaSourceKind.display) {
                 c.primaryTargets.value = 1;
               }
 
@@ -1311,7 +1168,7 @@ Widget _primaryView(CallController c) {
                       actions: [
                         if (participant.video.value?.renderer.value !=
                             null) ...[
-                          if (participant.source == MediaSourceKind.Device)
+                          if (participant.source == MediaSourceKind.device)
                             ContextMenuButton(
                               label: fit == null || fit == BoxFit.cover
                                   ? 'btn_call_do_not_cut_video'.l10n
@@ -1425,54 +1282,26 @@ Widget _primaryView(CallController c) {
             });
           },
           children: c.primary.map((e) => _DragData(e, c.chatId.value)).toList(),
-        ),
-        IgnorePointer(
-          child: Obx(() {
-            return AnimatedSwitcher(
-              duration: 200.milliseconds,
-              child: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
-                  ? Container(
-                      color: style.colors.onBackgroundOpacity27,
-                      child: Center(
-                        child: AnimatedDelayedScale(
-                          duration: const Duration(milliseconds: 300),
-                          beginScale: 1,
-                          endScale: 1.06,
-                          child: ConditionalBackdropFilter(
-                            condition: !c.minimized.value || c.fullscreen.value,
-                            borderRadius: BorderRadius.circular(16),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: !c.minimized.value || c.fullscreen.value
-                                    ? style.colors.onBackgroundOpacity27
-                                    : style.colors.onBackgroundOpacity50,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Icon(
-                                  Icons.add_rounded,
-                                  size: 50,
-                                  color: style.colors.onPrimary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : null,
-            );
-          }),
-        ),
-      ],
-    );
-  });
+        );
+      }),
+      Obx(() {
+        return IgnorePointer(
+          child: AnimatedOpacity(
+            opacity: c.secondaryDrags.value != 0 && c.primaryTargets.value != 0
+                ? 1
+                : 0,
+            duration: const Duration(milliseconds: 300),
+            child: DropBox(withBlur: !c.minimized.value || c.fullscreen.value),
+          ),
+        );
+      }),
+    ],
+  );
 }
 
 /// [ReorderableFit] of the [CallController.secondary] participants.
 Widget _secondaryView(CallController c, BuildContext context) {
-  final (style, fonts) = Theme.of(context).styles;
+  final style = Theme.of(context).style;
 
   return MediaQuery(
     data: MediaQuery.of(context).copyWith(size: c.size),
@@ -1541,9 +1370,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               child: Scaler(
                 key: key,
                 onDragUpdate: onDrag,
-                onDragEnd: (_) {
-                  c.updateSecondaryAttach();
-                },
+                onDragEnd: (_) => c.updateSecondaryAttach(),
                 width: width ?? Scaler.size,
                 height: height ?? Scaler.size,
               ),
@@ -1553,114 +1380,123 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
         Widget widget = Container();
 
-        if (alignment == Alignment.centerLeft) {
-          widget = scaler(
-            cursor: SystemMouseCursors.resizeLeftRight,
-            height: height - Scaler.size,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              x: ScaleModeX.left,
-              dx: dx,
-            ),
-          );
-        } else if (alignment == Alignment.centerRight) {
-          widget = scaler(
-            cursor: SystemMouseCursors.resizeLeftRight,
-            height: height - Scaler.size,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              x: ScaleModeX.right,
-              dx: -dx,
-            ),
-          );
-        } else if (alignment == Alignment.bottomCenter) {
-          widget = scaler(
-            cursor: SystemMouseCursors.resizeUpDown,
-            width: width - Scaler.size,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              y: ScaleModeY.bottom,
-              dy: -dy,
-            ),
-          );
-        } else if (alignment == Alignment.topCenter) {
-          widget = scaler(
-            cursor: SystemMouseCursors.resizeUpDown,
-            width: width - Scaler.size,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              y: ScaleModeY.top,
-              dy: dy,
-            ),
-          );
-        } else if (alignment == Alignment.topLeft) {
-          widget = scaler(
-            // TODO: https://github.com/flutter/flutter/issues/89351
-            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                ? SystemMouseCursors.resizeRow
-                : SystemMouseCursors.resizeUpLeftDownRight,
-            width: Scaler.size * 2,
-            height: Scaler.size * 2,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              y: ScaleModeY.top,
-              x: ScaleModeX.left,
-              dx: dx,
-              dy: dy,
-            ),
-          );
-        } else if (alignment == Alignment.topRight) {
-          widget = scaler(
-            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                ? SystemMouseCursors.resizeRow
-                : SystemMouseCursors.resizeUpRightDownLeft,
-            width: Scaler.size * 2,
-            height: Scaler.size * 2,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              y: ScaleModeY.top,
-              x: ScaleModeX.right,
-              dx: -dx,
-              dy: dy,
-            ),
-          );
-        } else if (alignment == Alignment.bottomLeft) {
-          widget = scaler(
-            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                ? SystemMouseCursors.resizeRow
-                : SystemMouseCursors.resizeUpRightDownLeft,
-            width: Scaler.size * 2,
-            height: Scaler.size * 2,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              y: ScaleModeY.bottom,
-              x: ScaleModeX.left,
-              dx: dx,
-              dy: -dy,
-            ),
-          );
-        } else if (alignment == Alignment.bottomRight) {
-          widget = scaler(
-            // TODO: https://github.com/flutter/flutter/issues/89351
-            cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                ? SystemMouseCursors.resizeRow
-                : SystemMouseCursors.resizeUpLeftDownRight,
-            width: Scaler.size * 2,
-            height: Scaler.size * 2,
-            onDrag: (dx, dy) => c.resizeSecondary(
-              context,
-              y: ScaleModeY.bottom,
-              x: ScaleModeX.right,
-              dx: -dx,
-              dy: -dy,
-            ),
-          );
+        switch (alignment) {
+          case Alignment.centerLeft:
+            widget = scaler(
+              cursor: SystemMouseCursors.resizeLeftRight,
+              height: height - Scaler.size,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                x: ScaleModeX.left,
+                dx: dx,
+              ),
+            );
+
+          case Alignment.centerRight:
+            widget = scaler(
+              cursor: SystemMouseCursors.resizeLeftRight,
+              height: height - Scaler.size,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                x: ScaleModeX.right,
+                dx: -dx,
+              ),
+            );
+
+          case Alignment.bottomCenter:
+            widget = scaler(
+              cursor: SystemMouseCursors.resizeUpDown,
+              width: width - Scaler.size,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                y: ScaleModeY.bottom,
+                dy: -dy,
+              ),
+            );
+
+          case Alignment.topCenter:
+            widget = scaler(
+              cursor: SystemMouseCursors.resizeUpDown,
+              width: width - Scaler.size,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                y: ScaleModeY.top,
+                dy: dy,
+              ),
+            );
+
+          case Alignment.topLeft:
+            widget = scaler(
+              // TODO: https://github.com/flutter/flutter/issues/89351
+              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                  ? SystemMouseCursors.resizeRow
+                  : SystemMouseCursors.resizeUpLeftDownRight,
+              width: Scaler.size * 2,
+              height: Scaler.size * 2,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                y: ScaleModeY.top,
+                x: ScaleModeX.left,
+                dx: dx,
+                dy: dy,
+              ),
+            );
+
+          case Alignment.topRight:
+            widget = scaler(
+              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                  ? SystemMouseCursors.resizeRow
+                  : SystemMouseCursors.resizeUpRightDownLeft,
+              width: Scaler.size * 2,
+              height: Scaler.size * 2,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                y: ScaleModeY.top,
+                x: ScaleModeX.right,
+                dx: -dx,
+                dy: dy,
+              ),
+            );
+
+          case Alignment.bottomLeft:
+            widget = scaler(
+              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                  ? SystemMouseCursors.resizeRow
+                  : SystemMouseCursors.resizeUpRightDownLeft,
+              width: Scaler.size * 2,
+              height: Scaler.size * 2,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                y: ScaleModeY.bottom,
+                x: ScaleModeX.left,
+                dx: dx,
+                dy: -dy,
+              ),
+            );
+
+          case Alignment.bottomRight:
+            widget = scaler(
+              // TODO: https://github.com/flutter/flutter/issues/89351
+              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
+                  ? SystemMouseCursors.resizeRow
+                  : SystemMouseCursors.resizeUpLeftDownRight,
+              width: Scaler.size * 2,
+              height: Scaler.size * 2,
+              onDrag: (dx, dy) => c.resizeSecondary(
+                context,
+                y: ScaleModeY.bottom,
+                x: ScaleModeX.right,
+                dx: -dx,
+                dy: -dy,
+              ),
+            );
         }
 
         return Align(alignment: alignment, child: widget);
       }
 
-      Widget positionedBoilerplate(Widget child) {
+      // Returns the [Positioned] aligned with the provided [align].
+      Widget positionedBoilerplate(Alignment? alignment, Alignment align) {
         return Positioned(
           left: left == null ? null : (left - Scaler.size / 2),
           right: right == null ? null : (right - Scaler.size / 2),
@@ -1669,7 +1505,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
           child: SizedBox(
             width: width + Scaler.size,
             height: height + Scaler.size,
-            child: child,
+            child: Obx(
+              () => c.secondaryAlignment.value == alignment
+                  ? buildDragHandle(align)
+                  : Container(),
+            ),
           ),
         );
       }
@@ -1734,7 +1574,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         child: Stack(
                           children: [
                             Container(color: style.colors.backgroundAuxiliary),
-                            SvgImage.asset(
+                            const SvgImage.asset(
                               'assets/images/background_dark.svg',
                               width: double.infinity,
                               height: double.infinity,
@@ -1753,53 +1593,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
             ),
           ),
 
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.centerLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.centerRight)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.bottomCenter)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.topCenter)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.topLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.topRight)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.bottomLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == null
-                ? buildDragHandle(Alignment.bottomRight)
-                : Container(),
-          )),
+          positionedBoilerplate(null, Alignment.centerLeft),
+          positionedBoilerplate(null, Alignment.centerRight),
+          positionedBoilerplate(null, Alignment.bottomCenter),
+          positionedBoilerplate(null, Alignment.topCenter),
+          positionedBoilerplate(null, Alignment.topLeft),
+          positionedBoilerplate(null, Alignment.topRight),
+          positionedBoilerplate(null, Alignment.bottomLeft),
+          positionedBoilerplate(null, Alignment.bottomRight),
 
           // Secondary panel itself.
           ReorderableFit<_DragData>(
@@ -1877,7 +1678,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     c.hoveredRenderer.value = null;
                     c.isCursorHidden.value = false;
                   },
-                  child: AnimatedSwitcher(
+                  child: SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.draggedRenderer.value == data.participant
                         ? Container()
@@ -1986,107 +1787,107 @@ Widget _secondaryView(CallController c, BuildContext context) {
           ),
 
           // Sliding from top draggable title bar.
-          Positioned(
-            key: c.secondaryKey,
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: Obx(() {
-              bool isAnyDrag =
-                  c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
+          if (c.primaryDrags.value == 0)
+            Positioned(
+              key: c.secondaryKey,
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              child: Obx(() {
+                bool isAnyDrag =
+                    c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
 
-              return SizedBox(
-                width: width,
-                height: height,
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: SizedBox(
-                    height: 30,
-                    child: MouseRegion(
-                      cursor: isAnyDrag
-                          ? MouseCursor.defer
-                          : SystemMouseCursors.grab,
-                      child: GestureDetector(
-                        onPanStart: (d) {
-                          c.secondaryBottomShifted = null;
-                          c.secondaryDragged.value = true;
-                          c.displayMore.value = false;
-                          c.keepUi(false);
+                return SizedBox(
+                  width: width,
+                  height: height,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      height: 30,
+                      child: MouseRegion(
+                        cursor: isAnyDrag
+                            ? MouseCursor.defer
+                            : SystemMouseCursors.grab,
+                        child: GestureDetector(
+                          onPanStart: (d) {
+                            c.secondaryBottomShifted = null;
+                            c.secondaryDragged.value = true;
+                            c.displayMore.value = false;
+                            c.keepUi(false);
 
-                          c.calculateSecondaryPanning(d.globalPosition);
+                            c.calculateSecondaryPanning(d.globalPosition);
 
-                          if (c.secondaryAlignment.value != null) {
-                            c.secondaryAlignment.value = null;
+                            if (c.secondaryAlignment.value != null) {
+                              c.secondaryAlignment.value = null;
+                              c.updateSecondaryOffset(d.globalPosition);
+                            } else {
+                              c.secondaryLeft.value ??= c.size.width -
+                                  c.secondaryWidth.value -
+                                  (c.secondaryRight.value ?? 0);
+                              c.secondaryTop.value ??= c.size.height -
+                                  c.secondaryHeight.value -
+                                  (c.secondaryBottom.value ?? 0);
+                              c.applySecondaryConstraints();
+                            }
+
+                            c.secondaryRight.value = null;
+                            c.secondaryBottom.value = null;
+                          },
+                          onPanUpdate: (d) {
                             c.updateSecondaryOffset(d.globalPosition);
-                          } else {
-                            c.secondaryLeft.value ??= c.size.width -
-                                c.secondaryWidth.value -
-                                (c.secondaryRight.value ?? 0);
-                            c.secondaryTop.value ??= c.size.height -
-                                c.secondaryHeight.value -
-                                (c.secondaryBottom.value ?? 0);
                             c.applySecondaryConstraints();
-                          }
-
-                          c.secondaryRight.value = null;
-                          c.secondaryBottom.value = null;
-                        },
-                        onPanUpdate: (d) {
-                          c.updateSecondaryOffset(d.globalPosition);
-                          c.applySecondaryConstraints();
-                        },
-                        onPanEnd: (d) {
-                          c.secondaryDragged.value = false;
-                          if (c.possibleSecondaryAlignment.value != null) {
-                            c.secondaryAlignment.value =
-                                c.possibleSecondaryAlignment.value;
-                            c.possibleSecondaryAlignment.value = null;
-                            c.applySecondaryConstraints();
-                          } else {
-                            c.updateSecondaryAttach();
-                          }
-                        },
-                        child: AnimatedOpacity(
-                          duration: 200.milliseconds,
-                          key: const ValueKey('TitleBar'),
-                          opacity: c.secondaryHovered.value ? 1 : 0,
-                          child: ClipRRect(
-                            borderRadius: c.secondaryAlignment.value == null
-                                ? BorderRadius.only(
-                                    topLeft: borderRadius.topLeft,
-                                    topRight: borderRadius.topRight,
-                                  )
-                                : BorderRadius.zero,
-                            child: ConditionalBackdropFilter(
-                              condition: PlatformUtils.isWeb &&
-                                  (c.minimized.isFalse || c.fullscreen.isTrue),
-                              child: Container(
-                                color: PlatformUtils.isWeb
-                                    ? style.colors.onSecondaryOpacity60
-                                    : style.colors.onSecondaryOpacity88,
-                                child: Row(
-                                  children: [
-                                    const SizedBox(width: 7),
-                                    Expanded(
-                                      child: Text(
-                                        'Draggable',
-                                        style: fonts.labelMedium!.copyWith(
-                                          color: style.colors.onPrimary,
+                          },
+                          onPanEnd: (d) {
+                            c.secondaryDragged.value = false;
+                            if (c.possibleSecondaryAlignment.value != null) {
+                              c.secondaryAlignment.value =
+                                  c.possibleSecondaryAlignment.value;
+                              c.possibleSecondaryAlignment.value = null;
+                              c.applySecondaryConstraints();
+                            } else {
+                              c.updateSecondaryAttach();
+                            }
+                          },
+                          child: AnimatedOpacity(
+                            duration: 200.milliseconds,
+                            key: const ValueKey('TitleBar'),
+                            opacity: c.secondaryHovered.value ? 1 : 0,
+                            child: ClipRRect(
+                              borderRadius: c.secondaryAlignment.value == null
+                                  ? BorderRadius.only(
+                                      topLeft: borderRadius.topLeft,
+                                      topRight: borderRadius.topRight,
+                                    )
+                                  : BorderRadius.zero,
+                              child: ConditionalBackdropFilter(
+                                condition: PlatformUtils.isWeb &&
+                                    (c.minimized.isFalse ||
+                                        c.fullscreen.isTrue),
+                                child: Container(
+                                  color: PlatformUtils.isWeb
+                                      ? style.colors.onSecondaryOpacity60
+                                      : style.colors.onSecondaryOpacity88,
+                                  child: Row(
+                                    children: [
+                                      const SizedBox(width: 7),
+                                      Expanded(
+                                        child: Text(
+                                          'Draggable',
+                                          style: style
+                                              .fonts.small.regular.onPrimary,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                    InkResponse(
-                                      onTap: isAnyDrag ? null : c.focusAll,
-                                      child: SvgImage.asset(
-                                        'assets/icons/close.svg',
-                                        height: 10.25,
+                                      InkResponse(
+                                        onTap: isAnyDrag ? null : c.focusAll,
+                                        child:
+                                            const SvgIcon(SvgIcons.closeSmall),
                                       ),
-                                    ),
-                                    const SizedBox(width: 7),
-                                  ],
+                                      const SizedBox(width: 7),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -2095,34 +1896,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
-          ),
+                );
+              }),
+            ),
 
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.centerRight
-                ? buildDragHandle(Alignment.centerLeft)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.centerLeft
-                ? buildDragHandle(Alignment.centerRight)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.topCenter
-                ? buildDragHandle(Alignment.bottomCenter)
-                : Container(),
-          )),
-
-          positionedBoilerplate(Obx(
-            () => c.secondaryAlignment.value == Alignment.bottomCenter
-                ? buildDragHandle(Alignment.topCenter)
-                : Container(),
-          )),
+          positionedBoilerplate(Alignment.centerRight, Alignment.centerLeft),
+          positionedBoilerplate(Alignment.centerLeft, Alignment.centerRight),
+          positionedBoilerplate(Alignment.topCenter, Alignment.bottomCenter),
+          positionedBoilerplate(Alignment.bottomCenter, Alignment.topCenter),
 
           // Secondary panel drag target indicator.
           Positioned(
@@ -2135,7 +1916,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 width: width,
                 height: height,
                 child: Obx(() {
-                  return AnimatedSwitcher(
+                  return SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
                     child: c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
@@ -2160,13 +1941,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                           ? style.colors.onBackgroundOpacity27
                                           : style.colors.onBackgroundOpacity50,
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        size: 50,
-                                        color: style.colors.onPrimary,
-                                      ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),
@@ -2269,161 +2046,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
       );
     }),
   );
-}
-
-/// [DragTarget] of an empty [_secondaryView].
-Widget _secondaryTarget(CallController c) {
-  final style = Theme.of(router.context!).style;
-
-  return Obx(() {
-    Axis secondaryAxis =
-        c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
-
-    // Pre-calculate the [ReorderableFit]'s size.
-    double panelSize = max(
-      ReorderableFit.calculateSize(
-        maxSize: c.size.shortestSide / 4,
-        constraints: Size(c.size.width, c.size.height - 45),
-        axis: c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical,
-        length: c.secondary.length,
-      ),
-      130,
-    );
-
-    return AnimatedSwitcher(
-      key: const Key('SecondaryTargetAnimatedSwitcher'),
-      duration: 200.milliseconds,
-      child: c.secondary.isEmpty && c.doughDraggedRenderer.value != null
-          ? Align(
-              alignment: secondaryAxis == Axis.horizontal
-                  ? Alignment.centerRight
-                  : Alignment.topCenter,
-              child: SizedBox(
-                width: secondaryAxis == Axis.horizontal
-                    ? panelSize / 1.6
-                    : double.infinity,
-                height: secondaryAxis == Axis.horizontal
-                    ? double.infinity
-                    : panelSize / 1.6,
-                child: DragTarget<_DragData>(
-                  onWillAccept: (d) => d?.chatId == c.chatId.value,
-                  onAccept: (_DragData d) {
-                    if (secondaryAxis == Axis.horizontal) {
-                      c.secondaryAlignment.value = Alignment.centerRight;
-                    } else {
-                      c.secondaryAlignment.value = Alignment.topCenter;
-                    }
-                    c.unfocus(d.participant);
-                  },
-                  builder: (context, candidate, rejected) {
-                    return Obx(() {
-                      return IgnorePointer(
-                        child: AnimatedSwitcher(
-                          key: const Key('SecondaryTargetAnimatedSwitcher'),
-                          duration: 200.milliseconds,
-                          child: c.primaryDrags.value >= 1
-                              ? Container(
-                                  padding: EdgeInsets.only(
-                                    left: secondaryAxis == Axis.horizontal
-                                        ? 1
-                                        : 0,
-                                    bottom:
-                                        secondaryAxis == Axis.vertical ? 1 : 0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      left: secondaryAxis == Axis.horizontal
-                                          ? BorderSide(
-                                              color: style.colors.secondary,
-                                              width: 1,
-                                            )
-                                          : BorderSide.none,
-                                      bottom: secondaryAxis == Axis.vertical
-                                          ? BorderSide(
-                                              color: style.colors.secondary,
-                                              width: 1,
-                                            )
-                                          : BorderSide.none,
-                                    ),
-                                    boxShadow: [
-                                      CustomBoxShadow(
-                                        color:
-                                            style.colors.onBackgroundOpacity20,
-                                        blurRadius: 8,
-                                        blurStyle: BlurStyle.outer,
-                                      )
-                                    ],
-                                  ),
-                                  child: ConditionalBackdropFilter(
-                                    child: AnimatedContainer(
-                                      duration: 300.milliseconds,
-                                      color: candidate.isNotEmpty
-                                          ? style.colors.onPrimaryOpacity7
-                                          : style.colors.transparent,
-                                      child: Center(
-                                        child: SizedBox(
-                                          width:
-                                              secondaryAxis == Axis.horizontal
-                                                  ? min(panelSize, 150 + 44)
-                                                  : null,
-                                          height:
-                                              secondaryAxis == Axis.horizontal
-                                                  ? null
-                                                  : min(panelSize, 150 + 44),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              AnimatedScale(
-                                                duration: const Duration(
-                                                    milliseconds: 300),
-                                                curve: Curves.ease,
-                                                scale: candidate.isNotEmpty
-                                                    ? 1.06
-                                                    : 1,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: style.colors
-                                                        .onBackgroundOpacity27,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                      10,
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.add_rounded,
-                                                      size: 35,
-                                                      color: style
-                                                          .colors.onPrimary,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(key: UniqueKey()),
-                        ),
-                      );
-                    });
-                  },
-                ),
-              ),
-            )
-          : Container(),
-    );
-  });
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].

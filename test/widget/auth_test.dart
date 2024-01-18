@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,17 +36,16 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -55,26 +56,26 @@ import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
 
 import '../mock/graphql_provider.dart';
+import '../mock/overflow_error.dart';
 import '../mock/route_information_provider.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
+  Config.clsid = 'clsid';
   await L10n.init();
 
   Hive.init('./test/.temp_hive/auth_widget');
 
-  var sessionProvider = SessionDataHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = _FakeGraphQlProvider();
   AuthRepository authRepository = AuthRepository(graphQlProvider);
-  AuthService authService = AuthService(authRepository, sessionProvider);
+  AuthService authService = AuthService(authRepository, credentialsProvider);
   await authService.init();
-  await sessionProvider.clear();
+  await credentialsProvider.clear();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init(userId: const UserId('me'));
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init(userId: const UserId('me'));
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
   var userProvider = UserHiveProvider();
@@ -89,10 +90,10 @@ void main() async {
   await applicationSettingsProvider.init(userId: const UserId('me'));
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init(userId: const UserId('me'));
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init(userId: const UserId('me'));
-  var blacklistedUsersProvider = BlacklistHiveProvider();
-  await blacklistedUsersProvider.init(userId: const UserId('me'));
+  var callCredentialsProvider = CallCredentialsHiveProvider();
+  await callCredentialsProvider.init(userId: const UserId('me'));
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init(userId: const UserId('me'));
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init(userId: const UserId('me'));
   var monologProvider = MonologHiveProvider();
@@ -101,38 +102,44 @@ void main() async {
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
-    Get.put(galleryItemProvider);
     Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
-    Get.put(sessionProvider);
+    Get.put(credentialsProvider);
     Get.put(chatProvider);
     Get.put(draftProvider);
     Get.put(settingsProvider);
-    Get.put(credentialsProvider);
-    Get.put(NotificationService());
-    Get.put(BackgroundWorker(sessionProvider));
+    Get.put(callCredentialsProvider);
+    Get.put(NotificationService(graphQlProvider));
+    Get.put(BackgroundWorker(credentialsProvider));
     Get.put(monologProvider);
 
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
     router = RouterState(authService);
     router.provider = MockedPlatformRouteInformationProvider();
 
+    FlutterError.onError = ignoreOverflowErrors;
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
-    final goToLoginButton = find.text('btn_login'.l10n);
+    final goToLoginButton = find.text('btn_sign_in'.l10n);
     expect(goToLoginButton, findsOneWidget);
 
     await tester.tap(goToLoginButton);
+    await tester.pumpAndSettle();
+
+    final passwordButton = find.text('btn_password'.l10n);
+    expect(passwordButton, findsOneWidget);
+
+    await tester.tap(passwordButton);
     await tester.pumpAndSettle();
 
     final loginTile = find.byKey(const ValueKey('LoginButton'));
@@ -156,15 +163,18 @@ void main() async {
     await tester.tap(loginTile);
     await tester.pump(const Duration(seconds: 5));
 
-    await tester.runAsync(() {
-      return Future.delayed(const Duration(seconds: 2));
-    });
+    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    //       should be done in a more strict way.
+    for (int i = 0; i < 25; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+
     await tester.pumpAndSettle(const Duration(seconds: 5));
     await tester.pump(const Duration(seconds: 5));
     final homeView = find.byType(HomeView);
     expect(homeView, findsOneWidget);
 
-    await tester.runAsync(() => Future.delayed(const Duration(seconds: 15)));
+    await tester.runAsync(() => Future.delayed(const Duration(seconds: 5)));
     await Get.deleteAll(force: true);
   });
 }
@@ -177,23 +187,15 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Future<void> Function(AuthorizationException)? authExceptionHandler;
 
   @override
-  Future<bool> checkUserIdentifiable(UserLogin? login, UserNum? num,
-      UserEmail? email, UserPhone? phone) async {
-    return (login?.val == 'user');
-  }
-
-  @override
-  void reconnect() {}
+  Future<void> reconnect() async {}
 
   var userData = {
     'id': 'me',
     'num': '1234567890123456',
     'login': 'login',
     'name': 'name',
-    'bio': 'bio',
     'emails': {'confirmed': [], 'unconfirmed': null},
     'phones': {'confirmed': []},
-    'gallery': {'nodes': []},
     'hasPassword': true,
     'unreadChatsCount': 0,
     'ver': '0',
@@ -201,7 +203,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -246,7 +248,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     bool noFavorite = false,
     bool? withOngoingCalls,
   }) {
-    return const Stream.empty();
+    return Stream.value(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'recentChatsTopEvents': {
+            '__typename': 'SubscriptionInitialized',
+            'ok': true
+          }
+        },
+        parserFn: (_) => null,
+      ),
+    );
   }
 
   @override
@@ -255,13 +268,13 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<GetBlacklist$Query$Blacklist> getBlacklist({
-    BlacklistCursor? after,
-    BlacklistCursor? before,
+  Future<GetBlocklist$Query$Blocklist> getBlocklist({
+    BlocklistCursor? after,
+    BlocklistCursor? before,
     int? first,
     int? last,
   }) {
-    return Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist));
+    return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
   }
 
   @override
@@ -275,7 +288,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult> chatEvents(ChatId id, ChatVersion? Function()? getVer) {
+  Stream<QueryResult> chatEvents(
+    ChatId id,
+    ChatVersion? ver,
+    FutureOr<ChatVersion?> Function() onVer,
+  ) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(QueryResult.internal(

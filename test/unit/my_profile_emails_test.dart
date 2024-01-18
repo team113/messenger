@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,12 +28,14 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/blacklist.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -44,23 +46,22 @@ import 'my_profile_emails_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   Hive.init('./test/.temp_hive/my_profile_emails_unit');
-  var userData = {
+  var myUserData = {
     'id': '12345',
     'num': '1234567890123456',
     'login': 'login',
     'name': 'name',
-    'bio': 'bio',
     'emails': {'confirmed': [], 'unconfirmed': null},
     'phones': {'confirmed': [], 'unconfirmed': null},
-    'gallery': {'nodes': []},
     'hasPassword': true,
     'unreadChatsCount': 0,
     'ver': '0',
     'presence': 'AWAY',
     'online': {'__typename': 'UserOnline'},
+    'blocklist': {'totalCount': 0},
   };
 
-  var blacklist = {
+  var blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',
@@ -70,29 +71,30 @@ void main() async {
     }
   };
 
-  var sessionProvider = SessionDataHiveProvider();
+  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await sessionProvider.init();
+  await credentialsProvider.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  var galleryItemProvider = GalleryItemHiveProvider();
-  await galleryItemProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var blacklistedUsersProvider = BlacklistHiveProvider();
-  await blacklistedUsersProvider.init();
+  var blockedUsersProvider = BlocklistHiveProvider();
+  await blockedUsersProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
   });
 
   Get.put(myUserProvider);
-  Get.put(galleryItemProvider);
   Get.put<GraphQlProvider>(graphQlProvider);
-  Get.put(sessionProvider);
+  Get.put(credentialsProvider);
 
   test(
       'MyUserService successfully adds, removes, confirms email and resends confirmation code',
@@ -103,7 +105,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         ),
       ]),
@@ -121,7 +123,7 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver':
               '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
@@ -144,7 +146,7 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
         }
       }).confirmUserEmail
@@ -163,34 +165,44 @@ void main() async {
               'at': DateTime.now().toString(),
             }
           ],
-          'myUser': userData,
+          'myUser': myUserData,
           'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
         }
       }).deleteUserEmail),
     );
 
-    when(graphQlProvider.getBlacklist(
-      first: 120,
+    when(graphQlProvider.getBlocklist(
+      first: anyNamed('first'),
       after: null,
       last: null,
       before: null,
     )).thenAnswer(
-      (_) => Future.value(GetBlacklist$Query$Blacklist.fromJson(blacklist)),
+      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
     );
 
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        credentialsProvider,
+      ),
+    );
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        blocklistSortingProvider,
+        userRepository,
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
-      galleryItemProvider,
+      blocklistRepository,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
@@ -220,7 +232,7 @@ void main() async {
           parserFn: (_) => null,
           source: null,
           data: {
-            'myUserEvents': {'__typename': 'MyUser', ...userData},
+            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
         ),
       ]),
@@ -239,16 +251,26 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        credentialsProvider,
+      ),
+    );
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+
+    BlocklistRepository blocklistRepository = Get.put(
+      BlocklistRepository(
+        graphQlProvider,
+        blockedUsersProvider,
+        blocklistSortingProvider,
+        userRepository,
         sessionProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
+
     AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
-      blacklistedUsersProvider,
-      galleryItemProvider,
+      blocklistRepository,
       userRepository,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,17 +26,34 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 /// Circular progress indicator, which spins to indicate that the application is
 /// busy.
 class CustomProgressIndicator extends StatelessWidget {
-  const CustomProgressIndicator({
-    super.key,
-    this.color,
-    this.backgroundColor,
-    this.valueColor,
-    this.strokeWidth = 2.0,
-    this.value,
-    this.padding = const EdgeInsets.all(6),
-    this.size = 32,
-    this.blur = true,
-  });
+  const CustomProgressIndicator({super.key, this.value})
+      : size = 32,
+        padding = const EdgeInsets.all(6),
+        blur = true,
+        backgroundColor = null,
+        valueColor = null,
+        primary = false,
+        strokeWidth = 2.0;
+
+  /// Constructs a [CustomProgressIndicator] with a `primary` style.
+  const CustomProgressIndicator.primary({super.key, this.value})
+      : size = 40,
+        padding = const EdgeInsets.all(4),
+        blur = false,
+        backgroundColor = null,
+        valueColor = null,
+        primary = true,
+        strokeWidth = 2;
+
+  /// Constructs a [CustomProgressIndicator] with a `big` style.
+  const CustomProgressIndicator.big({super.key, this.value})
+      : size = 64,
+        padding = const EdgeInsets.all(6),
+        blur = true,
+        backgroundColor = null,
+        valueColor = null,
+        primary = false,
+        strokeWidth = 2.0;
 
   /// Value of this [CustomProgressIndicator].
   final double? value;
@@ -44,8 +61,9 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Background [Color] of this [CustomProgressIndicator].
   final Color? backgroundColor;
 
-  /// [Color] of this [CustomProgressIndicator].
-  final Color? color;
+  /// Indicator whether this [CustomProgressIndicator] is primary, meaning
+  /// [Palette.primary] should be used.
+  final bool primary;
 
   /// [Animation] animating the [color] of this [CustomProgressIndicator].
   final Animation<Color?>? valueColor;
@@ -76,7 +94,9 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color: color ?? style.colors.secondaryHighlightDarkest,
+          color: primary
+              ? style.colors.primary
+              : style.colors.secondaryHighlightDarkest,
           backgroundColor:
               backgroundColor ?? style.colors.secondaryHighlightDark,
           valueColor: valueColor,

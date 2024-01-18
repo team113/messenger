@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,10 @@
 fragment ChatCall on ChatCall {
     id
     chatId
-    authorId
+    author {
+        __typename
+        ...User
+    }
     dialed {
         __typename
         ... on ChatMembersDialedAll {
@@ -41,10 +44,6 @@ fragment ChatCall on ChatCall {
         }
     }
     at
-    caller {
-        __typename
-        ...User
-    }
     conversationStartedAt
     finishReason
     finishedAt

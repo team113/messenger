@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
@@ -39,17 +40,25 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, PostChatMessageException;
+    show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/draft.dart';
+import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
+import '/store/pagination.dart';
+import '/store/pagination/hive.dart';
+import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
+import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
+import 'pagination/graphql.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
@@ -59,9 +68,13 @@ class HiveRxChat extends RxChat {
     this._draftLocal,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
+        _lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        unreadCount = RxInt(hiveChat.value.unreadCount);
+        unreadCount = RxInt(hiveChat.value.unreadCount),
+        // TODO: Don't ignore version, when all events are surely delivered by
+        //       subscribing to `chatEvents` with that version.
+        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
 
   @override
   final Rx<Chat> chat;
@@ -87,11 +100,21 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
+  /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
+  ChatItemsCursor? _lastReadItemCursor;
+
   @override
   final RxList<LastChatRead> reads = RxList();
 
   @override
   final RxInt unreadCount;
+
+  /// [ChatVersion] of this [HiveRxChat].
+  ChatVersion? ver;
+
+  @override
+  late final RxBool inCall =
+      RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -105,8 +128,12 @@ class HiveRxChat extends RxChat {
   /// [ChatItem]s local [Hive] storage.
   ChatItemHiveProvider _local;
 
-  /// Guard used to guarantee synchronous access to the [_local] storage.
-  final Mutex _guard = Mutex();
+  /// [Pagination] loading [messages] with pagination.
+  late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
+
+  /// [PageProvider] fetching pages of [HiveChatItem]s.
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
+      _provider;
 
   /// Subscription to [User]s from the [members] list forming the [title].
   final Map<UserId, Worker> _userWorkers = {};
@@ -114,23 +141,32 @@ class HiveRxChat extends RxChat {
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
+  /// Subscription to the [Pagination.items] changes.
+  StreamSubscription? _paginationSubscription;
+
   /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
-
-  /// [ChatItemHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
 
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatEvents>? _remoteSubscription;
 
+  /// [StreamController] for [updates] of this [RxChat].
+  ///
+  /// Behaves like a reference counter: when [updates] are listened to, this
+  /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
+  /// cancels it.
+  late final StreamController<void> _controller = StreamController.broadcast(
+    onListen: _initRemoteSubscription,
+    onCancel: () {
+      _remoteSubscription?.cancel();
+      _remoteSubscription = null;
+    },
+  );
+
   /// [Worker] reacting on the [chat] changes updating the [members].
   Worker? _worker;
-
-  /// Indicator whether [_remoteSubscription] is initialized or is being
-  /// initialized used in [subscribe].
-  bool _remoteSubscriptionInitialized = false;
 
   /// [ChatItem]s in the [SendingStatus.sending] state.
   final List<ChatItem> _pending = [];
@@ -138,14 +174,42 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
+  /// [StreamSubscription] to [AbstractCallRepository.calls] and
+  /// [WebUtils.onStorageChange] determining the [inCall] indicator.
+  StreamSubscription? _callSubscription;
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
+
+  /// [Mutex]es guarding synchronized access to the [updateAttachments].
+  final Map<ChatItemId, Mutex> _attachmentGuards = {};
+
+  /// [CancelToken] for cancelling the [Pagination.around] query.
+  final CancelToken _aroundToken = CancelToken();
+
+  /// Indicator whether this [HiveRxChat] has been disposed, meaning no requests
+  /// should be made.
+  bool _disposed = false;
 
   @override
   UserId? get me => _chatRepository.me;
 
   @override
+  RxBool get hasNext => _pagination.hasNext;
+
+  @override
+  RxBool get nextLoading => _pagination.nextLoading;
+
+  @override
+  RxBool get hasPrevious => _pagination.hasPrevious;
+
+  @override
+  RxBool get previousLoading => _pagination.previousLoading;
+
+  @override
   UserCallCover? get callCover {
+    Log.debug('get callCover', '$runtimeType($id)');
+
     UserCallCover? callCover;
 
     switch (chat.value.kind) {
@@ -170,8 +234,49 @@ class HiveRxChat extends RxChat {
     return callCover;
   }
 
+  @override
+  Rx<ChatItem>? get firstUnread {
+    Log.debug('get firstUnread', '$runtimeType($id)');
+
+    if (chat.value.unreadCount != 0) {
+      PreciseDateTime? myRead =
+          chat.value.lastReads.firstWhereOrNull((e) => e.memberId == me)?.at;
+
+      if (myRead != null) {
+        return messages.firstWhereOrNull(
+          (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
+        );
+      } else {
+        return messages.firstOrNull;
+      }
+    }
+
+    return null;
+  }
+
+  @override
+  ChatItem? get lastItem {
+    ChatItem? item = chat.value.lastItem;
+    if (messages.isNotEmpty) {
+      final ChatItem last = messages.last.value;
+      if (item?.at.isBefore(last.at) == true) {
+        item = last;
+      }
+    }
+
+    return item;
+  }
+
+  @override
+  Stream<void> get updates => _controller.stream;
+
+  /// Indicates whether this [RxChat] is listening to the remote updates.
+  bool get subscribed => _remoteSubscription != null;
+
   /// Initializes this [HiveRxChat].
-  Future<void> init() {
+  Future<void> init() async {
+    Log.debug('init()', '$runtimeType($id)');
+
     if (status.value.isSuccess) {
       return Future.value();
     }
@@ -184,7 +289,12 @@ class HiveRxChat extends RxChat {
 
     _updateTitle(chat.value.members.map((e) => e.user));
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
-    _worker = ever(chat, (_) => _updateFields());
+
+    Chat previous = chat.value;
+    _worker = ever(chat, (_) {
+      _updateFields(previous: previous);
+      previous = chat.value;
+    });
 
     _messagesSubscription = messages.changes.listen((e) {
       switch (e.op) {
@@ -205,52 +315,122 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    return _guard.protect(() async {
-      await _local.init(userId: me);
-      if (!_local.isEmpty) {
-        for (HiveChatItem i in _local.messages) {
-          messages.add(Rx<ChatItem>(i.value));
-        }
-
-        updateReads();
-      }
-
-      _initLocalSubscription();
-
-      if (!PlatformUtils.isWeb) {
-        _initAttachments();
-      }
-
-      status.value = RxStatus.success();
+    _callSubscription = StreamGroup.mergeBroadcast([
+      _chatRepository.calls.changes,
+      WebUtils.onStorageChange,
+    ]).listen((_) {
+      inCall.value =
+          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
     });
+
+    _provider = HiveGraphQlPageProvider(
+      graphQlProvider: GraphQlPageProvider(
+        reversed: true,
+        fetch: ({after, before, first, last}) async {
+          final Page<HiveChatItem, ChatItemsCursor> reversed =
+              await _chatRepository.messages(
+            chat.value.id,
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          );
+
+          final Page<HiveChatItem, ChatItemsCursor> page;
+          if (_provider.graphQlProvider.reversed) {
+            page = reversed.reversed();
+          } else {
+            page = reversed;
+          }
+
+          if (page.info.hasPrevious == false) {
+            final HiveChat? chatEntity = await _chatLocal.get(id);
+            final ChatItem? firstItem = page.edges.firstOrNull?.value;
+
+            if (chatEntity != null &&
+                firstItem != null &&
+                chatEntity.value.firstItem != firstItem) {
+              chatEntity.value.firstItem = firstItem;
+              _chatLocal.put(chatEntity);
+            }
+          }
+
+          return reversed;
+        },
+      ),
+      hiveProvider: HivePageProvider(
+        _local,
+        getCursor: (e) => e?.cursor,
+        getKey: (e) => e.value.key,
+        isFirst: (e) =>
+            id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
+        isLast: (e) =>
+            id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
+        strategy: PaginationStrategy.fromEnd,
+      ),
+    );
+
+    _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      onKey: (e) => e.value.key,
+      provider: _provider,
+      compare: (a, b) => a.value.key.compareTo(b.value.key),
+    );
+
+    if (id.isLocal) {
+      _pagination.hasNext.value = false;
+      _pagination.hasPrevious.value = false;
+      status.value = RxStatus.success();
+    }
+
+    _paginationSubscription = _pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          _add(event.value!.value);
+          break;
+
+        case OperationKind.removed:
+          messages.removeWhere((e) => e.value.id == event.value?.value.id);
+          break;
+      }
+    });
+
+    await _local.init(userId: me);
+
+    HiveChatItem? item;
+    if (chat.value.lastReadItem != null) {
+      item = await get(chat.value.lastReadItem!);
+    }
+
+    await _pagination.init(item);
+    if (_pagination.items.isNotEmpty) {
+      status.value = RxStatus.success();
+    }
   }
 
   /// Disposes this [HiveRxChat].
-  Future<void> dispose() {
-    return _guard.protect(() async {
-      status.value = RxStatus.loading();
-      messages.clear();
-      reads.clear();
-      _muteTimer?.cancel();
-      _readTimer?.cancel();
-      _localSubscription?.cancel();
-      _remoteSubscription?.close(immediate: true);
-      _messagesSubscription?.cancel();
-      _remoteSubscriptionInitialized = false;
-      await _local.close();
-      status.value = RxStatus.empty();
-      _worker?.dispose();
-      _userWorker?.dispose();
-      for (var e in _userWorkers.values) {
-        e.dispose();
-      }
-    });
-  }
+  Future<void> dispose() async {
+    Log.debug('dispose()', '$runtimeType($id)');
 
-  /// Subscribes to the remote updates of the [chat] if not subscribed already.
-  void subscribe() {
-    if (!_remoteSubscriptionInitialized && !id.isLocal) {
-      _initRemoteSubscription();
+    _disposed = true;
+    status.value = RxStatus.loading();
+    messages.clear();
+    reads.clear();
+    _aroundToken.cancel();
+    _muteTimer?.cancel();
+    _readTimer?.cancel();
+    _remoteSubscription?.close(immediate: true);
+    _remoteSubscription = null;
+    _paginationSubscription?.cancel();
+    _pagination.dispose();
+    _messagesSubscription?.cancel();
+    _callSubscription?.cancel();
+    await _local.close();
+    status.value = RxStatus.empty();
+    _worker?.dispose();
+    _userWorker?.dispose();
+    for (var e in _userWorkers.values) {
+      e.dispose();
     }
   }
 
@@ -260,6 +440,11 @@ class HiveRxChat extends RxChat {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   }) {
+    Log.debug(
+      'setDraft($text, $attachments, $repliesTo)',
+      '$runtimeType($id)',
+    );
+
     ChatMessage? draft = _draftLocal.get(id);
 
     if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
@@ -281,7 +466,7 @@ class HiveRxChat extends RxChat {
         draft = ChatMessage(
           ChatItemId.local(),
           id,
-          me ?? const UserId('dummy'),
+          User(me ?? const UserId('dummy'), UserNum('1234123412341234')),
           PreciseDateTime.now(),
           text: text,
           repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
@@ -293,8 +478,12 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> fetchMessages() async {
-    if (id.isLocal) {
+  Future<void> around() async {
+    Log.debug('around()', '$runtimeType($id)');
+
+    if (id.isLocal ||
+        status.value.isSuccess ||
+        (hasNext.isFalse && hasPrevious.isFalse)) {
       return;
     }
 
@@ -302,111 +491,124 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    List<HiveChatItem> items = await _chatRepository.messages(chat.value.id);
+    // Ensure [_local] storage is initialized.
+    await _local.init(userId: me);
 
-    return _guard.protect(() async {
-      for (HiveChatItem item in _local.messages) {
-        if (item.value.status.value == SendingStatus.sent) {
-          int i = items.indexWhere((e) => e.value.id == item.value.id);
-          if (i == -1) {
-            _local.remove(item.value.timestamp);
-          }
-        }
-      }
+    HiveChatItem? item;
+    if (chat.value.lastReadItem != null) {
+      item = await get(chat.value.lastReadItem!);
+    }
 
-      for (HiveChatItem item in items) {
-        if (item.value.chatId == id) {
-          put(item);
-        } else {
-          _chatRepository.putChatItem(item);
-        }
-      }
+    await _pagination.around(cursor: _lastReadItemCursor, item: item);
 
-      Future.delayed(Duration.zero, updateReads);
-      status.value = RxStatus.success();
-    });
+    status.value = RxStatus.success();
+
+    Future.delayed(Duration.zero, updateReads);
+  }
+
+  @override
+  Future<void> next() async {
+    Log.debug('next()', '$runtimeType($id)');
+
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
+    await _pagination.next();
+    status.value = RxStatus.success();
+
+    Future.delayed(Duration.zero, updateReads);
+  }
+
+  @override
+  Future<void> previous() async {
+    Log.debug('previous()', '$runtimeType($id)');
+
+    if (!status.value.isLoading) {
+      status.value = RxStatus.loadingMore();
+    }
+
+    await _pagination.previous();
+    status.value = RxStatus.success();
+
+    Future.delayed(Duration.zero, updateReads);
   }
 
   @override
   Future<void> updateAttachments(ChatItem item) async {
+    Log.debug('updateAttachments($item)', '$runtimeType($id)');
+
     if (item.id.isLocal) {
       return;
     }
 
-    HiveChatItem? stored = await get(item.id, timestamp: item.timestamp);
-    if (stored != null) {
-      List<Attachment> response = await _chatRepository.attachments(stored);
-
-      void replace(Attachment a) {
-        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
-        if (fetched != null) {
-          a.original = fetched.original;
-          if (a is ImageAttachment && fetched is ImageAttachment) {
-            a.big = fetched.big;
-            a.medium = fetched.medium;
-            a.small = fetched.small;
-          }
-        }
-      }
-
-      final List<Attachment> all = [];
-
-      if (item is ChatMessage) {
-        all.addAll(item.attachments);
-        for (ChatItemQuote replied in item.repliesTo) {
-          if (replied is ChatMessageQuote) {
-            all.addAll(replied.attachments);
-          }
-        }
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          all.addAll(nested.attachments);
-
-          if (nested.original != null) {
-            for (ChatItemQuote replied
-                in (nested.original as ChatMessage).repliesTo) {
-              if (replied is ChatMessageQuote) {
-                all.addAll(replied.attachments);
-              }
-            }
-          }
-        }
-      }
-
-      for (Attachment a in all) {
-        replace(a);
-      }
-
-      put(stored, ignoreVersion: true);
+    Mutex? mutex = _attachmentGuards[item.id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _attachmentGuards[item.id] = mutex;
     }
+
+    final bool isLocked = mutex.isLocked;
+    await mutex.protect(() async {
+      if (isLocked) {
+        // Mutex has been already locked when tried to obtain it, thus the
+        // [Attachment]s of the [item] were already updated, so no action is
+        // required.
+        return;
+      }
+
+      await _updateAttachments(item);
+      _attachmentGuards.remove(item.id);
+    });
   }
 
   /// Marks this [RxChat] as read until the provided [ChatItem] for the
   /// authenticated [MyUser],
   Future<void> read(ChatItemId untilId) async {
-    final int readUntil =
-        messages.reversed.toList().indexWhere((m) => m.value.id == untilId);
-    if (readUntil != -1) {
-      unreadCount.value = messages.skip(messages.length - readUntil).length;
+    Log.debug('read($untilId)', '$runtimeType($id)');
+
+    int firstUnreadIndex = 0;
+
+    if (firstUnread != null) {
+      firstUnreadIndex = messages.indexOf(firstUnread!);
     }
 
-    _readTimer?.cancel();
-    _readTimer = AwaitableTimer(
+    int lastReadIndex =
+        messages.indexWhere((m) => m.value.id == untilId, firstUnreadIndex);
+
+    if (lastReadIndex != -1 && firstUnreadIndex != -1) {
+      int read = messages
+          .skip(firstUnreadIndex)
+          .take(lastReadIndex - firstUnreadIndex + 1)
+          .where((e) => !e.value.id.isLocal && e.value.author.id != me)
+          .length;
+      unreadCount.value = chat.value.unreadCount - read;
+    }
+
+    final ChatItemId? lastReadItem = chat.value.lastReadItem;
+    if (lastReadItem != untilId) {
+      chat.update((e) => e?..lastReadItem = untilId);
+
+      _readTimer?.cancel();
+      _readTimer = AwaitableTimer(
         chat.value.lastItem?.id == untilId
             ? Duration.zero
-            : const Duration(seconds: 1), () async {
-      try {
-        await _chatRepository.readUntil(id, untilId);
-      } catch (_) {
-        unreadCount.value = chat.value.unreadCount;
-        rethrow;
-      } finally {
-        _readTimer = null;
-      }
-    });
+            : const Duration(seconds: 1),
+        () async {
+          try {
+            await _chatRepository.readUntil(id, untilId);
+          } catch (_) {
+            chat.update((e) => e?..lastReadItem = lastReadItem);
+            unreadCount.value = chat.value.unreadCount;
+            rethrow;
+          } finally {
+            _readTimer = null;
+          }
+        },
+      );
 
-    await _readTimer?.future;
+      await _readTimer?.future;
+    }
   }
 
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
@@ -424,6 +626,11 @@ class HiveRxChat extends RxChat {
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
+    Log.debug(
+      'postChatMessage($existingId, $existingDateTime, $text, $attachments, $repliesTo)',
+      '$runtimeType($id)',
+    );
+
     HiveChatMessage message = HiveChatMessage.sending(
       chatId: chat.value.id,
       me: me!,
@@ -440,7 +647,7 @@ class HiveRxChat extends RxChat {
       messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
           message.value;
     } else {
-      put(message, ignoreVersion: true);
+      put(message);
     }
 
     // If the [ChatMessage] being posted is local, then no remote queries should
@@ -462,7 +669,7 @@ class HiveRxChat extends RxChat {
 
                     // Frequent [Hive] writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
-                      put(message, ignoreVersion: true);
+                      put(message);
                     }
                   },
                   onError: (_) {
@@ -482,7 +689,7 @@ class HiveRxChat extends RxChat {
               .toList();
           if (reads.isNotEmpty) {
             await Future.wait(reads);
-            put(message, ignoreVersion: true);
+            put(message);
           }
         }
 
@@ -508,7 +715,7 @@ class HiveRxChat extends RxChat {
           as EventChatItemPosted?;
 
       if (event != null && event.item is HiveChatMessage) {
-        remove(message.value.id, message.value.timestamp);
+        remove(message.value.id, message.value.key);
         _pending.remove(message.value);
         message = event.item as HiveChatMessage;
       }
@@ -517,117 +724,66 @@ class HiveRxChat extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      put(message, ignoreVersion: true);
+      put(message);
     }
 
     return message.value;
   }
 
-  /// Puts the provided [item] to [Hive].
-  Future<void> put(HiveChatItem item, {bool ignoreVersion = false}) {
-    return _guard.protect(
-      () => Future.sync(() {
-        if (!_local.isReady) {
-          return;
-        }
-
-        HiveChatItem? saved = _local.get(item.value.timestamp);
-        if (saved == null) {
-          _local.put(item);
-        } else {
-          if (saved.value.id.val != item.value.id.val) {
-            // TODO: Sort items by their [DateTime] and their [ID]s (if the
-            //       posting [DateTime] is the same).
-            // If there's collision, then decrease timestamp with 1 millisecond
-            // offset and save this item again.
-            item.value.at =
-                item.value.at.subtract(const Duration(milliseconds: 1));
-            put(item);
-          } else if (saved.ver < item.ver || ignoreVersion) {
-            _local.put(item);
-          }
-        }
-      }),
-    );
+  /// Adds the provided [item] to [Pagination] and [Hive].
+  Future<void> put(HiveChatItem item) async {
+    Log.debug('put($item)', '$runtimeType($id)');
+    await _pagination.put(item);
   }
 
   @override
-  Future<void> remove(ChatItemId itemId, [String? timestamp]) {
-    return _guard.protect(
-      () => Future.sync(() {
-        if (!_local.isReady) {
-          return;
+  Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) async {
+    Log.debug('remove($itemId, $key)', '$runtimeType($id)');
+
+    key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+
+    if (key != null) {
+      _pagination.remove(key);
+
+      final HiveChat? chatEntity = await _chatLocal.get(id);
+      if (chatEntity?.value.lastItem?.id == itemId) {
+        var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
+
+        if (lastItem != null) {
+          chatEntity?.value.lastItem = lastItem.value;
+          chatEntity?.lastItemCursor =
+              (await _local.get(lastItem.value.key))?.cursor;
+        } else {
+          chatEntity?.value.lastItem = null;
+          chatEntity?.lastItemCursor = null;
         }
 
-        // TODO: Implement `ChatItemId` to timestamp lookup table.
-        timestamp ??= messages
-            .firstWhereOrNull((e) => e.value.id == itemId)
-            ?.value
-            .timestamp;
-        if (timestamp != null) {
-          _local.remove(timestamp!);
-
-          HiveChat? chatEntity = _chatLocal.get(id);
-          if (chatEntity?.value.lastItem?.id == itemId) {
-            var lastItem =
-                messages.lastWhereOrNull((e) => e.value.id != itemId);
-            chatEntity!.value.lastItem = lastItem?.value;
-            if (lastItem != null) {
-              chatEntity.lastItemCursor =
-                  _local.get(lastItem.value.timestamp)?.cursor;
-            } else {
-              chatEntity.lastItemCursor = null;
-            }
-            chatEntity.save();
-          }
-        }
-      }),
-    );
+        _chatLocal.put(chatEntity!);
+      }
+    }
   }
 
-  /// Returns a stored [HiveChatItem] identified by the provided [id], if any.
+  /// Returns a stored [HiveChatItem] identified by the provided [itemId], if
+  /// any.
   ///
-  /// Optionally, a [timestamp] may be specified, otherwise it will be fetched
-  /// from the [messages] list.
-  Future<HiveChatItem?> get(ChatItemId id, {String? timestamp}) async {
-    return _guard.protect(
-      () => Future.sync(() {
-        if (!_local.isReady) {
-          return null;
-        }
+  /// Optionally, a [key] may be specified, otherwise it will be fetched
+  /// from the [_local] store.
+  Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) async {
+    Log.debug('get($itemId, $key)', '$runtimeType($id)');
 
-        timestamp ??=
-            messages.firstWhereOrNull((e) => e.value.id == id)?.value.timestamp;
+    key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
-        HiveChatItem? result;
-        if (timestamp != null) {
-          while (true) {
-            var saved = _local.get(timestamp!);
-            if (saved == null) {
-              result = null;
-              break;
-            } else {
-              if (saved.value.id == id) {
-                result = saved;
-                break;
-              } else {
-                timestamp =
-                    DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp!))
-                        .subtract(const Duration(milliseconds: 1))
-                        .millisecondsSinceEpoch
-                        .toString();
-              }
-            }
-          }
-        }
+    if (key != null) {
+      return await _local.get(key);
+    }
 
-        return result;
-      }),
-    );
+    return null;
   }
 
   /// Recalculates the [reads] to represent the actual [messages].
   void updateReads() {
+    Log.debug('updateReads()', '$runtimeType($id)');
+
     for (LastChatRead e in chat.value.lastReads) {
       final PreciseDateTime? at = _lastReadAt(e.at);
 
@@ -646,56 +802,112 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [chat] and [chat]-related resources with the provided
   /// [newChat].
-  Future<void> updateChat(Chat newChat) async {
-    if (chat.value.id != newChat.id) {
-      chat.value = newChat;
+  Future<void> updateChat(HiveChat newChat) async {
+    Log.debug('updateChat($newChat)', '$runtimeType($id)');
 
-      subscribe();
-      _localSubscription?.cancel();
+    if (chat.value.id != newChat.value.id) {
+      chat.value = newChat.value;
+      ver = newChat.ver;
 
-      final List<HiveChatItem> saved = _local.messages.toList();
+      if (!_controller.isPaused && !_controller.isClosed) {
+        _initRemoteSubscription();
+      }
+
+      // Retrieve all the [HiveChatItem]s to put them in the [newChat].
+      final Iterable<HiveChatItem> saved = await _local.values;
+
+      // Clear and close the current [ChatItemHiveProvider].
       await _local.clear();
       _local.close();
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      for (var e in saved) {
-        e.value.chatId = newChat.id;
-        _local.put(e);
+      await _pagination.clear();
+      _provider.hive = _local;
+
+      for (var e in saved.whereType<HiveChatMessage>()) {
+        // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
+        final HiveChatMessage copy = e.copyWith()
+          ..value.chatId = newChat.value.id;
+
+        if (copy.value.status.value == SendingStatus.error) {
+          copy.value.status.value = SendingStatus.sending;
+        }
+
+        _pagination.put(copy, ignoreBounds: true);
       }
 
-      _initLocalSubscription();
+      _pagination.around();
     }
   }
 
-  /// Removes all [ChatItem]s from the [messages].
-  Future<void> clear() => _local.clear();
+  /// Clears the [_pagination].
+  Future<void> clear() async {
+    Log.debug('clear()', '$runtimeType($id)');
+    await _pagination.clear();
+  }
 
-  /// Invokes the [FileAttachment.init] in [FileAttachment]s of the [messages].
-  Future<void> _initAttachments() async {
-    final List<Future> futures = [];
+  // TODO: Remove when backend supports welcome messages.
+  @override
+  Future<void> addMessage(ChatMessageText text) async {
+    Log.debug('addMessage($text)', '$runtimeType($id)');
 
-    for (ChatItem item in messages.map((e) => e.value)) {
+    await put(
+      HiveChatMessage(
+        ChatMessage(
+          ChatItemId.local(),
+          id,
+          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user ??
+              User(const UserId('0'), UserNum('1234123412341234')),
+          PreciseDateTime.now(),
+          text: text,
+        ),
+        null,
+        ChatItemVersion('0'),
+        null,
+      ),
+    );
+  }
+
+  @override
+  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
+
+  /// Adds the provided [ChatItem] to the [messages] list, initializing the
+  /// [FileAttachment]s, if any.
+  void _add(ChatItem item) {
+    Log.debug('_add($item)', '$runtimeType($id)');
+
+    if (!PlatformUtils.isWeb) {
       if (item is ChatMessage) {
-        futures.addAll(
-          item.attachments.whereType<FileAttachment>().map((e) => e.init()),
-        );
+        for (var a in item.attachments.whereType<FileAttachment>()) {
+          a.init();
+        }
       } else if (item is ChatForward) {
         ChatItemQuote nested = item.quote;
         if (nested is ChatMessageQuote) {
-          futures.addAll(
-            nested.attachments.whereType<FileAttachment>().map((e) => e.init()),
-          );
+          for (var a in nested.attachments.whereType<FileAttachment>()) {
+            a.init();
+          }
         }
       }
     }
 
-    await Future.wait(futures);
+    final int i = messages.indexWhere((e) => e.value.id == item.id);
+    if (i == -1) {
+      messages.insertAfter(
+        Rx(item),
+        (e) => item.key.compareTo(e.value.key) == 1,
+      );
+    } else {
+      messages[i].value = item;
+    }
   }
 
   /// Updates the [members] and [title] fields based on the [chat] state.
-  Future<void> _updateFields() async {
+  Future<void> _updateFields({Chat? previous}) async {
+    Log.debug('_updateFields($previous)', '$runtimeType($id)');
+
     if (chat.value.name != null) {
       _updateTitle();
     }
@@ -708,11 +920,11 @@ class HiveRxChat extends RxChat {
     if (chat.value.muted?.until != null) {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
-        () {
-          final HiveChat? chat = _chatLocal.get(id);
+        () async {
+          final HiveChat? chat = await _chatLocal.get(id);
           if (chat != null) {
             chat.value.muted = null;
-            _chatLocal.put(chat);
+            _chatRepository.put(chat);
           }
         },
       );
@@ -754,13 +966,17 @@ class HiveRxChat extends RxChat {
       _updateTitle();
     }
 
-    if (chat.value.unreadCount < unreadCount.value || _readTimer == null) {
+    if (chat.value.unreadCount < unreadCount.value ||
+        (chat.value.unreadCount != previous?.unreadCount &&
+            _readTimer == null)) {
       unreadCount.value = chat.value.unreadCount;
     }
   }
 
   /// Updates the [title].
   void _updateTitle([Iterable<User>? users]) {
+    Log.debug('_updateTitle($users)', '$runtimeType($id)');
+
     title.value = chat.value.getTitle(
       users?.take(3) ?? members.values.take(3).map((e) => e.user.value),
       me,
@@ -769,6 +985,8 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [avatar].
   void _updateAvatar() {
+    Log.debug('_updateAvatar()', '$runtimeType($id)');
+
     RxUser? member;
 
     switch (chat.value.kind) {
@@ -794,97 +1012,150 @@ class HiveRxChat extends RxChat {
 
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
-    return messages
-        .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at)
-        ?.value
-        .at;
+    Log.debug('_lastReadAt($at)', '$runtimeType($id)');
+
+    final Rx<ChatItem>? message = messages
+        .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at);
+
+    // Return `null` if [hasNext] because the provided [at] can be actually
+    // connected to another [message].
+    if (message == null || hasNext.isTrue && messages.last == message) {
+      return null;
+    } else {
+      return message.value.at;
+    }
   }
 
-  /// Initializes [ChatItemHiveProvider.boxEvents] subscription.
-  Future<void> _initLocalSubscription() async {
-    _localSubscription = StreamIterator(_local.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      int i = messages.indexWhere((e) => e.value.timestamp == event.key);
-      if (event.deleted) {
-        if (i != -1) {
-          messages.removeAt(i);
+  /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
+  Future<void> _updateAttachments(ChatItem item) async {
+    Log.debug('_updateAttachments($item)', '$runtimeType($id)');
+
+    final HiveChatItem? stored = await get(item.id, key: item.key);
+    if (stored != null) {
+      final List<Attachment> response =
+          await _chatRepository.attachments(stored);
+
+      void replace(Attachment a) {
+        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
+        if (fetched != null) {
+          a.original = fetched.original;
+          if (a is ImageAttachment && fetched is ImageAttachment) {
+            a.big = fetched.big;
+            a.medium = fetched.medium;
+            a.small = fetched.small;
+          }
         }
-      } else {
-        if (!PlatformUtils.isWeb) {
-          ChatItem item = event.value.value;
-          if (item is ChatMessage) {
-            for (var a in item.attachments.whereType<FileAttachment>()) {
-              a.init();
-            }
-          } else if (item is ChatForward) {
-            ChatItemQuote nested = item.quote;
-            if (nested is ChatMessageQuote) {
-              for (var a in nested.attachments.whereType<FileAttachment>()) {
-                a.init();
+      }
+
+      final List<Attachment> all = [];
+
+      if (item is ChatMessage) {
+        all.addAll(item.attachments);
+        for (ChatItemQuote replied in item.repliesTo) {
+          if (replied is ChatMessageQuote) {
+            all.addAll(replied.attachments);
+          }
+        }
+      } else if (item is ChatForward) {
+        final ChatItemQuote nested = item.quote;
+        if (nested is ChatMessageQuote) {
+          all.addAll(nested.attachments);
+
+          if (nested.original != null) {
+            for (ChatItemQuote replied
+                in (nested.original as ChatMessage).repliesTo) {
+              if (replied is ChatMessageQuote) {
+                all.addAll(replied.attachments);
               }
             }
           }
         }
-
-        if (i == -1) {
-          Rx<ChatItem> item = Rx<ChatItem>(event.value.value);
-          messages.insertAfter(
-            item,
-            (e) => item.value.at.compareTo(e.value.at) == 1,
-          );
-        } else {
-          messages[i].value = event.value.value;
-          messages[i].refresh();
-        }
       }
+
+      for (Attachment a in all) {
+        replace(a);
+      }
+
+      stored.value = item;
+      _pagination.put(stored);
     }
   }
 
   /// Initializes [ChatRepository.chatEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    _remoteSubscriptionInitialized = true;
+    if (_disposed) {
+      return;
+    }
 
-    _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(
-      _chatRepository.chatEvents(id, () => _chatLocal.get(id)?.ver),
-    );
-    await _remoteSubscription!.execute(_chatEvent);
+    Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
-    _remoteSubscriptionInitialized = false;
+    if (!id.isLocal) {
+      _remoteSubscription?.close(immediate: true);
+      _remoteSubscription = StreamQueue(
+        _chatRepository.chatEvents(id, ver, () => ver),
+      );
+
+      await _remoteSubscription!.execute(
+        _chatEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            await _pagination.clear();
+            await _pagination.around(cursor: _lastReadItemCursor);
+          }
+        },
+      );
+
+      _remoteSubscription = null;
+    }
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
   Future<void> _chatEvent(ChatEvents event) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:
-        // No-op.
+        Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         break;
 
       case ChatEventsKind.chat:
-        var node = event as ChatEventsChat;
-        HiveChat? chatEntity = _chatLocal.get(id);
-        if (node.chat.ver > chatEntity?.ver) {
-          chatEntity = node.chat;
-          _chatLocal.put(chatEntity);
+        Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
+        final node = event as ChatEventsChat;
+        final HiveChat? chatEntity = await _chatLocal.get(id);
+        if (chatEntity != null) {
+          chatEntity.value = node.chat.value;
+          chatEntity.ver = node.chat.ver;
+          _chatRepository.put(chatEntity, ignoreVersion: true);
+        } else {
+          _chatRepository.put(node.chat, ignoreVersion: true);
         }
+
+        _lastReadItemCursor = node.chat.lastReadItemCursor;
         break;
 
       case ChatEventsKind.event:
-        HiveChat? chatEntity = _chatLocal.get(id);
-        var versioned = (event as ChatEventsEvent).event;
+        final HiveChat? chatEntity = await _chatLocal.get(id);
+        final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver <= chatEntity.ver) {
+          Log.debug(
+            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
+
           return;
         }
 
+        Log.debug(
+          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
+
         chatEntity.ver = versioned.ver;
 
-        bool putChat = _remoteSubscriptionInitialized;
+        bool shouldPutChat = subscribed;
         for (var event in versioned.events) {
-          putChat = _remoteSubscriptionInitialized;
+          shouldPutChat = subscribed;
 
           // Subscription was already disposed while processing the events.
-          if (!_remoteSubscriptionInitialized) {
+          if (!subscribed) {
             return;
           }
 
@@ -898,7 +1169,8 @@ class HiveRxChat extends RxChat {
               chatEntity.value.lastReadItem = null;
               chatEntity.lastItemCursor = null;
               chatEntity.lastReadItemCursor = null;
-              await _guard.protect(_local.clear);
+              _lastReadItemCursor = null;
+              await _pagination.clear();
               break;
 
             case ChatEventKind.itemHidden:
@@ -930,8 +1202,7 @@ class HiveRxChat extends RxChat {
 
             case ChatEventKind.hidden:
               event as EventChatHidden;
-              _chatRepository.remove(event.chatId);
-              putChat = false;
+              chatEntity.value.isHidden = true;
               continue;
 
             case ChatEventKind.itemDeleted:
@@ -939,19 +1210,25 @@ class HiveRxChat extends RxChat {
               await remove(event.itemId);
               break;
 
-            case ChatEventKind.itemTextEdited:
-              event as EventChatItemTextEdited;
-              await _guard.protect(
-                () => Future.sync(() {
-                  // TODO: Implement `ChatItemId` to timestamp lookup table.
-                  var message = _local.messages
-                      .firstWhereOrNull((e) => e.value.id == event.itemId);
-                  if (message != null) {
-                    (message.value as ChatMessage).text = event.text;
-                    message.save();
-                  }
-                }),
-              );
+            case ChatEventKind.itemEdited:
+              event as EventChatItemEdited;
+              final item = await get(event.itemId);
+              if (item != null) {
+                final message = item.value as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo = event.quotes ?? message.repliesTo;
+                put(item);
+              }
+
+              if (chatEntity.value.lastItem?.id == event.itemId) {
+                final message = chatEntity.value.lastItem as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo = event.quotes ?? message.repliesTo;
+              }
               break;
 
             case ChatEventKind.callStarted:
@@ -964,13 +1241,12 @@ class HiveRxChat extends RxChat {
               chatEntity.value.ongoingCall = event.call;
               _chatRepository.addCall(event.call);
 
-              var message =
-                  await get(event.call.id, timestamp: event.call.timestamp);
+              final message = await get(event.call.id, key: event.call.key);
 
               if (message != null) {
                 event.call.at = message.value.at;
                 message.value = event.call;
-                message.save();
+                put(message);
               }
               break;
 
@@ -993,17 +1269,19 @@ class HiveRxChat extends RxChat {
               }
 
               if (event.reason != ChatCallFinishReason.moved) {
-                _chatRepository.removeCredentials(event.call.id);
+                _chatRepository.removeCredentials(
+                  event.call.chatId,
+                  event.call.id,
+                );
                 _chatRepository.endCall(event.call.chatId);
               }
 
-              var message =
-                  await get(event.call.id, timestamp: event.call.timestamp);
+              final message = await get(event.call.id, key: event.call.key);
 
               if (message != null) {
                 event.call.at = message.value.at;
                 message.value = event.call;
-                message.save();
+                put(message);
               }
               break;
 
@@ -1040,12 +1318,12 @@ class HiveRxChat extends RxChat {
 
                   if (chatEntity.value.ongoingCall != null) {
                     final call = chatEntity.value.ongoingCall!;
-                    var message = await get(call.id, timestamp: call.timestamp);
+                    final message = await get(call.id, key: call.key);
 
                     if (message != null) {
                       call.at = message.value.at;
                       message.value = call;
-                      message.save();
+                      put(message);
                     }
                   }
                 }
@@ -1089,6 +1367,19 @@ class HiveRxChat extends RxChat {
                 } else {
                   read.at = at;
                 }
+
+                if (event.byUser.id == me) {
+                  final ChatItemKey? key =
+                      _local.keys.lastWhereOrNull((e) => e.at == at);
+                  if (key != null) {
+                    final HiveChatItem? item = await _local.get(key);
+                    if (item != null) {
+                      chatEntity.lastReadItemCursor = item.cursor!;
+                      chatEntity.value.lastReadItem = item.value.id;
+                      _lastReadItemCursor = item.cursor!;
+                    }
+                  }
+                }
               }
 
               LastChatRead? lastRead = chatEntity.value.lastReads
@@ -1113,7 +1404,7 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.isHidden = false;
               }
 
-              if (item.value is ChatMessage && item.value.authorId == me) {
+              if (item.value is ChatMessage && item.value.author.id == me) {
                 ChatMessage? pending =
                     _pending.whereType<ChatMessage>().firstWhereOrNull(
                           (e) =>
@@ -1125,12 +1416,8 @@ class HiveRxChat extends RxChat {
                 // one is found in the [_pending] messages, and this message
                 // is not yet added to the store, then remove the [pending].
                 if (pending != null &&
-                    await get(
-                          item.value.id,
-                          timestamp: item.value.timestamp,
-                        ) ==
-                        null) {
-                  remove(pending.id, pending.timestamp);
+                    await get(item.value.id, key: item.value.key) == null) {
+                  remove(pending.id, pending.key);
                   _pending.remove(pending);
                 }
               }
@@ -1160,6 +1447,7 @@ class HiveRxChat extends RxChat {
                     final action = msg.action as ChatInfoActionMemberRemoved;
                     chatEntity.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
+                    // TODO: https://github.com/team113/messenger/issues/627
                     chatEntity.value.lastReads
                         .removeWhere((e) => e.memberId == action.user.id);
                     reads.removeWhere((e) => e.memberId == action.user.id);
@@ -1200,69 +1488,24 @@ class HiveRxChat extends RxChat {
             case ChatEventKind.favorited:
               event as EventChatFavorited;
               chatEntity.value.favoritePosition = event.position;
-              _chatRepository.chats.emit(
-                MapChangeNotification.updated(
-                  chatEntity.value.id,
-                  chatEntity.value.id,
-                  _chatRepository.chats[chatEntity.value.id],
-                ),
-              );
               break;
 
             case ChatEventKind.unfavorited:
               chatEntity.value.favoritePosition = null;
-              _chatRepository.chats.emit(
-                MapChangeNotification.updated(
-                  chatEntity.value.id,
-                  chatEntity.value.id,
-                  _chatRepository.chats[chatEntity.value.id],
-                ),
-              );
+              break;
+
+            case ChatEventKind.callConversationStarted:
+              event as EventChatCallConversationStarted;
+              chatEntity.value.ongoingCall = event.call;
               break;
           }
         }
 
-        if (putChat) {
-          _chatLocal.put(chatEntity);
+        if (shouldPutChat) {
+          await _chatRepository.put(chatEntity);
         }
         break;
     }
-  }
-
-  @override
-  int compareTo(RxChat other) {
-    if (chat.value.ongoingCall != null &&
-        other.chat.value.ongoingCall == null) {
-      return -1;
-    } else if (chat.value.ongoingCall == null &&
-        other.chat.value.ongoingCall != null) {
-      return 1;
-    } else if (chat.value.ongoingCall != null &&
-        other.chat.value.ongoingCall != null) {
-      return chat.value.ongoingCall!.at
-          .compareTo(other.chat.value.ongoingCall!.at);
-    }
-
-    if (chat.value.favoritePosition != null &&
-        other.chat.value.favoritePosition == null) {
-      return -1;
-    } else if (chat.value.favoritePosition == null &&
-        other.chat.value.favoritePosition != null) {
-      return 1;
-    } else if (chat.value.favoritePosition != null &&
-        other.chat.value.favoritePosition != null) {
-      return chat.value.favoritePosition!
-          .compareTo(other.chat.value.favoritePosition!);
-    }
-
-    if (chat.value.id.isLocalWith(me) && !other.chat.value.id.isLocalWith(me)) {
-      return 1;
-    } else if (!chat.value.id.isLocalWith(me) &&
-        other.chat.value.id.isLocalWith(me)) {
-      return -1;
-    }
-
-    return other.chat.value.updatedAt.compareTo(chat.value.updatedAt);
   }
 }
 

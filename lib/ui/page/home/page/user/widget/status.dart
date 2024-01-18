@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -37,7 +37,6 @@ class UserStatusCopyable extends StatelessWidget {
         key: const Key('StatusField'),
         state: TextFieldState(text: status.val),
         label: 'label_status'.l10n,
-        copy: status.val,
       ),
     );
   }

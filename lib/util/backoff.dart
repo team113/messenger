@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,7 +33,7 @@ class Backoff {
   /// Returns result of the provided [callback] using the exponential backoff
   /// algorithm on any errors.
   static Future<T> run<T>(
-    Future<T> Function() callback, [
+    FutureOr<T> Function() callback, [
     CancelToken? cancelToken,
   ]) async {
     final CancelableOperation operation = CancelableOperation.fromFuture(
@@ -55,7 +55,7 @@ class Backoff {
               backoff *= 2;
             }
 
-            Log.error(e);
+            Log.error(e.toString(), 'Backoff');
           }
         }
       }),

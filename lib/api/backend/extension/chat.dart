@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,6 +28,7 @@ import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import 'call.dart';
 import 'file.dart';
@@ -63,7 +64,7 @@ extension ChatConversion on ChatMixin {
             lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
         lastDelivery: lastDelivery,
         lastItem: lastItem?.toHive().value,
-        lastReadItem: lastReadItem?.toHive().value,
+        lastReadItem: lastReadItem?.toHive().value.id,
         unreadCount: unreadCount,
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),
@@ -71,20 +72,23 @@ extension ChatConversion on ChatMixin {
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive() => HiveChat(
+  HiveChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+      HiveChat(
         toModel(),
         ver,
         lastItem?.cursor,
         lastReadItem?.cursor,
+        recent,
+        favorite,
       );
 
   /// Constructs a new [ChatData] from this [ChatMixin].
-  ChatData toData() {
+  ChatData toData([RecentChatsCursor? recent, FavoriteChatsCursor? favorite]) {
     var lastItem = this.lastItem?.toHive();
     var lastReadItem = this.lastReadItem?.toHive();
 
     return ChatData(
-      toHive(),
+      toHive(recent, favorite),
       lastItem,
       lastReadItem,
     );
@@ -97,9 +101,8 @@ extension ChatInfoConversion on ChatInfoMixin {
   ChatInfo toModel() => ChatInfo(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
-        author: author.toModel(),
         action: action.toModel(),
       );
 
@@ -153,7 +156,7 @@ extension ChatMessageConversion on ChatMessageMixin {
       ChatMessage(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         repliesTo: items.map((e) => e.value).toList(),
         text: text,
@@ -173,7 +176,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
   ChatMessage toModel() => ChatMessage(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         repliesTo: [],
         text: text,
@@ -199,7 +202,7 @@ extension ChatForwardConversion on ChatForwardMixin {
       ChatForward(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         quote: item.value,
       ),
@@ -220,7 +223,7 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
       ChatForward(
         id,
         chatId,
-        authorId,
+        author.toModel(),
         at,
         quote: item.value,
       ),
@@ -334,7 +337,7 @@ extension ChatLastReadItemConversion on ChatMixin$LastReadItem {
 
 /// Extension adding models construction from [ChatForwardMixin$Quote].
 extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
-  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin$Quote].
+  /// Constructs the new [HiveChatItemQuote]s from this [ChatForwardMixin$Quote].
   HiveChatItemQuote toHive() => _chatItemQuote(this);
 }
 
@@ -342,6 +345,15 @@ extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
 extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
   /// Constructs the new [HiveChatItemQuote] from this
   /// [ChatMessageMixin$RepliesTo].
+  HiveChatItemQuote toHive() => _chatItemQuote(this);
+}
+
+/// Extension adding models construction from
+/// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
+extension EventChatItemEditedRepliesToConversion
+    on ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed {
+  /// Constructs the new [HiveChatItemQuote]s from this
+  /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
   HiveChatItemQuote toHive() => _chatItemQuote(this);
 }
 
@@ -549,10 +561,10 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
       }
     } else if (node.$$typename == 'ChatForward') {
       var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
-      if (message.quote.original?.node.$$typename == 'ChatMessage') {
-        var node = message.quote.original?.node
-            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage;
-        attachments.addAll(node.attachments.map((e) => e.toModel()));
+      if (message.quote.$$typename == 'ChatMessageQuote') {
+        var quote = message.quote
+            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote;
+        attachments.addAll(quote.attachments.map((e) => e.toModel()));
       }
     }
 
@@ -570,11 +582,11 @@ extension GetAttachmentsChatMessageAttachmentConversion
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
 extension GetAttachmentsChatForwardAttachmentConversion
-    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments {
+    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$Original$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
@@ -593,6 +605,15 @@ extension ChatMessageQuoteMixinAttachmentsConversion
     on ChatMessageQuoteMixin$Attachments {
   /// Constructs a new [Attachment] from this
   /// [ChatMessageQuoteMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed].
+extension EventChatItemEditedAttachmentsConversion
+    on ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 

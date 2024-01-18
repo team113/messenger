@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,18 +20,21 @@ import 'dart:async';
 import 'package:async/async.dart';
 
 /// Extension adding convenient execution wrapper to [StreamQueue].
-extension StreamQueueExtension on StreamQueue {
+extension StreamQueueExtension<T> on StreamQueue<T> {
   /// Executes this [StreamQueue] in an async loop invoking the provided
   /// [onEvent] on every [T] event happening.
-  Future<void> execute<T>(FutureOr<void> Function(T) onEvent) async {
+  Future<void> execute(
+    FutureOr<void> Function(T) onEvent, {
+    FutureOr<void> Function(Object e)? onError,
+  }) async {
     try {
       while (await hasNext) {
         T? event;
 
         try {
           event = await next;
-        } catch (_) {
-          // No-op.
+        } catch (e) {
+          await onError?.call(e);
         }
 
         if (event != null) {

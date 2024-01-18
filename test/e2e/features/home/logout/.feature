@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -42,7 +42,8 @@ Feature: Logout confirmation
     When I tap `SignInButton` button
     Then I wait until `LoginView` is present
 
-    When I paste to `UsernameField` field
+    When I tap `PasswordButton` button
+    And I paste to `UsernameField` field
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
     Then I wait until `HomeView` is present

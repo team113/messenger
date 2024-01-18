@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ Feature: Drafts
 
     When I attach "test.txt" file
     And I fill `MessageField` field with "He-he, draft!"
+    And I pause for 2 seconds
     And I return to previous page
     Then I see draft "He-he, draft!" in chat with Bob
 

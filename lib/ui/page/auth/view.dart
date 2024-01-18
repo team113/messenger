@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,19 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rive/rive.dart' hide LinearGradient;
 
-import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/language/controller.dart';
-import '/ui/page/home/page/my_profile/widget/download_button.dart';
+import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -42,15 +38,29 @@ class AuthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: AuthController(Get.find()),
       builder: (AuthController c) {
-        bool isWeb = PlatformUtils.isWeb;
-        bool isAndroidWeb = isWeb && PlatformUtils.isAndroid;
-        bool isIosWeb = isWeb && PlatformUtils.isIOS;
-        bool isDesktopWeb = isWeb && PlatformUtils.isDesktop;
+        final Widget status = Column(
+          children: [
+            const SizedBox(height: 4),
+            StyledCupertinoButton(
+              label: 'btn_download_application'.l10n,
+              style: style.fonts.normal.regular.secondary,
+              onPressed: () => _download(context),
+            ),
+            const SizedBox(height: 4),
+            StyledCupertinoButton(
+              padding: const EdgeInsets.all(8),
+              label: 'btn_work_with_us'.l10n,
+              style: style.fonts.small.regular.secondary,
+              onPressed: () => router.work(null),
+            ),
+            const SizedBox(height: 8),
+          ],
+        );
 
         // Header part of the page.
         //
@@ -58,13 +68,9 @@ class AuthView extends StatelessWidget {
         // load all the images ahead of animation to reduce the possible
         // flickering.
         List<Widget> header = [
-          ...List.generate(10, (i) => 'assets/images/logo/head000$i.svg')
-              .map((e) => Offstage(child: SvgImage.asset(e)))
-              .toList(),
-          const SizedBox(height: 30),
           Text(
             'Messenger',
-            style: fonts.displayMedium!.copyWith(color: style.colors.secondary),
+            style: style.fonts.largest.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -72,7 +78,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             'by Gapopa',
-            style: fonts.labelLarge!.copyWith(color: style.colors.secondary),
+            style: style.fonts.large.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
@@ -84,149 +90,97 @@ class AuthView extends StatelessWidget {
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
-            key: const Key('StartButton'),
-            title: Text(
-              'btn_start'.l10n,
-              style: fonts.titleLarge!.copyWith(color: style.colors.onPrimary),
-            ),
-            leading: SvgImage.asset('assets/icons/start.svg', width: 25 * 0.7),
-            onPressed: c.register,
-            color: style.colors.primary,
-          ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            key: const Key('SignInButton'),
-            title: Text('btn_login'.l10n, style: fonts.titleLarge),
-            leading: SvgImage.asset(
-              'assets/icons/sign_in.svg',
-              width: 20 * 0.7,
+            key: const Key('RegisterButton'),
+            title: Text('btn_sign_up'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(3, 0),
+              child: const SvgIcon(SvgIcons.register),
             ),
             onPressed: () => LoginView.show(context),
           ),
           const SizedBox(height: 15),
-          if (isIosWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: fonts.titleLarge),
-              leading: Padding(
-                padding: const EdgeInsets.only(bottom: 3 * 0.7),
-                child:
-                    SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7),
-              ),
-              onPressed: () => _download(context),
+          OutlinedRoundedButton(
+            key: const Key('SignInButton'),
+            title: Text('btn_sign_in'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgIcon(SvgIcons.enter),
             ),
-          if (isAndroidWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: fonts.titleLarge),
-              leading: Padding(
-                padding: const EdgeInsets.only(left: 2 * 0.7),
-                child:
-                    SvgImage.asset('assets/icons/google.svg', width: 22 * 0.7),
-              ),
-              onPressed: () => _download(context),
-            ),
-          if (isDesktopWeb)
-            OutlinedRoundedButton(
-              title: Text('btn_download'.l10n, style: fonts.titleLarge),
-              leading: PlatformUtils.isMacOS
-                  ? SvgImage.asset('assets/icons/apple.svg', width: 22 * 0.7)
-                  : (PlatformUtils.isWindows)
-                      ? SvgImage.asset(
-                          'assets/icons/windows.svg',
-                          width: 22 * 0.7,
-                        )
-                      : (PlatformUtils.isLinux)
-                          ? SvgImage.asset(
-                              'assets/icons/linux.svg',
-                              width: 22 * 0.7,
-                            )
-                          : null,
-              onPressed: () => _download(context),
-            ),
-          const SizedBox(height: 20),
-          StyledCupertinoButton(
-            key: c.languageKey,
-            label: 'label_language_entry'.l10nfmt({
-              'code': L10n.chosen.value!.locale.countryCode,
-              'name': L10n.chosen.value!.name,
-            }),
-            onPressed: () => LanguageSelectionView.show(context, null),
+            onPressed: () =>
+                LoginView.show(context, initial: LoginViewStage.signIn),
           ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
+            key: const Key('StartButton'),
+            subtitle: Text('btn_one_time_account_desc'.l10n),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgIcon(SvgIcons.oneTime),
+            ),
+            onPressed: c.register,
+          ),
+          const SizedBox(height: 15),
         ];
 
-        return Stack(
-          key: const Key('AuthView'),
+        final Widget column = Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            IgnorePointer(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: style.colors.background,
-              ),
-            ),
-            IgnorePointer(
-              child: SvgImage.asset(
-                'assets/images/background_light.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            GestureDetector(
-              onTap: c.animate,
-              child: Scaffold(
-                backgroundColor: style.colors.transparent,
-                body: Center(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              max(550, MediaQuery.of(context).size.height),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ...header,
-                            Flexible(
-                              child: Obx(
-                                () => AnimatedLogo(
-                                  key: const ValueKey('Logo'),
-                                  svgAsset:
-                                      'assets/images/logo/head000${c.logoFrame.value}.svg',
-                                  onInit: Config.disableInfiniteAnimations
-                                      ? null
-                                      : (a) => _setBlink(c, a),
-                                ),
-                              ),
-                            ),
-                            ...footer,
-                            SizedBox(
-                              height: MediaQuery.of(context).viewPadding.bottom,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+            ...header,
+            Obx(() {
+              return AnimatedLogo(
+                key: const ValueKey('Logo'),
+                index: c.logoFrame.value,
+              );
+            }),
+            ...footer,
+          ],
+        );
+
+        return Listener(
+          key: const Key('AuthView'),
+          onPointerDown: (_) => c.animate(),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // For web, background color is displayed in `index.html` file.
+              if (!PlatformUtils.isWeb)
+                IgnorePointer(
+                  child: ColoredBox(color: style.colors.background),
+                ),
+              const IgnorePointer(
+                child: SvgImage.asset(
+                  'assets/images/background_light.svg',
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-          ],
+              CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Expanded(child: Center(child: column)),
+                        const SizedBox(height: 8),
+                        status,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
-  }
-
-  /// Sets the [AuthController.blink] from the provided [Artboard] and invokes
-  /// a [AuthController.animate] to animate it.
-  Future<void> _setBlink(AuthController c, Artboard a) async {
-    final StateMachineController machine =
-        StateMachineController(a.stateMachines.first);
-    a.addController(machine);
-
-    c.blink = machine.findInput<bool>('blink') as SMITrigger?;
-
-    await Future.delayed(const Duration(milliseconds: 500), c.animate);
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
@@ -243,45 +197,17 @@ class AuthView extends StatelessWidget {
               padding: ModalPopup.padding(context),
               shrinkWrap: true,
               children: const [
-                DownloadButton(
-                  asset: 'windows',
-                  width: 21.93,
-                  height: 22,
-                  title: 'Windows',
-                  link: 'messenger-windows.zip',
-                ),
+                DownloadButton.windows(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'apple',
-                  width: 23,
-                  height: 29,
-                  title: 'macOS',
-                  link: 'messenger-macos.zip',
-                ),
+                DownloadButton.macos(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'linux',
-                  width: 18.85,
-                  height: 22,
-                  title: 'Linux',
-                  link: 'messenger-linux.zip',
-                ),
+                DownloadButton.linux(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'apple',
-                  width: 23,
-                  height: 29,
-                  title: 'iOS',
-                  link: 'messenger-ios.zip',
-                ),
+                DownloadButton.appStore(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: 'google',
-                  width: 20.33,
-                  height: 22.02,
-                  title: 'Android',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.googlePlay(),
+                SizedBox(height: 8),
+                DownloadButton.android(),
               ],
             ),
           ),

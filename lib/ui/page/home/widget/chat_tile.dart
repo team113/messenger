@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,11 +39,14 @@ class ChatTile extends StatelessWidget {
     this.actions = const [],
     this.selected = false,
     this.onTap,
-    this.height = 94,
+    this.height = 80,
     this.darken = 0,
+    this.dimmed = false,
+    Widget Function(Widget)? titleBuilder,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
-  }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
+  })  : titleBuilder = titleBuilder ?? _defaultBuilder,
+        avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
   /// [Chat] this [ChatTile] represents.
   final RxChat? chat;
@@ -84,12 +87,20 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
+  /// Builder for building the [RxChat.title].
+  ///
+  /// Intended to be used to allow custom modifications over the title.
+  final Widget Function(Widget child) titleBuilder;
+
   /// Indicator whether context menu should be enabled over this [ChatTile].
   final bool enableContextMenu;
 
+  /// Indicator whether this [ChatTile] should have its background a bit dimmed.
+  final bool dimmed;
+
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return ContextMenuRegion(
       key: Key('Chat_${chat?.chat.value.id}'),
@@ -97,30 +108,34 @@ class ChatTile extends StatelessWidget {
       actions: actions,
       indicateOpenedMenu: true,
       enabled: enableContextMenu,
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: InkWellWithHover(
-            selectedColor: style.colors.primary,
-            unselectedColor: style.cardColor.darken(darken),
-            selected: selected,
-            hoveredBorder:
-                selected ? style.cardSelectedBorder : style.cardHoveredBorder,
-            border: selected ? style.cardSelectedBorder : style.cardBorder,
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-            selectedHoverColor: style.colors.primary,
-            folded: chat?.chat.value.favoritePosition != null,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
+        child: InkWellWithHover(
+          selectedColor: style.colors.primary,
+          unselectedColor: dimmed
+              ? style.colors.onPrimaryOpacity50
+              : style.cardColor.darken(darken),
+          selected: selected,
+          hoveredBorder:
+              selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+          border: selected ? style.cardSelectedBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: onTap,
+          unselectedHoverColor: style.cardHoveredColor,
+          selectedHoverColor: style.colors.primary,
+          folded: chat?.chat.value.favoritePosition != null,
+          child: SizedBox(
+            height: height,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${chat?.chat.value.id}')
                   : null,
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Row(
                 children: [
-                  avatarBuilder(AvatarWidget.fromRxChat(chat, radius: 30)),
+                  avatarBuilder(
+                    AvatarWidget.fromRxChat(chat, radius: AvatarRadius.large),
+                  ),
                   const SizedBox(width: 12),
                   ...leading,
                   Expanded(
@@ -134,18 +149,20 @@ class ChatTile extends StatelessWidget {
                               child: Row(
                                 children: [
                                   Flexible(
-                                    child: Obx(() {
-                                      return Text(
-                                        chat?.title.value ?? ('dot'.l10n * 3),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: fonts.headlineLarge!.copyWith(
-                                          color: selected
-                                              ? style.colors.onPrimary
-                                              : style.colors.onBackground,
-                                        ),
-                                      );
-                                    }),
+                                    child: titleBuilder(
+                                      Obx(() {
+                                        return Text(
+                                          chat?.title.value ?? ('dot'.l10n * 3),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: selected
+                                              ? style
+                                                  .fonts.big.regular.onPrimary
+                                              : style.fonts.big.regular
+                                                  .onBackground,
+                                        );
+                                      }),
+                                    ),
                                   ),
                                   ...title,
                                 ],
@@ -169,5 +186,5 @@ class ChatTile extends StatelessWidget {
   }
 
   /// Returns the [child].
-  static Widget _defaultAvatarBuilder(Widget child) => child;
+  static Widget _defaultBuilder(Widget child) => child;
 }

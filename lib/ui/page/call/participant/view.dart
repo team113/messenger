@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,6 +29,7 @@ import '/ui/widget/member_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// [OngoingCall.members] enumeration and administration view.
@@ -62,14 +63,14 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: ParticipantController(
         call,
         Get.find(),
         Get.find(),
-        pop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (ParticipantController c) {
         return Obx(() {
@@ -140,7 +141,7 @@ class ParticipantView extends StatelessWidget {
 
                             return MemberTile(
                               user: user,
-                              canLeave: user.id == c.me,
+                              me: user.id == c.me,
                               inCall: user.id == c.me ? null : inCall,
                               onTap: () {
                                 // TODO: Open the [Routes.user] page.
@@ -167,9 +168,7 @@ class ParticipantView extends StatelessWidget {
                           'btn_add_participants'.l10n,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          style: fonts.titleLarge!.copyWith(
-                            color: style.colors.onPrimary,
-                          ),
+                          style: style.fonts.medium.regular.onPrimary,
                         ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();

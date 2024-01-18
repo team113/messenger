@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
-import 'image_gallery_item.dart';
 
 part 'user_call_cover.g.dart';
 
@@ -31,7 +30,6 @@ part 'user_call_cover.g.dart';
 @HiveType(typeId: ModelTypeId.userCallCover)
 class UserCallCover extends HiveObject {
   UserCallCover({
-    this.galleryItem,
     required this.full,
     required this.vertical,
     required this.square,
@@ -39,31 +37,27 @@ class UserCallCover extends HiveObject {
     this.crop,
   });
 
-  /// [ImageGalleryItem] this [UserCallCover] was created from.
-  @HiveField(0)
-  final ImageGalleryItem? galleryItem;
-
   /// Original image [StorageFile] representing this [UserCallCover].
-  @HiveField(1)
-  final StorageFile original;
+  @HiveField(0)
+  final ImageFile original;
 
   /// Full-sized [UserCallCover]'s image [StorageFile], keeping the original
   /// sizes.
-  @HiveField(2)
-  final StorageFile full;
+  @HiveField(1)
+  final ImageFile full;
 
   /// Vertical [UserCallCover]'s view image [StorageFile] of `675px`x`900px`
   /// size.
-  @HiveField(3)
-  final StorageFile vertical;
+  @HiveField(2)
+  final ImageFile vertical;
 
   /// Square [[UserCallCover]]'s view image [StorageFile] of `300px`x`300px`
   /// size.
-  @HiveField(4)
-  final StorageFile square;
+  @HiveField(3)
+  final ImageFile square;
 
-  /// [CropArea] applied to the [ImageGalleryItem] to create this
+  /// [CropArea] applied to the original [ImageFile] for creating this
   /// [UserCallCover].
-  @HiveField(5)
+  @HiveField(4)
   final CropArea? crop;
 }

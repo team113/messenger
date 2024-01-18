@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,31 +26,43 @@ import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for adding and confirming an [UserPhone].
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {
-  const AddPhoneView({super.key, this.phone});
+  const AddPhoneView({super.key, this.phone, this.timeout = false});
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? phone;
 
+  /// Indicator whether the resend [Timer] should be started initially.
+  final bool timeout;
+
   /// Displays a [AddPhoneView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {UserPhone? phone}) {
-    return ModalPopup.show(context: context, child: AddPhoneView(phone: phone));
+  static Future<T?> show<T>(
+    BuildContext context, {
+    UserPhone? phone,
+    bool timeout = false,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: AddPhoneView(phone: phone, timeout: timeout),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final (style, fonts) = Theme.of(context).styles;
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       init: AddPhoneController(
         Get.find(),
         initial: phone,
-        pop: Navigator.of(context).pop,
+        timeout: timeout,
+        pop: context.popModal,
       ),
       builder: (AddPhoneController c) {
         return Obx(() {
@@ -71,9 +83,7 @@ class AddPhoneView extends StatelessWidget {
                           c.resent.value
                               ? 'label_add_phone_confirmation_sent_again'.l10n
                               : 'label_add_phone_confirmation_sent'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: style.colors.secondary,
-                          ),
+                          style: style.fonts.normal.regular.secondary,
                         );
                       }),
                     ),
@@ -98,11 +108,9 @@ class AddPhoneView extends StatelessWidget {
                                     : 'label_resend_timeout'.l10nfmt(
                                         {'timeout': c.resendPhoneTimeout.value},
                                       ),
-                                style: fonts.bodyMedium!.copyWith(
-                                  color: c.resendPhoneTimeout.value == 0
-                                      ? style.colors.onPrimary
-                                      : style.colors.onBackground,
-                                ),
+                                style: c.resendPhoneTimeout.value == 0
+                                    ? style.fonts.normal.regular.onPrimary
+                                    : style.fonts.normal.regular.onBackground,
                               ),
                               onPressed: c.resendPhoneTimeout.value == 0
                                   ? c.resendPhone
@@ -117,11 +125,9 @@ class AddPhoneView extends StatelessWidget {
                               maxWidth: double.infinity,
                               title: Text(
                                 'btn_proceed'.l10n,
-                                style: fonts.bodyMedium!.copyWith(
-                                  color: c.phoneCode.isEmpty.value
-                                      ? style.colors.onBackground
-                                      : style.colors.onPrimary,
-                                ),
+                                style: c.phoneCode.isEmpty.value
+                                    ? style.fonts.normal.regular.onBackground
+                                    : style.fonts.normal.regular.onPrimary,
                               ),
                               onPressed: c.phoneCode.isEmpty.value
                                   ? null
@@ -148,9 +154,7 @@ class AddPhoneView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text(
                         'label_add_phone_description'.l10n,
-                        style: fonts.bodyMedium!.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                        style: style.fonts.normal.regular.secondary,
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -171,11 +175,9 @@ class AddPhoneView extends StatelessWidget {
                         maxWidth: double.infinity,
                         title: Text(
                           'btn_proceed'.l10n,
-                          style: fonts.bodyMedium!.copyWith(
-                            color: c.phone.isEmpty.value
-                                ? style.colors.onBackground
-                                : style.colors.onPrimary,
-                          ),
+                          style: c.phone.isEmpty.value
+                              ? style.fonts.normal.regular.onBackground
+                              : style.fonts.normal.regular.onPrimary,
                         ),
                         onPressed:
                             c.phone.isEmpty.value ? null : c.phone.submit,

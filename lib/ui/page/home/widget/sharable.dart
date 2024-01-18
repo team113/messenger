@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -29,7 +30,7 @@ import '/util/platform_utils.dart';
 /// Sharable field opening a [Share] modal with the provided [share] content.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
-    Key? key,
+    super.key,
     required String? text,
     this.share,
     this.icon,
@@ -37,7 +38,7 @@ class SharableTextField extends StatelessWidget {
     this.style,
     this.trailing,
     this.leading,
-  }) : super(key: key) {
+  }) {
     state = TextFieldState(text: text, editable: false);
   }
 
@@ -91,8 +92,11 @@ class SharableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
-                  suffix: trailing == null ? Icons.ios_share : null,
-                  trailing: trailing,
+                  trailing: trailing ??
+                      Transform.translate(
+                        offset: const Offset(0, -1),
+                        child: const SvgIcon(SvgIcons.share),
+                      ),
                   label: label,
                   style: this.style,
                 ),

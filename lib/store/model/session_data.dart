@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,49 +17,41 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model/session.dart';
+import '/domain/model/chat.dart';
 import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
-import '/util/new_type.dart';
-import 'contact.dart';
+import '/store/model/contact.dart';
 
 part 'session_data.g.dart';
 
 /// [Session] relative preferences.
 @HiveType(typeId: ModelTypeId.sessionData)
 class SessionData extends HiveObject {
-  /// Persisted [Credentials] data.
+  /// Persisted [FavoriteChatsListVersion] data.
   @HiveField(0)
-  Credentials? credentials;
+  FavoriteChatsListVersion? favoriteChatsListVersion;
+
+  /// Persisted indicator whether all favorite [Chat]s are synchronized with the
+  /// remote, meaning no queries should be made.
+  @HiveField(1)
+  bool? favoriteChatsSynchronized;
 
   /// Persisted [ChatContactsListVersion] data.
-  @HiveField(1)
+  @HiveField(2)
   ChatContactsListVersion? chatContactsListVersion;
 
-  /// Persisted [FavoriteChatsListVersion] data.
-  @HiveField(2)
-  FavoriteChatsListVersion? favoriteChatsListVersion;
-}
+  /// Persisted indicator whether all favorite [ChatContact]s are synchronized
+  /// with the remote, meaning no queries should be made.
+  @HiveField(3)
+  bool? favoriteContactsSynchronized;
 
-/// Version of [Session]'s state.
-///
-/// It increases monotonically, so may be used (and is intended to) for
-/// tracking state's actuality.
-@HiveType(typeId: ModelTypeId.sessionVersion)
-class SessionVersion extends NewType<BigInt> {
-  const SessionVersion(BigInt val) : super(val);
+  /// Persisted indicator whether all [ChatContact]s are synchronized with the
+  /// remote, meaning no queries should be made.
+  @HiveField(4)
+  bool? contactsSynchronized;
 
-  factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
-}
-
-/// Version of [RememberedSession]'s state.
-///
-/// It increases monotonically, so may be used (and is intended to) for
-/// tracking state's actuality.
-@HiveType(typeId: ModelTypeId.rememberedSessionVersion)
-class RememberedSessionVersion extends NewType<BigInt> {
-  const RememberedSessionVersion(BigInt val) : super(val);
-
-  factory RememberedSessionVersion.parse(String val) =>
-      RememberedSessionVersion(BigInt.parse(val));
+  /// Persisted indicator whether all blocked [User]s are synchronized with the
+  /// remote, meaning no queries should be made.
+  @HiveField(5)
+  bool? blocklistSynchronized;
 }

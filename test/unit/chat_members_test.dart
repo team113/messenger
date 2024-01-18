@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,14 +30,17 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/gallery_item.dart';
+import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/session.dart';
+import 'package:messenger/provider/hive/recent_chat.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -58,18 +61,18 @@ void main() async {
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  var sessionProvider = Get.put(SessionDataHiveProvider());
-  await sessionProvider.init();
+  var credentialsProvider = Get.put(CredentialsHiveProvider());
+  await credentialsProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
-  var galleryItemProvider = Get.put(GalleryItemHiveProvider());
-  await galleryItemProvider.init();
   var chatHiveProvider = Get.put(ChatHiveProvider());
   await chatHiveProvider.init();
   var userProvider = UserHiveProvider();
   await userProvider.init();
-  var credentialsProvider = ChatCallCredentialsHiveProvider();
-  await credentialsProvider.init();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
+  await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -82,9 +85,35 @@ void main() async {
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
+  var recentChatProvider = RecentChatHiveProvider();
+  await recentChatProvider.init();
+  var favoriteChatProvider = FavoriteChatHiveProvider();
+  await favoriteChatProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
 
   var recentChats = {
-    'recentChats': {'nodes': []}
+    'recentChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
+  };
+
+  var favoriteChats = {
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      }
+    }
   };
 
   var chatData = {
@@ -114,10 +143,8 @@ void main() async {
                 'num': '1234567890123456',
                 'login': null,
                 'name': null,
-                'bio': null,
                 'emails': {'confirmed': []},
                 'phones': {'confirmed': []},
-                'gallery': {'nodes': []},
                 'chatDirectLink': null,
                 'hasPassword': false,
                 'unreadChatsCount': 0,
@@ -126,10 +153,7 @@ void main() async {
                 'online': {'__typename': 'UserOnline'},
                 'mutualContactsCount': 0,
                 'isDeleted': false,
-                'isBlacklisted': {
-                  'blacklisted': false,
-                  'ver': '0',
-                },
+                'isBlocked': {'ver': '0'},
               },
               'action': {
                 '__typename': 'ChatInfoActionMemberAdded',
@@ -139,10 +163,8 @@ void main() async {
                   'num': '1234567890123456',
                   'login': null,
                   'name': null,
-                  'bio': null,
                   'emails': {'confirmed': []},
                   'phones': {'confirmed': []},
-                  'gallery': {'nodes': []},
                   'chatDirectLink': null,
                   'hasPassword': false,
                   'unreadChatsCount': 0,
@@ -151,10 +173,7 @@ void main() async {
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
                   'isDeleted': false,
-                  'isBlacklisted': {
-                    'blacklisted': false,
-                    'ver': '0',
-                  },
+                  'isBlocked': {'ver': '0'},
                 },
               },
             },
@@ -187,10 +206,8 @@ void main() async {
                 'num': '1234567890123456',
                 'login': null,
                 'name': null,
-                'bio': null,
                 'emails': {'confirmed': []},
                 'phones': {'confirmed': []},
-                'gallery': {'nodes': []},
                 'chatDirectLink': null,
                 'hasPassword': false,
                 'unreadChatsCount': 0,
@@ -199,10 +216,7 @@ void main() async {
                 'online': {'__typename': 'UserOnline'},
                 'mutualContactsCount': 0,
                 'isDeleted': false,
-                'isBlacklisted': {
-                  'blacklisted': false,
-                  'ver': '0',
-                },
+                'isBlocked': {'ver': '0'},
               },
               'action': {
                 '__typename': 'ChatInfoActionMemberRemoved',
@@ -212,10 +226,8 @@ void main() async {
                   'num': '1234567890123456',
                   'login': null,
                   'name': null,
-                  'bio': null,
                   'emails': {'confirmed': []},
                   'phones': {'confirmed': []},
-                  'gallery': {'nodes': []},
                   'chatDirectLink': null,
                   'hasPassword': false,
                   'unreadChatsCount': 0,
@@ -224,10 +236,7 @@ void main() async {
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
                   'isDeleted': false,
-                  'isBlacklisted': {
-                    'blacklisted': false,
-                    'ver': '0',
-                  },
+                  'isBlocked': {'ver': '0'},
                 },
               },
             },
@@ -264,18 +273,19 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
-        sessionProvider,
+        credentialsProvider,
       ),
     );
     await authService.init();
 
-    UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider, galleryItemProvider));
-    CallRepository callRepository = Get.put(
+    UserRepository userRepository =
+        Get.put(UserRepository(graphQlProvider, userProvider));
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
-        credentialsProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -284,6 +294,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        recentChatProvider,
+        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -296,11 +308,21 @@ void main() async {
   }
 
   when(graphQlProvider.recentChats(
-    first: 120,
+    first: anyNamed('first'),
     after: null,
     last: null,
     before: null,
+    noFavorite: anyNamed('noFavorite'),
+    withOngoingCalls: anyNamed('withOngoingCalls'),
   )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+
+  when(graphQlProvider.favoriteChats(
+    first: anyNamed('first'),
+    after: null,
+    last: null,
+    before: null,
+  )).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
   when(graphQlProvider.getChat(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -315,10 +337,12 @@ void main() async {
   when(graphQlProvider.chatEvents(
     const ChatId('fc95f181-ae23-41b7-b246-5d6bdbe577a1'),
     any,
+    any,
   )).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.chatEvents(
     const ChatId('c36343e2-e8af-4d55-9982-38ba68d2b785'),
+    any,
     any,
   )).thenAnswer((_) => const Stream.empty());
 
@@ -348,8 +372,7 @@ void main() async {
     when(graphQlProvider.addChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    )).thenThrow(
-        const AddChatMemberException(AddChatMemberErrorCode.blacklisted));
+    )).thenThrow(const AddChatMemberException(AddChatMemberErrorCode.blocked));
 
     expect(
       () async => await chatService.addChatMember(

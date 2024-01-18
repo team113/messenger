@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,9 +33,8 @@ class ChatCall extends ChatItem {
   ChatCall(
     super.id,
     super.chatId,
-    super.authorId,
+    super.author,
     super.at, {
-    required this.caller,
     required this.members,
     required this.withVideo,
     this.conversationStartedAt,
@@ -45,41 +44,30 @@ class ChatCall extends ChatItem {
     this.dialed,
   });
 
-  /// [User] who started this [ChatCall].
-  @HiveField(5)
-  final User? caller;
-
   /// Indicator whether this [ChatCall] is intended to start with video.
-  @HiveField(6)
+  @HiveField(5)
   final bool withVideo;
 
   /// [ChatCallMember]s of this [ChatCall].
-  @HiveField(7)
+  @HiveField(6)
   List<ChatCallMember> members;
 
   /// Link for joining this [ChatCall]'s room on a media server.
-  @HiveField(8)
+  @HiveField(7)
   ChatCallRoomJoinLink? joinLink;
 
   /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
   /// started (after ringing had been finished).
-  @HiveField(9)
+  @HiveField(8)
   PreciseDateTime? conversationStartedAt;
 
   /// [PreciseDateTime] when this [ChatCall] was finished.
-  @HiveField(10)
+  @HiveField(9)
   PreciseDateTime? finishedAt;
 
   /// Reason of why this [ChatCall] was finished.
-  @HiveField(11)
+  @HiveField(10)
   int? finishReasonIndex;
-
-  ChatCallFinishReason? get finishReason => finishReasonIndex == null
-      ? null
-      : ChatCallFinishReason.values[finishReasonIndex!];
-  set finishReason(ChatCallFinishReason? reason) {
-    finishReasonIndex = reason?.index;
-  }
 
   /// [ChatMember]s being dialed by this [ChatCall] at the moment.
   ///
@@ -88,8 +76,21 @@ class ChatCall extends ChatItem {
   /// [ChatMembersDialedConcrete.members] contain him or the
   /// [ChatMembersDialedAll.answeredMembers] do not while the [dialed] is not
   /// `null`.
-  @HiveField(12)
+  @HiveField(11)
   final ChatMembersDialed? dialed;
+
+  /// Returns the [ChatCallFinishReason] this [ChatCall] finished with, if any.
+  ChatCallFinishReason? get finishReason => finishReasonIndex == null
+      ? null
+      : ChatCallFinishReason.values[finishReasonIndex!];
+
+  /// Sets the [ChatCallFinishReason] of this [ChatCall] to the [reason].
+  set finishReason(ChatCallFinishReason? reason) {
+    finishReasonIndex = reason?.index;
+  }
+
+  @override
+  String toString() => 'ChatCall($id)';
 }
 
 /// Member of a [ChatCall].
@@ -134,18 +135,22 @@ class ChatCallCredentials extends HiveObject {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ChatCallCredentials && val == other.val;
+
+  /// Returns a copy of these [ChatCallCredentials] with the given [val].
+  ChatCallCredentials copyWith({String? val}) =>
+      ChatCallCredentials(val ?? this.val);
 }
 
 /// Link for joining a [ChatCall] room on a media server.
 @HiveType(typeId: ModelTypeId.chatCallRoomJoinLink)
 class ChatCallRoomJoinLink extends NewType<String> {
-  const ChatCallRoomJoinLink(String val) : super(val);
+  const ChatCallRoomJoinLink(super.val);
 }
 
 /// ID of the device the authenticated [MyUser] starts a [ChatCall] from.
 @HiveType(typeId: ModelTypeId.chatCallDeviceId)
 class ChatCallDeviceId extends NewType<String> {
-  const ChatCallDeviceId(String val) : super(val);
+  const ChatCallDeviceId(super.val);
 }
 
 /// [ChatMember]s being dialed by a [ChatCall].

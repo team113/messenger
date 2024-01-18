@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,11 +26,11 @@ part 'chat_item.g.dart';
 /// Version of a [ChatItem]'s state.
 @HiveType(typeId: ModelTypeId.chatItemVersion)
 class ChatItemVersion extends Version {
-  ChatItemVersion(String val) : super(val);
+  ChatItemVersion(super.val);
 }
 
 /// Cursor of a [ChatItem].
 @HiveType(typeId: ModelTypeId.chatItemsCursor)
 class ChatItemsCursor extends NewType<String> {
-  const ChatItemsCursor(String val) : super(val);
+  const ChatItemsCursor(super.val);
 }

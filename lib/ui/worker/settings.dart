@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,9 +23,12 @@ import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 
 /// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
-/// changes.
+/// changes and exposing its [onChanged] callback.
 class SettingsWorker extends DisposableService {
-  SettingsWorker(this._settingsRepository);
+  SettingsWorker(this._settingsRepository, {this.onChanged});
+
+  /// Callback, called on the [ApplicationSettings.locale] changes.
+  final void Function(String? locale)? onChanged;
 
   /// [AbstractSettingsRepository] storing the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepository;
@@ -41,7 +44,7 @@ class SettingsWorker extends DisposableService {
     if (locale == null) {
       _settingsRepository.setLocale(L10n.chosen.value!.toString());
     } else {
-      await L10n.set(Language.from(locale));
+      await L10n.set(Language.fromTag(locale));
     }
 
     _worker = ever(
@@ -49,7 +52,8 @@ class SettingsWorker extends DisposableService {
       (ApplicationSettings? settings) {
         if (locale != settings?.locale) {
           locale = settings?.locale;
-          L10n.set(Language.from(locale) ?? L10n.languages.first);
+          L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
+          onChanged?.call(locale);
         }
       },
     );
