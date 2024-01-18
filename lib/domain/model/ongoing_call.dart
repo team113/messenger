@@ -1011,8 +1011,8 @@ class OngoingCall {
     String deviceId, {
     bool updateDefault = false,
   }) async {
-  Log.debug('setAudioDevice($deviceId, $updateDefault)', '$runtimeType');
-  
+    Log.debug('setAudioDevice($deviceId, $updateDefault)', '$runtimeType');
+
     if (updateDefault) {
       _defaultAudioDevice = deviceId;
     }
@@ -1044,8 +1044,8 @@ class OngoingCall {
     String deviceId, {
     bool updateDefault = false,
   }) async {
-  Log.debug('setOutputDevice($deviceId, $updateDefault)', '$runtimeType');
-  
+    Log.debug('setOutputDevice($deviceId, $updateDefault)', '$runtimeType');
+
     if (updateDefault) {
       _defaultOutputDevice = deviceId;
     }
@@ -1867,7 +1867,7 @@ class OngoingCall {
     );
 
     MediaDeviceDetails? device;
-    
+
     if (added.audio().isNotEmpty && audioDevice.value != _defaultAudioDevice) {
       device = added.audio().first;
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
