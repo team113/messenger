@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/repository/pagination_fragment.dart';
 import '/provider/hive/chat_item.dart';
+import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'pagination.dart';
@@ -33,18 +34,13 @@ class PaginationFragmentImpl<K extends Comparable, T>
     this.pagination,
     List<FutureOr<Map<K, T>>> initial = const [],
   }) {
-    final List<Map<K, T>> items = [];
-    final List<Future> futures = [];
-
     for (var f in initial) {
       if (f is Future<Map<K, T>>) {
-        futures.add(f..then(this.items.addAll));
+        _futures.add(f..then(items.addAll));
       } else {
-        items.add(f);
+        items.addAll(f);
       }
     }
-
-    this.items.value = items.fold(ObsMap<K, T>(), (p, e) => p..addAll(e));
 
     if (pagination != null) {
       _paginationSubscription = pagination!.changes.listen((event) {
@@ -60,10 +56,10 @@ class PaginationFragmentImpl<K extends Comparable, T>
         }
       });
 
-      futures.add(pagination!.around());
+      _futures.add(pagination!.around());
     }
 
-    if (futures.isEmpty) {
+    if (_futures.isEmpty) {
       status.value = RxStatus.success();
     } else {
       if (this.items.isNotEmpty) {
@@ -72,7 +68,7 @@ class PaginationFragmentImpl<K extends Comparable, T>
         status.value = RxStatus.loading();
       }
 
-      Future.wait(futures)
+      Future.wait(_futures)
           .whenComplete(() => status.value = RxStatus.success());
     }
   }
@@ -85,6 +81,9 @@ class PaginationFragmentImpl<K extends Comparable, T>
 
   /// Pagination fetching [items].
   final Pagination<T, Object, K>? pagination;
+
+  /// [Future]s loading the initial [items].
+  final List<Future> _futures = [];
 
   /// [StreamSubscription] to the [Pagination.changes].
   StreamSubscription? _paginationSubscription;
@@ -100,6 +99,13 @@ class PaginationFragmentImpl<K extends Comparable, T>
 
   @override
   RxBool get previousLoading => pagination?.previousLoading ?? RxBool(false);
+
+  @override
+  Future<void> init() async {
+    Log.debug('init()', '$runtimeType');
+
+    await Future.wait(_futures);
+  }
 
   @override
   void dispose() {
@@ -159,7 +165,29 @@ class PaginationFragmentImpl<K extends Comparable, T>
 /// Implementation of a [PaginationFragment] for [ChatItem]s.
 class MessagesFragment
     implements PaginationFragment<ChatItemKey, Rx<ChatItem>> {
-  MessagesFragment({required this.pagination});
+  MessagesFragment({
+    required this.pagination,
+    this.onDispose,
+    ChatItemKey? initialKey,
+    ChatItemsCursor? initialCursor,
+  }) {
+    _paginationSubscription = pagination.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          items[event.key!] = Rx(event.value!.value..init());
+          break;
+
+        case OperationKind.removed:
+          items.remove(event.key);
+          break;
+      }
+    });
+
+    _futures.add(pagination.around(key: initialKey, cursor: initialCursor));
+
+    Future.wait(_futures).whenComplete(() => status.value = RxStatus.success());
+  }
 
   @override
   final RxObsMap<ChatItemKey, Rx<ChatItem>> items =
@@ -169,7 +197,13 @@ class MessagesFragment
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Pagination fetching [items].
-  final Pagination<HiveChatItem, Object, ChatItemKey> pagination;
+  final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination;
+
+  /// Callback called when this [MessagesFragment] is disposed.
+  final void Function()? onDispose;
+
+  /// [Future]s loading the initial [items].
+  final List<Future> _futures = [];
 
   /// [StreamSubscription] to the [Pagination.changes].
   StreamSubscription? _paginationSubscription;
@@ -186,30 +220,18 @@ class MessagesFragment
   @override
   RxBool get previousLoading => pagination.previousLoading;
 
-  /// Initializes this [MessagesFragment].
-  Future<void> init({ChatItemKey? key, Object? cursor}) async {
-    Log.debug('init($key, $cursor)', '$runtimeType');
+  @override
+  Future<void> init() async {
+    Log.debug('init()', '$runtimeType');
 
-    _paginationSubscription = pagination.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-          items[event.key!] = Rx(event.value!.value..init());
-          break;
-
-        case OperationKind.removed:
-        case OperationKind.updated:
-          // No-op.
-          break;
-      }
-    });
-
-    await pagination.around(key: key, cursor: cursor);
-    status.value = RxStatus.success();
+    await Future.wait(_futures);
   }
 
   @override
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
+
+    onDispose?.call();
 
     _paginationSubscription?.cancel();
     pagination.dispose();

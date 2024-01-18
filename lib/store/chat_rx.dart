@@ -507,7 +507,6 @@ class HiveRxChat extends RxChat {
     }
 
     await _pagination.around(cursor: _lastReadItemCursor, key: item?.value.key);
-
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -962,6 +961,9 @@ class HiveRxChat extends RxChat {
     }
 
     fragment = MessagesFragment(
+      initialKey: key,
+      initialCursor: cursor,
+      onDispose: () => _fragments.remove(fragment),
       pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
         onKey: (e) => e.value.key,
         provider: HiveGraphQlPageProvider(
@@ -974,7 +976,6 @@ class HiveRxChat extends RxChat {
       ),
     );
 
-    await fragment.init(key: key, cursor: cursor);
     _fragments.add(fragment);
     return fragment;
   }

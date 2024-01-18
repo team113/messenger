@@ -46,6 +46,9 @@ abstract class PaginationFragment<K extends Comparable, T> {
   /// Indicates whether the [previous] page of [items] is being fetched.
   RxBool get previousLoading;
 
+  /// Initializes this [PaginationFragment].
+  Future<void> init();
+
   /// Disposes this [PaginationFragment].
   void dispose();
 

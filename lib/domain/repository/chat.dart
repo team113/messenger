@@ -328,7 +328,8 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
 
-  /// Loads a fragment around the provided [item] or it's [reply] or [forward].
+  /// Loads a [PaginationFragment] around the provided [item] or it's [reply] or
+  /// [forward].
   Future<PaginationFragment<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
     ChatItem item, {
     ChatItemId? reply,

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
@@ -346,6 +347,10 @@ class ChatController extends GetxController {
   /// [PaginationFragment] loading a fragment of [elements] with pagination.
   PaginationFragment<ChatItemKey, Rx<ChatItem>>? _fragment;
 
+  /// [PaginationFragment]s used by this [ChatController].
+  final HashSet<PaginationFragment<ChatItemKey, Rx<ChatItem>>> _fragments =
+      HashSet();
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -514,6 +519,10 @@ class ChatController extends GetxController {
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
+    }
+
+    for (final f in _fragments) {
+      f.dispose();
     }
 
     super.onClose();
@@ -1015,11 +1024,18 @@ class ChatController extends GetxController {
 
           _subscribeFor(chat: chat);
         } else {
-          _fragment = await chat!.loadFragmentAround(
-            item,
-            reply: reply?.original?.id,
-            forward: forward?.original?.id,
-          );
+          _fragment = _fragments.firstWhereOrNull(
+                (e) => e.items.keys.any((e) => e.id == animateTo),
+              ) ??
+              await chat!.loadFragmentAround(
+                item,
+                reply: reply?.original?.id,
+                forward: forward?.original?.id,
+              );
+
+          _fragments.add(_fragment!);
+
+          await _fragment!.init();
 
           elements.clear();
           _fragment!.items.values.forEach(_add);
