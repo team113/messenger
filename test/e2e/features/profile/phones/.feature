@@ -23,15 +23,15 @@
 
      When I tap `MenuButton` button
      And I tap `Signing` button
-     And I tap `AddPhone` button
+     And I tap `ExpandSigning` button
      Then I wait until `Phone` is present
 
      When I fill `Phone` field with "+380971234567"
-     And I tap `Proceed` button
+     And I tap `Approve` button
      And I tap `CloseButton` button
      Then I wait until `UnconfirmedPhone` is present
 
-     When I tap `UnconfirmedPhone` widget
+     When I tap `VerifyPhone` widget
      And I wait until `ConfirmationCode` is present
      And I fill `ConfirmationCode` field with "1234"
      And I tap `Proceed` button
@@ -39,4 +39,4 @@
 
      When I tap `DeletePhone` widget
      And I tap `Proceed` button
-     Then I wait until `AddPhone` is present
+     Then I wait until `ConfirmedPhone` is absent

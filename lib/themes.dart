@@ -37,7 +37,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary']
   },
   'big': {
-    'regular': ['onBackground', 'onPrimary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
   },
   'medium': {
     'regular': [
@@ -75,7 +75,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
   },
   'smallest': {
-    'regular': ['onBackground', 'onPrimary']
+    'regular': ['onBackground', 'onPrimary', 'secondary']
   },
 })
 class Themes {
@@ -272,7 +272,7 @@ class Themes {
         prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         counterStyle: fonts.small.regular.secondaryHighlightDarkest,
-        floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        floatingLabelStyle: fonts.big.regular.secondary,
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
