@@ -507,6 +507,7 @@ class HiveRxChat extends RxChat {
     }
 
     await _pagination.around(cursor: _lastReadItemCursor, key: item?.value.key);
+
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -521,7 +522,6 @@ class HiveRxChat extends RxChat {
     }
 
     await _pagination.next();
-
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
