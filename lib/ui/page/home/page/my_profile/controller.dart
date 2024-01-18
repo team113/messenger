@@ -128,9 +128,13 @@ class MyProfileController extends GetxController {
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
-      _devicesSubscription =
-          MediaUtils.onDeviceChange.listen((e) => devices.value = e);
-      MediaUtils.enumerateDevices().then((e) => devices.value = e);
+      try {
+        _devicesSubscription =
+            MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+        MediaUtils.enumerateDevices().then((e) => devices.value = e);
+      } catch (_) {
+        // No-op, shouldn't break the view.
+      }
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
