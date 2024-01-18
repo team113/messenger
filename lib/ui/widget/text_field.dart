@@ -223,7 +223,10 @@ class ReactiveTextField extends StatelessWidget {
                     height: 24,
                     child: ElasticAnimatedSwitcher(
                       child: status.isLoading
-                          ? const SvgIcon(SvgIcons.timer)
+                          ? const SvgIcon(
+                              key: ValueKey('Loading'),
+                              SvgIcons.timer,
+                            )
                           : status.isSuccess
                               ? SizedBox(
                                   key: const ValueKey('Success'),
