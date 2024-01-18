@@ -126,6 +126,7 @@ enum ProfileTab {
   storage,
   language,
   blocklist,
+  sections,
   download,
   danger,
   logout,

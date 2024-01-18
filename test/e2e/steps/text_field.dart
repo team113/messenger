@@ -171,14 +171,12 @@ Future<void> _fillField(
     if (await context.world.appDriver.isPresent(finder)) {
       await context.world.appDriver.waitForAppToSettle();
 
-      await context.world.appDriver.scrollIntoView(finder);
       await context.world.appDriver.waitForAppToSettle();
       await context.world.appDriver
           .tap(finder, timeout: context.configuration.timeout);
       await context.world.appDriver.waitForAppToSettle();
 
       final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
-      await context.world.appDriver.scrollIntoView(finder2);
       await context.world.appDriver.enterText(finder2, text);
 
       await context.world.appDriver.waitForAppToSettle();

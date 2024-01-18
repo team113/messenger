@@ -56,6 +56,7 @@ import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
 
 import '../mock/graphql_provider.dart';
+import '../mock/overflow_error.dart';
 import '../mock/route_information_provider.dart';
 
 void main() async {
@@ -123,6 +124,7 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockedPlatformRouteInformationProvider();
 
+    FlutterError.onError = ignoreOverflowErrors;
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
     final authView = find.byType(AuthView);

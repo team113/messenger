@@ -154,6 +154,18 @@ class MenuTabView extends StatelessWidget {
                     }
                     break;
 
+                  case ProfileTab.download:
+                    if (!PlatformUtils.isWeb) {
+                      return const SizedBox();
+                    }
+                    break;
+
+                  case ProfileTab.storage:
+                    if (PlatformUtils.isWeb) {
+                      return const SizedBox();
+                    }
+                    break;
+
                   default:
                     // No-op.
                     break;

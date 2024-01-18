@@ -22,15 +22,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -43,7 +39,6 @@ import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
 import 'tab/work/view.dart';
 import 'widget/animated_slider.dart';
-import 'widget/avatar.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
@@ -212,120 +207,45 @@ class _HomeViewState extends State<HomeView> {
                           isOpen: router.navigation.value,
                           beginOffset: const Offset(0.0, 5),
                           translate: false,
-                          child: CustomNavigationBar(
-                            items: [
-                              const CustomNavigationBarItem(
-                                child: SvgIcon(
-                                  SvgIcons.partner,
-                                  key: Key('WorkButton'),
-                                ),
-                              ),
-                              const CustomNavigationBarItem(
-                                child: SvgImage.asset(
-                                  'assets/icons/contacts.svg',
-                                  key: Key('ContactsButton'),
-                                  width: 32,
-                                  height: 32,
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                badge: c.unreadChatsCount.value == 0
-                                    ? null
-                                    : '${c.unreadChatsCount.value}',
-                                badgeColor: c.myUser.value?.muted != null
-                                    ? style.colors.secondaryHighlightDarkest
-                                    : style.colors.danger,
-                                child: ContextMenuRegion(
-                                  key: const Key('ChatsButton'),
-                                  selector: c.chatsKey,
-                                  alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  actions: [
-                                    if (c.myUser.value?.muted != null)
-                                      ContextMenuButton(
-                                        key: const Key('UnmuteChatsButton'),
-                                        label: 'btn_unmute_chats'.l10n,
-                                        onPressed: () => c.toggleMute(true),
-                                      )
-                                    else
-                                      ContextMenuButton(
-                                        key: const Key('MuteChatsButton'),
-                                        label: 'btn_mute_chats'.l10n,
-                                        onPressed: () => c.toggleMute(false),
-                                      ),
-                                  ],
-                                  child: Obx(() {
-                                    final Widget child;
+                          child: Obx(() {
+                            return CustomNavigationBar(
+                              items: c.tabs.map((e) {
+                                switch (e) {
+                                  case HomeTab.work:
+                                    return const CustomNavigationBarItem.work();
 
-                                    if (c.myUser.value?.muted != null) {
-                                      child = const SvgIcon(
-                                        SvgIcons.chatsMuted,
-                                        key: Key('Muted'),
-                                      );
-                                    } else {
-                                      child = const SvgIcon(
-                                        SvgIcons.chats,
-                                        key: Key('Unmuted'),
-                                      );
-                                    }
+                                  case HomeTab.contacts:
+                                    return const CustomNavigationBarItem
+                                        .contacts();
 
-                                    return SafeAnimatedSwitcher(
-                                      key: c.chatsKey,
-                                      duration: 200.milliseconds,
-                                      child: child,
-                                    );
-                                  }),
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                child: ContextMenuRegion(
-                                  key: const Key('MenuButton'),
-                                  selector: c.profileKey,
-                                  alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(bottom: 4),
-                                  actions: [
-                                    ContextMenuButton(
-                                      label: 'label_presence_present'.l10n,
-                                      onPressed: () =>
-                                          c.setPresence(Presence.present),
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: style.colors.acceptAuxiliary,
-                                        ),
-                                      ),
-                                    ),
-                                    ContextMenuButton(
-                                      label: 'label_presence_away'.l10n,
-                                      onPressed: () =>
-                                          c.setPresence(Presence.away),
-                                      trailing: Container(
-                                        width: 10,
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: style.colors.warning,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  child: Padding(
-                                    key: c.profileKey,
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: AvatarWidget.fromMyUser(
-                                      c.myUser.value,
-                                      radius: AvatarRadius.normal,
-                                      onForbidden: c.updateAvatar,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            currentIndex: router.tab.index,
-                            onTap: c.pages.jumpToPage,
-                          ),
+                                  case HomeTab.chats:
+                                    return Obx(() {
+                                      return CustomNavigationBarItem.chats(
+                                        unread: c.unreadChats.value.toString(),
+                                        danger: c.myUser.value?.muted == null,
+                                        selector: c.chatsKey,
+                                        onMute: c.toggleMute,
+                                      );
+                                    });
+
+                                  case HomeTab.menu:
+                                    return Obx(() {
+                                      return CustomNavigationBarItem.menu(
+                                        acceptAuxiliary:
+                                            style.colors.acceptAuxiliary,
+                                        warning: style.colors.warning,
+                                        onPresence: c.setPresence,
+                                        onAvatar: c.updateAvatar,
+                                        selector: c.profileKey,
+                                        myUser: c.myUser.value,
+                                      );
+                                    });
+                                }
+                              }).toList(),
+                              currentIndex: c.tabs.indexOf(router.tab),
+                              onTap: (i) => c.pages.jumpToPage(c.tabs[i].index),
+                            );
+                          }),
                         );
                       }),
                     ),
