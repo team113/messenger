@@ -76,13 +76,15 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   void didUpdateWidget(CustomNavigationBar oldWidget) {
     final List<GlobalKey> keys = [];
 
-    for (var e in widget.items) {
-      final int index = oldWidget.items.indexOf(e);
-      keys.add(index == -1 ? GlobalKey() : _keys[index]);
-    }
+    if (oldWidget.items.length != widget.items.length) {
+      for (var e in widget.items) {
+        final int index = oldWidget.items.indexOf(e);
+        keys.add(index == -1 ? GlobalKey() : _keys[index]);
+      }
 
-    _keys.clear();
-    _keys.addAll(keys);
+      _keys.clear();
+      _keys.addAll(keys);
+    }
 
     super.didUpdateWidget(oldWidget);
   }
@@ -128,8 +130,8 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
                     final bool selected = widget.currentIndex == i;
 
                     return Expanded(
+                      key: _keys[i],
                       child: AnimatedScale(
-                        key: _keys[i],
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.bounceInOut,
                         scale: selected ? 1.1 : 1,
