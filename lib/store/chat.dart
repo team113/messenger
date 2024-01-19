@@ -297,6 +297,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> clear() {
+    Log.debug('clear()', '$runtimeType');
+
     for (var c in chats.entries) {
       c.value.dispose();
     }
@@ -352,10 +354,15 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> remove(ChatId id) => _chatLocal.remove(id);
+  Future<void> remove(ChatId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await _chatLocal.remove(id);
+  }
 
   /// Ensures the provided [Chat] is remotely accessible.
   Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
+    Log.debug('ensureRemoteDialog($chatId)', '$runtimeType');
+
     if (chatId.isLocal) {
       if (chatId.isLocalWith(me)) {
         return await ensureRemoteMonolog();
@@ -373,6 +380,8 @@ class ChatRepository extends DisposableInterface
 
   /// Ensures the provided [Chat]-monolog is remotely accessible.
   Future<HiveRxChat> ensureRemoteMonolog([ChatName? name]) async {
+    Log.debug('ensureRemoteMonolog($name)', '$runtimeType');
+
     final ChatData chatData = _chat(
       await _graphQlProvider.createMonologChat(name),
     );
@@ -390,6 +399,8 @@ class ChatRepository extends DisposableInterface
     List<UserId> memberIds, {
     ChatName? name,
   }) async {
+    Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
+
     var chat =
         _chat(await _graphQlProvider.createGroupChat(memberIds, name: name));
     return _putEntry(chat);
@@ -402,7 +413,12 @@ class ChatRepository extends DisposableInterface
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
   }) async {
-    HiveRxChat? rxChat = chats[chatId] ?? (await get(chatId));
+    Log.debug(
+      'sendChatMessage($chatId, $text, $attachments, $repliesTo)',
+      '$runtimeType',
+    );
+
+    HiveRxChat? rxChat = chats[chatId] ?? await get(chatId);
     ChatItem? local;
 
     if (chatId.isLocal) {
@@ -447,6 +463,11 @@ class ChatRepository extends DisposableInterface
     List<AttachmentId>? attachments,
     List<ChatItemId> repliesTo = const [],
   }) async {
+    Log.debug(
+      'postChatMessage($chatId, $text, $attachments, $repliesTo)',
+      '$runtimeType',
+    );
+
     return await _graphQlProvider.postChatMessage(
       chatId,
       text: text,
@@ -457,6 +478,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> resendChatItem(ChatItem item) async {
+    Log.debug('resendChatItem($item)', '$runtimeType');
+
     HiveRxChat? rxChat = chats[item.chatId];
 
     // TODO: Account [ChatForward]s.
@@ -488,6 +511,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> renameChat(ChatId id, ChatName? name) async {
+    Log.debug('renameChat($id, $name)', '$runtimeType');
+
     if (id.isLocalWith(me)) {
       await ensureRemoteMonolog(name);
       return;
@@ -507,11 +532,15 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> addChatMember(ChatId chatId, UserId userId) =>
-      _graphQlProvider.addChatMember(chatId, userId);
+  Future<void> addChatMember(ChatId chatId, UserId userId) async {
+    Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
+    await _graphQlProvider.addChatMember(chatId, userId);
+  }
 
   @override
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
+    Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
+
     final HiveRxChat? chat = chats[chatId];
     final ChatMember? member =
         chat?.chat.value.members.firstWhereOrNull((m) => m.user.id == userId);
@@ -836,6 +865,11 @@ class ChatRepository extends DisposableInterface
     ChatId chatId,
     ChatDirectLinkSlug slug,
   ) async {
+    Log.debug(
+      'createChatDirectLink($chatId, $slug)',
+      '$runtimeType',
+    );
+
     final HiveRxChat? chat = chats[chatId];
     final ChatDirectLink? link = chat?.chat.value.directLink;
 
@@ -851,6 +885,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> deleteChatDirectLink(ChatId groupId) async {
+    Log.debug('deleteChatDirectLink($groupId)', '$runtimeType');
+
     final HiveRxChat? chat = chats[groupId];
     final ChatDirectLink? link = chat?.chat.value.directLink;
 
@@ -873,6 +909,11 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? text,
     List<AttachmentId>? attachments,
   }) async {
+    Log.debug(
+      'forwardChatItems($from, $to, $items, $text, $attachments)',
+      '$runtimeType',
+    );
+
     if (to.isLocal) {
       to = (await ensureRemoteDialog(to))!.id;
     }
@@ -900,6 +941,11 @@ class ChatRepository extends DisposableInterface
     NativeFile? file,
     void Function(int count, int total)? onSendProgress,
   }) async {
+    Log.debug(
+      'updateChatAvatar($id, $file, onSendProgress)',
+      '$runtimeType',
+    );
+
     late dio.MultipartFile upload;
 
     if (file != null) {
@@ -958,6 +1004,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
+    Log.debug('toggleChatMute($id, $mute)', '$runtimeType');
+
     final HiveRxChat? chat = chats[id];
     final MuteDuration? muted = chat?.chat.value.muted;
 
@@ -984,6 +1032,11 @@ class ChatRepository extends DisposableInterface
     int? last,
     ChatItemsCursor? before,
   }) async {
+    Log.debug(
+      'messages($id, $first, $after, $last, $before)',
+      '$runtimeType',
+    );
+
     var query = await _graphQlProvider.chatItems(
       id,
       first: first,
@@ -1007,16 +1060,22 @@ class ChatRepository extends DisposableInterface
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
   Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
-    // Log.debug('removeCredentials($callId)', '$runtimeType');
+    Log.debug('removeCredentials($callId)', '$runtimeType');
     return _callRepo.removeCredentials(chatId, callId);
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
-  void addCall(ChatCall call) => _callRepo.add(call);
+  void addCall(ChatCall call) {
+    Log.debug('addCall($call)', '$runtimeType');
+    _callRepo.add(call);
+  }
 
   /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
   /// [chatId], if any.
-  void endCall(ChatId chatId) => _callRepo.remove(chatId);
+  void endCall(ChatId chatId) {
+    Log.debug('endCall($chatId)', '$runtimeType');
+    _callRepo.remove(chatId);
+  }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Stream<ChatEvents> chatEvents(

@@ -341,8 +341,6 @@ class HiveRxChat extends RxChat {
             page = reversed;
           }
 
-          print(page);
-
           if (page.info.hasPrevious == false) {
             final HiveChat? chatEntity = await _chatLocal.get(id);
             final ChatItem? firstItem = page.edges.firstOrNull?.value;
@@ -354,8 +352,6 @@ class HiveRxChat extends RxChat {
               _chatLocal.put(chatEntity);
             }
           }
-
-          print('done');
 
           return reversed;
         },
@@ -412,6 +408,8 @@ class HiveRxChat extends RxChat {
 
   /// Disposes this [HiveRxChat].
   Future<void> dispose() async {
+    Log.debug('dispose()', '$runtimeType($id)');
+
     _disposed = true;
     status.value = RxStatus.loading();
     messages.clear();

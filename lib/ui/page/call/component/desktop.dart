@@ -233,31 +233,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           ],
         ),
 
-        // Dim the primary view in a non-active call.
-        // Obx(() {
-        //   final Widget child;
-
-        //   final bool isOutgoing =
-        //       (c.outgoing || c.state.value == OngoingCallState.local) &&
-        //           !c.started;
-
-        //   if ((c.isGroup && isOutgoing) ||
-        //       c.state.value == OngoingCallState.active) {
-        //     child = const SizedBox();
-        //   } else {
-        //     child = IgnorePointer(
-        //       key: const Key('123'),
-        //       child: Container(
-        //         width: double.infinity,
-        //         height: double.infinity,
-        //         color: style.colors.onBackgroundOpacity40,
-        //       ),
-        //     );
-        //   }
-
-        //   return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
-        // }),
-
         // Reconnection indicator.
         Obx(() {
           final Widget child = IgnorePointer(
@@ -553,22 +528,6 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       List<Widget> ui = [
-        // IgnorePointer(
-        //   child: Obx(() {
-        //     bool preferTitle = c.state.value != OngoingCallState.active;
-
-        //     return SafeAnimatedSwitcher(
-        //       duration: const Duration(milliseconds: 300),
-        //       child: preferTitle &&
-        //               c.primary
-        //                   .where((e) => e.video.value?.renderer.value != null)
-        //                   .isNotEmpty
-        //           ? Container(color: style.colors.onBackgroundOpacity27)
-        //           : null,
-        //     );
-        //   }),
-        // ),
-
         Obx(() {
           bool preferTitle = c.state.value != OngoingCallState.active;
           return GestureDetector(
@@ -597,11 +556,6 @@ Widget desktopCall(CallController c, BuildContext context) {
 
           final bool preferTitle =
               (group && incoming && !active) || (dialog && !active);
-          // final bool preferTitle = (c.state.value != OngoingCallState.active &&
-          //         c.chat.value != null &&
-          //         !c.isGroup &&
-          //         !isOutgoing) ||
-          //     !isOutgoing;
 
           return SafeAnimatedSwitcher(
             key: const Key('AnimatedSwitcherCallTitle'),
@@ -1687,7 +1641,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           child: Stack(
                             children: [
                               Container(
-                                  color: style.colors.backgroundAuxiliary),
+                                color: style.colors.backgroundAuxiliary,
+                              ),
                               const SvgImage.asset(
                                 'assets/images/background_dark.svg',
                                 width: double.infinity,
@@ -1774,7 +1729,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
                 return MouseRegion(
                   opaque: false,
-                  // cursor: SystemMouseCursors.grab,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
                       c.hoveredRenderer.value = data.participant;
@@ -1894,22 +1848,20 @@ Widget _secondaryView(CallController c, BuildContext context) {
             right: right,
             top: top,
             bottom: bottom,
-            child: Obx(
-              () {
-                return MouseRegion(
-                  opaque: false,
-                  cursor: c.draggedRenderer.value != null ||
-                          c.doughDraggedRenderer.value != null
-                      ? SystemMouseCursors.grabbing
-                      : c.hoveredRenderer.value != null
-                          ? SystemMouseCursors.grab
-                          : SystemMouseCursors.basic,
-                  child: IgnorePointer(
-                    child: SizedBox(width: width, height: height),
-                  ),
-                );
-              },
-            ),
+            child: Obx(() {
+              return MouseRegion(
+                opaque: false,
+                cursor: c.draggedRenderer.value != null ||
+                        c.doughDraggedRenderer.value != null
+                    ? SystemMouseCursors.grabbing
+                    : c.hoveredRenderer.value != null
+                        ? SystemMouseCursors.grab
+                        : SystemMouseCursors.basic,
+                child: IgnorePointer(
+                  child: SizedBox(width: width, height: height),
+                ),
+              );
+            }),
           ),
 
           // Sliding from top draggable title bar.
@@ -1996,17 +1948,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       : style.colors.onSecondaryOpacity88,
                                   child: Row(
                                     children: [
-                                      // const SizedBox(width: 7),
                                       const Spacer(),
-                                      // Expanded(
-                                      //   child: Text(
-                                      //     'Draggable',
-                                      //     style: style
-                                      //         .fonts.small.regular.onPrimary,
-                                      //     maxLines: 1,
-                                      //     overflow: TextOverflow.ellipsis,
-                                      //   ),
-                                      // ),
                                       AnimatedButton(
                                         enabled: !isAnyDrag,
                                         onPressed: c.focusAll,
@@ -2023,7 +1965,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                         child:
                                             const SvgIcon(SvgIcons.closeSmall),
                                       ),
-                                      // const SizedBox(width: 7),
                                     ],
                                   ),
                                 ),
