@@ -173,7 +173,9 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make flutter.build platform=${{ matrix.platform }}
+      # TODO: Remove `profile=yes`, when self-hosted Sentry supports source
+      #       maps reading.
+      - run: make flutter.build platform=${{ matrix.platform }} profile=yes
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
                             SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}'
@@ -183,7 +185,9 @@ jobs:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
-                  split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
+                  # TODO: Uncomment, when self-hosted Sentry supports debug
+                  #       symbols.
+                  # split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
