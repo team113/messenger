@@ -82,12 +82,12 @@ abstract class AbstractSettingsRepository {
   /// specified [Chat].
   Rect? getCallRect(ChatId id);
 
-  /// Sets the [ApplicationSettings.timelineEnabled] value.
-  Future<void> setTimelineEnabled(bool enabled);
-
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);
 
   /// Sets the [ApplicationSettings.callButtonsPosition] value.
   Future<void> setCallButtonsPosition(CallButtonsPosition position);
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled);
 }

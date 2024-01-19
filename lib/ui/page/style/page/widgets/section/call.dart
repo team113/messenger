@@ -57,6 +57,7 @@ class CallSection {
                 child: Dock(
                   items: List.generate(5, (i) => i),
                   itemWidth: CallController.buttonSize,
+                  delayed: false,
                   onReorder: (buttons) {},
                   onDragStarted: (b) {},
                   onDragEnded: (_) {},

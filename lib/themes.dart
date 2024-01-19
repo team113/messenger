@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
+import 'ui/widget/custom_page.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';
@@ -36,7 +37,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary']
   },
   'big': {
-    'regular': ['onBackground', 'onPrimary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
   },
   'medium': {
     'regular': [
@@ -74,7 +75,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
   },
   'smallest': {
-    'regular': ['onBackground', 'onPrimary']
+    'regular': ['onBackground', 'onPrimary', 'secondary']
   },
 })
 class Themes {
@@ -271,7 +272,7 @@ class Themes {
         prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         counterStyle: fonts.small.regular.secondaryHighlightDarkest,
-        floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        floatingLabelStyle: fonts.big.regular.secondary,
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
@@ -366,10 +367,10 @@ class Themes {
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
         },
       ),

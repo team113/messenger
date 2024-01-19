@@ -58,21 +58,6 @@ class WebStoredCall {
     this.state = OngoingCallState.local,
   });
 
-  /// [ChatCall] of this [WebStoredCall].
-  final ChatCall? call;
-
-  /// [ChatId] of this [WebStoredCall].
-  final ChatId chatId;
-
-  /// Stored [OngoingCall.creds].
-  final ChatCallCredentials? creds;
-
-  /// Stored [OngoingCall.deviceId].
-  final ChatCallDeviceId? deviceId;
-
-  /// Stored [OngoingCall.state].
-  final OngoingCallState state;
-
   /// Constructs a [WebStoredCall] from the provided [data].
   factory WebStoredCall.fromJson(Map<dynamic, dynamic> data) {
     return WebStoredCall(
@@ -136,6 +121,21 @@ class WebStoredCall {
     );
   }
 
+  /// [ChatCall] of this [WebStoredCall].
+  final ChatCall? call;
+
+  /// [ChatId] of this [WebStoredCall].
+  final ChatId chatId;
+
+  /// Stored [OngoingCall.creds].
+  final ChatCallCredentials? creds;
+
+  /// Stored [OngoingCall.deviceId].
+  final ChatCallDeviceId? deviceId;
+
+  /// Stored [OngoingCall.state].
+  final OngoingCallState state;
+
   /// Returns a [Map] containing this [WebStoredCall] data.
   Map<String, dynamic> toJson() {
     return {
@@ -188,6 +188,9 @@ class WebStoredCall {
       'state': state.index,
     };
   }
+
+  @override
+  String toString() => 'WebStoredCall(${call?.id})';
 }
 
 /// Extension adding a conversion from an [OngoingCall] to a [WebStoredCall].

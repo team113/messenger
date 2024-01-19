@@ -24,7 +24,6 @@ import '/routes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/background_preview.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/widget/animated_button.dart';
@@ -81,31 +80,12 @@ class NavigationSection {
           (p) {
             return CustomNavigationBar(
               currentIndex: p.value,
-              onTap: (i) => p.value = i,
+              onTap: (t) => p.value = t,
               items: [
-                const CustomNavigationBarItem(
-                  child: SvgImage.asset(
-                    'assets/icons/partner.svg',
-                    width: 36,
-                    height: 28,
-                  ),
-                ),
-                const CustomNavigationBarItem(
-                  child: SvgImage.asset(
-                    'assets/icons/contacts.svg',
-                    width: 32,
-                    height: 32,
-                  ),
-                ),
-                CustomNavigationBarItem(
-                  child: Transform.translate(
-                    offset: const Offset(0, 0.5),
-                    child: const SvgIcon(SvgIcons.chats),
-                  ),
-                ),
-                const CustomNavigationBarItem(
-                  child: AvatarWidget(radius: AvatarRadius.small),
-                ),
+                const CustomNavigationBarItem.work(),
+                const CustomNavigationBarItem.contacts(),
+                CustomNavigationBarItem.chats(),
+                CustomNavigationBarItem.menu(),
               ],
             );
           },

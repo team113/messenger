@@ -78,7 +78,7 @@ class HivePageProvider<T extends Object, C, K>
     final Iterable<K> ordered = orderBy(_provider.keys);
 
     if (ordered.isEmpty) {
-      Page<T, C> page = Page(
+      final Page<T, C> page = Page(
         [],
         PageInfo(
           startCursor: null,

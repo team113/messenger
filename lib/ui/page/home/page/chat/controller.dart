@@ -48,6 +48,12 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallDoesNotExistException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';
@@ -69,6 +75,7 @@ import '/provider/gql/exceptions.dart'
         FavoriteChatException,
         HideChatException,
         HideChatItemException,
+        JoinChatCallException,
         PostChatMessageException,
         ReadChatException,
         RemoveChatMemberException,
@@ -126,11 +133,6 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
-  /// Indicator whether any [Text] is being selected right now.
-  ///
-  /// Used to discard [SwipeableStatus] gestures when [Text] is being selected.
-  final RxBool isSelecting = RxBool(false);
-
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
   int initIndex = 0;
@@ -172,18 +174,8 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether any [ChatItem] is being dragged.
-  ///
-  /// Used to discard any horizontal gestures while this is `true`.
-  final RxBool isItemDragged = RxBool(false);
-
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
-
-  /// Indicator whether an ongoing horizontal scroll is happening.
-  ///
-  /// Used to discard any vertical gestures while this is `true`.
-  final RxBool isHorizontalScroll = RxBool(false);
 
   /// [Timer] for discarding any vertical movement in a [FlutterListView] of
   /// [ChatItem]s when non-`null`.
@@ -514,13 +506,35 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
-  // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) =>
-      _callService.call(id, withVideo: withVideo);
+  Future<void> call(bool withVideo) async {
+    try {
+      await _callService.call(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyExistsException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
 
   /// Joins the call in the [Chat] identified by the [id].
-  Future<void> joinCall() => _callService.join(id, withVideo: false);
+  Future<void> joinCall() async {
+    try {
+      await _callService.join(id, withVideo: false);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallDoesNotExistException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
 
   /// Drops the call in the [Chat] identified by the [id].
   Future<void> dropCall() => _callService.leave(id);

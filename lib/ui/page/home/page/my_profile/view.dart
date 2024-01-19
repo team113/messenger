@@ -16,12 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
@@ -33,18 +33,18 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
-import '/ui/page/home/tab/menu/status/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
+import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/home/widget/num.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
 import '/util/media_utils.dart';
@@ -62,7 +62,6 @@ import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
-import 'timeline_switch/view.dart';
 import 'widget/background_preview.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
@@ -114,7 +113,7 @@ class MyProfileView extends StatelessWidget {
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
                       return block(
-                        title: 'label_public_information'.l10n,
+                        title: 'label_profile'.l10n,
                         children: [
                           Obx(() {
                             return BigAvatarWidget.myUser(
@@ -135,7 +134,6 @@ class MyProfileView extends StatelessWidget {
                               );
                             }),
                           ),
-                          _presence(context, c),
                           Paddings.basic(
                             Obx(() {
                               return UserTextStatusField(
@@ -153,23 +151,40 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           Paddings.basic(
                             Obx(() {
-                              return UserNumCopyable(
-                                c.myUser.value?.num,
-                                key: const Key('NumCopyable'),
+                              return InfoTile(
+                                title: 'label_num'.l10n,
+                                content: c.myUser.value?.num.toString() ?? '',
+                                trailing: CopyOrShareButton(
+                                  c.myUser.value?.num.toString() ?? '',
+                                ),
                               );
                             }),
                           ),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserLoginField(
-                                c.myUser.value?.login,
-                                onSubmit: c.updateUserLogin,
-                              );
-                            }),
-                          ),
+                          Obx(() {
+                            if (c.myUser.value?.login == null) {
+                              return const SizedBox();
+                            }
+
+                            return Paddings.basic(
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: InfoTile(
+                                  title: 'label_login'.l10n,
+                                  content: c.myUser.value!.login.toString(),
+                                  trailing: WidgetButton(
+                                    onPressed: () {
+                                      // TODO: Implement [UserLogin] deleting.
+                                    },
+                                    child: const SvgIcon(SvgIcons.delete),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                          const SizedBox(height: 8),
                           _emails(context, c),
                           _phones(context, c),
-                          _password(context, c),
+                          _addInfo(context, c),
                         ],
                       );
 
@@ -180,7 +195,10 @@ class MyProfileView extends StatelessWidget {
                           Obx(() {
                             return DirectLinkField(
                               c.myUser.value?.chatDirectLink,
-                              onSubmit: c.createChatDirectLink,
+                              onSubmit: (s) => s == null
+                                  ? c.deleteChatDirectLink()
+                                  : c.createChatDirectLink(s),
+                              background: c.background.value,
                             );
                           }),
                         ],
@@ -251,6 +269,10 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.storage:
+                      if (PlatformUtils.isWeb) {
+                        return const SizedBox();
+                      }
+
                       return block(
                         title: 'label_storage'.l10n,
                         children: [_storage(context, c)],
@@ -266,6 +288,12 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_blocked_users'.l10n,
                         children: [_blockedUsers(context, c)],
+                      );
+
+                    case ProfileTab.sections:
+                      return block(
+                        title: 'label_show_sections'.l10n,
+                        children: [_sections(context, c)],
                       );
 
                     case ProfileTab.download:
@@ -310,7 +338,7 @@ class MyProfileView extends StatelessWidget {
   }
 }
 
-/// Returns addable list of [MyUser.emails].
+/// Returns list of [MyUser.emails].
 Widget _emails(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -319,113 +347,45 @@ Widget _emails(BuildContext context, MyProfileController c) {
 
     for (UserEmail e in c.myUser.value?.emails.confirmed ?? []) {
       widgets.add(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FieldButton(
-              key: const Key('ConfirmedEmail'),
-              text: e.val,
-              hint: 'label_email'.l10n,
-              onPressed: () {
-                PlatformUtils.copy(text: e.val);
-                MessagePopup.success('label_copied'.l10n);
-              },
-              onTrailingPressed: () => _deleteEmail(c, context, e),
-              trailing: Transform.translate(
-                key: const Key('DeleteEmail'),
-                offset: const Offset(0, -5),
-                child: const SvgIcon(SvgIcons.delete),
-              ),
-              subtitle: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'label_email_visible'.l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                    TextSpan(
-                      text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.small.regular.primary,
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await ConfirmDialog.show(
-                            context,
-                            title: 'label_email'.l10n,
-                            additional: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'label_visible_to'.l10n,
-                                  style: style.fonts.big.regular.onBackground,
-                                ),
-                              ),
-                            ],
-                            label: 'label_confirm'.l10n,
-                            initial: 2,
-                            variants: [
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_all'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_my_contacts'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_nobody'.l10n,
-                              ),
-                            ],
-                          );
-                        },
-                    ),
-                  ],
-                ),
+        InfoTile(
+          key: const Key('ConfirmedEmail'),
+          content: e.val,
+          title: 'label_email'.l10n,
+          trailing: WidgetButton(
+            key: const Key('DeleteEmail'),
+            onPressed: () => _deleteEmail(c, context, e),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
+        ),
+      );
+
+      widgets.add(const SizedBox(height: 8));
+    }
+
+    final unconfirmed = c.myUser.value?.emails.unconfirmed;
+
+    if (unconfirmed != null) {
+      widgets.add(
+        InfoTile(
+          key: const Key('UnconfirmedEmail'),
+          content: unconfirmed.val,
+          trailing: WidgetButton(
+            onPressed: () => _deleteEmail(c, context, unconfirmed),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
+          title: 'label_email_not_verified'.l10n,
+          subtitle: [
+            const SizedBox(height: 4),
+            WidgetButton(
+              key: const Key('VerifyEmail'),
+              onPressed: () => AddEmailView.show(context, email: unconfirmed),
+              child: Text(
+                'label_verify'.l10n,
+                style: style.fonts.small.regular.primary,
               ),
             ),
           ],
-        ),
-      );
-      widgets.add(const SizedBox(height: 8));
-    }
-
-    if (c.myUser.value?.emails.unconfirmed != null) {
-      widgets.addAll([
-        FieldButton(
-          key: const Key('UnconfirmedEmail'),
-          text: c.myUser.value!.emails.unconfirmed!.val,
-          hint: 'label_verify_email'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -5),
-            child: const SvgIcon(SvgIcons.delete),
-          ),
-          onPressed: () => AddEmailView.show(
-            context,
-            email: c.myUser.value!.emails.unconfirmed!,
-          ),
-          onTrailingPressed: () => _deleteEmail(
-            c,
-            context,
-            c.myUser.value!.emails.unconfirmed!,
-          ),
-          style: style.fonts.normal.regular.secondary,
-        ),
-      ]);
-      widgets.add(const SizedBox(height: 8));
-    }
-
-    if (c.myUser.value?.emails.unconfirmed == null) {
-      widgets.add(
-        FieldButton(
-          key: c.myUser.value?.emails.confirmed.isNotEmpty == true
-              ? const Key('AddAdditionalEmail')
-              : const Key('AddEmail'),
-          text: c.myUser.value?.emails.confirmed.isNotEmpty == true
-              ? 'label_add_additional_email'.l10n
-              : 'label_add_email'.l10n,
-          onPressed: () => AddEmailView.show(context),
-          style: style.fonts.normal.regular.primary,
+          danger: true,
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -439,7 +399,7 @@ Widget _emails(BuildContext context, MyProfileController c) {
   });
 }
 
-/// Returns addable list of [MyUser.phones].
+/// Returns list of [MyUser.phones].
 Widget _phones(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
@@ -448,116 +408,44 @@ Widget _phones(BuildContext context, MyProfileController c) {
 
     for (UserPhone e in [...c.myUser.value?.phones.confirmed ?? []]) {
       widgets.add(
-        Column(
+        InfoTile(
           key: const Key('ConfirmedPhone'),
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FieldButton(
-              text: e.val,
-              hint: 'label_phone_number'.l10n,
-              trailing: Transform.translate(
-                key: const Key('DeletePhone'),
-                offset: const Offset(0, -5),
-                child: const SvgIcon(SvgIcons.delete),
-              ),
-              onPressed: () {
-                PlatformUtils.copy(text: e.val);
-                MessagePopup.success('label_copied'.l10n);
-              },
-              onTrailingPressed: () => _deletePhone(c, context, e),
-              subtitle: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'label_phone_visible'.l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                    TextSpan(
-                      text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-                      style: style.fonts.small.regular.primary,
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          await ConfirmDialog.show(
-                            context,
-                            title: 'label_phone'.l10n,
-                            additional: [
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'label_visible_to'.l10n,
-                                  style: style.fonts.big.regular.onBackground,
-                                ),
-                              ),
-                            ],
-                            label: 'label_confirm'.l10n,
-                            initial: 2,
-                            variants: [
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_all'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_my_contacts'.l10n,
-                              ),
-                              ConfirmDialogVariant(
-                                onProceed: () {},
-                                label: 'label_nobody'.l10n,
-                              ),
-                            ],
-                          );
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          content: e.val,
+          title: 'label_phone'.l10n,
+          trailing: WidgetButton(
+            key: const Key('DeletePhone'),
+            onPressed: () => _deletePhone(c, context, e),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
         ),
       );
       widgets.add(const SizedBox(height: 8));
     }
 
-    if (c.myUser.value?.phones.unconfirmed != null) {
-      widgets.addAll([
-        FieldButton(
-          key: const Key('UnconfirmedPhone'),
-          text: c.myUser.value!.phones.unconfirmed!.val,
-          hint: 'label_verify_number'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -5),
-            child: Transform.scale(
-              scale: 1.15,
-              child: const SvgIcon(SvgIcons.delete),
-            ),
-          ),
-          onPressed: () => AddPhoneView.show(
-            context,
-            phone: c.myUser.value!.phones.unconfirmed!,
-          ),
-          onTrailingPressed: () => _deletePhone(
-            c,
-            context,
-            c.myUser.value!.phones.unconfirmed!,
-          ),
-          style: style.fonts.normal.regular.secondary,
-        ),
-      ]);
-      widgets.add(const SizedBox(height: 8));
-    }
+    final unconfirmed = c.myUser.value?.phones.unconfirmed;
 
-    if (c.myUser.value?.phones.unconfirmed == null) {
+    if (unconfirmed != null) {
       widgets.add(
-        FieldButton(
-          key: c.myUser.value?.phones.confirmed.isNotEmpty == true
-              ? const Key('AddAdditionalPhone')
-              : const Key('AddPhone'),
-          onPressed: () => AddPhoneView.show(context),
-          text: c.myUser.value?.phones.confirmed.isNotEmpty == true
-              ? 'label_add_additional_number'.l10n
-              : 'label_add_number'.l10n,
-          style: style.fonts.normal.regular.primary,
+        InfoTile(
+          key: const Key('UnconfirmedPhone'),
+          content: unconfirmed.val,
+          title: 'label_phone_not_verified'.l10n,
+          trailing: WidgetButton(
+            onPressed: () => _deletePhone(c, context, unconfirmed),
+            child: const SvgIcon(SvgIcons.delete),
+          ),
+          subtitle: [
+            const SizedBox(height: 4),
+            WidgetButton(
+              key: const Key('VerifyPhone'),
+              onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
+              child: Text(
+                'label_verify'.l10n,
+                style: style.fonts.small.regular.primary,
+              ),
+            ),
+          ],
+          danger: true,
         ),
       );
       widgets.add(const SizedBox(height: 8));
@@ -571,24 +459,127 @@ Widget _phones(BuildContext context, MyProfileController c) {
   });
 }
 
-/// Returns [WidgetButton] displaying the [MyUser.presence].
-Widget _presence(BuildContext context, MyProfileController c) {
+/// Returns the additional inputs of a [ProfileTab.signing] section.
+Widget _addInfo(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  return Obx(() {
-    final Presence? presence = c.myUser.value?.presence;
-
-    return Paddings.basic(
-      FieldButton(
-        onPressed: () => StatusView.show(context, expanded: false),
-        hint: 'label_presence'.l10n,
-        text: presence?.localizedString(),
-        trailing:
-            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: style.fonts.normal.regular.primary,
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 14),
+      Row(
+        children: [
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              height: 0.5,
+              color: style.colors.onBackgroundOpacity27,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'label_actions'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              height: 0.5,
+              color: style.colors.onBackgroundOpacity27,
+            ),
+          ),
+        ],
       ),
-    );
-  });
+      const SizedBox(height: 12),
+      Obx(() {
+        if (c.myUser.value?.login != null) {
+          return const SizedBox();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 12),
+          child: UserLoginField(
+            c.myUser.value?.login,
+            onSubmit: c.updateUserLogin,
+          ),
+        );
+      }),
+      Obx(() {
+        final emails = [
+          ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
+          c.myUser.value?.emails.unconfirmed,
+        ].whereNotNull();
+
+        final phone = ReactiveTextField(
+          key: const Key('Phone'),
+          state: c.phone,
+          label: 'label_add_phone'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hint: '+34 123 123 53 53',
+          clearable: false,
+          formatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[\d+ ]')),
+          ],
+        );
+        final email = ReactiveTextField(
+          key: const Key('Email'),
+          state: c.email,
+          label: 'label_add_email'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hint: 'example@dummy.com',
+          clearable: false,
+        );
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (emails.isEmpty) const SizedBox(height: 12),
+            if (emails.isEmpty) email,
+            if (emails.isEmpty) const SizedBox(height: 12),
+            const SizedBox(height: 12),
+            _password(context, c),
+            const SizedBox(height: 6),
+            const SizedBox(height: 12),
+            WidgetButton(
+              key: const Key('ExpandSigning'),
+              onPressed: c.expanded.toggle,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      height: 0.5,
+                      color: style.colors.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    c.expanded.value ? 'btn_hide'.l10n : 'btn_add'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      height: 0.5,
+                      color: style.colors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (c.expanded.value) ...[
+              const SizedBox(height: 24),
+              phone,
+              if (emails.isNotEmpty) const SizedBox(height: 24),
+              if (emails.isNotEmpty) email,
+            ],
+          ],
+        );
+      }),
+    ],
+  );
 }
 
 /// Returns the buttons changing or setting the password of the currently
@@ -599,22 +590,22 @@ Widget _password(BuildContext context, MyProfileController c) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            key: c.myUser.value?.hasPassword == true
-                ? const Key('ChangePassword')
-                : const Key('SetPassword'),
-            text: c.myUser.value?.hasPassword == true
-                ? 'btn_change_password'.l10n
-                : 'btn_set_password'.l10n,
-            onPressed: () => ChangePasswordView.show(context),
-            style: c.myUser.value?.hasPassword != true
-                ? style.fonts.normal.regular.danger
-                : style.fonts.normal.regular.primary,
-          );
-        }),
-      ),
+      Obx(() {
+        return FieldButton(
+          key: c.myUser.value?.hasPassword == true
+              ? const Key('ChangePassword')
+              : const Key('SetPassword'),
+          text: c.myUser.value?.hasPassword == true
+              ? 'btn_change_password'.l10n
+              : 'btn_set_password'.l10n,
+          onPressed: () => ChangePasswordView.show(context),
+          warning: c.myUser.value?.hasPassword != true,
+          style: style.fonts.normal.regular.primary,
+          trailing: c.myUser.value?.hasPassword == true
+              ? const SvgIcon(SvgIcons.passwordSmall)
+              : const SvgIcon(SvgIcons.passwordSmallWhite),
+        );
+      }),
       const SizedBox(height: 10),
     ],
   );
@@ -631,36 +622,10 @@ Widget _chats(BuildContext context, MyProfileController c) {
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
-            padding: const EdgeInsets.only(left: 21.0),
-            child: Text(
-              'label_display_timestamps'.l10n,
-              style: style.fonts.normal.regular.secondary,
-            ),
-          ),
-        ),
-      ),
-      const SizedBox(height: 4),
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            text: (c.settings.value?.timelineEnabled ?? true)
-                ? 'label_as_timeline'.l10n
-                : 'label_in_message'.l10n,
-            maxLines: null,
-            onPressed: () => TimelineSwitchView.show(context),
-            style: style.fonts.normal.regular.primary,
-          );
-        }),
-      ),
-      const SizedBox(height: 16),
-      Paddings.dense(
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 21),
             child: Text(
               'label_display_audio_and_video_call_buttons'.l10n,
-              style: style.systemMessageStyle,
+              style: style.fonts.normal.regular.secondary,
             ),
           ),
         ),
@@ -729,6 +694,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_camera'.l10n,
+            headline: Text('label_media_camera'.l10n),
             onPressed: () async {
               await CameraSwitchView.show(
                 context,
@@ -753,6 +719,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
             hint: 'label_media_microphone'.l10n,
+            headline: Text('label_media_microphone'.l10n),
             onPressed: () async {
               await MicrophoneSwitchView.show(
                 context,
@@ -782,6 +749,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                       ?.label() ??
                   'label_media_no_device_available'.l10n,
               hint: 'label_media_output'.l10n,
+              headline: Text('label_media_output'.l10n),
               onPressed: () async {
                 await OutputSwitchView.show(
                   context,
@@ -841,6 +809,23 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   });
 }
 
+/// Returns the contents of a [ProfileTab.sections] section.
+Widget _sections(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      Paddings.dense(
+        Obx(() {
+          return SwitchField(
+            text: 'btn_work_with_us'.l10n,
+            value: c.settings.value?.workWithUsTabEnabled == true,
+            onChanged: c.setWorkWithUsTabEnabled,
+          );
+        }),
+      ),
+    ],
+  );
+}
+
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
@@ -890,12 +875,9 @@ Widget _danger(BuildContext context, MyProfileController c) {
         FieldButton(
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(0, -1),
-            child: const SvgIcon(SvgIcons.delete),
-          ),
           onPressed: () => _deleteAccount(c, context),
-          style: style.fonts.normal.regular.primary,
+          danger: true,
+          style: style.fonts.normal.regular.danger,
         ),
       ),
     ],
@@ -906,63 +888,156 @@ Widget _danger(BuildContext context, MyProfileController c) {
 Widget _storage(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
+  final List<double> values = [
+    0.0,
+    2.0,
+    4.0,
+    8.0,
+    16.0,
+    32.0,
+    64.0,
+  ];
+
+  final gbs = (CacheWorker.instance.info.value.maxSize?.toDouble() ??
+          (values.last * GB)) /
+      GB;
+
+  var index = values.indexWhere((e) => gbs <= e);
+  if (index == -1) {
+    index = values.length - 1;
+  }
+
+  final v = (index / (values.length - 1) * 100).round();
+
   return Paddings.dense(
     Column(
       children: [
         Obx(() {
-          return SwitchField(
-            text: 'label_load_images'.l10n,
-            value: c.settings.value?.loadImages == true,
-            onChanged: c.settings.value == null ? null : c.setLoadImages,
+          final int size = CacheWorker.instance.info.value.size;
+          final int max = CacheWorker.instance.info.value.maxSize ??
+              (values.last * GB).toInt();
+
+          if (max >= 64 * GB) {
+            return Text(
+              'label_gb_occupied'
+                  .l10nfmt({'count': (size / GB).toPrecision(2)}),
+            );
+          } else if (max <= 0) {
+            return Text('label_gb_occupied'.l10nfmt({'count': 0}));
+          }
+
+          return Text(
+            'label_gb_of_gb_occupied'.l10nfmt({
+              'a': (size / GB).toPrecision(2),
+              'b': max ~/ GB,
+            }),
           );
         }),
-        if (!PlatformUtils.isWeb) ...[
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 21.0),
-              child: Text(
-                'label_cache'.l10n,
-                style: style.fonts.normal.regular.secondary,
+        SizedBox(
+          height: 100,
+          child: FlutterSlider(
+            handlerHeight: 24,
+            values: [v.toDouble()],
+            tooltip: FlutterSliderTooltip(disabled: true),
+            fixedValues: values.mapIndexed(
+              (i, e) {
+                return FlutterSliderFixedValue(
+                  percent: ((i / (values.length - 1)) * 100).round(),
+                  value: e * GB,
+                );
+              },
+            ).toList(),
+            trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: style.colors.onBackgroundOpacity13,
+              ),
+              activeTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: style.colors.primaryHighlight,
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Obx(() {
-            final int size = CacheWorker.instance.info.value.size;
-            final int max = CacheWorker.instance.info.value.maxSize;
-
-            return Column(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    LinearProgressIndicator(
-                      value: size / max,
-                      minHeight: 32,
-                      color: style.colors.primary,
-                      backgroundColor: style.colors.background,
-                    ),
-                    Text(
-                      'label_gb_slash_gb'.l10nfmt({
-                        'a': (size / GB).toPrecision(2),
-                        'b': max ~/ GB,
-                      }),
-                      style: style.fonts.smaller.regular.onBackground,
-                    ),
-                  ],
+            onDragging: (i, lower, upper) {
+              if (lower is double) {
+                if (lower == 64.0 * GB) {
+                  CacheWorker.instance.setMaxSize(null);
+                } else {
+                  CacheWorker.instance.setMaxSize(lower.round());
+                }
+              }
+            },
+            onDragCompleted: (i, lower, upper) {
+              if (lower is double) {
+                if (lower == 64.0 * GB) {
+                  CacheWorker.instance.setMaxSize(null);
+                } else {
+                  CacheWorker.instance.setMaxSize(lower.round());
+                }
+              }
+            },
+            hatchMark: FlutterSliderHatchMark(
+              labelsDistanceFromTrackBar: -48,
+              density: 0.5,
+              labels: [
+                FlutterSliderHatchMarkLabel(
+                  percent: 0,
+                  label: Text(
+                    'label_off'.l10n,
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                FieldButton(
-                  onPressed: c.clearCache,
-                  text: 'btn_clear_cache'.l10n,
-                  style: style.fonts.normal.regular.primary,
+                FlutterSliderHatchMarkLabel(
+                  percent: 16,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 2}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 32,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 4}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 49,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 8}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 66,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 16}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 83,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 32}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 100,
+                  label: Text(
+                    'label_no_limit'.l10n,
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
                 ),
               ],
-            );
-          }),
-        ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        FieldButton(
+          onPressed: c.clearCache,
+          text: 'btn_clear_cache'.l10n,
+          style: style.fonts.normal.regular.primary,
+        ),
       ],
     ),
   );

@@ -33,9 +33,9 @@ class ApplicationSettings extends HiveObject {
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
     this.loadImages = true,
-    this.timelineEnabled = false,
     this.pinnedActions = const [],
     this.callButtonsPosition = CallButtonsPosition.appBar,
+    this.workWithUsTabEnabled = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -74,18 +74,18 @@ class ApplicationSettings extends HiveObject {
   @HiveField(7)
   bool loadImages;
 
-  /// Indicator whether [ChatItem.at] labels should be displayed as a timeline
-  /// in a [Chat].
-  @HiveField(8)
-  bool timelineEnabled;
-
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
-  @HiveField(9)
+  @HiveField(8)
   List<String> pinnedActions;
 
   /// [CallButtonsPosition] of the call buttons in [Chat].
-  @HiveField(10)
+  @HiveField(9)
   CallButtonsPosition? callButtonsPosition;
+
+  /// Indicator whether [WorkTabView] should be displayed in the
+  /// [CustomNavigationBar] of [HomeView].
+  @HiveField(10)
+  bool workWithUsTabEnabled;
 }
 
 /// Possible call buttons position.
