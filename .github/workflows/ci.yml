@@ -893,61 +893,62 @@ jobs:
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
 
-  deploy-sentry:
-    name: deploy (symbols, Sentry)
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["release-github"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # TODO: Uncomment, when self-hosted Sentry supports debug symbols.
+  # deploy-sentry:
+  #   name: deploy (symbols, Sentry)
+  #   if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+  #   needs: ["release-github"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-apk-${{ github.run_number }}
-          path: debug/
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-appbundle-${{ github.run_number }}
-          path: debug/
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-ios-${{ github.run_number }}
-          path: debug/
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-macos-${{ github.run_number }}
-          path: debug/
-      - name: Unzip debug symbols
-        run: |
-          set -e
-          for f in debug/debug-*.zip
-            do unzip "$f" -d "${f%.zip}/"
-          done
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-web-${{ github.run_number }}
-      # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
-      - run: mkdir -p build/web/
-      - name: Unzip web source maps
-        run: unzip debug-*.zip -d build/web/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-apk-${{ github.run_number }}
+  #         path: debug/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-appbundle-${{ github.run_number }}
+  #         path: debug/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-ios-${{ github.run_number }}
+  #         path: debug/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-macos-${{ github.run_number }}
+  #         path: debug/
+  #     - name: Unzip debug symbols
+  #       run: |
+  #         set -e
+  #         for f in debug/debug-*.zip
+  #           do unzip "$f" -d "${f%.zip}/"
+  #         done
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-web-${{ github.run_number }}
+  #     # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
+  #     - run: mkdir -p build/web/
+  #     - name: Unzip web source maps
+  #       run: unzip debug-*.zip -d build/web/
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+  #       if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
 
-      - run: make sentry.upload
-                  project=${{ secrets.SENTRY_PROJECT }}
-                  org=${{ secrets.SENTRY_ORG }}
-                  token=${{ secrets.SENTRY_TOKEN }}
-                  release=${{ steps.semver.outputs.group1 }}
-                  url=${{ secrets.SENTRY_URL }}
+  #     - run: make sentry.upload
+  #                 project=${{ secrets.SENTRY_PROJECT }}
+  #                 org=${{ secrets.SENTRY_ORG }}
+  #                 token=${{ secrets.SENTRY_TOKEN }}
+  #                 release=${{ steps.semver.outputs.group1 }}
+  #                 url=${{ secrets.SENTRY_URL }}
