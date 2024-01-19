@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:mutex/mutex.dart';
 
 import 'log.dart';
 import 'platform_utils.dart';
@@ -159,18 +160,22 @@ class MediaUtilsImpl {
         .toList();
   }
 
-  Future<void> setOutputDevice(String deviceId) async {
-    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-      await AVAudioSession().setCategory(
-        AVAudioSessionCategory.playAndRecord,
-        AVAudioSessionCategoryOptions.allowBluetooth |
-            AVAudioSessionCategoryOptions.allowBluetoothA2dp |
-            AVAudioSessionCategoryOptions.allowAirPlay,
-        AVAudioSessionMode.voiceChat,
-      );
-    }
+  final Mutex guard = Mutex();
 
-    await mediaManager?.setOutputAudioId(deviceId);
+  Future<void> setOutputDevice(String deviceId) async {
+    await guard.protect(() async {
+      if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+        await AVAudioSession().setCategory(
+          AVAudioSessionCategory.playAndRecord,
+          AVAudioSessionCategoryOptions.allowBluetooth |
+              AVAudioSessionCategoryOptions.allowBluetoothA2dp |
+              AVAudioSessionCategoryOptions.allowAirPlay,
+          AVAudioSessionMode.voiceChat,
+        );
+      }
+
+      await mediaManager?.setOutputAudioId(deviceId);
+    });
   }
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or

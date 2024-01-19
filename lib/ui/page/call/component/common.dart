@@ -503,7 +503,7 @@ class SpeakerButton extends CallButton {
 
   @override
   String get hint => c.isMobile
-      ? 'btn_call_toggle_speaker_desc'.l10n
+      ? c.output.name // ? 'btn_call_toggle_speaker_desc'.l10n
       : 'btn_call_toggle_speaker'.l10n;
 
   @override
@@ -524,7 +524,7 @@ class SpeakerButton extends CallButton {
               AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
               AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
             },
-            hinted: hinted,
+            hinted: true || hinted,
             expanded: expanded,
             withBlur: blur,
             big: big,

@@ -29,8 +29,6 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [UserLogin].
 class UserLoginField extends StatefulWidget {
@@ -77,10 +75,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
     onSubmitted: (s) async {
       if (s.error.value == null) {
         s.editable.value = false;
-
-        // if (!widget.editable) {
         s.status.value = RxStatus.loading();
-        // }
 
         try {
           if (s.text.isEmpty) {
@@ -140,7 +135,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
               : () {
                   _state.unsubmit();
                   _state.text = widget.login!.val;
-                  // _state.submit();
                 },
           label: 'label_login'.l10n,
           hint: widget.login == null

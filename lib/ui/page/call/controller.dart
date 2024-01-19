@@ -343,6 +343,7 @@ class CallController extends GetxController {
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirey' ||
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'alex2';
 
+  RxnString get outputDevice => _currentCall.value.outputDevice;
   AudioSpeakerKind get output =>
       _currentCall.value.devices
           .output()
@@ -1053,20 +1054,20 @@ class CallController extends GetxController {
 
         final MediaDeviceDetails output = outputs[index];
 
-        await _currentCall.value.setOutputDevice(output.deviceId());
+        Log.debug(
+          'Switching output to `${output.deviceId()}` (${output.label()}, isFailed: ${output.isFailed()}), the whole list of `output` devices is: ${outputs.map((e) => 'id: ${e.deviceId()}, name: ${e.label()}, isFailed: ${e.isFailed()}')}',
+        );
 
         if (state.value != OngoingCallState.joining &&
             state.value != OngoingCallState.active) {
           await _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
         }
 
-        Log.debug(
-          'Switching output to `${output.deviceId()}` (${output.label()}, isFailed: ${output.isFailed()}), the whole list of `output` devices is: ${outputs.map((e) => 'id: ${e.deviceId()}, name: ${e.label()}, isFailed: ${e.isFailed()}')}',
-        );
-
         MessagePopup.success(
           '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
         );
+
+        await _currentCall.value.setOutputDevice(output.deviceId());
 
         Log.debug('Switching is done!');
       }

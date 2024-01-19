@@ -1060,6 +1060,7 @@ class OngoingCall {
       try {
         await MediaUtils.setOutputDevice(deviceId);
       } catch (e) {
+        addError(e.toString());
         outputDevice.value = previous;
         rethrow;
       }
