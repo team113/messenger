@@ -95,9 +95,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       if (participant.member.quality.value <= 1) {
         additionally.add(
-          const Padding(
-            padding: EdgeInsets.only(left: 2, right: 3),
-            child: SvgIcon(SvgIcons.lowSignalSmall),
+          Padding(
+            padding: const EdgeInsets.only(left: 2, right: 3),
+            child: SvgIcon(
+              participant.member.quality.value <= 0
+                  ? SvgIcons.noSignalSmall
+                  : SvgIcons.lowSignalSmall,
+            ),
           ),
         );
       }
