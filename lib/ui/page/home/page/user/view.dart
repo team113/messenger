@@ -332,25 +332,27 @@ class UserView extends StatelessWidget {
                                   : SvgIcons.addContactWhite,
                             ),
                           ),
-                          if (contact)
-                            ContextMenuButton(
-                              label: favorite
-                                  ? 'btn_delete_from_favorites'.l10n
-                                  : 'btn_add_to_favorites'.l10n,
-                              onPressed: favorite
-                                  ? c.unfavoriteContact
-                                  : c.favoriteContact,
-                              trailing: SvgIcon(
-                                favorite
-                                    ? SvgIcons.favoriteSmall
-                                    : SvgIcons.unfavoriteSmall,
-                              ),
-                              inverted: SvgIcon(
-                                favorite
-                                    ? SvgIcons.favoriteSmallWhite
-                                    : SvgIcons.unfavoriteSmallWhite,
-                              ),
+                          ContextMenuButton(
+                            label: favorite
+                                ? 'btn_delete_from_favorites'.l10n
+                                : 'btn_add_to_favorites'.l10n,
+                            onPressed: favorite
+                                ? c.unfavoriteContact
+                                : () async {
+                                    await c.addToContacts();
+                                    c.favoriteContact();
+                                  },
+                            trailing: SvgIcon(
+                              favorite
+                                  ? SvgIcons.favoriteSmall
+                                  : SvgIcons.unfavoriteSmall,
                             ),
+                            inverted: SvgIcon(
+                              favorite
+                                  ? SvgIcons.favoriteSmallWhite
+                                  : SvgIcons.unfavoriteSmallWhite,
+                            ),
+                          ),
                         ],
                         child: Container(
                           padding: const EdgeInsets.only(left: 31, right: 25),

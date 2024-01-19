@@ -61,10 +61,7 @@ class ContactService extends DisposableService {
   Future<void> createChatContact(User user) {
     Log.debug('createChatContact($user)', '$runtimeType');
 
-    return _contactRepository.createChatContact(
-      user.name ?? UserName(user.num.toString()),
-      user.id,
-    );
+    return _contactRepository.createChatContact(user);
   }
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s

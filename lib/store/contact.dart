@@ -155,18 +155,21 @@ class ContactRepository extends DisposableInterface
 
   // TODO: Forbid creating multiple ChatContacts with the same User?
   @override
-  Future<void> createChatContact(UserName name, UserId id) async {
-    Log.debug('createChatContact($name, $id)', '$runtimeType');
+  Future<void> createChatContact(User user) async {
+    Log.debug('createChatContact($user)', '$runtimeType');
+
+    final UserName name = user.name ?? UserName(user.num.toString());
 
     final ChatContactEventsVersionedMixin response =
         await _graphQlProvider.createChatContact(
       name: name,
-      records: [ChatContactRecord(userId: id)],
+      records: [ChatContactRecord(userId: user.id)],
     );
 
     await _putChatContact(
       HiveChatContact(
         ChatContact(
+          users: [user],
           response.events.first.contactId,
           name: name,
         ),
