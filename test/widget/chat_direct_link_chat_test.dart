@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,7 +27,6 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/repository/settings.dart';
@@ -39,8 +38,9 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
@@ -193,9 +193,11 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
   await chatItemHiveProvider.init();
   await chatItemHiveProvider.clear();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
-  var callRectProvider = CallRectHiveProvider();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
+  final callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
@@ -342,10 +344,11 @@ void main() async {
         callRectProvider,
       ),
     );
-    AbstractCallRepository callRepository = CallRepository(
+    final callRepository = CallRepository(
       graphQlProvider,
       userRepository,
       callCredentialsProvider,
+      chatCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
@@ -387,6 +390,12 @@ void main() async {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
+
+    await tester.tap(find.byKey(const Key('MoreButton'), skipOffstage: false));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('EditButton'), skipOffstage: false));
+    await tester.pumpAndSettle();
 
     final link = find.byKey(const Key('LinkField'), skipOffstage: false);
     await tester.dragUntilVisible(

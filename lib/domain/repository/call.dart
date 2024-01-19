@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -117,27 +117,32 @@ abstract class AbstractCallRepository {
   Future<void> removeChatCallMember(ChatId chatId, UserId userId);
 
   /// Generates the [ChatCallCredentials] for a [Chat] identified by the
-  /// provided [id].
+  /// provided [chatId].
   ///
-  /// These [ChatCallCredentials] are considered temporary. Use
-  /// [transferCredentials] to persist them, once [ChatItemId] of the
-  /// [OngoingCall] is acquired.
-  ChatCallCredentials generateCredentials(ChatId id);
+  /// These [ChatCallCredentials] are considered backup and should be linked to
+  /// an [OngoingCall] by calling [transferCredentials] once its [ChatItemId] is
+  /// acquired.
+  ChatCallCredentials generateCredentials(ChatId chatId);
 
-  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
-  /// specified [OngoingCall].
+  /// Copies the [ChatCallCredentials] from the provided [Chat] and links them
+  /// to the specified [OngoingCall].
   void transferCredentials(ChatId chatId, ChatItemId callId);
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
-  /// provided [id].
-  ChatCallCredentials getCredentials(ChatItemId id);
+  /// provided [callId].
+  ChatCallCredentials getCredentials(ChatItemId callId);
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
-  void moveCredentials(ChatItemId callId, ChatItemId newCallId);
+  void moveCredentials(
+    ChatItemId callId,
+    ChatItemId newCallId,
+    ChatId chatId,
+    ChatId newChatId,
+  );
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
-  /// provided [id].
-  Future<void> removeCredentials(ChatItemId id);
+  /// provided [chatId] and [callId].
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId);
 
   /// Subscribes to [ChatCallEvent]s of an [OngoingCall].
   ///
@@ -146,10 +151,7 @@ abstract class AbstractCallRepository {
   /// [MyUser]'s participation in an [OngoingCall]. Stopping or breaking this
   /// subscription without leaving the [OngoingCall] will end up by kicking the
   /// authenticated [MyUser] from this [OngoingCall] by timeout.
-  Stream<ChatCallEvents> heartbeat(
-    ChatItemId id,
-    ChatCallDeviceId deviceId,
-  );
+  Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId);
 }
 
 /// Cannot create a new [OngoingCall] in the specified [Chat], because it exists

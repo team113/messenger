@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -24,11 +24,10 @@ Feature: Blocklist
     And I wait until `HomeView` is present
 
     When I go to Bob's page
-    And I tap `MoreButton` button
+    And I scroll `UserScrollable` to bottom
     And I tap `Block` button
     And I tap `Proceed` button
     Then Bob sends message to me and receives blocked exception
 
-    And I tap `MoreButton` button
-    And I tap `Unblock` button
+    When I tap `Unblock` button
     Then Bob sends message to me and receives no exception

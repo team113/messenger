@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,9 +36,11 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -61,8 +63,8 @@ import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/page/user/view.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -210,8 +212,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
@@ -228,6 +232,8 @@ void main() async {
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
@@ -309,9 +315,6 @@ void main() async {
     )).thenAnswer(
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
-
-    when(graphQlProvider.contactsEvents(any))
-        .thenAnswer((realInvocation) => const Stream.empty());
 
     when(graphQlProvider.myUserEvents(any))
         .thenAnswer((realInvocation) => const Stream.empty());
@@ -441,7 +444,9 @@ void main() async {
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
+        blocklistSortingProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     Get.put(UserService(userRepository));
@@ -480,6 +485,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -507,16 +513,24 @@ void main() async {
     ));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(find.widgetWithText(CopyableTextField, 'user name'), findsOneWidget);
+    expect(find.text('user name'), findsAny);
     expect(find.byKey(const Key('Present')), findsOneWidget);
-    await tester.dragUntilVisible(find.byKey(const Key('UserNum')),
-        find.byKey(const Key('UserScrollable')), const Offset(1, 1));
+    await tester.dragUntilVisible(
+      find.byKey(const Key('NumCopyable')),
+      find.byKey(const Key('UserScrollable')),
+      const Offset(1, 1),
+    );
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('5769space2360space9862space1822'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
+
+    for (int i = 0; i < 20; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
@@ -530,13 +544,11 @@ void main() async {
     await tester.tap(deleteFromContacts);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('Proceed')));
-    await tester.pumpAndSettle(const Duration(seconds: 3));
-
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);
 
+    PlatformUtils.activityTimer?.cancel();
     await Get.deleteAll(force: true);
   });
 }

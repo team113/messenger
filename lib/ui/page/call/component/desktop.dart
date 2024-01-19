@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -144,15 +144,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   c.state.value != OngoingCallState.joining &&
                                   !isOutgoing;
 
-                          final bool isDialog =
-                              c.chat.value?.chat.value.isDialog == true;
-
                           final Widget child;
 
                           if (!isIncoming) {
                             child = _primaryView(c);
                           } else {
-                            if (isDialog) {
+                            if (c.isDialog) {
                               final User? user = c.chat.value?.members.values
                                       .firstWhereOrNull(
                                         (e) => e.id != c.me.id.userId,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,8 +24,10 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -43,6 +45,10 @@ void main() async {
   await userProvider.init();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
+  var sessionProvider = SessionDataHiveProvider();
+  await sessionProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -57,7 +63,12 @@ void main() async {
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
-          graphQlProvider, blockedUsersProvider, userRepository),
+        graphQlProvider,
+        blockedUsersProvider,
+        blocklistSortingProvider,
+        userRepository,
+        sessionProvider,
+      ),
     );
 
     var profileService = Get.put(

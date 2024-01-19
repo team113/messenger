@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '../controller.dart';
 import '../widget/call_button.dart';
 import '../widget/call_title.dart';
+import '../widget/dock.dart';
 import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';

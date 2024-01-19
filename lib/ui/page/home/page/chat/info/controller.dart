@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,17 +16,22 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart' show CallAlreadyExistsException;
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -46,6 +51,7 @@ class ChatInfoController extends GetxController {
     this._chatService,
     this._authService,
     this._callService,
+    this._settingsRepo,
   );
 
   /// ID of the [Chat] this page is about.
@@ -68,6 +74,24 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// Indicator whether the editing mode is enabled.
+  final RxBool editing = RxBool(false);
+
+  /// List of [UserId]s that are being removed from the [chat].
+  final RxList<UserId> membersOnRemoval = RxList([]);
+
+  /// [Chat.name] field state.
+  late final TextFieldState name;
+
+  /// [Chat.directLink] field state.
+  late final TextFieldState link;
+
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -77,17 +101,8 @@ class ChatInfoController extends GetxController {
   /// [CallService] used to start a call in the [chat].
   final CallService _callService;
 
-  /// List of [UserId]s that are being removed from the [chat].
-  final RxList<UserId> membersOnRemoval = RxList([]);
-
-  /// [Chat.name] field state.
-  late final TextFieldState name;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
-  Timer? _nameTimer;
-
-  /// [Timer] to set the `RxStatus.empty` status of the [avatar] field.
-  Timer? _avatarTimer;
+  /// Settings repository, used to retrieve the [background].
+  final AbstractSettingsRepository _settingsRepo;
 
   /// Worker to react on [chat] changes.
   Worker? _worker;
@@ -95,14 +110,14 @@ class ChatInfoController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
-  /// [GlobalKey] of the more [ContextMenuRegion] button.
-  final GlobalKey moreKey = GlobalKey();
-
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
+
+  /// Returns the current background's [Uint8List] value.
+  Rx<Uint8List?> get background => _settingsRepo.background;
 
   @override
   void onInit() {
@@ -123,7 +138,6 @@ class ChatInfoController extends GetxController {
       onSubmitted: (s) async {
         s.error.value = null;
         s.focus.unfocus();
-        _nameTimer?.cancel();
 
         if ((s.text.isEmpty && chat?.chat.value.name?.val == null) ||
             s.text == chat?.chat.value.name?.val) {
@@ -147,11 +161,7 @@ class ChatInfoController extends GetxController {
 
           try {
             await _chatService.renameChat(chat!.chat.value.id, name);
-            s.status.value = RxStatus.success();
-            _nameTimer = Timer(
-              const Duration(seconds: 1),
-              () => s.status.value = RxStatus.empty(),
-            );
+            s.status.value = RxStatus.empty();
             s.unsubmit();
           } on RenameChatException catch (e) {
             s.status.value = RxStatus.empty();
@@ -159,6 +169,57 @@ class ChatInfoController extends GetxController {
           } catch (e) {
             s.status.value = RxStatus.empty();
             MessagePopup.error(e.toString());
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
+    link = TextFieldState(
+      approvable: true,
+      editable: true,
+      text: chat?.chat.value.directLink?.slug.val ??
+          ChatDirectLinkSlug.generate(10).val,
+      submitted: chat?.chat.value.directLink != null,
+      onChanged: (s) {
+        try {
+          if (s.text.isNotEmpty) {
+            ChatDirectLinkSlug(s.text);
+          }
+
+          s.error.value = null;
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      },
+      onSubmitted: (s) async {
+        ChatDirectLinkSlug? slug;
+        try {
+          slug = ChatDirectLinkSlug(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+
+        if (slug == chat?.chat.value.directLink?.slug) {
+          return;
+        }
+
+        if (s.error.value == null) {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+
+          try {
+            await _chatService.createChatDirectLink(chatId, slug!);
+            s.status.value = RxStatus.empty();
+          } on CreateChatDirectLinkException catch (e) {
+            s.status.value = RxStatus.empty();
+            s.error.value = e.toMessage();
+          } catch (e) {
+            s.status.value = RxStatus.empty();
+            MessagePopup.error(e);
+            s.unsubmit();
             rethrow;
           } finally {
             s.editable.value = true;
@@ -179,8 +240,6 @@ class ChatInfoController extends GetxController {
   @override
   onClose() {
     _worker?.dispose();
-    _nameTimer?.cancel();
-    _avatarTimer?.cancel();
     _chatSubscription?.cancel();
     super.onClose();
   }
@@ -206,10 +265,14 @@ class ChatInfoController extends GetxController {
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     try {
-      _callService.call(chatId, withVideo: withVideo);
+      await _callService.call(chatId, withVideo: withVideo);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
-    } catch (e) {
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     }
   }
@@ -235,7 +298,6 @@ class ChatInfoController extends GetxController {
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// `null`.
   Future<void> updateChatAvatar(PlatformFile? image) async {
-    _avatarTimer?.cancel();
     avatar.value = RxStatus.loading();
 
     try {
@@ -244,41 +306,12 @@ class ChatInfoController extends GetxController {
         file: image == null ? null : NativeFile.fromPlatformFile(image),
       );
 
-      avatar.value = RxStatus.success();
-
-      _avatarTimer = Timer(
-        const Duration(seconds: 1),
-        () => avatar.value = RxStatus.empty(),
-      );
+      avatar.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
       avatar.value = RxStatus.empty();
       MessagePopup.error(e);
     } catch (e) {
       avatar.value = RxStatus.empty();
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Unmutes the [chat].
-  Future<void> unmuteChat() async {
-    try {
-      await _chatService.toggleChatMute(chatId, null);
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Mutes the [chat].
-  Future<void> muteChat() async {
-    try {
-      await _chatService.toggleChatMute(chatId, MuteDuration.forever());
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
       MessagePopup.error(e);
       rethrow;
     }
@@ -337,9 +370,6 @@ class ChatInfoController extends GetxController {
   /// Joins an [OngoingCall] happening in the [chat].
   Future<void> joinCall() => _callService.join(chatId, withVideo: false);
 
-  /// Drops the [OngoingCall] happening in the [chat].
-  Future<void> dropCall() => _callService.leave(chatId);
-
   /// Redials the [User] identified by its [userId].
   Future<void> redialChatCallMember(UserId userId) async {
     if (userId == me) {
@@ -376,6 +406,11 @@ class ChatInfoController extends GetxController {
     await _chatService.createChatDirectLink(chatId, slug!);
   }
 
+  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
+  Future<void> deleteChatDirectLink() async {
+    await _chatService.deleteChatDirectLink(chatId);
+  }
+
   /// Fetches the [chat].
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
@@ -390,6 +425,10 @@ class ChatInfoController extends GetxController {
 
       name.unchecked = chat!.chat.value.name?.val;
 
+      if (chat!.chat.value.directLink?.slug.val != null) {
+        link.unchecked = chat!.chat.value.directLink?.slug.val;
+      }
+
       _worker = ever(
         chat!.chat,
         (Chat chat) {
@@ -397,6 +436,10 @@ class ChatInfoController extends GetxController {
               !name.changed.value &&
               name.editable.value) {
             name.unchecked = chat.name?.val;
+          }
+
+          if (!link.focus.hasFocus && !link.changed.value) {
+            link.unchecked = chat.directLink?.slug.val;
           }
         },
       );

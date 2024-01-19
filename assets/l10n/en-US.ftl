@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -307,6 +307,7 @@ err_invalid_crop_points = Invalid crop points
 err_invalid_registration_token = Invalid registration token
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
+err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
 err_monolog = Can't perfom this action in a monolog
 err_network = Connection to the server refused
@@ -477,6 +478,7 @@ fcm_user_removed_you =
     } removed you from group
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
+label_about = About
 label_account = Account
 label_account_created = Account is created
 label_actions = Actions
@@ -491,7 +493,7 @@ label_add_email_hint = Write your email address
 label_add_number = Add phone number
 label_add_number_hint = Write your number in format of +33 478 88 88 88
 label_add_participants = Add participants
-label_add_phone = Add phone number
+label_add_phone = Add phone
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
@@ -599,7 +601,9 @@ label_chat_monolog = Notes
 label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
 label_chat_name_hint = Chat name
 label_chats = Messages
+label_chats_section_hint = Audio and video call buttons
 label_clear_history = Clear history
+label_clicks_count = {$count} clicks
 label_code_sent_again = The code has been re-sent.
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
@@ -610,6 +614,7 @@ label_contact_information = Contact information
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
+label_count_gb = {$count} GB
 label_count_seconds = {$count} { $count ->
        [1] second
        *[other] seconds
@@ -631,6 +636,7 @@ label_delete_email = Delete E-mail
 label_delete_for_everyone = Delete for everyone
 label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
+label_delete_messages = Delete the messages?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_details = Details.
@@ -649,12 +655,7 @@ label_direct_chat_link_description =
     After the chat created by this link is deleted, your privacy
     settings are respected.
 label_direct_chat_link_in_chat_description =
-    Users who came via a direct
-    link to the chat are automatically added to chat members. They can:
-
-    - visit group profile,
-    - send messages to group chat,
-    - make calls
+    Users who come via a direct link automatically become full members of the group.
 label_disabled = Disabled
 label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
@@ -669,6 +670,7 @@ label_duration_minute_short = m
 label_duration_second_short = s
 label_edit = Edit
 label_email = E-mail
+label_email_not_verified = E-mail not verified
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
@@ -687,7 +689,8 @@ label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
    *[other] Пересланные сообщения
 }
-label_gb_slash_gb = {$a} GB / {$b} GB
+label_gb_occupied = {$count} GB occupied
+label_gb_of_gb_occupied = {$a} of {$b} GB occupied
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -741,13 +744,14 @@ label_media_buttons_in_top = In the chat above
 label_media_camera = Camera
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
-label_media_output = Audio output
+label_media_output = Speaker
 label_media_section_hint = Audio and video devices
 label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
 label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
+label_messages_will_deleted_for_you = The messages will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_monolog_created = Chat created
 label_mute_for = {$days ->
@@ -773,10 +777,12 @@ label_name_removed2 = {" "}removed name
 label_name_updated = {$author} renamed chat to {$name}
 label_name_updated1 = {$author}
 label_name_updated2 = {" "}renamed chat to {$name}
+label_navigation_panel = Navigation panel
 label_new_password = New password
 label_no_chat_found = No chat found
 label_no_chats = No chats
 label_no_contacts = No contacts
+label_no_limit = ∞
 label_no_messages = No messages
 label_no_registration = no registration
 label_no_users = No users
@@ -784,6 +790,7 @@ label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
+label_off = Off
 label_offline = offline
 label_one_time_account_created = One-time account created
 label_online = online
@@ -791,6 +798,7 @@ label_open_calls_in_app = Display calls in the application.
 label_open_calls_in_window = Display calls in a separate window.
 label_or_register = or register
 label_outgoing_call = Outgoing call
+label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
@@ -805,6 +813,7 @@ label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
     Confirmation code was send to your phone number
+label_phone_not_verified = Phone not verified
 label_phone_number = Phone number
 label_phone_visible = Your phone is visible to:{" "}
 label_photo = Photo
@@ -813,7 +822,6 @@ label_presence_away = Away
 label_presence_hidden = Don't show
 label_presence_present = Online
 label_profile = Profile
-label_public_information = Public information
 label_public_section_hint = Avatar and name
 label_read_at = Read at: {$date}
 label_read_by = Read by
@@ -850,6 +858,7 @@ label_service_reconnecting = Service is reconnecting...
 label_set_new_password = Set a new password to log into your account
 label_set_password = Set password
 label_settings = Settings
+label_show_sections = Show sections
 label_sign_in = Sign in
 label_sign_in_input = Gapopa ID, login, E-mail or phone
 label_sign_in_with_password = Sign in with password
@@ -869,7 +878,6 @@ label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
-label_timeline_style = Timeline style
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
 label_transition_count = Transitions: {$count}
@@ -893,7 +901,7 @@ label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
 label_users = Users
 label_users_count = Users: {$count}
-label_verify_email = Verify E-mail
+label_verify = Verify
 label_verify_number = Verify phone number
 label_video = Video
 label_video_call = Video call{$by ->

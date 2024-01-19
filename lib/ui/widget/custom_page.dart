@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,11 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
 
-/// [Page] with the [_FadeCupertinoPageRoute] as its [Route].
+/// [Page] with the [_CupertinoPageRoute] as its [Route].
 class CustomPage extends Page {
   const CustomPage({super.key, super.name, required this.child});
 
@@ -28,21 +29,21 @@ class CustomPage extends Page {
 
   @override
   Route createRoute(BuildContext context) {
-    return _FadeCupertinoPageRoute(
+    return _CupertinoPageRoute(
       settings: this,
       pageBuilder: (_, __, ___) => child,
     );
   }
 }
 
-/// [PageRoute] with fading iOS styled page transition animation.
+/// [PageRoute] custom iOS styled page transition animation.
 ///
 /// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
-class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
-  _FadeCupertinoPageRoute({super.settings, required this.pageBuilder})
+class _CupertinoPageRoute<T> extends PageRoute<T> {
+  _CupertinoPageRoute({super.settings, required this.pageBuilder})
       : matchingBuilder = PlatformUtils.isAndroid
             ? const FadeUpwardsPageTransitionsBuilder()
-            : const CupertinoPageTransitionsBuilder();
+            : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
@@ -63,8 +64,11 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
   Duration get transitionDuration => const Duration(milliseconds: 400);
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-          Animation<double> secondaryAnimation) =>
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) =>
       pageBuilder(context, animation, secondaryAnimation);
 
   @override
@@ -75,19 +79,73 @@ class _FadeCupertinoPageRoute<T> extends PageRoute<T> {
     Widget child,
   ) {
     return ClipRect(
-      child: FadeTransition(
-        opacity: animation,
-        child: FadeTransition(
-          opacity: Tween<double>(begin: 1, end: 0).animate(secondaryAnimation),
-          child: matchingBuilder.buildTransitions(
-            this,
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-          ),
-        ),
+      child: matchingBuilder.buildTransitions(
+        this,
+        context,
+        animation,
+        secondaryAnimation,
+        child,
       ),
     );
+  }
+}
+
+/// [PageTransitionsBuilder] using [CupertinoRouteTransitionMixin] for custom
+/// [MaterialPageRoute]s changing animation.
+class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
+  const CustomCupertinoPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final Widget widget = CupertinoRouteTransitionMixin.buildPageTransitions(
+      route,
+      context,
+      animation,
+      secondaryAnimation,
+      child,
+    );
+
+    final bool linear =
+        CupertinoRouteTransitionMixin.isPopGestureInProgress(route);
+
+    if (widget is CupertinoPageTransition) {
+      return SlideTransition(
+        position: Tween(
+          begin: Offset.zero,
+          end: const Offset(-1.0, 0.0),
+        ).animate(
+          linear
+              ? animation
+              : CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.linearToEaseOut,
+                  reverseCurve: Curves.linearToEaseOut.flipped,
+                ),
+        ),
+        child: SlideTransition(
+          position: Tween(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(
+            linear
+                ? secondaryAnimation
+                : CurvedAnimation(
+                    parent: secondaryAnimation,
+                    curve: Curves.linearToEaseOut,
+                    reverseCurve: Curves.easeInToLinear,
+                  ),
+          ),
+          child: widget.child,
+        ),
+      );
+    } else {
+      return widget;
+    }
   }
 }

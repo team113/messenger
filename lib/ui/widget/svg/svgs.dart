@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,17 +39,20 @@ class SvgData {
 
 /// [SvgImage.icon] wrapper.
 class SvgIcon extends StatelessWidget {
-  const SvgIcon(this.data, {super.key, this.height});
+  const SvgIcon(this.data, {super.key, this.width, this.height});
 
   /// [SvgData] to pass to the [SvgImage].
   final SvgData data;
+
+  /// Optional width to display [data] of.
+  final double? width;
 
   /// Optional height to display [data] of.
   final double? height;
 
   @override
   Widget build(BuildContext context) {
-    return SvgImage.icon(data, height: height);
+    return SvgImage.icon(data, width: width, height: height);
   }
 }
 
@@ -179,6 +182,18 @@ class SvgIcons {
     'assets/icons/password.svg',
     width: 19,
     height: 21,
+  );
+
+  static const SvgData passwordSmall = SvgData(
+    'assets/icons/password_small.svg',
+    width: 17.1,
+    height: 19,
+  );
+
+  static const SvgData passwordSmallWhite = SvgData(
+    'assets/icons/password_small_white.svg',
+    width: 17.1,
+    height: 19,
   );
 
   static const SvgData qrCode = SvgData(
@@ -383,6 +398,12 @@ class SvgIcons {
     'assets/icons/chats.svg',
     width: 39.26,
     height: 33.5,
+  );
+
+  static const SvgData contacts = SvgData(
+    'assets/icons/contacts.svg',
+    width: 32,
+    height: 32,
   );
 
   static const SvgData chatsMuted = SvgData(
@@ -1434,6 +1455,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData blockSmall = SvgData(
+    'assets/icons/block.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,
@@ -1444,6 +1471,12 @@ class SvgIcons {
     'assets/icons/clean_history_white.svg',
     width: 17.21,
     height: 18,
+  );
+
+  static const SvgData cleanHistorySmall = SvgData(
+    'assets/icons/clean_history_small.svg',
+    width: 15.28,
+    height: 16,
   );
 
   static const SvgData addContact = SvgData(
@@ -1644,6 +1677,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData leaveGroupSmall = SvgData(
+    'assets/icons/leave_group_small.svg',
+    width: 12.88,
+    height: 16,
+  );
+
   static const SvgData report = SvgData(
     'assets/icons/report.svg',
     width: 16,
@@ -1672,5 +1711,29 @@ class SvgIcons {
     'assets/icons/download19_white.svg',
     width: 12.89,
     height: 19,
+  );
+
+  static const SvgData addMember = SvgData(
+    'assets/icons/add_member.svg',
+    width: 17,
+    height: 17,
+  );
+
+  static const SvgData complaint = SvgData(
+    'assets/icons/complaint.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData unblock = SvgData(
+    'assets/icons/unblock.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData menuNav = SvgData(
+    'assets/icons/menu_nav.svg',
+    width: 32,
+    height: 32,
   );
 }

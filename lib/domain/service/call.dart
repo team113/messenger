@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -82,7 +82,7 @@ class CallService extends DisposableService {
     }
 
     try {
-      Rx<OngoingCall> call = await _callsRepo.start(
+      final Rx<OngoingCall> call = await _callsRepo.start(
         chatId,
         withAudio: withAudio,
         withVideo: withVideo,
@@ -94,8 +94,15 @@ class CallService extends DisposableService {
       } else {
         call.value.connect(this);
       }
+    } on CallAlreadyJoinedException catch (e) {
+      _callsRepo.leave(chatId, e.deviceId);
+      _callsRepo.remove(chatId);
+
+      // TODO: Try joining the [OngoingCall] again, instead of throwing the
+      //       exception here.
+      rethrow;
     } catch (e) {
-      // If an error occurs, it's guaranteed that the broken call will be
+      // If any other error occurs, it's guaranteed that the broken call will be
       // removed.
       _callsRepo.remove(chatId);
       rethrow;
@@ -119,7 +126,10 @@ class CallService extends DisposableService {
     }
 
     try {
-      final RxChat? chat = await _chatService.get(chatId);
+      final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
+      final RxChat? chat =
+          chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+
       final ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
 
       Rx<OngoingCall>? call;
@@ -148,8 +158,15 @@ class CallService extends DisposableService {
       } else {
         call?.value.connect(this);
       }
+    } on CallAlreadyJoinedException catch (e) {
+      _callsRepo.leave(chatId, e.deviceId);
+      _callsRepo.remove(chatId);
+
+      // TODO: Try joining the [OngoingCall] again, instead of throwing the
+      //       exception here.
+      rethrow;
     } catch (e) {
-      // If an error occurs, it's guaranteed that the broken call will be
+      // If any other error occurs, it's guaranteed that the broken call will be
       // removed.
       _callsRepo.remove(chatId);
       rethrow;
@@ -307,15 +324,15 @@ class CallService extends DisposableService {
     final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       _callsRepo.move(chatId, newChatId);
-      _callsRepo.moveCredentials(callId, newCallId);
+      _callsRepo.moveCredentials(callId, newCallId, chatId, newChatId);
       if (WebUtils.isPopup) {
         WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
       }
     }
   }
 
-  /// Transfers the [ChatCallCredentials] from the provided [Chat] to the
-  /// specified [OngoingCall].
+  /// Copies the [ChatCallCredentials] from the provided [Chat] and links them
+  /// to the specified [OngoingCall].
   void transferCredentials(ChatId chatId, ChatItemId callId) {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
     _callsRepo.transferCredentials(chatId, callId);
@@ -323,9 +340,9 @@ class CallService extends DisposableService {
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) async {
-    Log.debug('removeCredentials($id)', '$runtimeType');
-    await _callsRepo.removeCredentials(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('removeCredentials($chatId, $callId)', '$runtimeType');
+    return _callsRepo.removeCredentials(chatId, callId);
   }
 
   /// Returns a [RxChat] by the provided [id].

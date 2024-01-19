@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -226,6 +226,7 @@ class ParticipantController extends GetxController {
   /// Fetches the [chat], or [pop]s, if it's `null`.
   Future<void> _fetchChat() async {
     chat.value = null;
+
     final FutureOr<RxChat?> fetched = _chatService.get(chatId.value);
     chat.value = fetched is RxChat? ? fetched : await fetched;
 

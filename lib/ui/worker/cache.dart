@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -383,6 +383,10 @@ class CacheWorker extends DisposableService {
     });
   }
 
+  /// Sets the maximum allowed size of the cache.
+  Future<void> setMaxSize(int? size) async =>
+      await _cacheLocal?.setMaxSize(size);
+
   /// Waits for locking operations to release the lock.
   @visibleForTesting
   Future<void> ensureOptimized() => _mutex.protect(() async {});
@@ -411,12 +415,16 @@ class CacheWorker extends DisposableService {
   /// Uses LRU (Least Recently Used) approach sorting [File]s by their
   /// [FileStat.accessed] times.
   Future<void> _optimizeCache() {
+    if (info.value.maxSize == null) {
+      return Future.value();
+    }
+
     return _mutex.protect(() async {
       final Directory? cache = await PlatformUtils.cacheDirectory;
 
-      int overflow = info.value.size - info.value.maxSize;
+      int overflow = info.value.size - info.value.maxSize!;
       if (overflow > 0 && cache != null) {
-        overflow += (info.value.maxSize * 0.05).floor();
+        overflow += (info.value.maxSize! * 0.05).floor();
 
         final List<File> files =
             info.value.checksums.map((e) => File('${cache.path}/$e')).toList();

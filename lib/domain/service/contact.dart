@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -43,9 +43,13 @@ class ContactService extends DisposableService {
   /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
-  /// Returns the reactive map the currently paginated [ChatContact]s.
+  /// Returns the reactive map of the currently paginated [RxChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get paginated =>
       _contactRepository.paginated;
+
+  /// Returns the current reactive map of all [RxChatContact]s available.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
+      _contactRepository.contacts;
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() {

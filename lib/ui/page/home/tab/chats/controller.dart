@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,6 +35,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
+        CallAlreadyExistsException,
         CallAlreadyJoinedException,
         CallDoesNotExistException,
         CallIsInPopupException;
@@ -49,13 +50,14 @@ import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ClearChatException,
         CreateGroupChatException,
         FavoriteChatException,
         HideChatException,
+        JoinChatCallException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException,
-        ClearChatException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
@@ -331,9 +333,11 @@ class ChatsTabController extends GetxController {
   Future<void> call(ChatId id, [bool withVideo = false]) async {
     try {
       await _callService.call(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
-    } on CallDoesNotExistException catch (e) {
+    } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
@@ -345,6 +349,8 @@ class ChatsTabController extends GetxController {
   Future<void> joinCall(ChatId id, {bool withVideo = false}) async {
     try {
       await _callService.join(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallDoesNotExistException catch (e) {
@@ -486,7 +492,7 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    return _contactService.paginated.values.any((e) =>
+    return _contactService.contacts.values.any((e) =>
         e.contact.value.users.length == 1 &&
         e.contact.value.users.every((m) => m.id == userId));
   }
@@ -531,7 +537,7 @@ class ChatsTabController extends GetxController {
 
     try {
       final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
+          _contactService.contacts.values.firstWhereOrNull(
         (e) =>
             e.contact.value.users.length == 1 &&
             e.contact.value.users.every((m) => m.id == user.id),
@@ -598,7 +604,6 @@ class ChatsTabController extends GetxController {
       );
 
       router.chat(chat.chat.value.id);
-      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -718,6 +723,7 @@ class ChatsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
+        _myUserService,
         categories: [
           SearchCategory.recent,
           if (groupCreating.isFalse) SearchCategory.chat,

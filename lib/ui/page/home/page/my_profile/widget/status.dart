@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,15 +18,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [status].
 class UserTextStatusField extends StatefulWidget {
@@ -101,27 +98,13 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return ReactiveTextField(
       key: const Key('StatusField'),
       state: _state,
-      label: 'label_status'.l10n,
+      label: 'label_about'.l10n,
       filled: true,
-      maxLength: 25,
-      onSuffixPressed: _state.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: _state.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: _state.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.copy),
-            ),
-      style: style.fonts.normal.regular.onBackground,
+      maxLines: null,
+      formatters: [LengthLimitingTextInputFormatter(4096)],
     );
   }
 }

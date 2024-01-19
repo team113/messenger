@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,7 +31,7 @@ class CacheInfo extends HiveObject {
     HashSet<String>? checksums,
     this.size = 0,
     this.modified,
-    this.maxSize = GB,
+    this.maxSize = GB * 2,
   }) : checksums = checksums ?? HashSet();
 
   /// Checksums of the stored in cache files.
@@ -44,7 +44,9 @@ class CacheInfo extends HiveObject {
   int size;
 
   /// Maximum allowed cache size in bytes.
-  int maxSize;
+  ///
+  /// `null` means no limit.
+  int? maxSize;
 }
 
 /// [Hive] adapter for a [CacheInfo].
@@ -58,7 +60,7 @@ class CacheInfoAdapter extends TypeAdapter<CacheInfo> {
       checksums: HashSet()..addAll(reader.read() as List<String>),
       size: reader.read() as int,
       modified: reader.read() as DateTime?,
-      maxSize: reader.read() as int,
+      maxSize: reader.read() as int?,
     );
   }
 
