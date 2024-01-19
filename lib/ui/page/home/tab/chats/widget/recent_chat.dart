@@ -212,41 +212,10 @@ class RecentChatTile extends StatelessWidget {
           avatarBuilder: avatarBuilder,
           dimmed: blocked,
           monolog: monolog,
-          titleBuilder: (t) {
-            return Row(
-              children: [
-                Flexible(child: t),
-                // if (chat.muted != null) ...[
-                //   const SizedBox(width: 5),
-                //   SvgIcon(
-                //     inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                //     key: Key('MuteIndicator_${chat.id}'),
-                //   ),
-                //   const SizedBox(width: 5),
-                // ],
-              ],
-            );
-          },
-
-          // onBasementPressed: () async {
-          //   await GetPaidView.show(
-          //     context,
-          //     mode: GetPaidMode.user,
-          //     user: rxChat.members.values.firstWhere((e) => e.id != me),
-          //   );
-          // },
           basement: payee
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // const SizedBox(width: 6),
-                    // const Text('Total: ¤123'),
-
-                    // SvgIcon(
-                    //   inverted ? SvgIcons.callsTinyWhite : SvgIcons.callsTiny,
-                    // ),
-                    // const SizedBox(width: 3),
-                    // Text('Звонок: ¤123/мин'),
                     RichText(
                       text: TextSpan(
                         children: [
@@ -265,13 +234,8 @@ class RecentChatTile extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Spacer(),
-                    SizedBox(width: 12),
-                    // SvgIcon(
-                    //   inverted ? SvgIcons.chatsTinyWhite : SvgIcons.chatsTiny,
-                    // ),
-                    // const SizedBox(width: 3),
-                    // Text('Сообщение: ¤123'),
+                    const Spacer(),
+                    const SizedBox(width: 12),
                     RichText(
                       text: TextSpan(
                         children: [
@@ -290,8 +254,6 @@ class RecentChatTile extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    // const SizedBox(width: 5),
                   ],
                 )
               : null,
@@ -307,24 +269,6 @@ class RecentChatTile extends StatelessWidget {
                 SvgIcon(
                   inverted ? SvgIcons.faceSmileWhite : SvgIcons.faceSmile,
                 ),
-                // SvgIcon(inverted ? SvgIcons.sunWhite : SvgIcons.sun),
-                // SvgIcon(inverted ? SvgIcons.emeraldWhite : SvgIcons.emerald),
-                // const SvgIcon(SvgIcons.premium),
-                // const SvgIcon(SvgIcons.cent),
-                // SvgIcon(
-                //   inverted ? SvgIcons.dollarStatusWhite : SvgIcons.dollarStatus,
-                // ),
-                // Text(
-                //   '\$',
-                //   style: inverted
-                //       ? style.fonts.small.regular.onPrimary
-                //       : style.fonts.small.regular.secondary.copyWith(
-                //           color: style.colors.acceptPrimary,
-                //         ),
-                //   maxLines: 1,
-                //   overflow: TextOverflow.clip,
-                //   textAlign: TextAlign.center,
-                // ),
               ],
               if (rxChat.unreadCount.value > 0) ...[
                 const SizedBox(width: 10),
@@ -340,13 +284,6 @@ class RecentChatTile extends StatelessWidget {
                 if (chat.muted != null) ...[
                   const SizedBox(width: 10),
                   SvgIcon(inverted ? SvgIcons.mutedWhite : SvgIcons.muted),
-                  // UnreadCounter(
-                  //   null,
-                  //   dimmed: true,
-                  //   inverted: inverted,
-                  //   icon: inverted ? SvgIcons.muted : SvgIcons.mutedWhite,
-                  //   key: Key('MuteIndicator_${chat.id}'),
-                  // ),
                 ],
                 const SizedBox(key: Key('NoUnreadMessages')),
               ],

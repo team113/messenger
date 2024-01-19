@@ -128,6 +128,7 @@ dependencies:
   just_audio: ^0.9.36
   proximity_screen_lock: ^1.1.0
   flutter_to_airplay: ^2.0.4
+  all_sensors: ^0.4.2
   # audioplayers_android: ^4.0.3
   # audioplayers_platform_interface: ^6.1.0
   # audioplayers_darwin: ^5.0.2

@@ -111,7 +111,7 @@ class VideoButton extends CallButton {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return CallButtonWidget(
-        hint: hint,
+        hint: opaque ? null : hint,
         asset: isVideo ? SvgIcons.callVideoOn : SvgIcons.callVideoOff,
         hinted: hinted,
         expanded: expanded,
@@ -155,7 +155,7 @@ class AudioButton extends CallButton {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return CallButtonWidget(
-        hint: hint,
+        hint: opaque ? null : hint,
         asset: isAudio ? SvgIcons.callMicrophoneOn : SvgIcons.callMicrophoneOff,
         hinted: hinted,
         expanded: expanded,
@@ -455,7 +455,7 @@ class CancelButton extends CallButton {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
-      hint: hint,
+      hint: opaque ? null : hint,
       asset: SvgIcons.callEndBig,
       color: style.colors.decline,
       hinted: hinted,
@@ -503,7 +503,7 @@ class SpeakerButton extends CallButton {
 
   @override
   String get hint => c.isMobile
-      ? c.output.name // ? 'btn_call_toggle_speaker_desc'.l10n
+      ? 'btn_call_toggle_speaker_desc'.l10n
       : 'btn_call_toggle_speaker'.l10n;
 
   @override
@@ -514,35 +514,31 @@ class SpeakerButton extends CallButton {
     bool expanded = false,
     bool opaque = false,
   }) {
-    return Stack(
-      children: [
-        Obx(() {
-          return CallButtonWidget(
-            hint: hinted ? hint : null,
-            asset: switch (c.output) {
-              AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
-              AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
-              AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
-            },
-            hinted: true || hinted,
-            expanded: expanded,
-            withBlur: blur,
-            big: big,
-            constrained: c.isMobile,
-            opaque: opaque,
-            onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
-          );
-        }),
-        // if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
-        //   const Positioned.fill(
-        //     child: AirPlayRoutePickerView(
-        //       tintColor: Colors.transparent,
-        //       activeTintColor: Colors.transparent,
-        //       backgroundColor: Colors.transparent,
-        //     ),
-        //   ),
-      ],
-    );
+    return Obx(() {
+      final SvgData asset = switch (c.output) {
+        AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
+        AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
+        AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
+      };
+
+      return CallButtonWidget(
+        hint: opaque
+            ? null
+            : hinted
+                ? hint
+                : null,
+        asset: PlatformUtils.isMobile && PlatformUtils.isWeb
+            ? SvgIcons.callIncomingAudioOn
+            : asset,
+        hinted: hinted,
+        expanded: expanded,
+        withBlur: blur,
+        big: big,
+        constrained: c.isMobile,
+        opaque: opaque,
+        onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
+      );
+    });
   }
 }
 
@@ -605,7 +601,7 @@ class SwitchButton extends CallButton {
   }) {
     return Obx(() {
       return CallButtonWidget(
-        hint: hint,
+        hint: opaque ? null : hint,
         asset: c.cameraSwitched.value
             ? SvgIcons.callCameraFront
             : SvgIcons.callCameraBack,

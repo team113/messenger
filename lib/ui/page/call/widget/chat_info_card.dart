@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -30,6 +31,7 @@ class ChatInfoCard extends StatelessWidget {
     this.chat,
     this.subtitle,
     this.trailing,
+    this.at,
     this.onTap,
   });
 
@@ -44,6 +46,8 @@ class ChatInfoCard extends StatelessWidget {
 
   /// [Duration] to display within this [ChatInfoCard].
   final Duration? duration;
+
+  final PreciseDateTime? at;
 
   /// Callback, called when this [ChatInfoCard] is pressed.
   final void Function()? onTap;
@@ -76,44 +80,38 @@ class ChatInfoCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                chat?.title.value ?? 'dot'.l10n * 3,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: style.fonts.big.regular.onPrimary,
-                              ),
-                            ),
-                            duration == null
-                                ? const SizedBox()
-                                : Text(
-                                    duration!.hhMmSs(),
-                                    style: style.fonts.normal.regular.onPrimary,
-                                  ),
-                          ],
+                        Text(
+                          chat?.title.value ?? 'dot'.l10n * 3,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.big.regular.onPrimary,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Row(
-                            children: [
-                              if (subtitle != null)
-                                Text(
-                                  subtitle!,
-                                  style: style.fonts.normal.regular.onPrimary,
-                                ),
-                              const Spacer(),
-                              if (trailing != null)
-                                Text(
-                                  trailing!,
-                                  style: style.fonts.normal.regular.onPrimary,
-                                ),
-                            ],
+                        if (trailing != null) ...[
+                          const SizedBox(height: 5),
+                          Text(
+                            trailing!,
+                            style: style.fonts.normal.regular.onPrimary,
                           ),
-                        ),
+                        ],
                       ],
                     ),
+                  ),
+                  const SizedBox(width: 5),
+                  Column(
+                    children: [
+                      if (duration != null)
+                        Text(
+                          duration!.hhMmSs(),
+                          style: style.fonts.normal.regular.onPrimary,
+                        ),
+                      if (duration != null && at != null)
+                        const SizedBox(height: 5),
+                      if (at != null)
+                        Text(
+                          at!.val.toLocal().short,
+                          style: style.fonts.normal.regular.onPrimary,
+                        ),
+                    ],
                   ),
                 ],
               ),

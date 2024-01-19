@@ -58,8 +58,6 @@ class AudioUtilsImpl {
 
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       Future(() async {
-        return;
-
         final AudioSession session = await AudioSession.instance;
         final bool hasBluetooth =
             (await session.getDevices(includeInputs: false)).any(

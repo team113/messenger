@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:all_sensors/all_sensors.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,6 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/ui/worker/call.dart';
 import 'package:messenger/util/log.dart';
-import 'package:mutex/mutex.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:proximity_screen_lock/proximity_screen_lock.dart';
 
@@ -417,8 +417,6 @@ class CallController extends GetxController {
   /// [Timer]s removing items from the [notifications] after the
   /// [_notificationDuration].
   final List<Timer> _notificationTimers = [];
-
-  final Mutex _outputGuard = Mutex();
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -867,12 +865,18 @@ class CallController extends GetxController {
     }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      ProximityScreenLock.isProximityLockSupported()
-          .then((v) => v ? ProximityScreenLock.setActive(true) : null);
+      // ProximityScreenLock.isProximityLockSupported()
+      //     .then((v) => v ? ProximityScreenLock.setActive(true) : null);
+
+      _proximitySubscription = proximityEvents?.listen((ProximityEvent event) {
+        Log.debug('Proximity value: ${event.getValue()}', '$runtimeType');
+      });
     }
 
     super.onInit();
   }
+
+  StreamSubscription? _proximitySubscription;
 
   @override
   void onClose() {
@@ -892,6 +896,7 @@ class CallController extends GetxController {
     _settingsWorker?.dispose();
     _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
+    _proximitySubscription?.cancel();
 
     secondaryEntry?.remove();
 

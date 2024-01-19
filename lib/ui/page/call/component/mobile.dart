@@ -28,7 +28,6 @@ import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
 import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/double_bounce_indicator.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
@@ -457,7 +456,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 //   padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
-                padding(SettingsButton(c).build(expanded: c.isPanelOpen.value)),
+                // padding(SettingsButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
               ],
             ),
@@ -476,17 +475,14 @@ Widget mobileCall(CallController c, BuildContext context) {
               child: ChatInfoCard(
                 chat: c.chat.value,
                 duration: c.duration.value,
-                trailing: 'label_a_of_b'.l10nfmt({
-                  'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
-                  'b': '${c.chat.value?.members.length}',
-                }),
-                subtitle: c.chat.value?.members.values
-                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
-                        ?.user
-                        .value
-                        .status
-                        ?.val ??
-                    'label_online'.l10n,
+                trailing: c.isGroup
+                    ? 'label_a_of_b'.l10nfmt({
+                        'a':
+                            '${c.members.keys.where((e) => e.deviceId != null).map((k) => k.userId).toSet().length}',
+                        'b': '${c.chat.value?.members.length}',
+                      })
+                    : null,
+                at: c.startedAt,
                 onTap: () => c.openAddMember(context),
               ),
             ),
@@ -615,12 +611,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                                         opaque: true,
                                       ),
                                     ),
-                                    padding(
-                                      SettingsButton(c).build(
-                                        hinted: false,
-                                        opaque: true,
-                                      ),
-                                    ),
+                                    // padding(
+                                    //   SettingsButton(c).build(
+                                    //     hinted: false,
+                                    //     opaque: true,
+                                    //   ),
+                                    // ),
                                     padding(
                                       CancelButton(c).build(
                                         hinted: false,
