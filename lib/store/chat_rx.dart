@@ -1246,7 +1246,11 @@ class HiveRxChat extends RxChat {
                 }
 
                 chatEntity.value.ongoingCall = event.call;
-                _chatRepository.addCall(event.call);
+
+                // Call is already finished, no reason to try adding it.
+                if (event.call.finishReason != null) {
+                  _chatRepository.addCall(event.call);
+                }
 
                 final message = await get(event.call.id, key: event.call.key);
 
@@ -1271,7 +1275,11 @@ class HiveRxChat extends RxChat {
 
               case ChatEventKind.callFinished:
                 event as EventChatCallFinished;
-                chatEntity.value.ongoingCall = null;
+
+                if (chatEntity.value.ongoingCall?.id == event.call.id) {
+                  chatEntity.value.ongoingCall = null;
+                }
+
                 if (chatEntity.value.lastItem?.id == event.call.id) {
                   chatEntity.value.lastItem = event.call;
                 }
