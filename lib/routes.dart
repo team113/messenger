@@ -374,18 +374,8 @@ class AppRouteInformationParser
       }
     }
 
-    // Only allow `video` query parameter to be persisted in URL.
-    final Iterable<MapEntry<String, dynamic>> arguments = configuration
-        .arguments.entries
-        .where((e) => e.key == 'video' && e.value != null);
-
     return RouteInformation(
-      uri: Uri(
-        path: route,
-        queryParameters: arguments.isEmpty
-            ? null
-            : {for (var e in arguments) e.key: e.value},
-      ),
+      uri: Uri(path: route),
       state: configuration.tab?.index,
     );
   }
