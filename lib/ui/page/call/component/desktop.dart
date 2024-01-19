@@ -189,12 +189,19 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child: child,
                           );
                         }),
-                        Obx(() => MouseRegion(
-                              opaque: false,
-                              cursor: c.isCursorHidden.value
-                                  ? SystemMouseCursors.none
-                                  : SystemMouseCursors.basic,
-                            )),
+                        Obx(() {
+                          return MouseRegion(
+                            opaque: false,
+                            cursor: c.isCursorHidden.value
+                                ? SystemMouseCursors.none
+                                : c.draggedRenderer.value != null ||
+                                        c.doughDraggedRenderer.value != null
+                                    ? SystemMouseCursors.grabbing
+                                    : c.hoveredRenderer.value != null
+                                        ? SystemMouseCursors.grab
+                                        : SystemMouseCursors.basic,
+                          );
+                        }),
                       ],
                     ),
                   ),
