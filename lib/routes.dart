@@ -290,7 +290,12 @@ class RouterState extends ChangeNotifier {
 /// Application's route configuration used to determine the current router state
 /// to parse from/to [RouteInformation].
 class RouteConfiguration {
-  RouteConfiguration(this.route, [this.tab, this.loggedIn = true]);
+  RouteConfiguration(
+    this.route, {
+    this.tab,
+    this.authorized = true,
+    this.arguments = const {},
+  });
 
   /// Current route as a [String] value.
   ///
@@ -302,7 +307,10 @@ class RouteConfiguration {
   final HomeTab? tab;
 
   /// Whether current user is logged in or not.
-  bool loggedIn;
+  bool authorized;
+
+  /// Query parameters of the [route].
+  Map<String, dynamic> arguments;
 }
 
 /// Parses the [RouteConfiguration] from/to [RouteInformation].
@@ -332,7 +340,13 @@ class AppRouteInformationParser
       route = Routes.home;
     }
 
-    return SynchronousFuture(RouteConfiguration(route, tab));
+    return SynchronousFuture(
+      RouteConfiguration(
+        route,
+        tab: tab,
+        arguments: routeInformation.uri.queryParameters,
+      ),
+    );
   }
 
   @override
@@ -340,7 +354,7 @@ class AppRouteInformationParser
     String route = configuration.route;
 
     // If logged in and on [Routes.home] page, then modify the URL's route.
-    if (configuration.loggedIn && configuration.route == Routes.home) {
+    if (configuration.authorized && configuration.route == Routes.home) {
       switch (configuration.tab!) {
         case HomeTab.work:
           route = Routes.work;
@@ -361,7 +375,7 @@ class AppRouteInformationParser
     }
 
     return RouteInformation(
-      uri: Uri.parse(route),
+      uri: Uri(path: route),
       state: configuration.tab?.index,
     );
   }
@@ -403,12 +417,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }
+    _state.arguments = configuration.arguments;
     _state.notifyListeners();
   }
 
   @override
   RouteConfiguration get currentConfiguration => RouteConfiguration(
-      _state.route, _state.tab, _state._auth.status.value.isSuccess);
+        _state.route,
+        tab: _state.tab,
+        authorized: _state._auth.status.value.isSuccess,
+        arguments: _state.arguments ?? const {},
+      );
 
   @override
   void dispose() {

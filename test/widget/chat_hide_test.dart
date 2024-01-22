@@ -448,9 +448,8 @@ void main() async {
     //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
     }
-
-    await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('chatname'), findsOneWidget);
 
