@@ -565,6 +565,7 @@ label_background = Background
 label_block = Block
 label_blocked = Blocked
 label_blocked_users = Blocked users
+label_by_default_hyphen = By default -{" "}
 label_cache = Cache
 label_cache_and_downloads = Cache and downloads
 label_call_active = Active call

@@ -17,8 +17,10 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '/l10n/l10n.dart';
 import 'log.dart';
 import 'platform_utils.dart';
 import 'web/web_utils.dart';
@@ -78,7 +80,7 @@ class MediaUtilsImpl {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
         _devicesController?.add(
-          (await mediaManager?.enumerateDevices() ?? [])
+          (await enumerateDevices())
               .where((e) => e.deviceId().isNotEmpty)
               .toList(),
         );
@@ -135,10 +137,30 @@ class MediaUtilsImpl {
   Future<List<MediaDeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
-    return (await mediaManager?.enumerateDevices() ?? [])
-        .where((e) => e.deviceId().isNotEmpty)
-        .where((e) => kind == null || e.kind() == kind)
-        .toList();
+    final List<MediaDeviceDetails> devices =
+        (await mediaManager?.enumerateDevices() ?? [])
+            .where((e) => e.deviceId().isNotEmpty)
+            .where((e) => kind == null || e.kind() == kind)
+            .whereType<MediaDeviceDetails>()
+            .toList();
+
+    if (kind == null || kind == MediaDeviceKind.audioInput) {
+      final MediaDeviceDetails? device = devices
+          .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
+      if (device != null) {
+        devices.insert(0, DefaultMediaDeviceDetails(device));
+      }
+    }
+
+    if (kind == null || kind == MediaDeviceKind.audioOutput) {
+      final MediaDeviceDetails? device = devices
+          .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
+      if (device != null) {
+        devices.insert(0, DefaultMediaDeviceDetails(device));
+      }
+    }
+
+    return devices;
   }
 
   /// Returns the currently available [MediaDisplayDetails].
@@ -216,4 +238,30 @@ class ScreenPreferences extends TrackPreferences {
 
   /// Preferred framerate of the screen track.
   final int? framerate;
+}
+
+/// [MediaDeviceDetails] representing the default device.
+class DefaultMediaDeviceDetails extends MediaDeviceDetails {
+  DefaultMediaDeviceDetails(this._deviceDetails);
+
+  /// [MediaDeviceDetails] this [DefaultMediaDeviceDetails] represents.
+  final MediaDeviceDetails _deviceDetails;
+
+  @override
+  String deviceId() => 'default_${_deviceDetails.deviceId()}';
+
+  @override
+  void free() => _deviceDetails.free();
+
+  @override
+  String? groupId() => _deviceDetails.groupId();
+
+  @override
+  bool isFailed() => _deviceDetails.isFailed();
+
+  @override
+  MediaDeviceKind kind() => _deviceDetails.kind();
+
+  @override
+  String label() => 'label_by_default_hyphen'.l10n + _deviceDetails.label();
 }

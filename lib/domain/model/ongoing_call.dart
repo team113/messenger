@@ -1051,7 +1051,8 @@ class OngoingCall {
     }
 
     if (deviceId != outputDevice.value) {
-      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
+      await MediaUtils.mediaManager
+          ?.setOutputAudioId(deviceId.replaceAll('default_', ''));
       outputDevice.value = deviceId;
     }
   }
@@ -1663,7 +1664,8 @@ class OngoingCall {
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
-          audioDevice: audioDevice ?? this.audioDevice.value,
+          audioDevice:
+              audioDevice?.replaceAll('default_', '') ?? this.audioDevice.value,
           videoDevice: videoDevice ?? this.videoDevice.value,
           screenDevice: screenDevice ?? this.screenDevice.value,
         );

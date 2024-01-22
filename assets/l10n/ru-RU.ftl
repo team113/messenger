@@ -589,6 +589,7 @@ label_background = Бэкграунд
 label_block = Заблокировать
 label_blocked = Заблокирован
 label_blocked_users = Заблокированные пользователи
+label_by_default_hyphen = По умолчанию -{" "}
 label_cache = Кэш
 label_cache_and_downloads = Кэш и загрузки
 label_call_active = Активный звонок
