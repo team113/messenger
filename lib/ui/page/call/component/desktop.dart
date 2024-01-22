@@ -189,19 +189,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child: child,
                           );
                         }),
-                        Obx(() {
-                          return MouseRegion(
-                            opaque: false,
-                            cursor: c.isCursorHidden.value
-                                ? SystemMouseCursors.none
-                                : c.draggedRenderer.value != null ||
-                                        c.doughDraggedRenderer.value != null
-                                    ? SystemMouseCursors.grabbing
-                                    : c.hoveredRenderer.value != null
-                                        ? SystemMouseCursors.grab
-                                        : SystemMouseCursors.basic,
-                          );
-                        }),
                       ],
                     ),
                   ),
@@ -718,6 +705,21 @@ Widget desktopCall(CallController c, BuildContext context) {
 
             return _secondaryView(c, context);
           });
+        }),
+
+        // [MouseRegion] changing the cursor.
+        Obx(() {
+          return MouseRegion(
+            opaque: false,
+            cursor: c.isCursorHidden.value
+                ? SystemMouseCursors.none
+                : c.draggedRenderer.value != null ||
+                        c.doughDraggedRenderer.value != null
+                    ? PlatformUtils.grabbingCursor
+                    : c.hoveredRenderer.value != null
+                        ? PlatformUtils.grabCursor
+                        : MouseCursor.defer,
+          );
         }),
 
         // Show a hint if any renderer is draggable.
@@ -1815,7 +1817,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: MouseRegion(
                         cursor: isAnyDrag
                             ? MouseCursor.defer
-                            : SystemMouseCursors.grab,
+                            : PlatformUtils.grabCursor,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;

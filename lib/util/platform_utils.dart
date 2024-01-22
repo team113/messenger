@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
@@ -309,6 +310,24 @@ class PlatformUtilsImpl {
 
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
+
+  /// Returns a grab [MouseCursor].
+  MouseCursor get grabCursor {
+    if (isWindows && !isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'grab');
+    }
+
+    return SystemMouseCursors.grab;
+  }
+
+  /// Returns a grabbing [MouseCursor].
+  MouseCursor get grabbingCursor {
+    if (isWindows && !isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'grabbing');
+    }
+
+    return SystemMouseCursors.grabbing;
+  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {

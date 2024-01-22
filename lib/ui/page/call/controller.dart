@@ -615,7 +615,8 @@ class CallController extends GetxController {
               const Duration(seconds: 1),
               (_) {
                 duration.value = DateTime.now().difference(begunAt);
-                if (hoveredRendererTimeout > 0) {
+                if (hoveredRendererTimeout > 0 &&
+                    draggedRenderer.value == null) {
                   --hoveredRendererTimeout;
                   if (hoveredRendererTimeout == 0) {
                     hoveredRenderer.value = null;

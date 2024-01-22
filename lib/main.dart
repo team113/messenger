@@ -28,6 +28,8 @@ import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
@@ -101,6 +103,33 @@ Future<void> main() async {
       await windowManager.show();
 
       Get.put(WindowWorker(preferences));
+    }
+
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      final grabCursor = await rootBundle.load('assets/images/grab.bgra');
+      final grabbingCursor =
+          await rootBundle.load('assets/images/grabbing.bgra');
+
+
+      await CursorManager.instance.registerCursor(
+        CursorData()
+          ..name = 'grab'
+          ..buffer = grabCursor.buffer.asUint8List()
+          ..height = 30
+          ..width = 30
+          ..hotX = 15
+          ..hotY = 15,
+      );
+
+      await CursorManager.instance.registerCursor(
+        CursorData()
+          ..name = 'grabbing'
+          ..buffer = grabbingCursor.buffer.asUint8List()
+          ..height = 30
+          ..width = 30
+          ..hotX = 15
+          ..hotY = 15,
+      );
     }
 
     final graphQlProvider = Get.put(GraphQlProvider());
