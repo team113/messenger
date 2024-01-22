@@ -57,6 +57,7 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
+import 'participant/controller.dart';
 import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
@@ -1346,6 +1347,9 @@ class CallController extends GetxController {
       context,
       call: _currentCall,
       duration: duration,
+      initial: isGroup
+          ? ParticipantsFlowStage.participants
+          : ParticipantsFlowStage.search,
     );
   }
 

@@ -21,15 +21,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [status].
 class UserTextStatusField extends StatefulWidget {
@@ -50,7 +45,6 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.status?.val ?? '',
-    // approvable: true,
     onChanged: (s) {
       s.error.value = null;
 
@@ -97,8 +91,6 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return ReactiveTextField(
       key: const Key('StatusField'),
       state: _state,
@@ -106,31 +98,6 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
       filled: true,
       maxLines: null,
       formatters: [LengthLimitingTextInputFormatter(4096)],
-      // onSuffixPressed: _state.text.isEmpty
-      //     ? null
-      //     : () {
-      //         PlatformUtils.copy(text: _state.text);
-      //         MessagePopup.success('label_copied'.l10n);
-      //       },
-      // trailing: _state.text.isEmpty
-      //     ? null
-      //     : Transform.translate(
-      //         offset: const Offset(0, -1),
-      //         child: const SvgIcon(SvgIcons.copy),
-      //       ),
-      // style: style.fonts.normal.regular.onBackground,
-      // subtitle: Row(
-      //   children: [
-      //     const Spacer(),
-      //     AnimatedButton(
-      //       onPressed: () {},
-      //       child: Text(
-      //         'btn_save'.l10n,
-      //         style: style.fonts.small.regular.primary,
-      //       ),
-      //     ),
-      //   ],
-      // ),
     );
   }
 }

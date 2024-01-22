@@ -50,11 +50,11 @@ class Config {
   static String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
-  ///
-  /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
 
   /// [ChatDirectLink] prefix.
+  ///
+  /// If empty, then [origin] is used.
   static String link = '';
 
   /// Directory to download files to.
@@ -178,15 +178,11 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_GOOGLE_CLIENT_ID')
         : (document['google']?['clientId'] ?? '');
 
-    link = const bool.hasEnvironment('SOCAPP_LINK_URL')
-        ? const String.fromEnvironment('SOCAPP_LINK_URL')
-        : (document['link']?['url'] ?? '');
-
     origin = url;
 
-    if (link.isEmpty) {
-      link = origin;
-    }
+    link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
+        ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
+        : (document['link']?['prefix'] ?? '');
 
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
@@ -254,6 +250,7 @@ class Config {
             userAgentVersion =
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+            link = remote['link']?['prefix'] ?? link;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],
@@ -275,6 +272,10 @@ class Config {
       } else {
         origin = '${Uri.base.scheme}://${Uri.base.host}';
       }
+    }
+
+    if (link.isEmpty) {
+      link = origin;
     }
 
     ws = '$wsUrl:$wsPort$graphql';

@@ -62,6 +62,9 @@ alert_you_will_leave_group = Вы покинете группу.
 btn_add = Добавить
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
+btn_add_participant_desc =
+    Добавить
+    учстника
 btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
 btn_add_to_favorites = Добавить в избранные
@@ -134,7 +137,7 @@ btn_call_screen_on = Демонстрация экрана
 btn_call_screen_on_desc =
     Демонстрация
     экрана
-btn_call_settings = Настройки звонка
+btn_call_settings = Настройки медиа
 btn_call_switch_camera = Сменить камеру
 btn_call_switch_camera_desc =
     Сменить
@@ -601,7 +604,7 @@ label_call_title_paid =
         }
     }
 label_calls = Звонки
-label_calls_displaying = Отображение звонков
+label_calls_displaying = В отдельном окне или в приложении
 label_camera = Камера
 label_chat = Чат
 label_change_password = Изменить пароль

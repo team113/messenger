@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/util/web/web_utils.dart';
 
 import '/domain/model/ongoing_call.dart';
@@ -75,68 +76,56 @@ class CallSettingsView extends StatelessWidget {
                   ModalPopupHeader(text: 'label_media'.l10n),
                   Padding(
                     padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await CameraSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setVideoDevice(device),
-                          camera: c.camera.value,
-                        );
-
-                        if (c.devices.video().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_camera'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.video().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.camera.value) ??
-                                          c.devices.video().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
+                    child: Obx(() {
+                      return FieldButton(
+                        text: (c.devices.video().firstWhereOrNull((e) =>
+                                        e.deviceId() == c.camera.value) ??
+                                    c.devices.video().firstOrNull)
+                                ?.label() ??
+                            'label_media_no_device_available'.l10n,
+                        hint: 'label_media_camera'.l10n,
+                        headline: Text('label_media_camera'.l10n),
+                        onPressed: () async {
+                          await CameraSwitchView.show(
+                            context,
+                            onChanged: (device) => c.setVideoDevice(device),
+                            camera: c.camera.value,
                           );
-                        }),
-                      ),
-                    ),
+
+                          if (c.devices.video().isEmpty) {
+                            await c.enumerateDevices();
+                          }
+                        },
+                        style: style.fonts.normal.regular.primary,
+                      );
+                    }),
                   ),
                   const SizedBox(height: 16),
                   Padding(
                     padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await MicrophoneSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setAudioDevice(device),
-                          mic: c.mic.value,
-                        );
-
-                        if (c.devices.audio().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_microphone'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.audio().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.mic.value) ??
-                                          c.devices.audio().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
+                    child: Obx(() {
+                      return FieldButton(
+                        text: (c.devices.audio().firstWhereOrNull(
+                                        (e) => e.deviceId() == c.mic.value) ??
+                                    c.devices.audio().firstOrNull)
+                                ?.label() ??
+                            'label_media_no_device_available'.l10n,
+                        hint: 'label_media_microphone'.l10n,
+                        headline: Text('label_media_microphone'.l10n),
+                        onPressed: () async {
+                          await MicrophoneSwitchView.show(
+                            context,
+                            onChanged: (device) => c.setAudioDevice(device),
+                            mic: c.mic.value,
                           );
-                        }),
-                      ),
-                    ),
+
+                          if (c.devices.audio().isEmpty) {
+                            await c.enumerateDevices();
+                          }
+                        },
+                        style: style.fonts.normal.regular.primary,
+                      );
+                    }),
                   ),
 
                   // TODO: Remove, when Safari supports output devices without
@@ -146,121 +135,113 @@ class CallSettingsView extends StatelessWidget {
                     const SizedBox(height: 16),
                     Padding(
                       padding: padding,
-                      child: WidgetButton(
-                        onPressed: () async {
-                          await OutputSwitchView.show(
-                            context,
-                            onChanged: (device) => c.setOutputDevice(device),
-                            output: c.output.value,
-                          );
-
-                          if (c.devices.output().isEmpty) {
-                            await c.enumerateDevices();
-                          }
-                        },
-                        child: IgnorePointer(
-                          child: Obx(() {
-                            return ReactiveTextField(
-                              label: 'label_media_output'.l10n,
-                              state: TextFieldState(
-                                text: (c.devices.output().firstWhereOrNull(
-                                                (e) =>
-                                                    e.deviceId() ==
-                                                    c.output.value) ??
-                                            c.devices.output().firstOrNull)
-                                        ?.label() ??
-                                    'label_media_no_device_available'.l10n,
-                                editable: false,
-                              ),
-                              style: style.fonts.normal.regular.primary,
+                      child: Obx(() {
+                        return FieldButton(
+                          text: (c.devices.output().firstWhereOrNull((e) =>
+                                          e.deviceId() == c.output.value) ??
+                                      c.devices.output().firstOrNull)
+                                  ?.label() ??
+                              'label_media_no_device_available'.l10n,
+                          hint: 'label_media_output'.l10n,
+                          headline: Text('label_media_output'.l10n),
+                          onPressed: () async {
+                            await OutputSwitchView.show(
+                              context,
+                              onChanged: (device) => c.setOutputDevice(device),
+                              output: c.output.value,
                             );
-                          }),
-                        ),
-                      ),
+
+                            if (c.devices.output().isEmpty) {
+                              await c.enumerateDevices();
+                            }
+                          },
+                          style: style.fonts.normal.regular.primary,
+                        );
+                      }),
                     ),
                   ],
                   const SizedBox(height: 16),
-                  ModalPopupHeader(text: 'label_calls'.l10n, close: false),
-                  Padding(
-                    padding: padding,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 21.0),
-                        child: Text(
-                          'label_open_calls_in'.l10n,
-                          style: style.systemMessageStyle.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Padding(
-                    padding: padding,
-                    child: WidgetButton(
-                      onPressed: () => CallWindowSwitchView.show(context),
-                      child: IgnorePointer(
-                        child: ReactiveTextField(
-                          state: TextFieldState(
-                            text: (c.settings.value?.enablePopups ?? true)
-                                ? 'label_open_calls_in_window'.l10n
-                                : 'label_open_calls_in_app'.l10n,
-                          ),
-                          maxLines: null,
-                          style: style.fonts.normal.regular.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: padding,
-                    child: Stack(
-                      alignment: Alignment.centerRight,
-                      children: [
-                        IgnorePointer(
-                          child: ReactiveTextField(
-                            maxLines: null,
-                            state: TextFieldState(
-                              text: 'label_leave_group_call_when_alone'.l10n,
-                              editable: false,
-                            ),
-                            trailing: const SizedBox(width: 40),
-                            trailingWidth: 40,
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 5),
-                            child: Transform.scale(
-                              scale: 0.7,
-                              transformHitTests: false,
-                              child: Theme(
-                                data: ThemeData(platform: TargetPlatform.macOS),
-                                child: Obx(
-                                  () => Switch.adaptive(
-                                    activeColor:
-                                        Theme.of(context).colorScheme.primary,
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    value: c.settings.value?.leaveWhenAlone ==
-                                        true,
-                                    onChanged: c.setLeaveWhenAlone,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+                  // ModalPopupHeader(text: 'label_calls'.l10n, close: false),
+                  // Padding(
+                  //   padding: padding,
+                  //   child: Align(
+                  //     alignment: Alignment.centerLeft,
+                  //     child: Padding(
+                  //       padding: const EdgeInsets.only(left: 21.0),
+                  //       child: Text(
+                  //         'label_open_calls_in'.l10n,
+                  //         style: style.systemMessageStyle.copyWith(
+                  //           color: Theme.of(context).colorScheme.secondary,
+                  //           fontSize: 15,
+                  //           fontWeight: FontWeight.w400,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 4),
+                  // Padding(
+                  //   padding: padding,
+                  //   child: WidgetButton(
+                  //     onPressed: () => CallWindowSwitchView.show(context),
+                  //     child: IgnorePointer(
+                  //       child: ReactiveTextField(
+                  //         state: TextFieldState(
+                  //           text: (c.settings.value?.enablePopups ?? true)
+                  //               ? 'label_open_calls_in_window'.l10n
+                  //               : 'label_open_calls_in_app'.l10n,
+                  //         ),
+                  //         maxLines: null,
+                  //         style: style.fonts.normal.regular.primary,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 16),
+                  // Padding(
+                  //   padding: padding,
+                  //   child: Stack(
+                  //     alignment: Alignment.centerRight,
+                  //     children: [
+                  //       IgnorePointer(
+                  //         child: ReactiveTextField(
+                  //           maxLines: null,
+                  //           state: TextFieldState(
+                  //             text: 'label_leave_group_call_when_alone'.l10n,
+                  //             editable: false,
+                  //           ),
+                  //           trailing: const SizedBox(width: 40),
+                  //           trailingWidth: 40,
+                  //         ),
+                  //       ),
+                  //       Align(
+                  //         alignment: Alignment.centerRight,
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.only(right: 5),
+                  //           child: Transform.scale(
+                  //             scale: 0.7,
+                  //             transformHitTests: false,
+                  //             child: Theme(
+                  //               data: ThemeData(platform: TargetPlatform.macOS),
+                  //               child: Obx(
+                  //                 () => Switch.adaptive(
+                  //                   activeColor:
+                  //                       Theme.of(context).colorScheme.primary,
+                  //                   materialTapTargetSize:
+                  //                       MaterialTapTargetSize.shrinkWrap,
+                  //                   value: c.settings.value?.leaveWhenAlone ==
+                  //                       true,
+                  //                   onChanged: c.setLeaveWhenAlone,
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 16),
                 ],
               ),
             ),

@@ -196,6 +196,7 @@ class ScreenButton extends CallButton {
         hint: hint,
         asset:
             isScreen ? SvgIcons.callScreenShareOff : SvgIcons.callScreenShareOn,
+        offset: const Offset(0, 1),
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -269,8 +270,13 @@ class ParticipantsButton extends CallButton {
   const ParticipantsButton(super.c);
 
   @override
-  String get hint =>
-      c.isMobile ? 'btn_participants_desc'.l10n : 'btn_participants'.l10n;
+  String get hint => c.isGroup
+      ? c.isMobile
+          ? 'btn_participants_desc'.l10n
+          : 'btn_participants'.l10n
+      : c.isMobile
+          ? 'btn_add_participant_desc'.l10n
+          : 'btn_add_participant'.l10n;
 
   @override
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {

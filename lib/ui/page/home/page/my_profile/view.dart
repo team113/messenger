@@ -413,7 +413,7 @@ class MyProfileView extends StatelessWidget {
                       }
 
                       return block(
-                        title: 'label_calls'.l10n,
+                        title: 'label_open_calls_in'.l10n,
                         children: [_call(context, c)],
                       );
 
@@ -1441,38 +1441,37 @@ Widget _call(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      if (PlatformUtils.isDesktop && PlatformUtils.isWeb) ...[
-        Paddings.dense(
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 21.0),
-              child: Text(
-                'label_open_calls_in'.l10n,
-                style: style.systemMessageStyle.copyWith(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Paddings.dense(
-          Obx(() {
-            return FieldButton(
-              text: (c.settings.value?.enablePopups ?? true)
-                  ? 'label_open_calls_in_window'.l10n
-                  : 'label_open_calls_in_app'.l10n,
-              maxLines: null,
-              onPressed: () => CallWindowSwitchView.show(context),
-              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-            );
-          }),
-        ),
-        const SizedBox(height: 16),
-      ],
+      // Paddings.dense(
+      //   Align(
+      //     alignment: Alignment.centerLeft,
+      //     child: Padding(
+      //       padding: const EdgeInsets.only(left: 21.0),
+      //       child: Text(
+      //         'label_open_calls_in'.l10n,
+      //         style: style.systemMessageStyle.copyWith(
+      //           color: Theme.of(context).colorScheme.secondary,
+      //           fontSize: 15,
+      //           fontWeight: FontWeight.w400,
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ),
+
+      Paddings.dense(
+        Obx(() {
+          return FieldButton(
+            text: (c.settings.value?.enablePopups ?? true)
+                ? 'label_open_calls_in_window'.l10n
+                : 'label_open_calls_in_app'.l10n,
+            maxLines: null,
+            onPressed: () => CallWindowSwitchView.show(context),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
+          );
+        }),
+      ),
+      // const SizedBox(height: 16),
+
       // Paddings.dense(
       //   Stack(
       //     alignment: Alignment.centerRight,

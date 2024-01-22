@@ -55,7 +55,8 @@ class ParticipantController extends GetxController {
     this._chatService,
     this._callService, {
     this.pop,
-  });
+    ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
+  }) : stage = Rx(initial);
 
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
@@ -68,8 +69,7 @@ class ParticipantController extends GetxController {
   final void Function()? pop;
 
   /// [ParticipantsFlowStage] currently being displayed.
-  final Rx<ParticipantsFlowStage> stage =
-      Rx(ParticipantsFlowStage.participants);
+  final Rx<ParticipantsFlowStage> stage;
 
   /// Status of a [addMembers] completion.
   ///

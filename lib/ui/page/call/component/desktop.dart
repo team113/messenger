@@ -362,11 +362,13 @@ Widget desktopCall(CallController c, BuildContext context) {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: 11),
-                AcceptAudioButton(c, highlight: !c.withVideo).build(),
+                AcceptAudioButton(c, highlight: !c.withVideo)
+                    .build(hinted: false),
                 const SizedBox(width: 24),
-                AcceptVideoButton(c, highlight: c.withVideo).build(),
+                AcceptVideoButton(c, highlight: c.withVideo)
+                    .build(hinted: false),
                 const SizedBox(width: 24),
-                DeclineButton(c).build(),
+                DeclineButton(c).build(hinted: false),
                 const SizedBox(width: 11),
               ],
             );
@@ -724,7 +726,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(11),
                       boxShadow: [
                         CustomBoxShadow(
                           color: style.colors.onBackgroundOpacity20,
@@ -735,15 +737,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ),
                     margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
                     child: ConditionalBackdropFilter(
-                      borderRadius: BorderRadius.circular(30),
-                      filter: ImageFilter.blur(
-                        sigmaX: 15,
-                        sigmaY: 15,
-                      ),
+                      borderRadius: BorderRadius.circular(11),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
                         decoration: BoxDecoration(
                           color: style.colors.primaryAuxiliaryOpacity25,
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(11),
                         ),
                         padding: const EdgeInsets.symmetric(
                           vertical: 8,

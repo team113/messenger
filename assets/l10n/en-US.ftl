@@ -62,6 +62,9 @@ alert_you_will_leave_group = You will leave the group.
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
+btn_add_participant_desc =
+    Add
+    participant
 btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Add to favorites
@@ -133,7 +136,7 @@ btn_call_screen_on = Share screen
 btn_call_screen_on_desc =
     Share
     screen
-btn_call_settings = Call settings
+btn_call_settings = Media settings
 btn_call_switch_camera = Switch camera
 btn_call_switch_camera_desc =
     Switch
@@ -589,7 +592,7 @@ label_call_title_paid =
         }
     }
 label_calls = Calls
-label_calls_displaying = Calls displaying
+label_calls_displaying = In separate window or within app
 label_camera = Camera
 label_chat = Chat
 label_change_password = Change password

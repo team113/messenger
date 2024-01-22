@@ -325,7 +325,7 @@ class MenuTabView extends StatelessWidget {
                     } else {
                       child = card(
                         icon: Icons.call,
-                        title: 'label_calls'.l10n,
+                        title: 'label_open_calls_in'.l10n,
                         subtitle: 'label_calls_displaying'.l10n,
                         child: Container(
                           width: 34,

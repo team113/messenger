@@ -21,12 +21,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
 import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
-import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
@@ -420,6 +420,97 @@ Widget mobileCall(CallController c, BuildContext context) {
         }),
       ),
 
+      // Sliding from the top call information.
+      SafeArea(
+        child: Obx(() {
+          final bool active = c.state.value == OngoingCallState.active;
+          // final bool group = c.chat.value != null && c.isGroup;
+          // final bool dialog = c.chat.value != null && c.isDialog;
+          // final bool incoming = !isOutgoing;
+
+          bool showUi = c.showUi.value && active && !c.minimized.value;
+
+          return Align(
+            alignment: Alignment.topCenter,
+            child: AnimatedSlider(
+              duration: const Duration(milliseconds: 250),
+              isOpen: showUi,
+              translate: false,
+              beginOffset: const Offset(0, -1),
+              endOffset: const Offset(0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity20,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.colors.primaryAuxiliaryOpacity25,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 10,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.chat.value?.title.value ?? ('dot'.l10n * 3),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                        width: 1,
+                        height: 14,
+                        color: style.colors.onPrimary,
+                      ),
+                      if (c.isGroup) ...[
+                        Text(
+                          'label_a_of_b'.l10nfmt({
+                            'a': c.members.keys
+                                .where((e) => e.deviceId != null)
+                                .map((k) => k.userId)
+                                .toSet()
+                                .length,
+                            'b': c.chat.value?.members.length ?? 1,
+                          }),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                          width: 1,
+                          height: 14,
+                          color: style.colors.onPrimary,
+                        ),
+                      ],
+                      Text(
+                        Config.disableInfiniteAnimations
+                            ? '00:00'
+                            : c.duration.value.hhMmSs(),
+                        style: style.fonts.small.regular.onPrimary,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+
       // Sliding from the bottom buttons panel.
       Obx(() {
         bool showUi =
@@ -435,7 +526,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         // Populate the sliding panel height and its content.
         if (panel) {
-          panelHeight = 360 + 37;
+          panelHeight = 360 + 37 - 100;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [
@@ -469,23 +560,23 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding(RemoteVideoButton(c).build(expanded: true)),
               ],
             ),
-            const SizedBox(height: 20),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 366),
-              child: ChatInfoCard(
-                chat: c.chat.value,
-                duration: c.duration.value,
-                trailing: c.isGroup
-                    ? 'label_a_of_b'.l10nfmt({
-                        'a':
-                            '${c.members.keys.where((e) => e.deviceId != null).map((k) => k.userId).toSet().length}',
-                        'b': '${c.chat.value?.members.length}',
-                      })
-                    : null,
-                at: c.startedAt,
-                onTap: () => c.openAddMember(context),
-              ),
-            ),
+            // const SizedBox(height: 20),
+            // ConstrainedBox(
+            //   constraints: const BoxConstraints(maxWidth: 366),
+            //   child: ChatInfoCard(
+            //     chat: c.chat.value,
+            //     duration: c.duration.value,
+            //     trailing: c.isGroup
+            //         ? 'label_a_of_b'.l10nfmt({
+            //             'a':
+            //                 '${c.members.keys.where((e) => e.deviceId != null).map((k) => k.userId).toSet().length}',
+            //             'b': '${c.chat.value?.members.length}',
+            //           })
+            //         : null,
+            //     at: c.startedAt,
+            //     onTap: () => c.openAddMember(context),
+            //   ),
+            // ),
           ];
         }
 
