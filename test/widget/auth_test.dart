@@ -167,6 +167,7 @@ void main() async {
     //       should be done in a more strict way.
     for (int i = 0; i < 25; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
+      await tester.pump(const Duration(seconds: 2));
     }
 
     await tester.pumpAndSettle(const Duration(seconds: 5));

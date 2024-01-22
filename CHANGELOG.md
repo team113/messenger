@@ -52,6 +52,7 @@ All user visible changes to this project will be documented in this file. This p
         - Participants duplicating in rare cases. ([#759], [#743])
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
+    - Video popup calls starting without camera enabled. ([#797])
 
 [#573]: /../../issues/573
 [#582]: /../../issues/582
@@ -79,6 +80,7 @@ All user visible changes to this project will be documented in this file. This p
 [#791]: /../../pull/791
 [#794]: /../../pull/794
 [#796]: /../../pull/796
+[#797]: /../../pull/797
 
 
 
