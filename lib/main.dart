@@ -110,7 +110,6 @@ Future<void> main() async {
       final grabbingCursor =
           await rootBundle.load('assets/images/grabbing.bgra');
 
-
       await CursorManager.instance.registerCursor(
         CursorData()
           ..name = 'grab'
