@@ -31,9 +31,9 @@ import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/repository/pagination_fragment.dart';
 import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
+import 'paginated.dart';
 
 /// [Chat]s repository interface.
 abstract class AbstractChatRepository {
@@ -328,9 +328,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
 
-  /// Loads a [PaginationFragment] around the provided [item] or it's [reply] or
+  /// Loads a [Paginated] around the provided [item] or it's [reply] or
   /// [forward].
-  Future<PaginationFragment<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,

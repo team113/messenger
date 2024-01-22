@@ -20,17 +20,16 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/chat_item.dart';
-import '/domain/repository/pagination_fragment.dart';
+import '../domain/repository/paginated.dart';
 import '/provider/hive/chat_item.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'pagination.dart';
 
-/// Implementation of a [PaginationFragment].
-class PaginationFragmentImpl<K extends Comparable, T>
-    implements PaginationFragment<K, T> {
-  PaginationFragmentImpl({
+/// Implementation of a [Paginated].
+class PaginatedImpl<K extends Comparable, T> implements Paginated<K, T> {
+  PaginatedImpl({
     this.pagination,
     List<FutureOr<Map<K, T>>> initial = const [],
   }) {
@@ -162,9 +161,8 @@ class PaginationFragmentImpl<K extends Comparable, T>
   }
 }
 
-/// Implementation of a [PaginationFragment] for [ChatItem]s.
-class MessagesFragment
-    implements PaginationFragment<ChatItemKey, Rx<ChatItem>> {
+/// Implementation of a [Paginated] for [ChatItem]s.
+class MessagesFragment implements Paginated<ChatItemKey, Rx<ChatItem>> {
   MessagesFragment({
     required this.pagination,
     this.onDispose,

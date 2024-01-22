@@ -38,7 +38,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/pagination_fragment.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
@@ -50,7 +50,6 @@ import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
-import '/store/pagination_fragment.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -60,6 +59,7 @@ import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
+import 'paginated.dart';
 import 'pagination/graphql.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
@@ -894,7 +894,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<PaginationFragment<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
@@ -904,6 +904,7 @@ class HiveRxChat extends RxChat {
       '$runtimeType($id)',
     );
 
+    // Retrieve the [item] itself pointed around.
     final HiveChatItem? hiveItem = _pagination.items[item.key] ??
         _fragments
             .firstWhereOrNull((e) => e.pagination.items[item.key] != null)
@@ -914,6 +915,8 @@ class HiveRxChat extends RxChat {
     final ChatItemsCursor? cursor;
     final ChatItemKey? key;
 
+    // If [reply] or [forward] is provided, then the [item] should contain it,
+    // let's try to retrieve the key and cursor to paginate around it.
     if (reply != null) {
       if (hiveItem is! HiveChatMessage) {
         throw ArgumentError.value(
@@ -948,10 +951,12 @@ class HiveRxChat extends RxChat {
       key = hiveItem?.value.key;
     }
 
+    // Try to find any [MessagesFragment] already containing the item requested.
     MessagesFragment? fragment = _fragments.firstWhereOrNull(
       (e) => e.items[key] != null,
     );
 
+    // If found, then return it, or otherwise construct a new one.
     if (fragment != null) {
       return fragment;
     }
@@ -1385,13 +1390,13 @@ class HiveRxChat extends RxChat {
 
               case ChatEventKind.callFinished:
                 event as EventChatCallFinished;
-                chatEntity.value.ongoingCall = null;
-                if (chatEntity.value.lastItem?.id == event.call.id) {
-                  chatEntity.value.lastItem = event.call;
-                }
 
                 if (chatEntity.value.ongoingCall?.id == event.call.id) {
                   chatEntity.value.ongoingCall = null;
+                }
+
+                if (chatEntity.value.lastItem?.id == event.call.id) {
+                  chatEntity.value.lastItem = event.call;
                 }
 
                 if (event.reason != ChatCallFinishReason.moved) {

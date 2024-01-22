@@ -440,7 +440,7 @@ extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
 
 /// Extension adding models construction from [GetMessage$Query$ChatItem].
 extension GetMessageConversion on GetMessage$Query$ChatItem {
-  /// Constructs the new [HiveChatItem]s from this [GetMessage$Query$ChatItem].
+  /// Constructs the new [HiveChatItem] from this [GetMessage$Query$ChatItem].
   HiveChatItem toHive() => _chatItem(node, cursor);
 }
 

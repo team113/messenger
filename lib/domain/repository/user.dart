@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import 'chat.dart';
-import 'pagination_fragment.dart';
+import 'paginated.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -37,7 +37,7 @@ abstract class AbstractUserRepository {
   Future<void> clearCache();
 
   /// Searches [User]s by the given criteria.
-  PaginationFragment<UserId, RxUser> search({
+  Paginated<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,

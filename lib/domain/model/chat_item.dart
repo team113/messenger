@@ -157,7 +157,7 @@ class ChatForward extends ChatItem {
   @override
   void init() {
     if (!PlatformUtils.isWeb) {
-      ChatItemQuote nested = quote;
+      final ChatItemQuote nested = quote;
       if (nested is ChatMessageQuote) {
         for (var a in nested.attachments.whereType<FileAttachment>()) {
           a.init();

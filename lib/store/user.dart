@@ -29,7 +29,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/pagination_fragment.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/user.dart';
@@ -42,7 +42,7 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
-import 'pagination_fragment.dart';
+import 'paginated.dart';
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository extends DisposableInterface
@@ -113,7 +113,7 @@ class UserRepository extends DisposableInterface
   }
 
   @override
-  PaginationFragment<UserId, RxUser> search({
+  Paginated<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -122,7 +122,7 @@ class UserRepository extends DisposableInterface
     Log.debug('search($num, $name, $login, $link)', '$runtimeType');
 
     if (num == null && name == null && login == null && link == null) {
-      return PaginationFragmentImpl();
+      return PaginatedImpl();
     }
 
     Pagination<RxUser, UsersCursor, UserId>? pagination;
@@ -131,11 +131,7 @@ class UserRepository extends DisposableInterface
         perPage: 30,
         provider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) {
-            return searchByName(
-              name,
-              after: after,
-              first: first,
-            );
+            return searchByName(name, after: after, first: first);
           },
         ),
         onKey: (RxUser u) => u.id,
@@ -156,8 +152,7 @@ class UserRepository extends DisposableInterface
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
-    final PaginationFragmentImpl<UserId, RxUser> searchResult =
-        PaginationFragmentImpl(
+    final Paginated<UserId, RxUser> searchResult = PaginatedImpl(
       pagination: pagination,
       initial: [
         {for (var u in users) u.id: u},

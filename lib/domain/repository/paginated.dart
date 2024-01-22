@@ -17,10 +17,10 @@
 
 import 'package:get/get.dart';
 
-import '/util/obs/rxmap.dart';
+import '/util/obs/obs.dart';
 
 /// Result of a search query.
-abstract class PaginationFragment<K extends Comparable, T> {
+abstract class Paginated<K extends Comparable, T> {
   /// Found [T] items themselves.
   final RxObsMap<K, T> items = RxObsMap<K, T>();
 
@@ -46,10 +46,10 @@ abstract class PaginationFragment<K extends Comparable, T> {
   /// Indicates whether the [previous] page of [items] is being fetched.
   RxBool get previousLoading;
 
-  /// Initializes this [PaginationFragment].
+  /// Initializes this [Paginated].
   Future<void> init();
 
-  /// Disposes this [PaginationFragment].
+  /// Disposes this [Paginated].
   void dispose();
 
   /// Fetches next page of the [items].
