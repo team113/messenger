@@ -40,6 +40,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
@@ -69,6 +70,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
+
+  /// [EventPool] of this [MyUserRepository].
+  final EventPool eventPool = EventPool();
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
@@ -491,12 +495,22 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser.update((u) => u?.muted = muting?.toModel());
 
-    try {
-      await _graphQlProvider.toggleMyUserMute(muting);
-    } catch (e) {
-      myUser.update((u) => u?.muted = muted);
-      rethrow;
-    }
+    await eventPool.add(PoolEntry(
+      type: EventType.myUserMuteChatsToggled,
+      key: EventType.myUserMuteChatsToggled.hashCode,
+      propsHash: Object.hash(
+        EventType.myUserMuteChatsToggled,
+        (muting != null),
+      ),
+      handler: () async {
+        try {
+          await _graphQlProvider.toggleMyUserMute(muting);
+        } catch (e) {
+          myUser.update((u) => u?.muted = muted);
+          rethrow;
+        }
+      },
+    ));
   }
 
   @override
@@ -679,6 +693,10 @@ class MyUserRepository implements AbstractMyUserRepository {
             }
           });
         }
+      }
+
+      if (eventPool.ignore(event.toPoolEntry())) {
+        return;
       }
 
       switch (event.kind) {

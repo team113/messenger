@@ -32,6 +32,7 @@ import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/user.dart';
+import '/util/event_pool.dart';
 import '/util/obs/obs.dart';
 
 /// [Chat]s repository interface.
@@ -41,6 +42,9 @@ abstract class AbstractChatRepository {
 
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
+
+  /// Returns [EventPool] of this repository.
+  EventPool get eventPool;
 
   /// Returns the initialization [RxStatus] of this repository.
   Rx<RxStatus> get status;

@@ -50,6 +50,7 @@ import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -1145,6 +1146,10 @@ class HiveRxChat extends RxChat {
             );
 
             return;
+          }
+          if (_chatRepository.eventPool.ignore(event.toPoolEntry())) {
+            shouldPutChat = false;
+            continue;
           }
 
           Log.debug(

@@ -172,6 +172,7 @@ void main() async {
 
   test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
       () async {
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) => Stream.fromIterable([
         QueryResult.internal(
@@ -216,7 +217,7 @@ void main() async {
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    expect(
+    await expectLater(
       () async => await myUserService.toggleMute(null),
       throwsA(isA<ToggleMyUserMuteException>()),
     );

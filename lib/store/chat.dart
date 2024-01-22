@@ -68,6 +68,7 @@ import '/store/pagination/graphql.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/store/user.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -110,6 +111,9 @@ class ChatRepository extends DisposableInterface
 
   @override
   final RxObsMap<ChatId, HiveRxChat> paginated = RxObsMap<ChatId, HiveRxChat>();
+
+  @override
+  final EventPool eventPool = EventPool();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -1177,26 +1181,32 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.favoritePosition = newPosition);
     paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
-    try {
-      if (id.isLocalWith(me)) {
-        _localMonologFavoritePosition = newPosition;
-        final ChatData monolog =
-            _chat(await _graphQlProvider.createMonologChat(null));
+    eventPool.add(EventChatFavorited(
+      id,
+      PreciseDateTime.now(),
+      newPosition,
+    ).toPoolEntry(() async {
+      try {
+        if (id.isLocalWith(me)) {
+          _localMonologFavoritePosition = newPosition;
+          final ChatData monolog =
+              _chat(await _graphQlProvider.createMonologChat(null));
 
-        id = monolog.chat.value.id;
-        await _monologLocal.set(id);
+          id = monolog.chat.value.id;
+          await _monologLocal.set(id);
+        }
+
+        await _graphQlProvider.favoriteChat(id, newPosition);
+      } catch (e) {
+        if (chat?.chat.value.isMonolog == true) {
+          _localMonologFavoritePosition = null;
+        }
+
+        chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+        paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+        rethrow;
       }
-
-      await _graphQlProvider.favoriteChat(id, newPosition);
-    } catch (e) {
-      if (chat?.chat.value.isMonolog == true) {
-        _localMonologFavoritePosition = null;
-      }
-
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
+    }));
   }
 
   @override
@@ -1209,13 +1219,16 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.favoritePosition = null);
     paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
-    try {
-      await _graphQlProvider.unfavoriteChat(id);
-    } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
+    eventPool.add(
+        EventChatUnfavorited(id, PreciseDateTime.now()).toPoolEntry(() async {
+      try {
+        await _graphQlProvider.unfavoriteChat(id);
+      } catch (e) {
+        chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+        paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+        rethrow;
+      }
+    }));
   }
 
   @override
