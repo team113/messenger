@@ -1277,10 +1277,10 @@ class OngoingCall {
 
       conn.onRemoteTrackAdded((track) async {
         final MediaKind kind = track.kind();
-        final MediaSourceKind mediaSourceKind = track.mediaSourceKind();
+        final MediaSourceKind source = track.mediaSourceKind();
 
         Log.debug(
-          'onRemoteTrackAdded $kind-$mediaSourceKind, ${track.mediaDirection()}',
+          'onRemoteTrackAdded $kind-$source, ${track.mediaDirection()}',
           '$runtimeType',
         );
 
@@ -1305,7 +1305,7 @@ class OngoingCall {
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
-            'onMediaDirectionChanged $kind-$mediaSourceKind ${track.mediaDirection()}',
+            'onMediaDirectionChanged $kind-$source ${track.mediaDirection()}',
             '$runtimeType',
           );
 
@@ -1339,11 +1339,7 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.debug(
-            'onStopped $kind-$mediaSourceKind',
-            '$runtimeType',
-          );
-
+          Log.debug('onStopped $kind-$source', '$runtimeType');
           member?.tracks.remove(t..dispose());
         });
 

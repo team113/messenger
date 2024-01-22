@@ -340,7 +340,7 @@ class UserView extends StatelessWidget {
                                 ? c.unfavoriteContact
                                 : () async {
                                     await c.addToContacts();
-                                    c.favoriteContact();
+                                    await c.favoriteContact();
                                   },
                             trailing: SvgIcon(
                               favorite

@@ -527,11 +527,8 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
 
-    for (int i = 0; i < 20; i++) {
-      await tester.runAsync(() => Future.delayed(1.milliseconds));
-    }
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
+    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
