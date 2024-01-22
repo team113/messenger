@@ -187,6 +187,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                               ? EdgeInsets.zero
                               : const EdgeInsets.only(left: 10 * 0.7),
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [

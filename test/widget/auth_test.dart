@@ -105,13 +105,11 @@ void main() async {
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
       theme: Themes.light(),
-      home: Material(
-        child: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
       ),
     );
   }
