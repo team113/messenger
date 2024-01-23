@@ -36,6 +36,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/awaitable_timer.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -138,7 +139,8 @@ class AuthService extends GetxService {
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       if (e.key == 'credentials') {
         if (e.newValue != null) {
-          Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+          final Credentials creds =
+              Credentials.fromJson(json.decode(e.newValue!));
           if (creds.session.token != credentials.value?.session.token &&
               creds.userId == credentials.value?.userId) {
             _authRepository.token = creds.session.token;
@@ -415,68 +417,100 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Refreshes the current [session].
+  /// Refreshes the current [credentials].
   Future<void> renewSession() async {
     Log.debug('renewSession()', '$runtimeType');
 
     final bool alreadyRenewing = _tokenGuard.isLocked;
 
-    // Do not perform renew since some other task has already renewed it. But
-    // still wait for the lock to be sure that session was renewed when current
-    // renewSession() call resolves.
-    return _tokenGuard.protect(() async {
-      if (!alreadyRenewing) {
-        if (await WebUtils.credentialsAreLocked) {
-          // Wait until the [Credentials] are done updating in another tab.
-          _credentialsTimer?.cancel();
-          _credentialsTimer = AwaitableTimer(_refreshTaskInterval, () => null);
-
-          // TODO: Actually, this doesn't account possible errors hapenning with
-          //       [renewSession]: e.g. connection loses. In case of a
-          //       connection loss, [renewSession] should be backoff-ed, and
-          //       tabs must know that the query still happens in this manner,
-          //       or otherwise multiple tabs may invoke [renewSession],
-          //       assuming the timeout has passed, despite backoff being
-          //       applied due to connection error.
-          //
-          // Perhaps a timestamp storing should be done instead of
-          // `true`/`false`?
-          //
-          // Or maybe [WebUtils.mutex] should be introduced at all?
-          await _credentialsTimer?.future;
-
-          if (!_shouldRefresh) {
-            // [Credentials] are successfully updated.
-            return;
-          }
+    try {
+      // Do not perform renew since some other task has already renewed it. But
+      // still wait for the lock to be sure that session was renewed when
+      // current `renewSession()` call resolves.
+      await _tokenGuard.protect(() async {
+        if (alreadyRenewing) {
+          Log.debug(
+            'renewSession(): acquired the lock, while it was locked',
+            '$runtimeType',
+          );
+        } else {
+          Log.debug(
+            'renewSession(): acquired the lock, while it was unlocked',
+            '$runtimeType',
+          );
         }
 
-        await WebUtils.lockCredentials(true);
-        try {
-          // Fetch the fresh [WebUtils.credentials], if there are any.
-          if (WebUtils.credentials != null &&
-              WebUtils.credentials?.session.token !=
-                  credentials.value?.session.token) {
-            _authorized(WebUtils.credentials!);
-            _credentialsProvider.set(WebUtils.credentials!);
-            return;
+        if (!alreadyRenewing) {
+          final DateTime? lockedAt = await WebUtils.credentialsLockedAt;
+          if (lockedAt != null) {
+            Log.debug(
+              'renewSession(): credentials were locked at $lockedAt, thus waiting for $_refreshTaskInterval',
+              '$runtimeType',
+            );
+
+            // Wait until the [Credentials] are done updating in another tab.
+            _credentialsTimer?.cancel();
+            _credentialsTimer =
+                AwaitableTimer(_refreshTaskInterval, () => null);
+            await _credentialsTimer?.future;
+
+            Log.debug(
+              'renewSession(): waiting for $_refreshTaskInterval is done, should proceed: $_shouldRefresh',
+              '$runtimeType',
+            );
+
+            if (!_shouldRefresh) {
+              // [Credentials] are successfully updated.
+              return;
+            }
+
+            // If the lock was refreshed by someone other than us, we should
+            // keep on playing `I'll keep coming` on repeat.
+            final DateTime? lockedNow = await WebUtils.credentialsLockedAt;
+            if (lockedNow != lockedAt) {
+              Log.debug(
+                'renewSession(): credentials were locked again at $lockedNow',
+                '$runtimeType',
+              );
+
+              throw OperationCanceledException();
+            }
           }
 
-          final Credentials data = await _authRepository
-              .renewSession(credentials.value!.rememberedSession.token);
+          await WebUtils.lockCredentials(true);
 
-          _authorized(data);
-          _credentialsProvider.set(data);
+          try {
+            // Fetch the fresh [WebUtils.credentials], if there are any.
+            if (WebUtils.credentials != null &&
+                WebUtils.credentials?.session.token !=
+                    credentials.value?.session.token) {
+              _authorized(WebUtils.credentials!);
+              _credentialsProvider.set(WebUtils.credentials!);
+              return;
+            }
 
-          status.value = RxStatus.success();
-        } on RenewSessionException catch (_) {
-          router.go(_unauthorized());
-          rethrow;
-        } finally {
-          await WebUtils.lockCredentials(false);
+            final Credentials data = await _authRepository
+                .renewSession(credentials.value!.rememberedSession.token);
+            _authorized(data);
+
+            _credentialsProvider.set(data);
+            status.value = RxStatus.success();
+          } on RenewSessionException catch (_) {
+            router.go(_unauthorized());
+            rethrow;
+          } finally {
+            await WebUtils.lockCredentials(false);
+          }
         }
-      }
-    });
+      });
+    } on RenewSessionException catch (_) {
+      // No-op, already handled.
+    } catch (e) {
+      Log.debug('renewSession(): Exception occurred: $e', '$runtimeType');
+
+      // If any unexpected exception happens, just retry the mutation.
+      await renewSession();
+    }
   }
 
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating

@@ -69,6 +69,9 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's broadcast channel changes.
   static Stream<dynamic> get onBroadcastMessage => const Stream.empty();
 
+  /// Indicates whether the current window is a popup.
+  static bool get isPopup => false;
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     // No-op.
@@ -77,17 +80,16 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials].
   static Credentials? get credentials => null;
 
+  /// Returns the [DateTime] when the [Credentials] were locked, if any.
+  ///
+  /// Indicates whether [Credentials] are considered being updated currently.
+  static Future<DateTime?> get credentialsLockedAt => Future.value(null);
+
   /// Sets the provided [updating] value to the browser's storage indicating an
   /// ongoing [Credentials] refresh.
   static Future<void> lockCredentials(bool updating) async {
     // No-op.
   }
-
-  /// Indicates whether [Credentials] are considered being updated currently.
-  static Future<bool> get credentialsAreLocked => Future.value(false);
-
-  /// Indicates whether the current window is a popup.
-  static bool get isPopup => false;
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
