@@ -144,19 +144,21 @@ class MediaUtilsImpl {
             .whereType<MediaDeviceDetails>()
             .toList();
 
-    if (kind == null || kind == MediaDeviceKind.audioInput) {
-      final MediaDeviceDetails? device = devices
-          .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
-      if (device != null) {
-        devices.insert(0, DefaultMediaDeviceDetails(device));
+    if (!PlatformUtils.isWeb) {
+      if (kind == null || kind == MediaDeviceKind.audioInput) {
+        final MediaDeviceDetails? device = devices
+            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
+        if (device != null) {
+          devices.insert(0, DefaultMediaDeviceDetails(device));
+        }
       }
-    }
 
-    if (kind == null || kind == MediaDeviceKind.audioOutput) {
-      final MediaDeviceDetails? device = devices
-          .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
-      if (device != null) {
-        devices.insert(0, DefaultMediaDeviceDetails(device));
+      if (kind == null || kind == MediaDeviceKind.audioOutput) {
+        final MediaDeviceDetails? device = devices
+            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
+        if (device != null) {
+          devices.insert(0, DefaultMediaDeviceDetails(device));
+        }
       }
     }
 
