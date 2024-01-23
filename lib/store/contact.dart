@@ -160,24 +160,18 @@ class ContactRepository extends DisposableInterface
 
     final UserName name = user.name ?? UserName(user.num.toString());
 
-    final ChatContactEventsVersionedMixin response =
-        await _graphQlProvider.createChatContact(
+    final response = await _graphQlProvider.createChatContact(
       name: name,
       records: [ChatContactRecord(userId: user.id)],
     );
 
-    await _putChatContact(
-      HiveChatContact(
-        ChatContact(
-          users: [user],
-          response.events.first.contactId,
-          name: name,
-        ),
-        response.ver,
-        null,
-        null,
-      ),
+    final events = ChatContactEventsVersioned(
+      response.events.map((e) => _contactEvent(e)).toList(),
+      response.ver,
+      response.listVer,
     );
+
+    await _contactEvents(events, updateVersion: false);
   }
 
   @override
@@ -552,13 +546,13 @@ class ContactRepository extends DisposableInterface
       }
     }
 
+    _add(contact, pagination: pagination);
+
     // [pagination] is `true`, if the [contact] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
       await _pagination.put(contact);
     }
-
-    _add(contact, pagination: pagination);
   }
 
   /// Adds the provided [HiveChatContact] to the [contacts] and optionally to
@@ -656,7 +650,10 @@ class ContactRepository extends DisposableInterface
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
   /// subscription.
-  Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
+  Future<void> _contactRemoteEvent(
+    ChatContactsEvents event, {
+    bool updateVersion = true,
+  }) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
         Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
@@ -667,125 +664,134 @@ class ContactRepository extends DisposableInterface
         break;
 
       case ChatContactsEventsKind.event:
-        var versioned = (event as ChatContactsEventsEvent).event;
-        if (versioned.listVer <= _sessionLocal.getChatContactsListVersion()) {
-          Log.debug(
-            '_contactRemoteEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
-            '$runtimeType',
+        await _contactEvents((event as ChatContactsEventsEvent).event);
+    }
+  }
+
+  /// Handles the provided [ChatContactEventsVersioned].
+  Future<void> _contactEvents(
+    ChatContactEventsVersioned events, {
+    bool updateVersion = true,
+  }) async {
+    if (events.listVer <= _sessionLocal.getChatContactsListVersion()) {
+      Log.debug(
+        '_contactEvents: ignored ${events.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
+    } else {
+      Log.debug(
+        '_contactEvents: ${events.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
+
+      if (updateVersion) {
+        _sessionLocal.setChatContactsListVersion(events.listVer);
+      }
+
+      final Map<ChatContactId, HiveChatContact> entities = {};
+
+      for (var node in events.events) {
+        if (node.kind == ChatContactEventKind.created) {
+          node as EventChatContactCreated;
+          entities[node.contactId] = HiveChatContact(
+            ChatContact(
+              node.contactId,
+              name: node.name,
+            ),
+            events.ver,
+            null,
+            null,
           );
-        } else {
-          Log.debug(
-            '_contactRemoteEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
-            '$runtimeType',
-          );
 
-          _sessionLocal.setChatContactsListVersion(versioned.listVer);
-
-          final Map<ChatContactId, HiveChatContact> entities = {};
-
-          for (var node in versioned.events) {
-            if (node.kind == ChatContactEventKind.created) {
-              node as EventChatContactCreated;
-              entities[node.contactId] = HiveChatContact(
-                ChatContact(
-                  node.contactId,
-                  name: node.name,
-                ),
-                versioned.ver,
-                null,
-                null,
-              );
-
-              continue;
-            } else if (node.kind == ChatContactEventKind.deleted) {
-              entities.remove(node.contactId);
-              remove(node.contactId);
-              continue;
-            }
-
-            HiveChatContact? entity = entities[node.contactId];
-            if (entity == null) {
-              entity = await _contactLocal.get(node.contactId) ??
-                  await _fetchById(node.contactId);
-
-              if (entity != null) {
-                entities[node.contactId] = entity;
-              }
-            }
-
-            entity?.ver = versioned.ver;
-
-            if (entity == null) {
-              // Failed to find `ChatContact` in the local database or fetch it
-              // from the remote, so assume that it doesn't exist anymore and
-              // the current events can be ignored.
-              return;
-            }
-
-            switch (node.kind) {
-              case ChatContactEventKind.emailAdded:
-                node as EventChatContactEmailAdded;
-                entity.value.emails.add(node.email);
-                break;
-
-              case ChatContactEventKind.emailRemoved:
-                node as EventChatContactEmailRemoved;
-                entity.value.emails.remove(node.email);
-                break;
-
-              case ChatContactEventKind.favorited:
-                node as EventChatContactFavorited;
-                entity.value.favoritePosition = node.position;
-                break;
-
-              case ChatContactEventKind.groupAdded:
-                node as EventChatContactGroupAdded;
-                entity.value.groups.add(node.group);
-                break;
-
-              case ChatContactEventKind.groupRemoved:
-                node as EventChatContactGroupRemoved;
-                entity.value.groups.removeWhere((e) => e.id == node.groupId);
-                break;
-
-              case ChatContactEventKind.nameUpdated:
-                node as EventChatContactNameUpdated;
-                entity.value.name = node.name;
-                break;
-
-              case ChatContactEventKind.phoneAdded:
-                node as EventChatContactPhoneAdded;
-                entity.value.phones.add(node.phone);
-                break;
-
-              case ChatContactEventKind.phoneRemoved:
-                node as EventChatContactPhoneRemoved;
-                entity.value.phones.remove(node.phone);
-                break;
-
-              case ChatContactEventKind.unfavorited:
-                entity.value.favoritePosition = null;
-                break;
-
-              case ChatContactEventKind.userAdded:
-                node as EventChatContactUserAdded;
-                entity.value.users.add(node.user);
-                break;
-
-              case ChatContactEventKind.userRemoved:
-                node as EventChatContactUserRemoved;
-                entity.value.users.removeWhere((e) => e.id == node.userId);
-                break;
-
-              case ChatContactEventKind.created:
-              case ChatContactEventKind.deleted:
-                // No-op as these events are handled elsewhere.
-                break;
-            }
-          }
-
-          entities.values.forEach(_putChatContact);
+          continue;
+        } else if (node.kind == ChatContactEventKind.deleted) {
+          entities.remove(node.contactId);
+          remove(node.contactId);
+          continue;
         }
+
+        HiveChatContact? entity = entities[node.contactId];
+        if (entity == null) {
+          entity = await _contactLocal.get(node.contactId) ??
+              await _fetchById(node.contactId);
+
+          if (entity != null) {
+            entities[node.contactId] = entity;
+          }
+        }
+
+        entity?.ver = events.ver;
+
+        if (entity == null) {
+          // Failed to find `ChatContact` in the local database or fetch it
+          // from the remote, so assume that it doesn't exist anymore and
+          // the current events can be ignored.
+          return;
+        }
+
+        switch (node.kind) {
+          case ChatContactEventKind.emailAdded:
+            node as EventChatContactEmailAdded;
+            entity.value.emails.add(node.email);
+            break;
+
+          case ChatContactEventKind.emailRemoved:
+            node as EventChatContactEmailRemoved;
+            entity.value.emails.remove(node.email);
+            break;
+
+          case ChatContactEventKind.favorited:
+            node as EventChatContactFavorited;
+            entity.value.favoritePosition = node.position;
+            break;
+
+          case ChatContactEventKind.groupAdded:
+            node as EventChatContactGroupAdded;
+            entity.value.groups.add(node.group);
+            break;
+
+          case ChatContactEventKind.groupRemoved:
+            node as EventChatContactGroupRemoved;
+            entity.value.groups.removeWhere((e) => e.id == node.groupId);
+            break;
+
+          case ChatContactEventKind.nameUpdated:
+            node as EventChatContactNameUpdated;
+            entity.value.name = node.name;
+            break;
+
+          case ChatContactEventKind.phoneAdded:
+            node as EventChatContactPhoneAdded;
+            entity.value.phones.add(node.phone);
+            break;
+
+          case ChatContactEventKind.phoneRemoved:
+            node as EventChatContactPhoneRemoved;
+            entity.value.phones.remove(node.phone);
+            break;
+
+          case ChatContactEventKind.unfavorited:
+            entity.value.favoritePosition = null;
+            break;
+
+          case ChatContactEventKind.userAdded:
+            node as EventChatContactUserAdded;
+            entity.value.users.add(node.user);
+            break;
+
+          case ChatContactEventKind.userRemoved:
+            node as EventChatContactUserRemoved;
+            entity.value.users.removeWhere((e) => e.id == node.userId);
+            break;
+
+          case ChatContactEventKind.created:
+          case ChatContactEventKind.deleted:
+            // No-op as these events are handled elsewhere.
+            break;
+        }
+      }
+
+      entities.values.forEach(_putChatContact);
     }
   }
 

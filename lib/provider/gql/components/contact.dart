@@ -22,6 +22,7 @@ import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
+import '/store/event/contact.dart';
 import '/store/model/contact.dart';
 import '/util/log.dart';
 
