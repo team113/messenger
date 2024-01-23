@@ -95,15 +95,15 @@ class OutputSwitchView extends StatelessWidget {
                             final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
-                                (c.output.value == null && i == 0) ||
-                                    c.output.value == e.deviceId();
+                                (c.selected.value == null && i == 0) ||
+                                    c.selected.value == e;
 
                             return RectangleButton(
                               selected: selected,
                               onPressed: selected
                                   ? null
                                   : () {
-                                      c.output.value = e.deviceId();
+                                      c.selected.value = e;
                                       (onChanged ?? c.setOutputDevice)
                                           .call(e.deviceId());
                                     },

@@ -32,7 +32,7 @@ export 'view.dart';
 /// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
   OutputSwitchController(this._settingsRepository, {String? output})
-      : output = RxnString(output);
+      : _output = RxnString(output);
 
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -40,11 +40,14 @@ class OutputSwitchController extends GetxController {
   /// List of [MediaDeviceDetails] of all the available devices.
   final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
 
-  /// ID of the initially selected audio output device.
-  RxnString output;
+  /// Currently selected [MediaDeviceDetails].
+  final Rx<MediaDeviceDetails?> selected = Rx<MediaDeviceDetails?>(null);
 
   /// Error message to display, if any.
   final RxnString error = RxnString();
+
+  /// ID of the initially selected audio output device.
+  final RxnString _output;
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
@@ -53,8 +56,20 @@ class OutputSwitchController extends GetxController {
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) => devices.value = e.output().toList(),
+      (e) {
+        devices.value = e.output().toList();
+        selected.value =
+            devices.firstWhereOrNull((e) => e.deviceId() == _output.value);
+      },
     );
+
+    _settingsRepository.mediaSettings.listen((e) {
+      if (e != null) {
+        _output.value = e.outputDevice;
+        selected.value =
+            devices.firstWhereOrNull((e) => e.deviceId() == _output.value);
+      }
+    });
 
     try {
       // Output devices are permitted to be use when requesting a microphone
@@ -62,6 +77,8 @@ class OutputSwitchController extends GetxController {
       await WebUtils.microphonePermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
+      selected.value =
+          devices.firstWhereOrNull((e) => e.deviceId() == _output.value);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {

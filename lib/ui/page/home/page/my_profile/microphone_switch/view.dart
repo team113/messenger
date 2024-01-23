@@ -95,15 +95,15 @@ class MicrophoneSwitchView extends StatelessWidget {
                             final MediaDeviceDetails e = c.devices[i];
 
                             final bool selected =
-                                (c.mic.value == null && i == 0) ||
-                                    c.mic.value == e.deviceId();
+                                (c.selected.value == null && i == 0) ||
+                                    c.selected.value == e;
 
                             return RectangleButton(
                               selected: selected,
                               onPressed: selected
                                   ? null
                                   : () {
-                                      c.mic.value = e.deviceId();
+                                      c.selected.value = e;
                                       (onChanged ?? c.setAudioDevice)
                                           .call(e.deviceId());
                                     },
