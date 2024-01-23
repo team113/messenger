@@ -113,14 +113,14 @@ class SearchView extends StatelessWidget {
                 c.search,
                 onChanged: () => c.query.value = c.search.text,
               ),
-              const SizedBox(height: 9),
               Expanded(
                 child: Obx(() {
+                  final RxStatus status = c.searchStatus.value;
                   if (c.recent.isEmpty &&
                       c.contacts.isEmpty &&
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
-                    if (c.searchStatus.value.isSuccess) {
+                    if (status.isSuccess && !status.isLoadingMore) {
                       return AnimatedDelayedSwitcher(
                         delay: const Duration(milliseconds: 300),
                         child: Center(
@@ -147,155 +147,160 @@ class SearchView extends StatelessWidget {
                       c.users.length +
                       c.recent.length;
 
-                  return Scrollbar(
-                    controller: c.scrollController,
-                    child: FlutterListView(
-                      key: const Key('SearchScrollable'),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 7),
+                    child: Scrollbar(
                       controller: c.scrollController,
-                      delegate: FlutterListViewDelegate(
-                        (context, i) {
-                          final dynamic element = c.elementAt(i);
-                          Widget child;
+                      child: FlutterListView(
+                        key: const Key('SearchScrollable'),
+                        controller: c.scrollController,
+                        delegate: FlutterListViewDelegate(
+                          (context, i) {
+                            final dynamic element = c.elementAt(i);
+                            Widget child;
 
-                          if (element is RxUser) {
-                            child = Obx(() {
-                              if (element.dialog.value != null) {
-                                return RecentChatTile(
+                            if (element is RxUser) {
+                              child = Obx(() {
+                                if (element.dialog.value != null) {
+                                  return RecentChatTile(
+                                    key: Key('SearchUser_${element.id}'),
+                                    element.dialog.value!,
+                                    me: c.me,
+                                    onTap: () => c.select(user: element),
+                                    selected: c.selectedUsers.contains(element),
+                                    trailing: [
+                                      SelectedDot(
+                                        selected:
+                                            c.selectedUsers.contains(element),
+                                        size: 20,
+                                      )
+                                    ],
+                                  );
+                                }
+
+                                return SelectedTile(
                                   key: Key('SearchUser_${element.id}'),
-                                  element.dialog.value!,
-                                  me: c.me,
-                                  onTap: () => c.select(user: element),
+                                  user: element,
                                   selected: c.selectedUsers.contains(element),
-                                  trailing: [
-                                    SelectedDot(
-                                      selected:
-                                          c.selectedUsers.contains(element),
-                                      size: 20,
-                                    )
-                                  ],
+                                  darken: 0.05,
+                                  onAvatarTap: null,
+                                  onTap: selectable
+                                      ? () => c.select(user: element)
+                                      : enabled
+                                          ? () => onPressed?.call(element)
+                                          : null,
                                 );
-                              }
+                              });
+                            } else if (element is RxChatContact) {
+                              child = Obx(() {
+                                if (element.user.value?.dialog.value != null) {
+                                  return RecentChatTile(
+                                    key: Key('SearchContact_${element.id}'),
+                                    element.user.value!.dialog.value!,
+                                    me: c.me,
+                                    onTap: () => c.select(contact: element),
+                                    selected:
+                                        c.selectedContacts.contains(element),
+                                    trailing: [
+                                      SelectedDot(
+                                        selected: c.selectedContacts
+                                            .contains(element),
+                                        size: 20,
+                                      )
+                                    ],
+                                  );
+                                }
 
-                              return SelectedTile(
-                                key: Key('SearchUser_${element.id}'),
-                                user: element,
-                                selected: c.selectedUsers.contains(element),
-                                darken: 0.05,
-                                onAvatarTap: null,
-                                onTap: selectable
-                                    ? () => c.select(user: element)
-                                    : enabled
-                                        ? () => onPressed?.call(element)
-                                        : null,
-                              );
-                            });
-                          } else if (element is RxChatContact) {
-                            child = Obx(() {
-                              if (element.user.value?.dialog.value != null) {
-                                return RecentChatTile(
+                                return SelectedTile(
                                   key: Key('SearchContact_${element.id}'),
-                                  element.user.value!.dialog.value!,
-                                  me: c.me,
-                                  onTap: () => c.select(contact: element),
+                                  contact: element,
+                                  darken: 0.05,
                                   selected:
                                       c.selectedContacts.contains(element),
+                                  onAvatarTap: null,
+                                  onTap: selectable
+                                      ? () => c.select(contact: element)
+                                      : enabled
+                                          ? () => onPressed?.call(element)
+                                          : null,
+                                );
+                              });
+                            } else if (element is RxChat) {
+                              child = Obx(() {
+                                return RecentChatTile(
+                                  key: Key('SearchChat_${element.id}'),
+                                  element,
+                                  me: c.me,
+                                  onTap: () => c.select(chat: element),
+                                  selected: c.selectedChats.contains(element),
                                   trailing: [
                                     SelectedDot(
                                       selected:
-                                          c.selectedContacts.contains(element),
+                                          c.selectedChats.contains(element),
                                       size: 20,
                                     )
                                   ],
                                 );
-                              }
+                              });
+                            } else {
+                              child = const SizedBox();
+                            }
 
-                              return SelectedTile(
-                                key: Key('SearchContact_${element.id}'),
-                                contact: element,
-                                darken: 0.05,
-                                selected: c.selectedContacts.contains(element),
-                                onAvatarTap: null,
-                                onTap: selectable
-                                    ? () => c.select(contact: element)
-                                    : enabled
-                                        ? () => onPressed?.call(element)
-                                        : null,
-                              );
-                            });
-                          } else if (element is RxChat) {
-                            child = Obx(() {
-                              return RecentChatTile(
-                                key: Key('SearchChat_${element.id}'),
-                                element,
-                                me: c.me,
-                                onTap: () => c.select(chat: element),
-                                selected: c.selectedChats.contains(element),
-                                trailing: [
-                                  SelectedDot(
-                                    selected: c.selectedChats.contains(element),
-                                    size: 20,
-                                  )
-                                ],
-                              );
-                            });
-                          } else {
-                            child = const SizedBox();
-                          }
+                            if (i == 0) {
+                              return Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: child);
+                            }
 
-                          if (i == childCount - 1) {
-                            Widget widget = child;
-                            child = Obx(() {
-                              if (c.searchStatus.value.isLoadingMore) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    widget,
+                            if (i == childCount - 1) {
+                              Widget widget = child;
+                              child = Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  widget,
+                                  if (status.isLoadingMore) ...[
+                                    const SizedBox(height: 5),
                                     const CustomProgressIndicator(),
                                   ],
-                                );
-                              } else {
-                                return widget;
-                              }
-                            });
-                          }
+                                  const SizedBox(height: 10),
+                                ],
+                              );
+                            }
 
-                          return child;
-                        },
-                        childCount: childCount,
-                        disableCacheItems: true,
+                            return child;
+                          },
+                          childCount: childCount,
+                          disableCacheItems: true,
+                        ),
                       ),
                     ),
                   );
                 }),
               ),
               if (onSubmit != null) ...[
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Obx(() {
-                    final bool enabled = (c.selectedContacts.isNotEmpty ||
-                            c.selectedUsers.isNotEmpty) &&
-                        this.enabled;
+                Obx(() {
+                  final bool enabled = (c.selectedContacts.isNotEmpty ||
+                          c.selectedUsers.isNotEmpty) &&
+                      this.enabled;
 
-                    return ShadowedRoundedButton(
-                      key: const Key('SearchSubmitButton'),
-                      maxWidth: double.infinity,
-                      color: style.colors.primary,
-                      onPressed:
-                          enabled ? () => onSubmit?.call(c.selected()) : null,
-                      title: Text(
-                        submit ?? 'btn_submit'.l10n,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: enabled
-                            ? style.fonts.medium.regular.onPrimary
-                            : style.fonts.medium.regular.onBackground,
-                      ),
-                    );
-                  }),
-                ),
+                  return ShadowedRoundedButton(
+                    key: const Key('SearchSubmitButton'),
+                    maxWidth: double.infinity,
+                    color: style.colors.primary,
+                    onPressed:
+                        enabled ? () => onSubmit?.call(c.selected()) : null,
+                    title: Text(
+                      submit ?? 'btn_submit'.l10n,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: enabled
+                          ? style.fonts.medium.regular.onPrimary
+                          : style.fonts.medium.regular.onBackground,
+                    ),
+                  );
+                }),
+                const SizedBox(height: 6),
               ],
-              const SizedBox(height: 12),
             ],
           ),
         );
