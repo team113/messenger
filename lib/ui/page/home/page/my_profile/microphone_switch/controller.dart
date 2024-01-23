@@ -65,7 +65,7 @@ class MicrophoneSwitchController extends GetxController {
 
     _settingsRepository.mediaSettings.listen((e) {
       if (e != null) {
-        _mic.value = e.outputDevice;
+        _mic.value = e.audioDevice;
         selected.value =
             devices.firstWhereOrNull((e) => e.deviceId() == _mic.value);
       }

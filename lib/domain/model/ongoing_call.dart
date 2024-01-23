@@ -216,12 +216,6 @@ class OngoingCall {
   /// ID of the currently used audio output device.
   final RxnString outputDevice;
 
-  /// ID of the default microphone device.
-  String? _defaultAudioDevice;
-
-  /// ID of the default audio output device.
-  String? _defaultOutputDevice;
-
   /// Indicator whether the inbound audio in this [OngoingCall] is enabled or
   /// not.
   final RxBool isRemoteAudioEnabled = RxBool(true);
@@ -293,6 +287,12 @@ class OngoingCall {
   /// [StreamSubscription] for the [MediaUtils.onDisplayChange] stream updating
   /// the [displays].
   StreamSubscription? _displaysSubscription;
+
+  /// ID of the default microphone device.
+  String? _defaultAudioDevice;
+
+  /// ID of the default audio output device.
+  String? _defaultOutputDevice;
 
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
@@ -867,7 +867,9 @@ class OngoingCall {
               await _room?.enableAudio();
 
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-                audio: AudioPreferences(device: audioDevice.value),
+                audio: AudioPreferences(
+                  device: audioDevice.value?.replaceAll('default_', ''),
+                ),
               );
               tracks.forEach(_addLocalTrack);
             }
@@ -1167,7 +1169,9 @@ class OngoingCall {
 
     if (audio) {
       AudioTrackConstraints constraints = AudioTrackConstraints();
-      if (audioDevice != null) constraints.deviceId(audioDevice);
+      if (audioDevice != null) {
+        constraints.deviceId(audioDevice.replaceAll('default_', ''));
+      }
       settings.audio(constraints);
     }
 
@@ -1456,7 +1460,9 @@ class OngoingCall {
         _ensureCorrectDevices();
 
         if (outputDevice.value != null) {
-          MediaUtils.mediaManager?.setOutputAudioId(outputDevice.value!);
+          MediaUtils.mediaManager?.setOutputAudioId(
+            outputDevice.value!.replaceAll('default_', ''),
+          );
         }
       }
 
@@ -1468,7 +1474,9 @@ class OngoingCall {
         try {
           tracks = await MediaUtils.getTracks(
             audio: audioState.value == LocalTrackState.enabling
-                ? AudioPreferences(device: audioDevice.value)
+                ? AudioPreferences(
+                    device: audioDevice.value?.replaceAll('default_', ''),
+                  )
                 : null,
             video: videoState.value == LocalTrackState.enabling
                 ? VideoPreferences(
@@ -1664,8 +1672,7 @@ class OngoingCall {
         );
 
         MediaStreamSettings settings = _mediaStreamSettings(
-          audioDevice:
-              audioDevice?.replaceAll('default_', '') ?? this.audioDevice.value,
+          audioDevice: audioDevice ?? this.audioDevice.value,
           videoDevice: videoDevice ?? this.videoDevice.value,
           screenDevice: screenDevice ?? this.screenDevice.value,
         );
@@ -1841,7 +1848,8 @@ class OngoingCall {
     MediaDeviceDetails? device;
 
     if (added.output().isNotEmpty &&
-        outputDevice.value != _defaultOutputDevice) {
+        (outputDevice.value != _defaultOutputDevice ||
+            outputDevice.value?.startsWith('default') == true)) {
       device = added.output().first;
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
@@ -1870,7 +1878,9 @@ class OngoingCall {
 
     MediaDeviceDetails? device;
 
-    if (added.audio().isNotEmpty && audioDevice.value != _defaultAudioDevice) {
+    if (added.audio().isNotEmpty &&
+        (audioDevice.value != _defaultAudioDevice ||
+            audioDevice.value?.startsWith('default') == true)) {
       device = added.audio().first;
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
