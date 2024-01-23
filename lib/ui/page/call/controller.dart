@@ -966,6 +966,9 @@ class CallController extends GetxController {
       await _currentCall.value.enumerateDevices(media: false);
 
       if (_currentCall.value.displays.length > 1) {
+        isPanelOpen.value = false;
+        keepUi(false);
+
         final MediaDisplayDetails? display =
             await ScreenShareView.show(router.context!, _currentCall);
 
@@ -1327,6 +1330,8 @@ class CallController extends GetxController {
 
   /// Returns a result of [showDialog] that builds [CallSettingsView].
   Future<dynamic> openSettings(BuildContext context) {
+    isPanelOpen.value = false;
+    keepUi(false);
     return CallSettingsView.show(context, call: _currentCall);
   }
 
@@ -1341,6 +1346,9 @@ class CallController extends GetxController {
         isPanelOpen.value = false;
         keepUi(false);
       });
+    } else {
+      isPanelOpen.value = false;
+      keepUi(false);
     }
 
     await ParticipantView.show(

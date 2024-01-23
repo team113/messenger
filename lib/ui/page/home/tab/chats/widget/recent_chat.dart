@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatCallFinishReason;
 import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/ui/page/call/widget/animated_dots.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
@@ -529,11 +530,14 @@ class RecentChatTile extends StatelessWidget {
         ];
       } else if (item != null) {
         if (item is ChatCall) {
+          final bool isOngoing =
+              item.finishReason == null && item.conversationStartedAt != null;
+
           final bool isMissed =
               item.finishReason == ChatCallFinishReason.dropped ||
                   item.finishReason == ChatCallFinishReason.unanswered;
 
-          Widget widget = Padding(
+          final Widget widget = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
             child: SvgIcon(
               item.withVideo
@@ -547,24 +551,31 @@ class RecentChatTile extends StatelessWidget {
                       : isMissed
                           ? SvgIcons.callAudioMissed
                           : SvgIcons.callAudioDisabled,
-              // Icons.call,
-              // size: 16,
-              // color: inverted
-              //     ? style.colors.onPrimary
-              //     : style.colors.secondaryBackgroundLightest,
             ),
           );
 
-          if (item.finishedAt == null && item.finishReason == null) {
+          if (isOngoing) {
             subtitle = [
               widget,
               Flexible(child: Text('label_call_active'.l10n)),
             ];
-          } else {
+          } else if (item.finishReason != null) {
             final String description =
                 item.finishReason?.localizedString(item.author.id == me) ??
                     'label_chat_call_ended'.l10n;
             subtitle = [widget, Flexible(child: Text(description))];
+          } else {
+            subtitle = [
+              widget,
+              Flexible(
+                child: Text(
+                  item.author.id == me
+                      ? 'label_outgoing_call'.l10n
+                      : 'label_incoming_call'.l10n,
+                ),
+              ),
+              if (item.author.id == me) const AnimatedDots(),
+            ];
           }
         } else if (item is ChatMessage) {
           final desc = StringBuffer();

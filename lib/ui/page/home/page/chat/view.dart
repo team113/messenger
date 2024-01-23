@@ -957,6 +957,10 @@ class _ChatViewState extends State<ChatView>
                                                   true) {
                                             return Center(
                                               child: Container(
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  maxWidth: 300,
+                                                ),
                                                 margin:
                                                     const EdgeInsets.symmetric(
                                                   horizontal: 8,
