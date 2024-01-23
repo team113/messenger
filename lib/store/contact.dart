@@ -212,7 +212,7 @@ class ContactRepository extends DisposableInterface
   ) async {
     Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
 
-    final HiveRxChatContact? contact = paginated[id];
+    final HiveRxChatContact? contact = contacts[id];
 
     final ChatContactFavoritePosition? oldPosition =
         contact?.contact.value.favoritePosition;
