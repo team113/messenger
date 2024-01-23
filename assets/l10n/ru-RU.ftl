@@ -210,7 +210,7 @@ btn_one_time_account = Одноразовый аккаунт
 btn_one_time_account_desc =
     Одноразовый
     аккаунт
-btn_participants = Участники
+btn_participants = Список участников
 btn_participants_desc =
     Список
     участников
