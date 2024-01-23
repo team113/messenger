@@ -35,7 +35,16 @@ enum AddPhoneFlowStage { code }
 
 /// Controller of a [AddPhoneView].
 class AddPhoneController extends GetxController {
-  AddPhoneController(this._myUserService, {this.initial, this.pop});
+  AddPhoneController(
+    this._myUserService, {
+    this.initial,
+    this.pop,
+    bool timeout = false,
+  }) {
+    if (timeout) {
+      _setResendPhoneTimer();
+    }
+  }
 
   /// Callback, called when a [AddPhoneView] this controller is bound to should
   /// be popped from the [Navigator].

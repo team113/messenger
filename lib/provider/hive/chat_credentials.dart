@@ -15,52 +15,45 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:typed_data';
-
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
+import '/domain/model/chat_call.dart';
+import '/domain/model/chat.dart';
 import '/util/log.dart';
 import 'base.dart';
 
-part 'background.g.dart';
+/// [Hive] backup storage for [ChatCallCredentials].
+class ChatCredentialsHiveProvider
+    extends HiveBaseProvider<ChatCallCredentials> {
+  ChatCredentialsHiveProvider();
 
-/// [Hive] storage for [HiveBackground].
-class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'background';
+  String get boxName => 'chat_credentials';
 
   @override
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
-    Hive.maybeRegisterAdapter(HiveBackgroundAdapter());
+    Hive.maybeRegisterAdapter(ChatCallCredentialsAdapter());
   }
 
-  /// Returns the stored [Uint8List] from [Hive].
-  Uint8List? get bytes => getSafe(0)?.bytes;
-
-  /// Saves the provided [Uint8List] to [Hive].
-  Future<void> set(Uint8List bytes) async {
-    Log.debug('set(${bytes.length})', '$runtimeType');
-    await putSafe(0, HiveBackground(bytes));
+  /// Puts the provided [ChatCallCredentials] to [Hive].
+  Future<void> put(ChatId chatId, ChatCallCredentials creds) async {
+    Log.debug('put($chatId, $creds)', '$runtimeType');
+    await putSafe(chatId.val, creds);
   }
 
-  /// Deletes the stored [Uint8List].
-  Future<void> delete() async {
-    Log.debug('delete()', '$runtimeType');
-    await deleteSafe(0);
+  /// Returns the [ChatCallCredentials] from [Hive] by the provided [ChatId].
+  ChatCallCredentials? get(ChatId chatId) {
+    Log.debug('get($chatId)', '$runtimeType');
+    return getSafe(chatId.val);
   }
-}
 
-/// Persisted in [Hive] storage background's [Uint8List] value.
-@HiveType(typeId: ModelTypeId.hiveBackground)
-class HiveBackground extends HiveObject {
-  HiveBackground(this.bytes);
-
-  /// Persisted background itself.
-  @HiveField(0)
-  final Uint8List bytes;
+  /// Removes the [ChatCallCredentials] from [Hive] by the provided [ChatId].
+  Future<void> remove(ChatId chatId) async {
+    Log.debug('remove($chatId)', '$runtimeType');
+    await deleteSafe(chatId.val);
+  }
 }
