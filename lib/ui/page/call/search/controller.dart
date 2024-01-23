@@ -194,11 +194,7 @@ class SearchController extends GetxController {
       populate();
     });
 
-    // TODO: Maybe use ScrollController?
-    if (chats.length + recent.length + contacts.length + users.length < 7) {
-      _next();
-    }
-
+    _ensureScrollable();
     populate();
 
     super.onInit();
@@ -318,7 +314,9 @@ class SearchController extends GetxController {
     // TODO: Add `Chat`s and `ChatItem`s searching.
     if (categories.contains(SearchCategory.contact)) {
       _searchContacts(query);
-    } else if (categories.contains(SearchCategory.user)) {
+    }
+
+    if (categories.contains(SearchCategory.user)) {
       _searchUsers(query);
     }
   }
@@ -504,9 +502,9 @@ class SearchController extends GetxController {
   /// Updates the [chats] according to the [query].
   void _populateChats() {
     if (categories.contains(SearchCategory.chat)) {
-      final Iterable<RxChat> fetched = _chatService.paginated.values;
+      final Iterable<RxChat> stored = _chatService.paginated.values;
 
-      // Predicates to filter the [fetched].
+      // Predicates to filter the [paginated] by.
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
       bool matchesQuery(RxChat c) => _matchesQuery(
@@ -519,14 +517,14 @@ class SearchController extends GetxController {
                 : null,
           );
 
-      final List<RxChat> filtered = fetched
+      final List<RxChat> filtered = stored
           .where(matchesQuery)
           .whereNot(hidden)
           .whereNot(localDialog)
           .sorted();
 
       chats.value = {
-        for (final RxChat chat in filtered) chat.chat.value.id: chat,
+        for (final RxChat c in filtered) c.chat.value.id: c,
       };
 
       _populateMonolog();
@@ -536,8 +534,9 @@ class SearchController extends GetxController {
   /// Updates the [recent] according to the [query].
   void _populateRecent() {
     if (categories.contains(SearchCategory.recent)) {
-      final Iterable<RxChat> allChats = _chatService.paginated.values;
+      final Iterable<RxChat> stored = _chatService.paginated.values;
 
+      // Predicates to filter the [stored] by.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
       bool hidden(RxChat c) => c.chat.value.isHidden;
       RxUser? toUser(RxChat c) =>
@@ -545,9 +544,10 @@ class SearchController extends GetxController {
       bool inCurrentChat(RxUser u) => chat?.members.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
 
-      final filtered = allChats
+      final Iterable<RxUser> filtered = stored
           .where(remoteDialog)
           .whereNot(hidden)
+          .sorted()
           .map(toUser)
           .whereNotNull()
           .whereNot(inCurrentChat)
@@ -555,7 +555,7 @@ class SearchController extends GetxController {
           .where(matchesQuery);
 
       recent.value = {
-        for (final u in filtered) u.id: u,
+        for (final RxUser u in filtered) u.id: u,
       };
     }
   }
@@ -563,28 +563,30 @@ class SearchController extends GetxController {
   /// Updates the [contacts] according to the [query].
   void _populateContacts() {
     if (categories.contains(SearchCategory.contact)) {
-      final Iterable<RxChatContact> fetched = _contactService.paginated.values;
+      final Iterable<RxChatContact> stored = _contactService.paginated.values;
       final Iterable<RxChatContact>? searched =
           contactsSearch.value?.items.values;
 
-      final Iterable<RxChatContact> allContacts = searched ?? fetched;
+      final Iterable<RxChatContact> allContacts = searched ?? stored;
 
       // Predicates to filter the [allContacts] by.
       bool inCurrentChat(RxChatContact c) =>
           chat?.members.containsKey(c.user.value!.id) ?? false;
+      bool hidden(RxChatContact c) =>
+          c.user.value?.dialog.value?.chat.value.isHidden ?? false;
       bool inRecent(RxChatContact c) => recent.containsKey(c.user.value!.id);
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
           chat.members.containsKey(c.user.value!.id));
-      bool matchesQuery(RxChatContact c) =>
-          _matchesQuery(user: c.user.value?.user.value);
+      bool matchesQuery(RxChatContact c) => _matchesQuery(
+          title: c.contact.value.name.val, user: c.user.value?.user.value);
 
-      // Sorted [RxChatContact]s, filtered by the [predicates].
       final List<RxChatContact> filtered = allContacts
           .where(matchesQuery)
           .whereNot(inCurrentChat)
           .whereNot(inRecent)
           .whereNot(inChats)
+          .whereNot(hidden)
           .sorted();
 
       contacts.value = {
@@ -598,9 +600,11 @@ class SearchController extends GetxController {
   /// Updates the [users] according to the [query].
   void _populateUsers() {
     if (categories.contains(SearchCategory.user)) {
-      final Iterable<RxChat> fetchedChats = _chatService.chats.values;
+      final Iterable<RxChat> storedChats = _chatService.chats.values;
 
+      // Predicates to filter users by.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
+      bool hidden(RxChat c) => c.chat.value.isHidden;
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
@@ -610,15 +614,17 @@ class SearchController extends GetxController {
       bool inChats(RxUser u) => chats.values.any(
           (chat) => chat.chat.value.isDialog && chat.members.containsKey(u.id));
 
-      final Iterable<RxUser> fetched = fetchedChats
+      final Iterable<RxUser> stored = storedChats
           .where(remoteDialog)
+          .whereNot(hidden)
+          .sorted()
           .map(toUser)
           .whereNotNull()
           .where(matchesQuery);
 
       final Iterable<RxUser>? searched = usersSearch.value?.items.values;
 
-      final allUsers = {...fetched, ...?searched};
+      final allUsers = {...stored, ...?searched};
 
       final filtered = allUsers
           .whereNot(inCurrentChat)
@@ -647,21 +653,20 @@ class SearchController extends GetxController {
 
   /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
   Future<void> _next() async {
-    // TODO: почему тут только когда меньше 2???
-    if (query.value.length < 2) {
-      if (_chatService.hasNext.isTrue && _chatService.nextLoading.isFalse) {
-        searchStatus.value = RxStatus.loadingMore();
+    searchStatus.value = RxStatus.loadingMore();
 
+    if (_chatService.hasNext.isTrue) {
+      if (_chatService.nextLoading.isFalse) {
         await _chatService.next();
-        await Future.delayed(1.milliseconds);
-        populate();
-
-        searchStatus.value = RxStatus.success();
       }
     } else {
       await _nextContacts();
       await _nextUsers();
     }
+
+    searchStatus.value = RxStatus.success();
+    await Future.delayed(1.milliseconds);
+    populate();
   }
 
   /// Fetches the next [contactsSearch] page.
@@ -689,10 +694,14 @@ class SearchController extends GetxController {
 
   /// Ensures the [scrollController] is scrollable.
   Future<void> _ensureScrollable() async {
-    if ((categories.contains(SearchCategory.contact) &&
-            contactsSearch.value?.hasNext.value != false) ||
-        (categories.contains(SearchCategory.user) &&
-            usersSearch.value?.hasNext.value != false)) {
+    final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
+        (contactsSearch.value?.hasNext.isTrue ??
+            false || _contactService.hasNext.isTrue);
+    final bool usersHaveMore = categories.contains(SearchCategory.user) &&
+        (usersSearch.value?.hasNext.isTrue ??
+            false || _chatService.hasNext.isTrue);
+
+    if (contactsHaveMore || usersHaveMore) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
           return;
@@ -714,8 +723,8 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Predicate to check whether the [user] or [title] of entity being filtered
-  /// corresponds to the [query].
+  /// Predicate to check whether the [user] or [title] belonging to the [Chat],
+  /// [User] or [ChatContact] being filtered corresponds to the [query].
   ///
   /// Note that every entity with either [user] or [title] matches the empty
   /// [query].
@@ -728,10 +737,15 @@ class SearchController extends GetxController {
         final String? num = user?.num.val;
         // TODO: Add `login` searching when backend supports it.
 
-        for (final param in [title, name, num].whereNotNull()) {
+        for (final param in [title, name].whereNotNull()) {
           if (param.toLowerCase().contains(queryString)) {
             return true;
           }
+        }
+
+        // Account possible spaces in [UserNum].
+        if (num?.contains(queryString.split(' ').join()) ?? false) {
+          return true;
         }
 
         return false;
