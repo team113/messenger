@@ -333,6 +333,9 @@ class UserView extends StatelessWidget {
                             ),
                           ),
                           ContextMenuButton(
+                            key: favorite
+                                ? const Key('DeleteFromFavoriteButton')
+                                : const Key('AddToFavoriteButton'),
                             label: favorite
                                 ? 'btn_delete_from_favorites'.l10n
                                 : 'btn_add_to_favorites'.l10n,

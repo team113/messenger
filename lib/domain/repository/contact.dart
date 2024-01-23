@@ -54,7 +54,7 @@ abstract class AbstractContactRepository {
 
   /// Creates a new [ChatContact] with the specified [User] in the current
   /// [MyUser]'s address book.
-  Future<void> createChatContact(User user);
+  Future<void> createChatContact(UserName name, UserId id);
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
   /// address book.

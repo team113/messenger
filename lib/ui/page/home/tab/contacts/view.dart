@@ -765,7 +765,7 @@ class ContactsTabView extends StatelessWidget {
       final bool inverted = selected || c.selectedContacts.contains(contact.id);
 
       return Slidable(
-        key: Key(contact.id.val),
+        key: Key('Contact_${contact.id.val}'),
         groupTag: 'contact',
         endActionPane: ActionPane(
           extentRatio: 0.33,
