@@ -264,6 +264,9 @@ class WebUtils {
     return controller.stream;
   }
 
+  /// Indicates whether the current window is a popup.
+  static bool get isPopup => _isPopup;
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     if (creds == null) {
@@ -283,18 +286,20 @@ class WebUtils {
     }
   }
 
-  /// Indicates whether the current window is a popup.
-  static bool get isPopup => _isPopup;
-
+  /// Returns the [DateTime] when the [Credentials] were locked, if any.
+  ///
   /// Indicates whether [Credentials] are considered being updated currently.
-  static Future<bool> get credentialsAreLocked async {
+  static Future<DateTime?> get credentialsLockedAt async {
     return await _protect(() {
-      final String? updating = html.window.localStorage['credentialsUpdating'];
+      final String? timestamp =
+          html.window.localStorage['credentialsUpdatingAt'];
 
-      if (updating == null) {
-        return false;
+      if (timestamp == null) {
+        return null;
       } else {
-        return updating.toLowerCase() == 'true';
+        return DateTime.fromMillisecondsSinceEpoch(
+          int.tryParse(timestamp) ?? 0,
+        );
       }
     });
   }
@@ -303,7 +308,12 @@ class WebUtils {
   /// ongoing [Credentials] refresh.
   static Future<void> lockCredentials(bool updating) async {
     await _protect(() {
-      html.window.localStorage['credentialsUpdating'] = updating.toString();
+      if (updating) {
+        html.window.localStorage['credentialsUpdatingAt'] =
+            DateTime.now().millisecondsSinceEpoch.toString();
+      } else {
+        html.window.localStorage.remove('credentialsUpdatingAt');
+      }
     });
   }
 
@@ -620,24 +630,6 @@ class WebUtils {
     final info = await DeviceInfoPlugin().webBrowserInfo;
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
-  }
-
-  static Future<void> play(String asset) async {
-    final e = html.document.getElementById(asset);
-    print('[WebUtils] play $asset');
-
-    if (e is html.AudioElement) {
-      e.muted = false;
-      await e.play();
-    }
-  }
-
-  static void stop(String asset) {
-    final e = html.document.getElementById(asset);
-    if (e is html.AudioElement) {
-      e.currentTime = 0;
-      e.pause();
-    }
   }
 
   /// Guards the [function] with the browser's storage mutex.

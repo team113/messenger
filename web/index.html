@@ -345,7 +345,7 @@
     };
 
     class FastMutex {
-      constructor({ clientId = randomId(), xPrefix = '_MUTEX_LOCK_X_', yPrefix = '_MUTEX_LOCK_Y_', timeout = 5000, localStorage } = {}) {
+      constructor({ clientId = randomId(), xPrefix = '_MUTEX_LOCK_X_', yPrefix = '_MUTEX_LOCK_Y_', timeout = 10000, localStorage } = {}) {
         this.clientId = clientId;
         this.xPrefix = xPrefix;
         this.yPrefix = yPrefix;
@@ -366,13 +366,7 @@
         }
 
         return new Promise((resolve, reject) => {
-
-          // we need to differentiate between API calls to lock() and our internal
-          // recursive calls so that we can timeout based on the original lock() and
-          // not each subsequent call.  Therefore, create a new function here within
-          // the promise closure that we use for subsequent calls:
           const acquireLock = (key) => {
-
             const elapsedTime = new Date().getTime() - this.lockStats.acquireStart;
             if (elapsedTime >= this.timeout) {
               console.debug('Lock on "%s" could not be acquired within %sms by FastMutex client "%s"', key, this.timeout, this.clientId);
@@ -381,7 +375,7 @@
 
             this.setItem(x, this.clientId);
 
-            // if y exists, another client is getting a lock, so retry in a bit
+            // If Y exists, another client is getting a lock, so retry in a bit.
             let lsY = this.getItem(y);
             if (lsY) {
               console.debug('Lock exists on Y (%s), restarting...', lsY);
@@ -390,24 +384,24 @@
               return;
             }
 
-            // ask for inner lock
+            // Ask for inner lock.
             this.setItem(y, this.clientId);
 
-            // if x was changed, another client is contending for an inner lock
+            // If X was changed, another client is contending for an inner lock.
             let lsX = this.getItem(x);
             if (lsX !== this.clientId) {
               this.lockStats.contentionCount++;
               console.debug('Lock contention detected. X="%s"', lsX);
 
-              // Give enough time for critical section:
+              // Give enough time for critical section.
               setTimeout(() => {
                 lsY = this.getItem(y);
                 if (lsY === this.clientId) {
-                  // we have a lock
+                  // We have a lock.
                   console.debug('FastMutex client "%s" won the lock contention on "%s"', this.clientId, key);
                   resolveWithStats(resolve, this.lockStats);
                 } else {
-                  // we lost the lock, restart the process again
+                  // We lost the lock, restart the process again.
                   this.lockStats.restartCount++;
                   this.lockStats.locksLost++;
                   console.debug('FastMutex client "%s" lost the lock contention on "%s" to another process (%s). Restarting...', this.clientId, key, lsY);
@@ -417,25 +411,12 @@
               return;
             }
 
-            // no contention:
+            // No contention.
             console.debug('FastMutex client "%s" acquired a lock on "%s" with no contention', this.clientId, key);
             resolveWithStats(resolve, this.lockStats);
           };
 
           acquireLock(key);
-        });
-
-      }
-
-      release(key) {
-        console.debug('FastMutex client "%s" is releasing lock on "%s"', this.clientId, key);
-        const y = this.yPrefix + key;
-        return new Promise((resolve) => {
-          this.localStorage.removeItem(y);
-          this.lockStats.lockEnd = new Date().getTime();
-          this.lockStats.lockDuration = this.lockStats.lockEnd - this.lockStats.lockStart;
-          resolve(this.lockStats);
-          this.resetStats();
         });
       }
 
@@ -458,6 +439,17 @@
         }
 
         return JSON.parse(item).value;
+      }
+
+      release(key) {
+        const y = this.yPrefix + key;
+        return new Promise((resolve) => {
+          this.localStorage.removeItem(y);
+          this.lockStats.lockEnd = new Date().getTime();
+          this.lockStats.lockDuration = this.lockStats.lockEnd - this.lockStats.lockStart;
+          resolve(this.lockStats);
+          this.resetStats();
+        });
       }
 
       resetStats() {

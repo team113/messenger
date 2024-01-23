@@ -36,6 +36,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/awaitable_timer.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -138,14 +139,14 @@ class AuthService extends GetxService {
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       if (e.key == 'credentials') {
         if (e.newValue != null) {
-          Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+          final Credentials creds =
+              Credentials.fromJson(json.decode(e.newValue!));
           if (creds.session.token != credentials.value?.session.token &&
               creds.userId == credentials.value?.userId) {
             _authRepository.token = creds.session.token;
             _authRepository.applyToken();
             credentials.value = creds;
             status.value = RxStatus.success();
-            status.value = RxStatus.loadingMore();
             _credentialsTimer?.cancel();
           }
         } else {
@@ -199,13 +200,19 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _authRepository.recoverUserPassword(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-      );
+  }) async {
+    Log.debug(
+      'recoverUserPassword($login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
+    await _authRepository.recoverUserPassword(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+    );
+  }
 
   /// Validates the provided password recovery [ConfirmationCode] for a [MyUser]
   /// identified by the provided [num]/[login]/[email]/[phone] (exactly one of
@@ -216,14 +223,20 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _authRepository.validateUserPasswordRecoveryCode(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-        code: code,
-      );
+  }) async {
+    Log.debug(
+      'validateUserPasswordRecoveryCode($login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
+    await _authRepository.validateUserPasswordRecoveryCode(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+      code: code,
+    );
+  }
 
   /// Resets password for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified)
@@ -238,15 +251,21 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _authRepository.resetUserPassword(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-        code: code,
-        newPassword: newPassword,
-      );
+  }) async {
+    Log.debug(
+      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
+      '$runtimeType',
+    );
+
+    await _authRepository.resetUserPassword(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+      code: code,
+      newPassword: newPassword,
+    );
+  }
 
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
   /// creates a new [Session] for this [MyUser] (valid for 24 hours).
@@ -254,6 +273,8 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
+    Log.debug('register()', '$runtimeType');
+
     status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
@@ -288,11 +309,14 @@ class AuthService extends GetxService {
   /// [confirmSignUpEmail] in order to successfully sign up.
   ///
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
-  Future<void> signUpWithEmail(UserEmail email) =>
-      _authRepository.signUpWithEmail(email);
+  Future<void> signUpWithEmail(UserEmail email) async {
+    Log.debug('signUpWithEmail($email)', '$runtimeType');
+    await _authRepository.signUpWithEmail(email);
+  }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   Future<void> confirmSignUpEmail(ConfirmationCode code) async {
+    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
     try {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
       _authorized(creds);
@@ -305,7 +329,10 @@ class AuthService extends GetxService {
 
   /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
   /// [signUpWithEmail].
-  Future<void> resendSignUpEmail() => _authRepository.resendSignUpEmail();
+  Future<void> resendSignUpEmail() async {
+    Log.debug('resendSignUpEmail()', '$runtimeType');
+    await _authRepository.resendSignUpEmail();
+  }
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
@@ -320,8 +347,9 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
   }) async {
-    status.value = RxStatus.loading();
+    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
+    status.value = RxStatus.loading();
     return _tokenGuard.protect(() async {
       try {
         Credentials data = await _authRepository.signIn(
@@ -344,6 +372,8 @@ class AuthService extends GetxService {
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
+    Log.debug('signInWith($credentials)', '$runtimeType');
+
     // Check if the [credentials] are valid.
     credentials =
         await _authRepository.renewSession(credentials.rememberedSession.token);
@@ -352,7 +382,6 @@ class AuthService extends GetxService {
     await _tokenGuard.protect(() async {
       _authorized(credentials);
       _credentialsProvider.set(credentials);
-      print('_________ 7');
       status.value = RxStatus.success();
     });
   }
@@ -360,6 +389,8 @@ class AuthService extends GetxService {
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
   Future<String> logout() async {
+    Log.debug('logout()', '$runtimeType');
+
     status.value = RxStatus.loading();
 
     try {
@@ -389,6 +420,8 @@ class AuthService extends GetxService {
 
   /// Validates the current [AccessToken].
   Future<bool> validateToken() async {
+    Log.debug('validateToken()', '$runtimeType');
+
     try {
       await _authRepository.validateToken();
       return true;
@@ -397,66 +430,115 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Refreshes the current [session].
+  /// Refreshes the current [credentials].
   Future<void> renewSession() async {
     Log.debug('renewSession()', '$runtimeType');
 
     final bool alreadyRenewing = _tokenGuard.isLocked;
 
-    // Do not perform renew since some other task has already renewed it. But
-    // still wait for the lock to be sure that session was renewed when current
-    // renewSession() call resolves.
-    return _tokenGuard.protect(() async {
-      if (!alreadyRenewing) {
-        if (await WebUtils.credentialsAreLocked) {
-          // Wait until the [Credentials] are done updating in another tab.
-          _credentialsTimer?.cancel();
-          _credentialsTimer = AwaitableTimer(_refreshTaskInterval, () => null);
-          await _credentialsTimer?.future;
-
-          if (!_shouldRefresh) {
-            // [Credentials] are successfully updated.
-            return;
-          }
+    try {
+      // Do not perform renew since some other task has already renewed it. But
+      // still wait for the lock to be sure that session was renewed when
+      // current `renewSession()` call resolves.
+      await _tokenGuard.protect(() async {
+        if (alreadyRenewing) {
+          Log.debug(
+            'renewSession(): acquired the lock, while it was locked',
+            '$runtimeType',
+          );
+        } else {
+          Log.debug(
+            'renewSession(): acquired the lock, while it was unlocked',
+            '$runtimeType',
+          );
         }
 
-        await WebUtils.lockCredentials(true);
-        try {
-          // Fetch the fresh [WebUtils.credentials], if there are any.
-          if (WebUtils.credentials != null &&
-              WebUtils.credentials?.session.token !=
-                  credentials.value?.session.token) {
-            _authorized(WebUtils.credentials!);
-            _credentialsProvider.set(WebUtils.credentials!);
-            return;
+        if (!alreadyRenewing) {
+          final DateTime? lockedAt = await WebUtils.credentialsLockedAt;
+          if (lockedAt != null) {
+            Log.debug(
+              'renewSession(): credentials were locked at $lockedAt, thus waiting for $_refreshTaskInterval',
+              '$runtimeType',
+            );
+
+            // Wait until the [Credentials] are done updating in another tab.
+            _credentialsTimer?.cancel();
+            _credentialsTimer =
+                AwaitableTimer(_refreshTaskInterval, () => null);
+            await _credentialsTimer?.future;
+
+            Log.debug(
+              'renewSession(): waiting for $_refreshTaskInterval is done, should proceed: $_shouldRefresh',
+              '$runtimeType',
+            );
+
+            if (!_shouldRefresh) {
+              // [Credentials] are successfully updated.
+              return;
+            }
+
+            // If the lock was refreshed by someone other than us, we should
+            // keep on playing `I'll keep coming` on repeat.
+            final DateTime? lockedNow = await WebUtils.credentialsLockedAt;
+            if (lockedNow != lockedAt) {
+              Log.debug(
+                'renewSession(): credentials were locked again at $lockedNow',
+                '$runtimeType',
+              );
+
+              throw OperationCanceledException();
+            }
           }
 
-          final Credentials data = await _authRepository
-              .renewSession(credentials.value!.rememberedSession.token);
+          await WebUtils.lockCredentials(true);
 
-          _authorized(data);
-          _credentialsProvider.set(data);
-          status.value = RxStatus.success();
-        } on RenewSessionException catch (_) {
-          router.go(_unauthorized());
-          rethrow;
-        } finally {
-          await WebUtils.lockCredentials(false);
+          try {
+            // Fetch the fresh [WebUtils.credentials], if there are any.
+            if (WebUtils.credentials != null &&
+                WebUtils.credentials?.session.token !=
+                    credentials.value?.session.token) {
+              _authorized(WebUtils.credentials!);
+              _credentialsProvider.set(WebUtils.credentials!);
+              return;
+            }
+
+            final Credentials data = await _authRepository
+                .renewSession(credentials.value!.rememberedSession.token);
+            _authorized(data);
+
+            _credentialsProvider.set(data);
+            status.value = RxStatus.success();
+          } on RenewSessionException catch (_) {
+            router.go(_unauthorized());
+            rethrow;
+          } finally {
+            await WebUtils.lockCredentials(false);
+          }
         }
-      }
-    });
+      });
+    } on RenewSessionException catch (_) {
+      // No-op, already handled.
+    } catch (e) {
+      Log.debug('renewSession(): Exception occurred: $e', '$runtimeType');
+
+      // If any unexpected exception happens, just retry the mutation.
+      await renewSession();
+    }
   }
 
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) =>
-      _authRepository.useChatDirectLink(slug);
+  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+    Log.debug('useChatDirectLink($slug)', '$runtimeType');
+    return await _authRepository.useChatDirectLink(slug);
+  }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
+    Log.debug('_authorized($creds)', '$runtimeType');
+
     _authRepository.token = creds.session.token;
     credentials.value = creds;
-
     _refreshTimer?.cancel();
 
     final Duration period = _refreshTaskInterval -
@@ -464,8 +546,6 @@ class AuthService extends GetxService {
           microseconds:
               Random().nextInt(_refreshTaskInterval.inMicroseconds) ~/ 2,
         );
-
-    print('[debug]: period is $period');
 
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(period, (timer) {
@@ -479,6 +559,8 @@ class AuthService extends GetxService {
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
   String _unauthorized() {
+    Log.debug('_unauthorized()', '$runtimeType');
+
     _credentialsProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
