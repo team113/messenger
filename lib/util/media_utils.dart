@@ -250,7 +250,7 @@ class DefaultMediaDeviceDetails extends MediaDeviceDetails {
   final MediaDeviceDetails _deviceDetails;
 
   @override
-  String deviceId() => 'default_${_deviceDetails.deviceId()}';
+  String deviceId() => 'default';
 
   @override
   void free() => _deviceDetails.free();

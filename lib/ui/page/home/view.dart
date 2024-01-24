@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -155,49 +154,34 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   child: Scaffold(
                     backgroundColor: style.sidebarColor,
-                    body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          if (s.scrollDelta.dx.abs() < 3 &&
-                              (s.scrollDelta.dy.abs() > 3 ||
-                                  c.verticalScrollTimer.value != null)) {
-                            c.verticalScrollTimer.value?.cancel();
-                            c.verticalScrollTimer.value = Timer(
-                              300.milliseconds,
-                              () => c.verticalScrollTimer.value = null,
-                            );
+                    body: PageView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      controller: c.pages,
+                      onPageChanged: (int i) {
+                        router.tab = HomeTab.values[i];
+                        c.page.value = router.tab;
+
+                        if (!context.isNarrow) {
+                          switch (router.tab) {
+                            case HomeTab.menu:
+                              router.me();
+                              break;
+
+                            default:
+                              if (router.route == Routes.me) {
+                                router.home();
+                              }
+                              break;
                           }
                         }
                       },
-                      child: PageView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        controller: c.pages,
-                        onPageChanged: (int i) {
-                          router.tab = HomeTab.values[i];
-                          c.page.value = router.tab;
-
-                          if (!context.isNarrow) {
-                            switch (router.tab) {
-                              case HomeTab.menu:
-                                router.me();
-                                break;
-
-                              default:
-                                if (router.route == Routes.me) {
-                                  router.home();
-                                }
-                                break;
-                            }
-                          }
-                        },
-                        // [KeepAlivePage] used to keep the tabs' states.
-                        children: const [
-                          KeepAlivePage(child: WorkTabView()),
-                          KeepAlivePage(child: ContactsTabView()),
-                          KeepAlivePage(child: ChatsTabView()),
-                          KeepAlivePage(child: MenuTabView()),
-                        ],
-                      ),
+                      // [KeepAlivePage] used to keep the tabs' states.
+                      children: const [
+                        KeepAlivePage(child: WorkTabView()),
+                        KeepAlivePage(child: ContactsTabView()),
+                        KeepAlivePage(child: ChatsTabView()),
+                        KeepAlivePage(child: MenuTabView()),
+                      ],
                     ),
                     extendBody: true,
                     bottomNavigationBar: SafeArea(

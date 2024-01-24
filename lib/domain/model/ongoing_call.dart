@@ -145,11 +145,19 @@ class OngoingCall {
     this.deviceId,
   })  : chatId = Rx(chatId),
         _me = CallMemberId(me, null),
-        audioDevice = RxnString(mediaSettings?.audioDevice),
+        audioDevice = RxnString(
+          mediaSettings?.audioDevice == 'default'
+              ? null
+              : mediaSettings?.audioDevice,
+        ),
         _defaultAudioDevice = mediaSettings?.audioDevice,
         videoDevice = RxnString(mediaSettings?.videoDevice),
         screenDevice = RxnString(mediaSettings?.screenDevice),
-        outputDevice = RxnString(mediaSettings?.outputDevice),
+        outputDevice = RxnString(
+          mediaSettings?.outputDevice == 'default'
+              ? null
+              : mediaSettings?.outputDevice,
+        ),
         _defaultOutputDevice = mediaSettings?.outputDevice {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
@@ -347,6 +355,11 @@ class OngoingCall {
             List.from(devices, growable: false);
 
         devices.value = e;
+
+        if (!PlatformUtils.isWeb) {
+          devices.value =
+              devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
+        }
 
         final List<MediaDeviceDetails> added = [];
         final List<MediaDeviceDetails> removed = [];
@@ -867,9 +880,7 @@ class OngoingCall {
               await _room?.enableAudio();
 
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-                audio: AudioPreferences(
-                  device: audioDevice.value?.replaceAll('default_', ''),
-                ),
+                audio: AudioPreferences(device: audioDevice.value),
               );
               tracks.forEach(_addLocalTrack);
             }
@@ -995,6 +1006,10 @@ class OngoingCall {
     try {
       if (media) {
         devices.value = await MediaUtils.enumerateDevices();
+        if (!PlatformUtils.isWeb) {
+          devices.value =
+              devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
+        }
       }
 
       if (screen && PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
@@ -1006,17 +1021,29 @@ class OngoingCall {
     }
   }
 
+  /// Sets device with [deviceId] as a currently used [outputDevice].
+  ///
+  /// Does nothing if [deviceId] is already an ID of the [outputDevice].
+  Future<void> setAudioDevice(String deviceId) {
+    Log.debug('setAudioDevice($deviceId)', '$runtimeType');
+
+    _defaultAudioDevice = deviceId;
+    return _setAudioDevice(deviceId);
+  }
+
   /// Sets device with [deviceId] as a currently used [audioDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [audioDevice].
-  Future<void> setAudioDevice(
-    String deviceId, {
-    bool updateDefault = false,
-  }) async {
-    Log.debug('setAudioDevice($deviceId, $updateDefault)', '$runtimeType');
+  Future<void> _setAudioDevice(String deviceId) async {
+    Log.debug('_setAudioDevice($deviceId)', '$runtimeType');
 
-    if (updateDefault) {
-      _defaultAudioDevice = deviceId;
+    if (deviceId == 'default') {
+      final String? audio = devices.audio().firstOrNull?.deviceId();
+      if (audio != null) {
+        deviceId = audio;
+      } else {
+        return;
+      }
     }
 
     if ((audioDevice.value != null && deviceId != audioDevice.value) ||
@@ -1042,19 +1069,30 @@ class OngoingCall {
   /// Sets device with [deviceId] as a currently used [outputDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [outputDevice].
-  Future<void> setOutputDevice(
-    String deviceId, {
-    bool updateDefault = false,
-  }) async {
-    Log.debug('setOutputDevice($deviceId, $updateDefault)', '$runtimeType');
+  Future<void> setOutputDevice(String deviceId) {
+    Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
-    if (updateDefault) {
-      _defaultOutputDevice = deviceId;
+    _defaultOutputDevice = deviceId;
+    return _setOutputDevice(deviceId);
+  }
+
+  /// Sets device with [deviceId] as a currently used [outputDevice].
+  ///
+  /// Does nothing if [deviceId] is already an ID of the [outputDevice].
+  Future<void> _setOutputDevice(String deviceId) async {
+    Log.debug('_setOutputDevice($deviceId)', '$runtimeType');
+
+    if (deviceId == 'default') {
+      final String? output = devices.output().firstOrNull?.deviceId();
+      if (output != null) {
+        deviceId = output;
+      } else {
+        return;
+      }
     }
 
     if (deviceId != outputDevice.value) {
-      await MediaUtils.mediaManager
-          ?.setOutputAudioId(deviceId.replaceAll('default_', ''));
+      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
       outputDevice.value = deviceId;
     }
   }
@@ -1170,7 +1208,7 @@ class OngoingCall {
     if (audio) {
       AudioTrackConstraints constraints = AudioTrackConstraints();
       if (audioDevice != null) {
-        constraints.deviceId(audioDevice.replaceAll('default_', ''));
+        constraints.deviceId(audioDevice);
       }
       settings.audio(constraints);
     }
@@ -1460,9 +1498,7 @@ class OngoingCall {
         _ensureCorrectDevices();
 
         if (outputDevice.value != null) {
-          MediaUtils.mediaManager?.setOutputAudioId(
-            outputDevice.value!.replaceAll('default_', ''),
-          );
+          MediaUtils.mediaManager?.setOutputAudioId(outputDevice.value!);
         }
       }
 
@@ -1474,9 +1510,7 @@ class OngoingCall {
         try {
           tracks = await MediaUtils.getTracks(
             audio: audioState.value == LocalTrackState.enabling
-                ? AudioPreferences(
-                    device: audioDevice.value?.replaceAll('default_', ''),
-                  )
+                ? AudioPreferences(device: audioDevice.value)
                 : null,
             video: videoState.value == LocalTrackState.enabling
                 ? VideoPreferences(
@@ -1561,9 +1595,12 @@ class OngoingCall {
         // sent).
         await _room?.setLocalMediaSettings(
           _mediaStreamSettings(
-            audioDevice: audioDevice.value,
-            videoDevice: videoDevice.value,
-            screenDevice: screenDevice.value,
+            audioDevice: audioDevice.value ??
+                devices.audio().firstOrNull?.deviceId(),
+            videoDevice:
+                videoDevice.value ?? devices.video().firstOrNull?.deviceId(),
+            screenDevice:
+                screenDevice.value ?? displays.firstOrNull?.deviceId(),
           ),
           false,
           true,
@@ -1848,8 +1885,9 @@ class OngoingCall {
     MediaDeviceDetails? device;
 
     if (added.output().isNotEmpty &&
-        (outputDevice.value != _defaultOutputDevice ||
-            outputDevice.value?.startsWith('default') == true)) {
+        (outputDevice.value == null ||
+            outputDevice.value != _defaultOutputDevice ||
+            outputDevice.value == 'default')) {
       device = added.output().first;
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
         (outputDevice.value == null &&
@@ -1860,7 +1898,7 @@ class OngoingCall {
 
     if (device != null) {
       _notifications.add(DeviceChangedNotification(device: device));
-      setOutputDevice(device.deviceId());
+      _setOutputDevice(device.deviceId());
     }
   }
 
@@ -1879,8 +1917,9 @@ class OngoingCall {
     MediaDeviceDetails? device;
 
     if (added.audio().isNotEmpty &&
-        (audioDevice.value != _defaultAudioDevice ||
-            audioDevice.value?.startsWith('default') == true)) {
+        (audioDevice.value == null ||
+            audioDevice.value != _defaultAudioDevice ||
+            audioDevice.value == 'default')) {
       device = added.audio().first;
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
         (audioDevice.value == null &&
@@ -1891,7 +1930,7 @@ class OngoingCall {
 
     if (device != null) {
       _notifications.add(DeviceChangedNotification(device: device));
-      setAudioDevice(device.deviceId());
+      _setAudioDevice(device.deviceId());
     }
   }
 
