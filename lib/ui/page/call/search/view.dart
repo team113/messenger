@@ -258,7 +258,8 @@ class SearchView extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   widget,
-                                  if (status.isLoadingMore) ...[
+                                  if (status.isLoadingMore ||
+                                      status.isLoading) ...[
                                     const SizedBox(height: 5),
                                     const CustomProgressIndicator(),
                                   ],

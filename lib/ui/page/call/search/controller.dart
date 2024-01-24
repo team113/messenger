@@ -175,7 +175,7 @@ class SearchController extends GetxController {
     scrollController.addListener(_scrollListener);
 
     search = TextFieldState(onChanged: (d) => query.value = d.text);
-    _searchDebounce = debounce(query, _search);
+    _searchDebounce = debounce(query, (q) => _search(q.trim()));
     _searchWorker = ever(query, (String q) {
       if (q.length < 2) {
         usersSearch.value?.dispose();
@@ -351,6 +351,8 @@ class SearchController extends GetxController {
         // No-op.
       }
 
+      final bool searchingUsers = categories.contains(SearchCategory.user);
+
       if (name != null || email != null || phone != null) {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
@@ -364,8 +366,8 @@ class SearchController extends GetxController {
         searchStatus.value = result.status.value;
 
         _contactsSearchWorker = ever(result.status, (RxStatus s) {
-          if (contactsSearch.value?.items.isNotEmpty == true ||
-              !categories.contains(SearchCategory.user)) {
+          if (contactsSearch.value?.items.isNotEmpty == true &&
+              !searchingUsers) {
             searchStatus.value = s;
           }
 
@@ -377,7 +379,9 @@ class SearchController extends GetxController {
 
         _populateContacts();
       } else {
-        searchStatus.value = RxStatus.empty();
+        if (!searchingUsers) {
+          searchStatus.value = RxStatus.empty();
+        }
         contactsSearch.value?.dispose();
         contactsSearch.value = null;
       }
@@ -429,6 +433,7 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
+
         final SearchResult<UserId, RxUser> result =
             _userService.search(num: num, name: name, login: login, link: link);
 
@@ -572,8 +577,6 @@ class SearchController extends GetxController {
       // Predicates to filter the [allContacts] by.
       bool inCurrentChat(RxChatContact c) =>
           chat?.members.containsKey(c.user.value!.id) ?? false;
-      bool hidden(RxChatContact c) =>
-          c.user.value?.dialog.value?.chat.value.isHidden ?? false;
       bool inRecent(RxChatContact c) => recent.containsKey(c.user.value!.id);
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
@@ -586,7 +589,6 @@ class SearchController extends GetxController {
           .whereNot(inCurrentChat)
           .whereNot(inRecent)
           .whereNot(inChats)
-          .whereNot(hidden)
           .sorted();
 
       contacts.value = {
@@ -600,7 +602,7 @@ class SearchController extends GetxController {
   /// Updates the [users] according to the [query].
   void _populateUsers() {
     if (categories.contains(SearchCategory.user)) {
-      final Iterable<RxChat> storedChats = _chatService.chats.values;
+      final Iterable<RxChat> storedChats = _chatService.paginated.values;
 
       // Predicates to filter users by.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
@@ -653,20 +655,24 @@ class SearchController extends GetxController {
 
   /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
   Future<void> _next() async {
-    searchStatus.value = RxStatus.loadingMore();
-
     if (_chatService.hasNext.isTrue) {
       if (_chatService.nextLoading.isFalse) {
+        searchStatus.value = RxStatus.loadingMore();
+
         await _chatService.next();
+        await Future.delayed(1.milliseconds);
+        _populateChats();
+
+        searchStatus.value = RxStatus.success();
+
+        if (_chatService.hasNext.isFalse) {
+          populate();
+        }
       }
     } else {
       await _nextContacts();
       await _nextUsers();
     }
-
-    searchStatus.value = RxStatus.success();
-    await Future.delayed(1.milliseconds);
-    populate();
   }
 
   /// Fetches the next [contactsSearch] page.
@@ -717,7 +723,7 @@ class SearchController extends GetxController {
         } else {
           // Ensure all animations are finished as [scrollController.hasClients]
           // may be `true` during an animation.
-          Timer(1.seconds, _ensureScrollable);
+          _ensureScrollableTimer = Timer(1.seconds, _ensureScrollable);
         }
       });
     }
