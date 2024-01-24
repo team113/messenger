@@ -366,7 +366,7 @@ class SearchController extends GetxController {
         searchStatus.value = result.status.value;
 
         _contactsSearchWorker = ever(result.status, (RxStatus s) {
-          if (contactsSearch.value?.items.isNotEmpty == true &&
+          if ((contactsSearch.value?.items.isNotEmpty ?? false) &&
               !searchingUsers) {
             searchStatus.value = s;
           }

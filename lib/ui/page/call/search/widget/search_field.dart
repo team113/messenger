@@ -35,9 +35,14 @@ class SearchField extends StatelessWidget {
     this.hint,
   });
 
+  /// State of the search [ReactiveTextField].
   final TextFieldState state;
-  final void Function()? onChanged;
+
+  /// Hint to display in the [SearchField].
   final String? hint;
+
+  /// Callback, called when [SearchField] changes.
+  final void Function()? onChanged;
 
   @override
   Widget build(BuildContext context) {
