@@ -60,6 +60,7 @@ class ContactService extends DisposableService {
   /// Adds the specified [user] to the current [MyUser]'s address book.
   Future<void> createChatContact(User user) {
     Log.debug('createChatContact($user)', '$runtimeType');
+
     return _contactRepository.createChatContact(
       user.name ?? UserName(user.num.toString()),
       user.id,
