@@ -115,12 +115,6 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
-@JS('window.mutex.lock')
-external Future<void> _lockMutex(String id);
-
-@JS('window.mutex.release')
-external Future<void> _releaseMutex(String id);
-
 @JS('navigator.locks.request')
 external Future<dynamic> _requestLock(
   String resource,
@@ -307,8 +301,8 @@ class WebUtils {
         (locks.held as List?)?.any((e) => e.name == 'mutex') == true;
   }
 
-  /// Guarantees the [callback] being invoked synchronously, only by single tab
-  /// or code block at the same time.
+  /// Guarantees the [callback] is invoked synchronously, only by single tab or
+  /// code block at the same time.
   static Future<void> protect(Future<void> Function() callback) async {
     await _guard.protect(() async {
       final Completer completer = Completer();
@@ -652,25 +646,6 @@ class WebUtils {
     final info = await DeviceInfoPlugin().webBrowserInfo;
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
-  }
-
-  /// Guards the [function] with the browser's storage mutex.
-  static Future<T> _protect<T>(FutureOr<T> Function() function) async {
-    try {
-      await _lockMutex('mutex');
-    } catch (_) {
-      // No-op, if failed to acquire by timeout.
-    }
-
-    try {
-      return await function();
-    } finally {
-      try {
-        await _releaseMutex('mutex');
-      } catch (_) {
-        // No-op, if failed to release by timeout.
-      }
-    }
   }
 }
 

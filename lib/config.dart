@@ -26,6 +26,7 @@ import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
+import 'routes.dart';
 
 /// Configuration of this application.
 class Config {
@@ -269,7 +270,7 @@ class Config {
     }
 
     if (link.isEmpty) {
-      link = origin;
+      link = '$origin${Routes.chatDirectLink}';
     }
 
     ws = '$wsUrl:$wsPort$graphql';

@@ -87,8 +87,8 @@ class WebUtils {
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked => _guard.isLocked;
 
-  /// Guarantees the [callback] being invoked synchronously, only by single tab
-  /// or code block at the same time.
+  /// Guarantees the [callback] is invoked synchronously, only by single tab or
+  /// code block at the same time.
   static Future<void> protect(Future<void> Function() callback) =>
       _guard.protect(callback);
 

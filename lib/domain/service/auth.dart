@@ -33,7 +33,6 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
-import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -83,9 +82,6 @@ class AuthService extends GetxService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
-  /// [AwaitableTimer] for [renewSession] awaiting being done in a separate tab.
-  AwaitableTimer? _credentialsTimer;
-
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
@@ -132,7 +128,11 @@ class AuthService extends GetxService {
     // Listen to the [Credentials] changes.
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       if (e.key == 'credentials') {
-        Log.debug('[debug] WebUtils.onStorageChange(${e.key}): ${e.newValue}');
+        Log.debug(
+          '_storageSubscription(${e.key}): received new credentials',
+          '$runtimeType',
+        );
+
         if (e.newValue != null) {
           final Credentials creds =
               Credentials.fromJson(json.decode(e.newValue!));
@@ -142,7 +142,6 @@ class AuthService extends GetxService {
             _authRepository.applyToken();
             credentials.value = creds;
             status.value = RxStatus.success();
-            _credentialsTimer?.cancel();
           }
         } else {
           if (!WebUtils.isPopup) {
