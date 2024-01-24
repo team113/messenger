@@ -169,8 +169,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           onSuffixPressed: _state.isEmpty.value || !widget.transitions
               ? null
               : () {
-                  final share =
-                      '${Config.link}${Routes.chatDirectLink}/${_state.text}';
+                  final share = '${Config.link}/${_state.text}';
 
                   if (PlatformUtils.isMobile) {
                     Share.share(share);
@@ -244,8 +243,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: WidgetButton(
                       onPressed: () {
-                        final share =
-                            '${Config.link}${Routes.chatDirectLink}/${_state.text}';
+                        final share = '${Config.link}/${_state.text}';
 
                         if (PlatformUtils.isMobile) {
                           Share.share(share);
@@ -265,8 +263,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                               TextSpan(
                                 children: [
                                   TextSpan(
-                                    text:
-                                        '${Config.link}${Routes.chatDirectLink}/${_state.text}',
+                                    text: '${Config.link}/${_state.text}',
                                     style: style.fonts.medium.regular.primary,
                                   ),
                                 ],
@@ -288,8 +285,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: QrImageView(
-                          data:
-                              '${Config.link}${Routes.chatDirectLink}/${widget.link!.slug.val}',
+                          data: '${Config.link}/${widget.link!.slug.val}',
                           version: QrVersions.auto,
                           size: 300.0,
                         ),
@@ -325,8 +321,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         style: style.fonts.small.regular.primary,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            final share =
-                                '${Config.link}${Routes.chatDirectLink}/${_state.text}';
+                            final share = '${Config.link}/${_state.text}';
 
                             if (PlatformUtils.isMobile) {
                               Share.share(share);

@@ -25,6 +25,7 @@ import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:medea_jason/medea_jason.dart' as jason;
+import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
@@ -41,6 +42,9 @@ import 'web_utils.dart';
 class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
+
+  /// [Mutex] guarding the [protect] method.
+  static final Mutex _guard = Mutex();
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -80,16 +84,13 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials].
   static Credentials? get credentials => null;
 
-  /// Returns the [DateTime] when the [Credentials] were locked, if any.
-  ///
-  /// Indicates whether [Credentials] are considered being updated currently.
-  static Future<DateTime?> get credentialsLockedAt => Future.value(null);
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked => _guard.isLocked;
 
-  /// Sets the provided [updating] value to the browser's storage indicating an
-  /// ongoing [Credentials] refresh.
-  static Future<void> lockCredentials(bool updating) async {
-    // No-op.
-  }
+  /// Guarantees the [callback] being invoked synchronously, only by single tab
+  /// or code block at the same time.
+  static Future<void> protect(Future<void> Function() callback) =>
+      _guard.protect(callback);
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {

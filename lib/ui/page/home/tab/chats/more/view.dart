@@ -143,11 +143,7 @@ class ChatsMoreView extends StatelessWidget {
             onSuffixPressed: c.link.isEmpty.value
                 ? null
                 : () {
-                    PlatformUtils.copy(
-                      text:
-                          '${Config.link}${Routes.chatDirectLink}/${c.link.text}',
-                    );
-
+                    PlatformUtils.copy(text: '${Config.link}/${c.link.text}');
                     MessagePopup.success('label_copied'.l10n);
                   },
             trailing: c.link.isEmpty.value
