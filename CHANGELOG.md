@@ -27,7 +27,7 @@ All user visible changes to this project will be documented in this file. This p
         - Attachments fading out when dismissed by swipe gesture. ([#786], [#699])
     - Chats tab:
         - Monolog searching. ([#745], [#582])
-    - Redesigned user page. ([#769], [#766])
+    - Redesigned user page. ([#769], [#771], [#766])
     - Chat info page:
         - Redesigned general information and group members. ([#769], [#766])
         - Redesigned direct chat link. ([#796], [#787])
@@ -69,6 +69,7 @@ All user visible changes to this project will be documented in this file. This p
 [#763]: /../../pull/763
 [#766]: /../../issues/766
 [#769]: /../../pull/769
+[#771]: /../../pull/771
 [#774]: /../../pull/774
 [#775]: /../../pull/775
 [#776]: /../../pull/776
