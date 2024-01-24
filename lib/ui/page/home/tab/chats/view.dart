@@ -374,6 +374,9 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
+                  final RxStatus? searchStatus =
+                      c.search.value?.searchStatus.value;
+
                   if (c.status.value.isLoading) {
                     return const Center(
                       child: CustomProgressIndicator.primary(),
@@ -389,9 +392,8 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.recent.isEmpty == true &&
                         c.search.value?.contacts.isEmpty == true &&
                         c.search.value?.users.isEmpty == true) {
-                      if (c.search.value?.searchStatus.value.isSuccess ==
-                              true ||
-                          c.search.value?.searchStatus.value.isEmpty == true) {
+                      if ((searchStatus?.isSuccess ?? false) ||
+                          (searchStatus?.isEmpty ?? false)) {
                         center = Center(
                           key: UniqueKey(),
                           child: Text(
@@ -529,7 +531,8 @@ class ChatsTabView extends StatelessWidget {
                             }
 
                             if (i == c.elements.length - 1 &&
-                                c.search.value?.hasNext.value == true) {
+                                ((searchStatus?.isLoadingMore ?? false) ||
+                                    (searchStatus?.isLoading ?? false))) {
                               child = Column(
                                 children: [
                                   child,
@@ -627,7 +630,8 @@ class ChatsTabView extends StatelessWidget {
                               }
 
                               if (i == c.elements.length - 1) {
-                                if (c.search.value?.hasNext.value == true) {
+                                if ((searchStatus?.isLoadingMore ?? false) ||
+                                    (searchStatus?.isLoading ?? false)) {
                                   child = Column(
                                     children: [
                                       child,

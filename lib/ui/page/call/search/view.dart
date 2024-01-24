@@ -32,6 +32,7 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/search_field.dart';
 
@@ -104,6 +105,9 @@ class SearchView extends StatelessWidget {
       builder: (SearchController c) {
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 2),
+          padding: context.isMobile
+              ? const EdgeInsets.fromLTRB(10, 0, 10, 0)
+              : const EdgeInsets.fromLTRB(10, 10, 10, 0),
           constraints: const BoxConstraints(maxHeight: 650),
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -300,7 +304,7 @@ class SearchView extends StatelessWidget {
                     ),
                   );
                 }),
-                const SizedBox(height: 6),
+                const SizedBox(height: 12),
               ],
             ],
           ),

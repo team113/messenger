@@ -81,6 +81,8 @@ class ChatForwardView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: 800,
       ),
+      mobilePadding: const EdgeInsets.all(0),
+      desktopPadding: const EdgeInsets.all(0),
       background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
@@ -137,7 +139,7 @@ class ChatForwardView extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
                         child: MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),

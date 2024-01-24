@@ -567,7 +567,8 @@ class SearchController extends GetxController {
 
   /// Updates the [contacts] according to the [query].
   void _populateContacts() {
-    if (categories.contains(SearchCategory.contact)) {
+    if (categories.contains(SearchCategory.contact) &&
+        _chatService.hasNext.isFalse) {
       final Iterable<RxChatContact> stored = _contactService.paginated.values;
       final Iterable<RxChatContact>? searched =
           contactsSearch.value?.items.values;
@@ -601,7 +602,8 @@ class SearchController extends GetxController {
 
   /// Updates the [users] according to the [query].
   void _populateUsers() {
-    if (categories.contains(SearchCategory.user)) {
+    if (categories.contains(SearchCategory.user) &&
+        _chatService.hasNext.isFalse) {
       final Iterable<RxChat> storedChats = _chatService.paginated.values;
 
       // Predicates to filter users by.

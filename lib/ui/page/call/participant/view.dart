@@ -58,8 +58,10 @@ class ParticipantView extends StatelessWidget {
 
     return ModalPopup.show(
       context: context,
-      child: ParticipantView(call: call, duration: duration),
       background: style.colors.background,
+      mobilePadding: const EdgeInsets.all(0),
+      desktopPadding: const EdgeInsets.all(0),
+      child: ParticipantView(call: call, duration: duration),
     );
   }
 

@@ -37,12 +37,17 @@ class AddChatMemberView extends StatelessWidget {
   final ChatId chatId;
 
   /// Displays an [AddChatMemberView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
+  static Future<T?> show<T>(
+    BuildContext context, {
+    required ChatId chatId,
+  }) {
     final style = Theme.of(context).style;
 
     return ModalPopup.show(
       context: context,
       background: style.colors.background,
+      desktopPadding: const EdgeInsets.all(0),
+      mobilePadding: const EdgeInsets.all(0),
       child: AddChatMemberView(chatId: chatId),
     );
   }
