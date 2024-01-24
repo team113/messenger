@@ -28,7 +28,6 @@ import '/config.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/background_preview.dart';
 import '/ui/widget/svg/svg.dart';
@@ -194,8 +193,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: WidgetButton(
                       onPressed: () {
-                        final share =
-                            '${Config.link}${Routes.chatDirectLink}/${_state.text}';
+                        final share = '${Config.link}/${_state.text}';
 
                         if (PlatformUtils.isMobile) {
                           Share.share(share);
@@ -207,8 +205,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       child: MessagePreviewWidget(
                         fromMe: true,
                         style: style.fonts.medium.regular.primary,
-                        text:
-                            '${Config.link}${Routes.chatDirectLink}/${_state.text}',
+                        text: '${Config.link}/${_state.text}',
                       ),
                     ),
                   ),
@@ -223,8 +220,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: QrImageView(
-                          data:
-                              '${Config.link}${Routes.chatDirectLink}/${widget.link?.slug.val}',
+                          data: '${Config.link}/${widget.link?.slug.val}',
                           version: QrVersions.auto,
                           size: 300.0,
                         ),
@@ -251,8 +247,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               Expanded(
                 child: WidgetButton(
                   onPressed: () {
-                    final share =
-                        '${Config.link}${Routes.chatDirectLink}/${_state.text}';
+                    final share = '${Config.link}/${_state.text}';
 
                     if (PlatformUtils.isMobile) {
                       Share.share(share);

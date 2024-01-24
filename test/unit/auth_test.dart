@@ -85,7 +85,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, getStorage));
 
-    expect(await authService.init(), Routes.auth);
+    expect(authService.init(), Routes.auth);
 
     await authService.signIn(UserPassword('123'), login: UserLogin('user'));
 
@@ -120,11 +120,13 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
 
-    expect(await authService.init(), null);
+    expect(authService.init(), null);
 
     expect(authService.status.value.isSuccess, true);
-    expect(authService.credentials.value?.session.token,
-        const AccessToken('token'));
+    expect(
+      authService.credentials.value?.session.token,
+      const AccessToken('token'),
+    );
 
     await authService.logout();
 
@@ -144,7 +146,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
 
-    expect(await authService.init(), Routes.auth);
+    expect(authService.init(), Routes.auth);
     try {
       await authService.signIn(UserPassword('123'));
       fail('Exception is not thrown');

@@ -54,6 +54,8 @@ void main() async {
     Get.reset();
 
     final getStorage = CredentialsHiveProvider();
+    await getStorage.init();
+
     final graphQlProvider = FakeGraphQlProvider();
 
     Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
