@@ -76,6 +76,8 @@ void main() async {
   };
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   await credentialsProvider.init();
@@ -185,7 +187,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userHiveProvider);

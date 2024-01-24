@@ -169,7 +169,7 @@ void main() async {
       credentialsProvider,
     ),
   );
-  await authService.init();
+  authService.init();
 
   test('ChatService successfully uploads an attachment', () async {
     when(graphQlProvider.recentChats(

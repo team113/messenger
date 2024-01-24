@@ -170,6 +170,8 @@ void main() async {
   };
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
@@ -184,8 +186,7 @@ void main() async {
 
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), credentialsProvider);
-  await authService.init();
-  await credentialsProvider.init();
+  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
