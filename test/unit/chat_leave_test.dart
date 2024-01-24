@@ -148,7 +148,7 @@ void main() async {
       credentialsProvider,
     ),
   );
-  await authService.init();
+  authService.init();
 
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
@@ -186,7 +186,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));

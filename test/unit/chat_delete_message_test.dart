@@ -216,7 +216,7 @@ void main() async {
       credentialsProvider,
     ),
   );
-  await authService.init();
+  authService.init();
 
   UserRepository userRepository =
       Get.put(UserRepository(graphQlProvider, userProvider));
