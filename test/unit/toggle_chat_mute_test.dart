@@ -191,7 +191,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -252,7 +252,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

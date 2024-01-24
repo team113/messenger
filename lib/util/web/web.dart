@@ -25,6 +25,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:js';
+import 'dart:js_interop';
 import 'dart:js_util';
 import 'dart:math';
 
@@ -35,6 +36,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:js/js.dart';
+import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
@@ -113,11 +115,23 @@ external bool _isPopup;
 @JS('document.hasFocus')
 external bool _hasFocus();
 
+@JS('navigator.locks.request')
+external Future<dynamic> _requestLock(
+  String resource,
+  dynamic Function(dynamic) callback,
+);
+
+@JS('navigator.locks.query')
+external Future<dynamic> _queryLock();
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
+
+  /// [Mutex] guarding the [protect] method.
+  static final Mutex _guard = Mutex();
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
@@ -258,6 +272,9 @@ class WebUtils {
     return controller.stream;
   }
 
+  /// Indicates whether the current window is a popup.
+  static bool get isPopup => _isPopup;
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     if (creds == null) {
@@ -277,30 +294,49 @@ class WebUtils {
     }
   }
 
-  /// Sets the provided [updating] value to the browser's storage indicating an
-  /// ongoing [Credentials] refresh.
-  static set credentialsUpdating(bool updating) {
-    html.window.localStorage['credentialsUpdating'] = updating.toString();
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked async {
+    final locks = await promiseToFuture(_queryLock());
+    return _guard.isLocked ||
+        (locks.held as List?)?.any((e) => e.name == 'mutex') == true;
   }
 
-  /// Indicates whether [Credentials] are considered being updated currently.
-  static bool get credentialsUpdating {
-    final String? updating = html.window.localStorage['credentialsUpdating'];
+  /// Guarantees the [callback] is invoked synchronously, only by single tab or
+  /// code block at the same time.
+  static Future<void> protect(Future<void> Function() callback) async {
+    await _guard.protect(() async {
+      final Completer completer = Completer();
 
-    if (updating == null) {
-      return false;
-    } else {
-      return updating.toLowerCase() == 'true';
-    }
+      try {
+        await promiseToFuture(
+          _requestLock(
+            'mutex',
+            allowInterop(
+              (_) => callback()
+                  .then((_) => completer.complete())
+                  .onError(
+                    (e, _) => completer.completeError(e ?? Exception()),
+                  )
+                  .toJS,
+            ),
+          ),
+        );
+      } catch (_) {
+        // If completer is completed, then the exception is already handled.
+        if (!completer.isCompleted) {
+          rethrow;
+        }
+      }
+
+      await completer.future;
+    });
   }
-
-  /// Indicates whether the current window is a popup.
-  static bool get isPopup => _isPopup;
 
   /// Pushes [title] to browser's window title.
   static void title(String title) =>
       SystemChrome.setApplicationSwitcherDescription(
-          ApplicationSwitcherDescription(label: title));
+        ApplicationSwitcherDescription(label: title),
+      );
 
   /// Sets the URL strategy of your web app to using paths instead of a leading
   /// hash (`#`).

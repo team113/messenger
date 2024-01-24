@@ -25,7 +25,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
-import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -57,7 +56,7 @@ class IntroductionController extends GetxController {
 
   /// Origin to display withing the [link] field.
   late final String _origin =
-      '${Config.link.substring(Config.link.indexOf(':') + 3)}${Routes.chatDirectLink}/';
+      '${Config.link.substring(Config.link.indexOf(':') + 3)}/';
 
   /// Creates a [ChatDirectLink] from the [link].
   Future<void> createLink() async {

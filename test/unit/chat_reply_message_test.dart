@@ -170,7 +170,7 @@ void main() async {
       credentialsProvider,
     ),
   );
-  await authService.init();
+  authService.init();
 
   test('ChatService successfully replies to a message', () async {
     when(graphQlProvider.recentChats(
