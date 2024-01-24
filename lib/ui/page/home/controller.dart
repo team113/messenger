@@ -285,7 +285,9 @@ class HomeController extends GetxController {
   void _displayIntroduction(MyUser myUser) {
     IntroductionViewStage? stage;
 
-    if (!myUser.hasPassword &&
+    if (router.directLink) {
+      stage = IntroductionViewStage.link;
+    } else if (!myUser.hasPassword &&
         myUser.emails.confirmed.isEmpty &&
         myUser.phones.confirmed.isEmpty) {
       stage = IntroductionViewStage.oneTime;

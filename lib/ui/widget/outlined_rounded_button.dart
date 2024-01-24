@@ -171,8 +171,9 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                   // if (leading != null) leading!,
                   if (widget.leading != null) ...[
                     SizedBox(
-                        width: widget.leadingWidth,
-                        child: Center(child: widget.leading!)),
+                      width: widget.leadingWidth,
+                      child: Center(child: widget.leading!),
+                    ),
                     const SizedBox(width: 8),
                   ],
                   Expanded(
@@ -180,7 +181,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: this.widget.style ??
+                      style: widget.style ??
                           style.fonts.medium.regular.onBackground,
                       child: Center(
                         child: Padding(

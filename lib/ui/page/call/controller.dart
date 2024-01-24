@@ -32,7 +32,6 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/ui/worker/call.dart';
 import 'package:messenger/util/log.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:proximity_screen_lock/proximity_screen_lock.dart';
 
 import '/config.dart';
 import '/domain/model/application_settings.dart';
@@ -924,10 +923,10 @@ class CallController extends GetxController {
     _notificationTimers.clear();
     _chatSubscription?.cancel();
 
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      ProximityScreenLock.isProximityLockSupported()
-          .then((v) => v ? ProximityScreenLock.setActive(false) : null);
-    }
+    // if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    //   ProximityScreenLock.isProximityLockSupported()
+    //       .then((v) => v ? ProximityScreenLock.setActive(false) : null);
+    // }
 
     // AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
   }

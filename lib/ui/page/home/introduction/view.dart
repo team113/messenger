@@ -22,6 +22,9 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
+import 'package:messenger/ui/page/login/controller.dart';
+import 'package:messenger/ui/page/login/view.dart';
+import 'package:messenger/ui/page/work/widget/interactive_logo.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -54,6 +57,9 @@ class IntroductionView extends StatelessWidget {
   }) {
     return ModalPopup.show(
       context: context,
+      background: initial == IntroductionViewStage.link
+          ? const Color(0xFFF0F2F4)
+          : null,
       child: IntroductionView(initial: initial),
     );
   }
@@ -67,10 +73,153 @@ class IntroductionView extends StatelessWidget {
       init: IntroductionController(Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
-          final Widget header;
+          final Widget? header;
           final List<Widget> children;
 
           switch (c.stage.value) {
+            case IntroductionViewStage.link:
+              // header = null;
+              header = Stack(
+                children: [
+                  ModalPopupHeader(
+                    header: Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Image.asset(
+                            //   'assets/icons/application/macOS.png',
+                            //   width: 72,
+                            //   height: 72,
+                            // ),
+                            // Padding(
+                            //   padding: const EdgeInsets.all(12.0),
+                            //   child: SvgImage.asset(
+                            //     'assets/icons/face.svg',
+                            //     width: 36,
+                            //     height: 36,
+                            //   ),
+                            // ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              // crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Messenger',
+                                  style: style.fonts.larger.regular.secondary,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                const SizedBox(height: 1.7),
+                                Text(
+                                  'by Gapopa',
+                                  style: style.fonts.medium.regular.secondary,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
+                            // const SizedBox(width: 32),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+                    child: Image.asset(
+                      'assets/icons/icon.png',
+                      width: 24,
+                      height: 24,
+                      isAntiAlias: true,
+                      filterQuality: FilterQuality.high,
+                    ),
+                    // child: SvgImage.asset(
+                    //   'assets/icons/face.svg',
+                    //   width: 16,
+                    //   height: 16,
+                    // ),
+                  ),
+                ],
+              );
+
+              children = [
+                const SizedBox(height: 16),
+                // Text(
+                //   'Messenger',
+                //   style: style.fonts.larger.regular.secondary,
+                //   textAlign: TextAlign.center,
+                //   overflow: TextOverflow.ellipsis,
+                //   maxLines: 1,
+                // ),
+                // const SizedBox(height: 1.6),
+
+                // const SizedBox(height: 20),
+                const InteractiveLogo(),
+                // Padding(
+                //   padding: const EdgeInsets.all(16.0),
+                //   child: SvgImage.asset(
+                //     'assets/icons/face.svg',
+                //     width: 64,
+                //     height: 64,
+                //   ),
+                // ),
+                // Image.asset(
+                //   'assets/icons/application/macOS.png',
+                //   width: 128,
+                //   height: 128,
+                // ),
+                const SizedBox(height: 7),
+                const SizedBox(height: 25),
+                Center(
+                  child: OutlinedRoundedButton(
+                    key: const Key('RegisterButton'),
+                    title: Text('btn_sign_up'.l10n),
+                    maxWidth: 210,
+                    height: 46,
+                    leading: Transform.translate(
+                      offset: const Offset(3, 0),
+                      child: const SvgIcon(SvgIcons.register),
+                    ),
+                    onPressed: () => LoginView.show(context),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: OutlinedRoundedButton(
+                    key: const Key('SignInButton'),
+                    title: Text('btn_sign_in'.l10n),
+                    maxWidth: 210,
+                    height: 46,
+                    leading: Transform.translate(
+                      offset: const Offset(4, 0),
+                      child: const SvgIcon(SvgIcons.enter),
+                    ),
+                    onPressed: () =>
+                        LoginView.show(context, initial: LoginViewStage.signIn),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: OutlinedRoundedButton(
+                    key: const Key('StartButton'),
+                    subtitle: Text('btn_one_time_account_desc'.l10n),
+                    maxWidth: 210,
+                    height: 46,
+                    leading: Transform.translate(
+                      offset: const Offset(4, 0),
+                      child: const SvgIcon(SvgIcons.oneTime),
+                    ),
+                    onPressed: Navigator.of(context).pop,
+                  ),
+                ),
+                const SizedBox(height: 15),
+              ];
+              break;
+
             case IntroductionViewStage.signUp:
               header = ModalPopupHeader(text: 'label_account_created'.l10n);
 

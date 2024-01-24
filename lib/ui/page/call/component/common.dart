@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_to_airplay/flutter_to_airplay.dart';
+// import 'package:flutter_to_airplay/flutter_to_airplay.dart';
 import 'package:get/get.dart';
 import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -575,14 +575,14 @@ class AirPlayButton extends CallButton {
           constrained: c.isMobile,
           onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
         ),
-        if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
-          const Positioned.fill(
-            child: AirPlayRoutePickerView(
-              tintColor: Colors.transparent,
-              activeTintColor: Colors.transparent,
-              backgroundColor: Colors.transparent,
-            ),
-          ),
+        // if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
+        //   const Positioned.fill(
+        //     child: AirPlayRoutePickerView(
+        //       tintColor: Colors.transparent,
+        //       activeTintColor: Colors.transparent,
+        //       backgroundColor: Colors.transparent,
+        //     ),
+        //   ),
       ],
     );
   }
