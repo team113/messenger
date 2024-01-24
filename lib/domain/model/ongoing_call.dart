@@ -1282,8 +1282,11 @@ class OngoingCall {
       });
 
       conn.onRemoteTrackAdded((track) async {
+        final MediaKind kind = track.kind();
+        final MediaSourceKind source = track.mediaSourceKind();
+
         Log.debug(
-          'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
+          'onRemoteTrackAdded $kind-$source, ${track.mediaDirection()}',
           '$runtimeType',
         );
 
@@ -1308,7 +1311,7 @@ class OngoingCall {
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
-            'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
+            'onMediaDirectionChanged $kind-$source ${track.mediaDirection()}',
             '$runtimeType',
           );
 
@@ -1317,7 +1320,7 @@ class OngoingCall {
           switch (d) {
             case TrackMediaDirection.sendRecv:
               member?.tracks.addIf(!member!.tracks.contains(t), t);
-              switch (track.kind()) {
+              switch (kind) {
                 case MediaKind.audio:
                   await t.createRenderer();
                   break;
@@ -1342,15 +1345,11 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.debug(
-            'onStopped ${track.kind()}-${track.mediaSourceKind()}',
-            '$runtimeType',
-          );
-
+          Log.debug('onStopped $kind-$source', '$runtimeType');
           member?.tracks.remove(t..dispose());
         });
 
-        switch (track.kind()) {
+        switch (kind) {
           case MediaKind.audio:
             if (isRemoteAudioEnabled.isTrue) {
               if (track.mediaDirection().isEmitting) {
