@@ -35,6 +35,7 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Redesigned direct chat link. ([#796], [#787])
         - Redesigned sign in section. ([#794], [#789])
+    - Redesigned search modal. ([#805], [#790])
 
 ### Fixed
 
@@ -78,10 +79,12 @@ All user visible changes to this project will be documented in this file. This p
 [#787]: /../../issues/787
 [#788]: /../../issues/788
 [#789]: /../../issues/789
+[#790]: /../../issues/790
 [#791]: /../../pull/791
 [#794]: /../../pull/794
 [#796]: /../../pull/796
 [#797]: /../../pull/797
+[#805]: /../../pull/805
 
 
 
