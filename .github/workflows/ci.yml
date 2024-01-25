@@ -444,6 +444,8 @@ jobs:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
 
+      - run: cp -r web/.well-known/ build/web/.well-known/
+
       - run: make docker.image no-cache=yes
                   tag=build-${{ github.run_number }}
 
