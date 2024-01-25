@@ -251,7 +251,7 @@ class SearchView extends StatelessWidget {
                             }
 
                             if (i == 0) {
-                              return Padding(
+                              child = Padding(
                                   padding: const EdgeInsets.only(top: 10),
                                   child: child);
                             }
