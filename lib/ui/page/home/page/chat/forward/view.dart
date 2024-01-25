@@ -82,7 +82,7 @@ class ChatForwardView extends StatelessWidget {
         maxHeight: 800,
       ),
       mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.all(0),
+      desktopPadding: const EdgeInsets.only(bottom: 12),
       background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
@@ -125,7 +125,6 @@ class ChatForwardView extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      const SizedBox(height: 16),
                       Expanded(
                         child: SearchView(
                           key: const Key('SearchView'),
@@ -139,7 +138,7 @@ class ChatForwardView extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                         child: MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),

@@ -46,7 +46,7 @@ class AddChatMemberView extends StatelessWidget {
     return ModalPopup.show(
       context: context,
       background: style.colors.background,
-      desktopPadding: const EdgeInsets.all(0),
+      desktopPadding: const EdgeInsets.only(bottom: 12),
       mobilePadding: const EdgeInsets.all(0),
       child: AddChatMemberView(chatId: chatId),
     );

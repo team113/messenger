@@ -304,7 +304,6 @@ class SearchView extends StatelessWidget {
                     ),
                   );
                 }),
-                const SizedBox(height: 12),
               ],
             ],
           ),

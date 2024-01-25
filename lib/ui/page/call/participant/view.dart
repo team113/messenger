@@ -60,7 +60,7 @@ class ParticipantView extends StatelessWidget {
       context: context,
       background: style.colors.background,
       mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.all(0),
+      desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 4),
       child: ParticipantView(call: call, duration: duration),
     );
   }
@@ -181,7 +181,6 @@ class ParticipantView extends StatelessWidget {
                         color: style.colors.primary,
                       ),
                     ),
-                    const SizedBox(height: 12),
                   ],
                 ),
               );
@@ -193,7 +192,10 @@ class ParticipantView extends StatelessWidget {
             sizeDuration: const Duration(milliseconds: 250),
             child: KeyedSubtree(
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-              child: child,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: child,
+              ),
             ),
           );
         });
