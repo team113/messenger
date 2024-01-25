@@ -341,7 +341,7 @@ class OngoingCall {
           .isNotEmpty ??
       false;
 
-  /// Returns a list of [MediaDeviceDetail]s of all the available devices.
+  /// Returns a list of [MediaDeviceDetails] of all the available devices.
   RxList<MediaDeviceDetails> get devices => _devices;
 
   /// Sets the [_devices] to the provided [devices].
