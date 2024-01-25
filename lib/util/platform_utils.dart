@@ -311,24 +311,6 @@ class PlatformUtilsImpl {
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
-  /// Returns a grab [MouseCursor].
-  MouseCursor get grabCursor {
-    if (isWindows && !isWeb) {
-      return const FlutterCustomMemoryImageCursor(key: 'grab');
-    }
-
-    return SystemMouseCursors.grab;
-  }
-
-  /// Returns a grabbing [MouseCursor].
-  MouseCursor get grabbingCursor {
-    if (isWindows && !isWeb) {
-      return const FlutterCustomMemoryImageCursor(key: 'grabbing');
-    }
-
-    return SystemMouseCursors.grabbing;
-  }
-
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {
     if (isWeb) {
@@ -656,6 +638,27 @@ extension PopExtensionOnContext on BuildContext {
         }
       }
     }
+  }
+}
+
+/// Extension defining custom [MouseCursor]s.
+extension CustomMouseCursors on MouseCursor {
+  /// Returns a grab [MouseCursor].
+  static MouseCursor get grab {
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'grab');
+    }
+
+    return SystemMouseCursors.grab;
+  }
+
+  /// Returns a grabbing [MouseCursor].
+  static MouseCursor get grabbing {
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'grabbing');
+    }
+
+    return SystemMouseCursors.grabbing;
   }
 }
 

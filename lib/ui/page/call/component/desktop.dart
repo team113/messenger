@@ -711,13 +711,13 @@ Widget desktopCall(CallController c, BuildContext context) {
         Obx(() {
           return MouseRegion(
             opaque: false,
-            cursor: c.isCursorHidden.value
-                ? SystemMouseCursors.none
-                : c.draggedRenderer.value != null ||
-                        c.doughDraggedRenderer.value != null
-                    ? PlatformUtils.grabbingCursor
-                    : c.hoveredRenderer.value != null
-                        ? PlatformUtils.grabCursor
+            cursor: c.draggedRenderer.value != null ||
+                    c.doughDraggedRenderer.value != null
+                ? CustomMouseCursors.grabbing
+                : c.hoveredRenderer.value != null
+                    ? CustomMouseCursors.grab
+                    : c.isCursorHidden.value
+                        ? SystemMouseCursors.none
                         : MouseCursor.defer,
           );
         }),
@@ -1817,7 +1817,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: MouseRegion(
                         cursor: isAnyDrag
                             ? MouseCursor.defer
-                            : PlatformUtils.grabCursor,
+                            : CustomMouseCursors.grab,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;
