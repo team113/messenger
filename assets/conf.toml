@@ -105,7 +105,7 @@
 # The trailing `/` should be omitted.
 #
 # If empty, then the origin domain of the web application, or HTTP server for
-# native applications, is used.
+# native applications, with the trailing `/d`, is used.
 #
 # Default:
 #   prefix = ""

@@ -24,9 +24,10 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../repository/chat.dart';
-import '../service/call.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/repository/chat.dart';
+import '/domain/service/call.dart';
+import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
@@ -745,6 +746,11 @@ class OngoingCall {
             break;
         }
       },
+      onError: (e) {
+        if (e is! ResubscriptionRequiredException) {
+          throw e;
+        }
+      },
     );
   }
 
@@ -1341,8 +1347,11 @@ class OngoingCall {
       });
 
       conn.onRemoteTrackAdded((track) async {
+        final MediaKind kind = track.kind();
+        final MediaSourceKind source = track.mediaSourceKind();
+
         Log.debug(
-          'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
+          'onRemoteTrackAdded $kind-$source, ${track.mediaDirection()}',
           '$runtimeType',
         );
 
@@ -1367,7 +1376,7 @@ class OngoingCall {
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
-            'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
+            'onMediaDirectionChanged $kind-$source ${track.mediaDirection()}',
             '$runtimeType',
           );
 
@@ -1376,7 +1385,7 @@ class OngoingCall {
           switch (d) {
             case TrackMediaDirection.sendRecv:
               member?.tracks.addIf(!member!.tracks.contains(t), t);
-              switch (track.kind()) {
+              switch (kind) {
                 case MediaKind.audio:
                   await t.createRenderer();
                   break;
@@ -1401,15 +1410,11 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.debug(
-            'onStopped ${track.kind()}-${track.mediaSourceKind()}',
-            '$runtimeType',
-          );
-
+          Log.debug('onStopped $kind-$source', '$runtimeType');
           member?.tracks.remove(t..dispose());
         });
 
-        switch (track.kind()) {
+        switch (kind) {
           case MediaKind.audio:
             if (isRemoteAudioEnabled.isTrue) {
               if (track.mediaDirection().isEmitting) {
