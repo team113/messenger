@@ -645,6 +645,9 @@ extension PopExtensionOnContext on BuildContext {
 
 /// Helper defining custom [MouseCursor]s.
 class CustomMouseCursors {
+  /// Indicator whether this [CustomMouseCursors] is initialized.
+  static bool _initialized = false;
+
   /// Returns a grab [MouseCursor].
   static MouseCursor get grab {
     if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
@@ -663,9 +666,10 @@ class CustomMouseCursors {
     return SystemMouseCursors.grabbing;
   }
 
-  /// Initializes the custom [MouseCursor]s.
-  static Future<void> init() async {
-    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+  /// Ensures this [CustomMouseCursors] initialized.
+  static Future<void> ensureInitialized() async {
+    if (!_initialized && PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      _initialized = true;
       await _initCursor('assets/images/grab.bgra', 'grab');
       await _initCursor('assets/images/grabbing.bgra', 'grabbing');
     }

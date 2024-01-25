@@ -103,8 +103,6 @@ Future<void> main() async {
       Get.put(WindowWorker(preferences));
     }
 
-    await CustomMouseCursors.init();
-
     final graphQlProvider = Get.put(GraphQlProvider());
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
