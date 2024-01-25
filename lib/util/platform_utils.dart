@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
@@ -34,6 +35,7 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
+import '/util/log.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
 
@@ -641,8 +643,8 @@ extension PopExtensionOnContext on BuildContext {
   }
 }
 
-/// Extension defining custom [MouseCursor]s.
-extension CustomMouseCursors on MouseCursor {
+/// Helper defining custom [MouseCursor]s.
+class CustomMouseCursors {
   /// Returns a grab [MouseCursor].
   static MouseCursor get grab {
     if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
@@ -659,6 +661,36 @@ extension CustomMouseCursors on MouseCursor {
     }
 
     return SystemMouseCursors.grabbing;
+  }
+
+  /// Initializes the custom [MouseCursor]s.
+  static Future<void> init() async {
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      await _initCursor('assets/images/grab.bgra', 'grab');
+      await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+    }
+  }
+
+  /// Initializes the custom [MouseCursor]s with the provided [path] and [name].
+  static Future<void> _initCursor(String path, String name) async {
+    try {
+      final grabCursor = await rootBundle.load(path);
+
+      await CursorManager.instance.registerCursor(
+        CursorData()
+          ..name = name
+          ..buffer = grabCursor.buffer.asUint8List()
+          ..height = 30
+          ..width = 30
+          ..hotX = 15
+          ..hotY = 15,
+      );
+    } catch (_) {
+      Log.error(
+        'Failed to initialize custom cursor by path: $path',
+        'CustomMouseCursors',
+      );
+    }
   }
 }
 

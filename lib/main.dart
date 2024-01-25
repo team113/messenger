@@ -105,31 +105,7 @@ Future<void> main() async {
       Get.put(WindowWorker(preferences));
     }
 
-    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
-      final grabCursor = await rootBundle.load('assets/images/grab.bgra');
-      final grabbingCursor =
-          await rootBundle.load('assets/images/grabbing.bgra');
-
-      await CursorManager.instance.registerCursor(
-        CursorData()
-          ..name = 'grab'
-          ..buffer = grabCursor.buffer.asUint8List()
-          ..height = 30
-          ..width = 30
-          ..hotX = 15
-          ..hotY = 15,
-      );
-
-      await CursorManager.instance.registerCursor(
-        CursorData()
-          ..name = 'grabbing'
-          ..buffer = grabbingCursor.buffer.asUint8List()
-          ..height = 30
-          ..width = 30
-          ..hotX = 15
-          ..hotY = 15,
-      );
-    }
+    await CustomMouseCursors.init();
 
     final graphQlProvider = Get.put(GraphQlProvider());
 
