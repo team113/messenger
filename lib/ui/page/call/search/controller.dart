@@ -582,8 +582,8 @@ class SearchController extends GetxController {
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
           chat.members.containsKey(c.user.value!.id));
-      bool matchesQuery(RxChatContact c) => _matchesQuery(
-          title: c.contact.value.name.val, user: c.user.value?.user.value);
+      bool matchesQuery(RxChatContact c) =>
+          _matchesQuery(user: c.user.value?.user.value);
 
       final List<RxChatContact> filtered = allContacts
           .where(matchesQuery)
@@ -743,9 +743,19 @@ class SearchController extends GetxController {
       if (queryString.isNotEmpty) {
         final String? name = user?.name?.val;
         final String? num = user?.num.val;
+        // Account custom [UserName]s for [ChatContact]s.
+        String? contactName;
+        if (user != null) {
+          contactName = _contactService.paginated.values
+              .firstWhereOrNull((c) => c.user.value?.user.value.id == user.id)
+              ?.contact
+              .value
+              .name
+              .val;
+        }
         // TODO: Add `login` searching when backend supports it.
 
-        for (final param in [title, name].whereNotNull()) {
+        for (final param in [title, name, contactName].whereNotNull()) {
           if (param.toLowerCase().contains(queryString)) {
             return true;
           }
