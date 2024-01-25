@@ -195,7 +195,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                               widget.title ?? Container(),
                               if (widget.title != null &&
                                   widget.subtitle != null)
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 3),
                               if (widget.subtitle != null)
                                 DefaultTextStyle.merge(
                                   style: style.fonts.smallest.regular.secondary,
