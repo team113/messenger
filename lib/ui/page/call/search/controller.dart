@@ -182,14 +182,13 @@ class SearchController extends GetxController {
         usersSearch.value = null;
         contactsSearch.value?.dispose();
         contactsSearch.value = null;
-        searchStatus.value = RxStatus.empty();
         users.clear();
         contacts.clear();
         chats.clear();
         recent.clear();
-      } else {
-        searchStatus.value = RxStatus.loading();
       }
+
+      searchStatus.value = RxStatus.loading();
 
       populate();
     });
@@ -511,7 +510,6 @@ class SearchController extends GetxController {
 
       // Predicates to filter the [paginated] by.
       bool hidden(RxChat c) => c.chat.value.isHidden;
-      bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
       bool matchesQuery(RxChat c) => _matchesQuery(
             title: c.title.value,
             user: c.chat.value.isDialog
@@ -521,10 +519,11 @@ class SearchController extends GetxController {
                     .value
                 : null,
           );
+      bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
 
       final List<RxChat> filtered = stored
-          .where(matchesQuery)
           .whereNot(hidden)
+          .where(matchesQuery)
           .whereNot(localDialog)
           .sorted();
 
@@ -544,6 +543,7 @@ class SearchController extends GetxController {
       // Predicates to filter the [stored] by.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
       bool hidden(RxChat c) => c.chat.value.isHidden;
+      bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
       bool inCurrentChat(RxUser u) => chat?.members.containsKey(u.id) ?? false;
@@ -551,6 +551,7 @@ class SearchController extends GetxController {
 
       final Iterable<RxUser> filtered = stored
           .where(remoteDialog)
+          .whereNot(inChats)
           .whereNot(hidden)
           .sorted()
           .map(toUser)
@@ -573,7 +574,7 @@ class SearchController extends GetxController {
       final Iterable<RxChatContact>? searched =
           contactsSearch.value?.items.values;
 
-      final Iterable<RxChatContact> allContacts = searched ?? stored;
+      final Iterable<RxChatContact> allContacts = {...stored, ...?searched};
 
       // Predicates to filter the [allContacts] by.
       bool inCurrentChat(RxChatContact c) =>
@@ -592,8 +593,12 @@ class SearchController extends GetxController {
           .whereNot(inChats)
           .sorted();
 
+      final Iterable<RxChatContact> selected =
+          selectedContacts.where(matchesQuery).sorted();
+
       contacts.value = {
-        for (final RxChatContact c in filtered) c.user.value!.id: c,
+        for (final RxChatContact c in {...selected, ...filtered})
+          c.user.value!.id: c,
       };
     } else {
       contacts.value = {};
@@ -625,10 +630,11 @@ class SearchController extends GetxController {
           .map(toUser)
           .whereNotNull()
           .where(matchesQuery);
-
       final Iterable<RxUser>? searched = usersSearch.value?.items.values;
+      final Iterable<RxUser> selected =
+          selectedUsers.where(matchesQuery).whereNot(stored.contains);
 
-      final allUsers = {...stored, ...?searched};
+      final allUsers = {...selected, ...stored, ...?searched};
 
       final filtered = allUsers
           .whereNot(inCurrentChat)
@@ -737,15 +743,19 @@ class SearchController extends GetxController {
   /// Note that every entity with either [user] or [title] matches the empty
   /// [query].
   bool _matchesQuery({User? user, String? title}) {
-    final String queryString = query.value.toLowerCase().trim();
-
     if (user != null || title != null) {
+      // Formatted string representation of the current [query].
+      final String queryString = query.value.toLowerCase().trim();
+
       if (queryString.isNotEmpty) {
-        final String? name = user?.name?.val;
-        final String? num = user?.num.val;
-        // Account custom [UserName]s for [ChatContact]s.
+        String? num;
+        String? name;
         String? contactName;
+        // TODO: Add `UserLogin searching.
+
         if (user != null) {
+          num = user.num.val;
+          name = user.name?.val;
           contactName = _contactService.paginated.values
               .firstWhereOrNull((c) => c.user.value?.user.value.id == user.id)
               ?.contact
@@ -753,7 +763,6 @@ class SearchController extends GetxController {
               .name
               .val;
         }
-        // TODO: Add `login` searching when backend supports it.
 
         for (final param in [title, name, contactName].whereNotNull()) {
           if (param.toLowerCase().contains(queryString)) {
