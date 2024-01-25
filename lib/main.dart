@@ -138,7 +138,7 @@ Future<void> main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
-    await authService.init();
+    authService.init();
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
