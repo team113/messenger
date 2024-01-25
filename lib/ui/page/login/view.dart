@@ -128,7 +128,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
                 SignButton(
-                  title: 'btn_one_time_account'.l10n,
+                  title: 'btn_guest'.l10n,
                   dense: true,
                   icon: const SvgIcon(SvgIcons.oneTime),
                   onPressed: () {

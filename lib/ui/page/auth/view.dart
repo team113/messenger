@@ -48,14 +48,14 @@ class AuthView extends StatelessWidget {
             const SizedBox(height: 4),
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
-              style: style.fonts.normal.regular.secondary,
+              style: style.fonts.normal.regular.primary,
               onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
             StyledCupertinoButton(
               padding: const EdgeInsets.all(8),
               label: 'btn_work_with_us'.l10n,
-              style: style.fonts.small.regular.secondary,
+              style: style.fonts.small.regular.primary,
               onPressed: () => router.work(null),
             ),
             const SizedBox(height: 8),
@@ -116,7 +116,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('btn_one_time_account_desc'.l10n),
+            title: Text('btn_guest'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(

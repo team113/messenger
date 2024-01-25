@@ -24,7 +24,7 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/view.dart';
-import 'package:messenger/ui/page/work/widget/interactive_logo.dart';
+import 'package:messenger/ui/widget/download_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -78,76 +78,76 @@ class IntroductionView extends StatelessWidget {
 
           switch (c.stage.value) {
             case IntroductionViewStage.link:
-              // header = null;
-              header = Stack(
-                children: [
-                  ModalPopupHeader(
-                    header: Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Image.asset(
-                            //   'assets/icons/application/macOS.png',
-                            //   width: 72,
-                            //   height: 72,
-                            // ),
-                            // Padding(
-                            //   padding: const EdgeInsets.all(12.0),
-                            //   child: SvgImage.asset(
-                            //     'assets/icons/face.svg',
-                            //     width: 36,
-                            //     height: 36,
-                            //   ),
-                            // ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              // crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Messenger',
-                                  style: style.fonts.larger.regular.secondary,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                                const SizedBox(height: 1.7),
-                                Text(
-                                  'by Gapopa',
-                                  style: style.fonts.medium.regular.secondary,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ],
-                            ),
-                            // const SizedBox(width: 32),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                    child: Image.asset(
-                      'assets/icons/icon.png',
-                      width: 24,
-                      height: 24,
-                      isAntiAlias: true,
-                      filterQuality: FilterQuality.high,
-                    ),
-                    // child: SvgImage.asset(
-                    //   'assets/icons/face.svg',
-                    //   width: 16,
-                    //   height: 16,
-                    // ),
-                  ),
-                ],
-              );
+              header = const ModalPopupHeader(dense: true);
+
+              // header = ModalPopupHeader(
+              //   header: Padding(
+              //     padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),
+              //     child: Center(
+              //       child: OutlinedRoundedButton(
+              //         title: const Text('Messenger by Gapopa'),
+              //         subtitle: Text('btn_download'.l10n),
+              //         maxWidth: 290,
+              //         height: 72,
+              //         leading: const SvgImage.asset(
+              //           'assets/icons/logo.svg',
+              //           width: 36,
+              //           height: 36,
+              //         ),
+              //         onPressed: () => LoginView.show(context),
+              //       ),
+              //     ),
+              //   ),
+              // );
+              // header = ModalPopupHeader(
+
+              //   child: Center(
+              //     child: Row(
+              //       mainAxisSize: MainAxisSize.min,
+              //       children: [
+              //         // Image.asset(
+              //         //   'assets/icons/application/macOS.png',
+              //         //   width: 72,
+              //         //   height: 72,
+              //         // ),
+              //         // Padding(
+              //         //   padding: const EdgeInsets.all(12.0),
+              //         //   child: SvgImage.asset(
+              //         //     'assets/icons/face.svg',
+              //         //     width: 36,
+              //         //     height: 36,
+              //         //   ),
+              //         // ),
+              //         Column(
+              //           mainAxisSize: MainAxisSize.min,
+              //           // crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text(
+              //               'Messenger',
+              //               style: style.fonts.larger.regular.secondary,
+              //               textAlign: TextAlign.center,
+              //               overflow: TextOverflow.ellipsis,
+              //               maxLines: 1,
+              //             ),
+              //             const SizedBox(height: 1.7),
+              //             Text(
+              //               'by Gapopa',
+              //               style: style.fonts.medium.regular.secondary,
+              //               textAlign: TextAlign.center,
+              //               overflow: TextOverflow.ellipsis,
+              //               maxLines: 1,
+              //             ),
+              //           ],
+              //         ),
+              //         // const SizedBox(width: 32),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // );
 
               children = [
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
                 // Text(
                 //   'Messenger',
                 //   style: style.fonts.larger.regular.secondary,
@@ -158,7 +158,7 @@ class IntroductionView extends StatelessWidget {
                 // const SizedBox(height: 1.6),
 
                 // const SizedBox(height: 20),
-                const InteractiveLogo(),
+                // const InteractiveLogo(),
                 // Padding(
                 //   padding: const EdgeInsets.all(16.0),
                 //   child: SvgImage.asset(
@@ -172,13 +172,55 @@ class IntroductionView extends StatelessWidget {
                 //   width: 128,
                 //   height: 128,
                 // ),
-                const SizedBox(height: 7),
-                const SizedBox(height: 25),
+                // const SizedBox(height: 7),
+                // const SizedBox(height: 25),
+
+                const SizedBox(height: 4),
+                Center(
+                  child: OutlinedRoundedButton(
+                    title: const Padding(
+                      padding: EdgeInsets.only(top: 2),
+                      child: Text('Messenger by Gapopa'),
+                    ),
+                    // title: Padding(
+                    //   padding: const EdgeInsets.only(top: 2),
+                    //   child: const Text('Messenger by Gapopa'),
+                    // ),
+                    subtitle: Text('btn_download'.l10n),
+                    maxWidth: 290,
+                    height: 72 + 4,
+                    // height: 72 + 4,
+
+                    leading: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      width: 32,
+                      height: 32,
+                      padding: const EdgeInsets.all(4),
+                      child: const SvgImage.asset(
+                        'assets/icons/logo.svg',
+                        // width: 30,
+                        height: 24,
+                      ),
+                    ),
+                    onPressed: () => _download(context),
+                  ),
+                ),
+                const SizedBox(height: 15),
                 Center(
                   child: OutlinedRoundedButton(
                     key: const Key('RegisterButton'),
                     title: Text('btn_sign_up'.l10n),
-                    maxWidth: 210,
+                    maxWidth: 290,
                     height: 46,
                     leading: Transform.translate(
                       offset: const Offset(3, 0),
@@ -192,7 +234,7 @@ class IntroductionView extends StatelessWidget {
                   child: OutlinedRoundedButton(
                     key: const Key('SignInButton'),
                     title: Text('btn_sign_in'.l10n),
-                    maxWidth: 210,
+                    maxWidth: 290,
                     height: 46,
                     leading: Transform.translate(
                       offset: const Offset(4, 0),
@@ -206,8 +248,8 @@ class IntroductionView extends StatelessWidget {
                 Center(
                   child: OutlinedRoundedButton(
                     key: const Key('StartButton'),
-                    subtitle: Text('btn_one_time_account_desc'.l10n),
-                    maxWidth: 210,
+                    title: Text('btn_guest'.l10n),
+                    maxWidth: 290,
                     height: 46,
                     leading: Transform.translate(
                       offset: const Offset(4, 0),
@@ -347,6 +389,64 @@ class IntroductionView extends StatelessWidget {
           ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
+    );
+  }
+
+  /// Opens a [ModalPopup] listing the buttons for downloading the application.
+  Future<void> _download(BuildContext context) async {
+    await ModalPopup.show(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(text: 'btn_download'.l10n),
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: SvgIcons.windows,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.apple,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.linux,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.appStore,
+                  title: 'App Store',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.googlePlay,
+                  title: 'Google Play',
+                  link: 'messenger-android.apk',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.android,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ),
     );
   }
 }

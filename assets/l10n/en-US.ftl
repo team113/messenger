@@ -723,7 +723,7 @@ label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
 label_introduction_description1 =
-    Access to a one-time account is maintained for one year or until:
+    Access to a guest account is maintained for one year or until:
 
          • you delete cookies / cache;
 
@@ -1052,6 +1052,7 @@ label_one_time_account_created = One-time account created
 btn_terms_and_conditions = Terms and conditions
 btn_sign_up = Sign up
 btn_sign_in = Sign in
+btn_guest = Guest
 btn_one_time_account =
     One-time
     account

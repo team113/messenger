@@ -3,6 +3,7 @@ label_language_entry = {$code}, {$name}
 btn_terms_and_conditions = Términos y Condiciones
 btn_sign_up = Regístrate
 btn_sign_in = Ingresa
+btn_guest = Invitado
 btn_one_time_account =
     Cuenta
     desechable

@@ -153,6 +153,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.onClose,
     this.header,
     this.close = false,
+    this.dense = false,
   });
 
   /// [Widget] to put as a title of this [ModalPopupHeader].
@@ -170,12 +171,14 @@ class ModalPopupHeader extends StatelessWidget {
   /// Indicator whether a close button should be displayed.
   final bool close;
 
+  final bool dense;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 48),
+      constraints: BoxConstraints(minHeight: dense ? 0 : 42),
       child: Center(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

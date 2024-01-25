@@ -114,7 +114,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
     final style = Theme.of(context).style;
 
     final BorderRadius borderRadius = BorderRadius.circular(
-      15 * 0.7 * ((widget.height ?? 42) / 42),
+      15 * 0.7, // * ((widget.height ?? 42) / 42),
     );
 
     final border = OutlineInputBorder(
@@ -193,11 +193,12 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               widget.title ?? Container(),
-                              if (widget.subtitle != null)
-                                const SizedBox(height: 1 * 0.7),
+                              if (widget.title != null &&
+                                  widget.subtitle != null)
+                                const SizedBox(height: 2),
                               if (widget.subtitle != null)
                                 DefaultTextStyle.merge(
-                                  style: style.fonts.small.regular.onBackground,
+                                  style: style.fonts.smallest.regular.secondary,
                                   child: widget.subtitle!,
                                 ),
                             ],
