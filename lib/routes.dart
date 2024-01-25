@@ -482,8 +482,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ScopedDependencies deps = ScopedDependencies();
               UserId me = _state._auth.userId!;
 
-              await CustomMouseCursors.ensureInitialized();
-
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
@@ -612,8 +610,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           () async {
             ScopedDependencies deps = ScopedDependencies();
             UserId me = _state._auth.userId!;
-
-            await CustomMouseCursors.ensureInitialized();
 
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
