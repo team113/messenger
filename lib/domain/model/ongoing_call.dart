@@ -250,11 +250,11 @@ class OngoingCall {
   /// and not just as a notification of an ongoing call in background.
   bool connected = false;
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
-
   /// List of [MediaDisplayDetails] of all the available displays.
   final RxList<MediaDisplayDetails> displays = RxList<MediaDisplayDetails>([]);
+
+  /// List of [MediaDeviceDetails] of all the available devices.
+  final RxList<MediaDeviceDetails> _devices = RxList<MediaDeviceDetails>([]);
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -341,6 +341,15 @@ class OngoingCall {
           .isNotEmpty ??
       false;
 
+  /// Returns a list of [MediaDeviceDetail]s of all the available devices.
+  RxList<MediaDeviceDetails> get devices => _devices;
+
+  /// Sets the [_devices] to the provided [devices].
+  ///
+  /// Removes all [DefaultMediaDeviceDetails] from the provided [devices] list.
+  set devices(List<MediaDeviceDetails> devices) => _devices.value =
+      devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
+
   /// Initializes the media client resources.
   ///
   /// No-op if already initialized.
@@ -354,12 +363,7 @@ class OngoingCall {
         final List<MediaDeviceDetails> previous =
             List.from(devices, growable: false);
 
-        devices.value = e;
-
-        if (!PlatformUtils.isWeb) {
-          devices.value =
-              devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
-        }
+        devices = e;
 
         final List<MediaDeviceDetails> added = [];
         final List<MediaDeviceDetails> removed = [];
@@ -1005,11 +1009,7 @@ class OngoingCall {
 
     try {
       if (media) {
-        devices.value = await MediaUtils.enumerateDevices();
-        if (!PlatformUtils.isWeb) {
-          devices.value =
-              devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
-        }
+        devices = await MediaUtils.enumerateDevices();
       }
 
       if (screen && PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
@@ -1483,23 +1483,18 @@ class OngoingCall {
 
     await _mediaSettingsGuard.protect(() async {
       // Populate [devices] with a list of available media input devices.
-      if (videoDevice.value == null &&
-          screenDevice.value == null &&
-          (audioDevice.value == null || audioDevice.value == 'default') &&
-          (outputDevice.value == null || outputDevice.value == 'default')) {
-        enumerateDevices();
-      } else {
-        try {
-          await enumerateDevices();
-        } catch (_) {
-          // No-op.
-        }
+      try {
+        await enumerateDevices();
+      } catch (_) {
+        // No-op.
+      }
 
-        _ensureCorrectDevices();
+      _ensureCorrectDevices();
 
-        if (outputDevice.value != null) {
-          MediaUtils.mediaManager?.setOutputAudioId(outputDevice.value!);
-        }
+      String? outputDevice =
+          this.outputDevice.value ?? devices.output().firstOrNull?.deviceId();
+      if (outputDevice != null) {
+        MediaUtils.mediaManager?.setOutputAudioId(outputDevice);
       }
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -1510,17 +1505,24 @@ class OngoingCall {
         try {
           tracks = await MediaUtils.getTracks(
             audio: audioState.value == LocalTrackState.enabling
-                ? AudioPreferences(device: audioDevice.value)
+                ? AudioPreferences(
+                    device: audioDevice.value ??
+                        devices.audio().firstOrNull?.deviceId(),
+                  )
                 : null,
             video: videoState.value == LocalTrackState.enabling
                 ? VideoPreferences(
-                    device: videoDevice.value,
+                    device: videoDevice.value ??
+                        devices.video().firstOrNull?.deviceId(),
                     facingMode:
                         videoDevice.value == null ? FacingMode.user : null,
                   )
                 : null,
             screen: screenShareState.value == LocalTrackState.enabling
-                ? ScreenPreferences(device: screenDevice.value)
+                ? ScreenPreferences(
+                    device:
+                        screenDevice.value ?? displays.firstOrNull?.deviceId(),
+                  )
                 : null,
           );
         } on LocalMediaInitException catch (e) {
@@ -1595,12 +1597,9 @@ class OngoingCall {
         // sent).
         await _room?.setLocalMediaSettings(
           _mediaStreamSettings(
-            audioDevice: audioDevice.value ??
-                devices.audio().firstOrNull?.deviceId(),
-            videoDevice:
-                videoDevice.value ?? devices.video().firstOrNull?.deviceId(),
-            screenDevice:
-                screenDevice.value ?? displays.firstOrNull?.deviceId(),
+            audioDevice: audioDevice.value,
+            videoDevice: videoDevice.value,
+            screenDevice: screenDevice.value,
           ),
           false,
           true,
