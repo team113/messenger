@@ -208,9 +208,9 @@ btn_mute_chat = Mute chat
 btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
-btn_one_time_account = One-time account
+btn_one_time_account = Guest account
 btn_one_time_account_desc =
-    One-time
+    Guest
     account
 btn_participants = Participants
 btn_participants_desc =

@@ -78,7 +78,18 @@ class IntroductionView extends StatelessWidget {
 
           switch (c.stage.value) {
             case IntroductionViewStage.link:
-              header = const ModalPopupHeader(dense: true);
+              header = null;
+              // header = const ModalPopupHeader(
+              //   text: 'Messenger by Gapopa',
+              //   close: false,
+              //   // header: Center(
+              //   //   child: Text(
+              //   //     'Messenger by Gapopa',
+              //   //     style: style.fonts.normal.regular.secondary,
+              //   //   ),
+              //   // ),
+              //   dense: false,
+              // );
 
               // header = ModalPopupHeader(
               //   header: Padding(
@@ -147,6 +158,16 @@ class IntroductionView extends StatelessWidget {
               // );
 
               children = [
+                const SizedBox(height: 8),
+                if (!PlatformUtils.isMobile) const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    'Messenger by Gapopa',
+                    style: style.fonts.big.regular.onBackground,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (!PlatformUtils.isMobile) const SizedBox(height: 4),
                 // const SizedBox(height: 16),
                 // Text(
                 //   'Messenger',
@@ -175,61 +196,79 @@ class IntroductionView extends StatelessWidget {
                 // const SizedBox(height: 7),
                 // const SizedBox(height: 25),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 8),
+                // Center(
+                //   child: OutlinedRoundedButton(
+                //     title: const Padding(
+                //       padding: EdgeInsets.only(top: 2),
+                //       child: Text('Messenger by Gapopa'),
+                //     ),
+                //     // title: Padding(
+                //     //   padding: const EdgeInsets.only(top: 2),
+                //     //   child: const Text('Messenger by Gapopa'),
+                //     // ),
+                //     subtitle: Text('btn_download'.l10n),
+                //     maxWidth: 290,
+                //     height: 72 + 4,
+                //     // height: 72 + 4,
+
+                //     leading: Container(
+                //       decoration: BoxDecoration(
+                //         color: Colors.white,
+                //         borderRadius: BorderRadius.circular(8),
+                //         boxShadow: const [
+                //           BoxShadow(
+                //             color: Colors.black12,
+                //             blurRadius: 8,
+                //             offset: Offset(0, 4),
+                //           ),
+                //         ],
+                //       ),
+                //       width: 32,
+                //       height: 32,
+                //       padding: const EdgeInsets.all(4),
+                //       child: const SvgImage.asset(
+                //         'assets/icons/logo.svg',
+                //         // width: 30,
+                //         height: 24,
+                //       ),
+                //     ),
+                //     onPressed: () => _download(context),
+                //   ),
+                // ),
                 Center(
                   child: OutlinedRoundedButton(
-                    title: const Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: Text('Messenger by Gapopa'),
-                    ),
-                    // title: Padding(
-                    //   padding: const EdgeInsets.only(top: 2),
-                    //   child: const Text('Messenger by Gapopa'),
-                    // ),
-                    subtitle: Text('btn_download'.l10n),
+                    title: Text('btn_download'.l10n),
                     maxWidth: 290,
-                    height: 72 + 4,
-                    // height: 72 + 4,
-
-                    leading: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      width: 32,
-                      height: 32,
-                      padding: const EdgeInsets.all(4),
-                      child: const SvgImage.asset(
-                        'assets/icons/logo.svg',
-                        // width: 30,
-                        height: 24,
-                      ),
+                    height: 46,
+                    leading: const Padding(
+                      padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                      child: SvgIcon(SvgIcons.logo),
                     ),
+                    // leading: Transform.translate(
+                    //   offset: const Offset(4, 0),
+                    //   child: const SvgIcon(SvgIcons.enter),
+                    // ),
                     onPressed: () => _download(context),
                   ),
                 ),
                 const SizedBox(height: 15),
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('RegisterButton'),
-                    title: Text('btn_sign_up'.l10n),
-                    maxWidth: 290,
-                    height: 46,
-                    leading: Transform.translate(
-                      offset: const Offset(3, 0),
-                      child: const SvgIcon(SvgIcons.register),
-                    ),
-                    onPressed: () => LoginView.show(context),
-                  ),
-                ),
-                const SizedBox(height: 15),
+
+                // Center(
+                //   child: OutlinedRoundedButton(
+                //     key: const Key('RegisterButton'),
+                //     title: Text('btn_sign_up'.l10n),
+                //     maxWidth: 290,
+                //     height: 46,
+                //     leading: Transform.translate(
+                //       offset: const Offset(3, 0),
+                //       child: const SvgIcon(SvgIcons.register),
+                //     ),
+                //     onPressed: () => LoginView.show(context),
+                //   ),
+                // ),
+                // const SizedBox(height: 15),
+
                 Center(
                   child: OutlinedRoundedButton(
                     key: const Key('SignInButton'),
@@ -258,7 +297,16 @@ class IntroductionView extends StatelessWidget {
                     onPressed: Navigator.of(context).pop,
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 8),
+
+                // Center(
+                //   child: Text(
+                //     'Messenger by Gapopa',
+                //     style: style.fonts.normal.regular.secondary,
+                //   ),
+                // ),
+
+                // const SizedBox(height: 15),
               ];
               break;
 
@@ -281,6 +329,7 @@ class IntroductionView extends StatelessWidget {
                   onPressed: Navigator.of(context).pop,
                   color: style.colors.primary,
                 ),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -329,6 +378,7 @@ class IntroductionView extends StatelessWidget {
                   onPressed: Navigator.of(context).pop,
                   color: style.colors.primary,
                 ),
+                const SizedBox(height: 16),
               ];
               break;
           }
@@ -344,10 +394,9 @@ class IntroductionView extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [
-                  header,
+                  if (header != null) header,
                   ...children.map((e) =>
                       Padding(padding: ModalPopup.padding(context), child: e)),
-                  const SizedBox(height: 16),
                 ],
               ),
             ),

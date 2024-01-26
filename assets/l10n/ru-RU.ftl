@@ -206,9 +206,9 @@ btn_mute_chat = Отключить звук
 btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
-btn_one_time_account = Одноразовый аккаунт
+btn_one_time_account = Гостевой аккаунт
 btn_one_time_account_desc =
-    Одноразовый
+    Гостевой
     аккаунт
 btn_participants = Список участников
 btn_participants_desc =

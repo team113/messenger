@@ -77,19 +77,19 @@ abstract class ModalPopup {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 12),
-                if (isDismissible) ...[
-                  Center(
-                    child: Container(
-                      width: 60,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: style.colors.secondaryHighlightDarkest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                // if (withDismiss && isDismissible) ...[
+                //   Center(
+                //     child: Container(
+                //       width: 60,
+                //       height: 3,
+                //       decoration: BoxDecoration(
+                //         color: style.colors.secondaryHighlightDarkest,
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //     ),
+                //   ),
+                //   const SizedBox(height: 6),
+                // ],
                 Flexible(
                   child: Padding(
                     padding: mobilePadding,
@@ -152,7 +152,7 @@ class ModalPopupHeader extends StatelessWidget {
     this.onBack,
     this.onClose,
     this.header,
-    this.close = false,
+    this.close = true,
     this.dense = false,
   });
 
@@ -204,7 +204,7 @@ class ModalPopupHeader extends StatelessWidget {
               )
             else
               const Spacer(),
-            if (!context.isMobile || close)
+            if (!context.isMobile && close)
               WidgetButton(
                 key: const Key('CloseButton'),
                 onPressed: onClose ?? Navigator.of(context).pop,

@@ -5,8 +5,8 @@ btn_sign_up = Regístrate
 btn_sign_in = Ingresa
 btn_guest = Invitado
 btn_one_time_account =
-    Cuenta
-    desechable
+    Cuenta de
+    invitado
 btn_work = Trabaja con nosotros
 btn_work_with_us =
     Trabaja con
