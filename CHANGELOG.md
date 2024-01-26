@@ -35,6 +35,8 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Redesigned direct chat link. ([#796], [#787])
         - Redesigned sign in section. ([#794], [#789])
+    - Media panel:
+        - Grab cursor over participants. ([#816], [#810])
 
 ### Fixed
 
@@ -82,6 +84,8 @@ All user visible changes to this project will be documented in this file. This p
 [#794]: /../../pull/794
 [#796]: /../../pull/796
 [#797]: /../../pull/797
+[#810]: /../../issues/810
+[#816]: /../../pull/816
 
 
 
