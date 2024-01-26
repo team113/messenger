@@ -166,6 +166,7 @@ class RecentChatTile extends StatelessWidget {
       return Slidable(
         key: Key(rxChat.id.val),
         groupTag: 'chat',
+        enabled: onHide != null,
         endActionPane: ActionPane(
           extentRatio: 0.33,
           motion: const StretchMotion(),

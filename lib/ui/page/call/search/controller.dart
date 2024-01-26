@@ -381,6 +381,7 @@ class SearchController extends GetxController {
           // [query] still can be validated in [_searchUsers].
           searchStatus.value = RxStatus.empty();
         }
+
         contactsSearch.value?.dispose();
         contactsSearch.value = null;
       }
@@ -546,7 +547,7 @@ class SearchController extends GetxController {
       bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
-      bool inCurrentChat(RxUser u) => chat?.members.containsKey(u.id) ?? false;
+      bool isMember(RxUser u) => chat?.members.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
 
       final Iterable<RxUser> filtered = allChats
@@ -556,7 +557,7 @@ class SearchController extends GetxController {
           .sorted()
           .map(toUser)
           .whereNotNull()
-          .whereNot(inCurrentChat)
+          .whereNot(isMember)
           .take(3)
           .where(matchesQuery);
 
@@ -577,7 +578,7 @@ class SearchController extends GetxController {
       final Iterable<RxChatContact> allContacts = {...stored, ...?searched};
 
       // Predicates to filter the [allContacts] by.
-      bool inCurrentChat(RxChatContact c) =>
+      bool isMember(RxChatContact c) =>
           chat?.members.containsKey(c.user.value!.id) ?? false;
       bool inRecent(RxChatContact c) => recent.containsKey(c.user.value!.id);
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
@@ -588,7 +589,7 @@ class SearchController extends GetxController {
 
       final List<RxChatContact> filtered = allContacts
           .where(matchesQuery)
-          .whereNot(inCurrentChat)
+          .whereNot(isMember)
           .whereNot(inRecent)
           .whereNot(inChats)
           .sorted();
@@ -610,7 +611,7 @@ class SearchController extends GetxController {
   /// [User]s are displayed in the following order:
   /// - [selectedUsers] obtained from global search;
   /// - [stored] [User]s obtained from paginated [Chat]-dialogs;
-  /// - other [User]s obtained from global search;
+  /// - other [User]s obtained from global search.
   void _populateUsers() {
     if (categories.contains(SearchCategory.user) &&
         _chatService.hasNext.isFalse) {
@@ -622,11 +623,11 @@ class SearchController extends GetxController {
 
       // Predicates to filter [User]s by.
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
-      bool inCurrentChat(RxUser u) => chat?.members.containsKey(u.id) ?? false;
+      bool isMember(RxUser u) => chat?.members.containsKey(u.id) ?? false;
       bool inRecent(RxUser u) => recent.containsKey(u.id);
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
-      bool inChats(RxUser u) => chats.values.any(
-          (chat) => chat.chat.value.isDialog && chat.members.containsKey(u.id));
+      bool inChats(RxUser u) => chats.values
+          .any((c) => c.chat.value.isDialog && c.members.containsKey(u.id));
 
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
@@ -646,7 +647,7 @@ class SearchController extends GetxController {
       final allUsers = {...selectedGlobals, ...stored, ...?searched};
 
       final List<RxUser> filtered = allUsers
-          .whereNot(inCurrentChat)
+          .whereNot(isMember)
           .whereNot(inRecent)
           .whereNot(inContacts)
           .whereNot(inChats)
