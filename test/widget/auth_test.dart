@@ -40,11 +40,11 @@ import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -58,7 +58,6 @@ import 'package:mockito/mockito.dart';
 
 import '../mock/graphql_provider.dart';
 import '../mock/route_information_provider.dart';
-
 import 'auth_test.mocks.dart';
 
 @GenerateMocks([RouterState])
@@ -137,7 +136,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-        
+
     authService.init();
 
     router = MockRouterState();
