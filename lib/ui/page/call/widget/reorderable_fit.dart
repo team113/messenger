@@ -969,9 +969,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             curve: Curves.linearToEaseOut,
             beginRect: beginRect,
             endRect: endRect,
-            onEnd: () {
-              setState(() => to.entry = null);
-            },
+            onEnd: () => setState(() => to.entry = null),
             child: widget.itemBuilder(to.item),
           );
         });
