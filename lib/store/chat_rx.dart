@@ -50,6 +50,7 @@ import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
+import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -1546,35 +1547,5 @@ extension ListInsertAfter<T> on List<T> {
         return;
       }
     }
-  }
-}
-
-/// [Timer] exposing its [future] to be awaited.
-class AwaitableTimer {
-  AwaitableTimer(Duration d, FutureOr Function() callback) {
-    _timer = Timer(d, () async {
-      try {
-        _completer.complete(await callback());
-      } on StateError {
-        // No-op, as [Future] is allowed to be completed.
-      } catch (e, stackTrace) {
-        _completer.completeError(e, stackTrace);
-      }
-    });
-  }
-
-  /// [Timer] executing the callback.
-  late final Timer _timer;
-
-  /// [Completer] completing when [_timer] is done executing.
-  final _completer = Completer();
-
-  /// [Future] completing when this [AwaitableTimer] is finished.
-  Future get future => _completer.future;
-
-  /// Cancels this [AwaitableTimer].
-  void cancel() {
-    _timer.cancel();
-    _completer.complete();
   }
 }

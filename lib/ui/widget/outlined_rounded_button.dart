@@ -135,6 +135,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
           decoration: BoxDecoration(
             boxShadow: widget.shadows,
             gradient: widget.gradient,
+            borderRadius: borderRadius,
           ),
           child: InputDecorator(
             decoration: InputDecoration(

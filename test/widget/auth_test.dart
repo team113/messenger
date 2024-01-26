@@ -71,11 +71,13 @@ void main() async {
   Hive.init('./test/.temp_hive/auth_widget');
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+  await credentialsProvider.clear();
+
   var graphQlProvider = _FakeGraphQlProvider();
   AuthRepository authRepository = AuthRepository(graphQlProvider);
   AuthService authService = AuthService(authRepository, credentialsProvider);
-  await authService.init();
-  await credentialsProvider.clear();
+  authService.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init(userId: const UserId('me'));
@@ -135,6 +137,7 @@ void main() async {
         credentialsProvider,
       ),
     );
+        
     await authService.init();
 
     router = MockRouterState();
