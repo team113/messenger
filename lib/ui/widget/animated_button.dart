@@ -90,23 +90,23 @@ class _AnimatedButtonState extends State<AnimatedButton>
       return widget.decorator(widget.child);
     }
 
-    return MouseRegion(
-      opaque: false,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (event) {
-          if (event.buttons == kPrimaryMouseButton) {
-            _controller.reset();
-            _controller.forward();
-          }
-        },
-        child: WidgetButton(
-          onPressed: widget.onPressed,
-          onLongPress: widget.onLongPress,
-          child: widget.decorator(
-            AnimatedScale(
+    return widget.decorator(
+      MouseRegion(
+        opaque: false,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (event) {
+            if (event.buttons == kPrimaryMouseButton) {
+              _controller.reset();
+              _controller.forward();
+            }
+          },
+          child: WidgetButton(
+            onPressed: widget.onPressed,
+            onLongPress: widget.onLongPress,
+            child: AnimatedScale(
               duration: const Duration(milliseconds: 100),
               scale: _hovered ? AnimatedButton.scale : 1,
               child: AnimatedBuilder(
