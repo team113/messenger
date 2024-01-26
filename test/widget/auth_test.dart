@@ -138,7 +138,7 @@ void main() async {
       ),
     );
         
-    await authService.init();
+    authService.init();
 
     router = MockRouterState();
     router.provider = MockedPlatformRouteInformationProvider();
