@@ -58,7 +58,7 @@ class ReactiveTextField extends StatelessWidget {
     this.suffix,
     this.textAlign = TextAlign.start,
     this.textInputAction,
-    this.trailing = const SizedBox.shrink(),
+    this.trailing,
     this.treatErrorAsStatus = true,
     this.type,
     this.subtitle,
@@ -198,6 +198,11 @@ class ReactiveTextField extends StatelessWidget {
 
       return Obx(() {
         final RxStatus status = state.status.value;
+        final bool hasSuffix = state.approvable ||
+            suffix != null ||
+            trailing != null ||
+            !state.status.value.isEmpty ||
+            (state.error.value != null && treatErrorAsStatus);
 
         return AnimatedButton(
           onPressed: state.approvable &&
@@ -208,59 +213,61 @@ class ReactiveTextField extends StatelessWidget {
               : status.isEmpty
                   ? onSuffixPressed
                   : null,
-          decorator: (child) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 8, right: 16),
-              child: child,
-            );
-          },
-          child: SizedBox(
-            height: 24,
-            child: ElasticAnimatedSwitcher(
-              child: status.isLoading
-                  ? const SvgIcon(key: Key('Loading'), SvgIcons.timer)
-                  : status.isSuccess
-                      ? SizedBox(
-                          key: const ValueKey('Success'),
-                          width: 24,
-                          child: Icon(
-                            Icons.check,
-                            size: 18,
-                            color: style.colors.acceptAuxiliary,
-                          ),
-                        )
-                      : ((state.error.value != null && treatErrorAsStatus) ||
-                                  status.isError) &&
-                              state.resubmitOnError.isFalse
-                          ? SizedBox(
-                              key: const ValueKey('Error'),
-                              width: 24,
-                              child: Icon(
-                                Icons.error,
-                                size: 18,
-                                color: style.colors.danger,
-                              ),
-                            )
-                          : (state.approvable &&
-                                  (state.changed.value ||
-                                      state.resubmitOnError.isTrue))
-                              ? state.isEmpty.value && !clearable
-                                  ? null
-                                  : AllowOverflow(
-                                      key: const ValueKey('Approve'),
-                                      child: Text(
-                                        'btn_save'.l10n,
-                                        style:
-                                            style.fonts.small.regular.primary,
-                                      ),
-                                    )
-                              : SizedBox(
-                                  key: const ValueKey('Icon'),
-                                  width: 24,
-                                  child:
-                                      suffix != null ? Icon(suffix) : trailing,
-                                ),
-            ),
+          child: ElasticAnimatedSwitcher(
+            child: hasSuffix
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 16),
+                    child: SizedBox(
+                      height: 24,
+                      child: ElasticAnimatedSwitcher(
+                        child: status.isLoading
+                            ? const SvgIcon(key: Key('Loading'), SvgIcons.timer)
+                            : status.isSuccess
+                                ? SizedBox(
+                                    key: const ValueKey('Success'),
+                                    width: 24,
+                                    child: Icon(
+                                      Icons.check,
+                                      size: 18,
+                                      color: style.colors.acceptAuxiliary,
+                                    ),
+                                  )
+                                : ((state.error.value != null &&
+                                            treatErrorAsStatus) ||
+                                        status.isError)
+                                    ? SizedBox(
+                                        key: const ValueKey('Error'),
+                                        width: 24,
+                                        child: Icon(
+                                          Icons.error,
+                                          size: 18,
+                                          color: style.colors.danger,
+                                        ),
+                                      )
+                                    : (state.approvable &&
+                                            (state.changed.value ||
+                                                state.resubmitOnError.isTrue))
+                                        ? state.isEmpty.value && !clearable
+                                            ? null
+                                            : AllowOverflow(
+                                                key: const ValueKey('Approve'),
+                                                child: Text(
+                                                  'btn_save'.l10n,
+                                                  style: style.fonts.small
+                                                      .regular.primary,
+                                                ),
+                                              )
+                                        : SizedBox(
+                                            key: const ValueKey('Icon'),
+                                            width: 24,
+                                            child: suffix != null
+                                                ? Icon(suffix)
+                                                : trailing,
+                                          ),
+                      ),
+                    ),
+                  )
+                : null,
           ),
         );
       });
