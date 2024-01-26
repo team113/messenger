@@ -791,7 +791,6 @@ class CallController extends GetxController {
   @override
   Future<void> onReady() async {
     await CustomMouseCursors.ensureInitialized();
-
     super.onReady();
   }
 

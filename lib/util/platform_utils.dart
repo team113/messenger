@@ -645,7 +645,7 @@ extension PopExtensionOnContext on BuildContext {
 
 /// Helper defining custom [MouseCursor]s.
 class CustomMouseCursors {
-  /// Indicator whether this [CustomMouseCursors] is initialized.
+  /// Indicator whether these [CustomMouseCursors] are initialized.
   static bool _initialized = false;
 
   /// Returns a grab [MouseCursor].
@@ -666,32 +666,35 @@ class CustomMouseCursors {
     return SystemMouseCursors.grabbing;
   }
 
-  /// Ensures this [CustomMouseCursors] initialized.
+  /// Ensures these [CustomMouseCursors] are initialized.
   static Future<void> ensureInitialized() async {
-    if (!_initialized && PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+    if (!_initialized) {
       _initialized = true;
-      await _initCursor('assets/images/grab.bgra', 'grab');
-      await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+
+      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+        await _initCursor('assets/images/grab.bgra', 'grab');
+        await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+      }
     }
   }
 
-  /// Initializes the custom [MouseCursor]s with the provided [path] and [name].
+  /// Registers a custom [MouseCursor] from the provided [path] and [name].
   static Future<void> _initCursor(String path, String name) async {
     try {
-      final grabCursor = await rootBundle.load(path);
+      final ByteData bytes = await rootBundle.load(path);
 
       await CursorManager.instance.registerCursor(
         CursorData()
           ..name = name
-          ..buffer = grabCursor.buffer.asUint8List()
+          ..buffer = bytes.buffer.asUint8List()
           ..height = 30
           ..width = 30
           ..hotX = 15
           ..hotY = 15,
       );
-    } catch (_) {
+    } catch (e) {
       Log.error(
-        'Failed to initialize custom cursor by path: $path',
+        'Failed to initialize `$name` cursor due to: $e',
         'CustomMouseCursors',
       );
     }
