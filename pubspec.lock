@@ -488,6 +488,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  flutter_custom_cursor:
+    dependency: "direct main"
+    description:
+      name: flutter_custom_cursor
+      sha256: "3850a32ac6de351ccc5e4286b6d94ff70c10abecd44479ea6c5aaea17264285d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   flutter_driver:
     dependency: "direct dev"
     description: flutter
