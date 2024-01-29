@@ -81,7 +81,7 @@ class ChatForwardView extends StatelessWidget {
         maxWidth: double.infinity,
         maxHeight: 800,
       ),
-      mobilePadding: const EdgeInsets.all(0),
+      mobilePadding: const EdgeInsets.only(bottom: 12),
       desktopPadding: const EdgeInsets.only(bottom: 12),
       background: style.colors.background,
       child: ChatForwardView(

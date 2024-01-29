@@ -44,7 +44,7 @@ abstract class ModalPopup {
       maxWidth: double.infinity,
       maxHeight: double.infinity,
     ),
-    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
+    EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 12),
     EdgeInsets desktopPadding = const EdgeInsets.all(10),
     bool isDismissible = true,
     Color? background,
@@ -99,7 +99,6 @@ abstract class ModalPopup {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
               ],
             ),
           );
@@ -128,7 +127,8 @@ abstract class ModalPopup {
             ),
           );
 
-          return SafeArea(child: body);
+          return SafeArea(
+              child: Material(type: MaterialType.transparency, child: body));
         },
         barrierLabel:
             MaterialLocalizations.of(context).modalBarrierDismissLabel,

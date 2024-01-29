@@ -59,8 +59,8 @@ class ParticipantView extends StatelessWidget {
     return ModalPopup.show(
       context: context,
       background: style.colors.background,
-      mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 4),
+      mobilePadding: const EdgeInsets.only(bottom: 0),
+      desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
       child: ParticipantView(call: call, duration: duration),
     );
   }
@@ -87,19 +87,27 @@ class ParticipantView extends StatelessWidget {
           switch (c.stage.value) {
             case ParticipantsFlowStage.search:
               child = Obx(() {
-                return SearchView(
-                  categories: const [
-                    SearchCategory.recent,
-                    SearchCategory.contact,
-                    SearchCategory.user,
+                return Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: SearchView(
+                        categories: const [
+                          SearchCategory.recent,
+                          SearchCategory.contact,
+                          SearchCategory.user,
+                        ],
+                        title: 'label_add_participants'.l10n,
+                        onBack: () =>
+                            c.stage.value = ParticipantsFlowStage.participants,
+                        submit: 'btn_add'.l10n,
+                        onSubmit: c.addMembers,
+                        enabled: c.status.value.isEmpty,
+                        chat: c.chat.value,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                   ],
-                  title: 'label_add_participants'.l10n,
-                  onBack: () =>
-                      c.stage.value = ParticipantsFlowStage.participants,
-                  submit: 'btn_add'.l10n,
-                  onSubmit: c.addMembers,
-                  enabled: c.status.value.isEmpty,
-                  chat: c.chat.value,
                 );
               });
               break;
@@ -181,6 +189,7 @@ class ParticipantView extends StatelessWidget {
                         color: style.colors.primary,
                       ),
                     ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               );
@@ -192,10 +201,7 @@ class ParticipantView extends StatelessWidget {
             sizeDuration: const Duration(milliseconds: 250),
             child: KeyedSubtree(
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: child,
-              ),
+              child: child,
             ),
           );
         });
