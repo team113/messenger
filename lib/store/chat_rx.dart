@@ -995,25 +995,24 @@ class HiveRxChat extends RxChat {
     Timer? timer;
 
     fragment = MessagesFragment(
-      initialKey: key,
-      initialCursor: cursor,
-      pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
-        onKey: (e) => e.value.key,
-        provider: HiveGraphQlPageProvider(
-          hiveProvider: _provider.hiveProvider.copyWith(
-            readOnly: !_local.keys.contains(key),
+        initialKey: key,
+        initialCursor: cursor,
+        pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+          onKey: (e) => e.value.key,
+          provider: HiveGraphQlPageProvider(
+            hiveProvider: _provider.hiveProvider.copyWith(
+              readOnly: !_local.keys.contains(key),
+            ),
+            graphQlProvider: _provider.graphQlProvider,
           ),
-          graphQlProvider: _provider.graphQlProvider,
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
-        compare: (a, b) => a.value.key.compareTo(b.value.key),
-      ),
-      onDispose: () {
-        _fragments.remove(fragment);
-        _fragmentSubscriptions.remove(subscription);
-        subscription?.cancel();
-        timer?.cancel();
-      }
-    );
+        onDispose: () {
+          _fragments.remove(fragment);
+          _fragmentSubscriptions.remove(subscription);
+          subscription?.cancel();
+          timer?.cancel();
+        });
 
     subscription = fragment.items.changes.listen((event) {
       switch (event.op) {
