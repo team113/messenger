@@ -22,6 +22,8 @@ import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/provider/gql/exceptions.dart'
+    show ResubscriptionRequiredException;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -740,6 +742,11 @@ class OngoingCall {
               }
             }
             break;
+        }
+      },
+      onError: (e) {
+        if (e is! ResubscriptionRequiredException) {
+          throw e;
         }
       },
     );

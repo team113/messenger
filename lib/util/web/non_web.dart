@@ -28,6 +28,7 @@ import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
+import 'package:win32_registry/win32_registry.dart';
 import 'package:win32/win32.dart';
 
 import '/config.dart';
@@ -391,5 +392,27 @@ class WebUtils {
     }
 
     return agent;
+  }
+
+  static Future<void> registerScheme() async {
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      const String scheme = 'gapopa';
+
+      final String appPath = Platform.resolvedExecutable;
+
+      const String protocolRegKey = 'Software\\Classes\\$scheme';
+      const RegistryValue protocolRegValue =
+          RegistryValue('URL Protocol', RegistryValueType.string, '');
+      const String protocolCmdRegKey = 'shell\\open\\command';
+      final RegistryValue protocolCmdRegValue = RegistryValue(
+        '',
+        RegistryValueType.string,
+        '"$appPath" "%1"',
+      );
+
+      final regKey = Registry.currentUser.createKey(protocolRegKey);
+      regKey.createValue(protocolRegValue);
+      regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
+    }
   }
 }

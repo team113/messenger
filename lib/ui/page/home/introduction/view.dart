@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/routes.dart';
@@ -27,6 +28,7 @@ import 'package:messenger/ui/page/login/view.dart';
 import 'package:messenger/ui/widget/download_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -78,7 +80,8 @@ class IntroductionView extends StatelessWidget {
 
           switch (c.stage.value) {
             case IntroductionViewStage.link:
-              header = null;
+              // header = null;
+
               // header = const ModalPopupHeader(
               //   text: 'Messenger by Gapopa',
               //   close: false,
@@ -91,223 +94,113 @@ class IntroductionView extends StatelessWidget {
               //   dense: false,
               // );
 
-              // header = ModalPopupHeader(
-              //   header: Padding(
-              //     padding: const EdgeInsets.fromLTRB(0, 32, 0, 0),
-              //     child: Center(
-              //       child: OutlinedRoundedButton(
-              //         title: const Text('Messenger by Gapopa'),
-              //         subtitle: Text('btn_download'.l10n),
-              //         maxWidth: 290,
-              //         height: 72,
-              //         leading: const SvgImage.asset(
-              //           'assets/icons/logo.svg',
-              //           width: 36,
-              //           height: 36,
-              //         ),
-              //         onPressed: () => LoginView.show(context),
-              //       ),
-              //     ),
-              //   ),
-              // );
-              // header = ModalPopupHeader(
-
-              //   child: Center(
-              //     child: Row(
-              //       mainAxisSize: MainAxisSize.min,
-              //       children: [
-              //         // Image.asset(
-              //         //   'assets/icons/application/macOS.png',
-              //         //   width: 72,
-              //         //   height: 72,
-              //         // ),
-              //         // Padding(
-              //         //   padding: const EdgeInsets.all(12.0),
-              //         //   child: SvgImage.asset(
-              //         //     'assets/icons/face.svg',
-              //         //     width: 36,
-              //         //     height: 36,
-              //         //   ),
-              //         // ),
-              //         Column(
-              //           mainAxisSize: MainAxisSize.min,
-              //           // crossAxisAlignment: CrossAxisAlignment.start,
-              //           children: [
-              //             Text(
-              //               'Messenger',
-              //               style: style.fonts.larger.regular.secondary,
-              //               textAlign: TextAlign.center,
-              //               overflow: TextOverflow.ellipsis,
-              //               maxLines: 1,
-              //             ),
-              //             const SizedBox(height: 1.7),
-              //             Text(
-              //               'by Gapopa',
-              //               style: style.fonts.medium.regular.secondary,
-              //               textAlign: TextAlign.center,
-              //               overflow: TextOverflow.ellipsis,
-              //               maxLines: 1,
-              //             ),
-              //           ],
-              //         ),
-              //         // const SizedBox(width: 32),
-              //       ],
-              //     ),
-              //   ),
-              // ),
-              // );
-
-              children = [
-                const SizedBox(height: 8),
-                if (!PlatformUtils.isMobile) const SizedBox(height: 8),
-                Center(
-                  child: Text(
-                    'Messenger by Gapopa',
-                    style: style.fonts.big.regular.onBackground,
+              final guestButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('StartButton'),
+                  title: Text('btn_guest'.l10n),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: const SvgIcon(SvgIcons.oneTime),
                   ),
+                  onPressed: Navigator.of(context).pop,
                 ),
-                const SizedBox(height: 12),
-                if (!PlatformUtils.isMobile) const SizedBox(height: 4),
-                // const SizedBox(height: 16),
-                // Text(
-                //   'Messenger',
-                //   style: style.fonts.larger.regular.secondary,
-                //   textAlign: TextAlign.center,
-                //   overflow: TextOverflow.ellipsis,
-                //   maxLines: 1,
-                // ),
-                // const SizedBox(height: 1.6),
+              );
 
-                // const SizedBox(height: 20),
-                // const InteractiveLogo(),
-                // Padding(
-                //   padding: const EdgeInsets.all(16.0),
-                //   child: SvgImage.asset(
-                //     'assets/icons/face.svg',
-                //     width: 64,
-                //     height: 64,
-                //   ),
-                // ),
-                // Image.asset(
-                //   'assets/icons/application/macOS.png',
-                //   width: 128,
-                //   height: 128,
-                // ),
-                // const SizedBox(height: 7),
-                // const SizedBox(height: 25),
+              final signInButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('SignInButton'),
+                  title: Text('btn_sign_in'.l10n),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: const SvgIcon(SvgIcons.enter),
+                  ),
+                  onPressed: () =>
+                      LoginView.show(context, initial: LoginViewStage.signIn),
+                ),
+              );
 
-                const SizedBox(height: 8),
-                // Center(
-                //   child: OutlinedRoundedButton(
-                //     title: const Padding(
-                //       padding: EdgeInsets.only(top: 2),
-                //       child: Text('Messenger by Gapopa'),
-                //     ),
-                //     // title: Padding(
-                //     //   padding: const EdgeInsets.only(top: 2),
-                //     //   child: const Text('Messenger by Gapopa'),
-                //     // ),
-                //     subtitle: Text('btn_download'.l10n),
-                //     maxWidth: 290,
-                //     height: 72 + 4,
-                //     // height: 72 + 4,
+              final applicationButton = Center(
+                child: OutlinedRoundedButton(
+                  title: Text('label_application'.l10n),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: const Padding(
+                    padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                    child: SvgIcon(SvgIcons.logo),
+                  ),
+                  onPressed: () async {
+                    if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
+                      try {
+                        await launchUrlString(
+                          'gapopa://open${router.route}',
+                        );
+                      } catch (_) {
+                        if (context.mounted) {
+                          _download(context);
+                        }
+                      }
+                    } else {
+                      _download(context);
+                    }
+                  },
+                ),
+              );
 
-                //     leading: Container(
-                //       decoration: BoxDecoration(
-                //         color: Colors.white,
-                //         borderRadius: BorderRadius.circular(8),
-                //         boxShadow: const [
-                //           BoxShadow(
-                //             color: Colors.black12,
-                //             blurRadius: 8,
-                //             offset: Offset(0, 4),
-                //           ),
-                //         ],
-                //       ),
-                //       width: 32,
-                //       height: 32,
-                //       padding: const EdgeInsets.all(4),
-                //       child: const SvgImage.asset(
-                //         'assets/icons/logo.svg',
-                //         // width: 30,
-                //         height: 24,
-                //       ),
-                //     ),
-                //     onPressed: () => _download(context),
-                //   ),
-                // ),
-                Center(
-                  child: OutlinedRoundedButton(
-                    title: Text('btn_download'.l10n),
-                    maxWidth: 290,
-                    height: 46,
-                    leading: const Padding(
-                      padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                      child: SvgIcon(SvgIcons.logo),
+              if (PlatformUtils.isMobile) {
+                header = const ModalPopupHeader(dense: true);
+                children = [
+                  const SizedBox(height: 8),
+                  guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
+                  if (PlatformUtils.isWeb) ...[
+                    const SizedBox(height: 15),
+                    applicationButton,
+                  ],
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Animate(
+                      effects: const [
+                        FadeEffect(
+                          delay: Duration(milliseconds: 0),
+                          duration: Duration(milliseconds: 2000),
+                        ),
+                        MoveEffect(
+                          delay: Duration(milliseconds: 0),
+                          begin: Offset(0, 100),
+                          end: Offset(0, 0),
+                          curve: Curves.ease,
+                          duration: Duration(milliseconds: 1000),
+                        ),
+                      ],
+                      child: Text(
+                        'Messenger by Gapopa',
+                        style: style.fonts.normal.regular.secondary,
+                      ),
                     ),
-                    // leading: Transform.translate(
-                    //   offset: const Offset(4, 0),
-                    //   child: const SvgIcon(SvgIcons.enter),
-                    // ),
-                    onPressed: () => _download(context),
                   ),
-                ),
-                const SizedBox(height: 15),
-
-                // Center(
-                //   child: OutlinedRoundedButton(
-                //     key: const Key('RegisterButton'),
-                //     title: Text('btn_sign_up'.l10n),
-                //     maxWidth: 290,
-                //     height: 46,
-                //     leading: Transform.translate(
-                //       offset: const Offset(3, 0),
-                //       child: const SvgIcon(SvgIcons.register),
-                //     ),
-                //     onPressed: () => LoginView.show(context),
-                //   ),
-                // ),
-                // const SizedBox(height: 15),
-
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('SignInButton'),
-                    title: Text('btn_sign_in'.l10n),
-                    maxWidth: 290,
-                    height: 46,
-                    leading: Transform.translate(
-                      offset: const Offset(4, 0),
-                      child: const SvgIcon(SvgIcons.enter),
-                    ),
-                    onPressed: () =>
-                        LoginView.show(context, initial: LoginViewStage.signIn),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Center(
-                  child: OutlinedRoundedButton(
-                    key: const Key('StartButton'),
-                    title: Text('btn_guest'.l10n),
-                    maxWidth: 290,
-                    height: 46,
-                    leading: Transform.translate(
-                      offset: const Offset(4, 0),
-                      child: const SvgIcon(SvgIcons.oneTime),
-                    ),
-                    onPressed: Navigator.of(context).pop,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Center(
-                //   child: Text(
-                //     'Messenger by Gapopa',
-                //     style: style.fonts.normal.regular.secondary,
-                //   ),
-                // ),
-
-                // const SizedBox(height: 15),
-              ];
+                ];
+              } else {
+                header = const ModalPopupHeader(
+                  text: 'Messenger by Gapopa',
+                  dense: false,
+                );
+                children = [
+                  const SizedBox(height: 8),
+                  guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
+                  if (true || PlatformUtils.isWeb) ...[
+                    const SizedBox(height: 15),
+                    applicationButton,
+                  ],
+                  const SizedBox(height: 16),
+                ];
+              }
               break;
 
             case IntroductionViewStage.signUp:
@@ -395,8 +288,12 @@ class IntroductionView extends StatelessWidget {
                 physics: const ClampingScrollPhysics(),
                 children: [
                   if (header != null) header,
-                  ...children.map((e) =>
-                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  ...children.map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: e,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -45,7 +45,7 @@ abstract class ModalPopup {
       maxHeight: double.infinity,
     ),
     EdgeInsets mobilePadding = const EdgeInsets.fromLTRB(10, 0, 10, 0),
-    EdgeInsets desktopPadding = const EdgeInsets.all(10),
+    EdgeInsets desktopPadding = const EdgeInsets.fromLTRB(0, 0, 0, 10),
     bool isDismissible = true,
     Color? background,
   }) {
@@ -77,19 +77,19 @@ abstract class ModalPopup {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: 12),
-                // if (withDismiss && isDismissible) ...[
-                //   Center(
-                //     child: Container(
-                //       width: 60,
-                //       height: 3,
-                //       decoration: BoxDecoration(
-                //         color: style.colors.secondaryHighlightDarkest,
-                //         borderRadius: BorderRadius.circular(12),
-                //       ),
-                //     ),
-                //   ),
-                //   const SizedBox(height: 6),
-                // ],
+                if (isDismissible) ...[
+                  Center(
+                    child: Container(
+                      width: 60,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: style.colors.secondaryHighlightDarkest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                ],
                 Flexible(
                   child: Padding(
                     padding: mobilePadding,
@@ -194,12 +194,25 @@ class ModalPopupHeader extends StatelessWidget {
             else
               const SizedBox(width: 40),
             if (header != null)
-              Expanded(child: header!)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 16, 10, 8),
+                  child: header!,
+                ),
+              )
             else if (text != null)
               Expanded(
-                child: Center(
-                  child:
-                      Text(text!, style: style.fonts.big.regular.onBackground),
+                child: Container(
+                  // color: Colors.red,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 16, 10, 8),
+                    child: Center(
+                      child: Text(
+                        text!,
+                        style: style.fonts.big.regular.onBackground,
+                      ),
+                    ),
+                  ),
                 ),
               )
             else
@@ -208,17 +221,17 @@ class ModalPopupHeader extends StatelessWidget {
               WidgetButton(
                 key: const Key('CloseButton'),
                 onPressed: onClose ?? Navigator.of(context).pop,
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                child: Container(
+                  // color: Colors.red,
+                  padding: const EdgeInsets.fromLTRB(12, 14, 14, 8),
                   // padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
-                  child: Container(
-                    // padding: const EdgeInsets.all(8),
-                    // decoration: BoxDecoration(
-                    //   color: Colors.white,
-                    //   borderRadius: BorderRadius.circular(8),
-                    // ),
-                    child: SvgIcon(SvgIcons.closeSmallPrimary),
-                  ),
+
+                  // padding: const EdgeInsets.all(8),
+                  // decoration: BoxDecoration(
+                  //   color: Colors.white,
+                  //   borderRadius: BorderRadius.circular(8),
+                  // ),
+                  child: const SvgIcon(SvgIcons.closeSmallPrimary),
                 ),
               )
             else

@@ -654,6 +654,8 @@ class WebUtils {
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
+
+  static Future<void> registerScheme() async {}
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

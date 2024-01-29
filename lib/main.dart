@@ -23,6 +23,7 @@ library main;
 
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -104,6 +105,8 @@ Future<void> main() async {
 
       await windowManager.show();
 
+      WebUtils.registerScheme().onError((_, __) => false);
+
       Get.put(WindowWorker(preferences));
     }
 
@@ -112,7 +115,31 @@ Future<void> main() async {
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService =
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
-    router = RouterState(authService);
+
+    Uri? initial;
+    try {
+      final AppLinks links = AppLinks();
+      initial = await links.getInitialAppLink();
+      Log.debug('initial = $initial', 'AppLinks');
+
+      _linkSubscription?.cancel();
+      _linkSubscription = links.uriLinkStream.listen((uri) async {
+        Log.debug('links.uriLinkStream($uri)', 'AppLinks');
+        router.delegate.setNewRoutePath(
+          await router.parser.parseRouteInformation(RouteInformation(uri: uri)),
+        );
+      });
+    } catch (e) {
+      // No-op.
+    }
+
+    router = RouterState(
+      authService,
+      initial: initial == null
+          ? null
+          : await AppRouteInformationParser()
+              .parseRouteInformation(RouteInformation(uri: initial)),
+    );
 
     try {
       router.firebase = await Firebase.initializeApp(
@@ -396,3 +423,5 @@ extension HiveClean on HiveInterface {
     }
   }
 }
+
+StreamSubscription? _linkSubscription;

@@ -170,16 +170,18 @@ enum WidgetsTab {
 /// Any change requires [notifyListeners] to be invoked in order for the router
 /// to update its state.
 class RouterState extends ChangeNotifier {
-  RouterState(this._auth) {
+  RouterState(this._auth, {this.initial}) {
     delegate = AppRouterDelegate(this);
     parser = AppRouteInformationParser();
   }
 
   /// Application's [RouterDelegate].
-  late final RouterDelegate<Object> delegate;
+  late final RouterDelegate<RouteConfiguration> delegate;
 
   /// Application's [RouteInformationParser].
-  late final RouteInformationParser<Object> parser;
+  late final RouteInformationParser<RouteConfiguration> parser;
+
+  final RouteConfiguration? initial;
 
   /// Application's optional [RouteInformationProvider].
   ///
@@ -461,7 +463,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     });
 
     if (_state.routes.isEmpty) {
-      await setNewRoutePath(configuration);
+      await setNewRoutePath(_state.initial ?? configuration);
     }
   }
 
