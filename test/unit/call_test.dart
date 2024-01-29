@@ -197,7 +197,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
         Get.put(AuthService(authRepository, credentialsProvider));
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -330,7 +330,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
         Get.put(AuthService(authRepository, credentialsProvider));
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -406,7 +406,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
         Get.put(AuthService(authRepository, credentialsProvider));
-    await authService.init();
+    authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

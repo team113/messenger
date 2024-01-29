@@ -15,8 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
+import 'package:messenger/domain/repository/contact.dart';
 
 import '../configuration.dart';
 import '../parameters/favorite_status.dart';
@@ -35,7 +38,11 @@ final StepDefinitionGeneric seeContactAsFavorite =
       () async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final ChatContactId contactId = context.world.contacts[name]!;
+        final contactRepository = Get.find<AbstractContactRepository>();
+
+        final ChatContactId? contactId = contactRepository.contacts.values
+            .firstWhereOrNull((e) => e.contact.value.name.val == name)
+            ?.id;
 
         switch (status) {
           case FavoriteStatus.favorite:
@@ -45,10 +52,14 @@ final StepDefinitionGeneric seeContactAsFavorite =
             );
 
           case FavoriteStatus.unfavorite:
-            return await context.world.appDriver.isAbsent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$contactId'),
-            );
+            return await context.world.appDriver.isPresent(
+                  context.world.appDriver
+                      .findByKeySkipOffstage('Contact_$contactId'),
+                ) &&
+                await context.world.appDriver.isAbsent(
+                  context.world.appDriver
+                      .findByKeySkipOffstage('FavoriteIndicator_$contactId'),
+                );
         }
       },
     );

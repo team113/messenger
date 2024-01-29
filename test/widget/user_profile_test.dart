@@ -170,6 +170,8 @@ void main() async {
   };
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
@@ -184,8 +186,7 @@ void main() async {
 
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), credentialsProvider);
-  await authService.init();
-  await credentialsProvider.init();
+  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
@@ -436,7 +437,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     final userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -526,8 +527,9 @@ void main() async {
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }

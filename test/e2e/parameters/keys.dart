@@ -23,6 +23,8 @@ enum WidgetKey {
   AddEmail,
   AddMemberButton,
   AddPhone,
+  AddToContactsButton,
+  AddToFavoriteButton,
   AlertDialog,
   AlertNoButton,
   AlertYesButton,

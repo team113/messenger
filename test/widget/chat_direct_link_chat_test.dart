@@ -165,7 +165,7 @@ void main() async {
   AuthService authService = Get.put(
     AuthService(AuthRepository(graphQlProvider), credentialsProvider),
   );
-  await authService.init();
+  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();

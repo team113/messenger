@@ -387,7 +387,7 @@ class MessageFieldView extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: MouseRegion(
                           cursor: grab
-                              ? SystemMouseCursors.grab
+                              ? CustomMouseCursors.grab
                               : MouseCursor.defer,
                           opaque: false,
                           child: ScrollConfiguration(

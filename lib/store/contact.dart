@@ -158,10 +158,20 @@ class ContactRepository extends DisposableInterface
   Future<void> createChatContact(UserName name, UserId id) async {
     Log.debug('createChatContact($name, $id)', '$runtimeType');
 
-    await _graphQlProvider.createChatContact(
+    final response = await _graphQlProvider.createChatContact(
       name: name,
       records: [ChatContactRecord(userId: id)],
     );
+
+    final events = ChatContactsEventsEvent(
+      ChatContactEventsVersioned(
+        response.events.map((e) => _contactEvent(e)).toList(),
+        response.ver,
+        response.listVer,
+      ),
+    );
+
+    await _contactRemoteEvent(events, updateVersion: false);
   }
 
   @override
@@ -204,7 +214,7 @@ class ContactRepository extends DisposableInterface
   ) async {
     Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
 
-    final HiveRxChatContact? contact = paginated[id];
+    final HiveRxChatContact? contact = contacts[id];
 
     final ChatContactFavoritePosition? oldPosition =
         contact?.contact.value.favoritePosition;
@@ -533,13 +543,13 @@ class ContactRepository extends DisposableInterface
       }
     }
 
+    _add(contact, pagination: pagination);
+
     // [pagination] is `true`, if the [contact] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
       await _pagination.put(contact);
     }
-
-    _add(contact, pagination: pagination);
   }
 
   /// Adds the provided [HiveChatContact] to the [contacts] and optionally to
@@ -637,7 +647,10 @@ class ContactRepository extends DisposableInterface
 
   /// Handles [ChatContactEvent] from the [_chatContactsRemoteEvents]
   /// subscription.
-  Future<void> _contactRemoteEvent(ChatContactsEvents event) async {
+  Future<void> _contactRemoteEvent(
+    ChatContactsEvents event, {
+    bool updateVersion = true,
+  }) async {
     switch (event.kind) {
       case ChatContactsEventsKind.initialized:
         Log.debug('_contactRemoteEvent(${event.kind})', '$runtimeType');
@@ -648,7 +661,7 @@ class ContactRepository extends DisposableInterface
         break;
 
       case ChatContactsEventsKind.event:
-        var versioned = (event as ChatContactsEventsEvent).event;
+        final versioned = (event as ChatContactsEventsEvent).event;
         if (versioned.listVer <= _sessionLocal.getChatContactsListVersion()) {
           Log.debug(
             '_contactRemoteEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
@@ -660,7 +673,9 @@ class ContactRepository extends DisposableInterface
             '$runtimeType',
           );
 
-          _sessionLocal.setChatContactsListVersion(versioned.listVer);
+          if (updateVersion) {
+            _sessionLocal.setChatContactsListVersion(versioned.listVer);
+          }
 
           final Map<ChatContactId, HiveChatContact> entities = {};
 

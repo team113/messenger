@@ -435,7 +435,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
