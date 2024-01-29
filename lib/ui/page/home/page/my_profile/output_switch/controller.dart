@@ -32,7 +32,7 @@ export 'view.dart';
 /// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
   OutputSwitchController(this._settingsRepository, {String? output})
-      : _output = RxnString(output);
+      : _output = output;
 
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -47,7 +47,7 @@ class OutputSwitchController extends GetxController {
   final RxnString error = RxnString();
 
   /// ID of the initially selected audio output device.
-  final RxnString _output;
+  String? _output;
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
@@ -59,15 +59,15 @@ class OutputSwitchController extends GetxController {
       (e) {
         devices.value = e.output().toList();
         selected.value =
-            devices.firstWhereOrNull((e) => e.deviceId() == _output.value);
+            devices.firstWhereOrNull((e) => e.deviceId() == _output);
       },
     );
 
     _settingsRepository.mediaSettings.listen((e) {
       if (e != null) {
-        _output.value = e.outputDevice;
+        _output = e.outputDevice;
         selected.value =
-            devices.firstWhereOrNull((e) => e.deviceId() == _output.value);
+            devices.firstWhereOrNull((e) => e.deviceId() == _output);
       }
     });
 
@@ -77,8 +77,7 @@ class OutputSwitchController extends GetxController {
       await WebUtils.microphonePermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
-      selected.value =
-          devices.firstWhereOrNull((e) => e.deviceId() == _output.value);
+      selected.value = devices.firstWhereOrNull((e) => e.deviceId() == _output);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {

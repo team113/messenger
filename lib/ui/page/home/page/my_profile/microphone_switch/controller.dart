@@ -32,7 +32,7 @@ export 'view.dart';
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
   MicrophoneSwitchController(this._settingsRepository, {String? mic})
-      : _mic = RxnString(mic);
+      : _mic = mic;
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -47,7 +47,7 @@ class MicrophoneSwitchController extends GetxController {
   final RxnString error = RxnString();
 
   /// ID of the initially selected microphone device.
-  final RxnString _mic;
+  String? _mic;
 
   /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
   /// the [devices].
@@ -58,16 +58,14 @@ class MicrophoneSwitchController extends GetxController {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
       (e) {
         devices.value = e.audio().toList();
-        selected.value =
-            devices.firstWhereOrNull((e) => e.deviceId() == _mic.value);
+        selected.value = devices.firstWhereOrNull((e) => e.deviceId() == _mic);
       },
     );
 
     _settingsRepository.mediaSettings.listen((e) {
       if (e != null) {
-        _mic.value = e.audioDevice;
-        selected.value =
-            devices.firstWhereOrNull((e) => e.deviceId() == _mic.value);
+        _mic = e.audioDevice;
+        selected.value = devices.firstWhereOrNull((e) => e.deviceId() == _mic);
       }
     });
 
@@ -75,8 +73,7 @@ class MicrophoneSwitchController extends GetxController {
       await WebUtils.microphonePermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
-      selected.value =
-          devices.firstWhereOrNull((e) => e.deviceId() == _mic.value);
+      selected.value = devices.firstWhereOrNull((e) => e.deviceId() == _mic);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {

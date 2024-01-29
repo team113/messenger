@@ -347,7 +347,7 @@ class OngoingCall {
 
   /// Sets the [_devices] to the provided [devices].
   ///
-  /// Removes all [DefaultMediaDeviceDetails] from the provided [devices] list.
+  /// Omits the [DefaultMediaDeviceDetails] from the provided [devices] list.
   set devices(List<MediaDeviceDetails> devices) => _devices.value =
       devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
 
@@ -1037,28 +1037,6 @@ class OngoingCall {
     return _setAudioDevice(deviceId);
   }
 
-  /// Sets device with [deviceId] as a currently used [audioDevice].
-  ///
-  /// Does nothing if [deviceId] is already an ID of the [audioDevice].
-  Future<void> _setAudioDevice(String deviceId) async {
-    Log.debug('_setAudioDevice($deviceId)', '$runtimeType');
-
-    if (deviceId == 'default') {
-      final String? audio = devices.audio().firstOrNull?.deviceId();
-      if (audio != null) {
-        deviceId = audio;
-      } else {
-        return;
-      }
-    }
-
-    if ((audioDevice.value != null && deviceId != audioDevice.value) ||
-        (audioDevice.value == null &&
-            devices.audio().firstOrNull?.deviceId() != deviceId)) {
-      await _updateSettings(audioDevice: deviceId);
-    }
-  }
-
   /// Sets device with [deviceId] as a currently used [videoDevice].
   ///
   /// Does nothing if [deviceId] is already an ID of the [videoDevice].
@@ -1080,27 +1058,6 @@ class OngoingCall {
 
     _defaultOutputDevice = deviceId;
     return _setOutputDevice(deviceId);
-  }
-
-  /// Sets device with [deviceId] as a currently used [outputDevice].
-  ///
-  /// Does nothing if [deviceId] is already an ID of the [outputDevice].
-  Future<void> _setOutputDevice(String deviceId) async {
-    Log.debug('_setOutputDevice($deviceId)', '$runtimeType');
-
-    if (deviceId == 'default') {
-      final String? output = devices.output().firstOrNull?.deviceId();
-      if (output != null) {
-        deviceId = output;
-      } else {
-        return;
-      }
-    }
-
-    if (deviceId != outputDevice.value) {
-      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
-      outputDevice.value = deviceId;
-    }
   }
 
   /// Sets inbound audio in this [OngoingCall] as [enabled] or not.
@@ -1496,7 +1453,7 @@ class OngoingCall {
 
       _ensureCorrectDevices();
 
-      String? outputDevice =
+      final String? outputDevice =
           this.outputDevice.value ?? devices.output().firstOrNull?.deviceId();
       if (outputDevice != null) {
         MediaUtils.mediaManager?.setOutputAudioId(outputDevice);
@@ -1963,6 +1920,49 @@ class OngoingCall {
 
     if (removed.any((e) => e.deviceId() == screenDevice.value)) {
       setScreenShareEnabled(false);
+    }
+  }
+
+  /// Sets device with [deviceId] as a currently used [audioDevice].
+  ///
+  /// Does nothing if [deviceId] is already an ID of the [audioDevice].
+  Future<void> _setAudioDevice(String deviceId) async {
+    Log.debug('_setAudioDevice($deviceId)', '$runtimeType');
+
+    if (deviceId == 'default') {
+      final String? audio = devices.audio().firstOrNull?.deviceId();
+      if (audio != null) {
+        deviceId = audio;
+      } else {
+        return;
+      }
+    }
+
+    if ((audioDevice.value != null && deviceId != audioDevice.value) ||
+        (audioDevice.value == null &&
+            devices.audio().firstOrNull?.deviceId() != deviceId)) {
+      await _updateSettings(audioDevice: deviceId);
+    }
+  }
+
+  /// Sets device with [deviceId] as a currently used [outputDevice].
+  ///
+  /// Does nothing if [deviceId] is already an ID of the [outputDevice].
+  Future<void> _setOutputDevice(String deviceId) async {
+    Log.debug('_setOutputDevice($deviceId)', '$runtimeType');
+
+    if (deviceId == 'default') {
+      final String? output = devices.output().firstOrNull?.deviceId();
+      if (output != null) {
+        deviceId = output;
+      } else {
+        return;
+      }
+    }
+
+    if (deviceId != outputDevice.value) {
+      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
+      outputDevice.value = deviceId;
     }
   }
 }

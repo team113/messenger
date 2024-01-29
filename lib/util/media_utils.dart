@@ -144,6 +144,9 @@ class MediaUtilsImpl {
             .whereType<MediaDeviceDetails>()
             .toList();
 
+    // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
+    //
+    // Browsers already include their own default devices.
     if (!PlatformUtils.isWeb) {
       if (kind == null || kind == MediaDeviceKind.audioInput) {
         final MediaDeviceDetails? device = devices
@@ -242,28 +245,31 @@ class ScreenPreferences extends TrackPreferences {
   final int? framerate;
 }
 
-/// [MediaDeviceDetails] representing the default device.
+/// [MediaDeviceDetails] representing a default device.
 class DefaultMediaDeviceDetails extends MediaDeviceDetails {
-  DefaultMediaDeviceDetails(this._deviceDetails);
+  DefaultMediaDeviceDetails(this._device);
 
-  /// [MediaDeviceDetails] this [DefaultMediaDeviceDetails] represents.
-  final MediaDeviceDetails _deviceDetails;
+  /// [MediaDeviceDetails] actually used by these [DefaultMediaDeviceDetails].
+  final MediaDeviceDetails _device;
 
   @override
   String deviceId() => 'default';
 
   @override
-  void free() => _deviceDetails.free();
+  void free() {
+    // No-op.
+  }
 
   @override
-  String? groupId() => _deviceDetails.groupId();
+  String? groupId() => _device.groupId();
 
   @override
-  bool isFailed() => _deviceDetails.isFailed();
+  bool isFailed() => _device.isFailed();
 
   @override
-  MediaDeviceKind kind() => _deviceDetails.kind();
+  MediaDeviceKind kind() => _device.kind();
 
   @override
-  String label() => 'label_by_default_hyphen'.l10n + _deviceDetails.label();
+  String label() =>
+      'label_device_by_default'.l10nfmt({'device': _device.label()});
 }
