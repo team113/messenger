@@ -151,7 +151,7 @@ class OngoingCall {
               ? null
               : mediaSettings?.audioDevice,
         ),
-        _defaultAudioDevice = mediaSettings?.audioDevice,
+        _preferredAudioDevice = mediaSettings?.audioDevice,
         videoDevice = RxnString(mediaSettings?.videoDevice),
         screenDevice = RxnString(mediaSettings?.screenDevice),
         outputDevice = RxnString(
@@ -159,7 +159,7 @@ class OngoingCall {
               ? null
               : mediaSettings?.outputDevice,
         ),
-        _defaultOutputDevice = mediaSettings?.outputDevice {
+        _preferredOutputDevice = mediaSettings?.outputDevice {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -297,11 +297,17 @@ class OngoingCall {
   /// the [displays].
   StreamSubscription? _displaysSubscription;
 
-  /// ID of the default microphone device.
-  String? _defaultAudioDevice;
+  /// ID of the preferred microphone device.
+  ///
+  /// Used during [_pickAudioDevice] to determine, whether the [audioDevice]
+  /// should be changed, or ignored.
+  String? _preferredAudioDevice;
 
-  /// ID of the default audio output device.
-  String? _defaultOutputDevice;
+  /// ID of the preferred audio output device.
+  ///
+  /// Used during [_pickOutputDevice] to determine, whether the [outputDevice]
+  /// should be changed, or ignored.
+  String? _preferredOutputDevice;
 
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
@@ -1033,7 +1039,7 @@ class OngoingCall {
   Future<void> setAudioDevice(String deviceId) {
     Log.debug('setAudioDevice($deviceId)', '$runtimeType');
 
-    _defaultAudioDevice = deviceId;
+    _preferredAudioDevice = deviceId;
     return _setAudioDevice(deviceId);
   }
 
@@ -1056,7 +1062,7 @@ class OngoingCall {
   Future<void> setOutputDevice(String deviceId) {
     Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
-    _defaultOutputDevice = deviceId;
+    _preferredOutputDevice = deviceId;
     return _setOutputDevice(deviceId);
   }
 
@@ -1847,7 +1853,7 @@ class OngoingCall {
 
     if (added.output().isNotEmpty &&
         (outputDevice.value == null ||
-            outputDevice.value != _defaultOutputDevice ||
+            outputDevice.value != _preferredOutputDevice ||
             outputDevice.value == 'default')) {
       device = added.output().first;
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
@@ -1879,7 +1885,7 @@ class OngoingCall {
 
     if (added.audio().isNotEmpty &&
         (audioDevice.value == null ||
-            audioDevice.value != _defaultAudioDevice ||
+            audioDevice.value != _preferredAudioDevice ||
             audioDevice.value == 'default')) {
       device = added.audio().first;
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
