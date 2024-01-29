@@ -344,7 +344,8 @@ class ChatController extends GetxController {
   /// the [animateToBottom] invokes.
   final List<ChatItem> _history = [];
 
-  /// [Paginated] loading a fragment of [elements] with pagination.
+  /// Currently used [Paginated] loading a fragment of [elements] with
+  /// pagination.
   Paginated<ChatItemKey, Rx<ChatItem>>? _fragment;
 
   /// [Paginated]s used by this [ChatController].
@@ -1046,7 +1047,9 @@ class ChatController extends GetxController {
         }
       } finally {
         SchedulerBinding.instance.addPostFrameCallback((_) {
+          // Stop the animation if any.
           listController.jumpTo(listController.offset);
+          // Ensures [FlutterListView] has correct index and offset.
           listController.sliverController.jumpToIndex(
             initIndex,
             offset: initOffset,
@@ -1492,7 +1495,7 @@ class ChatController extends GetxController {
   }
 
   /// Fetches the [ChatItem]s around the provided [item] or its [reply] or
-  /// [forward] and adds them to the [elements].
+  /// [forward] and replaces the [elements] with them.
   Future<void> _fetchItemsAround(
     ChatItem item, {
     ChatItemQuote? reply,

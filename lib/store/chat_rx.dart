@@ -133,7 +133,7 @@ class HiveRxChat extends RxChat {
   /// [MessagesFragment]s created by this [HiveRxChat].
   final List<MessagesFragment> _fragments = [];
 
-  /// Subscriptions to the [MessagesFragment.disposed] changes.
+  /// Subscriptions to the [MessagesFragment.disposed].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
   /// Subscriptions to the [MessagesFragment.items] changes.
@@ -428,9 +428,6 @@ class HiveRxChat extends RxChat {
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
     _pagination.dispose();
-    for (var e in _fragments.toList()) {
-      e.dispose();
-    }
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     await _local.close();
@@ -438,6 +435,9 @@ class HiveRxChat extends RxChat {
     _worker?.dispose();
     _userWorker?.dispose();
     for (var e in _userWorkers.values) {
+      e.dispose();
+    }
+    for (var e in _fragments.toList()) {
       e.dispose();
     }
     for (final s in _fragmentSubscriptions) {
@@ -891,7 +891,7 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Clears the [_pagination].
+  /// Clears the [_pagination] and [_fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
     for (var e in _fragments) {
@@ -924,7 +924,12 @@ class HiveRxChat extends RxChat {
     );
   }
 
-  Future<Paginated<ChatItemKey, Rx<ChatItem>>> _loadPaginatedAround(
+  @override
+  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
+
+  /// Loads the [MessagesFragment] around the specified [item], [reply] or
+  /// [forward].
+  Future<MessagesFragment> _loadPaginatedAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
@@ -1031,6 +1036,7 @@ class HiveRxChat extends RxChat {
           subscription?.cancel();
           _fragmentItemsSubscriptions.remove(itemsSubscription);
           itemsSubscription?.cancel();
+          timer?.cancel();
         }
       },
     );
@@ -1039,9 +1045,6 @@ class HiveRxChat extends RxChat {
     _fragments.add(fragment);
     return fragment;
   }
-
-  @override
-  int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
   /// Adds the provided [ChatItem] to the [messages] list.
   void _add(ChatItem item) {

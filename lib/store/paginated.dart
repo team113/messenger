@@ -96,7 +96,6 @@ class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
-
     await Future.wait(_futures);
   }
 
@@ -197,6 +196,7 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
+
     if (_futures.isEmpty) {
       _paginationSubscription = pagination.changes.listen((event) {
         switch (event.op) {
@@ -226,8 +226,8 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
 
     disposed.value = true;
 
-    _paginationSubscription?.cancel();
     pagination.dispose();
+    _paginationSubscription?.cancel();
     super.dispose();
   }
 

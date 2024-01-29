@@ -30,7 +30,7 @@ abstract class Paginated<K extends Comparable, T> {
   /// Reactive [RxStatus] of [items] being fetched.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning the fetching is not yet started.
+  /// - `status.isEmpty`, meaning the query is not yet started.
   /// - `status.isLoading`, meaning the [items] are being fetched.
   /// - `status.isLoadingMore`, meaning some [items] were fetched from local
   ///   storage.
