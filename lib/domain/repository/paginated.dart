@@ -15,24 +15,37 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '/util/obs/obs.dart';
 
-/// Result of a search query.
+/// Paginated view of [T] items.
 abstract class Paginated<K extends Comparable, T> {
-  /// Found [T] items themselves.
+  /// Paginated [T] items themselves.
   final RxObsMap<K, T> items = RxObsMap<K, T>();
 
   /// Reactive [RxStatus] of [items] being fetched.
   ///
   /// May be:
-  /// - `status.isEmpty`, meaning the query is not yet started.
+  /// - `status.isEmpty`, meaning the fetching is not yet started.
   /// - `status.isLoading`, meaning the [items] are being fetched.
   /// - `status.isLoadingMore`, meaning some [items] were fetched from local
   ///   storage.
   /// - `status.isSuccess`, meaning the [items] were successfully fetched.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// [StreamController] for [updates] of this [Paginated].
+  ///
+  /// Behaves like a reference counter: when [updates] are listened to, this
+  /// invokes [ensureInitialized], and when [updates] aren't listened,
+  /// [dispose]s this [Paginated].
+  late final StreamController<void> _controller = StreamController.broadcast(
+    onListen: ensureInitialized,
+    onCancel: dispose,
+  );
 
   /// Indicates whether the [items] have next page.
   RxBool get hasNext;
@@ -46,11 +59,18 @@ abstract class Paginated<K extends Comparable, T> {
   /// Indicates whether the [previous] page of [items] is being fetched.
   RxBool get previousLoading;
 
-  /// Initializes this [Paginated].
-  Future<void> init();
+  /// Initializes this [Paginated] while the returned [Stream] is listened and
+  /// disposes when canceled.
+  Stream<void> get updates => _controller.stream;
+
+  /// Ensures this [Paginated] is initialized.
+  Future<void> ensureInitialized();
 
   /// Disposes this [Paginated].
-  void dispose();
+  @mustCallSuper
+  void dispose() {
+    _controller.close();
+  }
 
   /// Fetches next page of the [items].
   Future<void> next();

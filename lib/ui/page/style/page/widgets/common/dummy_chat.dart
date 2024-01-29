@@ -117,17 +117,13 @@ class DummyRxChat extends RxChat {
   Future<void> addMessage(ChatMessageText text) async {}
 
   @override
-  Future<void> around() async {}
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async =>
+      null;
 
   @override
   int compareTo(RxChat other) => 0;
-
-  @override
-  Future<Paginated<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
-    ChatItem item, {
-    ChatItemId? reply,
-    ChatItemId? forward,
-  }) {
-    throw UnimplementedError();
-  }
 }

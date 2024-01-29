@@ -297,8 +297,16 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
-  /// Fetches the initial [messages] page around the [firstUnread].
-  Future<void> around();
+  /// Fetches the [Paginated] page around the [item], if specified, or [messages] around the
+  /// [firstUnread], if not.
+  ///
+  /// If [reply] or [forward] is provided, then the [item] is considered as a
+  /// quote of the specified [reply] of [forward].
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  });
 
   /// Fetches the next [messages] page.
   Future<void> next();
@@ -327,12 +335,4 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
-
-  /// Loads a [Paginated] around the provided [item] or it's [reply] or
-  /// [forward].
-  Future<Paginated<ChatItemKey, Rx<ChatItem>>> loadFragmentAround(
-    ChatItem item, {
-    ChatItemId? reply,
-    ChatItemId? forward,
-  });
 }

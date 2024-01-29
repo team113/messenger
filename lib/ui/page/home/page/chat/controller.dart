@@ -350,6 +350,9 @@ class ChatController extends GetxController {
   /// [Paginated]s used by this [ChatController].
   final HashSet<Paginated<ChatItemKey, Rx<ChatItem>>> _fragments = HashSet();
 
+  /// Subscriptions to the [Paginated.updates].
+  final List<StreamSubscription> _fragmentSubscriptions = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -520,8 +523,8 @@ class ChatController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
-    for (final f in _fragments) {
-      f.dispose();
+    for (final s in _fragmentSubscriptions) {
+      s.cancel();
     }
 
     super.onClose();
@@ -1016,31 +1019,7 @@ class ChatController extends GetxController {
 
       // And then try to fetch the items.
       try {
-        if (chat!.messages.any((e) => e.value.id == animateTo)) {
-          _fragment = null;
-          elements.clear();
-          chat!.messages.forEach(_add);
-
-          _subscribeFor(chat: chat);
-        } else {
-          _fragment = _fragments.firstWhereOrNull(
-                (e) => e.items.keys.any((e) => e.id == animateTo),
-              ) ??
-              await chat!.loadFragmentAround(
-                item,
-                reply: reply?.original?.id,
-                forward: forward?.original?.id,
-              );
-
-          _fragments.add(_fragment!);
-
-          await _fragment!.init();
-
-          elements.clear();
-          _fragment!.items.values.forEach(_add);
-
-          _subscribeFor(fragment: _fragment);
-        }
+        await _fetchItemsAround(item, reply: reply, forward: forward);
 
         final int index = elements.values.toList().indexWhere((e) {
           return e.id.id == animateTo ||
@@ -1509,6 +1488,66 @@ class ChatController extends GetxController {
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
       rethrow;
+    }
+  }
+
+  /// Fetches the [ChatItem]s around the provided [item] or its [reply] or
+  /// [forward] and adds them to the [elements].
+  Future<void> _fetchItemsAround(
+    ChatItem item, {
+    ChatItemQuote? reply,
+    ChatItemQuote? forward,
+  }) async {
+    // Uses the [chat] as [elements] source.
+    void useChat() {
+      _fragment = null;
+      elements.clear();
+      chat!.messages.forEach(_add);
+
+      _subscribeFor(chat: chat);
+    }
+
+    final ChatItemId itemId = (reply?.original ?? forward?.original ?? item).id;
+
+    if (chat!.messages.any((e) => e.value.id == itemId)) {
+      useChat();
+    } else {
+      _fragment = _fragments.firstWhereOrNull(
+        (e) => e.items.keys.any((e) => e.id == itemId),
+      );
+
+      if (_fragment == null) {
+        final Paginated<ChatItemKey, Rx<ChatItem>> fragment =
+            (await chat!.around(
+          item: item,
+          reply: reply?.original?.id,
+          forward: forward?.original?.id,
+        ))!;
+
+        StreamSubscription? subscription;
+        subscription = fragment.updates.listen(
+          null,
+          onDone: () {
+            _fragments.remove(fragment);
+            _fragmentSubscriptions.remove(subscription);
+            subscription?.cancel();
+
+            if (_fragment == fragment) {
+              useChat();
+            }
+          },
+        );
+
+        _fragments.add(fragment);
+        _fragment = fragment;
+      }
+
+      await _fragment!.ensureInitialized();
+
+      elements.clear();
+      _fragment!.items.values.forEach(_add);
+
+      _subscribeFor(fragment: _fragment);
     }
   }
 

@@ -66,9 +66,6 @@ abstract class ChatItem {
   ///
   /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
   ChatItemKey get key => ChatItemKey(at, id);
-
-  /// Initializes this [ChatItem].
-  void init();
 }
 
 /// Message in a [Chat].
@@ -84,7 +81,13 @@ class ChatMessage extends ChatItem {
     this.text,
     this.editedAt,
     this.attachments = const [],
-  });
+  }) {
+    if (!PlatformUtils.isWeb) {
+      for (var a in attachments.whereType<FileAttachment>()) {
+        a.init();
+      }
+    }
+  }
 
   /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
@@ -125,15 +128,6 @@ class ChatMessage extends ChatItem {
           ),
         );
   }
-
-  @override
-  void init() {
-    if (!PlatformUtils.isWeb) {
-      for (var a in attachments.whereType<FileAttachment>()) {
-        a.init();
-      }
-    }
-  }
 }
 
 /// Quote of a [ChatItem] forwarded to some [Chat].
@@ -145,17 +139,7 @@ class ChatForward extends ChatItem {
     super.author,
     super.at, {
     required this.quote,
-  });
-
-  /// [ChatItemQuote] of the forwarded [ChatItem].
-  ///
-  /// Re-forwarding a [ChatForward] is indistinguishable from just forwarding
-  /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
-  @HiveField(5)
-  final ChatItemQuote quote;
-
-  @override
-  void init() {
+  }) {
     if (!PlatformUtils.isWeb) {
       final ChatItemQuote nested = quote;
       if (nested is ChatMessageQuote) {
@@ -165,6 +149,13 @@ class ChatForward extends ChatItem {
       }
     }
   }
+
+  /// [ChatItemQuote] of the forwarded [ChatItem].
+  ///
+  /// Re-forwarding a [ChatForward] is indistinguishable from just forwarding
+  /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
+  @HiveField(5)
+  final ChatItemQuote quote;
 }
 
 /// Unique ID of a [ChatItem].

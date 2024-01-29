@@ -40,11 +40,6 @@ class ChatInfo extends ChatItem {
   /// [ChatInfoAction] taken upon the [Chat].
   @HiveField(5)
   final ChatInfoAction action;
-
-  @override
-  void init() {
-    // No-op.
-  }
 }
 
 /// Possible kinds of a [ChatInfoAction].
