@@ -161,6 +161,7 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
     required this.pagination,
     this.initialKey,
     this.initialCursor,
+    this.onDispose,
   });
 
   /// Pagination fetching [items].
@@ -172,8 +173,8 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
   /// [ChatItemsCursor] to fetch [items] around.
   final ChatItemsCursor? initialCursor;
 
-  /// Indicator whether this [MessagesFragment] is disposed.
-  final RxBool disposed = RxBool(false);
+  /// Callback, called when this [MessagesFragment] is disposed.
+  final void Function()? onDispose;
 
   /// [Future]s loading the initial [items].
   final List<Future> _futures = [];
@@ -224,10 +225,10 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
-    disposed.value = true;
-
     pagination.dispose();
     _paginationSubscription?.cancel();
+
+    onDispose?.call();
     super.dispose();
   }
 

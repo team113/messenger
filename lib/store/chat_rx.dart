@@ -134,11 +134,9 @@ class HiveRxChat extends RxChat {
   /// [MessagesFragment]s created by this [HiveRxChat].
   final List<MessagesFragment> _fragments = [];
 
-  /// Subscriptions to the [MessagesFragment.disposed].
+  /// Subscriptions to the [MessagesFragment.items] changes updating the
+  /// [reads].
   final List<StreamSubscription> _fragmentSubscriptions = [];
-
-  /// Subscriptions to the [MessagesFragment.items] changes.
-  final List<StreamSubscription> _fragmentItemsSubscriptions = [];
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
@@ -442,9 +440,6 @@ class HiveRxChat extends RxChat {
       e.dispose();
     }
     for (final s in _fragmentSubscriptions) {
-      s.cancel();
-    }
-    for (final s in _fragmentItemsSubscriptions) {
       s.cancel();
     }
   }
@@ -996,6 +991,9 @@ class HiveRxChat extends RxChat {
       throw ArgumentError.value(item, 'item', 'Cursor not found.');
     }
 
+    StreamSubscription? subscription;
+    Timer? timer;
+
     fragment = MessagesFragment(
       initialKey: key,
       initialCursor: cursor,
@@ -1009,15 +1007,20 @@ class HiveRxChat extends RxChat {
         ),
         compare: (a, b) => a.value.key.compareTo(b.value.key),
       ),
+      onDispose: () {
+        _fragments.remove(fragment);
+        _fragmentSubscriptions.remove(subscription);
+        subscription?.cancel();
+        timer?.cancel();
+      }
     );
 
-    Timer? timer;
-    StreamSubscription? itemsSubscription;
-    itemsSubscription = fragment.items.changes.listen((event) {
+    subscription = fragment.items.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
           timer?.cancel();
+          // Use [Timer] to call [updateReads] once if added multiple items.
           timer = Timer(1.milliseconds, updateReads);
           break;
 
@@ -1026,21 +1029,6 @@ class HiveRxChat extends RxChat {
           break;
       }
     });
-    _fragmentItemsSubscriptions.add(itemsSubscription);
-
-    StreamSubscription? subscription;
-    subscription = fragment.disposed.listen(
-      (d) {
-        if (d) {
-          _fragments.remove(fragment);
-          _fragmentSubscriptions.remove(subscription);
-          subscription?.cancel();
-          _fragmentItemsSubscriptions.remove(itemsSubscription);
-          itemsSubscription?.cancel();
-          timer?.cancel();
-        }
-      },
-    );
     _fragmentSubscriptions.add(subscription);
 
     _fragments.add(fragment);
