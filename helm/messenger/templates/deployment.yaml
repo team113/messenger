@@ -78,7 +78,7 @@ spec:
           image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           command: ["sh"]
-          args: ["-c", "set -ex; cp -rp /var/www/public/* /target/"]
+          args: ["-c", "set -ex; cp -rp /var/www/public/. /target/"]
           volumeMounts:
             - name: src
               mountPath: /target/
