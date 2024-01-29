@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.1] · 2024-??-??
+## [0.1.1] · 2024-01-29
 [0.1.1]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.1/helm/messenger
 
 ### Fixed
