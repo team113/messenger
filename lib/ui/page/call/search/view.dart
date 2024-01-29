@@ -44,6 +44,7 @@ class SearchView extends StatelessWidget {
     required this.title,
     this.chat,
     this.selectable = true,
+    this.invertRouteChat = true,
     this.enabled = true,
     this.submit,
     this.onPressed,
@@ -60,6 +61,10 @@ class SearchView extends StatelessWidget {
 
   /// Indicator whether the searched items are selectable.
   final bool selectable;
+
+  /// Indicator whether the colors of [RecentChatTile] should be inverted if the
+  /// current [Route] represents its [Chat].
+  final bool invertRouteChat;
 
   /// Indicator whether the selected items can be submitted, if [selectable], or
   /// otherwise [onPressed] may be called.
@@ -172,6 +177,7 @@ class SearchView extends StatelessWidget {
                                     me: c.me,
                                     onTap: () => c.select(user: element),
                                     selected: c.selectedUsers.contains(element),
+                                    invertRouteChat: invertRouteChat,
                                     trailing: [
                                       SelectedDot(
                                         selected:
@@ -205,6 +211,7 @@ class SearchView extends StatelessWidget {
                                     onTap: () => c.select(contact: element),
                                     selected:
                                         c.selectedContacts.contains(element),
+                                    invertRouteChat: invertRouteChat,
                                     trailing: [
                                       SelectedDot(
                                         selected: c.selectedContacts
@@ -237,6 +244,7 @@ class SearchView extends StatelessWidget {
                                   me: c.me,
                                   onTap: () => c.select(chat: element),
                                   selected: c.selectedChats.contains(element),
+                                  invertRouteChat: invertRouteChat,
                                   trailing: [
                                     SelectedDot(
                                       selected:
