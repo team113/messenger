@@ -68,17 +68,18 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-  MediaKit.ensureInitialized();
 
   me.Log.options = me.LogOptions(
     level: Config.logLevel,
 
     // Browsers collect timestamps for log themselves.
     timeStamp: !PlatformUtils.isWeb,
+    dateStamp: !PlatformUtils.isWeb,
   );
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
+    MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
     await _initHive();
@@ -126,13 +127,12 @@ Future<void> main() async {
     );
   }
 
-  // No need to initialize the Sentry if no DSN is provided, otherwise useless
-  // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty || kDebugMode) {
+  // No need to initialize the Sentry, if debug is enabled.
+  if (kDebugMode) {
     return appRunner();
   }
 
-  return SentryFlutter.init(
+  await SentryFlutter.init(
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
@@ -142,6 +142,7 @@ Future<void> main() async {
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
       options.maxBreadcrumbs = 512,
+      options.platformChecker = PlatformChecker(isWeb: false),
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 
@@ -173,16 +174,22 @@ Future<void> main() async {
         StackTrace? stackTrace,
       }) {
         if (exception != null) {
-          final StringBuffer buf = StringBuffer('$exception');
-
-          if (stackTrace != null) {
-            buf.write(
-              '\n\nWhen the exception was thrown, this was the stack:\n',
-            );
-            buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
+          if (stackTrace == null) {
+            stackTrace = StackTrace.current;
+          } else {
+            stackTrace = FlutterError.demangleStackTrace(stackTrace);
           }
 
-          Log.error(buf.toString());
+          final Iterable<String> lines =
+              stackTrace.toString().trimRight().split('\n').take(100);
+
+          Log.error(
+            [
+              exception.toString(),
+              if (lines.where((e) => e.isNotEmpty).isNotEmpty)
+                FlutterError.defaultStackFilter(lines).join('\n')
+            ].join('\n'),
+          );
         }
       },
     },
