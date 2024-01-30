@@ -1086,7 +1086,7 @@ class ChatsTabView extends StatelessWidget {
                             ShadowedRoundedButton(
                               onPressed: c.closeGroupCreating,
                               color: style.colors.onPrimary,
-                              title: Text(
+                              child: Text(
                                 'btn_cancel'.l10n,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -1096,7 +1096,7 @@ class ChatsTabView extends StatelessWidget {
                             ShadowedRoundedButton(
                               onPressed: c.createGroup,
                               color: style.colors.primary,
-                              title: Text(
+                              child: Text(
                                 'btn_create_group'.l10n,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -1110,7 +1110,7 @@ class ChatsTabView extends StatelessWidget {
                           children: [
                             ShadowedRoundedButton(
                               onPressed: c.toggleSelecting,
-                              title: Text(
+                              child: Text(
                                 'btn_cancel'.l10n,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -1123,7 +1123,7 @@ class ChatsTabView extends StatelessWidget {
                                   ? null
                                   : () => _hideChats(context, c),
                               color: style.colors.primary,
-                              title: Text(
+                              child: Text(
                                 'btn_delete_count'.l10nfmt({
                                   'count': c.selectedChats.length,
                                 }),

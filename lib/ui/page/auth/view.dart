@@ -91,7 +91,6 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
-            title: Text('btn_sign_up'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -99,11 +98,11 @@ class AuthView extends StatelessWidget {
               child: const SvgIcon(SvgIcons.register),
             ),
             onPressed: () => LoginView.show(context),
+            child: Text('btn_sign_up'.l10n),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_sign_in'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -112,6 +111,7 @@ class AuthView extends StatelessWidget {
             ),
             onPressed: () =>
                 LoginView.show(context, initial: LoginViewStage.signIn),
+            child: Text('btn_sign_in'.l10n),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
