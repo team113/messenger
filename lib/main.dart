@@ -182,7 +182,7 @@ Future<void> main() async {
             buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
           }
 
-          Log.error(buf.toString(), 'SentryFlutter');
+          Log.error(buf.toString());
         }
       },
     },
