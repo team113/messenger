@@ -198,11 +198,13 @@ class ReactiveTextField extends StatelessWidget {
 
       return Obx(() {
         final RxStatus status = state.status.value;
+        final bool hasError =
+            status.isError || (state.error.value != null && treatErrorAsStatus);
         final bool hasSuffix = state.approvable ||
             suffix != null ||
             trailing != null ||
-            !state.status.value.isEmpty ||
-            (state.error.value != null && treatErrorAsStatus);
+            !status.isEmpty ||
+            hasError;
 
         return ElasticAnimatedSwitcher(
           child: hasSuffix
@@ -215,7 +217,7 @@ class ReactiveTextField extends StatelessWidget {
                         ? state.isEmpty.value && !clearable
                             ? null
                             : state.submit
-                        : status.isEmpty
+                        : (status.isEmpty && !hasError)
                             ? onSuffixPressed
                             : null,
                     decorator: (child) {
@@ -237,9 +239,7 @@ class ReactiveTextField extends StatelessWidget {
                                     color: style.colors.acceptAuxiliary,
                                   ),
                                 )
-                              : ((state.error.value != null &&
-                                          treatErrorAsStatus) ||
-                                      status.isError)
+                              : hasError
                                   ? SizedBox(
                                       key: const ValueKey('Error'),
                                       width: 24,
