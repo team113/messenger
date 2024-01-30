@@ -170,13 +170,14 @@ Future<void> main() async {
     );
   }
 
-  Log.debug(
-    '[Sentry] enabled: ${Config.sentryDsn.isNotEmpty} && ${!(kDebugMode && !kProfileMode)}',
-  );
+  // Log.debug(
+  //   '[Sentry] enabled: ${Config.sentryDsn.isNotEmpty} && ${!(kDebugMode && !kProfileMode)}',
+  // );
 
+  // TODO: Enable Sentry.
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty || (kDebugMode && !kProfileMode)) {
+  if (true || Config.sentryDsn.isEmpty || (kDebugMode && !kProfileMode)) {
     return appRunner();
   }
 

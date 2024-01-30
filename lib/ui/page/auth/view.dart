@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -49,7 +50,13 @@ class AuthView extends StatelessWidget {
             StyledCupertinoButton(
               label: 'btn_download_application'.l10n,
               style: style.fonts.normal.regular.primary,
-              onPressed: () => _download(context),
+              onPressed: () async {
+                await WebUtils.launchScheme('/work/freelance');
+                if (context.mounted) {
+                  await _download(context);
+                }
+              },
+              // onPressed: () => _download(context),
             ),
             const SizedBox(height: 4),
             StyledCupertinoButton(

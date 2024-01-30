@@ -657,10 +657,13 @@ class WebUtils {
 
   static Future<void> registerScheme() async {}
   static Future<void> launchScheme(String link) async {
+    if (PlatformUtils.isIOS && WebUtils.isSafari) {
+      // Mobile Safari already displays an open app banner on the top.
+      // Opening the scheme will always fail with a popup, which is bad UX.
+      return;
+    }
+
     html.window.location.replace('gapopa://open$link');
-    await Future.delayed(const Duration(milliseconds: 500), () {
-      html.window.location.replace('${Config.origin}/downloads');
-    });
   }
 }
 

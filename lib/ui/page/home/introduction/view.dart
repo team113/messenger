@@ -135,14 +135,9 @@ class IntroductionView extends StatelessWidget {
                   ),
                   onPressed: () async {
                     await WebUtils.launchScheme(router.route);
-                    // try {
-                    //   await launchUrlString('gapopa://open${router.route}');
-
-                    // } catch (_) {
-                    //   if (context.mounted) {
-                    //     _download(context);
-                    //   }
-                    // }
+                    if (context.mounted) {
+                      await _download(context);
+                    }
                   },
                 ),
               );
