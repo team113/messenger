@@ -1133,7 +1133,9 @@ class HiveRxChat extends RxChat {
 
         // TODO: Remove, when all events are surely delivered by subscribing to
         //       `chatEvents` with version.
-        if (hasNext.isFalse) {
+        if (hasNext.isFalse &&
+            node.chat.value.lastItem != null &&
+            messages.none((e) => e.value.id == node.chat.value.lastItem!.id)) {
           _pagination.hasNext.value = true;
           await _pagination.next();
         }
