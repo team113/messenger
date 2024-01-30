@@ -193,24 +193,24 @@ class HomeController extends GetxController {
     pages.jumpToPage(router.tab.index);
     refresh();
 
-    // if (_settings.applicationSettings.value?.showIntroduction ?? true) {
-    if (_myUserService.myUser.value != null) {
-      _displayIntroduction(_myUserService.myUser.value!);
-    } else {
-      Worker? worker;
-      worker = ever(
-        _myUserService.myUser,
-        (MyUser? myUser) {
-          if (myUser != null && worker != null) {
-            _displayIntroduction(myUser);
-            worker?.dispose();
-            worker = null;
-          }
-        },
-      );
+    if (_settings.applicationSettings.value?.showIntroduction ?? true) {
+      if (_myUserService.myUser.value != null) {
+        _displayIntroduction(_myUserService.myUser.value!);
+      } else {
+        Worker? worker;
+        worker = ever(
+          _myUserService.myUser,
+          (MyUser? myUser) {
+            if (myUser != null && worker != null) {
+              _displayIntroduction(myUser);
+              worker?.dispose();
+              worker = null;
+            }
+          },
+        );
+      }
     }
   }
-  // }
 
   @override
   void onClose() {
