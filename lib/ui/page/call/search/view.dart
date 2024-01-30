@@ -44,7 +44,7 @@ class SearchView extends StatelessWidget {
     required this.title,
     this.chat,
     this.selectable = true,
-    this.invertRouteChat = true,
+    this.invertsRouteChat = true,
     this.enabled = true,
     this.submit,
     this.onPressed,
@@ -62,9 +62,9 @@ class SearchView extends StatelessWidget {
   /// Indicator whether the searched items are selectable.
   final bool selectable;
 
-  /// Indicator whether the colors of [RecentChatTile] should be inverted if the
-  /// current [Route] represents its [Chat].
-  final bool invertRouteChat;
+  /// Indicator whether the colors of [RecentChatTile] should be inverted if its
+  /// [Chat] corresponds to the current [Route].
+  final bool invertsRouteChat;
 
   /// Indicator whether the selected items can be submitted, if [selectable], or
   /// otherwise [onPressed] may be called.
@@ -179,7 +179,7 @@ class SearchView extends StatelessWidget {
                                 me: c.me,
                                 onTap: () => c.select(user: element),
                                 selected: c.selectedUsers.contains(element),
-                                invertRouteChat: invertRouteChat,
+                                invertsRouteChat: invertsRouteChat,
                                 trailing: [
                                   SelectedDot(
                                     selected: c.selectedUsers.contains(element),
@@ -211,7 +211,7 @@ class SearchView extends StatelessWidget {
                                 me: c.me,
                                 onTap: () => c.select(contact: element),
                                 selected: c.selectedContacts.contains(element),
-                                invertRouteChat: invertRouteChat,
+                                invertsRouteChat: invertsRouteChat,
                                 trailing: [
                                   SelectedDot(
                                     selected:
@@ -243,7 +243,7 @@ class SearchView extends StatelessWidget {
                               me: c.me,
                               onTap: () => c.select(chat: element),
                               selected: c.selectedChats.contains(element),
-                              invertRouteChat: invertRouteChat,
+                              invertsRouteChat: invertsRouteChat,
                               trailing: [
                                 SelectedDot(
                                   selected: c.selectedChats.contains(element),

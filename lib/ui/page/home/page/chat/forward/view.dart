@@ -135,7 +135,7 @@ class ChatForwardView extends StatelessWidget {
                           ],
                           title: 'label_forward_message'.l10n,
                           onSelected: (r) => c.searchResults.value = r,
-                          invertRouteChat: false,
+                          invertsRouteChat: false,
                         ),
                       ),
                       Padding(
