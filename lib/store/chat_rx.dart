@@ -1130,6 +1130,11 @@ class HiveRxChat extends RxChat {
         }
 
         _lastReadItemCursor = node.chat.lastReadItemCursor;
+
+        if(hasNext.isFalse) {
+          _pagination.hasNext.value = true;
+          await _pagination.next();
+        }
         break;
 
       case ChatEventsKind.event:
