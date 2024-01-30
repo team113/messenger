@@ -693,7 +693,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                         c.devices.video().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
-            hint: 'label_media_camera'.l10n,
             headline: Text('label_media_camera'.l10n),
             onPressed: () async {
               await CameraSwitchView.show(
@@ -718,7 +717,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                         c.devices.audio().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
-            hint: 'label_media_microphone'.l10n,
             headline: Text('label_media_microphone'.l10n),
             onPressed: () async {
               await MicrophoneSwitchView.show(
@@ -748,7 +746,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                           c.devices.output().firstOrNull)
                       ?.label() ??
                   'label_media_no_device_available'.l10n,
-              hint: 'label_media_output'.l10n,
               headline: Text('label_media_output'.l10n),
               onPressed: () async {
                 await OutputSwitchView.show(

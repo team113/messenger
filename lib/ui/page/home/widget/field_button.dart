@@ -27,7 +27,6 @@ class FieldButton extends StatefulWidget {
     super.key,
     this.text,
     this.textAlign = TextAlign.start,
-    this.hint,
     this.maxLines = 1,
     this.onPressed,
     this.onTrailingPressed,
@@ -44,9 +43,6 @@ class FieldButton extends StatefulWidget {
 
   /// [TextAlign] of the [text].
   final TextAlign textAlign;
-
-  /// Optional hint of this [FieldButton].
-  final String? hint;
 
   /// Maximum number of lines to show at one time, wrapping if necessary.
   final int? maxLines;
