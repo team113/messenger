@@ -1,0 +1,28 @@
+name: messenger
+version: 0.1.0
+summary: Messenger by Gapopa
+description: Messenger by Gapopa
+
+confinement: strict
+base: core22
+grade: stable
+
+slots:
+  dbus-messenger:
+    interface: dbus
+    bus: session
+    name: com.team113.messenger
+
+apps:
+  messenger:
+    command: messenger
+    extensions: [gnome]
+    plugs:
+    - network
+    slots:
+      - dbus-messenger
+parts:
+  messenger:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart

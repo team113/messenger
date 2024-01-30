@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Messenger
+Comment=Messenger by Gapopa
+Exec=messenger
+Icon=${SNAP}/meta/gui/messenger.png
+Terminal=false
+Type=Application
+Categories=Network;Chat;InstantMessaging;VideoConference;
+MimeType=x-scheme-handler/gapopa;
