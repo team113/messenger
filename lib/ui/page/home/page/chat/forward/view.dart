@@ -139,7 +139,7 @@ class ChatForwardView extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         child: MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),

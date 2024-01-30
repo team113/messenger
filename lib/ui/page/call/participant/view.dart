@@ -124,11 +124,14 @@ class ParticipantView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    ModalPopupHeader(
-                      text: 'label_participants_of'.l10nfmt({
-                        'a': ids.length,
-                        'b': c.chat.value?.members.length ?? 1,
-                      }),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: ModalPopupHeader(
+                        text: 'label_participants_of'.l10nfmt({
+                          'a': ids.length,
+                          'b': c.chat.value?.members.length ?? 1,
+                        }),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Expanded(
@@ -176,17 +179,17 @@ class ParticipantView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: OutlinedRoundedButton(
                         maxWidth: double.infinity,
-                        title: Text(
-                          'btn_add_participants'.l10n,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: style.fonts.medium.regular.onPrimary,
-                        ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
                         color: style.colors.primary,
+                        child: Text(
+                          'btn_add_participants'.l10n,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.medium.regular.onPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),

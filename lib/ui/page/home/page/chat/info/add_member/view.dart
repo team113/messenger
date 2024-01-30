@@ -44,7 +44,7 @@ class AddChatMemberView extends StatelessWidget {
       context: context,
       background: style.colors.background,
       desktopPadding: const EdgeInsets.only(bottom: 12),
-      mobilePadding: const EdgeInsets.all(0),
+      mobilePadding: const EdgeInsets.only(bottom: 12),
       child: AddChatMemberView(chatId: chatId),
     );
   }
