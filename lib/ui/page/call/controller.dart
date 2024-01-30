@@ -792,7 +792,9 @@ class CallController extends GetxController {
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       try {
-        _proximitySubscription = proximityEvents?.listen((_) {});
+        _proximitySubscription = proximityEvents?.listen((e) {
+          Log.debug('[debug] proximityEvents: ${e.getValue()}');
+        });
       } catch (e) {
         Log.warning(
           'Failed to initialize proximity sensor: $e',
