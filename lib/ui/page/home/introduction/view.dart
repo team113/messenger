@@ -27,6 +27,7 @@ import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/view.dart';
 import 'package:messenger/ui/widget/download_button.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/web/web_utils.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -133,19 +134,15 @@ class IntroductionView extends StatelessWidget {
                     child: SvgIcon(SvgIcons.logo),
                   ),
                   onPressed: () async {
-                    if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
-                      try {
-                        await launchUrlString(
-                          'gapopa://open${router.route}',
-                        );
-                      } catch (_) {
-                        if (context.mounted) {
-                          _download(context);
-                        }
-                      }
-                    } else {
-                      _download(context);
-                    }
+                    await WebUtils.launchScheme(router.route);
+                    // try {
+                    //   await launchUrlString('gapopa://open${router.route}');
+
+                    // } catch (_) {
+                    //   if (context.mounted) {
+                    //     _download(context);
+                    //   }
+                    // }
                   },
                 ),
               );
@@ -185,19 +182,23 @@ class IntroductionView extends StatelessWidget {
                   ),
                 ];
               } else {
-                header = const ModalPopupHeader(
-                  text: 'Messenger by Gapopa',
+                header = ModalPopupHeader(
+                  // text: 'Messenger by Gapopa',
+                  header: Text(
+                    'Messenger by Gapopa',
+                    style: style.fonts.big.regular.onBackground,
+                  ),
                   dense: false,
                 );
                 children = [
                   const SizedBox(height: 8),
-                  guestButton,
-                  const SizedBox(height: 15),
-                  signInButton,
                   if (true || PlatformUtils.isWeb) ...[
-                    const SizedBox(height: 15),
                     applicationButton,
+                    const SizedBox(height: 15),
                   ],
+                  signInButton,
+                  const SizedBox(height: 15),
+                  guestButton,
                   const SizedBox(height: 16),
                 ];
               }

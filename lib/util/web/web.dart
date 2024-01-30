@@ -656,6 +656,12 @@ class WebUtils {
   }
 
   static Future<void> registerScheme() async {}
+  static Future<void> launchScheme(String link) async {
+    html.window.location.replace('gapopa://open$link');
+    await Future.delayed(const Duration(milliseconds: 500), () {
+      html.window.location.replace('${Config.origin}/downloads');
+    });
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

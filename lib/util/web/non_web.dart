@@ -415,4 +415,8 @@ class WebUtils {
       regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
     }
   }
+
+  static Future<void> launchScheme(String link) async {
+    // No-op.
+  }
 }
