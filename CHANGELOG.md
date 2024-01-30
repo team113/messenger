@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Work with us tab hiding and showing. ([#794], [#789])
         - Cache maximum size slider. ([#794], [#789])
+    - Media panel:
+        - Screen dimming when close to ear on mobile. ([#823], [#808])
 
 ### Changed
 
@@ -86,6 +88,10 @@ All user visible changes to this project will be documented in this file. This p
 [#794]: /../../pull/794
 [#796]: /../../pull/796
 [#797]: /../../pull/797
+[#808]: /../../issues/808
+[#810]: /../../issues/810
+[#816]: /../../pull/816
+[#823]: /../../pull/823
 
 
 
