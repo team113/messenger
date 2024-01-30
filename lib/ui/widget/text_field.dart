@@ -338,6 +338,7 @@ class ReactiveTextField extends StatelessWidget {
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIconConstraints: const BoxConstraints(minWidth: 16),
                 icon: icon == null
                     ? null
                     : Padding(
