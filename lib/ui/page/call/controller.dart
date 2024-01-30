@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:all_sensors/all_sensors.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -372,6 +374,9 @@ class CallController extends GetxController {
 
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
+
+  /// Subscription for the [proximityEvents] dimming the screen.
+  StreamSubscription? _proximitySubscription;
 
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
@@ -785,6 +790,17 @@ class CallController extends GetxController {
       }
     });
 
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      try {
+        _proximitySubscription = proximityEvents?.listen((_) {});
+      } catch (e) {
+        Log.warning(
+          'Failed to initialize proximity sensor: $e',
+          '$runtimeType',
+        );
+      }
+    }
+
     _initChat();
   }
 
@@ -837,6 +853,7 @@ class CallController extends GetxController {
     }
     _notificationTimers.clear();
     _chatSubscription?.cancel();
+    _proximitySubscription?.cancel();
   }
 
   /// Drops the call.
