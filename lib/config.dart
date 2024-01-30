@@ -26,6 +26,7 @@ import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
+import 'routes.dart';
 
 /// Configuration of this application.
 class Config {
@@ -50,9 +51,12 @@ class Config {
   static String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
-  ///
-  /// May be (and intended to be) used as a [ChatDirectLink] prefix.
   static String origin = '';
+
+  /// [ChatDirectLink] prefix.
+  ///
+  /// If empty, then [origin] is used.
+  static String link = '';
 
   /// Directory to download files to.
   static String downloads = '';
@@ -171,6 +175,10 @@ class Config {
 
     origin = url;
 
+    link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
+        ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
+        : (document['link']?['prefix'] ?? '');
+
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
           ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
@@ -237,6 +245,7 @@ class Config {
             userAgentVersion =
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+            link = remote['link']?['prefix'] ?? link;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],
@@ -258,6 +267,10 @@ class Config {
       } else {
         origin = '${Uri.base.scheme}://${Uri.base.host}';
       }
+    }
+
+    if (link.isEmpty) {
+      link = '$origin${Routes.chatDirectLink}';
     }
 
     ws = '$wsUrl:$wsPort$graphql';

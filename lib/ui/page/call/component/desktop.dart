@@ -144,15 +144,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   c.state.value != OngoingCallState.joining &&
                                   !isOutgoing;
 
-                          final bool isDialog =
-                              c.chat.value?.chat.value.isDialog == true;
-
                           final Widget child;
 
                           if (!isIncoming) {
                             child = _primaryView(c);
                           } else {
-                            if (isDialog) {
+                            if (c.isDialog) {
                               final User? user = c.chat.value?.members.values
                                       .firstWhereOrNull(
                                         (e) => e.id != c.me.id.userId,
@@ -192,12 +189,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child: child,
                           );
                         }),
-                        Obx(() => MouseRegion(
-                              opaque: false,
-                              cursor: c.isCursorHidden.value
-                                  ? SystemMouseCursors.none
-                                  : SystemMouseCursors.basic,
-                            )),
                       ],
                     ),
                   ),
@@ -714,6 +705,21 @@ Widget desktopCall(CallController c, BuildContext context) {
 
             return _secondaryView(c, context);
           });
+        }),
+
+        // [MouseRegion] changing the cursor.
+        Obx(() {
+          return MouseRegion(
+            opaque: false,
+            cursor: c.draggedRenderer.value != null ||
+                    c.doughDraggedRenderer.value != null
+                ? CustomMouseCursors.grabbing
+                : c.hoveredRenderer.value != null
+                    ? CustomMouseCursors.grab
+                    : c.isCursorHidden.value
+                        ? SystemMouseCursors.none
+                        : MouseCursor.defer,
+          );
         }),
 
         // Show a hint if any renderer is draggable.
@@ -1811,7 +1817,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: MouseRegion(
                         cursor: isAnyDrag
                             ? MouseCursor.defer
-                            : SystemMouseCursors.grab,
+                            : CustomMouseCursors.grab,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;

@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.16"
+  all_sensors:
+    dependency: "direct main"
+    description:
+      name: all_sensors
+      sha256: "5de1d20c3fee63d18be29ed27c368143d980e7fc5a805c3903946028816ac375"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.2"
   analyzer:
     dependency: "direct overridden"
     description:
@@ -488,6 +496,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  flutter_custom_cursor:
+    dependency: "direct main"
+    description:
+      name: flutter_custom_cursor
+      sha256: "3850a32ac6de351ccc5e4286b6d94ff70c10abecd44479ea6c5aaea17264285d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   flutter_driver:
     dependency: "direct dev"
     description: flutter
@@ -625,6 +641,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_xlider:
+    dependency: "direct main"
+    description:
+      name: flutter_xlider
+      sha256: b83da229b8a2153adeefc5d9e08e0060689c8dc2187b30e3502cf67c1a6495be
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.0"
   freezed_annotation:
     dependency: transitive
     description:
@@ -1010,10 +1034,10 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "9e26a55a4b432b8f1badcf6b43782f18654bc2a169e4526ef0bf4dc614f89568"
+      sha256: da71374fe1c6cb457703d2f43f7572054187c26ef366511ccd5b0cb302de211e
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0"
+    version: "0.9.1-dev+rev.2822045851cec744a6c52fd7462d8de86bf9513d"
   medea_jason:
     dependency: "direct main"
     description:
@@ -1374,6 +1398,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "64957a3930367bf97cc211a5af99551d630f2f4625e38af10edd6b19131b64b3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
+  qr_flutter:
+    dependency: "direct main"
+    description:
+      name: qr_flutter
+      sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   recase:
     dependency: transitive
     description:

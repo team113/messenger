@@ -24,9 +24,10 @@ import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../repository/chat.dart';
-import '../service/call.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/repository/chat.dart';
+import '/domain/service/call.dart';
+import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
@@ -466,7 +467,7 @@ class OngoingCall {
             if (node.call.finishReason != null) {
               // Call is already ended, so remove it.
               calls.remove(chatId.value);
-              calls.removeCredentials(node.call.id);
+              calls.removeCredentials(node.call.chatId, node.call.id);
             } else {
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
@@ -483,7 +484,7 @@ class OngoingCall {
 
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
-                for (var m in dialed.members) {
+                for (final ChatMember m in dialed.members) {
                   addDialing(m.user.id);
                 }
               }
@@ -499,10 +500,11 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  for (var m in (v?.chat.value.members ?? []).where((e) =>
-                      e.user.id != me.id.userId &&
-                      dialed.answeredMembers
-                          .none((a) => a.user.id == e.user.id))) {
+                  for (final ChatMember m in (v?.chat.value.members ?? [])
+                      .where((e) =>
+                          e.user.id != me.id.userId &&
+                          dialed.answeredMembers
+                              .none((a) => a.user.id == e.user.id))) {
                     addDialing(m.user.id);
                   }
                 }
@@ -550,10 +552,10 @@ class OngoingCall {
               '$runtimeType($id)',
             );
 
-            for (var event in versioned.events) {
+            for (final ChatCallEvent event in versioned.events) {
               switch (event.kind) {
                 case ChatCallEventKind.roomReady:
-                  var node = event as EventChatCallRoomReady;
+                  final node = event as EventChatCallRoomReady;
 
                   if (!_background) {
                     await _joinRoom(node.joinLink);
@@ -566,15 +568,15 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.finished:
-                  var node = event as EventChatCallFinished;
+                  final node = event as EventChatCallFinished;
                   if (node.chatId == chatId.value) {
-                    calls.removeCredentials(node.call.id);
+                    calls.removeCredentials(node.call.chatId, node.call.id);
                     calls.remove(chatId.value);
                   }
                   break;
 
                 case ChatCallEventKind.memberLeft:
-                  var node = event as EventChatCallMemberLeft;
+                  final node = event as EventChatCallMemberLeft;
                   if (calls.me == node.user.id) {
                     calls.remove(chatId.value);
                   }
@@ -593,7 +595,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.memberJoined:
-                  var node = event as EventChatCallMemberJoined;
+                  final node = event as EventChatCallMemberJoined;
 
                   final CallMemberId redialedId =
                       CallMemberId(node.user.id, null);
@@ -623,7 +625,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.handLowered:
-                  var node = event as EventChatCallHandLowered;
+                  final node = event as EventChatCallHandLowered;
 
                   // Ignore the event, if it's our hand and is already lowered.
                   if (node.user.id == _me.userId &&
@@ -643,7 +645,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.handRaised:
-                  var node = event as EventChatCallHandRaised;
+                  final node = event as EventChatCallHandRaised;
 
                   // Ignore the event, if it's our hand and is already raised.
                   if (node.user.id == _me.userId &&
@@ -663,7 +665,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.declined:
-                  var node = event as EventChatCallDeclined;
+                  final node = event as EventChatCallDeclined;
                   final CallMemberId id = CallMemberId(node.user.id, null);
                   if (members[id]?.isConnected.value == false) {
                     members.remove(id)?.dispose();
@@ -671,7 +673,7 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.callMoved:
-                  var node = event as EventChatCallMoved;
+                  final node = event as EventChatCallMoved;
                   chatId.value = node.newChatId;
                   call.value = node.newCall;
 
@@ -687,12 +689,12 @@ class OngoingCall {
                   break;
 
                 case ChatCallEventKind.redialed:
-                  var node = event as EventChatCallMemberRedialed;
+                  final node = event as EventChatCallMemberRedialed;
                   addDialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
-                  var node = event as EventChatCallAnswerTimeoutPassed;
+                  final node = event as EventChatCallAnswerTimeoutPassed;
 
                   if (node.user?.id != null) {
                     final CallMemberId id = CallMemberId(node.user!.id, null);
@@ -717,6 +719,11 @@ class OngoingCall {
               }
             }
             break;
+        }
+      },
+      onError: (e) {
+        if (e is! ResubscriptionRequiredException) {
+          throw e;
         }
       },
     );
@@ -1275,8 +1282,11 @@ class OngoingCall {
       });
 
       conn.onRemoteTrackAdded((track) async {
+        final MediaKind kind = track.kind();
+        final MediaSourceKind source = track.mediaSourceKind();
+
         Log.debug(
-          'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
+          'onRemoteTrackAdded $kind-$source, ${track.mediaDirection()}',
           '$runtimeType',
         );
 
@@ -1301,7 +1311,7 @@ class OngoingCall {
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
-            'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
+            'onMediaDirectionChanged $kind-$source ${track.mediaDirection()}',
             '$runtimeType',
           );
 
@@ -1310,7 +1320,7 @@ class OngoingCall {
           switch (d) {
             case TrackMediaDirection.sendRecv:
               member?.tracks.addIf(!member!.tracks.contains(t), t);
-              switch (track.kind()) {
+              switch (kind) {
                 case MediaKind.audio:
                   await t.createRenderer();
                   break;
@@ -1335,15 +1345,11 @@ class OngoingCall {
         });
 
         track.onStopped(() {
-          Log.debug(
-            'onStopped ${track.kind()}-${track.mediaSourceKind()}',
-            '$runtimeType',
-          );
-
+          Log.debug('onStopped $kind-$source', '$runtimeType');
           member?.tracks.remove(t..dispose());
         });
 
-        switch (track.kind()) {
+        switch (kind) {
           case MediaKind.audio:
             if (isRemoteAudioEnabled.isTrue) {
               if (track.mediaDirection().isEmitting) {
@@ -1988,7 +1994,7 @@ class CallMemberId {
 
   /// Constructs a [CallMemberId] from the provided [string].
   factory CallMemberId.fromString(String string) {
-    var split = string.split('.');
+    final List<String> split = string.split('.');
     if (split.length != 2) {
       throw const FormatException('Must have a UserId.DeviceId format');
     }
@@ -2058,17 +2064,17 @@ class CallMember {
   /// Indicator whether this [CallMember] is dialing.
   final RxBool isDialing;
 
-  /// [ConnectionHandle] of this [CallMember].
-  ConnectionHandle? _connection;
-
   /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
+
+  /// [ConnectionHandle] of this [CallMember].
+  ConnectionHandle? _connection;
 
   /// Disposes the [tracks] of this [CallMember].
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
-    for (var t in tracks) {
+    for (final Track t in tracks) {
       t.dispose();
     }
   }

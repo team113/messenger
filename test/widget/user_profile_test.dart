@@ -36,9 +36,11 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -168,6 +170,8 @@ void main() async {
   };
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
@@ -182,8 +186,7 @@ void main() async {
 
   AuthService authService =
       AuthService(AuthRepository(graphQlProvider), credentialsProvider);
-  await authService.init();
-  await credentialsProvider.init();
+  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
@@ -210,8 +213,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();
@@ -228,6 +233,8 @@ void main() async {
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   Get.put(myUserProvider);
   Get.put(contactProvider);
@@ -430,7 +437,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     final userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -438,7 +445,9 @@ void main() async {
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
+        blocklistSortingProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     Get.put(UserService(userRepository));
@@ -477,6 +486,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -517,8 +527,9 @@ void main() async {
     await tester.tap(find.byKey(const Key('MoreButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AddToContactsButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }

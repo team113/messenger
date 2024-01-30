@@ -41,6 +41,8 @@ PODS:
     - nanopb (< 2.30910.0, >= 2.30908.0)
   - flutter_app_badger (1.3.0):
     - FlutterMacOS
+  - flutter_custom_cursor (0.0.1):
+    - FlutterMacOS
   - flutter_local_notifications (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
@@ -65,7 +67,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.12.0):
     - GoogleUtilities/Logger
-  - medea_flutter_webrtc (0.9.0):
+  - medea_flutter_webrtc (0.9.1-dev):
     - FlutterMacOS
   - medea_jason (0.4.0):
     - FlutterMacOS
@@ -117,6 +119,7 @@ DEPENDENCIES:
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_app_badger (from `Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos`)
+  - flutter_custom_cursor (from `Flutter/ephemeral/.symlinks/plugins/flutter_custom_cursor/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - medea_flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos`)
@@ -163,6 +166,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos
   flutter_app_badger:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_app_badger/macos
+  flutter_custom_cursor:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_custom_cursor/macos
   flutter_local_notifications:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   FlutterMacOS:
@@ -210,11 +215,12 @@ SPEC CHECKSUMS:
   FirebaseInstallations: 033d199474164db20c8350736842a94fe717b960
   FirebaseMessaging: 9bc34a98d2e0237e1b121915120d4d48ddcf301e
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
+  flutter_custom_cursor: 629957115075c672287bd0fa979d863ccf6024f7
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   GoogleDataTransport: 57c22343ab29bc686febbf7cbb13bad167c2d8fe
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
-  medea_flutter_webrtc: 95bdfc76c203d3cff81b8b38ccfdb6410cf9404b
+  medea_flutter_webrtc: acc418e33d995571e2f3a0a34b54d5c90fb9188d
   medea_jason: b3355be56a78da19da91aee19a3ac56356d18997
   media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
   media_kit_native_event_loop: 81fd5b45192b72f8b5b69eaf5b540f45777eb8d5

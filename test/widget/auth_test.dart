@@ -37,9 +37,9 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
@@ -56,6 +56,7 @@ import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
 
 import '../mock/graphql_provider.dart';
+import '../mock/overflow_error.dart';
 import '../mock/route_information_provider.dart';
 
 void main() async {
@@ -67,11 +68,13 @@ void main() async {
   Hive.init('./test/.temp_hive/auth_widget');
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+  await credentialsProvider.clear();
+
   var graphQlProvider = _FakeGraphQlProvider();
   AuthRepository authRepository = AuthRepository(graphQlProvider);
   AuthService authService = AuthService(authRepository, credentialsProvider);
-  await authService.init();
-  await credentialsProvider.clear();
+  authService.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init(userId: const UserId('me'));
@@ -89,7 +92,7 @@ void main() async {
   await applicationSettingsProvider.init(userId: const UserId('me'));
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init(userId: const UserId('me'));
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  var callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init(userId: const UserId('me'));
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init(userId: const UserId('me'));
@@ -119,10 +122,11 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
     router = RouterState(authService);
     router.provider = MockedPlatformRouteInformationProvider();
 
+    FlutterError.onError = ignoreOverflowErrors;
     await tester.pumpWidget(const App());
     await tester.pumpAndSettle();
     final authView = find.byType(AuthView);
@@ -165,6 +169,7 @@ void main() async {
     //       should be done in a more strict way.
     for (int i = 0; i < 25; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
+      await tester.pump(const Duration(seconds: 2));
     }
 
     await tester.pumpAndSettle(const Duration(seconds: 5));

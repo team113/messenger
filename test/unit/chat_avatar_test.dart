@@ -32,9 +32,10 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
@@ -75,6 +76,8 @@ void main() async {
   };
 
   var credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
+
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   await credentialsProvider.init();
@@ -88,8 +91,10 @@ void main() async {
   var userHiveProvider = UserHiveProvider();
   await userHiveProvider.init();
   await userHiveProvider.clear();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
   await draftProvider.clear();
@@ -182,15 +187,16 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userHiveProvider);
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -274,15 +280,16 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userHiveProvider);
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),

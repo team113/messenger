@@ -17,15 +17,12 @@
 
 import 'dart:async';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
-import '/themes.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -100,8 +97,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return ReactiveTextField(
       key: const Key('LoginField'),
       state: _state,
@@ -120,59 +115,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
       label: 'label_login'.l10n,
       hint: widget.login == null ? 'label_login_hint'.l10n : widget.login!.val,
       clearable: false,
-      subtitle: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: 'label_login_visible'.l10n,
-              style: style.fonts.small.regular.secondary,
-            ),
-            TextSpan(
-              text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-              style: style.fonts.small.regular.primary,
-              recognizer: TapGestureRecognizer()
-                ..onTap = () async {
-                  await ConfirmDialog.show(
-                    context,
-                    title: 'label_login'.l10n,
-                    additional: [
-                      Center(
-                        child: Text(
-                          'label_login_visibility_hint'.l10n,
-                          style: style.fonts.normal.regular.secondary,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'label_visible_to'.l10n,
-                          style: style.fonts.big.regular.onBackground,
-                        ),
-                      ),
-                    ],
-                    label: 'label_confirm'.l10n,
-                    initial: 2,
-                    variants: [
-                      ConfirmDialogVariant(
-                        onProceed: () {},
-                        label: 'label_all'.l10n,
-                      ),
-                      ConfirmDialogVariant(
-                        onProceed: () {},
-                        label: 'label_my_contacts'.l10n,
-                      ),
-                      ConfirmDialogVariant(
-                        onProceed: () {},
-                        label: 'label_nobody'.l10n,
-                      ),
-                    ],
-                  );
-                },
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

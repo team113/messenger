@@ -29,12 +29,8 @@ query GetBlocklist(
     ) {
         edges {
             node {
-                user {
-                    __typename
-                    ...User
-                }
-                reason
-                at
+                __typename
+                ...BlocklistRecord
             }
             cursor
         }

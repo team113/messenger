@@ -45,19 +45,21 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
+import 'provider/hive/blocklist_sorting.dart';
+import 'provider/hive/call_credentials.dart';
 import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat.dart';
-import 'provider/hive/chat_call_credentials.dart';
+import 'provider/hive/chat_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
 import 'provider/hive/favorite_chat.dart';
 import 'provider/hive/favorite_contact.dart';
-import 'provider/hive/session_data.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
+import 'provider/hive/session_data.dart';
 import 'provider/hive/user.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
@@ -124,6 +126,7 @@ enum ProfileTab {
   storage,
   language,
   blocklist,
+  sections,
   download,
   danger,
   logout,
@@ -287,7 +290,12 @@ class RouterState extends ChangeNotifier {
 /// Application's route configuration used to determine the current router state
 /// to parse from/to [RouteInformation].
 class RouteConfiguration {
-  RouteConfiguration(this.route, [this.tab, this.loggedIn = true]);
+  RouteConfiguration(
+    this.route, {
+    this.tab,
+    this.authorized = true,
+    this.arguments = const {},
+  });
 
   /// Current route as a [String] value.
   ///
@@ -299,7 +307,10 @@ class RouteConfiguration {
   final HomeTab? tab;
 
   /// Whether current user is logged in or not.
-  bool loggedIn;
+  bool authorized;
+
+  /// Query parameters of the [route].
+  Map<String, dynamic> arguments;
 }
 
 /// Parses the [RouteConfiguration] from/to [RouteInformation].
@@ -329,7 +340,13 @@ class AppRouteInformationParser
       route = Routes.home;
     }
 
-    return SynchronousFuture(RouteConfiguration(route, tab));
+    return SynchronousFuture(
+      RouteConfiguration(
+        route,
+        tab: tab,
+        arguments: routeInformation.uri.queryParameters,
+      ),
+    );
   }
 
   @override
@@ -337,7 +354,7 @@ class AppRouteInformationParser
     String route = configuration.route;
 
     // If logged in and on [Routes.home] page, then modify the URL's route.
-    if (configuration.loggedIn && configuration.route == Routes.home) {
+    if (configuration.authorized && configuration.route == Routes.home) {
       switch (configuration.tab!) {
         case HomeTab.work:
           route = Routes.work;
@@ -358,7 +375,7 @@ class AppRouteInformationParser
     }
 
     return RouteInformation(
-      uri: Uri.parse(route),
+      uri: Uri(path: route),
       state: configuration.tab?.index,
     );
   }
@@ -400,12 +417,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (configuration.tab != null) {
       _state.tab = configuration.tab!;
     }
+    _state.arguments = configuration.arguments;
     _state.notifyListeners();
   }
 
   @override
   RouteConfiguration get currentConfiguration => RouteConfiguration(
-      _state.route, _state.tab, _state._auth.status.value.isSuccess);
+        _state.route,
+        tab: _state.tab,
+        authorized: _state._auth.status.value.isSuccess,
+        arguments: _state.arguments ?? const {},
+      );
 
   @override
   void dispose() {
@@ -468,13 +490,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(SessionDataHiveProvider()).init(userId: me),
                 deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
+                deps.put(BlocklistSortingHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(FavoriteContactHiveProvider()).init(userId: me),
                 deps.put(ContactSortingHiveProvider()).init(userId: me),
                 deps.put(MediaSettingsHiveProvider()).init(userId: me),
                 deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
-                deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+                deps.put(CallCredentialsHiveProvider()).init(userId: me),
+                deps.put(ChatCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
@@ -503,6 +527,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 CallRepository(
                   graphQlProvider,
                   userRepository,
+                  Get.find(),
                   Get.find(),
                   settingsRepository,
                   me: me,
@@ -540,7 +565,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               BlocklistRepository blocklistRepository = BlocklistRepository(
                 graphQlProvider,
                 Get.find(),
+                Get.find(),
                 userRepository,
+                Get.find(),
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
               AbstractMyUserRepository myUserRepository =
@@ -592,13 +619,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(SessionDataHiveProvider()).init(userId: me),
               deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
+              deps.put(BlocklistSortingHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
               deps.put(FavoriteContactHiveProvider()).init(userId: me),
               deps.put(ContactSortingHiveProvider()).init(userId: me),
               deps.put(MediaSettingsHiveProvider()).init(userId: me),
               deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
               deps.put(BackgroundHiveProvider()).init(userId: me),
-              deps.put(ChatCallCredentialsHiveProvider()).init(userId: me),
+              deps.put(CallCredentialsHiveProvider()).init(userId: me),
+              deps.put(ChatCredentialsHiveProvider()).init(userId: me),
               deps.put(DraftHiveProvider()).init(userId: me),
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
@@ -650,6 +679,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               graphQlProvider,
               userRepository,
               Get.find(),
+              Get.find(),
               settingsRepository,
               me: me,
             );
@@ -686,7 +716,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
               Get.find(),
+              Get.find(),
               userRepository,
+              Get.find(),
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
             AbstractMyUserRepository myUserRepository =
@@ -719,11 +751,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               Get.find(),
             ));
 
-            deps.put(ChatWorker(
-              chatService,
-              myUserService,
-              Get.find(),
-            ));
+            deps.put(ChatWorker(chatService, myUserService, Get.find()));
 
             deps.put(MyUserWorker(myUserService));
 

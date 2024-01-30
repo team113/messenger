@@ -23,6 +23,8 @@ enum WidgetKey {
   AddEmail,
   AddMemberButton,
   AddPhone,
+  AddToContactsButton,
+  AddToFavoriteButton,
   AlertDialog,
   AlertNoButton,
   AlertYesButton,
@@ -78,6 +80,7 @@ enum WidgetKey {
   EditButton,
   Email,
   EmailsExpandable,
+  ExpandSigning,
   FavoriteChatButton,
   FavoriteContactButton,
   ForwardButton,
@@ -157,6 +160,8 @@ enum WidgetKey {
   Unselected,
   UserScrollable,
   UsernameField,
+  VerifyEmail,
+  VerifyPhone,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

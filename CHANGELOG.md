@@ -11,16 +11,34 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Work with us tab hiding and showing. ([#794], [#789])
+        - Cache maximum size slider. ([#794], [#789])
+    - Media panel:
+        - Screen dimming when close to ear on mobile. ([#823], [#808])
+
 ### Changed
 
 - UI:
     - Chat page:
         - Call buttons position setting and adjusting. ([#750], [#718])
+        - Removed timeline mode. ([#791], [#788])
+        - Attachments fading out when dismissed by swipe gesture. ([#786], [#699])
     - Chats tab:
         - Monolog searching. ([#745], [#582])
-    - Redesigned user page. ([#769], [#766])
-    - Redesigned chat info page. ([#769], [#766])
+    - Redesigned user page. ([#769], [#771], [#766])
+    - Chat info page:
+        - Redesigned general information and group members. ([#769], [#766])
+        - Redesigned direct chat link. ([#796], [#787])
     - Tuned up page transition animation. ([#775], [#573])
+    - Profile page:
+        - Redesigned direct chat link. ([#796], [#787])
+        - Redesigned sign in section. ([#794], [#789])
+    - Media panel:
+        - Grab cursor over participants. ([#816], [#810])
 
 ### Fixed
 
@@ -35,25 +53,43 @@ All user visible changes to this project will be documented in this file. This p
         - Read partially message status missing in forwards. ([#776])
     - Media panel:
         - Dock animations lagging when dragging buttons. ([#774], [#698])
+        - Participants duplicating in rare cases. ([#759], [#743])
 - Web:
     - Media devices not showing up on profile page in Safari. ([#780])
+    - Video popup calls starting without camera enabled. ([#797])
 
 [#573]: /../../issues/573
 [#582]: /../../issues/582
 [#698]: /../../issues/698
+[#699]: /../../issues/699
 [#718]: /../../issues/718
 [#726]: /../../issues/726
+[#743]: /../../issues/743
 [#745]: /../../pull/745
 [#750]: /../../pull/750
 [#756]: /../../pull/756
 [#758]: /../../issues/758
+[#759]: /../../pull/759
 [#763]: /../../pull/763
 [#766]: /../../issues/766
 [#769]: /../../pull/769
+[#771]: /../../pull/771
 [#774]: /../../pull/774
 [#775]: /../../pull/775
 [#776]: /../../pull/776
 [#780]: /../../pull/780
+[#786]: /../../pull/786
+[#787]: /../../issues/787
+[#788]: /../../issues/788
+[#789]: /../../issues/789
+[#791]: /../../pull/791
+[#794]: /../../pull/794
+[#796]: /../../pull/796
+[#797]: /../../pull/797
+[#808]: /../../issues/808
+[#810]: /../../issues/810
+[#816]: /../../pull/816
+[#823]: /../../pull/823
 
 
 

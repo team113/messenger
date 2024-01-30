@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:all_sensors/all_sensors.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -373,6 +375,9 @@ class CallController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
+  /// Subscription for the [proximityEvents] dimming the screen.
+  StreamSubscription? _proximitySubscription;
+
   /// [Worker] reacting on [OngoingCall.chatId] changes to fetch the new [chat].
   late final Worker _chatWorker;
 
@@ -454,7 +459,7 @@ class CallController extends GetxController {
     } else {
       // If not [WebUtils.isPopup], then subtract the title bar from the height.
       if (fullscreen.isTrue && !WebUtils.isPopup) {
-        var size = router.context!.mediaQuerySize;
+        final Size size = router.context!.mediaQuerySize;
         return Size(size.width, size.height - titleHeight);
       } else {
         return router.context!.mediaQuerySize;
@@ -538,7 +543,7 @@ class CallController extends GetxController {
 
     _currentCall.value.init();
 
-    Size size = router.context!.mediaQuerySize;
+    final Size size = router.context!.mediaQuerySize;
 
     HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -615,7 +620,8 @@ class CallController extends GetxController {
               const Duration(seconds: 1),
               (_) {
                 duration.value = DateTime.now().difference(begunAt);
-                if (hoveredRendererTimeout > 0) {
+                if (hoveredRendererTimeout > 0 &&
+                    draggedRenderer.value == null) {
                   --hoveredRendererTimeout;
                   if (hoveredRendererTimeout == 0) {
                     hoveredRenderer.value = null;
@@ -784,7 +790,26 @@ class CallController extends GetxController {
       }
     });
 
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      try {
+        _proximitySubscription = proximityEvents?.listen((e) {
+          Log.debug('[debug] proximityEvents: ${e.getValue()}');
+        });
+      } catch (e) {
+        Log.warning(
+          'Failed to initialize proximity sensor: $e',
+          '$runtimeType',
+        );
+      }
+    }
+
     _initChat();
+  }
+
+  @override
+  Future<void> onReady() async {
+    await CustomMouseCursors.ensureInitialized();
+    super.onReady();
   }
 
   @override
@@ -825,11 +850,12 @@ class CallController extends GetxController {
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
     _membersSubscription.cancel();
 
-    for (var e in _notificationTimers) {
+    for (final Timer e in _notificationTimers) {
       e.cancel();
     }
     _notificationTimers.clear();
     _chatSubscription?.cancel();
+    _proximitySubscription?.cancel();
   }
 
   /// Drops the call.
@@ -1065,8 +1091,9 @@ class CallController extends GetxController {
     for (Participant r in List.from(focused, growable: false)) {
       _putVideoFrom(r, focused);
     }
+
     focused.add(participant);
-    _insureCorrectGrouping();
+    _ensureCorrectGrouping();
   }
 
   /// Focuses [participant], which means putting in to the [focused].
@@ -1087,11 +1114,12 @@ class CallController extends GetxController {
       } else {
         _putVideoTo(participant, focused);
       }
-      _insureCorrectGrouping();
+
+      _ensureCorrectGrouping();
     } else {
       if (paneled.contains(participant)) {
         _putVideoFrom(participant, paneled);
-        _insureCorrectGrouping();
+        _ensureCorrectGrouping();
       }
     }
   }
@@ -1109,11 +1137,12 @@ class CallController extends GetxController {
       if (focused.isEmpty) {
         unfocusAll();
       }
-      _insureCorrectGrouping();
+
+      _ensureCorrectGrouping();
     } else {
       if (!paneled.contains(participant)) {
         _putVideoTo(participant, paneled);
-        _insureCorrectGrouping();
+        _ensureCorrectGrouping();
       }
     }
   }
@@ -1129,7 +1158,7 @@ class CallController extends GetxController {
       _putVideoFrom(r, focused);
     }
 
-    _insureCorrectGrouping();
+    _ensureCorrectGrouping();
   }
 
   /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
@@ -1140,7 +1169,7 @@ class CallController extends GetxController {
       _putVideoTo(r, paneled);
     }
 
-    _insureCorrectGrouping();
+    _ensureCorrectGrouping();
   }
 
   /// Minimizes the view.
@@ -1842,16 +1871,16 @@ class CallController extends GetxController {
     }
   }
 
-  /// Insures the [paneled] and [focused] are in correct state, and fixes the
+  /// Ensures the [paneled] and [focused] are in correct state, and fixes the
   /// state if not.
-  void _insureCorrectGrouping() {
+  void _ensureCorrectGrouping() {
     if (locals.isEmpty && remotes.isEmpty) {
       // If every [RtcVideoRenderer] is in focus, then put everyone outside of
       // it.
       if (paneled.isEmpty && focused.isNotEmpty) {
-        List<Participant> copy = List.from(focused, growable: false);
-        for (Participant r in copy) {
-          _putVideoFrom(r, focused);
+        final List<Participant> copy = List.from(focused, growable: false);
+        for (final Participant p in copy) {
+          _putVideoFrom(p, focused);
         }
       }
     }
@@ -1883,13 +1912,13 @@ class CallController extends GetxController {
   }
 
   /// Puts the [CallMember.tracks] to the according [Participant].
-  void _putMember(CallMember member) {
+  void _putTracksFrom(CallMember member) {
     if (member.tracks.none((t) => t.source == MediaSourceKind.device)) {
-      _putParticipant(member, null);
+      _putTrackFrom(member, null);
     }
 
-    for (Track t in member.tracks) {
-      _putParticipant(member, t);
+    for (final Track track in member.tracks) {
+      _putTrackFrom(member, track);
     }
   }
 
@@ -1897,7 +1926,7 @@ class CallController extends GetxController {
   ///
   /// If no suitable [Participant]s for this [track] are found, then a new
   /// [Participant] with this [track] is added.
-  void _putParticipant(CallMember member, Track? track) {
+  void _putTrackFrom(CallMember member, Track? track) {
     final Iterable<Participant> participants =
         _findParticipants(member.id, track?.source);
 
@@ -2045,13 +2074,13 @@ class CallController extends GetxController {
       ) {
         switch (track.op) {
           case OperationKind.added:
-            _putParticipant(member, track.element);
-            _insureCorrectGrouping();
+            _putTrackFrom(member, track.element);
+            _ensureCorrectGrouping();
             break;
 
           case OperationKind.removed:
             _removeParticipant(member, track.element);
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
 
           case OperationKind.updated:
@@ -2068,13 +2097,13 @@ class CallController extends GetxController {
       _membersSubscription = _currentCall.value.members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            _putMember(e.value!);
+            _putTracksFrom(e.value!);
             _membersTracksSubscriptions[e.key!] =
                 e.value!.tracks.changes.listen(
               (c) => onTracksChanged(e.value!, c),
             );
 
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
 
           case OperationKind.removed:
@@ -2084,20 +2113,20 @@ class CallController extends GetxController {
             focused.removeWhere((m) => m.member.id == e.key);
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
             }
             break;
 
           case OperationKind.updated:
-            _insureCorrectGrouping();
+            _ensureCorrectGrouping();
             break;
         }
       });
 
-      members.forEach((_, value) => _putMember(value));
-      _insureCorrectGrouping();
+      members.forEach((_, value) => _putTracksFrom(value));
+      _ensureCorrectGrouping();
     }
   }
 
