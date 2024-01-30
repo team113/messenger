@@ -435,8 +435,9 @@ Widget mobileCall(CallController c, BuildContext context) {
             child: AnimatedSlider(
               duration: const Duration(milliseconds: 250),
               isOpen: showUi,
-              translate: false,
-              beginOffset: const Offset(0, -1),
+              // translate: false,
+              beginOffset: Offset(0, -50 - MediaQuery.of(context).padding.top),
+              // beginOffset: const Offset(0, -1),
               endOffset: const Offset(0, 0),
               child: Container(
                 decoration: BoxDecoration(
