@@ -712,8 +712,8 @@ Widget _media(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.audioDevice) ??
+            text: (c.devices.audio().firstWhereOrNull(
+                            (e) => e.id() == c.media.value?.audioDevice) ??
                         c.devices.audio().firstOrNull)
                     ?.label() ??
                 'label_media_no_device_available'.l10n,
@@ -741,8 +741,8 @@ Widget _media(BuildContext context, MyProfileController c) {
         Paddings.dense(
           Obx(() {
             return FieldButton(
-              text: (c.devices.output().firstWhereOrNull((e) =>
-                              e.deviceId() == c.media.value?.outputDevice) ??
+              text: (c.devices.output().firstWhereOrNull(
+                              (e) => e.id() == c.media.value?.outputDevice) ??
                           c.devices.output().firstOrNull)
                       ?.label() ??
                   'label_media_no_device_available'.l10n,

@@ -18,13 +18,13 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
+import '/util/media_utils.dart';
 import 'controller.dart';
 
 /// View for updating the [MediaSettings.audioDevice].
@@ -92,7 +92,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceDetails e = c.devices[i];
+                            final DeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.selected.value == null && i == 0) ||
@@ -105,7 +105,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                                   : () {
                                       c.selected.value = e;
                                       (onChanged ?? c.setAudioDevice)
-                                          .call(e.deviceId());
+                                          .call(e.id());
                                     },
                               label: e.label(),
                             );

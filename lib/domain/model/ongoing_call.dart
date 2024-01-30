@@ -151,7 +151,6 @@ class OngoingCall {
               ? null
               : mediaSettings?.audioDevice,
         ),
-        _preferredAudioDevice = mediaSettings?.audioDevice,
         videoDevice = RxnString(mediaSettings?.videoDevice),
         screenDevice = RxnString(mediaSettings?.screenDevice),
         outputDevice = RxnString(
@@ -159,7 +158,8 @@ class OngoingCall {
               ? null
               : mediaSettings?.outputDevice,
         ),
-        _preferredOutputDevice = mediaSettings?.outputDevice {
+        preferredAudioDevice = RxnString(mediaSettings?.audioDevice),
+        preferredOutputDevice = RxnString(mediaSettings?.outputDevice) {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -213,17 +213,29 @@ class OngoingCall {
   /// [LocalTrackState] of a local screen-share stream.
   late final Rx<LocalTrackState> screenShareState;
 
-  /// ID of the currently used video device.
+  /// Device ID of the currently used video device.
   final RxnString videoDevice;
 
-  /// ID of the currently used microphone device.
+  /// Device ID of the currently used microphone device.
   final RxnString audioDevice;
 
-  /// ID of the currently used screen share device.
+  /// Device ID of the currently used screen share device.
   final RxnString screenDevice;
 
-  /// ID of the currently used audio output device.
+  /// Device ID of the currently used audio output device.
   final RxnString outputDevice;
+
+  /// ID of the preferred microphone device.
+  ///
+  /// Used during [_pickAudioDevice] to determine, whether the [audioDevice]
+  /// should be changed, or ignored.
+  RxnString preferredAudioDevice;
+
+  /// ID of the preferred audio output device.
+  ///
+  /// Used during [_pickOutputDevice] to determine, whether the [outputDevice]
+  /// should be changed, or ignored.
+  RxnString preferredOutputDevice;
 
   /// Indicator whether the inbound audio in this [OngoingCall] is enabled or
   /// not.
@@ -254,8 +266,8 @@ class OngoingCall {
   /// List of [MediaDisplayDetails] of all the available displays.
   final RxList<MediaDisplayDetails> displays = RxList<MediaDisplayDetails>([]);
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> _devices = RxList<MediaDeviceDetails>([]);
+  /// List of [DeviceDetails] of all the available devices.
+  final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -297,18 +309,6 @@ class OngoingCall {
   /// the [displays].
   StreamSubscription? _displaysSubscription;
 
-  /// ID of the preferred microphone device.
-  ///
-  /// Used during [_pickAudioDevice] to determine, whether the [audioDevice]
-  /// should be changed, or ignored.
-  String? _preferredAudioDevice;
-
-  /// ID of the preferred audio output device.
-  ///
-  /// Used during [_pickOutputDevice] to determine, whether the [outputDevice]
-  /// should be changed, or ignored.
-  String? _preferredOutputDevice;
-
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -348,15 +348,6 @@ class OngoingCall {
           .isNotEmpty ??
       false;
 
-  /// Returns a list of [MediaDeviceDetails] of all the available devices.
-  RxList<MediaDeviceDetails> get devices => _devices;
-
-  /// Sets the [_devices] to the provided [devices].
-  ///
-  /// Omits the [DefaultMediaDeviceDetails] from the provided [devices] list.
-  set devices(List<MediaDeviceDetails> devices) => _devices.value =
-      devices.where((e) => e is! DefaultMediaDeviceDetails).toList();
-
   /// Initializes the media client resources.
   ///
   /// No-op if already initialized.
@@ -367,21 +358,21 @@ class OngoingCall {
       _background = false;
 
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
-        final List<MediaDeviceDetails> previous =
+        final List<DeviceDetails> previous =
             List.from(devices, growable: false);
 
-        devices = e;
+        devices.value = e;
 
-        final List<MediaDeviceDetails> added = [];
-        final List<MediaDeviceDetails> removed = [];
+        final List<DeviceDetails> added = [];
+        final List<DeviceDetails> removed = [];
 
-        for (MediaDeviceDetails d in devices) {
+        for (DeviceDetails d in devices) {
           if (previous.none((p) => p.deviceId() == d.deviceId())) {
             added.add(d);
           }
         }
 
-        for (MediaDeviceDetails d in previous) {
+        for (DeviceDetails d in previous) {
           if (devices.none((p) => p.deviceId() == d.deviceId())) {
             removed.add(d);
           }
@@ -1013,7 +1004,7 @@ class OngoingCall {
     );
   }
 
-  /// Populates [devices] with a list of [MediaDeviceDetails] objects
+  /// Populates [devices] with a list of [DeviceDetails] objects
   /// representing available media input devices, such as microphones, cameras,
   /// and so forth.
   Future<void> enumerateDevices({bool media = true, bool screen = true}) async {
@@ -1021,7 +1012,7 @@ class OngoingCall {
 
     try {
       if (media) {
-        devices = await MediaUtils.enumerateDevices();
+        devices.value = await MediaUtils.enumerateDevices();
       }
 
       if (screen && PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
@@ -1039,7 +1030,7 @@ class OngoingCall {
   Future<void> setAudioDevice(String deviceId) {
     Log.debug('setAudioDevice($deviceId)', '$runtimeType');
 
-    _preferredAudioDevice = deviceId;
+    preferredAudioDevice.value = deviceId;
     return _setAudioDevice(deviceId);
   }
 
@@ -1062,7 +1053,7 @@ class OngoingCall {
   Future<void> setOutputDevice(String deviceId) {
     Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
-    _preferredOutputDevice = deviceId;
+    preferredOutputDevice.value = deviceId;
     return _setOutputDevice(deviceId);
   }
 
@@ -1840,20 +1831,20 @@ class OngoingCall {
   /// Picks the [outputDevice] based on the provided [previous], [added] and
   /// [removed].
   void _pickOutputDevice([
-    List<MediaDeviceDetails> previous = const [],
-    List<MediaDeviceDetails> added = const [],
-    List<MediaDeviceDetails> removed = const [],
+    List<DeviceDetails> previous = const [],
+    List<DeviceDetails> added = const [],
+    List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
       '_pickOutputDevice(previous: $previous, added: $added, removed: $removed)',
       '$runtimeType',
     );
 
-    MediaDeviceDetails? device;
+    DeviceDetails? device;
 
     if (added.output().isNotEmpty &&
         (outputDevice.value == null ||
-            outputDevice.value != _preferredOutputDevice ||
+            outputDevice.value != preferredOutputDevice.value ||
             outputDevice.value == 'default')) {
       device = added.output().first;
     } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
@@ -1872,20 +1863,20 @@ class OngoingCall {
   /// Picks the [audioDevice] based on the provided [previous], [added] and
   /// [removed].
   void _pickAudioDevice([
-    List<MediaDeviceDetails> previous = const [],
-    List<MediaDeviceDetails> added = const [],
-    List<MediaDeviceDetails> removed = const [],
+    List<DeviceDetails> previous = const [],
+    List<DeviceDetails> added = const [],
+    List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
       '_pickAudioDevice(previous: $previous, added: $added, removed: $removed)',
       '$runtimeType',
     );
 
-    MediaDeviceDetails? device;
+    DeviceDetails? device;
 
     if (added.audio().isNotEmpty &&
         (audioDevice.value == null ||
-            audioDevice.value != _preferredAudioDevice ||
+            audioDevice.value != preferredAudioDevice.value ||
             audioDevice.value == 'default')) {
       device = added.audio().first;
     } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
@@ -1903,8 +1894,8 @@ class OngoingCall {
 
   /// Picks the [videoDevice] based on the provided [previous] and [removed].
   void _pickVideoDevice([
-    List<MediaDeviceDetails> previous = const [],
-    List<MediaDeviceDetails> removed = const [],
+    List<DeviceDetails> previous = const [],
+    List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
       '_pickVideoDevice(previous: $previous, removed: $removed)',
@@ -2282,24 +2273,24 @@ class Track {
   }
 }
 
-/// Extension adding an ability to querying the [MediaDeviceDetails] by
+/// Extension adding an ability to querying the [DeviceDetails] by
 /// [MediaDeviceKind].
-extension DevicesList on List<MediaDeviceDetails> {
-  /// Returns a new [Iterable] with [MediaDeviceDetails] of
+extension DevicesList on List<DeviceDetails> {
+  /// Returns a new [Iterable] with [DeviceDetails] of
   /// [MediaDeviceKind.videoInput].
-  Iterable<MediaDeviceDetails> video() {
+  Iterable<DeviceDetails> video() {
     return where((i) => i.kind() == MediaDeviceKind.videoInput);
   }
 
-  /// Returns a new [Iterable] with [MediaDeviceDetails] of
+  /// Returns a new [Iterable] with [DeviceDetails] of
   /// [MediaDeviceKind.audioInput].
-  Iterable<MediaDeviceDetails> audio() {
+  Iterable<DeviceDetails> audio() {
     return where((i) => i.kind() == MediaDeviceKind.audioInput);
   }
 
-  /// Returns a new [Iterable] with [MediaDeviceDetails] of
+  /// Returns a new [Iterable] with [DeviceDetails] of
   /// [MediaDeviceKind.audioOutput].
-  Iterable<MediaDeviceDetails> output() {
+  Iterable<DeviceDetails> output() {
     return where((i) => i.kind() == MediaDeviceKind.audioOutput);
   }
 }

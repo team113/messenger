@@ -40,9 +40,9 @@ class MediaUtilsImpl {
   /// [MediaManagerHandle] maintaining the media devices.
   MediaManagerHandle? _mediaManager;
 
-  /// [StreamController] piping the [MediaDeviceDetails] changes in the
+  /// [StreamController] piping the [DeviceDetails] changes in the
   /// [MediaManagerHandle.onDeviceChange] callback.
-  StreamController<List<MediaDeviceDetails>>? _devicesController;
+  StreamController<List<DeviceDetails>>? _devicesController;
 
   /// [StreamController] piping the [MediaDisplayDetails] changes.
   StreamController<List<MediaDisplayDetails>>? _displaysController;
@@ -74,8 +74,8 @@ class MediaUtilsImpl {
     return _mediaManager;
   }
 
-  /// Returns a [Stream] of the [MediaDeviceDetails] changes.
-  Stream<List<MediaDeviceDetails>> get onDeviceChange {
+  /// Returns a [Stream] of the [DeviceDetails] changes.
+  Stream<List<DeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
       mediaManager?.onDeviceChange(() async {
@@ -132,16 +132,17 @@ class MediaUtilsImpl {
     return tracks;
   }
 
-  /// Returns the [MediaDeviceDetails] currently available with the provided
+  /// Returns the [DeviceDetails] currently available with the provided
   /// [kind], if specified.
-  Future<List<MediaDeviceDetails>> enumerateDevices([
+  Future<List<DeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
-    final List<MediaDeviceDetails> devices =
+    final List<DeviceDetails> devices =
         (await mediaManager?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
+            .map((e) => DeviceDetails(e))
             .toList();
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
@@ -149,18 +150,18 @@ class MediaUtilsImpl {
     // Browsers already include their own default devices.
     if (!PlatformUtils.isWeb) {
       if (kind == null || kind == MediaDeviceKind.audioInput) {
-        final MediaDeviceDetails? device = devices
+        final DeviceDetails? device = devices
             .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
         if (device != null) {
-          devices.insert(0, DefaultMediaDeviceDetails(device));
+          devices.insert(0, DefaultDeviceDetails(device));
         }
       }
 
       if (kind == null || kind == MediaDeviceKind.audioOutput) {
-        final MediaDeviceDetails? device = devices
+        final DeviceDetails? device = devices
             .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
         if (device != null) {
-          devices.insert(0, DefaultMediaDeviceDetails(device));
+          devices.insert(0, DefaultDeviceDetails(device));
         }
       }
     }
@@ -245,20 +246,18 @@ class ScreenPreferences extends TrackPreferences {
   final int? framerate;
 }
 
-/// [MediaDeviceDetails] representing a default device.
-class DefaultMediaDeviceDetails extends MediaDeviceDetails {
-  DefaultMediaDeviceDetails(this._device);
+/// Wrapper around a [MediaDeviceDetails] with some additional methods.
+class DeviceDetails extends MediaDeviceDetails {
+  DeviceDetails(this._device);
 
-  /// [MediaDeviceDetails] actually used by these [DefaultMediaDeviceDetails].
+  /// [MediaDeviceDetails] actually used by these [DeviceDetails].
   final MediaDeviceDetails _device;
 
   @override
-  String deviceId() => 'default';
+  String deviceId() => _device.deviceId();
 
   @override
-  void free() {
-    // No-op.
-  }
+  void free() => _device.free();
 
   @override
   String? groupId() => _device.groupId();
@@ -270,6 +269,25 @@ class DefaultMediaDeviceDetails extends MediaDeviceDetails {
   MediaDeviceKind kind() => _device.kind();
 
   @override
+  String label() => _device.label();
+
+  /// Returns an unique identifier of this [DeviceDetails].
+  String id() => _device.deviceId();
+}
+
+/// [DeviceDetails] representing a default device.
+class DefaultDeviceDetails extends DeviceDetails {
+  DefaultDeviceDetails(super._device);
+
+  @override
+  void free() {
+    // No-op.
+  }
+
+  @override
   String label() =>
       'label_device_by_default'.l10nfmt({'device': _device.label()});
+
+  @override
+  String id() => 'default';
 }

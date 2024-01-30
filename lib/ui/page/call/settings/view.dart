@@ -103,7 +103,7 @@ class CallSettingsView extends StatelessWidget {
                     child: Obx(() {
                       return FieldButton(
                         text: (c.devices.audio().firstWhereOrNull(
-                                        (e) => e.deviceId() == c.mic.value) ??
+                                        (e) => e.id() == c.mic.value) ??
                                     c.devices.audio().firstOrNull)
                                 ?.label() ??
                             'label_media_no_device_available'.l10n,
@@ -133,8 +133,8 @@ class CallSettingsView extends StatelessWidget {
                       padding: padding,
                       child: Obx(() {
                         return FieldButton(
-                          text: (c.devices.output().firstWhereOrNull((e) =>
-                                          e.deviceId() == c.output.value) ??
+                          text: (c.devices.output().firstWhereOrNull(
+                                          (e) => e.id() == c.output.value) ??
                                       c.devices.output().firstOrNull)
                                   ?.label() ??
                               'label_media_no_device_available'.l10n,
