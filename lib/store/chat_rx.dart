@@ -1131,6 +1131,8 @@ class HiveRxChat extends RxChat {
 
         _lastReadItemCursor = node.chat.lastReadItemCursor;
 
+        // TODO: Remove, when all events are surely delivered by subscribing to
+        //       `chatEvents` with version.
         if (hasNext.isFalse) {
           _pagination.hasNext.value = true;
           await _pagination.next();
