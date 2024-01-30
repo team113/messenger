@@ -1369,7 +1369,7 @@ class HiveRxChat extends RxChat {
 
               case ChatEventKind.delivered:
                 event as EventChatDelivered;
-                chatEntity.value.lastDelivery = event.at;
+                chatEntity.value.lastDelivery = event.until;
                 break;
 
               case ChatEventKind.read:

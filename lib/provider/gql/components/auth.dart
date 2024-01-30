@@ -51,14 +51,11 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
-  Future<SignUp$Mutation> signUp([bool remember = true]) async {
-    Log.debug('signUp($remember)', '$runtimeType');
+  Future<SignUp$Mutation> signUp() async {
+    Log.debug('signUp()', '$runtimeType');
 
-    final variables = SignUpArguments(remember: remember);
-    final QueryResult result = await client.query(QueryOptions(
-      document: SignUpMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    final QueryResult result = await client
+        .mutate(MutationOptions(document: SignUpMutation().document));
     return SignUp$Mutation.fromJson(result.data!);
   }
 
@@ -111,10 +108,9 @@ mixin AuthGraphQlMixin {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-    bool remember,
   ) async {
     Log.debug(
-      'signIn(***, $login, $num, $email, $phone, $remember)',
+      'signIn(***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
 
@@ -124,7 +120,6 @@ mixin AuthGraphQlMixin {
       num: num,
       email: email,
       phone: phone,
-      remember: remember,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(

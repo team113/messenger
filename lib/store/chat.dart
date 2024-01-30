@@ -1384,7 +1384,7 @@ class ChatRepository extends DisposableInterface
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
       return EventChatDelivered(
         e.chatId,
-        node.at,
+        node.until,
       );
     } else if (e.$$typename == 'EventChatRead') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
