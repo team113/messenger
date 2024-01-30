@@ -207,7 +207,7 @@ class ReactiveTextField extends StatelessWidget {
         return ElasticAnimatedSwitcher(
           child: hasSuffix
               ? SizedBox(
-                  height: 24,
+                  height: 48,
                   child: AnimatedButton(
                     onPressed: state.approvable &&
                             (state.changed.value ||
