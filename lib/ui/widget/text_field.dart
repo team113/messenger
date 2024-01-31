@@ -250,8 +250,9 @@ class ReactiveTextField extends StatelessWidget {
                                   ),
                                 )
                               : hasError
-                                  ? onCanceled == null
-                                      ? SizedBox(
+                                  ? onCanceled != null
+                                      ? cancelButton
+                                      : SizedBox(
                                           key: const ValueKey('Error'),
                                           width: 24,
                                           child: Icon(
@@ -260,7 +261,6 @@ class ReactiveTextField extends StatelessWidget {
                                             color: style.colors.danger,
                                           ),
                                         )
-                                      : cancelButton
                                   : (state.approvable &&
                                           (state.changed.value ||
                                               state.resubmitOnError.isTrue))
