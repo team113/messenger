@@ -70,16 +70,16 @@ class ApplicationSettings extends HiveObject {
   bool? showDragAndDropButtonsHint;
 
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
-  @HiveField(8)
+  @HiveField(7)
   List<String> pinnedActions;
 
   /// [CallButtonsPosition] of the call buttons in [Chat].
-  @HiveField(9)
+  @HiveField(8)
   CallButtonsPosition? callButtonsPosition;
 
   /// Indicator whether [WorkTabView] should be displayed in the
   /// [CustomNavigationBar] of [HomeView].
-  @HiveField(10)
+  @HiveField(9)
   bool workWithUsTabEnabled;
 }
 
