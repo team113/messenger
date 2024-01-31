@@ -26,7 +26,7 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
   ///
   /// If there was a previous child, then it will be elastically faded out,
   /// while the new one is faded in.
-  final Widget child;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

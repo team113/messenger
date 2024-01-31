@@ -31,7 +31,6 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -41,24 +40,27 @@ import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
+import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/model/my_user.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/view.dart';
-import 'package:messenger/ui/page/home/view.dart';
 import 'package:messenger/ui/worker/background/background.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 import '../mock/graphql_provider.dart';
-import '../mock/overflow_error.dart';
 import '../mock/route_information_provider.dart';
+import 'auth_test.mocks.dart';
 
+@GenerateMocks([RouterState])
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
@@ -101,6 +103,18 @@ void main() async {
   var monologProvider = MonologHiveProvider();
   await monologProvider.init(userId: const UserId('me'));
 
+  Widget createWidgetForTesting({required Widget child}) {
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
+  }
+
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
@@ -122,37 +136,38 @@ void main() async {
         credentialsProvider,
       ),
     );
+
     authService.init();
-    router = RouterState(authService);
+
+    router = MockRouterState();
     router.provider = MockedPlatformRouteInformationProvider();
 
-    FlutterError.onError = ignoreOverflowErrors;
-    await tester.pumpWidget(const App());
+    await tester.pumpWidget(createWidgetForTesting(child: const AuthView()));
     await tester.pumpAndSettle();
     final authView = find.byType(AuthView);
     expect(authView, findsOneWidget);
 
-    final goToLoginButton = find.text('btn_sign_in'.l10n);
+    final goToLoginButton = find.byKey(const Key('SignInButton'));
     expect(goToLoginButton, findsOneWidget);
 
     await tester.tap(goToLoginButton);
     await tester.pumpAndSettle();
 
-    final passwordButton = find.text('btn_password'.l10n);
+    final passwordButton = find.byKey(const Key('PasswordButton'));
     expect(passwordButton, findsOneWidget);
 
     await tester.tap(passwordButton);
     await tester.pumpAndSettle();
 
-    final loginTile = find.byKey(const ValueKey('LoginButton'));
-    expect(loginTile, findsOneWidget);
-
-    final usernameField = find.byKey(const ValueKey('UsernameField'));
+    final usernameField = find.byKey(const Key('UsernameField'));
     expect(usernameField, findsOneWidget);
     await tester.enterText(usernameField, 'user');
     await tester.pumpAndSettle();
 
+    final loginTile = find.byKey(const Key('LoginButton'));
+    expect(loginTile, findsOneWidget);
     await tester.tap(loginTile);
+
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 1));
 
@@ -173,11 +188,9 @@ void main() async {
     }
 
     await tester.pumpAndSettle(const Duration(seconds: 5));
-    await tester.pump(const Duration(seconds: 5));
-    final homeView = find.byType(HomeView);
-    expect(homeView, findsOneWidget);
 
-    await tester.runAsync(() => Future.delayed(const Duration(seconds: 5)));
+    verify(router.go(Routes.home));
+
     await Get.deleteAll(force: true);
   });
 }
