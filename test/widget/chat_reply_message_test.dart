@@ -75,7 +75,6 @@ import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
@@ -485,7 +484,6 @@ void main() async {
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
-    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(

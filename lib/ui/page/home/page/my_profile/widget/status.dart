@@ -44,19 +44,9 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.status?.val ?? '',
-    approvable: true,
     onChanged: (s) {
       s.error.value = null;
 
-      try {
-        if (s.text.isNotEmpty) {
-          UserTextStatus(s.text);
-        }
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_input'.l10n;
-      }
-    },
-    onSubmitted: (s) async {
       try {
         if (s.text.isNotEmpty) {
           UserTextStatus(s.text);
