@@ -443,10 +443,23 @@ mixin ContactGraphQlMixin {
       last: last,
       before: before,
     );
-    QueryResult res = await client.query(QueryOptions(
+    final QueryResult res = await client.query(QueryOptions(
+      operationName: 'SearchChatContacts',
       document: SearchChatContactsQuery(variables: variables).document,
       variables: variables.toJson(),
     ));
     return SearchChatContacts$Query.fromJson(res.data!);
+  }
+
+  Future<GetContact$Query> chatContact(ChatContactId id) async {
+    Log.debug('chatContact($id)', '$runtimeType');
+
+    final variables = GetContactArguments(id: id);
+    final QueryResult res = await client.query(QueryOptions(
+      operationName: 'GetContact',
+      document: GetContactQuery(variables: variables).document,
+      variables: variables.toJson(),
+    ));
+    return GetContact$Query.fromJson(res.data!);
   }
 }

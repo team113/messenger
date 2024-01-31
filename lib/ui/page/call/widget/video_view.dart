@@ -192,8 +192,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       enableContextMenu: widget.enableContextMenu,
     );
 
-    return video;
-
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
       if (widget.renderer.height.value == 0) {
