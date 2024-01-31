@@ -32,7 +32,6 @@ class ApplicationSettings extends HiveObject {
     this.callButtons = const [],
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
-    this.loadImages = true,
     this.pinnedActions = const [],
     this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
@@ -69,10 +68,6 @@ class ApplicationSettings extends HiveObject {
   /// [OngoingCall].
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
-
-  /// Indicator whether [ImageAttachment]s should be loaded automatically.
-  @HiveField(7)
-  bool loadImages;
 
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   @HiveField(8)
