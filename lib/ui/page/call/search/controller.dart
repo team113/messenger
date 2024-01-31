@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/service/my_user.dart';
 
@@ -418,7 +419,13 @@ class SearchController extends GetxController {
       }
 
       try {
-        link = ChatDirectLinkSlug(query);
+        if (query.contains('${Config.link}/')) {
+          link = ChatDirectLinkSlug(query.replaceFirst('${Config.link}/', ''));
+        } else if (query.contains('https://public.surf/d/')) {
+          link = ChatDirectLinkSlug(
+            query.replaceFirst('https://public.surf/d/', ''),
+          );
+        }
       } catch (e) {
         // No-op.
       }

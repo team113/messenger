@@ -886,7 +886,7 @@ class _ChatViewState extends State<ChatView>
                                           ),
                                         ),
                                         Obx(() {
-                                          final Widget child = FlutterListView(
+                                          Widget child = FlutterListView(
                                             key: const Key('MessagesList'),
                                             controller: c.listController,
                                             physics: c.isHorizontalScroll
@@ -924,11 +924,26 @@ class _ChatViewState extends State<ChatView>
                                             ),
                                           );
 
+                                          child = AnimatedOpacity(
+                                            duration: const Duration(
+                                              milliseconds: 250,
+                                            ),
+                                            opacity: c.joinWall.value ? 0 : 1,
+                                            child: child,
+                                          );
+
                                           if (PlatformUtils.isMobile) {
                                             if (!PlatformUtils.isWeb) {
-                                              return Scrollbar(
-                                                controller: c.listController,
-                                                child: child,
+                                              return AnimatedOpacity(
+                                                duration: const Duration(
+                                                  milliseconds: 250,
+                                                ),
+                                                opacity:
+                                                    c.joinWall.value ? 1 : 0,
+                                                child: Scrollbar(
+                                                  controller: c.listController,
+                                                  child: child,
+                                                ),
                                               );
                                             } else {
                                               return child;
@@ -948,6 +963,56 @@ class _ChatViewState extends State<ChatView>
                                           );
                                         }),
                                         Obx(() {
+                                          if (c.joinWall.value) {
+                                            return Center(
+                                              child: Container(
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  maxWidth: 300,
+                                                ),
+                                                margin:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 16,
+                                                  vertical: 16,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(15),
+                                                  border:
+                                                      style.systemMessageBorder,
+                                                  color:
+                                                      style.systemMessageColor,
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      'Приватная группа'.l10n,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: style.fonts.small
+                                                          .regular.onBackground,
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      'Просматривать и отправлять сообщения могут только участники группы.'
+                                                          .l10n,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: style.fonts.small
+                                                          .regular.onBackground,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
+
                                           if ((c.chat?.status.value.isSuccess ==
                                                       true ||
                                                   c.chat?.status.value
@@ -2303,6 +2368,15 @@ class _ChatViewState extends State<ChatView>
                 ],
               ),
             ),
+          ),
+        );
+      }
+
+      if (c.joinWall.value) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: UnblockButton(c.joinWall.toggle, text: 'Вступить'),
           ),
         );
       }

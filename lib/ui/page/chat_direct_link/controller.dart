@@ -57,6 +57,7 @@ class ChatDirectLinkController extends GetxController {
       await _useChatDirectLink();
     } else if (_auth.status.value.isEmpty) {
       router.directLink = true;
+      router.joinByLink = slug.value?.val;
       await _register();
       if (_auth.status.value.isSuccess) {
         await _useChatDirectLink();
@@ -83,7 +84,11 @@ class ChatDirectLinkController extends GetxController {
       ChatId chatId = await _auth.useChatDirectLink(slug.value!);
       router.chat(
         chatId,
-        welcome: welcome == null ? null : ChatMessageText(welcome!),
+        welcome: welcome == null
+            ? const ChatMessageText(
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce at consectetur sem, ut congue lectus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur convallis mi venenatis lectus vehicula, in ultrices diam luctus. Curabitur vulputate elementum venenatis. Sed aliquet tempor nibh. Nullam nec nibh lacus. In ante nisl, mattis sed pellentesque sit amet, elementum sodales tortor. Suspendisse vulputate arcu id velit placerat sollicitudin in non ante. Maecenas nec mi eros. Vestibulum elementum ac risus a molestie. In ullamcorper justo magna, quis lobortis mauris sollicitudin ut. Vestibulum sem leo, rutrum ac convallis non, sagittis ut ex. Donec malesuada porta massa, nec dapibus metus viverra sollicitudin. Phasellus nec venenatis justo. Aenean eu mauris justo. Quisque congue dui nec ornare tristique',
+              )
+            : ChatMessageText(welcome!),
       );
     } on UseChatDirectLinkException catch (e) {
       if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {

@@ -1223,12 +1223,12 @@ class HiveRxChat extends RxChat {
                 }
 
                 Log.debug(
-                  '[debug] event.call.finishReason: ${event.call.finishReason}',
+                  '[debug] event.call.finishReason: ${event.call.finishReason}, event.call.conversationStartedAt: ${event.call.conversationStartedAt}',
                   '$runtimeType',
                 );
 
                 // Call is already finished, no reason to try adding it.
-                if (event.call.finishReason != null) {
+                if (event.call.finishReason == null) {
                   chatEntity.value.ongoingCall = event.call;
                   _chatRepository.addCall(event.call);
                 }

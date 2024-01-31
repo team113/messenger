@@ -205,7 +205,7 @@ class ModalPopupHeader extends StatelessWidget {
                 child: Container(
                   // color: Colors.red,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 16, 10, 8),
+                    padding: const EdgeInsets.fromLTRB(10, 16 + 6, 10, 8),
                     child: Center(
                       child: Text(
                         text!,

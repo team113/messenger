@@ -232,6 +232,8 @@ class ChatController extends GetxController {
 
   final RxBool emailNotValidated = RxBool(false);
 
+  final RxBool joinWall = RxBool(false);
+
   bool paid = false;
 
   final RxBool acceptPaid = RxBool(false);
@@ -811,6 +813,8 @@ class ChatController extends GetxController {
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      joinWall.value =
+          chat?.chat.value.isGroup == true && router.joinByLink != null;
       send.hasCall.value = inCall;
 
       _chatSubscription = chat!.updates.listen((_) {});

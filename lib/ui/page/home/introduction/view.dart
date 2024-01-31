@@ -134,7 +134,7 @@ class IntroductionView extends StatelessWidget {
                     child: SvgIcon(SvgIcons.logo),
                   ),
                   onPressed: () async {
-                    await WebUtils.launchScheme(router.route);
+                    await WebUtils.launchScheme('/d/${router.joinByLink}');
                     if (context.mounted) {
                       await _download(context);
                     }
@@ -177,12 +177,16 @@ class IntroductionView extends StatelessWidget {
                   ),
                 ];
               } else {
-                header = ModalPopupHeader(
-                  // text: 'Messenger by Gapopa',
-                  header: Text(
-                    'Messenger by Gapopa',
-                    style: style.fonts.big.regular.onBackground,
-                  ),
+                header = const ModalPopupHeader(
+                  text: 'Messenger by Gapopa',
+                  // header: Padding(
+                  //   padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
+                  //   child: Text(
+                  //     'Messenger by Gapopa',
+                  //     style: style.fonts.big.regular.onBackground,
+                  //     textAlign: TextAlign.center,
+                  //   ),
+                  // ),
                   dense: false,
                 );
                 children = [
@@ -191,9 +195,9 @@ class IntroductionView extends StatelessWidget {
                     applicationButton,
                     const SizedBox(height: 15),
                   ],
-                  signInButton,
-                  const SizedBox(height: 15),
                   guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
                   const SizedBox(height: 16),
                 ];
               }

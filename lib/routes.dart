@@ -198,6 +198,7 @@ class RouterState extends ChangeNotifier {
   OverlayState? overlay;
 
   bool directLink = false;
+  String? joinByLink;
   bool validateEmail = false;
   bool signUp = false;
   bool noIntroduction = false;
