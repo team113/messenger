@@ -44,7 +44,7 @@ class UserLoginField extends StatefulWidget {
   State<UserLoginField> createState() => _UserLoginFieldState();
 }
 
-/// State of a [UserLoginField] maintaining the [_state].
+/// State of a [UserLoginField] maintaining the [_state] and [_editing].
 class _UserLoginFieldState extends State<UserLoginField> {
   /// Indicates whether this [UserLoginField] is in editing mode.
   late bool _editing = widget.login == null;
