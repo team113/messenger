@@ -118,8 +118,6 @@ class CacheWorker extends DisposableService {
       responseType = CacheResponseType.bytes;
     }
 
-    print('get(checksum: $checksum, url: $url)');
-
     // Try to retrieve the [CacheEntry] by URL as well, yet [checksum] is still
     // more preferred.
     final String? key = checksum ?? url;
