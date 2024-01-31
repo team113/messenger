@@ -92,8 +92,7 @@ mixin AuthGraphQlMixin {
   /// Represents a sign-in action.
   ///
   /// The created [Session] has expiration, which may be prolonged via
-  /// [renewSession] if the [remember] argument is specified (so a
-  /// [RememberedSession] is returned).
+  /// [renewSession].
   ///
   /// ### Authentication
   ///

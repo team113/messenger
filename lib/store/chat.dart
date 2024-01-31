@@ -377,11 +377,14 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Ensures the provided [Chat]-monolog is remotely accessible.
-  Future<HiveRxChat> ensureRemoteMonolog([ChatName? name]) async {
+  Future<HiveRxChat> ensureRemoteMonolog({
+    ChatName? name,
+    bool? isHidden,
+  }) async {
     Log.debug('ensureRemoteMonolog($name)', '$runtimeType');
 
     final ChatData chatData = _chat(
-      await _graphQlProvider.createMonologChat(name),
+      await _graphQlProvider.createMonologChat(name: name),
     );
     final HiveRxChat chat = await _putEntry(chatData);
 
@@ -512,7 +515,7 @@ class ChatRepository extends DisposableInterface
     Log.debug('renameChat($id, $name)', '$runtimeType');
 
     if (id.isLocalWith(me)) {
-      await ensureRemoteMonolog(name);
+      await ensureRemoteMonolog(name: name);
       return;
     }
 
@@ -572,7 +575,8 @@ class ChatRepository extends DisposableInterface
       // If this [Chat] is local monolog, make it remote first.
       if (id.isLocalWith(me)) {
         _monologShouldBeHidden = true;
-        monologData = _chat(await _graphQlProvider.createMonologChat(null));
+        monologData =
+            _chat(await _graphQlProvider.createMonologChat(isHidden: true));
 
         // Dispose and delete local monolog from [Hive], since it's just been
         // replaced with a remote one.
@@ -1070,8 +1074,16 @@ class ChatRepository extends DisposableInterface
   Future<List<Attachment>> attachments(HiveChatItem item) async {
     Log.debug('attachments($item)', '$runtimeType');
 
-    var response = await _graphQlProvider.attachments(item.value.id);
+    final response = await _graphQlProvider.attachments(item.value.id);
     return response.chatItem?.toModel() ?? [];
+  }
+
+  /// Fetches the [ChatAvatar]s of the provided [RxChat].
+  Future<ChatAvatar?> avatar(ChatId id) async {
+    Log.debug('avatar($id)', '$runtimeType');
+
+    final response = await _graphQlProvider.avatar(id);
+    return response.chat?.avatar?.toModel();
   }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
@@ -1181,7 +1193,7 @@ class ChatRepository extends DisposableInterface
       if (id.isLocalWith(me)) {
         _localMonologFavoritePosition = newPosition;
         final ChatData monolog =
-            _chat(await _graphQlProvider.createMonologChat(null));
+            _chat(await _graphQlProvider.createMonologChat());
 
         id = monolog.chat.value.id;
         await _monologLocal.set(id);

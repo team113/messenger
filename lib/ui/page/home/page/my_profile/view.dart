@@ -63,9 +63,9 @@ import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'widget/background_preview.dart';
+import 'widget/bio.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
-import 'widget/status.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -136,9 +136,9 @@ class MyProfileView extends StatelessWidget {
                           ),
                           Paddings.basic(
                             Obx(() {
-                              return UserTextStatusField(
-                                c.myUser.value?.status,
-                                onSubmit: c.updateUserStatus,
+                              return UserBioField(
+                                c.myUser.value?.bio,
+                                onSubmit: c.updateUserBio,
                               );
                             }),
                           )

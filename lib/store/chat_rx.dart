@@ -871,6 +871,28 @@ class HiveRxChat extends RxChat {
     );
   }
 
+  /// Updates the [avatar] of the [chat].
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  @override
+  Future<void> updateAvatar() async {
+    Log.debug('updateAvatar()', '$runtimeType($id)');
+
+    final ChatAvatar? avatar = await _chatRepository.avatar(id);
+
+    await _chatLocal.txn((txn) async {
+      final HiveChat? chatEntity = await txn.get(id.val);
+      if (chatEntity != null) {
+        chatEntity.value.avatar = avatar;
+
+        // TODO: Avatar should be updated by [Hive] subscription.
+        this.avatar.value = avatar;
+
+        await txn.put(chatEntity.value.id.val, chatEntity);
+      }
+    });
+  }
+
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 

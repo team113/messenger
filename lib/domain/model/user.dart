@@ -17,7 +17,6 @@
 
 import 'dart:math';
 
-import 'package:characters/characters.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -285,8 +284,7 @@ class UserBio extends NewType<String> {
     if (val.isEmpty) {
       throw const FormatException('Must not be empty');
     } else if (val.length > 4096) {
-      // Just trim the [UserBio], if it exceeds the 4096 symbols limit.
-      return UserBio._(val.characters.take(4096).toString());
+      throw const FormatException('Must not be longer than 4096 symbols');
     }
 
     return UserBio._(val);

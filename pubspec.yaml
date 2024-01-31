@@ -12,7 +12,6 @@ dependencies:
   async: ^2.10.0
   back_button_interceptor: ^7.0.0
   callkeep: ^0.3.3
-  characters: ^1.3.0
   collection: ^1.17.2
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
@@ -62,8 +61,8 @@ dependencies:
   js: ^0.6.5
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.9.1-dev+rev.2822045851cec744a6c52fd7462d8de86bf9513d
-  medea_jason: 0.4.1-dev+rev.9aac4059ecdf75afa741a11a9d21e1648012eba6
+  medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f
+  medea_jason: 0.4.1-dev+rev.4f64c04990a3b19b055efb503afff4234cd16573
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -146,6 +145,8 @@ dependency_overrides:
       url: https://github.com/krida2000/git-hive.git
   # TODO: Remove when `artemis` updates.
   http: ^1.1.0
+  # TODO: Remove when `medea_jason` updates.
+  medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f
   # TODO: Remove when `graphql` updates.
   uuid: ^3.0.7
 

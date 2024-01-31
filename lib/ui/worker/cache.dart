@@ -118,14 +118,27 @@ class CacheWorker extends DisposableService {
       responseType = CacheResponseType.bytes;
     }
 
-    if (checksum != null && FIFOCache.exists(checksum)) {
-      final Uint8List? bytes = FIFOCache.get(checksum);
+    print('get(checksum: $checksum, url: $url)');
+
+    // Try to retrieve the [CacheEntry] by URL as well, yet [checksum] is still
+    // more preferred.
+    final String? key = checksum ?? url;
+
+    if (key != null && FIFOCache.exists(key)) {
+      final Uint8List? bytes = FIFOCache.get(key);
 
       if (bytes != null) {
         switch (responseType) {
           case CacheResponseType.file:
+            // If [CacheEntry] is supposed to contain a [File], and we don't
+            // have a [checksum], then there won't be a [File], thus we should
+            // break and proceed to fetch the [File] by the [url] provided.
+            if (checksum == null) {
+              break;
+            }
+
             return Future(
-              () async => CacheEntry(file: await add(bytes, checksum)),
+              () async => CacheEntry(file: await add(bytes, checksum, url)),
             );
 
           case CacheResponseType.bytes:
@@ -188,13 +201,13 @@ class CacheWorker extends DisposableService {
             case CacheResponseType.file:
               return Future(
                 () async => CacheEntry(
-                  file: data == null ? null : await add(data, checksum),
+                  file: data == null ? null : await add(data, checksum, url),
                 ),
               );
 
             case CacheResponseType.bytes:
               if (data != null) {
-                add(data, checksum);
+                add(data, checksum, url);
               }
               return CacheEntry(bytes: data);
           }
@@ -221,14 +234,17 @@ class CacheWorker extends DisposableService {
   }
 
   /// Adds the provided [data] to the cache.
-  FutureOr<File?> add(Uint8List data, [String? checksum]) {
-    // Calculating SHA-256 hash from [data] on Web may freeze the application.
-    if (!PlatformUtils.isWeb) {
-      checksum ??= sha256.convert(data).toString();
+  FutureOr<File?> add(Uint8List data, [String? checksum, String? url]) {
+    // Set [url] to the [FIFOCache] as well, yet if [checksum] isn't specified,
+    // then there will be no [File] written, only this.
+    final String? key = checksum ?? url;
+    if (key != null && !FIFOCache.exists(key)) {
+      FIFOCache.set(key, data);
     }
 
-    if (checksum != null && !FIFOCache.exists(checksum)) {
-      FIFOCache.set(checksum, data);
+    // Calculating SHA-256 hash from [data] on Web freezes the application.
+    if (!PlatformUtils.isWeb) {
+      checksum ??= sha256.convert(data).toString();
     }
 
     return _mutex.protect(() async {

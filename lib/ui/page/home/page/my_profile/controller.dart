@@ -421,10 +421,9 @@ class MyProfileController extends GetxController {
     await _myUserService.updateUserName(name);
   }
 
-  /// Updates or resets the [MyUser.status] field of the authenticated
-  /// [MyUser].
-  Future<void> updateUserStatus(UserTextStatus? status) async {
-    await _myUserService.updateUserStatus(status);
+  /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
+  Future<void> updateUserBio(UserBio? bio) async {
+    await _myUserService.updateUserBio(bio);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].

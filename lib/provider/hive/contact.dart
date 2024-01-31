@@ -51,6 +51,7 @@ class ContactHiveProvider extends HiveLazyProvider<HiveChatContact>
     Hive.maybeRegisterAdapter(FavoriteChatContactsCursorAdapter());
     Hive.maybeRegisterAdapter(HiveChatContactAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
+    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserEmailAdapter());
     Hive.maybeRegisterAdapter(UserNameAdapter());
     Hive.maybeRegisterAdapter(UserPhoneAdapter());
