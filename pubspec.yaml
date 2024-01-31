@@ -62,7 +62,7 @@ dependencies:
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f
-  medea_jason: 0.4.1-dev+rev.4f64c04990a3b19b055efb503afff4234cd16573
+  medea_jason: 0.4.1-dev+rev.bdc39e03f2c129d82538a8b96741b93eac1cef38
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3

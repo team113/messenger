@@ -183,12 +183,6 @@ class ChatRepository extends DisposableInterface
   /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
   final Mutex _monologGuard = Mutex();
 
-  /// Indicator whether a local [Chat]-monolog has been hidden.
-  ///
-  /// Used to prevent the [Chat]-monolog from re-appearing if the local
-  /// [Chat]-monolog was hidden.
-  bool _monologShouldBeHidden = false;
-
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
   /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
@@ -574,7 +568,6 @@ class ChatRepository extends DisposableInterface
     try {
       // If this [Chat] is local monolog, make it remote first.
       if (id.isLocalWith(me)) {
-        _monologShouldBeHidden = true;
         monologData =
             _chat(await _graphQlProvider.createMonologChat(isHidden: true));
 
@@ -595,15 +588,6 @@ class ChatRepository extends DisposableInterface
       // [_localSubscription].
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      if (_monologShouldBeHidden) {
-        _monologShouldBeHidden = false;
-
-        if (monologData != null) {
-          // The monolog has already been created remotely.
-          chat = await _putEntry(monologData);
-        }
-      }
-
       chat?.chat.update((c) => c?.isHidden = false);
 
       rethrow;
@@ -1704,16 +1688,7 @@ class ChatRepository extends DisposableInterface
           final ChatData data = event.chat;
           final Chat chat = data.chat.value;
 
-          // TODO: Get rid of `_monologShouldBeHidden` when backend supports
-          //       creating chats with `isHidden` set to `true`.
           if (chat.isMonolog) {
-            if (_monologShouldBeHidden) {
-              // If local monolog was hidden, edit remote one's [ChatData] before
-              // saving.
-              chat.isHidden = true;
-              _monologShouldBeHidden = false;
-            }
-
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
               await _monologLocal.set(chat.id);
