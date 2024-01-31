@@ -192,7 +192,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Flexible(child: widget.title ?? Container()),
+                              Flexible(child: widget.child ?? Container()),
                               if (widget.subtitle != null)
                                 const SizedBox(height: 1 * 0.7),
                               if (widget.subtitle != null)
