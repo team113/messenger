@@ -62,9 +62,6 @@ class CameraSwitchController extends GetxController {
   /// Mutex guarding [initRenderer].
   final Mutex _initRendererGuard = Mutex();
 
-  /// [Worker] reacting on the [MediaSettings] changes updating the [selected].
-  Worker? _worker;
-
   /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
@@ -74,15 +71,6 @@ class CameraSwitchController extends GetxController {
     _cameraWorker = ever(camera, (e) => initRenderer());
     _devicesSubscription = MediaUtils.onDeviceChange
         .listen((e) => devices.value = e.video().toList());
-
-    _worker = ever(_settingsRepository.mediaSettings, (e) {
-      if (e != null) {
-        camera.value = devices
-                .firstWhereOrNull((e) => e.deviceId() == camera.value)
-                ?.deviceId() ??
-            camera.value;
-      }
-    });
 
     try {
       await WebUtils.cameraPermission();
@@ -108,7 +96,6 @@ class CameraSwitchController extends GetxController {
     _localTrack = null;
     _cameraWorker?.dispose();
     _devicesSubscription?.cancel();
-    _worker?.dispose();
     super.onClose();
   }
 
