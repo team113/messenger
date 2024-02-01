@@ -61,7 +61,7 @@ class RecentChatTile extends StatelessWidget {
     this.me,
     this.blocked = false,
     this.selected = false,
-    this.invertsRouteChat = true,
+    this.invertible = true,
     this.trailing,
     this.getUser,
     this.inContacts,
@@ -94,9 +94,8 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
 
-  /// Indicator whether the colors of this [RecentChatTile] should be inverted
-  /// if [rxChat] corresponds to the current [Route].
-  final bool invertsRouteChat;
+  /// Indicator whether [ChatIsRoute.isRoute] should be treated as [selected].
+  final bool invertible;
 
   /// [Widget]s to display in the trailing instead of the defaults.
   final List<Widget>? trailing;
@@ -166,7 +165,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
-      final bool inverted = selected || (invertsRouteChat && isRoute);
+      final bool inverted = selected || (invertible && isRoute);
 
       return Slidable(
         key: Key(rxChat.id.val),

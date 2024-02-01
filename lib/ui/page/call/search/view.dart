@@ -44,7 +44,6 @@ class SearchView extends StatelessWidget {
     required this.title,
     this.chat,
     this.selectable = true,
-    this.invertsRouteChat = true,
     this.enabled = true,
     this.submit,
     this.onPressed,
@@ -61,10 +60,6 @@ class SearchView extends StatelessWidget {
 
   /// Indicator whether the searched items are selectable.
   final bool selectable;
-
-  /// Indicator whether the colors of [RecentChatTile] should be inverted if its
-  /// [Chat] corresponds to the current [Route].
-  final bool invertsRouteChat;
 
   /// Indicator whether the selected items can be submitted, if [selectable], or
   /// otherwise [onPressed] may be called.
@@ -131,6 +126,7 @@ class SearchView extends StatelessWidget {
               Expanded(
                 child: Obx(() {
                   final RxStatus status = c.searchStatus.value;
+
                   if (c.recent.isEmpty &&
                       c.contacts.isEmpty &&
                       c.users.isEmpty &&
@@ -162,7 +158,7 @@ class SearchView extends StatelessWidget {
                       c.users.length +
                       c.recent.length;
 
-                  final Widget listView = FlutterListView(
+                  final Widget list = FlutterListView(
                     key: const Key('SearchScrollable'),
                     controller: c.scrollController,
                     delegate: FlutterListViewDelegate(
@@ -179,7 +175,7 @@ class SearchView extends StatelessWidget {
                                 me: c.me,
                                 onTap: () => c.select(user: element),
                                 selected: c.selectedUsers.contains(element),
-                                invertsRouteChat: invertsRouteChat,
+                                invertible: !selectable,
                                 trailing: [
                                   SelectedDot(
                                     selected: c.selectedUsers.contains(element),
@@ -211,7 +207,7 @@ class SearchView extends StatelessWidget {
                                 me: c.me,
                                 onTap: () => c.select(contact: element),
                                 selected: c.selectedContacts.contains(element),
-                                invertsRouteChat: invertsRouteChat,
+                                invertible: !selectable,
                                 trailing: [
                                   SelectedDot(
                                     selected:
@@ -243,7 +239,7 @@ class SearchView extends StatelessWidget {
                               me: c.me,
                               onTap: () => c.select(chat: element),
                               selected: c.selectedChats.contains(element),
-                              invertsRouteChat: invertsRouteChat,
+                              invertible: !selectable,
                               trailing: [
                                 SelectedDot(
                                   selected: c.selectedChats.contains(element),
@@ -287,14 +283,14 @@ class SearchView extends StatelessWidget {
                     ),
                   );
 
-                  if (context.isMobile) {
+                  // Force [Scrollbar]s to appear on mobile.
+                  if (PlatformUtils.isMobile) {
                     return Scrollbar(
                       controller: c.scrollController,
-                      child: listView,
+                      child: list,
                     );
                   } else {
-                    // Don't display two [Scrollbar]s on desktop.
-                    return listView;
+                    return list;
                   }
                 }),
               ),

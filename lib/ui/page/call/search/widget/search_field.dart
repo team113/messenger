@@ -27,7 +27,7 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 
-/// [ReactiveTextField] stylized as a search field.
+/// [ReactiveTextField] inside a [CustomAppBar] stylized as a search field.
 class SearchField extends StatelessWidget {
   const SearchField(
     this.state, {

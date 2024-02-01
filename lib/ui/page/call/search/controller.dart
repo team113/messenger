@@ -756,7 +756,7 @@ class SearchController extends GetxController {
   /// Predicate to check whether the [user] or [title] corresponding to the
   /// [Chat], [User] or [ChatContact] being filtered matches the [query].
   ///
-  /// Note that any entity with non-null [user] or [title] matches the empty
+  /// Note that any entity with non-`null` [user] or [title] matches the empty
   /// [query].
   bool _matchesQuery({User? user, String? title}) {
     if (user != null || title != null) {
@@ -772,6 +772,7 @@ class SearchController extends GetxController {
         if (user != null) {
           num = user.num.val;
           name = user.name?.val;
+
           // [user] might be a contact with a custom [UserName].
           contactName = _contactService.paginated.values
               .firstWhereOrNull((c) => c.user.value?.user.value.id == user.id)
@@ -794,7 +795,7 @@ class SearchController extends GetxController {
 
         return false;
       } else {
-        // Every non-null item matches the empty [query].
+        // Every non-`null` item matches the empty [query].
         return true;
       }
     } else {
