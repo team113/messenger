@@ -32,16 +32,16 @@ export 'view.dart';
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
   MicrophoneSwitchController(this._settingsRepository, {String? mic})
-      : _mic = mic;
+      : _mic = mic ?? _settingsRepository.mediaSettings.value?.audioDevice;
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
   /// List of [DeviceDetails] of all the available devices.
-  final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
+  final RxList<DeviceDetails> devices = RxList([]);
 
   /// Currently selected [DeviceDetails].
-  final Rx<DeviceDetails?> selected = Rx<DeviceDetails?>(null);
+  final Rx<DeviceDetails?> selected = Rx(null);
 
   /// Error message to display, if any.
   final RxnString error = RxnString();
@@ -49,8 +49,11 @@ class MicrophoneSwitchController extends GetxController {
   /// ID of the initially selected microphone device.
   String? _mic;
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [Worker] reacting on the [MediaSettings] changes updating the [selected].
+  Worker? _worker;
+
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   @override
@@ -62,7 +65,7 @@ class MicrophoneSwitchController extends GetxController {
       },
     );
 
-    _settingsRepository.mediaSettings.listen((e) {
+    _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
         _mic = e.audioDevice;
         selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
@@ -87,6 +90,7 @@ class MicrophoneSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _worker?.dispose();
     super.onClose();
   }
 

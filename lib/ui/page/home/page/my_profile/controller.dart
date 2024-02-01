@@ -101,8 +101,8 @@ class MyProfileController extends GetxController {
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   /// [Duration] of the highlighting.

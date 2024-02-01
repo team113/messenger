@@ -49,35 +49,33 @@ class CallSettingsController extends GetxController {
   RxnString get camera => _call.value.videoDevice;
 
   /// Returns ID of the currently used microphone device.
-  RxnString get mic {
-    final String? preferredAudio = _call.value.preferredAudioDevice.value;
-    final DeviceDetails? firstAudio = devices.audio().firstOrNull;
-    final String? audioDevice = _call.value.audioDevice.value;
+  String? get mic {
+    final String? preferred = _call.value.preferredAudioDevice.value;
+    final DeviceDetails? first = devices.audio().firstOrNull;
+    final String? used = _call.value.audioDevice.value;
 
-    if (firstAudio != null &&
-        firstAudio is DefaultDeviceDetails &&
-        (preferredAudio == 'default' || preferredAudio == null) &&
-        (audioDevice == firstAudio.deviceId() || audioDevice == null)) {
-      return RxnString('default');
+    if (first is DefaultDeviceDetails &&
+        (preferred == 'default' || preferred == null) &&
+        (used == first.deviceId() || used == null)) {
+      return 'default';
     }
 
-    return _call.value.audioDevice;
+    return _call.value.audioDevice.value;
   }
 
   /// Returns ID of the currently used output device.
-  RxnString get output {
-    final String? preferredOutput = _call.value.preferredOutputDevice.value;
-    final DeviceDetails? firstOutput = devices.output().firstOrNull;
-    final String? outputDevice = _call.value.outputDevice.value;
+  String? get output {
+    final String? preferred = _call.value.preferredOutputDevice.value;
+    final DeviceDetails? first = devices.output().firstOrNull;
+    final String? used = _call.value.outputDevice.value;
 
-    if (firstOutput != null &&
-        firstOutput is DefaultDeviceDetails &&
-        (preferredOutput == 'default' || preferredOutput == null) &&
-        (outputDevice == firstOutput.deviceId() || outputDevice == null)) {
-      return RxnString('default');
+    if (first is DefaultDeviceDetails &&
+        (preferred == 'default' || preferred == null) &&
+        (used == first.deviceId() || used == null)) {
+      return 'default';
     }
 
-    return _call.value.outputDevice;
+    return _call.value.outputDevice.value;
   }
 
   /// Returns the current [ApplicationSettings] value.

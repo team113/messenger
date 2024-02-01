@@ -246,7 +246,9 @@ class ScreenPreferences extends TrackPreferences {
   final int? framerate;
 }
 
-/// Wrapper around a [MediaDeviceDetails] with some additional methods.
+/// Wrapper around a [MediaDeviceDetails] with [id] method.
+///
+/// [id] may be overridden to represent a different device.
 class DeviceDetails extends MediaDeviceDetails {
   DeviceDetails(this._device);
 

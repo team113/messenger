@@ -301,12 +301,12 @@ class OngoingCall {
   final StreamController<CallNotification> _notifications =
       StreamController.broadcast();
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
-  /// [StreamSubscription] for the [MediaUtils.onDisplayChange] stream updating
-  /// the [displays].
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDisplayChange] stream
+  /// updating the [displays].
   StreamSubscription? _displaysSubscription;
 
   /// [ChatItemId] of this [OngoingCall].
@@ -1835,7 +1835,7 @@ class OngoingCall {
     List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickOutputDevice(previous: $previous, added: $added, removed: $removed)',
+      '_pickOutputDevice(previous: ${previous.output().map((e) => e.label())}, added: ${added.output().map((e) => e.label())}, removed: ${removed.output().map((e) => e.label())})',
       '$runtimeType',
     );
 
@@ -1867,7 +1867,7 @@ class OngoingCall {
     List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickAudioDevice(previous: $previous, added: $added, removed: $removed)',
+      '_pickAudioDevice(previous: ${previous.audio().map((e) => e.label())}, added: ${added.audio().map((e) => e.label())}, removed: ${removed.audio().map((e) => e.label())})',
       '$runtimeType',
     );
 
@@ -1897,7 +1897,7 @@ class OngoingCall {
     List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickVideoDevice(previous: $previous, removed: $removed)',
+      '_pickVideoDevice(previous: ${previous.video().map((e) => e.label())}, removed: ${removed.video().map((e) => e.label())})',
       '$runtimeType',
     );
 
@@ -1912,7 +1912,10 @@ class OngoingCall {
 
   /// Disables screen sharing, if the [screenDevice] is [removed].
   void _pickScreenDevice(List<MediaDisplayDetails> removed) {
-    Log.debug('_pickScreenDevice(removed: $removed)', '$runtimeType');
+    Log.debug(
+      '_pickScreenDevice(removed: ${removed.map((e) => e.title())})',
+      '$runtimeType',
+    );
 
     if (removed.any((e) => e.deviceId() == screenDevice.value)) {
       setScreenShareEnabled(false);

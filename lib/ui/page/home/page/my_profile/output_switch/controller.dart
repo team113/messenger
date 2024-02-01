@@ -32,7 +32,8 @@ export 'view.dart';
 /// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
   OutputSwitchController(this._settingsRepository, {String? output})
-      : _output = output;
+      : _output =
+            output ?? _settingsRepository.mediaSettings.value?.outputDevice;
 
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -49,8 +50,11 @@ class OutputSwitchController extends GetxController {
   /// ID of the initially selected audio output device.
   String? _output;
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [Worker] reacting on the [MediaSettings] changes updating the [selected].
+  Worker? _worker;
+
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   @override
@@ -62,7 +66,7 @@ class OutputSwitchController extends GetxController {
       },
     );
 
-    _settingsRepository.mediaSettings.listen((e) {
+    _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
         _output = e.outputDevice;
         selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
@@ -89,6 +93,7 @@ class OutputSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _worker?.dispose();
     super.onClose();
   }
 
