@@ -277,7 +277,7 @@ class CallRepository extends DisposableInterface
   @override
   Future<Rx<OngoingCall>?> join(
     ChatId chatId,
-      ChatCall? call, {
+    ChatCall? call, {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,

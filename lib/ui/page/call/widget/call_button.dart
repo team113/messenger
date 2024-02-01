@@ -89,9 +89,10 @@ class CallButtonWidget extends StatelessWidget {
       child: RoundFloatingButton(
         icon: asset,
         offset: offset,
-        color: color ?? (opaque
-            ? style.colors.onSecondaryOpacity88
-            : style.colors.onSecondaryOpacity50),
+        color: color ??
+            (opaque
+                ? style.colors.onSecondaryOpacity88
+                : style.colors.onSecondaryOpacity50),
         hint: !expanded && hinted ? hint : null,
         text: expanded || constrained ? hint : null,
         minified: !constrained,

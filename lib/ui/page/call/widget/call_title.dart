@@ -17,14 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
-import '/ui/page/home/widget/avatar.dart';
 
 /// Caption and subtitle texts used to display [ChatCall.author] and
 /// [OngoingCall] state.
