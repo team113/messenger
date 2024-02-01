@@ -127,7 +127,9 @@ abstract class ModalPopup {
             ),
           );
 
-          return SafeArea(child: body);
+          return SafeArea(
+            child: Material(type: MaterialType.transparency, child: body),
+          );
         },
         barrierLabel:
             MaterialLocalizations.of(context).modalBarrierDismissLabel,
