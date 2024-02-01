@@ -51,6 +51,7 @@ class ReactiveTextField extends StatelessWidget {
     this.obscure = false,
     this.onChanged,
     this.onSuffixPressed,
+    this.onCanceled,
     this.padding,
     this.prefix,
     this.prefixText,
@@ -139,6 +140,11 @@ class ReactiveTextField extends StatelessWidget {
   /// Only meaningful if [suffix] is non-`null`.
   final void Function()? onSuffixPressed;
 
+  /// Callback, called when user presses the cancel button.
+  ///
+  /// If `null`, then no cancel button will be displayed.
+  final void Function()? onCanceled;
+
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
@@ -206,6 +212,14 @@ class ReactiveTextField extends StatelessWidget {
             !status.isEmpty ||
             hasError;
 
+        final Widget cancelButton = AllowOverflow(
+          key: const ValueKey('Cancel'),
+          child: Text(
+            'btn_cancel'.l10n,
+            style: style.fonts.small.regular.primary,
+          ),
+        );
+
         return ElasticAnimatedSwitcher(
           child: hasSuffix
               ? SizedBox(
@@ -217,9 +231,7 @@ class ReactiveTextField extends StatelessWidget {
                         ? state.isEmpty.value && !clearable
                             ? null
                             : state.submit
-                        : (status.isEmpty && !hasError)
-                            ? onSuffixPressed
-                            : null,
+                        : onCanceled ?? onSuffixPressed,
                     decorator: (child) {
                       return Padding(
                         padding: const EdgeInsets.only(left: 8, right: 16),
@@ -240,15 +252,17 @@ class ReactiveTextField extends StatelessWidget {
                                   ),
                                 )
                               : hasError
-                                  ? SizedBox(
-                                      key: const ValueKey('Error'),
-                                      width: 24,
-                                      child: Icon(
-                                        Icons.error,
-                                        size: 18,
-                                        color: style.colors.danger,
-                                      ),
-                                    )
+                                  ? onCanceled != null
+                                      ? cancelButton
+                                      : SizedBox(
+                                          key: const ValueKey('Error'),
+                                          width: 24,
+                                          child: Icon(
+                                            Icons.error,
+                                            size: 18,
+                                            color: style.colors.danger,
+                                          ),
+                                        )
                                   : (state.approvable &&
                                           (state.changed.value ||
                                               state.resubmitOnError.isTrue))
@@ -262,13 +276,15 @@ class ReactiveTextField extends StatelessWidget {
                                                     .primary,
                                               ),
                                             )
-                                      : SizedBox(
-                                          key: const ValueKey('Icon'),
-                                          width: 24,
-                                          child: suffix != null
-                                              ? Icon(suffix)
-                                              : trailing,
-                                        ),
+                                      : onCanceled != null
+                                          ? cancelButton
+                                          : SizedBox(
+                                              key: const ValueKey('Icon'),
+                                              width: 24,
+                                              child: suffix != null
+                                                  ? Icon(suffix)
+                                                  : trailing,
+                                            ),
                     ),
                   ),
                 )
