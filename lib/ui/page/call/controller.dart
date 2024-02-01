@@ -2151,13 +2151,8 @@ class CallController extends GetxController {
 
         for (var e in members) {
           if (e.id != me.id.userId) {
-            final id = CallMemberId(e.id, null);
-
-            _currentCall.value.members.addIf(
-              _currentCall.value.members.keys
-                  .none((e) => e.userId == id.userId),
-              id,
-              CallMember(id, null, isDialing: true),
+            _putTracksFrom(
+              CallMember(CallMemberId(e.id, null), null, isDialing: true),
             );
           }
         }
