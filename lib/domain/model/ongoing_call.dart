@@ -1292,17 +1292,17 @@ class OngoingCall {
 
         final Track t = Track(track);
 
+        final CallMember? redialed = members[redialedId];
+        if (redialed?.isDialing.value == true) {
+          members.move(redialedId, id);
+        }
+
+        member = members[id];
+        member?.id = id;
+        member?.isConnected.value = true;
+        member?.isDialing.value = false;
+
         if (track.mediaDirection().isEmitting) {
-          final CallMember? redialed = members[redialedId];
-          if (redialed?.isDialing.value == true) {
-            members.move(redialedId, id);
-          }
-
-          member = members[id];
-          member?.id = id;
-          member?.isConnected.value = true;
-          member?.isDialing.value = false;
-
           member?.tracks.add(t);
         }
 
