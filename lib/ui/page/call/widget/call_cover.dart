@@ -63,7 +63,8 @@ class CallCoverWidget extends StatelessWidget {
                 user?.name?.val ??
                 user?.num.toString();
             final int? color =
-                chat?.chat.value.colorDiscriminant(chat?.me).sum();
+                chat?.chat.value.colorDiscriminant(chat?.me).sum() ??
+                    user?.num.val.sum();
 
             final Color gradient;
 
