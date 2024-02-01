@@ -378,6 +378,21 @@ class OngoingCall {
           }
         }
 
+        // `default` device might be changed, despite still having the same ID.
+        if (PlatformUtils.isWeb) {
+          final DeviceDetails? defaultAudio =
+              e.audio().firstWhereOrNull((e) => e.id() == 'default');
+          if (defaultAudio != null) {
+            added.add(defaultAudio);
+          }
+
+          final DeviceDetails? defaultOutput =
+              e.output().firstWhereOrNull((e) => e.id() == 'default');
+          if (defaultOutput != null) {
+            added.add(defaultOutput);
+          }
+        }
+
         _pickAudioDevice(previous, added, removed);
         _pickOutputDevice(previous, added, removed);
         _pickVideoDevice(previous, removed);
@@ -1725,9 +1740,23 @@ class OngoingCall {
     Log.debug('_addLocalTrack($track)', '$runtimeType');
 
     track.onEnded(() {
+      Log.debug('track.onEnded($track)', '$runtimeType');
+
       switch (track.kind()) {
         case MediaKind.audio:
-          setAudioEnabled(false);
+          // Currently used [audioDevice] has ended its track, thus set it to
+          // `null`.
+          //
+          // This might happen in Web, when `default` device is picked. In such
+          // scenarios afterwards the [MediaUtilsImpl.onDeviceChange] will
+          // probably its event and pick a new default device.
+          if (audioDevice.value == track.getTrack().deviceId()) {
+            audioDevice.value = '_____';
+          }
+
+          _removeLocalTracks(track.kind(), track.mediaSourceKind());
+          track.getTrack().dispose();
+          track.free();
           break;
 
         case MediaKind.video:
@@ -1865,7 +1894,7 @@ class OngoingCall {
     List<DeviceDetails> previous = const [],
     List<DeviceDetails> added = const [],
     List<DeviceDetails> removed = const [],
-  ]) {
+  ]) async {
     Log.debug(
       '_pickAudioDevice(previous: ${previous.audio().map((e) => e.label())}, added: ${added.audio().map((e) => e.label())}, removed: ${removed.audio().map((e) => e.label())})',
       '$runtimeType',
@@ -1887,7 +1916,7 @@ class OngoingCall {
 
     if (device != null) {
       _notifications.add(DeviceChangedNotification(device: device));
-      _setAudioDevice(device.deviceId());
+      await _setAudioDevice(device.deviceId());
     }
   }
 
@@ -1895,7 +1924,7 @@ class OngoingCall {
   void _pickVideoDevice([
     List<DeviceDetails> previous = const [],
     List<DeviceDetails> removed = const [],
-  ]) {
+  ]) async {
     Log.debug(
       '_pickVideoDevice(previous: ${previous.video().map((e) => e.label())}, removed: ${removed.video().map((e) => e.label())})',
       '$runtimeType',
@@ -1905,20 +1934,20 @@ class OngoingCall {
         (videoDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.video().firstOrNull?.deviceId()))) {
-      setVideoEnabled(false);
+      await setVideoEnabled(false);
       videoDevice.value = null;
     }
   }
 
   /// Disables screen sharing, if the [screenDevice] is [removed].
-  void _pickScreenDevice(List<MediaDisplayDetails> removed) {
+  void _pickScreenDevice(List<MediaDisplayDetails> removed) async {
     Log.debug(
       '_pickScreenDevice(removed: ${removed.map((e) => e.title())})',
       '$runtimeType',
     );
 
     if (removed.any((e) => e.deviceId() == screenDevice.value)) {
-      setScreenShareEnabled(false);
+      await setScreenShareEnabled(false);
     }
   }
 
