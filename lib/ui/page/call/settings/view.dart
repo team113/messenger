@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
 import '/ui/page/home/page/my_profile/output_switch/view.dart';
@@ -156,21 +155,6 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  if (PlatformUtils.isWeb) ...[
-                    ModalPopupHeader(text: 'label_calls'.l10n, close: false),
-                    Padding(
-                      padding: padding,
-                      child: FieldButton(
-                        text: (c.settings.value?.enablePopups ?? true)
-                            ? 'label_open_calls_in_window'.l10n
-                            : 'label_open_calls_in_app'.l10n,
-                        maxLines: null,
-                        onPressed: () => CallWindowSwitchView.show(context),
-                        style: style.fonts.normal.regular.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ]
                 ],
               ),
             ),
