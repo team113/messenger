@@ -834,7 +834,6 @@ class ChatView extends StatelessWidget {
                   item: e,
                   me: c.me!,
                   avatar: !previousSame,
-                  loadImages: c.settings.value?.loadImages != false,
                   reads: c.chat!.members.length > 10
                       ? []
                       : c.chat!.reads.where((m) =>
@@ -914,7 +913,6 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
-                  loadImages: c.settings.value?.loadImages != false,
                   reads: c.chat!.members.length > 10
                       ? []
                       : c.chat!.reads.where((m) =>
