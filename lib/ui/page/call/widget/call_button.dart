@@ -34,6 +34,7 @@ class CallButtonWidget extends StatelessWidget {
     this.hinted = true,
     this.expanded = false,
     this.withBlur = false,
+    this.opaque = false,
     this.color,
     this.border,
     this.constrained = false,
@@ -70,6 +71,9 @@ class CallButtonWidget extends StatelessWidget {
   /// Indicator whether this [CallButtonWidget] should be constrained.
   final bool constrained;
 
+  /// Indicator whether this [CallButtonWidget] should be less transparent.
+  final bool opaque;
+
   /// Background color of this [CallButtonWidget].
   final Color? color;
 
@@ -85,7 +89,9 @@ class CallButtonWidget extends StatelessWidget {
       child: RoundFloatingButton(
         icon: asset,
         offset: offset,
-        color: color ?? style.colors.onSecondaryOpacity50,
+        color: color ?? (opaque
+            ? style.colors.onSecondaryOpacity88
+            : style.colors.onSecondaryOpacity50),
         hint: !expanded && hinted ? hint : null,
         text: expanded || constrained ? hint : null,
         minified: !constrained,

@@ -28,7 +28,6 @@ import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
 import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/double_bounce_indicator.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
@@ -75,7 +74,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     List<Widget> overlay = [];
 
     // Active call.
-    if (c.state.value == OngoingCallState.active) {
+    if ((c.isGroup && isOutgoing) || c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
           if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
@@ -286,12 +285,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                 child: child,
               );
             }),
-
-            if (isOutgoing)
-              const Padding(
-                padding: EdgeInsets.all(21.0),
-                child: Center(child: DoubleBounceLoadingIndicator()),
-              ),
           ],
         );
       }));
@@ -393,8 +386,11 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Sliding from the top title bar.
       SafeArea(
         child: Obx(() {
-          bool showUi =
-              (c.state.value != OngoingCallState.active && !c.minimized.value);
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool incoming = !isOutgoing;
+
+          final bool showUi =
+              (!c.isGroup || incoming) && !active && !c.minimized.value;
 
           return AnimatedSlider(
             duration: const Duration(milliseconds: 400),
@@ -424,9 +420,12 @@ Widget mobileCall(CallController c, BuildContext context) {
         double panelHeight = 0;
         List<Widget> panelChildren = [];
 
+        final bool panel = (c.isGroup && isOutgoing) ||
+            c.state.value == OngoingCallState.active ||
+            c.state.value == OngoingCallState.joining;
+
         // Populate the sliding panel height and its content.
-        if (c.state.value == OngoingCallState.active ||
-            c.state.value == OngoingCallState.joining) {
+        if (panel) {
           panelHeight = 360 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
@@ -481,8 +480,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         return SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
-          child: c.state.value == OngoingCallState.active ||
-                  c.state.value == OngoingCallState.joining
+          child: panel
               ? AnimatedSlider(
                   beginOffset: Offset(
                     0,
@@ -559,7 +557,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 30),
+                        padding: EdgeInsets.only(bottom: isOutgoing ? 0 : 30),
                         child: AnimatedSlider(
                           isOpen: showUi,
                           duration: const Duration(milliseconds: 400),
@@ -573,13 +571,33 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
-                                            ? SwitchButton(c).build(blur: true)
-                                            : SpeakerButton(c)
-                                                .build(blur: true),
+                                            ? SwitchButton(c).build(
+                                                hinted: false,
+                                                opaque: true,
+                                              )
+                                            : SpeakerButton(c).build(
+                                                hinted: false,
+                                                opaque: true,
+                                              ),
                                       ),
-                                    padding(AudioButton(c).build(blur: true)),
-                                    padding(VideoButton(c).build(blur: true)),
-                                    padding(CancelButton(c).build(blur: true)),
+                                    padding(
+                                      AudioButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
+                                    padding(
+                                      VideoButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
+                                    padding(
+                                      CancelButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
                                   ]
                                 : [
                                     padding(

@@ -1575,8 +1575,6 @@ class OngoingCall {
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     Log.debug('_joinRoom($link)', '$runtimeType');
 
-    me.isConnected.value = false;
-
     Log.info('Joining the room...', '$runtimeType');
     if (call.value?.joinLink != null && call.value?.joinLink != link) {
       Log.info(
@@ -1599,8 +1597,6 @@ class OngoingCall {
     }
 
     Log.info('Room joined!', '$runtimeType');
-
-    me.isConnected.value = true;
   }
 
   /// Closes the [_room] and releases the associated resources.

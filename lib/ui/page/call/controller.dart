@@ -2141,6 +2141,27 @@ class CallController extends GetxController {
       secondaryTop.value = null;
       secondaryRight.value = 10;
       secondaryBottom.value = 10;
+    } else if (outgoing && !started) {
+      if (chat.value != null) {
+        final List<User> members =
+            chat.value!.members.values.map((e) => e.user.value).toList();
+        for (var e in chat.value!.chat.value.members) {
+          members.addIf(members.none((p) => p.id == e.user.id), e.user);
+        }
+
+        for (var e in members) {
+          if (e.id != me.id.userId) {
+            final id = CallMemberId(e.id, null);
+
+            _currentCall.value.members.addIf(
+              _currentCall.value.members.keys
+                  .none((e) => e.userId == id.userId),
+              id,
+              CallMember(id, null, isDialing: true),
+            );
+          }
+        }
+      }
     }
 
     // Update the [WebUtils.title] if this call is in a popup.
