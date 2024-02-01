@@ -31,7 +31,6 @@ import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
-import '/ui/widget/selected_tile.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/search_field.dart';
@@ -185,18 +184,7 @@ class SearchView extends StatelessWidget {
                               );
                             }
 
-                            return SelectedTile(
-                              key: Key('SearchUser_${element.id}'),
-                              user: element,
-                              selected: c.selectedUsers.contains(element),
-                              darken: 0.05,
-                              onAvatarTap: null,
-                              onTap: selectable
-                                  ? () => c.select(user: element)
-                                  : enabled
-                                      ? () => onPressed?.call(element)
-                                      : null,
-                            );
+                            return const SizedBox.shrink();
                           });
                         } else if (element is RxChatContact) {
                           child = Obx(() {
@@ -218,18 +206,7 @@ class SearchView extends StatelessWidget {
                               );
                             }
 
-                            return SelectedTile(
-                              key: Key('SearchContact_${element.id}'),
-                              contact: element,
-                              darken: 0.05,
-                              selected: c.selectedContacts.contains(element),
-                              onAvatarTap: null,
-                              onTap: selectable
-                                  ? () => c.select(contact: element)
-                                  : enabled
-                                      ? () => onPressed?.call(element)
-                                      : null,
-                            );
+                            return const SizedBox.shrink();
                           });
                         } else if (element is RxChat) {
                           child = Obx(() {
