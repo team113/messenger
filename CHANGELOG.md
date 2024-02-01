@@ -39,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned sign in section. ([#827], [#794], [#789])
     - Media panel:
         - Grab cursor over participants. ([#816], [#810])
+        - Redesigned incoming/outgoing call. ([#832], [#812])
 
 ### Fixed
 
@@ -88,9 +89,11 @@ All user visible changes to this project will be documented in this file. This p
 [#797]: /../../pull/797
 [#808]: /../../issues/808
 [#810]: /../../issues/810
+[#812]: /../../issues/812
 [#816]: /../../pull/816
 [#823]: /../../pull/823
 [#827]: /../../pull/827
+[#832]: /../../pull/832
 
 
 

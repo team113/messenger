@@ -2141,20 +2141,18 @@ class CallController extends GetxController {
       secondaryTop.value = null;
       secondaryRight.value = 10;
       secondaryBottom.value = 10;
-    } else if (outgoing && !started) {
-      if (chat.value != null) {
-        final List<User> members =
-            chat.value!.members.values.map((e) => e.user.value).toList();
-        for (var e in chat.value!.chat.value.members) {
-          members.addIf(members.none((p) => p.id == e.user.id), e.user);
-        }
+    } else if (outgoing && !started && chat.value != null) {
+      final List<User> members =
+          chat.value!.members.values.map((e) => e.user.value).toList();
+      for (var e in chat.value!.chat.value.members) {
+        members.addIf(members.none((p) => p.id == e.user.id), e.user);
+      }
 
-        for (var e in members) {
-          if (e.id != me.id.userId) {
-            _putTracksFrom(
-              CallMember(CallMemberId(e.id, null), null, isDialing: true),
-            );
-          }
+      for (var e in members) {
+        if (e.id != me.id.userId) {
+          _putTracksFrom(
+            CallMember(CallMemberId(e.id, null), null, isDialing: true),
+          );
         }
       }
     }
