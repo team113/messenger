@@ -141,6 +141,8 @@ class ReactiveTextField extends StatelessWidget {
   final void Function()? onSuffixPressed;
 
   /// Callback, called when user presses the cancel button.
+  ///
+  /// If `null`, then no cancel button will be displayed.
   final void Function()? onCanceled;
 
   /// Optional text prefix to display before the input.

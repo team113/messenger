@@ -53,7 +53,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
     approvable: true,
-    submitted: true,
     onChanged: (s) async {
       s.error.value = null;
 
