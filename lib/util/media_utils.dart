@@ -271,7 +271,7 @@ class DeviceDetails extends MediaDeviceDetails {
   @override
   String label() => _device.label();
 
-  /// Returns an unique identifier of this [DeviceDetails].
+  /// Returns a unique identifier of this [DeviceDetails].
   String id() => _device.deviceId();
 }
 

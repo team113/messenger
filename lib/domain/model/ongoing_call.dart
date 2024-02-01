@@ -1004,9 +1004,8 @@ class OngoingCall {
     );
   }
 
-  /// Populates [devices] with a list of [DeviceDetails] objects
-  /// representing available media input devices, such as microphones, cameras,
-  /// and so forth.
+  /// Populates [devices] with a list of [DeviceDetails] objects representing
+  /// available media input devices, such as microphones, cameras, and so forth.
   Future<void> enumerateDevices({bool media = true, bool screen = true}) async {
     Log.debug('enumerateDevices($media, $screen)', '$runtimeType');
 
@@ -1024,9 +1023,9 @@ class OngoingCall {
     }
   }
 
-  /// Sets device with [deviceId] as a currently used [outputDevice].
+  /// Sets device with [deviceId] as a currently used [audioDevice].
   ///
-  /// Does nothing if [deviceId] is already an ID of the [outputDevice].
+  /// Does nothing if [deviceId] is already an ID of the [audioDevice].
   Future<void> setAudioDevice(String deviceId) {
     Log.debug('setAudioDevice($deviceId)', '$runtimeType');
 
