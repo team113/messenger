@@ -53,7 +53,6 @@ class RetryImage extends StatefulWidget {
     this.onForbidden,
     this.filter,
     this.cancelable = false,
-    this.autoLoad = true,
     this.displayProgress = true,
     this.loadingBuilder,
   });
@@ -70,7 +69,6 @@ class RetryImage extends StatefulWidget {
     Future<void> Function()? onForbidden,
     ImageFilter? filter,
     bool cancelable = false,
-    bool autoLoad = true,
     bool displayProgress = true,
   }) {
     final ImageFile image;
@@ -101,7 +99,6 @@ class RetryImage extends StatefulWidget {
       onForbidden: onForbidden,
       filter: filter,
       cancelable: cancelable,
-      autoLoad: autoLoad,
       displayProgress: displayProgress,
     );
   }
@@ -146,10 +143,6 @@ class RetryImage extends StatefulWidget {
   /// Indicator whether an ongoing image fetching from the [url] is cancelable.
   final bool cancelable;
 
-  /// Indicator whether the image fetching should start as soon as this
-  /// [RetryImage] is displayed.
-  final bool autoLoad;
-
   /// Indicator whether the image fetching progress should be displayed.
   final bool displayProgress;
 
@@ -184,11 +177,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void initState() {
-    if (widget.autoLoad) {
-      _loadImage();
-    } else {
-      _canceled = true;
-    }
+    _loadImage();
 
     // We're expecting a checksum to properly fetch the image from the cache.
     if (widget.checksum == null) {
@@ -200,8 +189,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.url != widget.url ||
-        (!oldWidget.autoLoad && widget.autoLoad)) {
+    if (oldWidget.url != widget.url) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _loadImage();

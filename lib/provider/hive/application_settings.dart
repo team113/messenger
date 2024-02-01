@@ -118,17 +118,6 @@ class ApplicationSettingsHiveProvider
     );
   }
 
-  /// Stores a new [enabled] value of [ApplicationSettings.loadImages]
-  /// to [Hive].
-  Future<void> setLoadImages(bool enabled) async {
-    Log.debug('setLoadImages($enabled)', '$runtimeType');
-
-    await putSafe(
-      0,
-      (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
-    );
-  }
-
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
   Future<void> setPinnedActions(List<String> buttons) async {
