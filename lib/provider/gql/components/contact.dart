@@ -451,6 +451,11 @@ mixin ContactGraphQlMixin {
     return SearchChatContacts$Query.fromJson(res.data!);
   }
 
+  /// Returns a [ChatContact] by its ID.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
   Future<GetContact$Query> chatContact(ChatContactId id) async {
     Log.debug('chatContact($id)', '$runtimeType');
 
