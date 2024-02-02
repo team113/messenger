@@ -398,10 +398,6 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Sets the [ApplicationSettings.loadImages] value.
-  Future<void> setLoadImages(bool enabled) =>
-      _settingsRepo.setLoadImages(enabled);
-
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
   /// (if any).

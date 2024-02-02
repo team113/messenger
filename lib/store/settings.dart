@@ -173,12 +173,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setLoadImages(bool enabled) async {
-    Log.debug('setLoadImages($enabled)', '$runtimeType');
-    await _settingsLocal.setLoadImages(enabled);
-  }
-
-  @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) async {
     Log.debug('setCallRect($chatId, $prefs)', '$runtimeType');
     await _callRectLocal.put(chatId, prefs);
