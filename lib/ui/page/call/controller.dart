@@ -1026,6 +1026,34 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
+  void layoutAsPrimary() {
+    focusAll();
+    isCursorHidden.value = false;
+    showHeader.value = true;
+  }
+
+  void layoutAsSecondary({bool floating = false}) {
+    showHeader.value = true;
+    isCursorHidden.value = false;
+
+    final mine = [...locals, ...focused].where((e) => e.member == me);
+    for (var e in mine) {
+      unfocus(e);
+    }
+
+    if (floating) {
+      if (secondaryAlignment.value != null) {
+        secondaryBottom.value = 10;
+        secondaryRight.value = 10;
+        secondaryLeft.value = null;
+        secondaryTop.value = null;
+        secondaryAlignment.value = null;
+      }
+    } else {
+      secondaryAlignment.value = Alignment.centerRight;
+    }
+  }
+
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
 

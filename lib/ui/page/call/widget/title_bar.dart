@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/domain/repository/chat.dart';
-import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -34,6 +33,9 @@ class TitleBar extends StatelessWidget {
     this.onTap,
     this.toggleFullscreen,
     this.fullscreen = false,
+    this.onFloating,
+    this.onSecondary,
+    this.onPrimary,
   });
 
   /// Indicator whether fullscreen icon should be turned on.
@@ -53,6 +55,15 @@ class TitleBar extends StatelessWidget {
 
   /// Callback, called to toggle fullscreen on and off.
   final void Function()? toggleFullscreen;
+
+  /// Callback, called to enter floating mode.
+  final void Function()? onFloating;
+
+  /// Callback, called to enter secondary mode.
+  final void Function()? onSecondary;
+
+  /// Callback, called to enter primary mode.
+  final void Function()? onPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +94,8 @@ class TitleBar extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const SizedBox(width: 10),
-                      AvatarWidget.fromRxChat(
-                        chat,
-                        radius: AvatarRadius.smallest,
-                      ),
+                      AvatarWidget.fromRxChat(chat,
+                          radius: AvatarRadius.smallest),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
@@ -107,10 +116,22 @@ class TitleBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TooltipButton(
+                      onTap: onPrimary,
+                      child: const SvgIcon(SvgIcons.callGallery),
+                    ),
+                    const SizedBox(width: 16),
+                    TooltipButton(
+                      onTap: onFloating,
+                      child: const SvgIcon(SvgIcons.callFloating),
+                    ),
+                    const SizedBox(width: 16),
+                    TooltipButton(
+                      onTap: onSecondary,
+                      child: const SvgIcon(SvgIcons.callSide),
+                    ),
+                    const SizedBox(width: 16),
+                    TooltipButton(
                       onTap: toggleFullscreen,
-                      hint: fullscreen
-                          ? 'btn_fullscreen_exit'.l10n
-                          : 'btn_fullscreen_enter'.l10n,
                       child: SvgIcon(
                         fullscreen
                             ? SvgIcons.fullscreenExitSmall

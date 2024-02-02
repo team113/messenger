@@ -1257,6 +1257,24 @@ class SvgIcons {
     height: 12,
   );
 
+  static const SvgData callFloating = SvgData(
+    'assets/icons/call_floating.svg',
+    width: 17,
+    height: 13,
+  );
+
+  static const SvgData callGallery = SvgData(
+    'assets/icons/call_gallery.svg',
+    width: 17,
+    height: 13,
+  );
+
+  static const SvgData callSide = SvgData(
+    'assets/icons/call_side.svg',
+    width: 17,
+    height: 13,
+  );
+
   static const SvgData callVideo = SvgData(
     'assets/icons/call_video.svg',
     height: 11,
