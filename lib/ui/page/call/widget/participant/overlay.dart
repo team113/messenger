@@ -35,6 +35,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
     this.muted = false,
     this.hovered = false,
     this.preferBackdrop = true,
+    this.debug = false,
   });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
@@ -51,6 +52,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
   /// Indicator whether [ConditionalBackdropFilter] should be enabled.
   final bool preferBackdrop;
+
+  final bool debug;
 
   @override
   Widget build(BuildContext context) {
@@ -220,6 +223,33 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 ),
               ),
             ),
+            if (debug)
+              IgnorePointer(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  child: Text(
+                    'ID: ${participant.member.id}\n'
+                    'isConnected: ${participant.member.isConnected.value}\n'
+                    'isDialing: ${participant.member.isDialing.value}\n'
+                    'tracks (${participant.member.tracks.length}):\n'
+                    '${participant.member.tracks.map((e) => '  - ${e.track.getTrack().id()} with: ${e.kind.name}, ${e.source.name}, ${e.direction.value.name}, muted(${e.isMuted.value}), renderer(${e.renderer.value.runtimeType})').join('\n')}\n'
+                    'audio: ${participant.audio.value?.track.getTrack().id()}\n'
+                    'video: ${participant.video.value?.track.getTrack().id()}\n',
+                    style: style.fonts.smallest.regular.onPrimary.copyWith(
+                      shadows: [
+                        Shadow(
+                          blurRadius: 6,
+                          color: style.colors.onBackground,
+                        ),
+                        Shadow(
+                          blurRadius: 6,
+                          color: style.colors.onBackground,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       );

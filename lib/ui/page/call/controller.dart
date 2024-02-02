@@ -280,6 +280,8 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
+  final RxBool debug = RxBool(false);
+
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
@@ -2174,7 +2176,11 @@ class CallController extends GetxController {
   /// if [LogicalKeyboardKey.escape] key should be intercepted, or otherwise
   /// returns `false`.
   bool _onKey(KeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.escape && fullscreen.isTrue) {
+    if (event is KeyUpEvent && event.physicalKey == PhysicalKeyboardKey.keyD) {
+      debug.toggle();
+      return true;
+    } else if (event.logicalKey == LogicalKeyboardKey.escape &&
+        fullscreen.isTrue) {
       toggleFullscreen();
       return true;
     }

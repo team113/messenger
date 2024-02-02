@@ -1307,6 +1307,7 @@ Widget _primaryView(CallController c) {
                           hovered: isHovered,
                           preferBackdrop:
                               !c.minimized.value || c.fullscreen.value,
+                          debug: c.debug.value,
                         ),
                       ),
                     ),
@@ -1805,6 +1806,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 hovered: isHovered,
                                 preferBackdrop:
                                     !c.minimized.value || c.fullscreen.value,
+                                debug: c.debug.value,
                               ),
                             ),
                           ),
