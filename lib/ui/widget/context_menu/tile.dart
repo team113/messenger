@@ -31,7 +31,7 @@ class ContextMenuTile extends StatefulWidget with ContextMenuItem {
   });
 
   final String label;
-  final void Function()? onPressed;
+  final void Function(BuildContext context)? onPressed;
   final void Function()? onPinned;
 
   final Offset offset;
@@ -78,7 +78,9 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
       child: WidgetButton(
         onDown: (_) => setState(() => _pressed = true),
         onUp: (_) => setState(() => _pressed = false),
-        onPressed: widget.onPressed,
+        onPressed: widget.onPressed == null
+            ? null
+            : () => widget.onPressed?.call(context),
         child: Container(
           width: double.infinity,
           color:

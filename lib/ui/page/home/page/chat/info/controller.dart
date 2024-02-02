@@ -98,6 +98,8 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
+  late final TextFieldState textStatus;
+
   /// [Chat.directLink] field state.
   late final TextFieldState link;
 
@@ -181,6 +183,11 @@ class ChatInfoController extends GetxController {
           }
         }
       },
+    );
+
+    textStatus = TextFieldState(
+      approvable: true,
+      text: 'Ретроспектива: 00:00 UTC',
     );
 
     link = TextFieldState(

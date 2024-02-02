@@ -136,6 +136,7 @@ class ChatInfoView extends StatelessWidget {
                         _name(c, context),
                       ],
                     ),
+                    _status(c, context),
                     if (!c.isMonolog) ...[
                       SelectionContainer.disabled(
                         child: Block(
@@ -253,6 +254,53 @@ class ChatInfoView extends StatelessWidget {
         sizeDuration: const Duration(milliseconds: 250),
         fadeDuration: const Duration(milliseconds: 250),
         child: child,
+      );
+    });
+  }
+
+  Widget _status(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Widget child;
+
+      if (c.editing.value) {
+        child = _padding(
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: ReactiveTextField(
+              state: c.textStatus,
+              label: 'label_status'.l10n,
+              maxLines: null,
+            ),
+          ),
+        );
+      } else if (c.textStatus.text.isEmpty) {
+        child = const SizedBox();
+      } else {
+        child = Padding(
+          key: const Key('Key'),
+          padding: const EdgeInsets.only(top: 0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Center(
+              child: Text(
+                c.textStatus.text,
+                style: style.fonts.normal.regular.secondary,
+              ),
+            ),
+          ),
+        );
+      }
+
+      return Block(
+        children: [
+          AnimatedSizeAndFade(
+            sizeDuration: const Duration(milliseconds: 250),
+            fadeDuration: const Duration(milliseconds: 250),
+            child: child,
+          )
+        ],
       );
     });
   }

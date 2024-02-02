@@ -91,6 +91,7 @@ class HomeController extends GetxController {
   final GlobalKey publicsKey = GlobalKey();
   final GlobalKey partnerKey = GlobalKey();
   final GlobalKey balanceKey = GlobalKey();
+  final GlobalKey panelKey = GlobalKey();
 
   final RxBool publicsToggle = RxBool(false);
 

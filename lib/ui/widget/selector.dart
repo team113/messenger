@@ -212,7 +212,10 @@ class _SelectorState<T> extends State<Selector<T>> {
             offset.dy - widget.margin.bottom,
           );
 
-          right = constraints.maxWidth - offset.dx;
+          right = constraints.maxWidth -
+              offset.dx -
+              widget.margin.right +
+              widget.margin.left;
           bottom = MediaQuery.of(context).size.height - offset.dy;
         } else if (widget.alignment == Alignment.topRight) {
           offset = Offset(

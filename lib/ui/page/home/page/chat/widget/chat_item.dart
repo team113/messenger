@@ -2234,14 +2234,25 @@ extension LinkParsingExtension on String {
 
               if (link.isEmail) {
                 uri = Uri(scheme: 'mailto', path: link);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                }
               } else {
                 uri = Uri.parse(
                   !link.startsWith('http') ? 'https://$link' : link,
                 );
-              }
 
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri);
+                final origins = [Config.origin, Config.link];
+
+                if (origins.any((e) => uri.toString().startsWith(e))) {
+                  final route = uri
+                      .toString()
+                      .replaceFirst(Config.origin, '')
+                      .replaceFirst(Config.link, '');
+                  router.push(route);
+                } else if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                }
               }
             },
         ),

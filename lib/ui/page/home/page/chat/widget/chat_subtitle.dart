@@ -122,7 +122,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
           return Text.rich(
             TextSpan(
-                children: spans, style: style.fonts.small.regular.secondary),
+              children: spans,
+              style: style.fonts.small.regular.secondary,
+            ),
           );
         }
 
@@ -174,10 +176,19 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       }
 
       if (chat.isGroup) {
-        return Text(
-          chat.getSubtitle()!,
-          style: style.fonts.small.regular.secondary,
-        );
+        final String? subtitle = chat.getSubtitle();
+        const String status = 'Ретроспектива: 00:00 UTC';
+        if (status != null || subtitle != null) {
+          return Text(
+            [
+              if (subtitle != null) subtitle,
+              if (status != null) status,
+            ].join(' | '),
+            style: style.fonts.small.regular.secondary,
+          );
+        } else {
+          return const SizedBox();
+        }
       } else if (chat.isDialog) {
         final RxUser? member = widget.chat.members.values
             .firstWhereOrNull((u) => u.user.value.id != widget.me);
@@ -185,11 +196,11 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         if (member != null) {
           return Obx(() {
             final String? subtitle = chat.getSubtitle(partner: member);
-            // final UserTextStatus? status = member.user.value.status;
+            final UserTextStatus? status = member.user.value.status;
             final Widget child;
 
             // if (status != null || subtitle != null) {
-            if (subtitle != null) {
+            if (status != null || subtitle != null) {
               // final StringBuffer buffer = StringBuffer(status ?? '');
 
               // if (status != null && subtitle != null) {
@@ -199,7 +210,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
               // buffer.write(subtitle ?? '');
 
               child = Text(
-                subtitle,
+                [
+                  if (subtitle != null) subtitle,
+                  if (status != null) status,
+                ].join(' | '),
                 style: style.fonts.small.regular.secondary,
               );
             } else {

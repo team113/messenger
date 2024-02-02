@@ -289,6 +289,7 @@ class _HomeViewState extends State<HomeView> {
                           beginOffset: const Offset(0.0, 5),
                           translate: false,
                           child: CustomNavigationBar(
+                            key: c.panelKey,
                             items: [
                               if (c.settings.value?.balanceTabEnabled != false)
                                 CustomNavigationBarItem(
@@ -301,23 +302,19 @@ class _HomeViewState extends State<HomeView> {
                                       right: 32 + 16,
                                     ),
                                     actions: [
-                                      ...top,
-                                      ContextMenuBuilder(
-                                        (_) => Obx(() {
-                                          final enabled = c.displayFunds;
-
-                                          return ContextMenuTile(
-                                            label: enabled
-                                                ? 'btn_hide_balance'.l10n
-                                                : 'btn_display_balance'.l10n,
-                                            pinnable: false,
-                                            onPressed: () =>
-                                                c.setDisplayFunds(!enabled),
-                                            asset: enabled
-                                                ? SvgIcons.showBalance
-                                                : SvgIcons.hideBalance,
-                                          );
-                                        }),
+                                      // ...top,
+                                      ContextMenuTile(
+                                        label: c.displayFunds
+                                            ? 'btn_hide_balance'.l10n
+                                            : 'btn_display_balance'.l10n,
+                                        pinnable: false,
+                                        onPressed: (context) {
+                                          c.setDisplayFunds(!c.displayFunds);
+                                          Navigator.of(context).pop();
+                                        },
+                                        asset: c.displayFunds
+                                            ? SvgIcons.showBalance
+                                            : SvgIcons.hideBalance,
                                       ),
                                     ],
                                     child: WalletWidget(
@@ -338,26 +335,21 @@ class _HomeViewState extends State<HomeView> {
                                     alignment: Alignment.bottomCenter,
                                     margin: const EdgeInsets.only(bottom: 16),
                                     actions: [
-                                      ...top,
-                                      ContextMenuBuilder(
-                                        (_) => Obx(() {
-                                          final enabled = c.displayTransactions;
-
-                                          return ContextMenuTile(
-                                            label: enabled
-                                                ? 'btn_hide_transactions'.l10n
-                                                : 'btn_display_transactions'
-                                                    .l10n,
-                                            pinnable: false,
-                                            onPressed: () =>
-                                                c.setDisplayTransactions(
-                                              !enabled,
-                                            ),
-                                            asset: enabled
-                                                ? SvgIcons.showBalance
-                                                : SvgIcons.hideBalance,
+                                      // ...top,
+                                      ContextMenuTile(
+                                        label: c.displayTransactions
+                                            ? 'btn_hide_transactions'.l10n
+                                            : 'btn_display_transactions'.l10n,
+                                        pinnable: false,
+                                        onPressed: (context) {
+                                          c.setDisplayTransactions(
+                                            !c.displayTransactions,
                                           );
-                                        }),
+                                          Navigator.of(context).pop();
+                                        },
+                                        asset: c.displayTransactions
+                                            ? SvgIcons.showBalance
+                                            : SvgIcons.hideBalance,
                                       ),
                                     ],
                                     child: SvgIcon(
@@ -374,21 +366,19 @@ class _HomeViewState extends State<HomeView> {
                                     alignment: Alignment.bottomCenter,
                                     margin: const EdgeInsets.only(bottom: 16),
                                     actions: [
-                                      ...top,
-                                      ContextMenuBuilder(
-                                        (_) => Obx(() {
-                                          final muted = c.publicsToggle.value;
-                                          return ContextMenuTile(
-                                            label: muted
-                                                ? 'btn_unmute_chats'.l10n
-                                                : 'btn_mute_chats'.l10n,
-                                            pinnable: false,
-                                            onPressed: c.publicsToggle.toggle,
-                                            asset: muted
-                                                ? SvgIcons.muted22
-                                                : SvgIcons.unmuted22,
-                                          );
-                                        }),
+                                      // ...top,
+                                      ContextMenuTile(
+                                        label: c.publicsToggle.value
+                                            ? 'btn_unmute_chats'.l10n
+                                            : 'btn_mute_chats'.l10n,
+                                        pinnable: false,
+                                        onPressed: (context) {
+                                          c.publicsToggle.toggle();
+                                          Navigator.of(context).pop();
+                                        },
+                                        asset: c.publicsToggle.value
+                                            ? SvgIcons.muted22
+                                            : SvgIcons.unmuted22,
                                       ),
                                     ],
                                     child: Transform.translate(
@@ -425,24 +415,22 @@ class _HomeViewState extends State<HomeView> {
                                   alignment: Alignment.bottomCenter,
                                   margin: const EdgeInsets.only(bottom: 16),
                                   actions: [
-                                    ...top,
-                                    ContextMenuBuilder(
-                                      (_) => Obx(() {
-                                        final muted =
-                                            c.myUser.value?.muted != null;
-
-                                        return ContextMenuTile(
-                                          label: muted
-                                              ? 'btn_unmute_chats'.l10n
-                                              : 'btn_mute_chats'.l10n,
-                                          pinnable: false,
-                                          onPressed: () => c.toggleMute(muted),
-                                          trailing: true,
-                                          asset: muted
-                                              ? SvgIcons.muted22
-                                              : SvgIcons.unmuted22,
+                                    // ...top,
+                                    ContextMenuTile(
+                                      label: c.myUser.value?.muted != null
+                                          ? 'btn_unmute_chats'.l10n
+                                          : 'btn_mute_chats'.l10n,
+                                      pinnable: false,
+                                      onPressed: (context) {
+                                        c.toggleMute(
+                                          c.myUser.value?.muted != null,
                                         );
-                                      }),
+                                        Navigator.of(context).pop();
+                                      },
+                                      trailing: true,
+                                      asset: c.myUser.value?.muted != null
+                                          ? SvgIcons.muted22
+                                          : SvgIcons.unmuted22,
                                     ),
                                   ],
                                   child: Obx(() {
@@ -474,16 +462,21 @@ class _HomeViewState extends State<HomeView> {
                               CustomNavigationBarItem(
                                 child: ContextMenuRegion(
                                   key: const Key('MenuButton'),
-                                  selector: c.profileKey,
+                                  selector: c.panelKey,
                                   alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(bottom: 16),
+                                  margin: const EdgeInsets.only(
+                                    bottom: 8,
+                                    left: 8,
+                                  ),
                                   actions: [
                                     ...top,
                                     ContextMenuTile(
                                       label: 'label_presence_present'.l10n,
                                       pinnable: false,
-                                      onPressed: () =>
-                                          c.setPresence(Presence.present),
+                                      onPressed: (context) {
+                                        c.setPresence(Presence.present);
+                                        Navigator.of(context).pop();
+                                      },
                                       icon: Container(
                                         width: 16,
                                         height: 16,
@@ -496,8 +489,10 @@ class _HomeViewState extends State<HomeView> {
                                     ContextMenuTile(
                                       label: 'label_presence_away'.l10n,
                                       pinnable: false,
-                                      onPressed: () =>
-                                          c.setPresence(Presence.away),
+                                      onPressed: (context) {
+                                        c.setPresence(Presence.away);
+                                        Navigator.of(context).pop();
+                                      },
                                       icon: Container(
                                         width: 16,
                                         height: 16,
