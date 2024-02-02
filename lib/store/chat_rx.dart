@@ -996,8 +996,6 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [title].
   void _updateTitle([Iterable<User>? users]) {
-    Log.debug('_updateTitle($users)', '$runtimeType($id)');
-
     title.value = chat.value.getTitle(
       users?.take(3) ?? members.values.take(3).map((e) => e.user.value),
       me,
