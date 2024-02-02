@@ -36,7 +36,7 @@ All user visible changes to this project will be documented in this file. This p
     - Tuned up page transition animation. ([#775], [#573])
     - Profile page:
         - Redesigned direct chat link. ([#796], [#787])
-        - Redesigned sign in section. ([#794], [#789])
+        - Redesigned sign in section. ([#827], [#794], [#789])
     - Media panel:
         - Grab cursor over participants. ([#816], [#810])
 
@@ -90,6 +90,7 @@ All user visible changes to this project will be documented in this file. This p
 [#810]: /../../issues/810
 [#816]: /../../pull/816
 [#823]: /../../pull/823
+[#827]: /../../pull/827
 
 
 

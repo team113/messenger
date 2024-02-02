@@ -32,7 +32,6 @@ class ApplicationSettings extends HiveObject {
     this.callButtons = const [],
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
-    this.loadImages = true,
     this.pinnedActions = const [],
     this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
@@ -70,21 +69,17 @@ class ApplicationSettings extends HiveObject {
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
 
-  /// Indicator whether [ImageAttachment]s should be loaded automatically.
-  @HiveField(7)
-  bool loadImages;
-
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
-  @HiveField(8)
+  @HiveField(7)
   List<String> pinnedActions;
 
   /// [CallButtonsPosition] of the call buttons in [Chat].
-  @HiveField(9)
+  @HiveField(8)
   CallButtonsPosition? callButtonsPosition;
 
   /// Indicator whether [WorkTabView] should be displayed in the
   /// [CustomNavigationBar] of [HomeView].
-  @HiveField(10)
+  @HiveField(9)
   bool workWithUsTabEnabled;
 }
 
