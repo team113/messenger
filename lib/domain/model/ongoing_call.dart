@@ -383,13 +383,13 @@ class OngoingCall {
           final DeviceDetails? defaultAudio =
               e.audio().firstWhereOrNull((e) => e.id() == 'default');
           if (defaultAudio != null) {
-            added.add(defaultAudio);
+            added.insert(0, defaultAudio);
           }
 
           final DeviceDetails? defaultOutput =
               e.output().firstWhereOrNull((e) => e.id() == 'default');
           if (defaultOutput != null) {
-            added.add(defaultOutput);
+            added.insert(0, defaultOutput);
           }
         }
 
@@ -1749,14 +1749,12 @@ class OngoingCall {
           //
           // This might happen in Web, when `default` device is picked. In such
           // scenarios afterwards the [MediaUtilsImpl.onDeviceChange] will
-          // probably its event and pick a new default device.
+          // probably fire its event and pick a new default device.
           if (audioDevice.value == track.getTrack().deviceId()) {
             audioDevice.value = '_____';
           }
 
           _removeLocalTracks(track.kind(), track.mediaSourceKind());
-          track.getTrack().dispose();
-          track.free();
           break;
 
         case MediaKind.video:
