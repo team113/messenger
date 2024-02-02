@@ -143,8 +143,15 @@ class SearchController extends GetxController {
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
+  /// Worker triggering the [_next] method at limited rate if the current
+  /// [_scrollPosition] is close to the end of the search results list.
+  Worker? _nextInterval;
+
   /// [Timer] invoking the [_ensureScrollable].
   Timer? _ensureScrollableTimer;
+
+  /// Reactive value of the current [ScrollPosition.pixels].
+  final RxDouble _scrollPosition = RxDouble(0);
 
   /// [Chat]s service searching the [Chat]s.
   final ChatService _chatService;
@@ -173,7 +180,17 @@ class SearchController extends GetxController {
 
   @override
   void onInit() {
-    scrollController.addListener(_scrollListener);
+    scrollController.addListener(_updateScrollPosition);
+
+    _nextInterval = interval(
+      _scrollPosition,
+      (_) => _next(),
+      time: 100.milliseconds,
+      condition: () =>
+          scrollController.hasClients &&
+          (scrollController.position.pixels >
+              scrollController.position.maxScrollExtent - 500),
+    );
 
     search = TextFieldState(onChanged: (d) => query.value = d.text);
     _searchDebounce = debounce(query, (q) => _search(q.trim()));
@@ -202,7 +219,8 @@ class SearchController extends GetxController {
 
   @override
   void onClose() {
-    scrollController.removeListener(_scrollListener);
+    scrollController.removeListener(_updateScrollPosition);
+    _nextInterval?.dispose();
     usersSearch.value?.dispose();
     contactsSearch.value?.dispose();
     _searchDebounce?.dispose();
@@ -661,13 +679,10 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Invokes the [_next], fetching the next page, based on the
-  /// [scrollController].
-  Future<void> _scrollListener() async {
-    if (scrollController.hasClients &&
-        scrollController.position.pixels >
-            scrollController.position.maxScrollExtent - 500) {
-      await _next();
+  /// Updates the [_scrollPosition] according to the [scrollController].
+  void _updateScrollPosition() {
+    if (scrollController.hasClients) {
+      _scrollPosition.value = scrollController.position.pixels;
     }
   }
 
@@ -693,7 +708,7 @@ class SearchController extends GetxController {
 
         searchStatus.value = RxStatus.success();
       }
-    } else {
+    } else if (query.value.length > 1) {
       await _nextContacts();
       await _nextUsers();
     }
