@@ -26,7 +26,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../controller.dart';
 import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
-import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
