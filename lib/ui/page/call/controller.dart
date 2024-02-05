@@ -1123,12 +1123,6 @@ class CallController extends GetxController {
   /// Centers the [participant], which means [focus]ing the [participant] and
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     paneled.remove(participant);
     locals.remove(participant);
     remotes.remove(participant);
@@ -1147,12 +1141,6 @@ class CallController extends GetxController {
   /// If [participant] is [paneled], then it will be placed to the [focused] if
   /// it's not empty, or to its `default` group otherwise.
   void focus(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     if (focused.isNotEmpty) {
       if (paneled.contains(participant)) {
         focused.add(participant);
@@ -1172,12 +1160,6 @@ class CallController extends GetxController {
 
   /// Unfocuses [participant], which means putting it in its `default` group.
   void unfocus(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
       if (focused.isEmpty) {
@@ -1884,12 +1866,6 @@ class CallController extends GetxController {
 
   /// Puts [participant] from its `default` group to [list].
   void _putVideoTo(Participant participant, RxList<Participant> list) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     locals.remove(participant);
     remotes.remove(participant);
     focused.remove(participant);
@@ -1901,11 +1877,6 @@ class CallController extends GetxController {
   void _putVideoFrom(Participant participant, RxList<Participant> list) {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
-        // Movement of [MediaSourceKind.display] to [locals] is prohibited.
-        if (participant.video.value?.source == MediaSourceKind.display) {
-          break;
-        }
-
         locals.addIf(!locals.contains(participant), participant);
         list.remove(participant);
         break;
