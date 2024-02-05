@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '/ui/page/home/widget/animated_slider.dart';
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
@@ -42,6 +43,7 @@ import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/title_bar.dart';
+import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -637,6 +639,32 @@ Widget desktopCall(CallController c, BuildContext context) {
           });
         }),
 
+        // Top [MouseRegion] that toggles info header on hover.
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) {
+                c.showHeader.value = true;
+                c.headerHovered = true;
+                c.isCursorHidden.value = false;
+              },
+              onHover: (_) {
+                c.showHeader.value = true;
+                c.headerHovered = true;
+                c.isCursorHidden.value = false;
+              },
+              onExit: (_) {
+                c.showHeader.value = false;
+                c.headerHovered = false;
+              },
+            ),
+          ),
+        ),
+
         // [MouseRegion] changing the cursor.
         Obx(() {
           return MouseRegion(
@@ -715,6 +743,113 @@ Widget desktopCall(CallController c, BuildContext context) {
                 : const SizedBox(),
           );
         }),
+
+        // Sliding from the top info header.
+        if (WebUtils.isPopup)
+          Obx(() {
+            // if (!c.fullscreen.value) {
+            //   return const SizedBox();
+            // }
+
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &&
+                    c.showHeader.value,
+                child: MouseRegion(
+                  opaque: false,
+                  onEnter: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onHover: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onExit: (_) {
+                    c.showHeader.value = false;
+                    c.headerHovered = false;
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(11),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                    child: ConditionalBackdropFilter(
+                      borderRadius: BorderRadius.circular(11),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: style.colors.primaryAuxiliaryOpacity25,
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (c.fullscreen.value) ...[
+                              Text(
+                                (c.income
+                                        ? 'label_call_title_paid'
+                                        : 'label_call_title')
+                                    .l10nfmt(c.titleArguments),
+                                style: style.fonts.small.regular.onPrimary,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(6, 0, 12, 0),
+                                color: Colors.white,
+                                width: 1,
+                                height: 12,
+                              ),
+                            ],
+                            TooltipButton(
+                              onTap: c.layoutAsPrimary,
+                              child: const SvgIcon(SvgIcons.callGallery),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: () => c.layoutAsSecondary(floating: true),
+                              child: const SvgIcon(SvgIcons.callFloating),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: () => c.layoutAsSecondary(floating: false),
+                              child: const SvgIcon(SvgIcons.callSide),
+                            ),
+                            const SizedBox(width: 16),
+                            TooltipButton(
+                              onTap: c.toggleFullscreen,
+                              child: SvgIcon(
+                                c.fullscreen.value
+                                    ? SvgIcons.fullscreenExitSmall
+                                    : SvgIcons.fullscreenEnterSmall,
+                              ),
+                            ),
+                            if (c.fullscreen.value) const SizedBox(width: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
 
         // If there's any notifications to show, display them.
         Align(

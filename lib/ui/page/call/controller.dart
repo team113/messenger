@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -67,6 +68,7 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
+    this._myUserService,
     this._settingsRepository,
   );
 
@@ -85,8 +87,11 @@ class CallController extends GetxController {
   /// Indicator whether UI is shown or not.
   final RxBool showUi = RxBool(true);
 
-  /// Indicator whether info header is shown or not.
+  /// Indicator whether the info header is currently shown.
   final RxBool showHeader = RxBool(true);
+
+  /// Indicator whether the info header is currently hovered.
+  bool headerHovered = false;
 
   /// Local [Participant]s in `default` mode.
   final RxList<Participant> locals = RxList([]);
@@ -316,6 +321,11 @@ class CallController extends GetxController {
 
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
+
+  final MyUserService _myUserService;
+
+  bool get income =>
+      _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirill bykov';
 
   /// [Timer] for updating [duration] of the call.
   ///
@@ -1088,7 +1098,11 @@ class CallController extends GetxController {
   void keepUi([bool? enabled]) {
     _uiTimer?.cancel();
     showUi.value = isPanelOpen.value || (enabled ?? true);
-    showHeader.value = (enabled ?? true);
+
+    if (!headerHovered) {
+      showHeader.value = (enabled ?? true);
+    }
+
     if (state.value == OngoingCallState.active &&
         enabled == null &&
         !isPanelOpen.value) {
@@ -1097,6 +1111,10 @@ class CallController extends GetxController {
         () {
           showUi.value = false;
           showHeader.value = false;
+
+          if (!headerHovered) {
+            showHeader.value = false;
+          }
         },
       );
     }
