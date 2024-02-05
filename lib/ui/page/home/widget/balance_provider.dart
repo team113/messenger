@@ -37,14 +37,13 @@ class BalanceProviderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-    final ColorScheme colors = Theme.of(context).colorScheme;
 
     return SizedBox(
       height: 94,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: InkWellWithHover(
-          selectedColor: colors.secondary,
+          selectedColor: style.colors.primary,
           unselectedColor: style.cardColor,
           selected: selected,
           hoveredBorder:
@@ -53,7 +52,7 @@ class BalanceProviderWidget extends StatelessWidget {
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor: colors.secondary,
+          selectedHoverColor: style.colors.primary,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
             child: Row(
@@ -63,7 +62,9 @@ class BalanceProviderWidget extends StatelessWidget {
                   (e) => IconTheme(
                     data: IconThemeData(
                       size: 48,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: selected
+                          ? style.colors.onPrimary
+                          : style.colors.primary,
                     ),
                     child: e,
                   ),
@@ -81,7 +82,9 @@ class BalanceProviderWidget extends StatelessWidget {
                               title,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: style.fonts.medium.regular.onBackground,
+                              style: selected
+                                  ? style.fonts.medium.regular.onPrimary
+                                  : style.fonts.medium.regular.onBackground,
                             ),
                           ),
                         ],

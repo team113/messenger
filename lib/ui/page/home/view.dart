@@ -263,23 +263,23 @@ class _HomeViewState extends State<HomeView> {
                               );
                             }),
                           ),
-                          ContextMenuBuilder(
-                            (_) => Obx(() {
-                              final hasPublics =
-                                  c.settings.value?.publicsTabEnabled == true;
+                          // ContextMenuBuilder(
+                          //   (_) => Obx(() {
+                          //     final hasPublics =
+                          //         c.settings.value?.publicsTabEnabled == true;
 
-                              return ContextMenuTile(
-                                icon: Transform.scale(
-                                  scale: 1,
-                                  child: const SvgIcon(SvgIcons.publics),
-                                ),
-                                label: 'label_publics'.l10n,
-                                pinned: hasPublics,
-                                onPinned: () =>
-                                    c.setPublicsTabEnabled(!hasPublics),
-                              );
-                            }),
-                          ),
+                          //     return ContextMenuTile(
+                          //       icon: Transform.scale(
+                          //         scale: 1,
+                          //         child: const SvgIcon(SvgIcons.publics),
+                          //       ),
+                          //       label: 'label_publics'.l10n,
+                          //       pinned: hasPublics,
+                          //       onPinned: () =>
+                          //           c.setPublicsTabEnabled(!hasPublics),
+                          //     );
+                          //   }),
+                          // ),
                           const ContextMenuDivider(),
                         ];
 

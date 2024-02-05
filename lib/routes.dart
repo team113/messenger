@@ -386,6 +386,7 @@ class AppRouteInformationParser
     }
 
     if (route == Routes.work ||
+        route == Routes.balance ||
         route == Routes.contacts ||
         route == Routes.chats ||
         route == Routes.menu) {

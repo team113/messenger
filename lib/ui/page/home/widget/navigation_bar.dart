@@ -83,61 +83,52 @@ class CustomNavigationBar extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: items.mapIndexed((i, b) {
                     // TODO: Add here context menu region.
-                    return Expanded(
-                      key: b.key,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (b.child != null)
-                            _CustomNavigationBarButton(
-                              selected: currentIndex == i,
-                              onPressed: () {
-                                onTap?.call(i);
-                                b.onPressed?.call();
-                              },
-                              child: Container(
-                                width: 80,
-                                color: style.colors.transparent,
-                                child: Center(
-                                  child: Badge(
-                                    largeSize: 15,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 0,
-                                      horizontal: 4.4,
-                                    ),
-                                    offset: const Offset(2, -2),
-                                    label: b.badge == null
-                                        ? null
-                                        : Transform.translate(
-                                            offset: PlatformUtils.isWeb
-                                                ? Offset(
-                                                    0,
-                                                    PlatformUtils.isIOS
-                                                        ? 0
-                                                        : 0.25,
-                                                  )
-                                                : PlatformUtils.isDesktop
-                                                    ? const Offset(-0.1, -0.2)
-                                                    : Offset.zero,
-                                            child: Text(
-                                              b.badge!,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                    textStyle:
-                                        style.fonts.smallest.regular.onPrimary,
-                                    backgroundColor:
-                                        b.badgeColor ?? style.colors.danger,
-                                    isLabelVisible: b.badge != null,
-                                    child: b.child!,
-                                  ),
-                                ),
+                    return Flexible(
+                      child: _CustomNavigationBarButton(
+                        selected: currentIndex == i,
+                        onPressed: () {
+                          onTap?.call(i);
+                          b.onPressed?.call();
+                        },
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 80),
+                          // width: 80,
+                          color: style.colors.transparent,
+                          child: Center(
+                            child: Badge(
+                              largeSize: 15,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: 4.4,
                               ),
+                              offset: const Offset(2, -2),
+                              label: b.badge == null
+                                  ? null
+                                  : Transform.translate(
+                                      offset: PlatformUtils.isWeb
+                                          ? Offset(
+                                              0,
+                                              PlatformUtils.isIOS ? 0 : 0.25,
+                                            )
+                                          : PlatformUtils.isDesktop
+                                              ? const Offset(-0.1, -0.2)
+                                              : Offset.zero,
+                                      child: Text(
+                                        b.badge!,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                              textStyle: style.fonts.smallest.regular.onPrimary,
+                              backgroundColor:
+                                  b.badgeColor ?? style.colors.danger,
+                              isLabelVisible: b.badge != null,
+                              child: b.child!,
                             ),
-                        ],
+                          ),
+                        ),
                       ),
                     );
                   }).toList(),

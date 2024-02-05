@@ -2097,4 +2097,22 @@ class SvgIcons {
     width: 21.78,
     height: 25,
   );
+
+  static const SvgData transactions = SvgData(
+    'assets/icons/transactions.svg',
+    width: 20.8,
+    height: 21.18,
+  );
+
+  static const SvgData infoThick = SvgData(
+    'assets/icons/info_thick.svg',
+    width: 20.8,
+    height: 20.8,
+  );
+
+  static const SvgData infoThickDisabled = SvgData(
+    'assets/icons/info_thick_disabled.svg',
+    width: 20.8,
+    height: 20.8,
+  );
 }

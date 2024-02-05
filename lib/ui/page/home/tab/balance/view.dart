@@ -18,7 +18,9 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 
 import '/routes.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -49,23 +51,33 @@ class BalanceTabView extends StatelessWidget {
                 final Widget child;
 
                 if (c.adding.value) {
-                  child = const SvgImage.asset(
-                    'assets/icons/info.svg',
-                    width: 20,
-                    height: 20,
+                  if (c.hintDismissed.value) {
+                    child = const SvgIcon(SvgIcons.infoThick);
+                  } else {
+                    child = const SvgIcon(SvgIcons.infoThickDisabled);
+                  }
+
+                  return AnimatedButton(
+                    onPressed: c.hintDismissed.toggle,
+                    decorator: (child) => Container(
+                      padding: const EdgeInsets.only(left: 20, right: 12),
+                      height: double.infinity,
+                      child: child,
+                    ),
+                    child: child,
                   );
                 } else {
                   child = const SvgIcon(key: Key('Search'), SvgIcons.search);
-                }
-
-                return WidgetButton(
-                  onPressed: c.hintDismissed.toggle,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 20, right: 12),
-                    height: double.infinity,
+                  return AnimatedButton(
+                    onPressed: () {},
+                    decorator: (child) => Container(
+                      padding: const EdgeInsets.only(left: 20, right: 12),
+                      height: double.infinity,
+                      child: child,
+                    ),
                     child: child,
-                  ),
-                );
+                  );
+                }
               }),
             ],
             actions: [
@@ -76,11 +88,7 @@ class BalanceTabView extends StatelessWidget {
                   child = Transform.translate(
                     offset: const Offset(0, -1),
                     child: const SizedBox(
-                      child: SvgImage.asset(
-                        'assets/icons/transactions.svg',
-                        width: 19,
-                        height: 19.42,
-                      ),
+                      child: SvgIcon(SvgIcons.transactions),
                     ),
                   );
                 } else {
@@ -107,96 +115,97 @@ class BalanceTabView extends StatelessWidget {
               return SafeScrollbar(
                 controller: c.scrollController,
                 child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    children: [
-                      Obx(() {
-                        return AnimatedSizeAndFade.showHide(
-                          show: !c.hintDismissed.value,
-                          child: Center(
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ModalPopupHeader(
-                                    close: true,
-                                    onClose: c.hintDismissed.toggle,
-                                    header: Center(
-                                      child: Text(
-                                        'What is  ¤ (Gapopa coin)?',
-                                        style: style
-                                            .fonts.big.regular.onBackground,
-                                      ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  children: [
+                    Obx(() {
+                      return AnimatedSizeAndFade.showHide(
+                        show: !c.hintDismissed.value,
+                        child: Center(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ModalPopupHeader(
+                                  close: true,
+                                  onClose: c.hintDismissed.toggle,
+                                  text: '¤100 = €1.00',
+                                ),
+                                const SizedBox(height: 4),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    32,
+                                    0,
+                                    32,
+                                    0,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.',
+                                      style:
+                                          style.fonts.small.regular.secondary,
                                     ),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      32,
-                                      12,
-                                      32,
-                                      18,
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        ' ¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.\n\n ¤100 = €1.00',
-                                        style: style
-                                            .fonts.normal.regular.onBackground,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
                             ),
                           ),
+                        ),
+                      );
+                    }),
+                    ...BalanceProvider.values.map((e) {
+                      Widget button({
+                        required String title,
+                        required IconData icon,
+                      }) {
+                        final bool selected = router.route
+                            .startsWith('${Routes.balance}/${e.name}');
+
+                        return BalanceProviderWidget(
+                          title: title,
+                          leading: [Icon(icon)],
+                          selected: selected,
+                          onTap: () => router.balance(e),
                         );
-                      }),
-                      ...BalanceProvider.values.map((e) {
-                        Widget button({
-                          required String title,
-                          required IconData icon,
-                        }) {
-                          return BalanceProviderWidget(
-                            title: title,
-                            leading: [Icon(icon)],
-                            onTap: () => router.balance(e),
+                      }
+
+                      switch (e) {
+                        case BalanceProvider.creditCard:
+                          return button(
+                            icon: Icons.credit_card,
+                            title: 'Credit card',
                           );
-                        }
 
-                        switch (e) {
-                          case BalanceProvider.creditCard:
-                            return button(
-                              icon: Icons.credit_card,
-                              title: 'Credit card',
-                            );
+                        case BalanceProvider.swift:
+                          return button(
+                            icon: Icons.account_balance,
+                            title: 'SWIFT transfer',
+                          );
 
-                          case BalanceProvider.swift:
-                            return button(
-                              icon: Icons.account_balance,
-                              title: 'SWIFT transfer',
-                            );
+                        case BalanceProvider.sepa:
+                          return button(
+                            icon: Icons.account_balance,
+                            title: 'SEPA transfer',
+                          );
 
-                          case BalanceProvider.sepa:
-                            return button(
-                              icon: Icons.account_balance,
-                              title: 'SEPA transfer',
-                            );
+                        case BalanceProvider.paypal:
+                          return button(
+                            icon: Icons.paypal,
+                            title: 'PayPal',
+                          );
 
-                          case BalanceProvider.paypal:
-                            return button(
-                              icon: Icons.paypal,
-                              title: 'PayPal',
-                            );
-
-                          default:
-                            return const SizedBox();
-                        }
-                      }),
-                    ]),
+                        default:
+                          return const SizedBox();
+                      }
+                    }),
+                  ],
+                ),
               );
             }
 

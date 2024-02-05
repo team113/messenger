@@ -26,7 +26,7 @@ class BalanceTabController extends GetxController {
   BalanceTabController(this._balanceService);
 
   final RxBool adding = RxBool(true);
-  final RxBool hintDismissed = RxBool(false);
+  final RxBool hintDismissed = RxBool(true);
 
   final TextFieldState search = TextFieldState();
   final RxBool searching = RxBool(false);
