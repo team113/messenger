@@ -40,7 +40,6 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -68,7 +67,6 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
-    this._myUserService,
     this._settingsRepository,
   );
 
@@ -321,11 +319,6 @@ class CallController extends GetxController {
 
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
-
-  final MyUserService _myUserService;
-
-  bool get income =>
-      _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirill bykov';
 
   /// [Timer] for updating [duration] of the call.
   ///
@@ -1045,6 +1038,9 @@ class CallController extends GetxController {
   }
 
   /// Moves every [Participant] associated with [me] to the secondary view.
+  ///
+  /// [floating] indicates whether [Participant]s in [secondary] should be
+  /// displayed inside a floating window.
   void layoutAsSecondary({bool floating = false}) {
     showHeader.value = true;
     isCursorHidden.value = false;

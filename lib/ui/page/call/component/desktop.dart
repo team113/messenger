@@ -690,17 +690,14 @@ Widget desktopCall(CallController c, BuildContext context) {
               opaque: false,
               onEnter: (_) {
                 c.showHeader.value = true;
-                // c.headerHovered = true;
                 c.isCursorHidden.value = false;
               },
               onHover: (_) {
                 c.showHeader.value = true;
-                // c.headerHovered = true;
                 c.isCursorHidden.value = false;
               },
               onExit: (_) {
                 c.showHeader.value = false;
-                // c.headerHovered = false;
               },
             ),
           ),
@@ -747,10 +744,6 @@ Widget desktopCall(CallController c, BuildContext context) {
         // Sliding from the top info header.
         if (WebUtils.isPopup)
           Obx(() {
-            // if (!c.fullscreen.value) {
-            //   return const SizedBox();
-            // }
-
             return Align(
               alignment: Alignment.topCenter,
               child: AnimatedSlider(
@@ -803,10 +796,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           children: [
                             if (c.fullscreen.value) ...[
                               Text(
-                                (c.income
-                                        ? 'label_call_title_paid'
-                                        : 'label_call_title')
-                                    .l10nfmt(c.titleArguments),
+                                'label_call_title'.l10nfmt(c.titleArguments),
                                 style: style.fonts.small.regular.onPrimary,
                                 overflow: TextOverflow.ellipsis,
                               ),
