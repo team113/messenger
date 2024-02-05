@@ -45,6 +45,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
+import '/ui/page/call/participant/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -53,7 +54,6 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
-import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
 import 'widget/dock.dart';
@@ -1218,6 +1218,9 @@ class CallController extends GetxController {
       context,
       call: _currentCall,
       duration: duration,
+      initial: isGroup
+          ? ParticipantsFlowStage.participants
+          : ParticipantsFlowStage.search,
     );
   }
 

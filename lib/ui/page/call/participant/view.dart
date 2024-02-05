@@ -40,6 +40,7 @@ class ParticipantView extends StatelessWidget {
     super.key,
     required this.call,
     required this.duration,
+    this.initial = ParticipantsFlowStage.participants,
   });
 
   /// [OngoingCall] this modal is bound to.
@@ -48,16 +49,20 @@ class ParticipantView extends StatelessWidget {
   /// Duration of the [call].
   final Rx<Duration> duration;
 
+  /// Initial [ParticipantsFlowStage] of this [ParticipantView].
+  final ParticipantsFlowStage initial;
+
   /// Displays a [ParticipantView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Rx<OngoingCall> call,
     required Rx<Duration> duration,
+    ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
   }) {
     return ModalPopup.show(
       context: context,
       mobilePadding: const EdgeInsets.all(0),
-      child: ParticipantView(call: call, duration: duration),
+      child: ParticipantView(call: call, duration: duration, initial: initial),
     );
   }
 
@@ -71,6 +76,7 @@ class ParticipantView extends StatelessWidget {
         Get.find(),
         Get.find(),
         pop: context.popModal,
+        initial: initial,
       ),
       builder: (ParticipantController c) {
         return Obx(() {
@@ -90,8 +96,9 @@ class ParticipantView extends StatelessWidget {
                     SearchCategory.user,
                   ],
                   title: 'label_add_participants'.l10n,
-                  onBack: () =>
-                      c.stage.value = ParticipantsFlowStage.participants,
+                  onBack: initial == ParticipantsFlowStage.participants
+                      ? () => c.stage.value = ParticipantsFlowStage.participants
+                      : null,
                   submit: 'btn_add'.l10n,
                   onSubmit: c.addMembers,
                   enabled: c.status.value.isEmpty,
@@ -110,7 +117,7 @@ class ParticipantView extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 constraints: const BoxConstraints(maxHeight: 650),
                 child: Column(
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     ModalPopupHeader(
                       text: 'label_participants_of'.l10nfmt({
@@ -119,10 +126,11 @@ class ParticipantView extends StatelessWidget {
                       }),
                     ),
                     const SizedBox(height: 12),
-                    Expanded(
+                    Flexible(
                       child: Scrollbar(
                         controller: c.scrollController,
                         child: ListView(
+                          shrinkWrap: true,
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           children: c.chat.value!.members.values.map((user) {

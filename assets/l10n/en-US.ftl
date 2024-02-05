@@ -64,6 +64,9 @@ alert_you_will_leave_group = You will leave the group.
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
+btn_add_participant_desc =
+    Add
+    participant
 btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Add to favorites

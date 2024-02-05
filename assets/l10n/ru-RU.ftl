@@ -64,6 +64,9 @@ alert_you_will_leave_group = Вы покинете группу.
 btn_add = Добавить
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
+btn_add_participant_desc =
+    Добавить
+    участника
 btn_add_participants = Добавить участников
 btn_add_to_contacts = Добавить в контакты
 btn_add_to_favorites = Добавить в избранные

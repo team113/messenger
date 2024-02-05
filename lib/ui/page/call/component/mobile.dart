@@ -258,32 +258,13 @@ Widget mobileCall(CallController c, BuildContext context) {
                       vertical: avatar.full,
                     ),
                   );
+                } else {
+                  return CallCoverWidget(
+                    null,
+                    chat: c.chat.value,
+                  );
                 }
               }
-
-              return const SizedBox();
-            }),
-
-            // Dim the primary view in a non-active call.
-            Obx(() {
-              final Widget child;
-
-              if (c.state.value == OngoingCallState.active) {
-                child = const SizedBox();
-              } else {
-                child = IgnorePointer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: style.colors.onBackgroundOpacity50,
-                  ),
-                );
-              }
-
-              return SafeAnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
             }),
           ],
         );
@@ -426,7 +407,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         // Populate the sliding panel height and its content.
         if (panel) {
-          panelHeight = 360 + 37;
+          panelHeight = 260 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [
@@ -454,26 +435,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding(RemoteAudioButton(c).build(expanded: true)),
                 padding(RemoteVideoButton(c).build(expanded: true)),
               ],
-            ),
-            const SizedBox(height: 20),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 366),
-              child: ChatInfoCard(
-                chat: c.chat.value,
-                duration: c.duration.value,
-                trailing: 'label_a_of_b'.l10nfmt({
-                  'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
-                  'b': '${c.chat.value?.members.length}',
-                }),
-                subtitle: c.chat.value?.members.values
-                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
-                        ?.user
-                        .value
-                        .status
-                        ?.val ??
-                    'label_online'.l10n,
-                onTap: () => c.openAddMember(context),
-              ),
             ),
           ];
         }
