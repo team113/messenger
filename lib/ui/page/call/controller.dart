@@ -1036,19 +1036,22 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
+  /// Moves every [Participant] to the primary view.
   void layoutAsPrimary() {
     focusAll();
-    isCursorHidden.value = false;
+
     showHeader.value = true;
+    isCursorHidden.value = false;
   }
 
+  /// Moves every [Participant] associated with [me] to the secondary view.
   void layoutAsSecondary({bool floating = false}) {
     showHeader.value = true;
     isCursorHidden.value = false;
 
     final mine = [...locals, ...focused].where((e) => e.member == me);
-    for (var e in mine) {
-      unfocus(e);
+    for (final Participant p in mine) {
+      unfocus(p);
     }
 
     if (floating) {
