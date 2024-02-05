@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '/ui/page/home/widget/animated_slider.dart';
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
@@ -54,6 +53,7 @@ import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animated_switcher.dart';
