@@ -40,14 +40,14 @@ class PrimaryButton extends StatelessWidget {
 
     return OutlinedRoundedButton(
       maxWidth: double.infinity,
-      title: Text(
+      onPressed: onPressed,
+      color: style.colors.primary,
+      child: Text(
         title,
         style: onPressed == null
             ? style.fonts.medium.regular.onBackground
             : style.fonts.medium.regular.onPrimary,
       ),
-      onPressed: onPressed,
-      color: style.colors.primary,
     );
   }
 }

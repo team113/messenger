@@ -90,7 +90,6 @@ class _FieldButtonState extends State<FieldButton> {
     return Column(
       children: [
         OutlinedRoundedButton(
-          title: Text(widget.text ?? '', maxLines: widget.maxLines),
           maxWidth: double.infinity,
           color: widget.warning ? style.colors.primary : style.colors.onPrimary,
           disabled: style.colors.onPrimary,
@@ -114,6 +113,7 @@ class _FieldButtonState extends State<FieldButton> {
           headline: widget.headline,
           maxHeight: double.infinity,
           border: BorderSide(width: 0.5, color: style.colors.secondary),
+          child: Text(widget.text ?? '', maxLines: widget.maxLines),
         ),
         if (widget.subtitle != null)
           Align(

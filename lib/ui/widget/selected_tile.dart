@@ -75,42 +75,39 @@ class SelectedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      child: chat == null
-          ? ContactTile(
-              contact: contact,
-              user: user,
-              myUser: myUser,
-              selected: selected,
-              subtitle: subtitle,
-              darken: darken,
-              onTap: onTap,
-              avatarBuilder: (c) => WidgetButton(
-                onPressed: onAvatarTap == null
-                    ? onTap
-                    : () => onAvatarTap!(
-                          user?.id ?? contact?.user.value?.id ?? myUser!.id,
-                        ),
-                child: c,
-              ),
-              trailing: [
-                if (myUser == null)
-                  SelectedDot(selected: selected, darken: darken)
-              ],
-            )
-          : ChatTile(
-              key: Key('Chat_${chat!.id}'),
-              chat: chat,
-              selected: selected,
-              subtitle: subtitle,
-              onTap: onTap,
-              darken: darken,
-              trailing: [
-                if (myUser == null)
-                  SelectedDot(selected: selected, darken: darken)
-              ],
-            ),
+    if (chat != null) {
+      return ChatTile(
+        key: Key('Chat_${chat!.id}'),
+        chat: chat,
+        selected: selected,
+        subtitle: subtitle,
+        onTap: onTap,
+        darken: darken,
+        trailing: [
+          if (myUser == null) SelectedDot(selected: selected, darken: darken)
+        ],
+      );
+    }
+
+    return ContactTile(
+      contact: contact,
+      user: user,
+      myUser: myUser,
+      selected: selected,
+      subtitle: subtitle,
+      darken: darken,
+      onTap: onTap,
+      avatarBuilder: (c) => WidgetButton(
+        onPressed: onAvatarTap == null
+            ? onTap
+            : () => onAvatarTap!(
+                  user?.id ?? contact?.user.value?.id ?? myUser!.id,
+                ),
+        child: c,
+      ),
+      trailing: [
+        if (myUser == null) SelectedDot(selected: selected, darken: darken)
+      ],
     );
   }
 
