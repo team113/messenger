@@ -96,12 +96,13 @@ class SearchField extends StatelessWidget {
                 child = AnimatedButton(
                   key: const Key('ClearButton'),
                   onPressed: () => state.text = '',
-                  child: Container(
+                  decorator: (child) => Container(
                     padding: const EdgeInsets.only(right: 20, left: 6),
                     width: 46,
                     height: double.infinity,
-                    child: const Center(child: SvgIcon(SvgIcons.clearSearch)),
+                    child: child,
                   ),
+                  child: const Center(child: SvgIcon(SvgIcons.clearSearch)),
                 );
               }
 

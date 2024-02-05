@@ -104,20 +104,13 @@ class SearchView extends StatelessWidget {
       ),
       builder: (SearchController c) {
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          padding: context.isMobile
-              ? const EdgeInsets.fromLTRB(3, 0, 3, 0)
-              : const EdgeInsets.fromLTRB(4, 10, 4, 0),
           constraints: const BoxConstraints(maxHeight: 650),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
+              ModalPopupHeader(onBack: onBack, text: title),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: ModalPopupHeader(onBack: onBack, text: title),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SearchField(
                   c.search,
                   onChanged: () => c.query.value = c.search.text,
@@ -252,8 +245,9 @@ class SearchView extends StatelessWidget {
 
                         if (i == 0) {
                           child = Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: child);
+                            padding: const EdgeInsets.only(top: 10),
+                            child: child,
+                          );
                         }
 
                         if (i == childCount - 1) {
@@ -272,7 +266,7 @@ class SearchView extends StatelessWidget {
                         }
 
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: child,
                         );
                       },
@@ -294,7 +288,7 @@ class SearchView extends StatelessWidget {
               ),
               if (onSubmit != null) ...[
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() {
                     final bool enabled = (c.selectedContacts.isNotEmpty ||
                             c.selectedUsers.isNotEmpty) &&

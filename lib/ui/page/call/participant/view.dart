@@ -59,8 +59,7 @@ class ParticipantView extends StatelessWidget {
     return ModalPopup.show(
       context: context,
       background: style.colors.background,
-      mobilePadding: const EdgeInsets.only(bottom: 0),
-      desktopPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+      mobilePadding: const EdgeInsets.only(bottom: 16),
       child: ParticipantView(call: call, duration: duration),
     );
   }
@@ -87,27 +86,19 @@ class ParticipantView extends StatelessWidget {
           switch (c.stage.value) {
             case ParticipantsFlowStage.search:
               child = Obx(() {
-                return Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
-                      child: SearchView(
-                        categories: const [
-                          SearchCategory.recent,
-                          SearchCategory.contact,
-                          SearchCategory.user,
-                        ],
-                        title: 'label_add_participants'.l10n,
-                        onBack: () =>
-                            c.stage.value = ParticipantsFlowStage.participants,
-                        submit: 'btn_add'.l10n,
-                        onSubmit: c.addMembers,
-                        enabled: c.status.value.isEmpty,
-                        chat: c.chat.value,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
+                return SearchView(
+                  categories: const [
+                    SearchCategory.recent,
+                    SearchCategory.contact,
+                    SearchCategory.user,
                   ],
+                  title: 'label_add_participants'.l10n,
+                  onBack: () =>
+                      c.stage.value = ParticipantsFlowStage.participants,
+                  submit: 'btn_add'.l10n,
+                  onSubmit: c.addMembers,
+                  enabled: c.status.value.isEmpty,
+                  chat: c.chat.value,
                 );
               });
               break;
@@ -122,24 +113,22 @@ class ParticipantView extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 constraints: const BoxConstraints(maxHeight: 650),
                 child: Column(
-                  mainAxisSize: MainAxisSize.max,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: ModalPopupHeader(
-                        text: 'label_participants_of'.l10nfmt({
-                          'a': ids.length,
-                          'b': c.chat.value?.members.length ?? 1,
-                        }),
-                      ),
+                    ModalPopupHeader(
+                      text: 'label_participants_of'.l10nfmt({
+                        'a': ids.length,
+                        'b': c.chat.value?.members.length ?? 1,
+                      }),
                     ),
-                    const SizedBox(height: 12),
-                    Expanded(
+                    const SizedBox(height: 6),
+                    Flexible(
                       child: Scrollbar(
                         controller: c.scrollController,
                         child: ListView(
+                          shrinkWrap: true,
                           controller: c.scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           children: c.chat.value!.members.values.map((user) {
                             bool inCall = false;
                             bool isRedialed = false;
@@ -176,7 +165,7 @@ class ParticipantView extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                       child: OutlinedRoundedButton(
                         maxWidth: double.infinity,
                         onPressed: () {
@@ -192,7 +181,6 @@ class ParticipantView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
                   ],
                 ),
               );
