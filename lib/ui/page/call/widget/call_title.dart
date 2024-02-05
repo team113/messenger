@@ -44,14 +44,8 @@ class CallTitle extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final List<Shadow> shadows = [
-      Shadow(
-        blurRadius: 6,
-        color: style.colors.onBackground,
-      ),
-      Shadow(
-        blurRadius: 6,
-        color: style.colors.onBackground,
-      ),
+      Shadow(blurRadius: 6, color: style.colors.onBackground),
+      Shadow(blurRadius: 6, color: style.colors.onBackground),
     ];
 
     return DefaultTextStyle.merge(

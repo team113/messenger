@@ -38,10 +38,10 @@ class CallCoverWidget extends StatelessWidget {
   /// [UserCallCover] to display.
   final UserCallCover? cover;
 
-  /// [User] this [CallCoverWidget] belongs to.
+  /// [User] to display [CallCoverWidget] of.
   final User? user;
 
-  /// [Chat] this [CallCoverWidget] belongs to.
+  /// [Chat] to display [CallCoverWidget] of.
   final RxChat? chat;
 
   @override
