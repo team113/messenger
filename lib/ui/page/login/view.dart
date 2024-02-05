@@ -273,15 +273,15 @@ class LoginView extends StatelessWidget {
                     final bool enabled = !c.email.isEmpty.value;
 
                     return OutlinedRoundedButton(
-                      title: Text(
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
                         'btn_proceed'.l10n,
                         style: enabled
                             ? style.fonts.medium.regular.onPrimary
                             : style.fonts.medium.regular.onBackground,
                       ),
-                      onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
                     );
                   }),
                 ),
