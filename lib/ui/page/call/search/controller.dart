@@ -143,8 +143,7 @@ class SearchController extends GetxController {
   /// Worker performing a [_search] on [query] changes with debounce.
   Worker? _searchDebounce;
 
-  /// Worker triggering the [_next] method at limited rate if the current
-  /// [_scrollPosition] is close to the end of the search results list.
+  /// [interval] invoking [_next] on the [_scrollPosition] changes.
   Worker? _nextInterval;
 
   /// [Timer] invoking the [_ensureScrollable].
@@ -185,7 +184,7 @@ class SearchController extends GetxController {
     _nextInterval = interval(
       _scrollPosition,
       (_) => _next(),
-      time: 100.milliseconds,
+      time: const Duration(milliseconds: 100),
       condition: () =>
           scrollController.hasClients &&
           (scrollController.position.pixels >
