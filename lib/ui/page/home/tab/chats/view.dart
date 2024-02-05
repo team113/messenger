@@ -541,7 +541,10 @@ class ChatsTabView extends StatelessWidget {
                               );
                             }
 
-                            return child;
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: child,
+                            );
                           },
                         ),
                       );
