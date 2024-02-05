@@ -27,7 +27,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -41,6 +40,7 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
