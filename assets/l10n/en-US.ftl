@@ -891,7 +891,7 @@ label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
-label_use_search = Use search to find an user
+label_use_search = Use search to find a user
 label_user = User
 label_user_added_user = {$author} added {$user}
 label_user_added_user1 = {$author}{" "}

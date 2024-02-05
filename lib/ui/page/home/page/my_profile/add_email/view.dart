@@ -102,7 +102,11 @@ class AddEmailView extends StatelessWidget {
                             child: OutlinedRoundedButton(
                               key: const Key('Resend'),
                               maxWidth: double.infinity,
-                              title: Text(
+                              onPressed: c.resendEmailTimeout.value == 0
+                                  ? c.resendEmail
+                                  : null,
+                              color: style.colors.primary,
+                              child: Text(
                                 c.resendEmailTimeout.value == 0
                                     ? 'label_resend'.l10n
                                     : 'label_resend_timeout'.l10nfmt(
@@ -112,10 +116,6 @@ class AddEmailView extends StatelessWidget {
                                     ? style.fonts.normal.regular.onPrimary
                                     : style.fonts.normal.regular.onBackground,
                               ),
-                              onPressed: c.resendEmailTimeout.value == 0
-                                  ? c.resendEmail
-                                  : null,
-                              color: style.colors.primary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -123,16 +123,16 @@ class AddEmailView extends StatelessWidget {
                             child: OutlinedRoundedButton(
                               key: const Key('Proceed'),
                               maxWidth: double.infinity,
-                              title: Text(
+                              onPressed: c.emailCode.isEmpty.value
+                                  ? null
+                                  : c.emailCode.submit,
+                              color: style.colors.primary,
+                              child: Text(
                                 'btn_proceed'.l10n,
                                 style: c.emailCode.isEmpty.value
                                     ? style.fonts.normal.regular.onBackground
                                     : style.fonts.normal.regular.onPrimary,
                               ),
-                              onPressed: c.emailCode.isEmpty.value
-                                  ? null
-                                  : c.emailCode.submit,
-                              color: style.colors.primary,
                             ),
                           ),
                         ],
@@ -169,15 +169,15 @@ class AddEmailView extends StatelessWidget {
                       return OutlinedRoundedButton(
                         key: const Key('Proceed'),
                         maxWidth: double.infinity,
-                        title: Text(
+                        onPressed:
+                            c.email.isEmpty.value ? null : c.email.submit,
+                        color: style.colors.primary,
+                        child: Text(
                           'btn_proceed'.l10n,
                           style: c.email.isEmpty.value
                               ? style.fonts.normal.regular.onBackground
                               : style.fonts.normal.regular.onPrimary,
                         ),
-                        onPressed:
-                            c.email.isEmpty.value ? null : c.email.submit,
-                        color: style.colors.primary,
                       );
                     }),
                   ],

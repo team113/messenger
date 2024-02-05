@@ -59,9 +59,12 @@ class ParticipantView extends StatelessWidget {
     required Rx<Duration> duration,
     ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
   }) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
-      mobilePadding: const EdgeInsets.all(0),
+      background: style.colors.background,
+      mobilePadding: const EdgeInsets.only(bottom: 16),
       child: ParticipantView(call: call, duration: duration, initial: initial),
     );
   }
@@ -125,14 +128,14 @@ class ParticipantView extends StatelessWidget {
                         'b': c.chat.value?.members.length ?? 1,
                       }),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 6),
                     Flexible(
                       child: Scrollbar(
                         controller: c.scrollController,
                         child: ListView(
                           shrinkWrap: true,
                           controller: c.scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           children: c.chat.value!.members.values.map((user) {
                             bool inCall = false;
                             bool isRedialed = false;
@@ -169,23 +172,22 @@ class ParticipantView extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                       child: OutlinedRoundedButton(
                         maxWidth: double.infinity,
-                        title: Text(
-                          'btn_add_participants'.l10n,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: style.fonts.medium.regular.onPrimary,
-                        ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
                         color: style.colors.primary,
+                        child: Text(
+                          'btn_add_participants'.l10n,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.medium.regular.onPrimary,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
                   ],
                 ),
               );
