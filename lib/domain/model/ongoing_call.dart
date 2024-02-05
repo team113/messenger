@@ -363,14 +363,7 @@ class OngoingCall {
 
         devices.value = e;
 
-        final List<DeviceDetails> added = [];
         final List<DeviceDetails> removed = [];
-
-        for (DeviceDetails d in devices) {
-          if (previous.none((p) => p.deviceId() == d.deviceId())) {
-            added.add(d);
-          }
-        }
 
         for (DeviceDetails d in previous) {
           if (devices.none((p) => p.deviceId() == d.deviceId())) {
@@ -378,23 +371,8 @@ class OngoingCall {
           }
         }
 
-        // `default` device might be changed, despite still having the same ID.
-        if (PlatformUtils.isWeb) {
-          final DeviceDetails? defaultAudio =
-              e.audio().firstWhereOrNull((e) => e.id() == 'default');
-          if (defaultAudio != null) {
-            added.insert(0, defaultAudio);
-          }
-
-          final DeviceDetails? defaultOutput =
-              e.output().firstWhereOrNull((e) => e.id() == 'default');
-          if (defaultOutput != null) {
-            added.insert(0, defaultOutput);
-          }
-        }
-
-        _pickAudioDevice(previous, added, removed);
-        _pickOutputDevice(previous, added, removed);
+        _pickAudioDevice(previous, removed);
+        _pickOutputDevice(previous, removed);
         _pickVideoDevice(previous, removed);
       });
 
@@ -1854,65 +1832,53 @@ class OngoingCall {
     }
   }
 
-  /// Picks the [outputDevice] based on the provided [previous], [added] and
-  /// [removed].
+  /// Picks the [outputDevice] based on the provided [previous] and [removed].
   void _pickOutputDevice([
     List<DeviceDetails> previous = const [],
-    List<DeviceDetails> added = const [],
     List<DeviceDetails> removed = const [],
   ]) {
     Log.debug(
-      '_pickOutputDevice(previous: ${previous.output().map((e) => e.label())}, added: ${added.output().map((e) => e.label())}, removed: ${removed.output().map((e) => e.label())})',
+      '_pickOutputDevice(previous: ${previous.output().map((e) => e.label())}, removed: ${removed.output().map((e) => e.label())})',
       '$runtimeType',
     );
 
     DeviceDetails? device;
 
-    if (added.output().isNotEmpty &&
-        (outputDevice.value == null ||
-            outputDevice.value != preferredOutputDevice.value ||
-            outputDevice.value == 'default')) {
-      device = added.output().first;
-    } else if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+    if (removed.any((e) => e.deviceId() == outputDevice.value) ||
+        outputDevice.value != preferredOutputDevice.value ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
       device = devices.output().first;
     }
 
-    if (device != null) {
+    if (device != null && outputDevice.value != device.deviceId()) {
       _notifications.add(DeviceChangedNotification(device: device));
       _setOutputDevice(device.deviceId());
     }
   }
 
-  /// Picks the [audioDevice] based on the provided [previous], [added] and
-  /// [removed].
+  /// Picks the [audioDevice] based on the provided [previous] and [removed].
   void _pickAudioDevice([
     List<DeviceDetails> previous = const [],
-    List<DeviceDetails> added = const [],
     List<DeviceDetails> removed = const [],
   ]) async {
     Log.debug(
-      '_pickAudioDevice(previous: ${previous.audio().map((e) => e.label())}, added: ${added.audio().map((e) => e.label())}, removed: ${removed.audio().map((e) => e.label())})',
+      '_pickAudioDevice(previous: ${previous.audio().map((e) => e.label())}, removed: ${removed.audio().map((e) => e.label())})',
       '$runtimeType',
     );
 
     DeviceDetails? device;
 
-    if (added.audio().isNotEmpty &&
-        (audioDevice.value == null ||
-            audioDevice.value != preferredAudioDevice.value ||
-            audioDevice.value == 'default')) {
-      device = added.audio().first;
-    } else if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+    if (removed.any((e) => e.deviceId() == audioDevice.value) ||
+        audioDevice.value != preferredAudioDevice.value ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
       device = devices.audio().first;
     }
 
-    if (device != null) {
+    if (device != null && audioDevice.value != device.deviceId()) {
       _notifications.add(DeviceChangedNotification(device: device));
       await _setAudioDevice(device.deviceId());
     }

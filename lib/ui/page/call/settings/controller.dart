@@ -55,7 +55,7 @@ class CallSettingsController extends GetxController {
     final String? used = _call.value.audioDevice.value;
 
     if (first is DefaultDeviceDetails &&
-        (preferred == 'default' || preferred == null) &&
+        (preferred == null || preferred != used) &&
         (used == first.deviceId() || used == null)) {
       return 'default';
     }
@@ -70,7 +70,7 @@ class CallSettingsController extends GetxController {
     final String? used = _call.value.outputDevice.value;
 
     if (first is DefaultDeviceDetails &&
-        (preferred == 'default' || preferred == null) &&
+        (preferred == null || preferred != used) &&
         (used == first.deviceId() || used == null)) {
       return 'default';
     }
