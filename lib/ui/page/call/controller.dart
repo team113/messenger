@@ -487,6 +487,17 @@ class CallController extends GetxController {
   /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
+  /// Returns [AudioSpeakerKind] of the used output device.
+  AudioSpeakerKind get outputKind =>
+      _currentCall.value.devices
+          .output()
+          .firstWhereOrNull(
+            (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+          )
+          ?.speaker ??
+      _currentCall.value.devices.output().firstOrNull?.speaker ??
+      AudioSpeakerKind.earpiece;
+
   /// Constructs the arguments to pass to [L10nExtension.l10nfmt] to get the
   /// title of this [OngoingCall].
   Map<String, String> get titleArguments {
@@ -956,47 +967,45 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    try {
       final List<MediaDeviceDetails> outputs =
           _currentCall.value.devices.output().toList();
+
       if (outputs.length > 1) {
-        MediaDeviceDetails? device;
+        int index = outputs.indexWhere(
+          (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+        );
 
+        if (index == -1) {
+          index = 0;
+        }
+
+        ++index;
+        if (index >= outputs.length) {
+          index = 0;
+        }
+
+        // iOS doesn't allow to use ear-piece, when there're any Bluetooth
+        // devices connected.
         if (PlatformUtils.isIOS) {
-          device = _currentCall.value.devices.output().firstWhereOrNull(
-              (e) => e.deviceId() != 'ear-piece' && e.deviceId() != 'speaker');
-        } else {
-          device = _currentCall.value.devices.output().firstWhereOrNull((e) =>
-              e.deviceId() != 'ear-speaker' && e.deviceId() != 'speakerphone');
-        }
-
-        if (device == null) {
-          if (speakerSwitched.value) {
-            device = outputs.firstWhereOrNull((e) =>
-                e.deviceId() == 'ear-piece' || e.deviceId() == 'ear-speaker');
-            speakerSwitched.value = !(device != null);
-          } else {
-            device = outputs.firstWhereOrNull((e) =>
-                e.deviceId() == 'speakerphone' || e.deviceId() == 'speaker');
-            speakerSwitched.value = (device != null);
-          }
-
-          if (device == null) {
-            int selected = _currentCall.value.outputDevice.value == null
-                ? 0
-                : outputs.indexWhere((e) =>
-                    e.deviceId() == _currentCall.value.outputDevice.value!);
-            selected += 1;
-            device = outputs[(selected) % outputs.length];
+          if (outputs.any((e) => e.speaker == AudioSpeakerKind.headphones)) {
+            if (outputs[index].speaker == AudioSpeakerKind.earpiece) {
+              ++index;
+              if (index >= outputs.length) {
+                index = 0;
+              }
+            }
           }
         }
 
-        await _currentCall.value.setOutputDevice(device.deviceId());
+        await _currentCall.value.setOutputDevice(outputs[index].deviceId());
       }
-    } else {
-      // TODO: Ensure `medea_flutter_webrtc` supports Web output device
-      //       switching.
-      speakerSwitched.toggle();
+    } on InvalidOutputAudioDeviceIdException catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

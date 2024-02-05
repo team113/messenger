@@ -217,3 +217,24 @@ class ScreenPreferences extends TrackPreferences {
   /// Preferred framerate of the screen track.
   final int? framerate;
 }
+
+/// Extension adding conversion on [MediaDeviceDetails] to [AudioSpeakerKind].
+extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
+  /// Returns the [AudioSpeakerKind] of this [MediaDeviceDetails].
+  AudioSpeakerKind get speaker {
+    if (deviceId() == 'ear-speaker' || deviceId() == 'ear-piece') {
+      return AudioSpeakerKind.earpiece;
+    } else if (deviceId() == 'speakerphone' || deviceId() == 'speaker') {
+      return AudioSpeakerKind.speaker;
+    } else {
+      return AudioSpeakerKind.headphones;
+    }
+  }
+}
+
+/// Possible kind of an audio device.
+enum AudioSpeakerKind {
+  headphones,
+  earpiece,
+  speaker,
+}

@@ -28,6 +28,8 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/media_utils.dart';
+import '/util/platform_utils.dart';
 
 /// Button in a [CallView].
 ///
@@ -500,17 +502,26 @@ class SpeakerButton extends CallButton {
     bool expanded = false,
   }) {
     return Obx(() {
+      final SvgData asset;
+      if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
+        asset = SvgIcons.callIncomingAudioOn;
+      } else {
+        asset = switch (c.outputKind) {
+          AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
+          AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
+          AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
+        };
+      }
+
       return CallButtonWidget(
         hint: hint,
-        asset: c.isRemoteAudioEnabled.value
-            ? SvgIcons.callIncomingAudioOn
-            : SvgIcons.callIncomingAudioOff,
+        asset: asset,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
-        onPressed: c.toggleSpeaker,
+        onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
       );
     });
   }

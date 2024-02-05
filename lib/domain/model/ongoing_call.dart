@@ -991,6 +991,34 @@ class OngoingCall {
     try {
       if (media) {
         devices.value = await MediaUtils.enumerateDevices();
+
+        if (PlatformUtils.isMobile && outputDevice.value == null) {
+          final Iterable<MediaDeviceDetails> output = devices.output();
+          var device = output.firstWhereOrNull(
+            (e) => e.speaker == AudioSpeakerKind.headphones,
+          );
+
+          if (device == null) {
+            final bool speaker = PlatformUtils.isWeb
+                ? true
+                : videoState.value == LocalTrackState.enabling ||
+                    videoState.value == LocalTrackState.enabled;
+
+            if (speaker) {
+              device = output.firstWhereOrNull(
+                    (e) => e.speaker == AudioSpeakerKind.speaker,
+                  );
+            }
+
+            device ??= output.firstWhereOrNull(
+                  (e) => e.speaker == AudioSpeakerKind.earpiece,
+                );
+          }
+
+          if (device != null) {
+            setOutputDevice(device.deviceId());
+          }
+        }
       }
 
       if (screen && PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
