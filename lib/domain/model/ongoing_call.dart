@@ -1530,7 +1530,7 @@ class OngoingCall {
       }
 
       // Update the list of [devices] just in case the permissions were given.
-      enumerateDevices().then((_) => _pickOutputDevice());
+      enumerateDevices();
 
       audioState.value = audioState.value == LocalTrackState.enabling
           ? LocalTrackState.enabled
@@ -1842,14 +1842,17 @@ class OngoingCall {
       '$runtimeType',
     );
 
+    final String? preferred = preferredOutputDevice.value;
     DeviceDetails? device;
 
     if (removed.any((e) => e.deviceId() == outputDevice.value) ||
-        outputDevice.value != preferredOutputDevice.value ||
+        outputDevice.value != preferred ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
-      device = devices.output().first;
+      final Iterable<DeviceDetails> output = devices.output();
+      device =
+          output.firstWhereOrNull((e) => e.id() == preferred) ?? output.first;
     }
 
     if (device != null && outputDevice.value != device.deviceId()) {
@@ -1868,14 +1871,17 @@ class OngoingCall {
       '$runtimeType',
     );
 
+    final String? preferred = preferredAudioDevice.value;
     DeviceDetails? device;
 
     if (removed.any((e) => e.deviceId() == audioDevice.value) ||
-        audioDevice.value != preferredAudioDevice.value ||
+        audioDevice.value != preferred ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
-      device = devices.audio().first;
+      final Iterable<DeviceDetails> audio = devices.audio();
+      device =
+          audio.firstWhereOrNull((e) => e.id() == preferred) ?? audio.first;
     }
 
     if (device != null && audioDevice.value != device.deviceId()) {
