@@ -775,7 +775,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                               ),
                               Container(
                                 margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                                color: Colors.white,
+                                color: style.colors.onPrimary,
                                 width: 1,
                                 height: 12,
                               ),
