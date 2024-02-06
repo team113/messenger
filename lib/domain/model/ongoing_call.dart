@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/media_settings.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
@@ -326,10 +327,13 @@ class OngoingCall {
           .isNotEmpty ??
       false;
 
+  /// Indicates whether the current authorized [MyUser] is the caller.
+  bool get outgoing => me.id.userId == caller?.id || caller == null;
+
   /// Initializes the media client resources.
   ///
   /// No-op if already initialized.
-  Future<void> init() async {
+  Future<void> init({FutureOr<RxChat?> Function(ChatId)? getChat}) async {
     Log.debug('init()', '$runtimeType');
 
     if (_background) {
@@ -380,6 +384,29 @@ class OngoingCall {
 
       _initRoom();
 
+      // Adds all members of the provided [chat] to the [members].
+      void addDialings(RxChat chat) {
+        if ((outgoing && conversationStartedAt == null) ||
+            chat.chat.value.isDialog) {
+          for (UserId e in chat.members.keys.where((e) => e != me.id.userId)) {
+            _addDialing(e);
+          }
+        }
+      }
+
+      final FutureOr<RxChat?>? chatOrFuture = getChat?.call(chatId.value);
+      if (chatOrFuture is RxChat?) {
+        if (chatOrFuture != null) {
+          addDialings(chatOrFuture);
+        }
+      } else {
+        chatOrFuture.then((c) {
+          if (!connected && c != null) {
+            addDialings(c);
+          }
+        });
+      }
+
       try {
         // Set all the constraints to ensure no disabled track is sent while
         // initializing the local media.
@@ -424,25 +451,6 @@ class OngoingCall {
       return;
     }
 
-    // Adds a [CallMember] identified by its [userId], if none is in the
-    // [members] already.
-    void addDialing(UserId userId) {
-      final CallMemberId id = CallMemberId(userId, null);
-
-      if (members.values.none((e) => e.id.userId == id.userId)) {
-        members[id] = CallMember(
-          id,
-          null,
-          isHandRaised: call.value?.members
-                  .firstWhereOrNull((e) => e.user.id == id.userId)
-                  ?.handRaised ??
-              false,
-          isConnected: false,
-          isDialing: true,
-        );
-      }
-    }
-
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members[_me]?.id = id;
     members.move(_me, id);
@@ -484,9 +492,22 @@ class OngoingCall {
 
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
+                members.removeWhere(
+                  (_, v) =>
+                      v.isDialing.isTrue &&
+                      dialed.members.none((e) => e.user.id == v.id.userId) &&
+                      node.call.members.none((e) => e.user.id == v.id.userId),
+                );
+
                 for (final ChatMember m in dialed.members) {
-                  addDialing(m.user.id);
+                  _addDialing(m.user.id);
                 }
+              } else if (dialed == null) {
+                members.removeWhere(
+                  (_, v) =>
+                      v.isDialing.isTrue &&
+                      node.call.members.none((e) => e.user.id == v.id.userId),
+                );
               }
 
               // Get a [RxChat] this [OngoingCall] is happening in to query its
@@ -500,12 +521,21 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  for (final ChatMember m in (v?.chat.value.members ?? [])
-                      .where((e) =>
+                  final Iterable<ChatMember> dialings =
+                      (v?.chat.value.members ?? []).where((e) =>
                           e.user.id != me.id.userId &&
                           dialed.answeredMembers
-                              .none((a) => a.user.id == e.user.id))) {
-                    addDialing(m.user.id);
+                              .none((a) => a.user.id == e.user.id));
+
+                  members.removeWhere(
+                    (_, v) =>
+                        v.isDialing.isTrue &&
+                        dialings.none((e) => e.user.id == v.id.userId) &&
+                        node.call.members.none((e) => e.user.id == v.id.userId),
+                  );
+
+                  for (final ChatMember m in dialings) {
+                    _addDialing(m.user.id);
                   }
                 }
 
@@ -513,7 +543,7 @@ class OngoingCall {
                 _membersSubscription = v?.members.changes.listen((event) {
                   switch (event.op) {
                     case OperationKind.added:
-                      addDialing(event.key!);
+                      _addDialing(event.key!);
                       break;
 
                     case OperationKind.removed:
@@ -690,7 +720,7 @@ class OngoingCall {
 
                 case ChatCallEventKind.redialed:
                   final node = event as EventChatCallMemberRedialed;
-                  addDialing(node.user.id);
+                  _addDialing(node.user.id);
                   break;
 
                 case ChatCallEventKind.answerTimeoutPassed:
@@ -1404,6 +1434,25 @@ class OngoingCall {
       if (raised != me.isHandRaised.value) {
         _toggleHand(service);
       }
+    }
+  }
+
+  /// Adds a [CallMember] identified by its [userId], if none is in the
+  /// [members] already.
+  void _addDialing(UserId userId) {
+    final CallMemberId id = CallMemberId(userId, null);
+
+    if (members.values.none((e) => e.id.userId == id.userId)) {
+      members[id] = CallMember(
+        id,
+        null,
+        isHandRaised: call.value?.members
+                .firstWhereOrNull((e) => e.user.id == id.userId)
+                ?.handRaised ??
+            false,
+        isConnected: false,
+        isDialing: true,
+      );
     }
   }
 

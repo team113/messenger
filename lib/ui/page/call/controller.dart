@@ -395,9 +395,7 @@ class CallController extends GetxController {
   CallMember get me => _currentCall.value.me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
-  bool get outgoing =>
-      _calls.me == _currentCall.value.caller?.id ||
-      _currentCall.value.caller == null;
+  bool get outgoing => _currentCall.value.outgoing;
 
   /// Indicates whether the current [OngoingCall] has started or not.
   bool get started => _currentCall.value.conversationStartedAt != null;
@@ -541,7 +539,7 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    _currentCall.value.init();
+    _currentCall.value.init(getChat: _chatService.get);
 
     final Size size = router.context!.mediaQuerySize;
 
@@ -2144,20 +2142,6 @@ class CallController extends GetxController {
       secondaryTop.value = null;
       secondaryRight.value = 10;
       secondaryBottom.value = 10;
-    } else if (outgoing && !started && chat.value != null) {
-      final List<User> members =
-          chat.value!.members.values.map((e) => e.user.value).toList();
-      for (var e in chat.value!.chat.value.members) {
-        members.addIf(members.none((p) => p.id == e.user.id), e.user);
-      }
-
-      for (var e in members) {
-        if (e.id != me.id.userId) {
-          _putTracksFrom(
-            CallMember(CallMemberId(e.id, null), null, isDialing: true),
-          );
-        }
-      }
     }
 
     // Update the [WebUtils.title] if this call is in a popup.
