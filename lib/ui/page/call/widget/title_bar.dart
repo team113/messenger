@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../widget/animated_button.dart';
 import '/domain/repository/chat.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Title bar to put to the [desktopCall].

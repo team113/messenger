@@ -774,7 +774,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Container(
-                                margin: const EdgeInsets.fromLTRB(6, 0, 12, 0),
+                                margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                                 color: Colors.white,
                                 width: 1,
                                 height: 12,
@@ -938,10 +938,10 @@ Widget desktopCall(CallController c, BuildContext context) {
         //
         // 1) + is a cornered scale point;
         // 2) | is a horizontal scale point;
-        // 3) - is a vertical scale point;
+        // 3) - is a vertical scale point.
         return Stack(
           children: [
-            // top middle
+            // Top middle.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
