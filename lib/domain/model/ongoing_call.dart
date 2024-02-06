@@ -27,6 +27,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
