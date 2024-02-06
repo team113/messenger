@@ -171,8 +171,6 @@ class UserRepository extends DisposableInterface
 
   @override
   FutureOr<RxUser?> get(UserId id) {
-    Log.debug('get($id)', '$runtimeType');
-
     // Return the stored user instance, if it exists.
     final HiveRxUser? user = users[id];
     if (user != null) {

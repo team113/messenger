@@ -72,12 +72,12 @@ class ChangePasswordView extends StatelessWidget {
                     OutlinedRoundedButton(
                       key: const Key('Close'),
                       maxWidth: double.infinity,
-                      title: Text(
+                      onPressed: Navigator.of(context).pop,
+                      color: style.colors.primary,
+                      child: Text(
                         'btn_close'.l10n,
                         style: style.fonts.normal.regular.onPrimary,
                       ),
-                      onPressed: Navigator.of(context).pop,
-                      color: style.colors.primary,
                     ),
                   ],
                 ),
@@ -157,14 +157,14 @@ class ChangePasswordView extends StatelessWidget {
                       return OutlinedRoundedButton(
                         key: const Key('Proceed'),
                         maxWidth: double.infinity,
-                        title: Text(
+                        onPressed: enabled ? c.changePassword : null,
+                        color: style.colors.primary,
+                        child: Text(
                           'btn_proceed'.l10n,
                           style: enabled
                               ? style.fonts.normal.regular.onPrimary
                               : style.fonts.normal.regular.onBackground,
                         ),
-                        onPressed: enabled ? c.changePassword : null,
-                        color: style.colors.primary,
                       );
                     }),
                   ],
