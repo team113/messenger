@@ -146,7 +146,7 @@ class BalanceTabView extends StatelessWidget {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      '¤ (Gapopa coin) is an internal currency for purchasing services offered by Gapopa.',
+                                      'Текущий курс на ${DateTime.now().yMd}.',
                                       style:
                                           style.fonts.small.regular.secondary,
                                     ),
