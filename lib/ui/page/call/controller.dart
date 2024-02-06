@@ -82,7 +82,7 @@ class CallController extends GetxController {
   /// Indicator whether the view is fullscreen.
   late final RxBool fullscreen;
 
-  /// Indicator whether UI is shown.
+  /// Indicator whether the UI is shown.
   final RxBool showUi = RxBool(true);
 
   /// Indicator whether the info header is currently shown.
