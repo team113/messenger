@@ -17,16 +17,19 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/balance.dart';
 
 import '/ui/widget/text_field.dart';
 
 class BalanceTabController extends GetxController {
-  BalanceTabController(this._balanceService);
+  BalanceTabController(this._balanceService, this._settingsRepository);
 
   final RxBool adding = RxBool(true);
-  final RxBool hintDismissed = RxBool(true);
+  late final RxBool hintDismissed =
+      RxBool(!(settings.value?.displayRates ?? true));
 
   final TextFieldState search = TextFieldState();
   final RxBool searching = RxBool(false);
@@ -36,6 +39,10 @@ class BalanceTabController extends GetxController {
   final ScrollController scrollController = ScrollController();
 
   final BalanceService _balanceService;
+  final AbstractSettingsRepository _settingsRepository;
+
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
 
   RxDouble get balance => _balanceService.balance;
   RxList<Transaction> get transactions => _balanceService.transactions;
@@ -43,4 +50,7 @@ class BalanceTabController extends GetxController {
   void toggleAdding() {
     adding.toggle();
   }
+
+  Future<void> setDisplayRates(bool enabled) =>
+      _settingsRepository.setDisplayRates(enabled);
 }

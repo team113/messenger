@@ -143,4 +143,9 @@ class ApplicationSettingsHiveProvider
         0,
         (box.get(0) ?? ApplicationSettings())..mediaButtonsPosition = position,
       );
+
+  Future<void> setDisplayRates(bool enabled) => putSafe(
+        0,
+        (box.get(0) ?? ApplicationSettings())..displayRates = enabled,
+      );
 }

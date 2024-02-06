@@ -35,6 +35,7 @@ class MenuButton extends StatelessWidget {
     this.inverted = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 10),
     this.trailing,
+    this.reversed = false,
   });
 
   MenuButton.tab(
@@ -44,7 +45,8 @@ class MenuButton extends StatelessWidget {
     this.onPressed,
     this.padding = const EdgeInsets.symmetric(horizontal: 10),
     this.trailing,
-  })  : icon = null,
+  })  : reversed = false,
+        icon = null,
         title = switch (tab) {
           ProfileTab.public => 'label_profile'.l10n,
           ProfileTab.signing => 'label_login_options'.l10n,
@@ -159,9 +161,18 @@ class MenuButton extends StatelessWidget {
   final Widget? trailing;
   final EdgeInsets padding;
 
+  final bool reversed;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final primaryStyle = inverted
+        ? style.fonts.big.regular.onPrimary
+        : style.fonts.big.regular.onBackground;
+    final secondaryStyle = inverted
+        ? style.fonts.small.regular.onPrimary
+        : style.fonts.small.regular.secondary;
 
     return Padding(
       padding: padding,
@@ -205,9 +216,7 @@ class MenuButton extends StatelessWidget {
                             DefaultTextStyle(
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              style: inverted
-                                  ? style.fonts.big.regular.onPrimary
-                                  : style.fonts.big.regular.onBackground,
+                              style: reversed ? secondaryStyle : primaryStyle,
                               child: Text(title!),
                             ),
                           if (title != null && subtitle != null)
@@ -216,9 +225,7 @@ class MenuButton extends StatelessWidget {
                             DefaultTextStyle.merge(
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: inverted
-                                  ? style.fonts.small.regular.onPrimary
-                                  : style.fonts.small.regular.onBackground,
+                              style: reversed ? primaryStyle : secondaryStyle,
                               child: Row(
                                 children: [
                                   Expanded(child: Text(subtitle!)),

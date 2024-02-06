@@ -43,6 +43,7 @@ class ApplicationSettings extends HiveObject {
     this.publicsTabEnabled = true,
     this.pinnedActions = const [],
     this.mediaButtonsPosition = MediaButtonsPosition.appBar,
+    this.displayRates = true,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -114,6 +115,9 @@ class ApplicationSettings extends HiveObject {
 
   @HiveField(16)
   MediaButtonsPosition? mediaButtonsPosition;
+
+  @HiveField(18)
+  bool displayRates;
 }
 
 @HiveType(typeId: ModelTypeId.mediaButtonsPosition)

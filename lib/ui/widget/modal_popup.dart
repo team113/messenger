@@ -217,7 +217,7 @@ class ModalPopupHeader extends StatelessWidget {
               )
             else
               const Spacer(),
-            if (!context.isMobile && close)
+            if ((!context.isMobile || onClose != null) && close)
               WidgetButton(
                 key: const Key('CloseButton'),
                 onPressed: onClose ?? Navigator.of(context).pop,

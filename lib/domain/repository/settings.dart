@@ -104,4 +104,6 @@ abstract class AbstractSettingsRepository {
   Future<void> setPublicsTabEnabled(bool enabled);
 
   Future<void> setMediaButtonsPosition(MediaButtonsPosition position);
+
+  Future<void> setDisplayRates(bool enabled);
 }

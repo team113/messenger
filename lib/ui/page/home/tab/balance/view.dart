@@ -40,7 +40,7 @@ class BalanceTabView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: BalanceTabController(Get.find()),
+      init: BalanceTabController(Get.find(), Get.find()),
       builder: (BalanceTabController c) {
         return Scaffold(
           // extendBodyBehindAppBar: true,
@@ -52,13 +52,16 @@ class BalanceTabView extends StatelessWidget {
 
                 if (c.adding.value) {
                   if (c.hintDismissed.value) {
-                    child = const SvgIcon(SvgIcons.infoThick);
+                    child = const SvgIcon(SvgIcons.rate);
                   } else {
-                    child = const SvgIcon(SvgIcons.infoThickDisabled);
+                    child = const SvgIcon(SvgIcons.rateDisabled);
                   }
 
                   return AnimatedButton(
-                    onPressed: c.hintDismissed.toggle,
+                    onPressed: () {
+                      c.hintDismissed.toggle();
+                      c.setDisplayRates(!c.hintDismissed.value);
+                    },
                     decorator: (child) => Container(
                       padding: const EdgeInsets.only(left: 20, right: 12),
                       height: double.infinity,
@@ -110,30 +113,40 @@ class BalanceTabView extends StatelessWidget {
               }),
             ],
           ),
+
+          extendBodyBehindAppBar: true,
+
           body: Obx(() {
             if (c.adding.value) {
               return SafeScrollbar(
                 controller: c.scrollController,
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  controller: c.scrollController,
                   children: [
                     Obx(() {
                       return AnimatedSizeAndFade.showHide(
                         show: !c.hintDismissed.value,
                         child: Center(
                           child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 4),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10),
+                              border: style.cardBorder,
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ModalPopupHeader(
                                   close: true,
-                                  onClose: c.hintDismissed.toggle,
+                                  onClose: () {
+                                    c.hintDismissed.toggle();
+                                    c.setDisplayRates(!c.hintDismissed.value);
+                                  },
                                   text: '¤100 = €1.00',
                                 ),
                                 const SizedBox(height: 4),
@@ -146,7 +159,7 @@ class BalanceTabView extends StatelessWidget {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      'Текущий курс на ${DateTime.now().yMd}.',
+                                      'Rate for ${DateTime.now().yMd}.',
                                       style:
                                           style.fonts.small.regular.secondary,
                                     ),
@@ -159,45 +172,89 @@ class BalanceTabView extends StatelessWidget {
                         ),
                       );
                     }),
+                    // Padding(
+                    //   padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+                    //   child: Center(
+                    //       child: Text('Add funds',
+                    //           style: style.fonts.big.regular.onBackground)),
+                    // ),
+                    // Center(
+                    //   child: Container(
+                    //     // width: double.infinity,
+                    //     margin: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+                    //     padding: const EdgeInsets.symmetric(
+                    //       horizontal: 12,
+                    //       vertical: 8,
+                    //     ),
+                    //     decoration: BoxDecoration(
+                    //       borderRadius: BorderRadius.circular(15),
+                    //       border: style.systemMessageBorder,
+                    //       color: style.systemMessageColor,
+                    //     ),
+                    //     child: Text(
+                    //       'Add funds',
+                    //       style: style.systemMessageStyle,
+                    //     ),
+                    //   ),
+                    // ),
                     ...BalanceProvider.values.map((e) {
                       Widget button({
                         required String title,
-                        required IconData icon,
+                        required SvgData asset,
+                        // required IconData icon,
+                        double? bonus,
                       }) {
                         final bool selected = router.route
                             .startsWith('${Routes.balance}/${e.name}');
 
-                        return BalanceProviderWidget(
-                          title: title,
-                          leading: [Icon(icon)],
-                          selected: selected,
-                          onTap: () => router.balance(e),
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 1.5),
+                          child: BalanceProviderWidget(
+                            title: title,
+                            leading: [
+                              SvgIcon(asset),
+                              // Icon(
+                              //   icon,
+                              //   size: 42,
+                              //   color: selected
+                              //       ? style.colors.onPrimary
+                              //       : style.colors.primary,
+                              // )
+                            ],
+                            selected: selected,
+                            bonus: bonus,
+                            onPressed: () => router.balance(e),
+                          ),
                         );
                       }
 
                       switch (e) {
                         case BalanceProvider.creditCard:
                           return button(
-                            icon: Icons.credit_card,
+                            asset: SvgIcons.menuPayment,
                             title: 'Credit card',
+                            bonus: 5,
                           );
 
                         case BalanceProvider.swift:
                           return button(
-                            icon: Icons.account_balance,
+                            asset: SvgIcons.menuCalls,
                             title: 'SWIFT transfer',
+                            bonus: 2,
                           );
 
                         case BalanceProvider.sepa:
                           return button(
-                            icon: Icons.account_balance,
+                            asset: SvgIcons.menuLink,
                             title: 'SEPA transfer',
+                            bonus: 2,
                           );
 
                         case BalanceProvider.paypal:
                           return button(
-                            icon: Icons.paypal,
+                            asset: SvgIcons.menuBackground,
                             title: 'PayPal',
+                            bonus: -5,
                           );
 
                         default:
@@ -211,16 +268,20 @@ class BalanceTabView extends StatelessWidget {
 
             return SafeScrollbar(
               controller: c.scrollController,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                children: [
-                  ...c.transactions.map((e) {
-                    return TransactionWidget(
+              child: ListView.builder(
+                controller: c.scrollController,
+                itemCount: c.transactions.length,
+                itemBuilder: (_, i) {
+                  final e = c.transactions[i];
+
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: TransactionWidget(
                       e,
                       currency: TransactionCurrency.inter,
-                    );
-                  }),
-                ],
+                    ),
+                  );
+                },
               ),
             );
           }),

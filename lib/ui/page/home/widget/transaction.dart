@@ -61,14 +61,14 @@ class TransactionWidget extends StatelessWidget {
       }
 
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
+        padding: const EdgeInsets.symmetric(vertical: 1.5),
         child: Container(
           constraints: const BoxConstraints(minHeight: 73),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: Colors.transparent,
-          ),
+          // decoration: BoxDecoration(
+          //   borderRadius: style.cardRadius,
+          //   border: style.cardBorder,
+          //   color: Colors.transparent,
+          // ),
           child: InkWellWithHover(
             borderRadius: style.cardRadius,
             selectedColor: style.colors.primary,

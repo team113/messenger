@@ -186,6 +186,10 @@ class SettingsRepository extends DisposableInterface
   Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
       _settingsLocal.setMediaButtonsPosition(position);
 
+  @override
+  Future<void> setDisplayRates(bool enabled) =>
+      _settingsLocal.setDisplayRates(enabled);
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);
