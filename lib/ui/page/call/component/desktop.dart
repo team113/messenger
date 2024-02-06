@@ -42,7 +42,6 @@ import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/title_bar.dart';
-import '../widget/tooltip_button.dart';
 import '../widget/video_view.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';

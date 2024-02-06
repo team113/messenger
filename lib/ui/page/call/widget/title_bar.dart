@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '../../../widget/animated_button.dart';
 import '/domain/repository/chat.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/tooltip_button.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/svg/svg.dart';
 
