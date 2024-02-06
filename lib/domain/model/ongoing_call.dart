@@ -371,9 +371,32 @@ class OngoingCall {
           }
         }
 
-        _pickAudioDevice(previous, removed);
-        _pickOutputDevice(previous, removed);
-        _pickVideoDevice(previous, removed);
+        final bool audioChanged = !previous
+            .audio()
+            .map((e) => e.deviceId())
+            .sameAs(devices.audio().map((e) => e.deviceId()));
+
+        final bool outputChanged = !previous
+            .output()
+            .map((e) => e.deviceId())
+            .sameAs(devices.output().map((e) => e.deviceId()));
+
+        final bool videoChanged = !previous
+            .video()
+            .map((e) => e.deviceId())
+            .sameAs(devices.video().map((e) => e.deviceId()));
+
+        if (audioChanged) {
+          _pickAudioDevice(previous, removed);
+        }
+
+        if (outputChanged) {
+          _pickOutputDevice(previous, removed);
+        }
+
+        if (videoChanged) {
+          _pickVideoDevice(previous, removed);
+        }
       });
 
       _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
@@ -1846,7 +1869,7 @@ class OngoingCall {
     DeviceDetails? device;
 
     if (removed.any((e) => e.deviceId() == outputDevice.value) ||
-        outputDevice.value != preferred ||
+        (outputDevice.value == null || outputDevice.value != preferred) ||
         (outputDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
@@ -1875,7 +1898,7 @@ class OngoingCall {
     DeviceDetails? device;
 
     if (removed.any((e) => e.deviceId() == audioDevice.value) ||
-        audioDevice.value != preferred ||
+        (audioDevice.value == null || audioDevice.value != preferred) ||
         (audioDevice.value == null &&
             removed.any((e) =>
                 e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
