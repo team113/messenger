@@ -309,7 +309,7 @@ class HiveRxChat extends RxChat {
     _messagesSubscription = messages.changes.listen((e) {
       switch (e.op) {
         case OperationKind.removed:
-          _onItemRemoved(e.element.value);
+          _recalculateReadsFor(e.element.value);
           break;
 
         case OperationKind.added:
@@ -495,8 +495,10 @@ class HiveRxChat extends RxChat {
   }) async {
     Log.debug('around()', '$runtimeType($id)');
 
+    // Even if the [item] is within [_local], still create a [MessageFragment],
+    // at it handles such cases as well.
     if (item != null) {
-      return _loadPaginatedAround(item, reply: reply, forward: forward);
+      return _paginateAround(item, reply: reply, forward: forward);
     }
 
     if (id.isLocal ||
@@ -517,6 +519,9 @@ class HiveRxChat extends RxChat {
       lastRead = await get(chat.value.lastReadItem!);
     }
 
+    // TODO: Perhaps the [messages] should be in a [MessagesFragment] as well?
+    //       This will make it easy to dispose the messages, when they aren't
+    //       needed, so that RAM is freed.
     await _pagination.around(
       cursor: _lastReadItemCursor,
       key: lastRead?.value.key,
@@ -766,11 +771,11 @@ class HiveRxChat extends RxChat {
   Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) async {
     Log.debug('remove($itemId, $key)', '$runtimeType($id)');
 
-    key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId) ??
-        _fragments.fold(
-          <ChatItemKey>[],
-          (keys, e) => keys..addAll(e.items.keys),
-        ).firstWhereOrNull((e) => e.id == itemId);
+    key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+    key ??= _fragments.fold(
+      <ChatItemKey>[],
+      (keys, e) => keys..addAll(e.items.keys),
+    ).firstWhereOrNull((e) => e.id == itemId);
 
     if (key != null) {
       _pagination.remove(key);
@@ -808,12 +813,12 @@ class HiveRxChat extends RxChat {
 
     HiveChatItem? item;
     if (key != null) {
-      item = _pagination.items[key] ??
-          _fragments
-              .firstWhereOrNull((e) => e.pagination.items[key] != null)
-              ?.pagination
-              .items[key] ??
-          await _local.get(key);
+      item = _pagination.items[key];
+      item ??= _fragments
+          .firstWhereOrNull((e) => e.pagination.items[key] != null)
+          ?.pagination
+          .items[key];
+      item ??= await _local.get(key);
     }
 
     try {
@@ -923,17 +928,14 @@ class HiveRxChat extends RxChat {
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
-  /// Loads the [MessagesFragment] around the specified [item], [reply] or
+  /// Constructs a [MessagesFragment] around the specified [item], [reply] or
   /// [forward].
-  Future<MessagesFragment> _loadPaginatedAround(
+  Future<MessagesFragment> _paginateAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
-    Log.debug(
-      '_loadFragmentAround($item, $reply, $forward)',
-      '$runtimeType($id)',
-    );
+    Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
     // Retrieve the [item] itself pointed around.
     final HiveChatItem? hiveItem = await get(item.key.id, key: item.key);
@@ -992,9 +994,10 @@ class HiveRxChat extends RxChat {
     }
 
     StreamSubscription? subscription;
-    Timer? timer;
+    Timer? debounce;
 
-    fragment = MessagesFragment(
+    _fragments.add(
+      fragment = MessagesFragment(
         initialKey: key,
         initialCursor: cursor,
         pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
@@ -1011,26 +1014,30 @@ class HiveRxChat extends RxChat {
           _fragments.remove(fragment);
           _fragmentSubscriptions.remove(subscription);
           subscription?.cancel();
-          timer?.cancel();
-        });
+          debounce?.cancel();
+        },
+      ),
+    );
 
-    subscription = fragment.items.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          timer?.cancel();
-          // Use [Timer] to call [updateReads] once if added multiple items.
-          timer = Timer(1.milliseconds, updateReads);
-          break;
+    _fragmentSubscriptions.add(
+      subscription = fragment.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            debounce?.cancel();
 
-        case OperationKind.removed:
-          _onItemRemoved(event.value!.value);
-          break;
-      }
-    });
-    _fragmentSubscriptions.add(subscription);
+            // Debounce the [updateReads], when [event]s are adding items
+            // rapidly.
+            debounce = Timer(1.milliseconds, updateReads);
+            break;
 
-    _fragments.add(fragment);
+          case OperationKind.removed:
+            _recalculateReadsFor(event.value!.value);
+            break;
+        }
+      }),
+    );
+
     return fragment;
   }
 
@@ -1153,11 +1160,11 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Recalculates the [LastChatRead]s pointing at the removed [item], if any.
+  /// Recalculates the [LastChatRead]s pointing at the [item], if any.
   ///
-  /// Should be called when a [ChatItem] is removed from the [messages] or a
-  /// [MessagesFragment.items] list.
-  _onItemRemoved(ChatItem item) {
+  /// Should be called when a [ChatItem] is removed from the [messages] or the
+  /// [MessagesFragment.items].
+  void _recalculateReadsFor(ChatItem item) {
     for (LastChatRead i in reads) {
       if (item.at == i.at) {
         i.at = _lastReadAt(i.at) ?? i.at;
@@ -1169,14 +1176,11 @@ class HiveRxChat extends RxChat {
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
     Log.debug('_lastReadAt($at)', '$runtimeType($id)');
 
-    PreciseDateTime? lastReadAt = _lastReadAtList(
-      at,
-      messages: messages,
-      hasNext: hasNext.isTrue,
-    );
+    PreciseDateTime? lastReadAt =
+        _lastReadAmong(at, messages: messages, hasNext: hasNext.isTrue);
 
     for (var fragment in _fragments) {
-      lastReadAt ??= _lastReadAtList(
+      lastReadAt ??= _lastReadAmong(
         at,
         messages: fragment.items.values,
         hasNext: fragment.hasNext.isTrue,
@@ -1188,12 +1192,12 @@ class HiveRxChat extends RxChat {
 
   /// Returns the [ChatItem.at] being the predecessor of the provided [at] in
   /// the provided [messages] list.
-  PreciseDateTime? _lastReadAtList(
+  PreciseDateTime? _lastReadAmong(
     PreciseDateTime at, {
     required Iterable<Rx<ChatItem>> messages,
     required bool hasNext,
   }) {
-    Log.debug('_lastReadAt($at)', '$runtimeType($id)');
+    Log.debug('_lastReadAmong($at)', '$runtimeType($id)');
 
     messages = messages.sortedBy((e) => e.value.at);
 
@@ -1436,7 +1440,7 @@ class HiveRxChat extends RxChat {
                 }
 
                 // Call is already finished, no reason to try adding it.
-                if (event.call.finishReason != null) {
+                if (event.call.finishReason == null) {
                   chatEntity.value.ongoingCall = event.call;
                   _chatRepository.addCall(event.call);
                 }

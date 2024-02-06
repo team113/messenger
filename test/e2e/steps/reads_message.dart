@@ -17,7 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/api/backend/extension/chat.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -67,15 +67,10 @@ final StepDefinitionGeneric readsAllMessages =
     provider.token = context.world.sessions[user.name]?.token;
 
     final ChatId chatId = context.world.groups[name]!;
-    final ChatMessageMixin lastMessage =
-        (await provider.chatItems(chatId, first: 1))
-            .chat!
-            .items
-            .edges
-            .first
-            .node as ChatMessageMixin;
+    final ChatItemId lastItemId =
+        (await provider.getChat(chatId)).chat!.lastItem!.toHive().value.id;
 
-    await provider.readChat(chatId, lastMessage.id);
+    await provider.readChat(chatId, lastItemId);
 
     provider.disconnect();
   },

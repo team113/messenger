@@ -25,7 +25,7 @@ import 'package:messenger/provider/hive/chat_item.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Replies a message with the provided text by the provided [TestUser] in the
+/// Replies a message with the provided text by the specified [TestUser] in the
 /// [Group] with the provided name.
 ///
 /// Examples:
@@ -39,6 +39,9 @@ final StepDefinitionGeneric repliesToMessage =
     provider.token = context.world.sessions[user.name]?.token;
 
     final ChatId chatId = context.world.groups[name]!;
+
+    // TODO: Should use `searchItems` query or something, when backend
+    //       introduces such a query.
     final HiveChatMessage message =
         (await provider.chatItems(chatId, first: 120))
             .chat!

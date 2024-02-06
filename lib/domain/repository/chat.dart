@@ -297,8 +297,8 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
-  /// Fetches the [Paginated] page around the [item], if specified, or [messages] around the
-  /// [firstUnread], if not.
+  /// Fetches the [Paginated] page around the [item], if specified, or
+  /// [messages] around the [firstUnread] otherwise.
   ///
   /// If [reply] or [forward] is provided, then the [item] is considered as a
   /// quote of the specified [reply] of [forward].

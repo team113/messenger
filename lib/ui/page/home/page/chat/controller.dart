@@ -344,11 +344,10 @@ class ChatController extends GetxController {
   /// the [animateToBottom] invokes.
   final List<ChatItem> _history = [];
 
-  /// Currently used [Paginated] loading a fragment of [elements] with
-  /// pagination.
+  /// [Paginated] of [ChatItem]s to display in the [elements].
   Paginated<ChatItemKey, Rx<ChatItem>>? _fragment;
 
-  /// [Paginated]s used by this [ChatController].
+  /// [Paginated]es used by this [ChatController].
   final HashSet<Paginated<ChatItemKey, Rx<ChatItem>>> _fragments = HashSet();
 
   /// Subscriptions to the [Paginated.updates].
@@ -1502,41 +1501,44 @@ class ChatController extends GetxController {
     ChatItemQuote? forward,
   }) async {
     // Uses the [chat] as [elements] source.
-    void useChat() {
+    void switchToMessages() {
       _fragment = null;
+
       elements.clear();
       chat!.messages.forEach(_add);
-
       _subscribeFor(chat: chat);
     }
 
     final ChatItemId itemId = (reply?.original ?? forward?.original ?? item).id;
 
     if (chat!.messages.any((e) => e.value.id == itemId)) {
-      useChat();
+      switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
         (e) => e.items.keys.any((e) => e.id == itemId),
       );
 
+      // If no fragments from the [_fragments] already contain the [itemId],
+      // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
-        final Paginated<ChatItemKey, Rx<ChatItem>> fragment =
-            (await chat!.around(
+        final Paginated<ChatItemKey, Rx<ChatItem>>? fragment =
+            await chat!.around(
           item: item,
           reply: reply?.original?.id,
           forward: forward?.original?.id,
-        ))!;
+        );
 
         StreamSubscription? subscription;
-        subscription = fragment.updates.listen(
+        subscription = fragment!.updates.listen(
           null,
           onDone: () {
             _fragments.remove(fragment);
-            _fragmentSubscriptions.remove(subscription);
-            subscription?.cancel();
+            _fragmentSubscriptions.remove(subscription?..cancel());
 
+            // If currently used fragment is the one disposed, then switch to
+            // the [RxChat.messages] for the [elements].
             if (_fragment == fragment) {
-              useChat();
+              switchToMessages();
             }
           },
         );
@@ -1549,7 +1551,6 @@ class ChatController extends GetxController {
 
       elements.clear();
       _fragment!.items.values.forEach(_add);
-
       _subscribeFor(fragment: _fragment);
     }
   }
@@ -1717,7 +1718,7 @@ class ChatController extends GetxController {
           elements.remove(forward.id);
 
           if (forward.note.value != null) {
-            ChatMessageElement message =
+            final ChatMessageElement message =
                 ChatMessageElement(forward.note.value!);
             elements[message.id] = message;
           }
@@ -1752,8 +1753,8 @@ class ChatController extends GetxController {
             break;
         }
       });
-    } else {
-      _messagesSubscription = fragment!.items.changes.listen((e) {
+    } else if (fragment != null) {
+      _messagesSubscription = fragment.items.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             _add(e.value!);

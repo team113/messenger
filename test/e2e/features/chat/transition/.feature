@@ -20,13 +20,16 @@ Feature: Chat transitions
   Scenario: Chats transitions works correctly
     Given user Alice
     And Alice has "Thoughts" group
+
+    # Send the message from the Alice to ensure nothing is cached, when we sign
+    # in as Alice, or otherwise the pagination will use the cached items.
     And Alice sends "How are you?" message to "Thoughts" group
     And Alice sends 100 messages to "Thoughts" group
     And Alice replies to "How are you?" message with "I am fine" text in "Thoughts" group
     And Alice reads all messages in "Thoughts" group
-    And I sign in as Alice
-    And I am in "Thoughts" group
 
-    When I tap `CloseButton` button
+    When I sign in as Alice
+    And I am in "Thoughts" group
+    And I tap `CloseButton` button
     And I tap "How are you?" reply of "I am fine" message
     Then I see "How are you?" message
