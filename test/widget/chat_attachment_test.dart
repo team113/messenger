@@ -82,7 +82,6 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/audio_utils.dart';
-import '../mock/overflow_error.dart';
 import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
@@ -453,7 +452,6 @@ void main() async {
   await chatCredentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
-    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(

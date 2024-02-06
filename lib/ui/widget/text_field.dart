@@ -51,6 +51,7 @@ class ReactiveTextField extends StatelessWidget {
     this.obscure = false,
     this.onChanged,
     this.onSuffixPressed,
+    this.onCanceled,
     this.padding,
     this.prefix,
     this.prefixText,
@@ -139,6 +140,11 @@ class ReactiveTextField extends StatelessWidget {
   /// Only meaningful if [suffix] is non-`null`.
   final void Function()? onSuffixPressed;
 
+  /// Callback, called when user presses the cancel button.
+  ///
+  /// If `null`, then no cancel button will be displayed.
+  final void Function()? onCanceled;
+
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
@@ -197,40 +203,45 @@ class ReactiveTextField extends StatelessWidget {
       final style = Theme.of(context).style;
 
       return Obx(() {
+        final RxStatus status = state.status.value;
+        final bool hasError =
+            status.isError || (state.error.value != null && treatErrorAsStatus);
         final bool hasSuffix = state.approvable ||
             suffix != null ||
             trailing != null ||
-            !state.status.value.isEmpty;
+            !status.isEmpty ||
+            hasError;
 
-        return AnimatedButton(
-          onPressed: state.approvable &&
-                  (state.changed.value || state.resubmitOnError.isTrue)
-              ? state.isEmpty.value && !clearable
-                  ? null
-                  : state.submit
-              : onSuffixPressed,
-          decorator: (child) {
-            if (!hasSuffix) {
-              return child;
-            }
+        final Widget cancelButton = AllowOverflow(
+          key: const ValueKey('Cancel'),
+          child: Text(
+            'btn_cancel'.l10n,
+            style: style.fonts.small.regular.primary,
+          ),
+        );
 
-            return Padding(
-              padding: const EdgeInsets.only(left: 8, right: 16),
-              child: child,
-            );
-          },
-          child: ElasticAnimatedSwitcher(
-            child: hasSuffix
-                ? SizedBox(
-                    height: 24,
+        return ElasticAnimatedSwitcher(
+          child: hasSuffix
+              ? SizedBox(
+                  height: 48,
+                  child: AnimatedButton(
+                    onPressed: state.approvable &&
+                            (state.changed.value ||
+                                state.resubmitOnError.isTrue)
+                        ? state.isEmpty.value && !clearable
+                            ? null
+                            : state.submit
+                        : onCanceled ?? onSuffixPressed,
+                    decorator: (child) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 16),
+                        child: child,
+                      );
+                    },
                     child: ElasticAnimatedSwitcher(
-                      child: state.status.value.isLoading
-                          ? const SvgImage.asset(
-                              'assets/icons/timer.svg',
-                              width: 17,
-                              height: 17,
-                            )
-                          : state.status.value.isSuccess
+                      child: status.isLoading
+                          ? const SvgIcon(key: Key('Loading'), SvgIcons.timer)
+                          : status.isSuccess
                               ? SizedBox(
                                   key: const ValueKey('Success'),
                                   width: 24,
@@ -240,28 +251,23 @@ class ReactiveTextField extends StatelessWidget {
                                     color: style.colors.acceptAuxiliary,
                                   ),
                                 )
-                              : ((state.error.value != null &&
-                                              treatErrorAsStatus) ||
-                                          state.status.value.isError) &&
-                                      state.resubmitOnError.isFalse
-                                  ? SizedBox(
-                                      key: const ValueKey('Error'),
-                                      width: 24,
-                                      child: Icon(
-                                        Icons.error,
-                                        size: 18,
-                                        color: style.colors.danger,
-                                      ),
-                                    )
+                              : hasError
+                                  ? onCanceled != null
+                                      ? cancelButton
+                                      : SizedBox(
+                                          key: const ValueKey('Error'),
+                                          width: 24,
+                                          child: Icon(
+                                            Icons.error,
+                                            size: 18,
+                                            color: style.colors.danger,
+                                          ),
+                                        )
                                   : (state.approvable &&
                                           (state.changed.value ||
                                               state.resubmitOnError.isTrue))
                                       ? state.isEmpty.value && !clearable
-                                          ? const SizedBox(
-                                              key: Key('Empty'),
-                                              width: 1,
-                                              height: 0,
-                                            )
+                                          ? null
                                           : AllowOverflow(
                                               key: const ValueKey('Approve'),
                                               child: Text(
@@ -270,17 +276,19 @@ class ReactiveTextField extends StatelessWidget {
                                                     .primary,
                                               ),
                                             )
-                                      : SizedBox(
-                                          key: const ValueKey('Icon'),
-                                          width: 24,
-                                          child: suffix != null
-                                              ? Icon(suffix)
-                                              : trailing,
-                                        ),
+                                      : onCanceled != null
+                                          ? cancelButton
+                                          : SizedBox(
+                                              key: const ValueKey('Icon'),
+                                              width: 24,
+                                              child: suffix != null
+                                                  ? Icon(suffix)
+                                                  : trailing,
+                                            ),
                     ),
-                  )
-                : const SizedBox(width: 1, height: 0),
-          ),
+                  ),
+                )
+              : null,
         );
       });
     }
@@ -350,6 +358,7 @@ class ReactiveTextField extends StatelessWidget {
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIconConstraints: const BoxConstraints(minWidth: 16),
                 icon: icon == null
                     ? null
                     : Padding(
