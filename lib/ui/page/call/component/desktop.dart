@@ -639,32 +639,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           });
         }),
 
-        // Top [MouseRegion] that toggles info header on hover.
-        Align(
-          alignment: Alignment.topCenter,
-          child: SizedBox(
-            height: 100,
-            width: double.infinity,
-            child: MouseRegion(
-              opaque: false,
-              onEnter: (_) {
-                c.showHeader.value = true;
-                c.headerHovered = true;
-                c.isCursorHidden.value = false;
-              },
-              onHover: (_) {
-                c.showHeader.value = true;
-                c.headerHovered = true;
-                c.isCursorHidden.value = false;
-              },
-              onExit: (_) {
-                c.showHeader.value = false;
-                c.headerHovered = false;
-              },
-            ),
-          ),
-        ),
-
         // [MouseRegion] changing the cursor.
         Obx(() {
           return MouseRegion(
@@ -754,7 +728,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 isOpen: c.state.value == OngoingCallState.active &&
                     c.showHeader.value,
                 child: MouseRegion(
-                  opaque: false,
+                  opaque: true,
                   onEnter: (_) {
                     c.showHeader.value = true;
                     c.headerHovered = true;
@@ -807,23 +781,25 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 height: 12,
                               ),
                             ],
-                            TooltipButton(
-                              onTap: c.layoutAsPrimary,
+                            AnimatedButton(
+                              onPressed: c.layoutAsPrimary,
                               child: const SvgIcon(SvgIcons.callGallery),
                             ),
                             const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: () => c.layoutAsSecondary(floating: true),
+                            AnimatedButton(
+                              onPressed: () =>
+                                  c.layoutAsSecondary(floating: true),
                               child: const SvgIcon(SvgIcons.callFloating),
                             ),
                             const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: () => c.layoutAsSecondary(floating: false),
+                            AnimatedButton(
+                              onPressed: () =>
+                                  c.layoutAsSecondary(floating: false),
                               child: const SvgIcon(SvgIcons.callSide),
                             ),
                             const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: c.toggleFullscreen,
+                            AnimatedButton(
+                              onPressed: c.toggleFullscreen,
                               child: SvgIcon(
                                 c.fullscreen.value
                                     ? SvgIcons.fullscreenExitSmall
@@ -982,7 +958,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // center left
+            // Center left.
             Obx(() {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
@@ -998,7 +974,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // center right
+            // Center right.
             Obx(() {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
@@ -1014,7 +990,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom center
+            // Bottom center.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - Scaler.size / 2,
@@ -1031,7 +1007,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }),
 
-            // top left
+            // Top left.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -1053,7 +1029,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // top right
+            // Top right.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -1074,7 +1050,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom left
+            // Bottom left.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
@@ -1095,7 +1071,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom right
+            // Bottom right.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,

@@ -79,10 +79,10 @@ class CallController extends GetxController {
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
-  /// Indicator whether the view is fullscreen or not.
+  /// Indicator whether the view is fullscreen.
   late final RxBool fullscreen;
 
-  /// Indicator whether UI is shown or not.
+  /// Indicator whether UI is shown.
   final RxBool showUi = RxBool(true);
 
   /// Indicator whether the info header is currently shown.
@@ -1029,7 +1029,7 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Moves every [Participant] to the primary view.
+  /// Moves every [Participant] to the [primary] view.
   void layoutAsPrimary() {
     focusAll();
 
@@ -1037,7 +1037,7 @@ class CallController extends GetxController {
     isCursorHidden.value = false;
   }
 
-  /// Moves every [Participant] associated with [me] to the secondary view.
+  /// Moves every [Participant] associated with [me] to the [secondary] view.
   ///
   /// [floating] indicates whether [Participant]s in [secondary] should be
   /// displayed inside a floating window.

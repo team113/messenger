@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../widget/animated_button.dart';
 import '/domain/repository/chat.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/tooltip_button.dart';
@@ -56,13 +57,13 @@ class TitleBar extends StatelessWidget {
   /// Callback, called to toggle fullscreen on and off.
   final void Function()? toggleFullscreen;
 
-  /// Callback, called to enter floating mode.
+  /// Callback, called to enter 'floating window' display mode.
   final void Function()? onFloating;
 
-  /// Callback, called to enter secondary mode.
+  /// Callback, called to enter 'side panel' display mode.
   final void Function()? onSecondary;
 
-  /// Callback, called to enter primary mode.
+  /// Callback, called to enter 'all equal' display mode.
   final void Function()? onPrimary;
 
   @override
@@ -115,23 +116,23 @@ class TitleBar extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TooltipButton(
-                      onTap: onPrimary,
+                    AnimatedButton(
+                      onPressed: onPrimary,
                       child: const SvgIcon(SvgIcons.callGallery),
                     ),
                     const SizedBox(width: 16),
-                    TooltipButton(
-                      onTap: onFloating,
+                    AnimatedButton(
+                      onPressed: onFloating,
                       child: const SvgIcon(SvgIcons.callFloating),
                     ),
                     const SizedBox(width: 16),
-                    TooltipButton(
-                      onTap: onSecondary,
+                    AnimatedButton(
+                      onPressed: onSecondary,
                       child: const SvgIcon(SvgIcons.callSide),
                     ),
                     const SizedBox(width: 16),
-                    TooltipButton(
-                      onTap: toggleFullscreen,
+                    AnimatedButton(
+                      onPressed: toggleFullscreen,
                       child: SvgIcon(
                         fullscreen
                             ? SvgIcons.fullscreenExitSmall
