@@ -727,7 +727,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 isOpen: c.state.value == OngoingCallState.active &&
                     c.showHeader.value,
                 child: MouseRegion(
-                  opaque: true,
                   onEnter: (_) {
                     c.showHeader.value = true;
                     c.headerHovered = true;
