@@ -441,7 +441,8 @@ class SearchController extends GetxController {
       }
 
       try {
-        link = ChatDirectLinkSlug(query);
+        // TODO: Should be `ChatDirectLinkSlug.tryParse`? - УДАЛИТЬ
+        link = _tryParseLink();
       } catch (e) {
         // No-op.
       }
@@ -816,6 +817,24 @@ class SearchController extends GetxController {
       // If neither [user] nor [title] is specified, this item doesn't match.
       return false;
     }
+  }
+
+  ChatDirectLinkSlug? _tryParseLink() {
+    ChatDirectLinkSlug? link;
+
+    try {
+      link = ChatDirectLinkSlug(query.value);
+    } catch (_) {
+      try {
+        // TODO: Account possible `schema`, `host` and `domain` mismatches.
+        final fullLink = Uri.parse(query.value);
+        link = ChatDirectLinkSlug(fullLink.pathSegments.last);
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return link;
   }
 }
 
