@@ -45,12 +45,12 @@ class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
       _paginationSubscription = pagination!.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
+          case OperationKind.updated:
             items[event.key!] = event.value as T;
             break;
 
           case OperationKind.removed:
-          case OperationKind.updated:
-            // No-op.
+            items.remove(event.key);
             break;
         }
       });
