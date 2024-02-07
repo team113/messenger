@@ -117,7 +117,12 @@ class ParticipantWidget extends StatelessWidget {
           Obx(() {
             final Widget child;
 
-            if (participant.member.isConnected.value) {
+            // TODO: Remove checking for `participant.audio.value != null`, when
+            //       `medea_jason` doesn't trigger `onNewConnection` too early.
+            final bool connected = participant.member.isConnected.value &&
+                participant.audio.value != null;
+
+            if (connected) {
               child = Container();
             } else if (participant.member.isDialing.isTrue) {
               child = Container(

@@ -577,7 +577,8 @@ class OngoingCall {
 
                 case ChatCallEventKind.memberLeft:
                   final node = event as EventChatCallMemberLeft;
-                  if (calls.me == node.user.id) {
+                  if (me.id.userId == node.user.id &&
+                      me.id.deviceId == node.deviceId) {
                     calls.remove(chatId.value);
                   }
 
