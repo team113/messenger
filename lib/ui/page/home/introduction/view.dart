@@ -82,12 +82,12 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('OkButton'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -130,12 +130,12 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 ),
               ];
               break;
