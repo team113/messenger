@@ -1492,6 +1492,9 @@ type ChatMembersConnection {
   [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
   """
   pageInfo: PageInfo!
+
+  """Total count of `ChatMember`s in this `Chat`."""
+  totalCount: Int!
 }
 
 """Cursor of `ChatMember`s in a `Chat`."""
@@ -4547,7 +4550,7 @@ type Mutation {
   Creates a new `Session` for the `MyUser` identified by the provided
   `num`/`login`/`email` (exactly one of three should be specified).
 
-  Represents a sing-in action.
+  Represents a sign-in action.
 
   The created `Session` has expiration, which may be prolonged via
   `Mutation.renewSession`.
