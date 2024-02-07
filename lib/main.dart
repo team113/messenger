@@ -67,7 +67,14 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
-  await Config.init();
+  const bool hasSentryEnv = bool.hasEnvironment('SOCAPP_SENTRY_DSN');
+
+  // TODO: Set the `parseToml` to `true` on every platform, when Web supports
+  //       [PlatformDispatcher.onError] callback, as otherwise Sentry uses the
+  //       [runZonedGuarded] instead, thus causing `Zone mismatch` error when
+  //       invoking [WidgetsFlutterBinding.ensureInitialized] in [Config.init]:
+  //       https://github.com/flutter/flutter/issues/100277
+  await Config.init(!hasSentryEnv || !PlatformUtils.isWeb);
 
   me.Log.options = me.LogOptions(
     level: Config.logLevel,
@@ -79,6 +86,12 @@ Future<void> main() async {
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
+    // TODO: Remove, when Web supports [PlatformDispatcher.onError]:
+    //       https://github.com/flutter/flutter/issues/100277
+    if (PlatformUtils.isWeb && hasSentryEnv) {
+      await Config.init();
+    }
+
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
@@ -127,8 +140,11 @@ Future<void> main() async {
     );
   }
 
-  // No need to initialize the Sentry, if debug is enabled.
-  if (kDebugMode) {
+  // No need to initialize the Sentry if no DSN is provided, otherwise useless
+  // messages are printed to the console every time the application starts.
+  if ((!hasSentryEnv && PlatformUtils.isWeb) ||
+      (Config.sentryDsn.isEmpty && !PlatformUtils.isWeb) ||
+      kDebugMode) {
     return appRunner();
   }
 
@@ -142,7 +158,6 @@ Future<void> main() async {
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
       options.maxBreadcrumbs = 512,
-      options.platformChecker = PlatformChecker(isWeb: false),
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 

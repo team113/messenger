@@ -48,6 +48,8 @@
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.
 #
+# Temporary unused for web: https://github.com/flutter/flutter/issues/100277
+#
 # Default:
 #   dsn = ""
 

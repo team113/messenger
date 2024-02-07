@@ -20,6 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:log_me/log_me.dart' as me;
+import 'package:mutex/mutex.dart';
 import 'package:toml/toml.dart';
 
 import '/l10n/l10n.dart';
@@ -85,6 +86,17 @@ class Config {
   /// Intended to be used in E2E testing.
   static String? version;
 
+  /// Level of [Log]ger to log.
+  static me.LogLevel logLevel = me.LogLevel.info;
+
+  /// [Response] of the remote configuration fetching, if any.
+  static Response? _response;
+
+  /// [Mutex] guarding synchronized access to the [_response].
+  ///
+  /// Prevents multiple remote configuration fetching during [init].
+  static final Mutex _responseGuard = Mutex();
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
@@ -106,19 +118,23 @@ class Config {
     };
   }
 
-  /// Level of [Log]ger to log.
-  static me.LogLevel logLevel = me.LogLevel.info;
-
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
-  /// - bundled configuration file (`conf.toml`);
+  /// - bundled configuration file (`conf.toml`), if [parseToml] is `true`;
   /// - default values.
-  static Future<void> init() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    Map<String, dynamic> document =
+  ///
+  /// It is safe to invoke [init] multiple times.
+  static Future<void> init([bool parseToml = true]) async {
+    final Map<String, dynamic> document = {};
+
+    if (parseToml) {
+      WidgetsFlutterBinding.ensureInitialized();
+      document.addAll(
         TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
-            .toMap();
+            .toMap(),
+      );
+    }
 
     graphql = const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
         ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')
@@ -224,11 +240,22 @@ class Config {
     // configuration.
     if (confRemote) {
       try {
-        final response = await (await PlatformUtils.dio)
-            .fetch(RequestOptions(path: '$url:$port/conf.toml'));
-        if (response.statusCode == 200) {
-          Map<String, dynamic> remote =
-              TomlDocument.parse(response.data.toString()).toMap();
+        _response ??= await _responseGuard.protect(
+          () async {
+            // Return the already fetched [_response], if any happens to exist.
+            if (_response != null) {
+              return _response;
+            }
+
+            // Or otherwise, fetch it.
+            return await (await PlatformUtils.dio)
+                .fetch(RequestOptions(path: '$url:$port/conf.toml'));
+          },
+        );
+
+        if (_response?.statusCode == 200) {
+          final Map<String, dynamic> remote =
+              TomlDocument.parse(_response!.data.toString()).toMap();
 
           confRemote = remote['conf']?['remote'] ?? confRemote;
           if (confRemote) {
