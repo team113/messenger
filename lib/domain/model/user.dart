@@ -333,6 +333,28 @@ class ChatDirectLinkSlug extends NewType<String> {
   /// Creates an object without any validation.
   const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
 
+  /// Creates a new [ChatDirectLinkSlug] from the provided [val] if it's valid
+  /// and returns `null` otherwise.
+  ///
+  /// [val] can be either a slug or a full valid URL.
+  static ChatDirectLinkSlug? tryParse(String val) {
+    ChatDirectLinkSlug? link;
+
+    try {
+      link = ChatDirectLinkSlug(val);
+    } catch (_) {
+      try {
+        // TODO: Account possible `schema`, `host` and `domain` mismatches.
+        final fullLink = Uri.parse(val);
+        link = ChatDirectLinkSlug(fullLink.pathSegments.last);
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return link;
+  }
+
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
   factory ChatDirectLinkSlug.generate([int length = 10]) {
     final Random r = Random();

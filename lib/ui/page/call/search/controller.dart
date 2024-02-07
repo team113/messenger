@@ -440,12 +440,7 @@ class SearchController extends GetxController {
         // No-op.
       }
 
-      try {
-        // TODO: Should be `ChatDirectLinkSlug.tryParse`? - УДАЛИТЬ
-        link = _tryParseLink();
-      } catch (e) {
-        // No-op.
-      }
+      link = ChatDirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {
         searchStatus.value = searchStatus.value.isSuccess
@@ -817,24 +812,6 @@ class SearchController extends GetxController {
       // If neither [user] nor [title] is specified, this item doesn't match.
       return false;
     }
-  }
-
-  ChatDirectLinkSlug? _tryParseLink() {
-    ChatDirectLinkSlug? link;
-
-    try {
-      link = ChatDirectLinkSlug(query.value);
-    } catch (_) {
-      try {
-        // TODO: Account possible `schema`, `host` and `domain` mismatches.
-        final fullLink = Uri.parse(query.value);
-        link = ChatDirectLinkSlug(fullLink.pathSegments.last);
-      } catch (_) {
-        // No-op.
-      }
-    }
-
-    return link;
   }
 }
 
