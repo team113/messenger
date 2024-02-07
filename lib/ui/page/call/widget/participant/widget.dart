@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart' show MediaSourceKind;
 
 import '../../controller.dart';
 import '../call_cover.dart';
@@ -120,7 +121,8 @@ class ParticipantWidget extends StatelessWidget {
             // TODO: Remove checking for `participant.audio.value != null`, when
             //       `medea_jason` doesn't trigger `onNewConnection` too early.
             final bool connected = participant.member.isConnected.value &&
-                participant.audio.value != null;
+                (participant.video.value?.source == MediaSourceKind.display ||
+                    participant.audio.value != null);
 
             if (connected) {
               child = Container();
