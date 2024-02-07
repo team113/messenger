@@ -646,6 +646,19 @@ class SearchController extends GetxController {
           c.members.values.firstWhereOrNull((u) => u.id != me);
 
       final Iterable<RxUser>? searched = usersSearch.value?.items.values;
+      final havingDialog = searched?.where((u) => !u.user.value.dialog.isLocal);
+
+      if (categories.contains(SearchCategory.chat)) {
+        final RxChat? monolog = chats[_chatService.monolog];
+
+        chats.value = {
+          if (monolog != null) monolog.chat.value.id: monolog,
+          for (final RxUser u in havingDialog ?? [])
+            u.user.value.dialog: _chatService.paginated[u.user.value.dialog]!,
+          ...chats,
+        };
+      }
+
       final Iterable<RxUser> stored = storedChats
           .where(remoteDialog)
           .whereNot(hidden)
