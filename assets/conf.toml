@@ -48,8 +48,6 @@
 [sentry]
 # Sentry DSN (Data Source Name) to send events to.
 #
-# Value specified there is temporary ignored in web. Use `dart-define` instead.
-#
 # Default:
 #   dsn = ""
 
