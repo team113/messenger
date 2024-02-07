@@ -67,7 +67,8 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
-  const bool hasSentryEnv = bool.hasEnvironment('SOCAPP_SENTRY_DSN');
+  final bool hasSentryEnv = const bool.hasEnvironment('SOCAPP_SENTRY_DSN') &&
+      const String.fromEnvironment('SOCAPP_SENTRY_DSN').isNotEmpty;
 
   // TODO: Set the `parseToml` to `true` on every platform, when Web supports
   //       [PlatformDispatcher.onError] callback, as otherwise Sentry uses the
