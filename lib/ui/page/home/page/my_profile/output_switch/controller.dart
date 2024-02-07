@@ -97,8 +97,8 @@ class OutputSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default output device.
-  Future<void> setOutputDevice(String id) async {
-    await _settingsRepository.setOutputDevice(id);
+  /// Sets the provided [device] as a used by default output device.
+  Future<void> setOutputDevice(DeviceDetails device) async {
+    await _settingsRepository.setOutputDevice(device.id());
   }
 }

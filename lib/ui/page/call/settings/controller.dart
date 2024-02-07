@@ -46,37 +46,13 @@ class CallSettingsController extends GetxController {
   RxList<DeviceDetails> get devices => _call.value.devices;
 
   /// Returns ID of the currently used video device.
-  RxnString get camera => _call.value.videoDevice;
+  Rx<DeviceDetails?> get camera => _call.value.videoDevice;
 
   /// Returns ID of the currently used microphone device.
-  String? get mic {
-    final String? preferred = _call.value.preferredAudioDevice.value;
-    final DeviceDetails? first = devices.audio().firstOrNull;
-    final String? used = _call.value.audioDevice.value;
-
-    if (first is DefaultDeviceDetails &&
-        (preferred == null || preferred != used) &&
-        (used == first.deviceId() || used == null)) {
-      return 'default';
-    }
-
-    return _call.value.audioDevice.value;
-  }
+  Rx<DeviceDetails?> get mic => _call.value.audioDevice;
 
   /// Returns ID of the currently used output device.
-  String? get output {
-    final String? preferred = _call.value.preferredOutputDevice.value;
-    final DeviceDetails? first = devices.output().firstOrNull;
-    final String? used = _call.value.outputDevice.value;
-
-    if (first is DefaultDeviceDetails &&
-        (preferred == null || preferred != used) &&
-        (used == first.deviceId() || used == null)) {
-      return 'default';
-    }
-
-    return _call.value.outputDevice.value;
-  }
+  Rx<DeviceDetails?> get output => _call.value.outputDevice;
 
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
@@ -105,22 +81,22 @@ class CallSettingsController extends GetxController {
     _stateWorker.dispose();
   }
 
-  /// Sets device with [id] as a used by default camera device.
-  void setVideoDevice(String id) {
-    _call.value.setVideoDevice(id);
-    _settingsRepo.setVideoDevice(id);
+  /// Sets the provided [device] as a used by default camera device.
+  void setVideoDevice(DeviceDetails device) {
+    _call.value.setVideoDevice(device);
+    _settingsRepo.setVideoDevice(device.id());
   }
 
-  /// Sets device with [id] as a used by default microphone device.
-  void setAudioDevice(String id) {
-    _call.value.setAudioDevice(id);
-    _settingsRepo.setAudioDevice(id);
+  /// Sets the provided [device] as a used by default microphone device.
+  void setAudioDevice(DeviceDetails device) {
+    _call.value.setAudioDevice(device);
+    _settingsRepo.setAudioDevice(device.id());
   }
 
-  /// Sets device with [id] as a used by default output device.
-  void setOutputDevice(String id) {
-    _call.value.setOutputDevice(id);
-    _settingsRepo.setOutputDevice(id);
+  /// Sets the provided [device] as a used by default output device.
+  void setOutputDevice(DeviceDetails device) {
+    _call.value.setOutputDevice(device);
+    _settingsRepo.setOutputDevice(device.id());
   }
 
   /// Populates media input devices, such as microphones, cameras, and so forth.

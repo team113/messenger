@@ -34,7 +34,7 @@ class MicrophoneSwitchView extends StatelessWidget {
   const MicrophoneSwitchView({super.key, this.onChanged, this.mic});
 
   /// Callback, called when the selected microphone device changes.
-  final void Function(String)? onChanged;
+  final void Function(DeviceDetails)? onChanged;
 
   /// ID of the initially selected microphone device.
   final String? mic;
@@ -42,7 +42,7 @@ class MicrophoneSwitchView extends StatelessWidget {
   /// Displays a [MicrophoneSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChanged,
+    void Function(DeviceDetails)? onChanged,
     String? mic,
   }) {
     return ModalPopup.show(
@@ -104,8 +104,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                                   ? null
                                   : () {
                                       c.selected.value = e;
-                                      (onChanged ?? c.setAudioDevice)
-                                          .call(e.id());
+                                      (onChanged ?? c.setAudioDevice).call(e);
                                     },
                               label: e.label(),
                             );

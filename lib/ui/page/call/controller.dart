@@ -48,6 +48,7 @@ import '/routes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -898,7 +899,7 @@ class CallController extends GetxController {
         if (display != null) {
           await _currentCall.value.setScreenShareEnabled(
             true,
-            deviceId: display.deviceId(),
+            device: display,
           );
         }
       } else {
@@ -933,17 +934,19 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<MediaDeviceDetails> cameras =
-        _currentCall.value.devices.video().toList();
+    List<DeviceDetails> cameras = _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
       int selected = _currentCall.value.videoDevice.value == null
           ? 0
           : cameras.indexWhere(
-              (e) => e.deviceId() == _currentCall.value.videoDevice.value!);
+              (e) =>
+                  e.deviceId() ==
+                  _currentCall.value.videoDevice.value!.deviceId(),
+            );
       selected += 1;
       cameraSwitched.toggle();
       await _currentCall.value.setVideoDevice(
-        cameras[(selected) % cameras.length].deviceId(),
+        cameras[(selected) % cameras.length],
       );
     }
   }
@@ -957,10 +960,10 @@ class CallController extends GetxController {
     }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      final List<MediaDeviceDetails> outputs =
+      final List<DeviceDetails> outputs =
           _currentCall.value.devices.output().toList();
       if (outputs.length > 1) {
-        MediaDeviceDetails? device;
+        DeviceDetails? device;
 
         if (PlatformUtils.isIOS) {
           device = _currentCall.value.devices.output().firstWhereOrNull(
@@ -985,13 +988,14 @@ class CallController extends GetxController {
             int selected = _currentCall.value.outputDevice.value == null
                 ? 0
                 : outputs.indexWhere((e) =>
-                    e.deviceId() == _currentCall.value.outputDevice.value!);
+                    e.deviceId() ==
+                    _currentCall.value.outputDevice.value!.deviceId());
             selected += 1;
             device = outputs[(selected) % outputs.length];
           }
         }
 
-        await _currentCall.value.setOutputDevice(device.deviceId());
+        await _currentCall.value.setOutputDevice(device);
       }
     } else {
       // TODO: Ensure `medea_flutter_webrtc` supports Web output device
@@ -2040,12 +2044,14 @@ class CallController extends GetxController {
         final bool ear;
 
         if (PlatformUtils.isIOS) {
-          ear = _currentCall.value.outputDevice.value == 'ear-piece' ||
+          ear = _currentCall.value.outputDevice.value?.deviceId() ==
+                  'ear-piece' ||
               (_currentCall.value.outputDevice.value == null &&
                   _currentCall.value.devices.output().firstOrNull?.deviceId() ==
                       'ear-piece');
         } else {
-          ear = _currentCall.value.outputDevice.value == 'ear-speaker' ||
+          ear = _currentCall.value.outputDevice.value?.deviceId() ==
+                  'ear-speaker' ||
               (_currentCall.value.outputDevice.value == null &&
                   _currentCall.value.devices.output().firstOrNull?.deviceId() ==
                       'ear-speaker');

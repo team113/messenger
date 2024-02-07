@@ -273,6 +273,20 @@ class DeviceDetails extends MediaDeviceDetails {
   @override
   String label() => _device.label();
 
+  @override
+  String toString() => id();
+
+  @override
+  int get hashCode => (id() + deviceId()).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is DeviceDetails &&
+        id() == other.id() &&
+        deviceId() == other.deviceId() &&
+        label() == other.label();
+  }
+
   /// Returns a unique identifier of this [DeviceDetails].
   String id() => _device.deviceId();
 }

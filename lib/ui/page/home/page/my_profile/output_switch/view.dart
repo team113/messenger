@@ -34,7 +34,7 @@ class OutputSwitchView extends StatelessWidget {
   const OutputSwitchView({super.key, this.onChanged, this.output});
 
   /// Callback, called when the selected output device changes.
-  final void Function(String)? onChanged;
+  final void Function(DeviceDetails)? onChanged;
 
   /// ID of the initially selected audio output device.
   final String? output;
@@ -42,7 +42,7 @@ class OutputSwitchView extends StatelessWidget {
   /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChanged,
+    void Function(DeviceDetails)? onChanged,
     String? output,
   }) {
     return ModalPopup.show(
@@ -104,8 +104,7 @@ class OutputSwitchView extends StatelessWidget {
                                   ? null
                                   : () {
                                       c.selected.value = e;
-                                      (onChanged ?? c.setOutputDevice)
-                                          .call(e.id());
+                                      (onChanged ?? c.setOutputDevice).call(e);
                                     },
                               label: e.label(),
                             );

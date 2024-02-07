@@ -94,8 +94,8 @@ class MicrophoneSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default microphone device.
-  Future<void> setAudioDevice(String id) async {
-    await _settingsRepository.setAudioDevice(id);
+  /// Sets the provided [device] as a used by default microphone device.
+  Future<void> setAudioDevice(DeviceDetails device) async {
+    await _settingsRepository.setAudioDevice(device.id());
   }
 }

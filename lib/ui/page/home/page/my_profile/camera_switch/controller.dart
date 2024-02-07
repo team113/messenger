@@ -41,8 +41,8 @@ class CameraSwitchController extends GetxController {
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+  /// List of [DeviceDetails] of all the available devices.
+  final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
 
   /// ID of the initially selected video device.
   RxnString camera;
@@ -99,9 +99,9 @@ class CameraSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default camera device.
-  Future<void> setVideoDevice(String id) async {
-    await _settingsRepository.setVideoDevice(id);
+  /// Sets the provided [device] as a used by default camera device.
+  Future<void> setVideoDevice(DeviceDetails device) async {
+    await _settingsRepository.setVideoDevice(device.id());
   }
 
   /// Initializes a [RtcVideoRenderer] for the current [camera].

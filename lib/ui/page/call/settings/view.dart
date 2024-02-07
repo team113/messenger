@@ -76,7 +76,7 @@ class CallSettingsView extends StatelessWidget {
                     child: Obx(() {
                       return FieldButton(
                         text: (c.devices.video().firstWhereOrNull((e) =>
-                                        e.deviceId() == c.camera.value) ??
+                                        e.id() == c.camera.value?.id()) ??
                                     c.devices.video().firstOrNull)
                                 ?.label() ??
                             'label_media_no_device_available'.l10n,
@@ -86,7 +86,7 @@ class CallSettingsView extends StatelessWidget {
                           await CameraSwitchView.show(
                             context,
                             onChanged: (device) => c.setVideoDevice(device),
-                            camera: c.camera.value,
+                            camera: c.camera.value?.id(),
                           );
 
                           if (c.devices.video().isEmpty) {
@@ -102,7 +102,7 @@ class CallSettingsView extends StatelessWidget {
                     child: Obx(() {
                       return FieldButton(
                         text: (c.devices.audio().firstWhereOrNull(
-                                        (e) => e.id() == c.mic) ??
+                                        (e) => e.id() == c.mic.value?.id()) ??
                                     c.devices.audio().firstOrNull)
                                 ?.label() ??
                             'label_media_no_device_available'.l10n,
@@ -112,7 +112,7 @@ class CallSettingsView extends StatelessWidget {
                           await MicrophoneSwitchView.show(
                             context,
                             onChanged: (device) => c.setAudioDevice(device),
-                            mic: c.mic,
+                            mic: c.mic.value?.id(),
                           );
 
                           if (c.devices.audio().isEmpty) {
@@ -132,8 +132,8 @@ class CallSettingsView extends StatelessWidget {
                       padding: padding,
                       child: Obx(() {
                         return FieldButton(
-                          text: (c.devices.output().firstWhereOrNull(
-                                          (e) => e.id() == c.output) ??
+                          text: (c.devices.output().firstWhereOrNull((e) =>
+                                          e.id() == c.output.value?.id()) ??
                                       c.devices.output().firstOrNull)
                                   ?.label() ??
                               'label_media_no_device_available'.l10n,
@@ -143,7 +143,7 @@ class CallSettingsView extends StatelessWidget {
                             await OutputSwitchView.show(
                               context,
                               onChanged: (device) => c.setOutputDevice(device),
-                              output: c.output,
+                              output: c.output.value?.id(),
                             );
 
                             if (c.devices.output().isEmpty) {
