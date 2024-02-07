@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/api/backend/schema.dart';
+import '/config.dart';
 import '/domain/model_type_id.dart';
 import '/l10n/l10n.dart';
 import '/util/new_type.dart';
@@ -340,16 +341,15 @@ class ChatDirectLinkSlug extends NewType<String> {
   static ChatDirectLinkSlug? tryParse(String val) {
     ChatDirectLinkSlug? link;
 
+    if (val.startsWith(Config.link)) {
+      // [val] is a full valid URL.
+      val = val.substring(Config.link.length + 1);
+    }
+
     try {
       link = ChatDirectLinkSlug(val);
     } catch (_) {
-      try {
-        // TODO: Account possible `schema`, `host` and `domain` mismatches.
-        final fullLink = Uri.parse(val);
-        link = ChatDirectLinkSlug(fullLink.pathSegments.last);
-      } catch (_) {
-        // No-op.
-      }
+      // No-op.
     }
 
     return link;

@@ -497,6 +497,15 @@ class SearchController extends GetxController {
           return;
         }
 
+        // Account searching via [MyUser]s chat direct link.
+        final link = ChatDirectLinkSlug.tryParse(queryString);
+        if (link != null) {
+          if (myUser.chatDirectLink?.slug == link) {
+            chats.value = {monologId: monolog, ...chats};
+            return;
+          }
+        }
+
         final String title = monolog.title.value;
         final String? name = myUser.name?.val;
         final String? login = myUser.login?.val;
@@ -629,6 +638,7 @@ class SearchController extends GetxController {
     if (categories.contains(SearchCategory.user) &&
         _chatService.hasNext.isFalse) {
       final Iterable<RxChat> storedChats = _chatService.paginated.values;
+      final Iterable<RxUser> searched = usersSearch.value?.items.values ?? [];
 
       // Predicates to filter non-hidden [Chat]-dialogs.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
@@ -641,21 +651,24 @@ class SearchController extends GetxController {
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
       bool inChats(RxUser u) => chats.values
           .any((c) => c.chat.value.isDialog && c.members.containsKey(u.id));
+      bool hasRemoteDialog(RxUser u) => !(u.user.value.dialog.isLocal);
 
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
+      RxChat? toChat(RxUser u) => u.dialog.value;
 
-      final Iterable<RxUser>? searched = usersSearch.value?.items.values;
-      final havingDialog = searched?.where((u) => !u.user.value.dialog.isLocal);
+      // [Chat]s-dialogs found in the global search.
+      final Iterable<RxChat> globalDialogs =
+          searched.where(hasRemoteDialog).map(toChat).whereNotNull();
 
-      if (categories.contains(SearchCategory.chat)) {
+      if (globalDialogs.isNotEmpty &&
+          categories.contains(SearchCategory.chat)) {
+        final List<RxChat> sorted =
+            [...chats.values, ...globalDialogs.whereNot(hidden)].sorted();
         final RxChat? monolog = chats[_chatService.monolog];
-
         chats.value = {
           if (monolog != null) monolog.chat.value.id: monolog,
-          for (final RxUser u in havingDialog ?? [])
-            u.user.value.dialog: _chatService.paginated[u.user.value.dialog]!,
-          ...chats,
+          for (final c in sorted) c.chat.value.id: c,
         };
       }
 
@@ -670,7 +683,8 @@ class SearchController extends GetxController {
       final Iterable<RxUser> selectedGlobals =
           selectedUsers.where(matchesQuery).whereNot(stored.contains);
 
-      final allUsers = {...selectedGlobals, ...stored, ...?searched};
+      final allUsers = {...selectedGlobals, ...stored, ...searched}
+        ..removeWhere((u) => u.id == me);
 
       final List<RxUser> filtered = allUsers
           .whereNot(isMember)
