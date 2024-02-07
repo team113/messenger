@@ -18,9 +18,14 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/menu_button.dart';
+import 'package:messenger/util/platform_utils.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '/routes.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -45,16 +50,17 @@ class BalanceTabView extends StatelessWidget {
         return Scaffold(
           // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Text('Balance:  ¤${c.balance.value.toInt()}'),
+            // title: Text('Money'),
+            title: Text('Balance: ¤${c.balance.value.toInt().withSpaces()}'),
             leading: [
               Obx(() {
                 final Widget child;
 
                 if (c.adding.value) {
                   if (c.hintDismissed.value) {
-                    child = const SvgIcon(SvgIcons.rate);
+                    child = const SvgIcon(SvgIcons.infoThick);
                   } else {
-                    child = const SvgIcon(SvgIcons.rateDisabled);
+                    child = const SvgIcon(SvgIcons.infoThickDisabled);
                   }
 
                   return AnimatedButton(
@@ -123,144 +129,293 @@ class BalanceTabView extends StatelessWidget {
                 child: ListView(
                   controller: c.scrollController,
                   children: [
+                    // if (false)
                     Obx(() {
                       return AnimatedSizeAndFade.showHide(
                         show: !c.hintDismissed.value,
-                        child: Center(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border: style.cardBorder,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ModalPopupHeader(
-                                  close: true,
-                                  onClose: () {
-                                    c.hintDismissed.toggle();
-                                    c.setDisplayRates(!c.hintDismissed.value);
-                                  },
-                                  text: '¤100 = €1.00',
-                                ),
-                                const SizedBox(height: 4),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    32,
-                                    0,
-                                    32,
-                                    0,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10),
+                          height: 54,
+                          decoration: BoxDecoration(
+                            borderRadius: style.cardRadius,
+                            border: style.cardBorder,
+                            color: style.colors.transparent,
+                          ),
+                          child: Material(
+                            type: MaterialType.card,
+                            borderRadius: style.cardRadius,
+                            color: style.cardColor,
+                            child: InkWell(
+                              borderRadius: style.cardRadius,
+                              onTap: () async {
+                                await launchUrlString(Config.origin);
+                              },
+                              hoverColor: style.cardHoveredColor,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(width: 19),
+                                  Text(
+                                    'T&C',
+                                    style: style
+                                        .fonts.medium.regular.onBackground
+                                        .copyWith(color: style.colors.primary),
                                   ),
-                                  child: Center(
+                                  const SizedBox(width: 15),
+                                  Expanded(
                                     child: Text(
-                                      'Rate for ${DateTime.now().yMd}.',
+                                      'Terms and conditions',
                                       style:
-                                          style.fonts.small.regular.secondary,
+                                          style.fonts.big.regular.onBackground,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
+                                  WidgetButton(
+                                    key: const Key('CloseButton'),
+                                    onPressed: c.hintDismissed.toggle,
+                                    child: Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        16,
+                                        16,
+                                        16,
+                                        16,
+                                      ),
+                                      child: const SvgIcon(
+                                        SvgIcons.closeSmallPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
+                        // child: MenuButton(
+                        //   title: 'Terms and conditions',
+                        //   dense: true,
+                        //   // subtitle: 'Privacy policy, refund policy, etc',
+                        //   // leading: const SvgIcon(SvgIcons.menuLanguage),
+                        //   leading: Text(
+                        //     'T&C',
+                        //     style: style.fonts.medium.regular.onBackground
+                        //         .copyWith(color: style.colors.primary),
+                        //   ),
+                        //   onPressed: () async {
+                        //     await launchUrlString(Config.origin);
+                        //   },
+                        // ),
+                        // child: Center(
+                        //   child: Container(
+                        //     margin: const EdgeInsets.symmetric(
+                        //       horizontal: 10,
+                        //       vertical: 4,
+                        //     ),
+                        //     width: double.infinity,
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       borderRadius: BorderRadius.circular(10),
+                        //       border: style.cardBorder,
+                        //     ),
+                        //     child: Stack(
+                        //       children: [
+                        //         Column(
+                        //           mainAxisSize: MainAxisSize.min,
+                        //           children: [
+                        //             const SizedBox(height: 12),
+                        //             Center(
+                        //               child: WidgetButton(
+                        //                 onPressed: () async =>
+                        //                     await launchUrlString(
+                        //                   Config.origin,
+                        //                 ),
+                        //                 child: Text(
+                        //                   'Terms and conditions',
+                        //                   style: style
+                        //                       .fonts.normal.regular.primary,
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //             // ModalPopupHeader(
+                        //             //   close: true,
+                        //             //   onClose: () {
+                        //             //     c.hintDismissed.toggle();
+                        //             //     c.setDisplayRates(!c.hintDismissed.value);
+                        //             //   },
+                        //             //   header: Text('Terms and conditions'),
+                        //             // ),
+                        //             const SizedBox(height: 12),
+                        //           ],
+                        //         ),
+                        //         Align(
+                        //           alignment: Alignment.topRight,
+                        //           child: WidgetButton(
+                        //             key: const Key('CloseButton'),
+                        //             onPressed: c.hintDismissed.toggle,
+                        //             child: Container(
+                        //               padding: const EdgeInsets.fromLTRB(
+                        //                 12,
+                        //                 14,
+                        //                 14,
+                        //                 8,
+                        //               ),
+                        //               child: const SvgIcon(
+                        //                   SvgIcons.closeSmallPrimary),
+                        //             ),
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
+
+                        // child: MenuButton(
+                        //   title: 'G100 = E100',
+                        //   subtitle: 'Rate for ${DateTime.now().yMd}',
+                        //   leading: const SvgIcon(SvgIcons.menuDanger),
+                        //   onPressed: c.hintDismissed.toggle,
+                        // ),
+                        // child: Center(
+                        //   child: Container(
+                        //     margin: const EdgeInsets.symmetric(
+                        //       horizontal: 10,
+                        //       vertical: 4,
+                        //     ),
+                        //     width: double.infinity,
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       borderRadius: BorderRadius.circular(10),
+                        //       border: style.cardBorder,
+                        //     ),
+                        //     child: Column(
+                        //       mainAxisSize: MainAxisSize.min,
+                        //       children: [
+                        //         ModalPopupHeader(
+                        //           close: true,
+                        //           onClose: () {
+                        //             c.hintDismissed.toggle();
+                        //             c.setDisplayRates(!c.hintDismissed.value);
+                        //           },
+                        //           text: '¤100 = €1.00',
+                        //         ),
+                        //         const SizedBox(height: 4),
+                        //         Padding(
+                        //           padding: const EdgeInsets.fromLTRB(
+                        //             32,
+                        //             0,
+                        //             32,
+                        //             0,
+                        //           ),
+                        //           child: Center(
+                        //             child: Text(
+                        //               'Rate for ${DateTime.now().yMd}.',
+                        //               style:
+                        //                   style.fonts.small.regular.secondary,
+                        //             ),
+                        //           ),
+                        //         ),
+                        //         const SizedBox(height: 12),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                       );
                     }),
-                    // Padding(
-                    //   padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
-                    //   child: Center(
-                    //       child: Text('Add funds',
-                    //           style: style.fonts.big.regular.onBackground)),
-                    // ),
-                    // Center(
-                    //   child: Container(
-                    //     // width: double.infinity,
-                    //     margin: const EdgeInsets.fromLTRB(8, 12, 8, 12),
-                    //     padding: const EdgeInsets.symmetric(
-                    //       horizontal: 12,
-                    //       vertical: 8,
-                    //     ),
-                    //     decoration: BoxDecoration(
-                    //       borderRadius: BorderRadius.circular(15),
-                    //       border: style.systemMessageBorder,
-                    //       color: style.systemMessageColor,
-                    //     ),
-                    //     child: Text(
-                    //       'Add funds',
-                    //       style: style.systemMessageStyle,
-                    //     ),
-                    //   ),
-                    // ),
-                    ...BalanceProvider.values.map((e) {
-                      Widget button({
-                        required String title,
-                        required SvgData asset,
-                        // required IconData icon,
-                        double? bonus,
-                      }) {
-                        final bool selected = router.route
-                            .startsWith('${Routes.balance}/${e.name}');
+                    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) ...[
+                      ...[500, 1000, 2000, 5000, 10000, 20000].map((e) {
+                        final icon = PlatformUtils.isAndroid
+                            ? SvgIcons.menuDevices
+                            : SvgIcons.menuNav;
 
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 1.5),
-                          child: BalanceProviderWidget(
-                            title: title,
-                            leading: [
-                              SvgIcon(asset),
-                              // Icon(
-                              //   icon,
-                              //   size: 42,
-                              //   color: selected
-                              //       ? style.colors.onPrimary
-                              //       : style.colors.primary,
-                              // )
-                            ],
-                            selected: selected,
-                            bonus: bonus,
-                            onPressed: () => router.balance(e),
-                          ),
+                        final double bonus;
+
+                        return MenuButton(
+                          leading: SvgIcon(icon),
+                          title: e == null ? 'Произвольная сумма' : '¤$e',
+                          subtitle: e == null
+                              ? 'Пополнить счёт'
+                              : 'Top up for ${e / 100 * 1.33}\$',
+                          // subtitle: 'Пополнить счёт',
+                          onPressed: () {},
                         );
-                      }
+                      }),
+                    ] else
+                      ...BalanceProvider.values.filtered.map((e) {
+                        Widget button({
+                          required String title,
+                          required SvgData asset,
+                          // required IconData icon,
+                          double? bonus,
+                        }) {
+                          final bool selected = router.route
+                              .startsWith('${Routes.balance}/${e.name}');
 
-                      switch (e) {
-                        case BalanceProvider.creditCard:
-                          return button(
-                            asset: SvgIcons.menuPayment,
-                            title: 'Credit card',
-                            bonus: 5,
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 1.5),
+                            child: BalanceProviderWidget(
+                              title: title,
+                              leading: [
+                                SvgIcon(asset),
+                                // Icon(
+                                //   icon,
+                                //   size: 42,
+                                //   color: selected
+                                //       ? style.colors.onPrimary
+                                //       : style.colors.primary,
+                                // )
+                              ],
+                              selected: selected,
+                              bonus: bonus,
+                              onPressed: () => router.balance(e),
+                            ),
                           );
+                        }
 
-                        case BalanceProvider.swift:
-                          return button(
-                            asset: SvgIcons.menuCalls,
-                            title: 'SWIFT transfer',
-                            bonus: 2,
-                          );
+                        switch (e) {
+                          case BalanceProvider.creditCard:
+                            return button(
+                              asset: SvgIcons.menuPayment,
+                              title: 'Credit card',
+                              bonus: 5,
+                            );
 
-                        case BalanceProvider.sepa:
-                          return button(
-                            asset: SvgIcons.menuLink,
-                            title: 'SEPA transfer',
-                            bonus: 2,
-                          );
+                          case BalanceProvider.swift:
+                            return button(
+                              asset: SvgIcons.menuCalls,
+                              title: 'SWIFT transfer',
+                              bonus: 2,
+                            );
 
-                        case BalanceProvider.paypal:
-                          return button(
-                            asset: SvgIcons.menuBackground,
-                            title: 'PayPal',
-                            bonus: -5,
-                          );
+                          case BalanceProvider.sepa:
+                            return button(
+                              asset: SvgIcons.menuLink,
+                              title: 'SEPA transfer',
+                              bonus: 2,
+                            );
 
-                        default:
-                          return const SizedBox();
-                      }
-                    }),
+                          case BalanceProvider.paypal:
+                            return button(
+                              asset: SvgIcons.menuBackground,
+                              title: 'PayPal',
+                              bonus: -5,
+                            );
+
+                          case BalanceProvider.applePay:
+                            return button(
+                              asset: SvgIcons.menuNav,
+                              title: 'Apple Pay',
+                              bonus: -30,
+                            );
+
+                          case BalanceProvider.googlePay:
+                            return button(
+                              asset: SvgIcons.menuDevices,
+                              title: 'Google Pay',
+                              bonus: -30,
+                            );
+
+                          default:
+                            return const SizedBox();
+                        }
+                      }),
                   ],
                 ),
               );
@@ -287,6 +442,26 @@ class BalanceTabView extends StatelessWidget {
           }),
         );
       },
+    );
+  }
+}
+
+extension on int {
+  String withSpaces() {
+    return NumberFormat('#,##0').format(this);
+  }
+}
+
+extension on Iterable<BalanceProvider> {
+  Iterable<BalanceProvider> get filtered {
+    if (PlatformUtils.isAndroid) {
+      return where((e) => e == BalanceProvider.googlePay);
+    } else if (PlatformUtils.isIOS) {
+      return where((e) => e == BalanceProvider.applePay);
+    }
+
+    return where(
+      (e) => e != BalanceProvider.googlePay && e != BalanceProvider.applePay,
     );
   }
 }

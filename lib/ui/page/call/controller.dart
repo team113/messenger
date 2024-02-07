@@ -875,8 +875,16 @@ class CallController extends GetxController {
       });
     }
 
+    // tablet.value = PlatformUtils.isMobile;
+    // if (tablet.value) {
+    //   fullscreen.value = false;
+    //   toggleFullscreen();
+    // }
+
     super.onInit();
   }
+
+  final RxBool tablet = RxBool(false);
 
   StreamSubscription? _proximitySubscription;
 

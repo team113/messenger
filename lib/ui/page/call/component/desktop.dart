@@ -533,7 +533,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           bool preferTitle = c.state.value != OngoingCallState.active;
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onDoubleTap: c.toggleFullscreen,
+            onDoubleTap: c.tablet.value ? null : c.toggleFullscreen,
             onPanUpdate: preferTitle
                 ? (d) {
                     c.left.value = c.left.value + d.delta.dx;
@@ -782,7 +782,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                             ),
                             const SizedBox(width: 16),
                             TooltipButton(
-                              onTap: c.toggleFullscreen,
+                              onTap: c.tablet.value ? null : c.toggleFullscreen,
                               // hint: fullscreen
                               //     ? 'btn_fullscreen_exit'.l10n
                               //     : 'btn_fullscreen_enter'.l10n,
@@ -841,7 +841,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!WebUtils.isPopup)
+            if (!WebUtils.isPopup && !c.tablet.value)
               GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onPanUpdate: (d) {

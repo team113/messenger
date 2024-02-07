@@ -22,11 +22,16 @@ class WalletWidget extends StatelessWidget {
 
         overlay = Transform.translate(
           offset: Offset(0, balance > 0 ? 2 : 0),
-          child: Text(
-            _balance(balance),
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-            textAlign: TextAlign.center,
-            textScaleFactor: 1,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+            child: FittedBox(
+              child: Text(
+                _balance(balance),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+                textAlign: TextAlign.center,
+                textScaleFactor: 1,
+              ),
+            ),
           ),
         );
       } else {

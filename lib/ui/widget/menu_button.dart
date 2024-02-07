@@ -36,6 +36,7 @@ class MenuButton extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 10),
     this.trailing,
     this.reversed = false,
+    this.dense = false,
   });
 
   MenuButton.tab(
@@ -46,6 +47,7 @@ class MenuButton extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 10),
     this.trailing,
   })  : reversed = false,
+        dense = false,
         icon = null,
         title = switch (tab) {
           ProfileTab.public => 'label_profile'.l10n,
@@ -162,6 +164,7 @@ class MenuButton extends StatelessWidget {
   final EdgeInsets padding;
 
   final bool reversed;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +180,8 @@ class MenuButton extends StatelessWidget {
     return Padding(
       padding: padding,
       child: SizedBox(
-        height: 73,
+        height: dense ? 54 : 73,
+        // height: 73,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
@@ -194,10 +198,22 @@ class MenuButton extends StatelessWidget {
               hoverColor:
                   inverted ? style.colors.primary : style.cardHoveredColor,
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
                 child: Row(
                   children: [
                     const SizedBox(width: 6.5),
+                    // ConstrainedBox(
+                    //   constraints: const BoxConstraints(minWidth: 64),
+                    //   child: Center(
+                    //     child: leading ??
+                    //         Icon(
+                    //           icon,
+                    //           color: inverted
+                    //               ? style.colors.onPrimary
+                    //               : style.colors.primary,
+                    //         ),
+                    //   ),
+                    // ),
                     if (leading != null) leading!,
                     if (icon != null)
                       Icon(

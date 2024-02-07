@@ -148,12 +148,12 @@ enum ProfileTab {
 }
 
 enum BalanceProvider {
-  creditCard,
-  swift,
-  sepa,
-  paypal,
   applePay,
   googlePay,
+  creditCard,
+  paypal,
+  sepa,
+  swift,
 }
 
 enum WidgetsTab {
