@@ -388,11 +388,11 @@ class OngoingCall {
             .sameAs(devices.video().map((e) => e.deviceId()));
 
         if (audioChanged) {
-          _pickAudioDevice(previous, removed);
+          _pickAudioDevice();
         }
 
         if (outputChanged) {
-          _pickOutputDevice(previous, removed);
+          _pickOutputDevice();
         }
 
         if (videoChanged) {
@@ -1471,11 +1471,13 @@ class OngoingCall {
       }
 
       this.outputDevice.value = devices
-          .output()
-          .firstWhereOrNull((e) => e.id() == _preferredOutputDevice);
+              .output()
+              .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+          devices.output().firstOrNull;
       audioDevice.value = devices
-          .audio()
-          .firstWhereOrNull((e) => e.id() == _preferredAudioDevice);
+              .audio()
+              .firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
+          devices.audio().firstOrNull;
       videoDevice.value = devices
           .video()
           .firstWhereOrNull((e) => e.id() == _preferredVideoDevice);
@@ -1860,65 +1862,30 @@ class OngoingCall {
   }
 
   /// Picks the [outputDevice] based on the provided [previous] and [removed].
-  void _pickOutputDevice([
-    List<DeviceDetails> previous = const [],
-    List<DeviceDetails> removed = const [],
-  ]) {
-    Log.debug(
-      '_pickOutputDevice(previous: ${previous.output().map((e) => e.label())}, removed: ${removed.output().map((e) => e.label())})',
-      '$runtimeType',
-    );
+  void _pickOutputDevice() {
+    Log.debug('_pickOutputDevice()', '$runtimeType');
 
-    final bool isRemoved =
-        removed.any((e) => e.deviceId() == outputDevice.value?.deviceId()) ||
-            (outputDevice.value == null &&
-                removed.any((e) =>
-                    e.deviceId() == previous.audio().firstOrNull?.deviceId()));
-    final bool shouldUpdate = outputDevice.value == null ||
-        outputDevice.value!.id() != _preferredOutputDevice ||
-        (_preferredOutputDevice == 'default' && PlatformUtils.isWeb);
+    final Iterable<DeviceDetails> output = devices.output();
+    final DeviceDetails device =
+        output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+            output.first;
 
-    DeviceDetails? device;
-    if (isRemoved || shouldUpdate) {
-      final Iterable<DeviceDetails> output = devices.output();
-      device =
-          output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-              output.first;
-    }
-
-    if (device != null && outputDevice.value != device) {
+    if (outputDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
       _setOutputDevice(device);
     }
   }
 
   /// Picks the [audioDevice] based on the provided [previous] and [removed].
-  void _pickAudioDevice([
-    List<DeviceDetails> previous = const [],
-    List<DeviceDetails> removed = const [],
-  ]) async {
-    Log.debug(
-      '_pickAudioDevice(previous: ${previous.audio().map((e) => e.label())}, removed: ${removed.audio().map((e) => e.label())})',
-      '$runtimeType',
-    );
+  void _pickAudioDevice() async {
+    Log.debug('_pickAudioDevice()', '$runtimeType');
 
-    final bool isRemoved =
-        removed.any((e) => e.deviceId() == audioDevice.value?.deviceId()) ||
-            (audioDevice.value == null &&
-                removed.any((e) =>
-                    e.deviceId() == previous.audio().firstOrNull?.deviceId()));
-    final bool shouldUpdate = audioDevice.value == null ||
-        audioDevice.value!.id() != _preferredAudioDevice ||
-        (_preferredAudioDevice == 'default' && PlatformUtils.isWeb);
+    final Iterable<DeviceDetails> audio = devices.audio();
+    final DeviceDetails device =
+        audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
+            audio.first;
 
-    DeviceDetails? device;
-    if (isRemoved || shouldUpdate) {
-      final Iterable<DeviceDetails> audio = devices.audio();
-      device = audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
-          audio.first;
-    }
-
-    if (device != null && audioDevice.value != device) {
+    if (audioDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
       await _setAudioDevice(device);
     }
