@@ -125,7 +125,8 @@ endif
 #	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
-#	                   [dockerized=(no|yes)] [profile=(no|yes)]
+#	                   [dockerized=(no|yes)]
+#	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
 
 flutter.build:
@@ -145,7 +146,7 @@ else
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.build platform=$(platform) dart-env='$(dart-env)' \
 			                   split-debug-info=$(split-debug-info) \
-							   profile=$(profile) \
+			                   profile=$(profile) \
 			                   dockerized=no
 endif
 else

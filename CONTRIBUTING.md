@@ -466,7 +466,7 @@ url = "wss://messenger.soc.stg.t11913.org"
 port = 443
 ```
 
-__Note__, that that you may pass `--dart-define`s to `make e2e`, `make build` or `make run` by specifying the `dart-env` parameter. Take a look at [`Makefile`] for command usage details.
+__Note__, that you may pass `--dart-define`s to `make e2e`, `make build` or `make run` commands by specifying the `dart-env` parameter (see [`Makefile`] for usage details).
 
 
 
