@@ -167,7 +167,7 @@ class SearchController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  /// Whether this [SearchController] has more search results.
+  /// Whether this [SearchController] has more potential search results.
   bool get hasNext {
     final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
         (contactsSearch.value?.hasNext.isTrue ??
@@ -326,12 +326,14 @@ class SearchController extends GetxController {
     }
 
     if (usersSearch.value != null) {
+      if (!(usersSearch.value?.status.value.isEmpty ?? false)) {
+        // Prevent [chats] from containing results of the previous [usersSearch]
+        // as it will used during the [_populateUsers] call.
+        _populateChats();
+      }
       usersSearch.value?.dispose();
       usersSearch.value = null;
 
-      // Update [chats] too, since [_populateUsers] uses it to display some of
-      // the global search results.
-      _populateChats();
       _populateUsers();
     }
 
@@ -508,11 +510,9 @@ class SearchController extends GetxController {
 
         // Account searching via [MyUser]s chat direct link.
         final link = ChatDirectLinkSlug.tryParse(queryString);
-        if (link != null) {
-          if (myUser.chatDirectLink?.slug == link) {
-            chats.value = {monologId: monolog, ...chats};
-            return;
-          }
+        if (link != null && myUser.chatDirectLink?.slug == link) {
+          chats.value = {monologId: monolog, ...chats};
+          return;
         }
 
         final String title = monolog.title.value;
@@ -666,8 +666,8 @@ class SearchController extends GetxController {
           c.members.values.firstWhereOrNull((u) => u.id != me);
       RxChat? toChat(RxUser u) => u.dialog.value;
 
-      // [Chat]s-dialogs with [User]s found in the global search not presented
-      // in [chats].
+      // [Chat]s-dialogs with [User]s found in the global search and not
+      // presented in [chats].
       final Iterable<RxChat> globalDialogs = searched
           .where(hasRemoteDialog)
           .whereNot(inChats)
