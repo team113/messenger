@@ -1336,7 +1336,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatDelivered') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
-      return EventChatDelivered(e.chatId, node.at);
+      return EventChatDelivered(e.chatId, node.until);
     } else if (e.$$typename == 'EventChatRead') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
       _userRepo.put(node.byUser.toHive());

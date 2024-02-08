@@ -125,4 +125,5 @@ class ModelTypeId {
   static const favoriteChatContactsCursor = 104;
   static const callButtonsPosition = 106;
   static const hiveBlocklistRecord = 107;
+  static const userBio = 108;
 }

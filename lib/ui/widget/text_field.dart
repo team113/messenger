@@ -284,8 +284,7 @@ class ReactiveTextField extends StatelessWidget {
                                       key: const ValueKey('Approve'),
                                       child: Text(
                                         'btn_save'.l10n,
-                                        style:
-                                            style.fonts.small.regular.primary,
+                                        style: style.fonts.small.regular.danger,
                                       ),
                                     )
                                   : (state.allowable &&

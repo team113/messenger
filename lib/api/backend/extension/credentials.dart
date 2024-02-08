@@ -26,7 +26,9 @@ extension SignUpCredentials on SignUp$Mutation {
     return Credentials(
       Session(createUser.session.token, createUser.session.expireAt),
       RememberedSession(
-          createUser.remembered!.token, createUser.remembered!.expireAt),
+        createUser.remembered.token,
+        createUser.remembered.expireAt,
+      ),
       createUser.user.id,
     );
   }
@@ -40,7 +42,7 @@ extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
   Credentials toModel() {
     return Credentials(
       Session(session.token, session.expireAt),
-      RememberedSession(remembered!.token, remembered!.expireAt),
+      RememberedSession(remembered.token, remembered.expireAt),
       user.id,
     );
   }

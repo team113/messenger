@@ -54,10 +54,10 @@ mixin AuthGraphQlMixin {
   Future<SignUp$Mutation> signUp([bool remember = true]) async {
     Log.debug('signUp($remember)', '$runtimeType');
 
-    final variables = SignUpArguments(remember: remember);
+
     final QueryResult result = await client.query(QueryOptions(
-      document: SignUpMutation(variables: variables).document,
-      variables: variables.toJson(),
+      document: SignUpMutation().document
+
     ));
     return SignUp$Mutation.fromJson(result.data!);
   }
@@ -124,7 +124,6 @@ mixin AuthGraphQlMixin {
       num: num,
       email: email,
       phone: phone,
-      remember: remember,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(

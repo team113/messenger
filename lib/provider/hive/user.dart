@@ -55,6 +55,7 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
     Hive.maybeRegisterAdapter(UserIdAdapter());
     Hive.maybeRegisterAdapter(UserNameAdapter());
     Hive.maybeRegisterAdapter(UserNumAdapter());
+    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserTextStatusAdapter());
     Hive.maybeRegisterAdapter(UserVersionAdapter());
   }

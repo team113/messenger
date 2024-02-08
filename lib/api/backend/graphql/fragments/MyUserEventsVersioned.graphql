@@ -30,6 +30,15 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             }
             at
         }
+        ... on EventUserBioDeleted {
+            userId
+            at
+        }
+        ... on EventUserBioUpdated {
+            userId
+            bio
+            at
+        }
         ... on EventBlocklistRecordAdded {
             user {
                 __typename

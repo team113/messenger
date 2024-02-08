@@ -29,6 +29,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../service/call.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/repository/chat.dart';
+import '/domain/service/call.dart';
+import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
@@ -1316,40 +1319,43 @@ class OngoingCall {
       });
 
       conn.onRemoteTrackAdded((track) async {
+        final MediaKind kind = track.kind();
+        final MediaSourceKind source = track.mediaSourceKind();
+
         Log.debug(
-          'onRemoteTrackAdded ${track.kind()}-${track.mediaSourceKind()}, ${track.mediaDirection()}',
+          'onRemoteTrackAdded $kind-$source, ${track.mediaDirection()}',
           '$runtimeType',
         );
 
         final Track t = Track(track);
 
+        final CallMember? redialed = members[redialedId];
+        if (redialed?.isDialing.value == true) {
+          members.move(redialedId, id);
+        }
+
+        member = members[id];
+        member?.id = id;
+        member?.isConnected.value = true;
+        member?.isDialing.value = false;
+
         if (track.mediaDirection().isEmitting) {
-          final CallMember? redialed = members[redialedId];
-          if (redialed?.isDialing.value == true) {
-            members.move(redialedId, id);
-          }
-
-          member = members[id];
-          member?.id = id;
-          member?.isConnected.value = true;
-          member?.isDialing.value = false;
-
           member?.tracks.add(t);
         }
 
         track.onMuted(() {
+          Log.debug('onMuted $kind-$source', '$runtimeType');
           t.isMuted.value = true;
-          Log.debug('onMuted', '$runtimeType');
         });
 
         track.onUnmuted(() {
+          Log.debug('onUnmuted $kind-$source', '$runtimeType');
           t.isMuted.value = false;
-          Log.debug('onUnmuted', '$runtimeType');
         });
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
-            'onMediaDirectionChanged ${track.kind()}-${track.mediaSourceKind()} ${track.mediaDirection()}',
+            'onMediaDirectionChanged $kind-$source ${track.mediaDirection()}',
             '$runtimeType',
           );
 
@@ -1357,8 +1363,8 @@ class OngoingCall {
 
           switch (d) {
             case TrackMediaDirection.sendRecv:
-              member?.tracks.addIf(!member!.tracks.contains(t), t);
-              switch (track.kind()) {
+              members[id]?.tracks.addIf(!members[id]!.tracks.contains(t), t);
+              switch (kind) {
                 case MediaKind.audio:
                   await t.createRenderer();
                   break;
@@ -1370,39 +1376,31 @@ class OngoingCall {
               break;
 
             case TrackMediaDirection.sendOnly:
-              member?.tracks.addIf(!member!.tracks.contains(t), t);
+              members[id]?.tracks.addIf(!members[id]!.tracks.contains(t), t);
               await t.removeRenderer();
               break;
 
             case TrackMediaDirection.recvOnly:
             case TrackMediaDirection.inactive:
-              member?.tracks.remove(t);
+              members[id]?.tracks.remove(t);
               await t.removeRenderer();
               break;
           }
         });
 
         track.onStopped(() {
-          try {
-            Log.debug(
-              'onStopped ${track.kind()}-${track.mediaSourceKind()}',
-              '$runtimeType',
-            );
-          } catch (_) {
-            // No-op.
-          }
-
-          member?.tracks.remove(t..dispose());
+          Log.debug('onStopped $kind-$source', '$runtimeType');
+          members[id]?.tracks.remove(t..dispose());
         });
 
-        switch (track.kind()) {
+        switch (kind) {
           case MediaKind.audio:
             if (isRemoteAudioEnabled.isTrue) {
               if (track.mediaDirection().isEmitting) {
                 await t.createRenderer();
               }
             } else {
-              await member?.setAudioEnabled(false);
+              await members[id]?.setAudioEnabled(false);
             }
             break;
 
@@ -1412,14 +1410,14 @@ class OngoingCall {
                 await t.createRenderer();
               }
             } else {
-              await member?.setVideoEnabled(false, source: t.source);
+              await members[id]?.setVideoEnabled(false, source: t.source);
             }
             break;
         }
       });
 
       conn.onQualityScoreUpdate((p0) {
-        member?.quality.value = p0;
+        members[id]?.quality.value = p0;
         Log.debug(
           'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p0',
           '$runtimeType',

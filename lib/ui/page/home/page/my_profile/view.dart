@@ -88,6 +88,7 @@ import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'paid_list/view.dart';
 import 'password/view.dart';
+import 'set_price/view.dart';
 import 'timeline_switch/view.dart';
 import 'welcome_message/view.dart';
 import 'widget/background_preview.dart';
@@ -376,6 +377,7 @@ class MyProfileView extends StatelessWidget {
                           Obx(() {
                             return DirectLinkField(
                               c.myUser.value?.chatDirectLink,
+                              generated: c.myUser.value?.num.val,
                               onSubmit: (s) => s == null
                                   ? c.deleteChatDirectLink()
                                   : c.createChatDirectLink(s),
@@ -2140,50 +2142,101 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
         'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
       ),
       const SizedBox(height: 8),
-      Paddings.basic(
-        ReactiveTextField(
-          state: c.allMessageCost,
-          style: style.fonts.medium.regular.onBackground,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          formatters: [FilteringTextInputFormatter.digitsOnly],
-          hint: '0',
-          prefix: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-            child: Transform.translate(
-              offset: PlatformUtils.isWeb
-                  ? const Offset(0, -0)
-                  : const Offset(0, -0.5),
-              child: Text(
-                '¤',
-                style: style.fonts.medium.regular.onBackground,
-              ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: ContactInfoContents(
+          title: 'Входящие сообщения, за 1 сообщение',
+          content: '¤${c.allMessageCost.text}',
+          trailing: AnimatedButton(
+            onPressed: () async {
+              final result = await SetPriceView.show(
+                context,
+                initialCalls: c.allCallCost.text,
+                initialMessages: c.allMessageCost.text,
+              );
+
+              if (result is MapEntry<String, String>) {
+                c.allMessageCost.text = result.value;
+                c.allCallCost.text = result.key;
+                c.refresh();
+              }
+            },
+            child: Text(
+              'Изменить'.l10n,
+              style: style.fonts.small.regular.primary,
             ),
           ),
-          label: 'Входящие сообщения, за 1 сообщение',
         ),
+        // ReactiveTextField(
+        //   state: c.allMessageCost,
+        //   style: style.fonts.medium.regular.onBackground,
+        //   floatingLabelBehavior: FloatingLabelBehavior.always,
+        //   formatters: [FilteringTextInputFormatter.digitsOnly],
+        //   trailing: Text('btn_edit'.l10n),
+        //   hint: '0',
+        //   prefix: Padding(
+        //     padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+        //     child: Transform.translate(
+        //       offset: PlatformUtils.isWeb
+        //           ? const Offset(0, -0)
+        //           : const Offset(0, -0.5),
+        //       child: Text(
+        //         '¤',
+        //         style: style.fonts.medium.regular.onBackground,
+        //       ),
+        //     ),
+        //   ),
+        //   label: 'Входящие сообщения, за 1 сообщение',
+        // ),
       ),
-      Paddings.basic(
-        ReactiveTextField(
-          state: c.allCallCost,
-          style: style.fonts.medium.regular.onBackground,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          formatters: [FilteringTextInputFormatter.digitsOnly],
-          hint: '0',
-          prefix: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-            child: Transform.translate(
-              offset: PlatformUtils.isWeb
-                  ? const Offset(0, -0)
-                  : const Offset(0, -0.5),
-              child: Text(
-                '¤',
-                style: style.fonts.medium.regular.onBackground,
-              ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: ContactInfoContents(
+          title: 'Входящие звонки, за 1 минуту',
+          content: '¤${c.allCallCost.text}',
+          trailing: AnimatedButton(
+            onPressed: () async {
+              final result = await SetPriceView.show(
+                context,
+                initialCalls: c.allCallCost.text,
+                initialMessages: c.allMessageCost.text,
+              );
+
+              if (result is MapEntry<String, String>) {
+                c.allMessageCost.text = result.value;
+                c.allCallCost.text = result.key;
+                c.refresh();
+              }
+            },
+            child: Text(
+              'Изменить'.l10n,
+              style: style.fonts.small.regular.primary,
             ),
           ),
-          label: 'Входящие звонки, за 1 минуту',
         ),
       ),
+      // Paddings.basic(
+      //   ReactiveTextField(
+      //     state: c.allCallCost,
+      //     style: style.fonts.medium.regular.onBackground,
+      //     floatingLabelBehavior: FloatingLabelBehavior.always,
+      //     formatters: [FilteringTextInputFormatter.digitsOnly],
+      //     hint: '0',
+      //     prefix: Padding(
+      //       padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+      //       child: Transform.translate(
+      //         offset: PlatformUtils.isWeb
+      //             ? const Offset(0, -0)
+      //             : const Offset(0, -0.5),
+      //         child: Text(
+      //           '¤',
+      //           style: style.fonts.medium.regular.onBackground,
+      //         ),
+      //       ),
+      //     ),
+      //     label: 'Входящие звонки, за 1 минуту',
+      //   ),
+      // ),
       const SizedBox(height: 24),
       title('От Ваших контактов'),
       const SizedBox(height: 8),

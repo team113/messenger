@@ -121,7 +121,7 @@ external Future<dynamic> _requestLock(
   dynamic Function(dynamic) callback,
 );
 
-@JS('navigator.locks.query')
+@JS('getLocks')
 external Future<dynamic> _queryLock();
 
 /// Helper providing access to features having different implementations in
@@ -296,11 +296,10 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked async {
-    final locks = await promiseToFuture(_queryLock());
-
     bool held = false;
     try {
-      held = (locks.held as List?)?.any((e) => e.name == 'mutex') == true;
+      final locks = await promiseToFuture(_queryLock());
+      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
     } catch (e) {
       held = false;
     }

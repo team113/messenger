@@ -52,10 +52,13 @@ class DirectLinkField extends StatefulWidget {
     this.onSubmit,
     this.transitions = true,
     this.background,
+    this.generated,
   });
 
   /// Reactive state of the [ReactiveTextField].
   final ChatDirectLink? link;
+
+  final String? generated;
 
   /// Callback, called when [ChatDirectLinkSlug] is submitted.
   final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
@@ -81,8 +84,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   @override
   void initState() {
     if (widget.link == null) {
-      _generated = ChatDirectLinkSlug.generate(10).val;
-      _editing = true;
+      _generated = widget.generated ?? ChatDirectLinkSlug.generate(10).val;
+      // _editing = true;
     }
 
     _state = TextFieldState(
@@ -169,6 +172,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           onSuffixPressed: _state.isEmpty.value || !widget.transitions
               ? null
               : () {
+                  _state.submit();
+
                   final share = '${Config.link}/${_state.text}';
 
                   if (PlatformUtils.isMobile) {
@@ -285,7 +290,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                           borderRadius: BorderRadius.circular(15),
                         ),
                         child: QrImageView(
-                          data: '${Config.link}/${widget.link!.slug.val}',
+                          data: '${Config.link}/${_state.text}',
                           version: QrVersions.auto,
                           size: 300.0,
                         ),
@@ -297,7 +302,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                       child: MessagePreviewWidget(
                         fromMe: true,
-                        text: '${widget.link?.usageCount} кликов',
+                        text: '${widget.link?.usageCount ?? 0} кликов',
                         style: style.fonts.medium.regular.secondary,
                         // primary: true,
                       ),
