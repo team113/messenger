@@ -466,7 +466,7 @@ url = "wss://messenger.soc.stg.t11913.org"
 port = 443
 ```
 
-__Note__, that passing `--dart-define`s to `make e2e` or `flutter drive` commands is __not__ possible. Use the `assets/conf.toml` in order to run E2E tests on the development backend. Be sure not to commit the modified `assets/conf.toml` file.
+__Note__, that you may pass `--dart-define`s to `make e2e`, `make build` or `make run` commands by specifying the `dart-env` parameter (see [`Makefile`] for usage details).
 
 
 
