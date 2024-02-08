@@ -88,7 +88,7 @@ class AuthRepository implements AbstractAuthRepository {
     );
 
     final response =
-        await _graphQlProvider.signIn(password, login, num, email, phone, true);
+        await _graphQlProvider.signIn(password, login, num, email, phone);
     return response.toModel();
   }
 

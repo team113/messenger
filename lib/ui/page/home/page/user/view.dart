@@ -102,7 +102,7 @@ class UserView extends StatelessWidget {
                             _name(c, context),
                           ],
                         ),
-                        _status(c, context),
+                        _bio(c, context),
                         Block(children: [_num(c)]),
                         SelectionContainer.disabled(
                           child: Block(children: [_actions(c, context)]),
@@ -159,17 +159,17 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns the [User.status] visual representation.
-  Widget _status(UserController c, BuildContext context) {
+  Widget _bio(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    final UserTextStatus? status = c.user?.user.value.status;
+    final UserBio? bio = c.user?.user.value.bio;
 
-    if (status != null) {
+    if (bio != null) {
       return Block(
         padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
         children: [
           Text(
-            status.toString(),
+            bio.toString(),
             style: style.fonts.normal.regular.secondary,
           ),
         ],
