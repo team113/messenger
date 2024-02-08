@@ -321,12 +321,17 @@ class SearchController extends GetxController {
     if (contactsSearch.value != null) {
       contactsSearch.value?.dispose();
       contactsSearch.value = null;
+
       _populateContacts();
     }
 
     if (usersSearch.value != null) {
       usersSearch.value?.dispose();
       usersSearch.value = null;
+
+      // Update [chats] too, since [_populateUsers] uses it to display some of
+      // the global search results.
+      _populateChats();
       _populateUsers();
     }
 
@@ -661,21 +666,26 @@ class SearchController extends GetxController {
           c.members.values.firstWhereOrNull((u) => u.id != me);
       RxChat? toChat(RxUser u) => u.dialog.value;
 
-      // [Chat]s-dialogs with [User]s found in the global search.
-      final Iterable<RxChat> globalDialogs =
-          searched.where(hasRemoteDialog).map(toChat).whereNotNull();
+      // [Chat]s-dialogs with [User]s found in the global search not presented
+      // in [chats].
+      final Iterable<RxChat> globalDialogs = searched
+          .where(hasRemoteDialog)
+          .whereNot(inChats)
+          .map(toChat)
+          .whereNotNull()
+          .whereNot(hidden);
 
       if (globalDialogs.isNotEmpty &&
           categories.contains(SearchCategory.chat)) {
         final List<RxChat> sorted =
-            [...chats.values, ...globalDialogs.whereNot(hidden)].sorted();
+            [...chats.values, ...globalDialogs].sorted();
 
         final RxChat? monolog = chats[_chatService.monolog];
 
         // Display users found globally in [chats] as [_matchesQuery] cannot
         // filter by [ChatDirectLink] and [UserLogin].
         chats.value = {
-          if (monolog != null) monolog.chat.value.id: monolog,
+          if (monolog != null) _chatService.monolog: monolog,
           for (final c in sorted) c.chat.value.id: c,
         };
       }
