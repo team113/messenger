@@ -126,6 +126,7 @@ endif
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
+#	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
 
 flutter.build:
@@ -144,10 +145,13 @@ else
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.build platform=$(platform) dart-env='$(dart-env)' \
+			                   split-debug-info=$(split-debug-info) \
+			                   profile=$(profile) \
 			                   dockerized=no
 endif
 else
-	flutter build $(or $(platform),apk) --release \
+	flutter build $(or $(platform),apk) \
+		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\

@@ -90,6 +90,12 @@ class MyUserService extends DisposableService {
     await _userRepo.updateUserStatus(status);
   }
 
+  /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
+  Future<void> updateUserBio(UserBio? bio) async {
+    Log.debug('updateUserBio($bio)', '$runtimeType');
+    await _userRepo.updateUserBio(bio);
+  }
+
   /// Updates password for the authenticated [MyUser].
   ///
   /// If [MyUser] has no password yet (when sets his password), then `old`
@@ -104,6 +110,7 @@ class MyUserService extends DisposableService {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     await _passwordChangeGuard.protect(() async {
+      // TODO: Make sure [AuthService] doesn't its `renewSession` during that.
       await _userRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(newPassword, num: myUser.value?.num);
     });

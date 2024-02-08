@@ -40,6 +40,7 @@ class User extends HiveObject {
     this.id,
     this.num, {
     this.name,
+    this.bio,
     this.avatar,
     this.callCover,
     this.mutualContactsCount = 0,
@@ -81,28 +82,32 @@ class User extends HiveObject {
   @HiveField(2)
   UserName? name;
 
-  /// Avatar of this [User].
+  /// Arbitrary descriptive information about this [User].
   @HiveField(3)
+  UserBio? bio;
+
+  /// Avatar of this [User].
+  @HiveField(4)
   UserAvatar? avatar;
 
   /// Call cover of this [User].
   ///
   /// [callCover] is an image helping to identify an [User] visually in
   /// [UserCallCover]s.
-  @HiveField(4)
+  @HiveField(5)
   UserCallCover? callCover;
 
   /// Number of mutual [ChatContact]s that this [User] has with the
   /// authenticated [MyUser].
-  @HiveField(5)
+  @HiveField(6)
   int mutualContactsCount;
 
   /// Online state of this [User].
-  @HiveField(6)
+  @HiveField(7)
   bool online;
 
   /// Presence of this [User].
-  @HiveField(7)
+  @HiveField(8)
   int? presenceIndex;
 
   Presence? get presence =>
@@ -112,23 +117,23 @@ class User extends HiveObject {
   }
 
   /// Custom text status of this [User].
-  @HiveField(8)
+  @HiveField(9)
   UserTextStatus? status;
 
   /// Indicator whether this [User] is deleted.
-  @HiveField(9)
+  @HiveField(10)
   bool isDeleted;
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
-  @HiveField(10)
+  @HiveField(11)
   ChatId? _dialog;
 
   /// Indicator whether this [User] is blocked by the authenticated [MyUser].
-  @HiveField(11)
+  @HiveField(12)
   BlocklistRecord? isBlocked;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
-  @HiveField(12)
+  @HiveField(13)
   PreciseDateTime? lastSeenAt;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
@@ -269,6 +274,25 @@ class UserEmail extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
+}
+
+/// Arbitrary descriptive information about a [User].
+@HiveType(typeId: ModelTypeId.userBio)
+class UserBio extends NewType<String> {
+  const UserBio._(super.val);
+
+  factory UserBio(String val) {
+    if (val.isEmpty) {
+      throw const FormatException('Must not be empty');
+    } else if (val.length > 4096) {
+      throw const FormatException('Must not be longer than 4096 symbols');
+    }
+
+    return UserBio._(val);
+  }
+
+  /// Creates an object without any validation.
+  const factory UserBio.unchecked(String val) = UserBio._;
 }
 
 /// Phone number of an [User].

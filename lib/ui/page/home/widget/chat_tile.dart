@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -45,6 +47,7 @@ class ChatTile extends StatelessWidget {
     Widget Function(Widget)? titleBuilder,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
+    this.onForbidden,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -98,6 +101,9 @@ class ChatTile extends StatelessWidget {
   /// Indicator whether this [ChatTile] should have its background a bit dimmed.
   final bool dimmed;
 
+  /// Callback, called when [ChatAvatar] fetching fails with `Forbidden` error.
+  final FutureOr<void> Function()? onForbidden;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -134,7 +140,11 @@ class ChatTile extends StatelessWidget {
               child: Row(
                 children: [
                   avatarBuilder(
-                    AvatarWidget.fromRxChat(chat, radius: AvatarRadius.large),
+                    AvatarWidget.fromRxChat(
+                      chat,
+                      radius: AvatarRadius.large,
+                      onForbidden: onForbidden,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   ...leading,
