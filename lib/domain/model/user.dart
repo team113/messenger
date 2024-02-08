@@ -337,7 +337,7 @@ class ChatDirectLinkSlug extends NewType<String> {
   /// Creates a new [ChatDirectLinkSlug] from the provided [val] if it's valid
   /// and returns `null` otherwise.
   ///
-  /// [val] can be either a slug or a full valid URL.
+  /// [val] can be either a slug or a full URL.
   static ChatDirectLinkSlug? tryParse(String val) {
     ChatDirectLinkSlug? link;
 

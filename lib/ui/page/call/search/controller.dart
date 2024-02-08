@@ -455,7 +455,9 @@ class SearchController extends GetxController {
         searchStatus.value = result.status.value;
 
         _usersSearchWorker = ever(result.status, (RxStatus s) {
-          searchStatus.value = s;
+          if (!_chatService.hasNext.value) {
+            searchStatus.value = s;
+          }
 
           if (s.isSuccess && !s.isLoadingMore) {
             _populateUsers();
@@ -657,7 +659,7 @@ class SearchController extends GetxController {
           c.members.values.firstWhereOrNull((u) => u.id != me);
       RxChat? toChat(RxUser u) => u.dialog.value;
 
-      // [Chat]s-dialogs found in the global search.
+      // [Chat]s-dialogs with [User]s found in the global search.
       final Iterable<RxChat> globalDialogs =
           searched.where(hasRemoteDialog).map(toChat).whereNotNull();
 
@@ -665,7 +667,11 @@ class SearchController extends GetxController {
           categories.contains(SearchCategory.chat)) {
         final List<RxChat> sorted =
             [...chats.values, ...globalDialogs.whereNot(hidden)].sorted();
+
         final RxChat? monolog = chats[_chatService.monolog];
+
+        // Display users found globally in [chats] as [_matchesQuery] cannot
+        // filter by [ChatDirectLink] and [UserLogin].
         chats.value = {
           if (monolog != null) monolog.chat.value.id: monolog,
           for (final c in sorted) c.chat.value.id: c,
@@ -718,6 +724,7 @@ class SearchController extends GetxController {
 
         await _chatService.next();
         await Future.delayed(1.milliseconds);
+        await Future.delayed(1.milliseconds);
 
         // Populate [chats] first until there's no more [Chat]s to fetch from
         // [ChatService.paginated], then it is safe to populate other
@@ -765,10 +772,11 @@ class SearchController extends GetxController {
         (contactsSearch.value?.hasNext.isTrue ??
             false || _contactService.hasNext.isTrue);
     final bool usersHaveMore = categories.contains(SearchCategory.user) &&
-        (usersSearch.value?.hasNext.isTrue ??
-            false || _chatService.hasNext.isTrue);
+        (usersSearch.value?.hasNext.isTrue ?? false);
+    final bool chatsHaveMore =
+        categories.contains(SearchCategory.chat) && _chatService.hasNext.isTrue;
 
-    if (contactsHaveMore || usersHaveMore) {
+    if (contactsHaveMore || usersHaveMore || chatsHaveMore) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
           return;
