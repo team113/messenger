@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.12.1] · 2024-02-08
+[0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
+
+[Diff](/../../compare/v0.1.0-alpha.12...v0.1.0-alpha.12.1) | [Milestone](/../../milestone/16)
+
+### Fixed
+
+- Web:
+    - Authentication token not being refreshed. ([#844])
+
+[#844]: /../../pull/844
+
+
+
+
 ## [0.1.0-alpha.12] · 2024-02-08
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
