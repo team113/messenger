@@ -363,20 +363,20 @@ class ChatDirectLinkSlug extends NewType<String> {
   ///
   /// [val] can be either a slug or a full URL.
   static ChatDirectLinkSlug? tryParse(String val) {
-    ChatDirectLinkSlug? link;
+    ChatDirectLinkSlug? slug;
 
-    if (val.startsWith(Config.link)) {
-      // [val] is a full valid URL.
+    if (val.startsWith('${Config.link}/')) {
+      // [val] is a full URL.
       val = val.substring(Config.link.length + 1);
     }
 
     try {
-      link = ChatDirectLinkSlug(val);
+      slug = ChatDirectLinkSlug(val);
     } catch (_) {
       // No-op.
     }
 
-    return link;
+    return slug;
   }
 
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
