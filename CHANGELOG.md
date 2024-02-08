@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Cache maximum size slider. ([#794], [#789])
     - Media panel:
         - Screen dimming when close to ear on mobile. ([#823], [#808])
-        - Secondary panel modes switches. ([#837], [#811])
+        - Secondary panel mode switches. ([#837], [#811])
 
 ### Changed
 
