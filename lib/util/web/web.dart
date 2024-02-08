@@ -315,7 +315,10 @@ class WebUtils {
               (_) => callback()
                   .then((_) => completer.complete())
                   .onError(
-                    (e, _) => completer.completeError(e ?? Exception()),
+                    (e, stackTrace) => completer.completeError(
+                      e ?? Exception(),
+                      stackTrace,
+                    ),
                   )
                   .toJS,
             ),
