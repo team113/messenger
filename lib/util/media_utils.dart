@@ -284,7 +284,9 @@ class DeviceDetails extends MediaDeviceDetails {
     return other is DeviceDetails &&
         id() == other.id() &&
         deviceId() == other.deviceId() &&
-        label() == other.label();
+        label() == other.label() &&
+        // On Web `default` devices is not equal.
+        (!PlatformUtils.isWeb || deviceId() != 'default');
   }
 
   /// Returns a unique identifier of this [DeviceDetails].

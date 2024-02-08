@@ -1698,12 +1698,19 @@ class OngoingCall {
               : MediaSourceKind.display,
         );
 
-        MediaStreamSettings settings = _mediaStreamSettings(
-          audioDevice: audioDevice ?? this.audioDevice.value,
-          videoDevice: videoDevice ?? this.videoDevice.value,
-          screenDevice: screenDevice ?? this.screenDevice.value,
-        );
+        MediaStreamSettings settings;
         try {
+          // On Web devices not changed if provided the same ID so we should
+          // reset settings first.
+          if (PlatformUtils.isWeb) {
+            settings = _mediaStreamSettings();
+            await _room?.setLocalMediaSettings(settings, true, true);
+          }
+          settings = _mediaStreamSettings(
+            audioDevice: audioDevice ?? this.audioDevice.value,
+            videoDevice: videoDevice ?? this.videoDevice.value,
+            screenDevice: screenDevice ?? this.screenDevice.value,
+          );
           await _room?.setLocalMediaSettings(settings, true, true);
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
@@ -1733,7 +1740,7 @@ class OngoingCall {
     Log.debug('_updateTracks($audio, $video, $screen)', '$runtimeType');
 
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-      audio: hasAudio && audio
+      audio: audioState.value.isEnabled && audio
           ? AudioPreferences(device: audioDevice.value?.deviceId())
           : null,
       video: videoState.value.isEnabled && video
@@ -1862,17 +1869,21 @@ class OngoingCall {
       '$runtimeType',
     );
 
-    final String? preferred = _preferredOutputDevice;
-    DeviceDetails? device;
+    final bool isRemoved =
+        removed.any((e) => e.deviceId() == outputDevice.value?.deviceId()) ||
+            (outputDevice.value == null &&
+                removed.any((e) =>
+                    e.deviceId() == previous.audio().firstOrNull?.deviceId()));
+    final bool shouldUpdate = outputDevice.value == null ||
+        outputDevice.value!.id() != _preferredOutputDevice ||
+        (_preferredOutputDevice == 'default' && PlatformUtils.isWeb);
 
-    if (removed.any((e) => e.deviceId() == outputDevice.value?.deviceId()) ||
-        (outputDevice.value == null || outputDevice.value!.id() != preferred) ||
-        (outputDevice.value == null &&
-            removed.any((e) =>
-                e.deviceId() == previous.output().firstOrNull?.deviceId()))) {
+    DeviceDetails? device;
+    if (isRemoved || shouldUpdate) {
       final Iterable<DeviceDetails> output = devices.output();
       device =
-          output.firstWhereOrNull((e) => e.id() == preferred) ?? output.first;
+          output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+              output.first;
     }
 
     if (device != null && outputDevice.value != device) {
@@ -1891,17 +1902,20 @@ class OngoingCall {
       '$runtimeType',
     );
 
-    final String? preferred = _preferredAudioDevice;
-    DeviceDetails? device;
+    final bool isRemoved =
+        removed.any((e) => e.deviceId() == audioDevice.value?.deviceId()) ||
+            (audioDevice.value == null &&
+                removed.any((e) =>
+                    e.deviceId() == previous.audio().firstOrNull?.deviceId()));
+    final bool shouldUpdate = audioDevice.value == null ||
+        audioDevice.value!.id() != _preferredAudioDevice ||
+        (_preferredAudioDevice == 'default' && PlatformUtils.isWeb);
 
-    if (removed.any((e) => e.deviceId() == audioDevice.value?.deviceId()) ||
-        (audioDevice.value == null || audioDevice.value?.id() != preferred) ||
-        (audioDevice.value == null &&
-            removed.any((e) =>
-                e.deviceId() == previous.audio().firstOrNull?.deviceId()))) {
+    DeviceDetails? device;
+    if (isRemoved || shouldUpdate) {
       final Iterable<DeviceDetails> audio = devices.audio();
-      device =
-          audio.firstWhereOrNull((e) => e.id() == preferred) ?? audio.first;
+      device = audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
+          audio.first;
     }
 
     if (device != null && audioDevice.value != device) {
@@ -1947,9 +1961,7 @@ class OngoingCall {
   Future<void> _setAudioDevice(DeviceDetails device) async {
     Log.debug('_setAudioDevice($device)', '$runtimeType');
 
-    if ((audioDevice.value != null && device != audioDevice.value) ||
-        (audioDevice.value == null &&
-            devices.audio().firstOrNull?.deviceId() != device.deviceId())) {
+    if (device != audioDevice.value) {
       await _updateSettings(audioDevice: device);
     }
   }
