@@ -184,7 +184,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    Widget video = VideoView(
+    final Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
       mirror: widget.renderer.mirror,

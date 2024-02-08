@@ -15,9 +15,11 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation CreateMonologChat($name: ChatName, $isHidden: Boolean) {
-    createMonologChat(name: $name, isHidden: $isHidden) {
-        __typename
-        ...Chat
+query GetAvatar($id: ChatId!) {
+    chat(id: $id) {
+        avatar {
+            __typename
+            ...ChatAvatar
+        }
     }
 }

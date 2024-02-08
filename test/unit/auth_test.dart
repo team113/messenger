@@ -51,7 +51,7 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     when(graphQlProvider.signIn(
-            UserPassword('123'), UserLogin('user'), null, null, null, true))
+            UserPassword('123'), UserLogin('user'), null, null, null))
         .thenAnswer(
       (_) => Future.value(
         SignIn$Mutation$CreateSession$CreateSessionOk.fromJson({
@@ -97,7 +97,7 @@ void main() async {
 
     expect(authService.status.value.isEmpty, true);
     verify(graphQlProvider.signIn(
-        UserPassword('123'), UserLogin('user'), null, null, null, true));
+        UserPassword('123'), UserLogin('user'), null, null, null));
   });
 
   test('AuthService successfully logins with saved session', () async {
@@ -137,8 +137,7 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(
-            UserPassword('123'), null, null, null, null, true))
+    when(graphQlProvider.signIn(UserPassword('123'), null, null, null, null))
         .thenThrow(
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
@@ -154,8 +153,7 @@ void main() async {
       expect(e, isA<CreateSessionException>());
     }
 
-    verify(graphQlProvider.signIn(
-        UserPassword('123'), null, null, null, null, true));
+    verify(graphQlProvider.signIn(UserPassword('123'), null, null, null, null));
   });
 
   test('AuthService successfully resets password', () async {

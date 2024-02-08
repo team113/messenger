@@ -193,6 +193,47 @@ List<String?>?
             ?.map((e) => fromDartUserNameNullableToGraphQLUserNameNullable(e))
             .toList();
 
+// UserBio
+
+UserBio fromGraphQLUserBioToDartUserBio(String v) => UserBio.unchecked(v);
+String fromDartUserBioToGraphQLUserBio(UserBio v) => v.val;
+List<UserBio> fromGraphQLListUserBioToDartListUserBio(List<Object?> v) =>
+    v.map((e) => fromGraphQLUserBioToDartUserBio(e as String)).toList();
+List<String> fromDartListUserBioToGraphQLListUserBio(List<UserBio> v) =>
+    v.map((e) => fromDartUserBioToGraphQLUserBio(e)).toList();
+List<UserBio>? fromGraphQLListNullableUserBioToDartListNullableUserBio(
+        List<Object?>? v) =>
+    v?.map((e) => fromGraphQLUserBioToDartUserBio(e as String)).toList();
+List<String>? fromDartListNullableUserBioToGraphQLListNullableUserBio(
+        List<UserBio>? v) =>
+    v?.map((e) => fromDartUserBioToGraphQLUserBio(e)).toList();
+
+UserBio? fromGraphQLUserBioNullableToDartUserBioNullable(String? v) =>
+    v == null ? null : UserBio.unchecked(v);
+String? fromDartUserBioNullableToGraphQLUserBioNullable(UserBio? v) => v?.val;
+List<UserBio?> fromGraphQLListUserBioNullableToDartListUserBioNullable(
+        List<Object?> v) =>
+    v
+        .map((e) =>
+            fromGraphQLUserBioNullableToDartUserBioNullable(e as String?))
+        .toList();
+List<String?> fromDartListUserBioNullableToGraphQLListUserBioNullable(
+        List<UserBio?> v) =>
+    v.map((e) => fromDartUserBioNullableToGraphQLUserBioNullable(e)).toList();
+List<UserBio?>?
+    fromGraphQLListNullableUserBioNullableToDartListNullableUserBioNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLUserBioNullableToDartUserBioNullable(e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableUserBioNullableToGraphQLListNullableUserBioNullable(
+            List<UserBio?>? v) =>
+        v
+            ?.map((e) => fromDartUserBioNullableToGraphQLUserBioNullable(e))
+            .toList();
+
 // UserPassword
 
 UserPassword fromGraphQLUserPasswordToDartUserPassword(String v) =>

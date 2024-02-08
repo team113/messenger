@@ -258,6 +258,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    FutureOr<void> Function()? onForbidden,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -277,7 +278,7 @@ class AvatarWidget extends StatelessWidget {
         );
       }
 
-      RxUser? user =
+      final RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
         key: key,
@@ -288,6 +289,7 @@ class AvatarWidget extends StatelessWidget {
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,
+        onForbidden: onForbidden,
       );
     });
   }
