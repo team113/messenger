@@ -384,8 +384,9 @@ class OngoingCall {
 
       _initRoom();
 
-      // Adds all members of the provided [chat] to the [members].
-      void addDialings(RxChat chat) {
+      // Puts the members of the provided [chat] to the [members] through
+      // [_addDialing].
+      void addDialingsFrom(RxChat chat) {
         if ((outgoing && conversationStartedAt == null) ||
             chat.chat.value.isDialog) {
           for (UserId e in chat.members.keys.where((e) => e != me.id.userId)) {
@@ -397,12 +398,12 @@ class OngoingCall {
       final FutureOr<RxChat?>? chatOrFuture = getChat?.call(chatId.value);
       if (chatOrFuture is RxChat?) {
         if (chatOrFuture != null) {
-          addDialings(chatOrFuture);
+          addDialingsFrom(chatOrFuture);
         }
       } else {
         chatOrFuture.then((c) {
           if (!connected && c != null) {
-            addDialings(c);
+            addDialingsFrom(c);
           }
         });
       }
@@ -494,6 +495,7 @@ class OngoingCall {
               if (dialed is ChatMembersDialedConcrete) {
                 members.removeWhere(
                   (_, v) =>
+                      v.isConnected.isFalse &&
                       v.isDialing.isTrue &&
                       dialed.members.none((e) => e.user.id == v.id.userId) &&
                       node.call.members.none((e) => e.user.id == v.id.userId),
@@ -505,6 +507,7 @@ class OngoingCall {
               } else if (dialed == null) {
                 members.removeWhere(
                   (_, v) =>
+                      v.isConnected.isFalse &&
                       v.isDialing.isTrue &&
                       node.call.members.none((e) => e.user.id == v.id.userId),
                 );
@@ -521,14 +524,16 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  final Iterable<ChatMember> dialings =
-                      (v?.chat.value.members ?? []).where((e) =>
-                          e.user.id != me.id.userId &&
-                          dialed.answeredMembers
-                              .none((a) => a.user.id == e.user.id));
+                  final Iterable<ChatMember> dialings = v?.chat.value.members
+                          .where((e) =>
+                              e.user.id != me.id.userId &&
+                              dialed.answeredMembers
+                                  .none((a) => a.user.id == e.user.id)) ??
+                      [];
 
                   members.removeWhere(
                     (_, v) =>
+                        v.isConnected.isFalse &&
                         v.isDialing.isTrue &&
                         dialings.none((e) => e.user.id == v.id.userId) &&
                         node.call.members.none((e) => e.user.id == v.id.userId),

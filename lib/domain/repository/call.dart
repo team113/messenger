@@ -79,7 +79,7 @@ abstract class AbstractCallRepository {
   /// authenticated [MyUser].
   Future<Rx<OngoingCall>?> join(
     ChatId chatId,
-    ChatCall? callId, {
+    ChatCall? call, {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,

@@ -35,6 +35,7 @@ import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
+import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -258,10 +259,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     ),
                   );
                 } else {
-                  return CallCoverWidget(
-                    null,
-                    chat: c.chat.value,
-                  );
+                  return CallCoverWidget(null, chat: c.chat.value);
                 }
               }
             }),
@@ -385,6 +383,89 @@ Widget mobileCall(CallController c, BuildContext context) {
                   top: c.size.height * 0.05,
                 ),
                 child: callTitle(c),
+              ),
+            ),
+          );
+        }),
+      ),
+
+      // Sliding from the top call information.
+      SafeArea(
+        child: Obx(() {
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool showUi = c.showUi.value && active && !c.minimized.value;
+
+          return Align(
+            alignment: Alignment.topCenter,
+            child: AnimatedSlider(
+              duration: const Duration(milliseconds: 250),
+              isOpen: showUi,
+              beginOffset: Offset(0, -50 - MediaQuery.of(context).padding.top),
+              endOffset: const Offset(0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity20,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.colors.primaryAuxiliaryOpacity25,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.chat.value?.title.value ?? ('dot'.l10n * 3),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                        width: 1,
+                        height: 14,
+                        color: style.colors.onPrimary,
+                      ),
+                      if (c.isGroup) ...[
+                        Text(
+                          'label_a_of_b'.l10nfmt({
+                            'a': c.members.keys
+                                .where((e) => e.deviceId != null)
+                                .map((k) => k.userId)
+                                .toSet()
+                                .length,
+                            'b': c.chat.value?.members.length ?? 1,
+                          }),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                          width: 1,
+                          height: 14,
+                          color: style.colors.onPrimary,
+                        ),
+                      ],
+                      Text(
+                        Config.disableInfiniteAnimations
+                            ? '00:00'
+                            : c.duration.value.hhMmSs(),
+                        style: style.fonts.small.regular.onPrimary,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
               ),
             ),
           );
