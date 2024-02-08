@@ -242,11 +242,11 @@ class OngoingCall {
   /// and not just as a notification of an ongoing call in background.
   bool connected = false;
 
-  /// List of [MediaDisplayDetails] of all the available displays.
-  final RxList<MediaDisplayDetails> displays = RxList<MediaDisplayDetails>([]);
-
   /// List of [DeviceDetails] of all the available devices.
   final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
+
+  /// List of [MediaDisplayDetails] of all the available displays.
+  final RxList<MediaDisplayDetails> displays = RxList<MediaDisplayDetails>([]);
 
   /// ID of the preferred microphone device.
   ///
@@ -1702,8 +1702,8 @@ class OngoingCall {
 
         MediaStreamSettings settings;
         try {
-          // On Web devices not changed if provided the same ID so we should
-          // reset settings first.
+          // On Web settings do not change if provided the same IDs, so we
+          // should reset settings first.
           if (PlatformUtils.isWeb) {
             settings = _mediaStreamSettings();
             await _room?.setLocalMediaSettings(settings, true, true);
@@ -1861,7 +1861,7 @@ class OngoingCall {
     });
   }
 
-  /// Picks the [outputDevice] based on the provided [previous] and [removed].
+  /// Picks the [outputDevice] based on the [devices] list.
   void _pickOutputDevice() {
     Log.debug('_pickOutputDevice()', '$runtimeType');
 
@@ -1876,7 +1876,7 @@ class OngoingCall {
     }
   }
 
-  /// Picks the [audioDevice] based on the provided [previous] and [removed].
+  /// Picks the [audioDevice] based on the [devices] list.
   void _pickAudioDevice() async {
     Log.debug('_pickAudioDevice()', '$runtimeType');
 
