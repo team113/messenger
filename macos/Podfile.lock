@@ -67,7 +67,7 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.12.0):
     - GoogleUtilities/Logger
-  - medea_flutter_webrtc (0.9.1-dev):
+  - medea_flutter_webrtc (0.10.0-dev):
     - FlutterMacOS
   - medea_jason (0.4.0):
     - FlutterMacOS
@@ -220,7 +220,7 @@ SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   GoogleDataTransport: 57c22343ab29bc686febbf7cbb13bad167c2d8fe
   GoogleUtilities: 0759d1a57ebb953965c2dfe0ba4c82e95ccc2e34
-  medea_flutter_webrtc: acc418e33d995571e2f3a0a34b54d5c90fb9188d
+  medea_flutter_webrtc: 08f036f87205586e697455da2e2ee778eb6271ef
   medea_jason: b3355be56a78da19da91aee19a3ac56356d18997
   media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
   media_kit_native_event_loop: 81fd5b45192b72f8b5b69eaf5b540f45777eb8d5

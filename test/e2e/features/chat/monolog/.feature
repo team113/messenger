@@ -33,6 +33,7 @@ Feature: Monolog
     Given popup windows are disabled
     When I tap `AudioCall` button
     Then monolog is indeed remote
+    And I pause for 2 seconds
 
   Scenario: User renames local monolog
     When I open chat's info

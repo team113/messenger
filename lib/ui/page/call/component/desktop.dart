@@ -50,7 +50,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -825,14 +824,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       toggleFullscreen: c.toggleFullscreen,
-                      onTap: WebUtils.isPopup
-                          ? null
-                          : () {
-                              router.chat(c.chatId.value);
-                              if (c.fullscreen.value) {
-                                c.toggleFullscreen();
-                              }
-                            },
                     ),
                   ),
                 ),
