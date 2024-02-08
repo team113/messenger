@@ -33,6 +33,7 @@ extension MyUserConversion on MyUserMixin {
         online: online.$$typename == 'UserOnline',
         login: login,
         name: name,
+        bio: bio,
         hasPassword: hasPassword,
         unreadChatsCount: unreadChatsCount,
         chatDirectLink: chatDirectLink != null

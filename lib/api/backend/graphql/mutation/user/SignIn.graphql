@@ -21,14 +21,12 @@ mutation SignIn(
     $login: UserLogin
     $num: UserNum
     $password: UserPassword!
-    $remember: Boolean
 ) {
     createSession(
         email: $email
         login: $login
         num: $num
         password: $password
-        remember: $remember
         phone: $phone
     ) {
         __typename

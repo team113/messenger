@@ -50,7 +50,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_button.dart';
@@ -883,14 +882,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                       onPrimary: c.layoutAsPrimary,
                       onFloating: () => c.layoutAsSecondary(floating: true),
                       onSecondary: () => c.layoutAsSecondary(floating: false),
-                      onTap: WebUtils.isPopup
-                          ? null
-                          : () {
-                              router.chat(c.chatId.value);
-                              if (c.fullscreen.value) {
-                                c.toggleFullscreen();
-                              }
-                            },
                     ),
                   ),
                 ),

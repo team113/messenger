@@ -33,7 +33,8 @@ Feature: Chat members
     Then I wait until text "Bob" is absent
 
   Scenario: User adds a member
-    When I tap `AddMemberButton` button
+    When I scroll `ChatInfoScrollable` until `AddMemberButton` is present
+    And I tap `AddMemberButton` button
     Then I wait until `SearchView` is present
 
     When I fill `SearchTextField` field with "Charlie"
