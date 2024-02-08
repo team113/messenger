@@ -607,7 +607,8 @@ class OngoingCall {
 
                 case ChatCallEventKind.memberLeft:
                   final node = event as EventChatCallMemberLeft;
-                  if (calls.me == node.user.id) {
+                  if (me.id.userId == node.user.id &&
+                      me.id.deviceId == node.deviceId) {
                     calls.remove(chatId.value);
                   }
 
@@ -1322,22 +1323,29 @@ class OngoingCall {
 
         final Track t = Track(track);
 
+        final CallMember? redialed = members[redialedId];
+        if (redialed?.isDialing.value == true) {
+          members.move(redialedId, id);
+        }
+
+        member = members[id];
+        member?.id = id;
+        member?.isConnected.value = true;
+        member?.isDialing.value = false;
+
         if (track.mediaDirection().isEmitting) {
-          final CallMember? redialed = members[redialedId];
-          if (redialed?.isDialing.value == true) {
-            members.move(redialedId, id);
-          }
-
-          member = members[id];
-          member?.id = id;
-          member?.isConnected.value = true;
-          member?.isDialing.value = false;
-
           member?.tracks.add(t);
         }
 
-        track.onMuted(() => t.isMuted.value = true);
-        track.onUnmuted(() => t.isMuted.value = false);
+        track.onMuted(() {
+          Log.debug('onMuted $kind-$source', '$runtimeType');
+          t.isMuted.value = true;
+        });
+
+        track.onUnmuted(() {
+          Log.debug('onUnmuted $kind-$source', '$runtimeType');
+          t.isMuted.value = false;
+        });
 
         track.onMediaDirectionChanged((TrackMediaDirection d) async {
           Log.debug(
@@ -1349,7 +1357,7 @@ class OngoingCall {
 
           switch (d) {
             case TrackMediaDirection.sendRecv:
-              member?.tracks.addIf(!member!.tracks.contains(t), t);
+              members[id]?.tracks.addIf(!members[id]!.tracks.contains(t), t);
               switch (kind) {
                 case MediaKind.audio:
                   await t.createRenderer();
@@ -1362,13 +1370,13 @@ class OngoingCall {
               break;
 
             case TrackMediaDirection.sendOnly:
-              member?.tracks.addIf(!member!.tracks.contains(t), t);
+              members[id]?.tracks.addIf(!members[id]!.tracks.contains(t), t);
               await t.removeRenderer();
               break;
 
             case TrackMediaDirection.recvOnly:
             case TrackMediaDirection.inactive:
-              member?.tracks.remove(t);
+              members[id]?.tracks.remove(t);
               await t.removeRenderer();
               break;
           }
@@ -1376,7 +1384,7 @@ class OngoingCall {
 
         track.onStopped(() {
           Log.debug('onStopped $kind-$source', '$runtimeType');
-          member?.tracks.remove(t..dispose());
+          members[id]?.tracks.remove(t..dispose());
         });
 
         switch (kind) {
@@ -1386,7 +1394,7 @@ class OngoingCall {
                 await t.createRenderer();
               }
             } else {
-              await member?.setAudioEnabled(false);
+              await members[id]?.setAudioEnabled(false);
             }
             break;
 
@@ -1396,13 +1404,13 @@ class OngoingCall {
                 await t.createRenderer();
               }
             } else {
-              await member?.setVideoEnabled(false, source: t.source);
+              await members[id]?.setVideoEnabled(false, source: t.source);
             }
             break;
         }
       });
 
-      conn.onQualityScoreUpdate((p) => member?.quality.value = p);
+      conn.onQualityScoreUpdate((p) => members[id]?.quality.value = p);
     });
   }
 

@@ -29,6 +29,15 @@ fragment UserEventsVersioned on UserEventsVersioned {
             }
             at
         }
+        ... on EventUserBioDeleted {
+            userId
+            at
+        }
+        ... on EventUserBioUpdated {
+            userId
+            bio
+            at
+        }
         ... on EventUserCallCoverDeleted {
             at
         }

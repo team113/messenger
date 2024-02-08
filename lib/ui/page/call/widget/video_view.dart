@@ -188,7 +188,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       _waitTilSizeDetermined();
     }
 
-    Widget video = VideoView(
+    final Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
       mirror: widget.renderer.mirror,
