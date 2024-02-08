@@ -947,6 +947,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // Center left.
             Obx(() {
               return Positioned(
@@ -963,6 +964,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // Center right.
             Obx(() {
               return Positioned(
@@ -979,6 +981,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // Bottom center.
             Obx(() {
               return Positioned(
@@ -1018,6 +1021,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // Top right.
             Obx(() {
               return Positioned(
@@ -1039,6 +1043,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // Bottom left.
             Obx(() {
               return Positioned(
@@ -1060,6 +1065,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // Bottom right.
             Obx(() {
               return Positioned(

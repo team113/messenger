@@ -53,16 +53,16 @@ class TitleBar extends StatelessWidget {
   /// Callback, called when this [TitleBar] is tapped.
   final void Function()? onTap;
 
-  /// Callback, called to toggle fullscreen on and off.
+  /// Callback, called when fullscreen button is pressed.
   final void Function()? toggleFullscreen;
 
-  /// Callback, called to enter 'floating window' display mode.
+  /// Callback, called when [SvgIcons.callFloating] icon button is pressed.
   final void Function()? onFloating;
 
-  /// Callback, called to enter 'side panel' display mode.
+  /// Callback, called when [SvgIcons.callSide] icon button is pressed.
   final void Function()? onSecondary;
 
-  /// Callback, called to enter 'all equal' display mode.
+  /// Callback, called when [SvgIcons.callGallery] icon button is pressed.
   final void Function()? onPrimary;
 
   @override
@@ -118,21 +118,25 @@ class TitleBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     AnimatedButton(
+                      enabled: onPrimary != null,
                       onPressed: onPrimary,
                       child: const SvgIcon(SvgIcons.callGallery),
                     ),
                     const SizedBox(width: 16),
                     AnimatedButton(
+                      enabled: onFloating != null,
                       onPressed: onFloating,
                       child: const SvgIcon(SvgIcons.callFloating),
                     ),
                     const SizedBox(width: 16),
                     AnimatedButton(
+                      enabled: onSecondary != null,
                       onPressed: onSecondary,
                       child: const SvgIcon(SvgIcons.callSide),
                     ),
                     const SizedBox(width: 16),
                     AnimatedButton(
+                      enabled: toggleFullscreen != null,
                       onPressed: toggleFullscreen,
                       child: SvgIcon(
                         fullscreen

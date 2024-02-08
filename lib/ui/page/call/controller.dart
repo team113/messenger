@@ -79,16 +79,19 @@ class CallController extends GetxController {
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
-  /// Indicator whether the view is fullscreen.
+  /// Indicator whether the view is in fullscreen.
   late final RxBool fullscreen;
 
   /// Indicator whether the UI is shown.
   final RxBool showUi = RxBool(true);
 
-  /// Indicator whether the info header is currently shown.
+  /// Indicator whether the info header of desktop design is currently shown.
   final RxBool showHeader = RxBool(true);
 
-  /// Indicator whether the info header is currently hovered.
+  /// Indicator whether the info header of desktop design is currently hovered.
+  ///
+  /// Used to prevent [showHeader] turning off in [keepUi], when it's actually
+  /// hovered by a pointer.
   bool headerHovered = false;
 
   /// Local [Participant]s in `default` mode.
@@ -1029,7 +1032,8 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
-  /// Moves every [Participant] to the [primary] view.
+  /// Invokes [focusAll], moving every [Participant] to their `default`, or
+  /// [primary], groups.
   void layoutAsPrimary() {
     focusAll();
 
@@ -1037,10 +1041,11 @@ class CallController extends GetxController {
     isCursorHidden.value = false;
   }
 
-  /// Moves every [Participant] associated with [me] to the [secondary] view.
+  /// Invokes [unfocus] for the [Participant]s of [me], moving it to the
+  /// [paneled] group.
   ///
-  /// [floating] indicates whether [Participant]s in [secondary] should be
-  /// displayed inside a floating window.
+  /// If [floating] is `true`, then sets the [secondaryAlignment] to `null`, or
+  /// otherwise to [Alignment.centerRight].
   void layoutAsSecondary({bool floating = false}) {
     showHeader.value = true;
     isCursorHidden.value = false;
