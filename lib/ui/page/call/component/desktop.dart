@@ -50,9 +50,9 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -586,61 +586,6 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
-        // Sliding from the top info header.
-        if (WebUtils.isPopup)
-          Obx(() {
-            if (!c.fullscreen.value) {
-              return const SizedBox();
-            }
-
-            return Align(
-              alignment: Alignment.topCenter,
-              child: AnimatedSlider(
-                duration: 400.milliseconds,
-                translate: false,
-                beginOffset: const Offset(0, -1),
-                endOffset: const Offset(0, 0),
-                isOpen: c.state.value == OngoingCallState.active &&
-                    c.showHeader.value,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      CustomBoxShadow(
-                        color: style.colors.onBackgroundOpacity20,
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer,
-                      )
-                    ],
-                  ),
-                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
-                  child: ConditionalBackdropFilter(
-                    borderRadius: BorderRadius.circular(30),
-                    filter: ImageFilter.blur(
-                      sigmaX: 15,
-                      sigmaY: 15,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: style.colors.primaryAuxiliaryOpacity25,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 10,
-                      ),
-                      child: Text(
-                        'label_call_title'.l10nfmt(c.titleArguments),
-                        style: style.fonts.small.regular.onPrimary,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-
         // Bottom [MouseRegion] that toggles UI on hover.
         Obx(() {
           final bool enabled =
@@ -667,21 +612,6 @@ Widget desktopCall(CallController c, BuildContext context) {
             ),
           );
         }),
-
-        // Top [MouseRegion] that toggles info header on hover.
-        Align(
-          alignment: Alignment.topCenter,
-          child: SizedBox(
-            height: 100,
-            width: double.infinity,
-            child: MouseRegion(
-              opaque: false,
-              onEnter: (_) => c.showHeader.value = true,
-              onHover: (_) => c.showHeader.value = true,
-              onExit: (_) => c.showHeader.value = false,
-            ),
-          ),
-        ),
 
         // Secondary panel itself.
         Obx(() {
@@ -722,6 +652,29 @@ Widget desktopCall(CallController c, BuildContext context) {
           );
         }),
 
+        // Top [MouseRegion] that toggles info header on hover.
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) {
+                c.showHeader.value = true;
+                c.isCursorHidden.value = false;
+              },
+              onHover: (_) {
+                c.showHeader.value = true;
+                c.isCursorHidden.value = false;
+              },
+              onExit: (_) {
+                c.showHeader.value = false;
+              },
+            ),
+          ),
+        ),
+
         // Show a hint if any renderer is draggable.
         Obx(() {
           final bool hideSecondary = c.size.width < 500 && c.size.height < 500;
@@ -759,6 +712,107 @@ Widget desktopCall(CallController c, BuildContext context) {
                 : const SizedBox(),
           );
         }),
+
+        // Sliding from the top info header.
+        if (WebUtils.isPopup)
+          Obx(() {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &&
+                    c.showHeader.value,
+                child: MouseRegion(
+                  onEnter: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onHover: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onExit: (_) {
+                    c.showHeader.value = false;
+                    c.headerHovered = false;
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(11),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                    child: ConditionalBackdropFilter(
+                      borderRadius: BorderRadius.circular(11),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: style.colors.primaryAuxiliaryOpacity25,
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (c.fullscreen.value) ...[
+                              Text(
+                                'label_call_title'.l10nfmt(c.titleArguments),
+                                style: style.fonts.small.regular.onPrimary,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                                color: style.colors.onPrimary,
+                                width: 1,
+                                height: 12,
+                              ),
+                            ],
+                            AnimatedButton(
+                              onPressed: c.layoutAsPrimary,
+                              child: const SvgIcon(SvgIcons.callGallery),
+                            ),
+                            const SizedBox(width: 16),
+                            AnimatedButton(
+                              onPressed: () =>
+                                  c.layoutAsSecondary(floating: true),
+                              child: const SvgIcon(SvgIcons.callFloating),
+                            ),
+                            const SizedBox(width: 16),
+                            AnimatedButton(
+                              onPressed: () =>
+                                  c.layoutAsSecondary(floating: false),
+                              child: const SvgIcon(SvgIcons.callSide),
+                            ),
+                            const SizedBox(width: 16),
+                            AnimatedButton(
+                              onPressed: c.toggleFullscreen,
+                              child: SvgIcon(
+                                c.fullscreen.value
+                                    ? SvgIcons.fullscreenExitSmall
+                                    : SvgIcons.fullscreenEnterSmall,
+                              ),
+                            ),
+                            if (c.fullscreen.value) const SizedBox(width: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
 
         // If there's any notifications to show, display them.
         Align(
@@ -825,14 +879,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
                       toggleFullscreen: c.toggleFullscreen,
-                      onTap: WebUtils.isPopup
-                          ? null
-                          : () {
-                              router.chat(c.chatId.value);
-                              if (c.fullscreen.value) {
-                                c.toggleFullscreen();
-                              }
-                            },
+                      onPrimary: c.layoutAsPrimary,
+                      onFloating: () => c.layoutAsSecondary(floating: true),
+                      onSecondary: () => c.layoutAsSecondary(floating: false),
                     ),
                   ),
                 ),
@@ -879,10 +928,10 @@ Widget desktopCall(CallController c, BuildContext context) {
         //
         // 1) + is a cornered scale point;
         // 2) | is a horizontal scale point;
-        // 3) - is a vertical scale point;
+        // 3) - is a vertical scale point.
         return Stack(
           children: [
-            // top middle
+            // Top middle.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -898,7 +947,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // center left
+
+            // Center left.
             Obx(() {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
@@ -914,7 +964,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // center right
+
+            // Center right.
             Obx(() {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
@@ -930,7 +981,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom center
+
+            // Bottom center.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - Scaler.size / 2,
@@ -947,7 +999,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }),
 
-            // top left
+            // Top left.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -969,7 +1021,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // top right
+
+            // Top right.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -990,7 +1043,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom left
+
+            // Bottom left.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
@@ -1011,7 +1065,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom right
+
+            // Bottom right.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
@@ -1881,22 +1936,23 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       : style.colors.onSecondaryOpacity88,
                                   child: Row(
                                     children: [
-                                      const SizedBox(width: 7),
-                                      Expanded(
-                                        child: Text(
-                                          'Draggable',
-                                          style: style
-                                              .fonts.small.regular.onPrimary,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
+                                      const Spacer(),
+                                      AnimatedButton(
+                                        enabled: !isAnyDrag,
+                                        onPressed: c.focusAll,
+                                        decorator: (child) => Container(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            8,
+                                            0,
+                                            12,
+                                            0,
+                                          ),
+                                          height: double.infinity,
+                                          child: child,
                                         ),
-                                      ),
-                                      InkResponse(
-                                        onTap: isAnyDrag ? null : c.focusAll,
                                         child:
                                             const SvgIcon(SvgIcons.closeSmall),
                                       ),
-                                      const SizedBox(width: 7),
                                     ],
                                   ),
                                 ),

@@ -30,6 +30,7 @@ extension UserConversion on UserMixin {
         id,
         this.num,
         name: name,
+        bio: bio,
         avatar: avatar?.toModel(),
         callCover: callCover?.toModel(),
         mutualContactsCount: mutualContactsCount,

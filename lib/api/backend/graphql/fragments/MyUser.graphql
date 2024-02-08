@@ -28,6 +28,7 @@ fragment MyUser on MyUser {
         unconfirmed
     }
     name
+    bio
     avatar {
         __typename
         ...UserAvatar

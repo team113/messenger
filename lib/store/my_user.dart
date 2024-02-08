@@ -181,6 +181,22 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
+  Future<void> updateUserBio(UserBio? bio) async {
+    Log.debug('updateUserBio($bio)', '$runtimeType');
+
+    final UserBio? oldBio = myUser.value?.bio;
+
+    myUser.update((u) => u?.bio = bio);
+
+    try {
+      await _graphQlProvider.updateUserBio(bio);
+    } catch (_) {
+      myUser.update((u) => u?.bio = oldBio);
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updateUserLogin(UserLogin login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
@@ -706,6 +722,18 @@ class MyUserRepository implements AbstractMyUserRepository {
           put((u) => u..avatar = null);
           break;
 
+        case MyUserEventKind.bioUpdated:
+          event as EventUserBioUpdated;
+          userEntity.value.bio = event.bio;
+          put((u) => u..bio = event.bio);
+          break;
+
+        case MyUserEventKind.bioDeleted:
+          event as EventUserBioDeleted;
+          userEntity.value.bio = null;
+          put((u) => u..bio = null);
+          break;
+
         case MyUserEventKind.callCoverUpdated:
           event as EventUserCallCoverUpdated;
           userEntity.value.callCover = event.callCover;
@@ -917,20 +945,20 @@ class MyUserRepository implements AbstractMyUserRepository {
       return EventUserNameDeleted(node.userId);
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
-      return EventUserAvatarUpdated(
-        node.userId,
-        node.avatar.toModel(),
-      );
+      return EventUserAvatarUpdated(node.userId, node.avatar.toModel());
     } else if (e.$$typename == 'EventUserAvatarDeleted') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserAvatarDeleted;
       return EventUserAvatarDeleted(node.userId);
+    } else if (e.$$typename == 'EventUserBioUpdated') {
+      var node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
+      return EventUserBioUpdated(node.userId, node.bio, node.at);
+    } else if (e.$$typename == 'EventUserBioDeleted') {
+      var node = e as MyUserEventsVersionedMixin$Events$EventUserBioDeleted;
+      return EventUserBioDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
-      return EventUserCallCoverUpdated(
-        node.userId,
-        node.callCover.toModel(),
-      );
+      return EventUserCallCoverUpdated(node.userId, node.callCover.toModel());
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
