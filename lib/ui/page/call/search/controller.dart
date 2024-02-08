@@ -167,15 +167,17 @@ class SearchController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  /// Indicates whether the [usersSearch] or [contactsSearch] have
-  /// next page.
-  RxBool get hasNext => query.value.length < 2
-      ? categories.contains(SearchCategory.chat)
-          ? _chatService.hasNext
-          : RxBool(false)
-      : usersSearch.value?.hasNext ??
-          contactsSearch.value?.hasNext ??
-          RxBool(false);
+  /// Whether this [SearchController] has more search results.
+  bool get hasNext {
+    final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
+        (contactsSearch.value?.hasNext.isTrue ??
+            false || _contactService.hasNext.isTrue);
+    final bool usersHaveMore = categories.contains(SearchCategory.user) &&
+        (usersSearch.value?.hasNext.isTrue ?? false);
+    final bool chatsHaveMore = _chatService.hasNext.isTrue;
+
+    return chatsHaveMore || usersHaveMore || contactsHaveMore;
+  }
 
   @override
   void onInit() {
@@ -724,7 +726,6 @@ class SearchController extends GetxController {
 
         await _chatService.next();
         await Future.delayed(1.milliseconds);
-        await Future.delayed(1.milliseconds);
 
         // Populate [chats] first until there's no more [Chat]s to fetch from
         // [ChatService.paginated], then it is safe to populate other
@@ -735,7 +736,9 @@ class SearchController extends GetxController {
           populate();
         }
 
-        searchStatus.value = RxStatus.success();
+        if (!hasNext) {
+          searchStatus.value = RxStatus.success();
+        }
       }
     } else if (query.value.length > 1) {
       await _nextContacts();
@@ -768,15 +771,7 @@ class SearchController extends GetxController {
 
   /// Ensures the [scrollController] is scrollable.
   Future<void> _ensureScrollable() async {
-    final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
-        (contactsSearch.value?.hasNext.isTrue ??
-            false || _contactService.hasNext.isTrue);
-    final bool usersHaveMore = categories.contains(SearchCategory.user) &&
-        (usersSearch.value?.hasNext.isTrue ?? false);
-    final bool chatsHaveMore =
-        categories.contains(SearchCategory.chat) && _chatService.hasNext.isTrue;
-
-    if (contactsHaveMore || usersHaveMore || chatsHaveMore) {
+    if (hasNext) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
           return;
