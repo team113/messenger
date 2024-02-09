@@ -14,6 +14,7 @@ import firebase_auth
 import firebase_core
 import firebase_messaging
 import flutter_app_badger
+import flutter_custom_cursor
 import flutter_local_notifications
 import just_audio
 import medea_flutter_webrtc
@@ -44,6 +45,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
   FLTFirebaseMessagingPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseMessagingPlugin"))
   FlutterAppBadgerPlugin.register(with: registry.registrar(forPlugin: "FlutterAppBadgerPlugin"))
+  FlutterCustomCursorPlugin.register(with: registry.registrar(forPlugin: "FlutterCustomCursorPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
   MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))

@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_drop
+  flutter_custom_cursor
   gtk
   medea_flutter_webrtc
   medea_jason

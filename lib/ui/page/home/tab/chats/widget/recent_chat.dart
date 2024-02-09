@@ -392,7 +392,7 @@ class RecentChatTile extends StatelessWidget {
                 inverted: const SvgIcon(SvgIcons.delete19White),
               ),
           ],
-          active: active || isRoute,
+          active: active || (invertible && isRoute),
           selected: selected || inverted,
           // paid: paid,
           enableContextMenu: enableContextMenu,

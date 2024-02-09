@@ -1447,17 +1447,6 @@ Widget _sections(BuildContext context, MyProfileController c) {
           );
         }),
       ),
-      Paddings.dense(
-        Obx(() {
-          final enabled = c.settings.value?.publicsTabEnabled == true;
-
-          return SwitchField(
-            text: 'label_publics'.l10n,
-            value: enabled,
-            onChanged: c.setPublicsTabEnabled,
-          );
-        }),
-      ),
     ],
   );
 }
@@ -1494,7 +1483,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 8),
       Padding(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
         child: InfoTile(
           title: 'Входящие сообщения, за 1 сообщение',
           content: '¤${c.allMessageCost.text}',
@@ -1520,7 +1509,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
         child: InfoTile(
           title: 'Входящие звонки, за 1 минуту',
           content: '¤${c.allCallCost.text}',

@@ -180,56 +180,54 @@ class _HomeViewState extends State<HomeView> {
                           }
                         }
                       },
-                      child: Obx(() {
-                        return PageView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          controller: c.pages,
-                          onPageChanged: (int i) {
-                            router.tab = HomeTab.values[i];
-                            c.page.value = router.tab;
+                      child: PageView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: c.pages,
+                        onPageChanged: (int i) {
+                          router.tab = HomeTab.values[i];
+                          c.page.value = router.tab;
 
-                            if (!context.isNarrow) {
-                              switch (router.tab) {
-                                case HomeTab.menu:
-                                  router.me();
-                                  break;
+                          if (!context.isNarrow) {
+                            switch (router.tab) {
+                              case HomeTab.menu:
+                                router.me();
+                                break;
 
-                                default:
-                                  if (router.route == Routes.me) {
-                                    router.home();
-                                  }
-                                  break;
-                              }
+                              default:
+                                if (router.route == Routes.me) {
+                                  router.home();
+                                }
+                                break;
                             }
-                          },
-                          // [KeepAlivePage] used to keep the tabs' states.
-                          children: [
-                            // if (c.settings.value?.balanceTabEnabled != false)
-                            KeepAlivePage(
-                              key: c.keys[HomeTab.balance],
-                              child: const BalanceTabView(),
-                            ),
-                            // if (c.settings.value?.workWithUsTabEnabled != false)
-                            KeepAlivePage(
-                              key: c.keys[HomeTab.work],
-                              child: const WorkTabView(),
-                            ),
-                            // if (c.settings.value?.publicsTabEnabled != false)
-                            KeepAlivePage(
-                              key: c.keys[HomeTab.public],
-                              child: const PublicsTabView(),
-                            ),
-                            KeepAlivePage(
-                              key: c.keys[HomeTab.chats],
-                              child: const ChatsContactsTabView(),
-                            ),
-                            KeepAlivePage(
-                              key: c.keys[HomeTab.menu],
-                              child: const MenuTabView(),
-                            ),
-                          ],
-                        );
-                      }),
+                          }
+                        },
+                        // [KeepAlivePage] used to keep the tabs' states.
+                        children: [
+                          // if (c.settings.value?.balanceTabEnabled != false)
+                          KeepAlivePage(
+                            key: c.keys[HomeTab.balance],
+                            child: const BalanceTabView(),
+                          ),
+                          // if (c.settings.value?.workWithUsTabEnabled != false)
+                          KeepAlivePage(
+                            key: c.keys[HomeTab.work],
+                            child: const WorkTabView(),
+                          ),
+                          // if (c.settings.value?.publicsTabEnabled != false)
+                          KeepAlivePage(
+                            key: c.keys[HomeTab.public],
+                            child: const PublicsTabView(),
+                          ),
+                          KeepAlivePage(
+                            key: c.keys[HomeTab.chats],
+                            child: const ChatsContactsTabView(),
+                          ),
+                          KeepAlivePage(
+                            key: c.keys[HomeTab.menu],
+                            child: const MenuTabView(),
+                          ),
+                        ],
+                      ),
                     ),
                     extendBody: true,
                     bottomNavigationBar: SafeArea(

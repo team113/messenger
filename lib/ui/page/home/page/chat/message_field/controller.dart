@@ -198,7 +198,6 @@ class MessageFieldController extends GetxController {
   late final RxList<ChatButton> panel = RxList([
     AudioMessageButton(),
     VideoMessageButton(),
-    DonateButton(this),
     StickerButton(),
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
       TakePhotoButton(pickImageFromCamera),

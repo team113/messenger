@@ -108,7 +108,7 @@ class UserView extends StatelessWidget {
                 controller: c.scrollController,
                 child: Obx(() {
                   // final String? status = c.user?.user.value.getStatus();
-                  final UserTextStatus? status = c.user?.user.value.status;
+                  final UserBio? status = c.user?.user.value.bio;
                   Widget? subtitle;
 
                   if (status != null) {
@@ -116,49 +116,6 @@ class UserView extends StatelessWidget {
                       status.toString(),
                       style: style.fonts.normal.regular.secondary,
                     );
-
-                    // subtitle = ExpandableText(
-                    //   status.toString() * 10,
-                    //   expandText: '...'.l10n,
-                    //   expandOnTextTap: true,
-                    //   collapseText: '',
-                    //   maxLines: 3,
-                    //   linkColor: style.colors.primary,
-                    //   style: style.fonts.normal.regular.secondary,
-                    // );
-                    // subtitle = Stack(
-                    //   children: [
-                    //     Text(
-                    //       status.toString() * 10,
-                    //       style: style.fonts.normal.regular.secondary,
-                    //       maxLines: 3,
-                    //       overflow: TextOverflow.ellipsis,
-                    //     ),
-                    //     Positioned.fill(child: child),
-                    //   ],
-                    // );
-
-                    // subtitle = RichText(
-                    //   text: TextSpan(
-                    //     children: [
-                    //       WidgetSpan(
-                    //         child: Text(
-                    //           status.toString() * 10,
-                    //           style: style.fonts.normal.regular.secondary,
-                    //           maxLines: 3,
-                    //           overflow: TextOverflow.ellipsis,
-                    //         ),
-                    //       ),
-                    //       WidgetSpan(
-                    //         child: Text(
-                    //           '...',
-                    //           style: style.fonts.normal.regular.secondary,
-                    //           maxLines: 1,
-                    //         ),
-                    //       )
-                    //     ],
-                    //   ),
-                    // );
                   }
 
                   // if (textStatus != null || onlineStatus != null) {
@@ -217,7 +174,6 @@ class UserView extends StatelessWidget {
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                             child: Text(
                               c.name.text,
-                              // '${c.user!.user.value.name ?? c.user!.user.value.num}',
                               style: style.fonts.large.regular.onBackground,
                             ),
                           );
@@ -225,20 +181,13 @@ class UserView extends StatelessWidget {
                       ],
                     ),
                     if (subtitle != null) Block(children: [subtitle]),
-
                     Block(
-                      // padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                       children: [
                         Paddings.basic(
                           const InfoTile(
                             title: 'Login',
                             content: 'alice',
-
                             trailing: CopyOrShareButton('alice'),
-                            // trailing: WidgetButton(
-                            //   onPressed: () {},
-                            //   child: const SvgIcon(SvgIcons.copy),
-                            // ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -249,10 +198,6 @@ class UserView extends StatelessWidget {
                             trailing: CopyOrShareButton(
                               c.user!.user.value.num.toString(),
                             ),
-                            // trailing: WidgetButton(
-                            //   onPressed: () {},
-                            //   child: const SvgIcon(SvgIcons.copy),
-                            // ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -260,12 +205,7 @@ class UserView extends StatelessWidget {
                           const InfoTile(
                             title: 'E-mail',
                             content: 'hello@example.com',
-
                             trailing: CopyOrShareButton('hello@example.com'),
-                            // trailing: WidgetButton(
-                            //   onPressed: () {},
-                            //   child: const SvgIcon(SvgIcons.copy),
-                            // ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -278,7 +218,6 @@ class UserView extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     Block(
                       title: 'label_direct_chat_link'.l10n,
                       children: [
@@ -287,80 +226,10 @@ class UserView extends StatelessWidget {
                             slug: ChatDirectLinkSlug('dqwdqwdqwd'),
                           ),
                           transitions: false,
-                          // onSubmit: (s) => s == null
-                          //     ? c.deleteChatDirectLink()
-                          //     : c.createChatDirectLink(s),
                           background: c.background.value,
                         ),
                       ],
                     ),
-                    // ContactInfoWidget(
-                    //   title: 'Gapopa ID',
-                    //   content: c.user!.user.value.num.toString(),
-                    //   icon: const SvgIcon(SvgIcons.gapopaId),
-                    //   // icon: const SvgImage.asset(
-                    //   //   'assets/icons/gapopa_yellow.svg',
-                    //   //   height: 32,
-                    //   // ),
-                    //   trailing: WidgetButton(
-                    //     onPressed: () {},
-                    //     child: const SvgIcon(SvgIcons.copy),
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 5),
-                    // ContactInfoWidget(
-                    //   title: 'E-mail',
-                    //   content: 'hello@example.com',
-                    //   icon: const SvgIcon(SvgIcons.gapopaId),
-                    //   // icon: const SvgImage.asset(
-                    //   //   'assets/icons/gapopa_green.svg',
-                    //   //   height: 32,
-                    //   // ),
-                    //   trailing: WidgetButton(
-                    //     onPressed: () {},
-                    //     child: const SvgIcon(SvgIcons.copy),
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 5),
-                    // ContactInfoWidget(
-                    //   title: 'E-mail',
-                    //   content: 'hello@example.com',
-                    //   icon: const SvgIcon(SvgIcons.gapopaId),
-                    //   // icon: const SvgImage.asset(
-                    //   //   'assets/icons/gapopa_violet.svg',
-                    //   //   height: 32,
-                    //   // ),
-                    //   trailing: WidgetButton(
-                    //     onPressed: () {},
-                    //     child: const SvgIcon(SvgIcons.copy),
-                    //   ),
-                    // ),
-
-                    // Block(
-                    //   title: 'label_contact_information'.l10n,
-                    //   children: [
-                    //     UserNumCopyable(c.user!.user.value.num),
-                    //     const SizedBox(height: 8),
-                    //     Container(
-                    //       width: double.infinity,
-                    //       decoration: BoxDecoration(
-                    //         borderRadius: BorderRadius.circular(8),
-                    //         color: Colors.black.withOpacity(0.05),
-                    //       ),
-                    //       padding: const EdgeInsets.all(12),
-                    //       child: Row(
-                    //         children: [
-                    //           Text(
-                    //             'E-mail',
-                    //             style: style.fonts.smaller.regular.secondary,
-                    //           ),
-                    //           const Spacer(),
-                    //           const Text('dummy@common.com'),
-                    //         ],
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                     SelectionContainer.disabled(
                       child: Stack(
                         children: [
@@ -453,16 +322,6 @@ class UserView extends StatelessWidget {
                   );
                 }),
               ),
-              // bottomNavigationBar: Obx(() {
-              //   if (c.isBlocked == null) {
-              //     return const SizedBox();
-              //   }
-
-              //   return Padding(
-              //     padding: Insets.dense.copyWith(top: 0),
-              //     child: SafeArea(child: UnblockButton(c.unblacklist)),
-              //   );
-              // }),
             );
           });
         });
@@ -645,63 +504,6 @@ class UserView extends StatelessWidget {
                                 : SvgIcons.unfavoriteSmallWhite,
                           ),
                         ),
-                        if (dialog != null) ...[
-                          // ContextMenuButton(
-                          //   label: muted
-                          //       ? PlatformUtils.isMobile
-                          //           ? 'btn_unmute'.l10n
-                          //           : 'btn_unmute_chat'.l10n
-                          //       : PlatformUtils.isMobile
-                          //           ? 'btn_mute'.l10n
-                          //           : 'btn_mute_chat'.l10n,
-                          //   onPressed: muted ? c.unmuteChat : c.muteChat,
-                          //   trailing: SvgIcon(
-                          //     muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                          //   ),
-                          //   inverted: SvgIcon(
-                          //     muted
-                          //         ? SvgIcons.unmuteSmallWhite
-                          //         : SvgIcons.muteSmallWhite,
-                          //   ),
-                          // ),
-                          // ContextMenuButton(
-                          //   label: 'btn_clear_history'.l10n,
-                          //   onPressed: () => _clearChat(c, context),
-                          //   trailing: const SvgIcon(SvgIcons.cleanHistory),
-                          //   inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-                          // ),
-                          // ContextMenuButton(
-                          //   label: 'btn_delete_chat'.l10n,
-                          //   onPressed: () => _hideChat(c, context),
-                          //   trailing: const SvgIcon(SvgIcons.delete19),
-                          //   inverted: const SvgIcon(SvgIcons.delete19White),
-                          // ),
-                        ],
-                        // ContextMenuButton(
-                        //   label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
-                        //   trailing: Obx(() {
-                        //     final Widget child;
-                        //     if (c.blacklistStatus.value.isEmpty) {
-                        //       child = const SvgIcon(SvgIcons.block);
-                        //     } else {
-                        //       child = const CustomProgressIndicator();
-                        //     }
-
-                        //     return SafeAnimatedSwitcher(
-                        //       duration: 200.milliseconds,
-                        //       child: child,
-                        //     );
-                        //   }),
-                        //   inverted: const SvgIcon(SvgIcons.blockWhite),
-                        //   onPressed: blocked
-                        //       ? c.unblacklist
-                        //       : () => _blacklistUser(c, context),
-                        // ),
-                        // ContextMenuButton(
-                        //   onPressed: () {},
-                        //   label: 'btn_report'.l10n,
-                        //   trailing: const SvgIcon(SvgIcons.report),
-                        // ),
                       ],
                       child: Container(
                         padding:
