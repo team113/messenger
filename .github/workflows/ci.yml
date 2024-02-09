@@ -953,3 +953,14 @@ jobs:
   #                 token=${{ secrets.SENTRY_TOKEN }}
   #                 release=${{ steps.semver.outputs.group1 }}
   #                 url=${{ secrets.SENTRY_URL }}
+
+  deploy-staging:
+    name: deploy (staging)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: ["docker-push"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # - run: sign in to k8s
+      # - run: make helm.up values=from-secret
