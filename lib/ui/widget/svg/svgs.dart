@@ -1767,7 +1767,7 @@ class SvgIcons {
     height: 32,
   );
 
-    static const SvgData logo = SvgData(
+  static const SvgData logo = SvgData(
     'assets/icons/logo.svg',
     width: 21.78,
     height: 25,
