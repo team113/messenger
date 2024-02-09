@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Redesigned incoming/outgoing call. ([#832], [#812])
+
+[#812]: /../../issues/812
+[#832]: /../../pull/832
+
+
+
+
 ## [0.1.0-alpha.12.1] · 2024-02-08
 [0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
 
@@ -56,7 +73,6 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned search modal. ([#805], [#790])
     - Media panel:
         - Grab cursor over participants. ([#816], [#810])
-        - Redesigned incoming/outgoing call. ([#832], [#812])
 
 ### Fixed
 
@@ -109,11 +125,9 @@ All user visible changes to this project will be documented in this file. This p
 [#808]: /../../issues/808
 [#810]: /../../issues/810
 [#811]: /../../issues/811
-[#812]: /../../issues/812
 [#816]: /../../pull/816
 [#823]: /../../pull/823
 [#827]: /../../pull/827
-[#832]: /../../pull/832
 [#837]: /../../pull/837
 
 
