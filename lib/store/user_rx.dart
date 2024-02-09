@@ -86,8 +86,6 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    Log.debug('get dialog', '$runtimeType($id)');
-
     final ChatId dialogId = user.value.dialog;
     if (_dialog == null) {
       final FutureOr<RxChat?> chatOrFuture =

@@ -82,8 +82,8 @@ class ButtonsSection {
           (
             headline: 'OutlinedRoundedButton(title)',
             widget: OutlinedRoundedButton(
-              title: const Text('Title'),
               onPressed: () {},
+              child: const Text('Title'),
             ),
           ),
           (

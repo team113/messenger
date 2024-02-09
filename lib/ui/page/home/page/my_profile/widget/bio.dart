@@ -26,40 +26,30 @@ import '/l10n/l10n.dart';
 import '/ui/widget/text_field.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [status].
-class UserTextStatusField extends StatefulWidget {
-  const UserTextStatusField(this.status, {super.key, this.onSubmit});
+class UserBioField extends StatefulWidget {
+  const UserBioField(this.bio, {super.key, this.onSubmit});
 
-  /// Status of an [User].
-  final UserTextStatus? status;
+  /// [UserBio] of an [User].
+  final UserBio? bio;
 
-  /// Callback, called when the [UserTextStatus] is submitted.
-  final Future<void> Function(UserTextStatus? status)? onSubmit;
+  /// Callback, called when the [UserBio] is submitted.
+  final Future<void> Function(UserBio? status)? onSubmit;
 
   @override
-  State<UserTextStatusField> createState() => _UserTextStatusFieldState();
+  State<UserBioField> createState() => _UserBioFieldState();
 }
 
-/// State of a [UserTextStatusField] maintaining the [_state].
-class _UserTextStatusFieldState extends State<UserTextStatusField> {
+/// State of a [UserBioField] maintaining the [_state].
+class _UserBioFieldState extends State<UserBioField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
-    text: widget.status?.val ?? '',
-    approvable: true,
+    text: widget.bio?.val ?? '',
     onChanged: (s) {
       s.error.value = null;
 
       try {
         if (s.text.isNotEmpty) {
-          UserTextStatus(s.text);
-        }
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_input'.l10n;
-      }
-    },
-    onSubmitted: (s) async {
-      try {
-        if (s.text.isNotEmpty) {
-          UserTextStatus(s.text);
+          UserBio(s.text);
         }
       } on FormatException catch (_) {
         s.error.value = 'err_incorrect_input'.l10n;
@@ -71,7 +61,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
 
         try {
           widget.onSubmit?.call(
-            s.text.isNotEmpty ? UserTextStatus(s.text) : null,
+            s.text.isNotEmpty ? UserBio(s.text) : null,
           );
           s.status.value = RxStatus.empty();
         } catch (e) {
@@ -86,11 +76,11 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
   );
 
   @override
-  void didUpdateWidget(UserTextStatusField oldWidget) {
+  void didUpdateWidget(UserBioField oldWidget) {
     if (!_state.focus.hasFocus &&
         !_state.changed.value &&
         _state.editable.value) {
-      _state.unchecked = widget.status?.val;
+      _state.unchecked = widget.bio?.val;
     }
 
     super.didUpdateWidget(oldWidget);
@@ -99,7 +89,7 @@ class _UserTextStatusFieldState extends State<UserTextStatusField> {
   @override
   Widget build(BuildContext context) {
     return ReactiveTextField(
-      key: const Key('StatusField'),
+      key: const Key('BioField'),
       state: _state,
       label: 'label_about'.l10n,
       filled: true,

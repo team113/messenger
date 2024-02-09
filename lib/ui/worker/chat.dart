@@ -406,7 +406,7 @@ class _ChatWatchData {
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
           'userNum':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-          'operation': action.avatar == null ? 'removed' : 'updated',
+          'operation': action.avatar == null ? 'remove' : 'update',
         });
 
       case ChatInfoActionKind.nameUpdated:
@@ -417,7 +417,7 @@ class _ChatWatchData {
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
           'userNum':
               author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-          'operation': action.name == null ? 'removed' : 'updated',
+          'operation': action.name == null ? 'remove' : 'update',
           'groupName': action.name?.val ?? '',
         });
     }

@@ -78,6 +78,8 @@ class ColorsView extends StatelessWidget {
       (style.colors.acceptLightest, 'acceptLightest'),
       (style.colors.danger, 'danger'),
       (style.colors.decline, 'decline'),
+      (style.colors.declineOpacity88, 'declineOpacity88'),
+      (style.colors.declineOpacity50, 'declineOpacity50'),
       (style.colors.warning, 'warning'),
     ];
 

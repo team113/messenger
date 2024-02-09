@@ -45,6 +45,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
+import '/ui/page/call/participant/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -53,7 +54,6 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
-import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
 import 'widget/dock.dart';
@@ -79,14 +79,20 @@ class CallController extends GetxController {
   /// Indicator whether the view is minimized or maximized.
   late final RxBool minimized;
 
-  /// Indicator whether the view is fullscreen or not.
+  /// Indicator whether the view is in fullscreen.
   late final RxBool fullscreen;
 
-  /// Indicator whether UI is shown or not.
+  /// Indicator whether the UI is shown.
   final RxBool showUi = RxBool(true);
 
-  /// Indicator whether info header is shown or not.
+  /// Indicator whether the info header of desktop design is currently shown.
   final RxBool showHeader = RxBool(true);
+
+  /// Indicator whether the info header of desktop design is currently hovered.
+  ///
+  /// Used to prevent [showHeader] turning off in [keepUi], when it's actually
+  /// hovered by a pointer.
+  bool headerHovered = false;
 
   /// Local [Participant]s in `default` mode.
   final RxList<Participant> locals = RxList([]);
@@ -395,9 +401,7 @@ class CallController extends GetxController {
   CallMember get me => _currentCall.value.me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
-  bool get outgoing =>
-      _calls.me == _currentCall.value.caller?.id ||
-      _currentCall.value.caller == null;
+  bool get outgoing => _currentCall.value.outgoing;
 
   /// Indicates whether the current [OngoingCall] has started or not.
   bool get started => _currentCall.value.conversationStartedAt != null;
@@ -541,7 +545,7 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    _currentCall.value.init();
+    _currentCall.value.init(getChat: _chatService.get);
 
     final Size size = router.context!.mediaQuerySize;
 
@@ -1026,6 +1030,42 @@ class CallController extends GetxController {
     applySecondaryConstraints();
   }
 
+  /// Invokes [focusAll], moving every [Participant] to their `default`, or
+  /// [primary], groups.
+  void layoutAsPrimary() {
+    focusAll();
+
+    showHeader.value = true;
+    isCursorHidden.value = false;
+  }
+
+  /// Invokes [unfocus] for the [Participant]s of [me], moving it to the
+  /// [paneled] group.
+  ///
+  /// If [floating] is `true`, then sets the [secondaryAlignment] to `null`, or
+  /// otherwise to [Alignment.centerRight].
+  void layoutAsSecondary({bool floating = false}) {
+    showHeader.value = true;
+    isCursorHidden.value = false;
+
+    final mine = [...locals, ...focused].where((e) => e.member == me);
+    for (final Participant p in mine) {
+      unfocus(p);
+    }
+
+    if (floating) {
+      if (secondaryAlignment.value != null) {
+        secondaryBottom.value = 10;
+        secondaryRight.value = 10;
+        secondaryLeft.value = null;
+        secondaryTop.value = null;
+        secondaryAlignment.value = null;
+      }
+    } else {
+      secondaryAlignment.value = Alignment.centerRight;
+    }
+  }
+
   /// Toggles inbound video in the current [OngoingCall] on and off.
   Future<void> toggleRemoteVideos() => _currentCall.value.toggleRemoteVideo();
 
@@ -1060,7 +1100,11 @@ class CallController extends GetxController {
   void keepUi([bool? enabled]) {
     _uiTimer?.cancel();
     showUi.value = isPanelOpen.value || (enabled ?? true);
-    showHeader.value = (enabled ?? true);
+
+    if (!headerHovered) {
+      showHeader.value = (enabled ?? true);
+    }
+
     if (state.value == OngoingCallState.active &&
         enabled == null &&
         !isPanelOpen.value) {
@@ -1069,6 +1113,10 @@ class CallController extends GetxController {
         () {
           showUi.value = false;
           showHeader.value = false;
+
+          if (!headerHovered) {
+            showHeader.value = false;
+          }
         },
       );
     }
@@ -1077,12 +1125,6 @@ class CallController extends GetxController {
   /// Centers the [participant], which means [focus]ing the [participant] and
   /// [unfocus]ing every participant in [focused].
   void center(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     paneled.remove(participant);
     locals.remove(participant);
     remotes.remove(participant);
@@ -1101,12 +1143,6 @@ class CallController extends GetxController {
   /// If [participant] is [paneled], then it will be placed to the [focused] if
   /// it's not empty, or to its `default` group otherwise.
   void focus(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     if (focused.isNotEmpty) {
       if (paneled.contains(participant)) {
         focused.add(participant);
@@ -1126,12 +1162,6 @@ class CallController extends GetxController {
 
   /// Unfocuses [participant], which means putting it in its `default` group.
   void unfocus(Participant participant) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     if (focused.contains(participant)) {
       _putVideoFrom(participant, focused);
       if (focused.isEmpty) {
@@ -1218,6 +1248,9 @@ class CallController extends GetxController {
       context,
       call: _currentCall,
       duration: duration,
+      initial: isGroup
+          ? ParticipantsFlowStage.participants
+          : ParticipantsFlowStage.search,
     );
   }
 
@@ -1838,12 +1871,6 @@ class CallController extends GetxController {
 
   /// Puts [participant] from its `default` group to [list].
   void _putVideoTo(Participant participant, RxList<Participant> list) {
-    if (participant.member.owner == MediaOwnerKind.local &&
-        participant.video.value?.source == MediaSourceKind.display) {
-      // Movement of a local [MediaSourceKind.display] is prohibited.
-      return;
-    }
-
     locals.remove(participant);
     remotes.remove(participant);
     focused.remove(participant);
@@ -1855,11 +1882,6 @@ class CallController extends GetxController {
   void _putVideoFrom(Participant participant, RxList<Participant> list) {
     switch (participant.member.owner) {
       case MediaOwnerKind.local:
-        // Movement of [MediaSourceKind.display] to [locals] is prohibited.
-        if (participant.video.value?.source == MediaSourceKind.display) {
-          break;
-        }
-
         locals.addIf(!locals.contains(participant), participant);
         list.remove(participant);
         break;
