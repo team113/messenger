@@ -395,6 +395,8 @@ class OngoingCall {
         }
       }
 
+      // Retrieve the [RxChat] this [OngoingCall] is happening in to add its
+      // members to the [members] in redialing mode as fast as possible.
       final FutureOr<RxChat?>? chatOrFuture = getChat?.call(chatId.value);
       if (chatOrFuture is RxChat?) {
         if (chatOrFuture != null) {
@@ -493,6 +495,8 @@ class OngoingCall {
 
               final ChatMembersDialed? dialed = node.call.dialed;
               if (dialed is ChatMembersDialedConcrete) {
+                // Remove the members, who are not connected and still
+                // redialing, that are missing from the [dialed].
                 members.removeWhere(
                   (_, v) =>
                       v.isConnected.isFalse &&
@@ -505,6 +509,8 @@ class OngoingCall {
                   _addDialing(m.user.id);
                 }
               } else if (dialed == null) {
+                // Remove the members, who are not connected and still
+                // redialing, since no one is [dialed].
                 members.removeWhere(
                   (_, v) =>
                       v.isConnected.isFalse &&
@@ -513,8 +519,12 @@ class OngoingCall {
                 );
               }
 
-              // Get a [RxChat] this [OngoingCall] is happening in to query its
-              // [RxChat.members] list.
+              // Subscribes to the [RxChat.members] changes, adding the dialed
+              // users.
+              //
+              // Additionally handles the case, when [dialed] are
+              // [ChatMembersDialedAll], since we need to have a [RxChat] to
+              // retrieve the whole list of users this way.
               void redialAndResubscribe(RxChat? v) {
                 if (!connected) {
                   // [OngoingCall] might have been disposed or disconnected
@@ -531,6 +541,8 @@ class OngoingCall {
                                   .none((a) => a.user.id == e.user.id)) ??
                       [];
 
+                  // Remove the members, who are not connected and still
+                  // redialing, that are missing from the [dialings].
                   members.removeWhere(
                     (_, v) =>
                         v.isConnected.isFalse &&
@@ -562,6 +574,9 @@ class OngoingCall {
                 });
               }
 
+              // Retrieve the [RxChat] to subscribe to its [RxChat.members]
+              // changes, so that added users are displayed as dialed right
+              // away.
               final FutureOr<RxChat?> chatOrFuture =
                   calls.getChat(chatId.value);
               if (chatOrFuture is RxChat?) {
