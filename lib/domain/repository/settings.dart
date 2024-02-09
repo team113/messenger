@@ -71,12 +71,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.showDragAndDropButtonsHint] value.
   Future<void> setShowDragAndDropButtonsHint(bool show);
 
-  /// Sets the [ApplicationSettings.sortContactsByName] value.
-  Future<void> setSortContactsByName(bool enabled);
-
-  /// Sets the [ApplicationSettings.loadImages] value.
-  Future<void> setLoadImages(bool enabled);
-
   /// Sets the provided [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
   Future<void> setCallRect(ChatId chatId, Rect prefs);
@@ -85,25 +79,24 @@ abstract class AbstractSettingsRepository {
   /// specified [Chat].
   Rect? getCallRect(ChatId id);
 
+  /// Sets the [ApplicationSettings.pinnedActions] value.
+  Future<void> setPinnedActions(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.callButtonsPosition] value.
+  Future<void> setCallButtonsPosition(CallButtonsPosition position);
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled);
+
+  Future<void> setLeaveWhenAlone(bool enabled);
+
+  Future<void> setBalanceTabEnabled(bool enabled);
+  Future<void> setPublicsTabEnabled(bool enabled);
+
   /// Sets the [ApplicationSettings.displayFunds] value.
   Future<void> setDisplayFunds(bool enabled);
 
   /// Sets the [ApplicationSettings.displayTransactions] value.
   Future<void> setDisplayTransactions(bool enabled);
-
-  /// Sets the [ApplicationSettings.timelineEnabled] value.
-  Future<void> setTimelineEnabled(bool enabled);
-
-  /// Sets the [ApplicationSettings.pinnedActions] value.
-  Future<void> setPinnedActions(List<String> buttons);
-
-  Future<void> setLeaveWhenAlone(bool enabled);
-
-  Future<void> setBalanceTabEnabled(bool enabled);
-  Future<void> setPartnerTabEnabled(bool enabled);
-  Future<void> setPublicsTabEnabled(bool enabled);
-
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position);
-
   Future<void> setDisplayRates(bool enabled);
 }

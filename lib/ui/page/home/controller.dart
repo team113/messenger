@@ -71,8 +71,8 @@ class HomeController extends GetxController {
   /// Current [pages] [HomeTab] value.
   late final Rx<HomeTab> page;
 
-  /// Reactive [MyUser.unreadChatsCount] value.
-  final Rx<int> unreadChatsCount = Rx<int>(0);
+  /// Reactive [MyUser.unreadChats] value.
+  final Rx<int> unreadChats = Rx<int>(0);
 
   /// [Timer] for discarding any horizontal movement in a [PageView] when
   /// non-`null`.
@@ -143,47 +143,38 @@ class HomeController extends GetxController {
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
 
+  /// Returns the [List] of the [HomeTab]s to display.
+  List<HomeTab> get tabs {
+    final List<HomeTab> tabs = HomeTab.values.toList();
+
+    if (settings.value?.workWithUsTabEnabled == false) {
+      tabs.remove(HomeTab.work);
+    }
+
+    if (settings.value?.balanceTabEnabled == false) {
+      tabs.remove(HomeTab.balance);
+    }
+
+    if (settings.value?.publicsTabEnabled == false) {
+      tabs.remove(HomeTab.public);
+    }
+
+    return tabs;
+  }
+
   @override
   void onInit() {
     super.onInit();
     page = Rx<HomeTab>(router.tab);
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
-    unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
-    _myUserSubscription = _myUserService.myUser.listen((u) =>
-        unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
+    unreadChats.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
+    _myUserSubscription = _myUserService.myUser.listen(
+      (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
+    );
 
     sideBarWidth =
         RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
-
-    bool partner = settings.value?.partnerTabEnabled != false;
-    bool balance = settings.value?.balanceTabEnabled != false;
-
-    ever(settings, (ApplicationSettings? settings) {
-      if (partner != settings?.partnerTabEnabled) {
-        partner = settings?.partnerTabEnabled ?? false;
-
-        if (partner) {
-          if (router.tab.index < HomeTab.work.index) {
-          } else {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              pages.jumpToPage(
-                min(router.tab.index + 1, HomeTab.values.length - 1),
-              );
-            });
-          }
-        } else {
-          if (router.tab.index <= HomeTab.work.index) {
-          } else {
-            pages.jumpToPage(max(router.tab.index - 1, 0));
-          }
-        }
-      }
-
-      if (balance != settings?.balanceTabEnabled) {
-        balance = settings?.balanceTabEnabled ?? false;
-      }
-    });
 
     router.addListener(_onRouterChanged);
   }
@@ -266,7 +257,7 @@ class HomeController extends GetxController {
 
   void setDisplayFunds(bool b) => _settings.setDisplayFunds(b);
 
-  void setPartnerTabEnabled(bool b) => _settings.setPartnerTabEnabled(b);
+  void setPartnerTabEnabled(bool b) => _settings.setWorkWithUsTabEnabled(b);
   void setBalanceTabEnabled(bool b) => _settings.setBalanceTabEnabled(b);
   void setPublicsTabEnabled(bool b) => _settings.setPublicsTabEnabled(b);
 

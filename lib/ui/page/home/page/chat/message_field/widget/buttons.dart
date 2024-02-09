@@ -16,29 +16,38 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/component/more.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/donate.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Button in a [MessageFieldView].
 abstract class ChatButton {
-  const ChatButton([this.onPressed]);
+  ChatButton([this.onPressed]);
+
+  final GlobalKey key = GlobalKey();
 
   /// Callback, called when this [ChatButton] is pressed.
   final void Function()? onPressed;
+  void Function(bool)? get onHovered => null;
 
   /// Returns a text-represented hint for this [ChatButton].
   String get hint;
 
   /// Asset name of this [ChatButton].
-  String get asset;
+  SvgData get asset;
+
+  /// Disabled asset name to display, if [onPressed] is `null`.
+  SvgData? get disabled => null;
 
   /// Asset offset of this [ChatButton].
   Offset get offset => Offset.zero;
 
   /// Asset name of this [ChatButton] in mini mode.
-  String? get assetMini => null;
+  SvgData? get assetMini => null;
 
   /// Asset offset of this [ChatButton] in mini mode.
   Offset get offsetMini => Offset.zero;
@@ -53,73 +62,76 @@ abstract class ChatButton {
 
 /// [ChatButton] recording an audio massage.
 class AudioMessageButton extends ChatButton {
-  const AudioMessageButton([super.onPressed]);
+  AudioMessageButton([super.onPressed]);
 
   @override
   String get hint => 'btn_audio_message'.l10n;
 
   @override
-  String get asset => 'audio_message';
+  SvgData get asset => SvgIcons.audioMessage;
 
   @override
-  String get assetMini => 'audio_message_mini';
+  SvgData get assetMini => SvgIcons.audioMessageSmall;
 }
 
 /// [ChatButton] recording a video massage.
 class VideoMessageButton extends ChatButton {
-  const VideoMessageButton([super.onPressed]);
+  VideoMessageButton([super.onPressed]);
 
   @override
   String get hint => 'btn_video_message'.l10n;
 
   @override
-  String get asset => 'video_message';
+  SvgData get asset => SvgIcons.videoMessage;
 
   @override
-  String get assetMini => 'video_message_mini';
+  SvgData get assetMini => SvgIcons.videoMessageSmall;
 }
 
 /// [ChatButton] attaching a file.
 class AttachmentButton extends ChatButton {
-  const AttachmentButton([super.onPressed]);
+  AttachmentButton([super.onPressed]);
 
   @override
   String get hint => 'btn_file'.l10n;
 
   @override
-  String get asset => 'file_outlined';
+  SvgData get asset => SvgIcons.fileOutlined;
 
   @override
-  String get assetMini => 'file_outlined_mini';
+  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
 }
 
 /// [ChatButton] taking a photo.
 class TakePhotoButton extends ChatButton {
-  const TakePhotoButton([super.onPressed]);
+  TakePhotoButton([super.onPressed]);
 
   @override
   String get hint =>
       PlatformUtils.isAndroid ? 'btn_take_photo'.l10n : 'btn_camera'.l10n;
 
   @override
-  String get asset => 'take_photo';
+  SvgData get asset => SvgIcons.takePhoto;
 
   @override
-  String get assetMini => 'take_photo_mini';
+  SvgData get assetMini => SvgIcons.takePhotoSmall;
 }
 
 /// [ChatButton] taking a video.
 class TakeVideoButton extends ChatButton {
-  const TakeVideoButton([super.onPressed]);
+  TakeVideoButton([super.onPressed]);
 
   @override
   String get hint => 'btn_take_video'.l10n;
 
   @override
-  String get asset => 'take_video';
+  SvgData get asset => SvgIcons.takeVideo;
 
   @override
-  String get assetMini => 'take_video_mini';
+  Offset get offset => const Offset(0, -1.5);
+
+  @override
+  SvgData get assetMini => SvgIcons.takeVideoSmall;
 
   @override
   Offset get offsetMini => const Offset(3, 0);
@@ -127,62 +139,118 @@ class TakeVideoButton extends ChatButton {
 
 /// [ChatButton] opening a gallery.
 class GalleryButton extends ChatButton {
-  const GalleryButton([super.onPressed]);
+  GalleryButton([super.onPressed]);
 
   @override
   String get hint => 'btn_gallery'.l10n;
 
   @override
-  String get asset => 'gallery_outlined';
+  SvgData get asset => SvgIcons.gallery;
 
   @override
-  String get assetMini => 'gallery_outlined_mini';
+  SvgData get assetMini => SvgIcons.gallerySmall;
 }
 
 /// [ChatButton] making a gift.
 class DonateButton extends ChatButton {
-  const DonateButton([super.onPressed]);
+  DonateButton(this.c);
+
+  final MessageFieldController c;
 
   @override
   String get hint => 'btn_gift'.l10n;
 
   @override
-  String get asset => 'donate';
+  SvgData get asset => SvgIcons.gift;
 
   @override
   Offset get offset => const Offset(0, -1);
 
   @override
-  String get assetMini => 'donate_mini';
+  SvgData get assetMini => SvgIcons.giftSmall;
+
+  @override
+  void Function(bool)? get onHovered => (bool hovered) {
+        c.removeEntries<MessageFieldDonate>();
+        if (hovered) {
+          c.addEntry<MessageFieldDonate>(
+            MessageFieldDonate(
+              c,
+              globalKey: key.currentContext == null ? null : key,
+            ),
+            hovered,
+          );
+        }
+      };
+
+  @override
+  void Function()? get onPressed => () async {
+        c.removeEntries<MessageFieldMore>();
+        c.removeEntries<MessageFieldDonate>();
+        c.addEntry<MessageFieldDonate>(
+          MessageFieldDonate(
+            c,
+            // globalKey: !b || key.currentContext == null ? null : key,
+          ),
+        );
+      };
 }
 
 /// [ChatButton] attaching a file.
 class FileButton extends ChatButton {
-  const FileButton([super.onPressed]);
+  FileButton([super.onPressed]);
 
   @override
   String get hint => 'btn_file'.l10n;
 
   @override
-  String get asset => 'file_outlined';
+  SvgData get asset => SvgIcons.fileOutlined;
 
   @override
-  String get assetMini => 'file_outlined_mini';
+  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
 }
 
 /// [ChatButton] opening the stickers.
 class StickerButton extends ChatButton {
-  const StickerButton([super.onPressed]);
+  StickerButton([super.onPressed]);
 
   @override
   String get hint => 'btn_sticker'.l10n;
 
   @override
-  String get asset => 'smile';
+  SvgData get asset => SvgIcons.smile;
 
   @override
   Offset get offset => const Offset(0, -1);
 
   @override
-  String get assetMini => 'smile_mini';
+  SvgData get assetMini => SvgIcons.smileSmall;
+}
+
+/// [ChatButton] making an audio call.
+class AudioCallButton extends ChatButton {
+  AudioCallButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_audio_call'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatAudioCall;
+
+  @override
+  SvgData get disabled => SvgIcons.chatAudioCallDisabled;
+}
+
+/// [ChatButton] making a video call.
+class VideoCallButton extends ChatButton {
+  VideoCallButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_video_call'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatVideoCall;
+
+  @override
+  SvgData get disabled => SvgIcons.chatVideoCallDisabled;
 }

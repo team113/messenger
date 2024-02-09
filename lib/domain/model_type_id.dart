@@ -119,11 +119,9 @@ class ModelTypeId {
   static const cacheInfo = 99;
   static const imageFile = 100;
   static const favoriteChatsCursor = 101;
-  static const hiveMonolog = 102;
-  static const thumbhash = 103;
-  static const mediaButtonsPosition = 105;
-  static const favoriteChatContactsCursor = 104;
-  static const callButtonsPosition = 106;
-  static const hiveBlocklistRecord = 107;
-  static const userBio = 108;
+  static const thumbhash = 102;
+  static const favoriteChatContactsCursor = 103;
+  static const callButtonsPosition = 104;
+  static const hiveBlocklistRecord = 105;
+  static const userBio = 106;
 }

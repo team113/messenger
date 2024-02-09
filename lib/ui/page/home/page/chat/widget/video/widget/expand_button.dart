@@ -51,11 +51,6 @@ class ExpandButton extends StatelessWidget {
                   ? SvgIcons.fullscreenExitSmall
                   : SvgIcons.fullscreenEnterSmall,
             ),
-            // child: Icon(
-            //   fullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
-            //   color: style.colors.onPrimary,
-            //   size: 21,
-            // ),
           ),
         ),
       ),

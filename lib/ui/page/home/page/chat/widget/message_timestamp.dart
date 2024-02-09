@@ -54,6 +54,8 @@ class MessageTimestamp extends StatelessWidget {
   /// meaning it should display an appropriate icon.
   final bool read;
 
+  /// Indicator whether this [MessageTimestamp] is considered to be read only
+  /// partially, meaning it should display an appropriate icon.
   final bool halfRead;
 
   /// Indicator whether this [MessageTimestamp] is considered to be delivered,
@@ -77,6 +79,7 @@ class MessageTimestamp extends StatelessWidget {
     final bool isSent = status == SendingStatus.sent;
     final bool isDelivered = isSent && delivered;
     final bool isRead = isSent && read;
+    final bool isHalfRead = isSent && halfRead;
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
@@ -134,7 +137,7 @@ class MessageTimestamp extends StatelessWidget {
             width: 17,
             child: SvgIcon(
               isRead
-                  ? halfRead
+                  ? isHalfRead
                       ? inverted
                           ? SvgIcons.halfReadWhite
                           : SvgIcons.halfRead
@@ -145,15 +148,15 @@ class MessageTimestamp extends StatelessWidget {
                       ? inverted
                           ? SvgIcons.deliveredWhite
                           : SvgIcons.delivered
-                      : isSending
-                          ? isError
-                              ? SvgIcons.error
-                              : inverted
+                      : isError
+                          ? SvgIcons.error
+                          : isSending
+                              ? inverted
                                   ? SvgIcons.sendingWhite
                                   : SvgIcons.sending
-                          : inverted
-                              ? SvgIcons.sentWhite
-                              : SvgIcons.sent,
+                              : inverted
+                                  ? SvgIcons.sentWhite
+                                  : SvgIcons.sent,
             ),
           ),
           if (at != null) const SizedBox(width: 3),

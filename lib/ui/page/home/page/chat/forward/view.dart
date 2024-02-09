@@ -19,7 +19,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -27,12 +26,13 @@ import '/domain/model/chat_item_quote_input.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -73,14 +73,17 @@ class ChatForwardView extends StatelessWidget {
     List<Attachment> attachments = const [],
     void Function()? onSent,
   }) {
+    final Style style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
         maxHeight: 800,
       ),
-      mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.all(0),
+      mobilePadding: const EdgeInsets.only(bottom: 12),
+      desktopPadding: const EdgeInsets.only(bottom: 12),
+      background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
         from: from,
@@ -122,7 +125,6 @@ class ChatForwardView extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      const SizedBox(height: 16),
                       Expanded(
                         child: SearchView(
                           key: const Key('SearchView'),
@@ -131,13 +133,12 @@ class ChatForwardView extends StatelessWidget {
                             SearchCategory.contact,
                             SearchCategory.user,
                           ],
-                          darken: true,
                           title: 'label_forward_message'.l10n,
                           onSelected: (r) => c.searchResults.value = r,
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         child: MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),

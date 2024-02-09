@@ -128,14 +128,14 @@ class Chat extends HiveObject implements Comparable<Chat> {
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
-  @HiveField(18)
+  @HiveField(12)
   ChatItem? firstItem;
 
   /// Last [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
-  @HiveField(12)
+  @HiveField(13)
   ChatItem? lastItem;
 
   /// ID of the last [ChatItem] read by the authenticated [MyUser] in this
@@ -143,24 +143,24 @@ class Chat extends HiveObject implements Comparable<Chat> {
   ///
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
-  @HiveField(13)
+  @HiveField(14)
   ChatItemId? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
-  @HiveField(14)
+  @HiveField(15)
   int unreadCount;
 
   /// Count of [ChatItem]s visible to the authenticated [MyUser] in this [Chat].
-  @HiveField(15)
+  @HiveField(16)
   int totalCount;
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
-  @HiveField(16)
+  @HiveField(17)
   ChatCall? ongoingCall;
 
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
-  @HiveField(17)
+  @HiveField(18)
   ChatFavoritePosition? favoritePosition;
 
   /// Indicates whether this [Chat] is a monolog.

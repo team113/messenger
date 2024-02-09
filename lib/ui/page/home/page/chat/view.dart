@@ -37,6 +37,8 @@ import 'package:messenger/ui/page/home/widget/retry_image.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/selected_dot.dart';
+import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -75,7 +77,7 @@ import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 
 /// View of the [Routes.chats] page.
-class ChatView extends StatefulWidget {
+class ChatView extends StatelessWidget {
   const ChatView(this.id, {super.key, this.itemId, this.welcome});
 
   /// ID of this [Chat].
@@ -89,40 +91,13 @@ class ChatView extends StatefulWidget {
   final ChatMessageText? welcome;
 
   @override
-  State<ChatView> createState() => _ChatViewState();
-}
-
-/// State of a [ChatView] used to animate [SwipeableStatus].
-class _ChatViewState extends State<ChatView>
-    with SingleTickerProviderStateMixin {
-  /// [AnimationController] of [SwipeableStatus]es.
-  late final AnimationController _animation;
-
-  @override
-  void initState() {
-    _animation = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-      debugLabel: '$runtimeType (${widget.id})',
-    );
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _animation.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder<ChatController>(
       key: const Key('ChatView'),
       init: ChatController(
-        widget.id,
+        id,
         Get.find(),
         Get.find(),
         Get.find(),
@@ -130,11 +105,12 @@ class _ChatViewState extends State<ChatView>
         Get.find(),
         Get.find(),
         Get.find(),
-        itemId: widget.itemId,
-        welcome: widget.welcome,
+        Get.find(),
+        itemId: itemId,
+        welcome: welcome,
       ),
-      tag: widget.id.val,
-      global: !Get.isRegistered<ChatController>(tag: widget.id.val),
+      tag: id.val,
+      global: !Get.isRegistered<ChatController>(tag: id.val),
       builder: (c) {
         // Opens [Routes.chatInfo] or [Routes.user] page basing on the
         // [Chat.isGroup] indicator.
@@ -142,7 +118,7 @@ class _ChatViewState extends State<ChatView>
           final Chat? chat = c.chat?.chat.value;
           if (chat != null) {
             if (chat.isGroup || chat.isMonolog) {
-              router.chatInfo(widget.id, push: true);
+              router.chatInfo(chat.id, push: true);
             } else if (chat.members.isNotEmpty) {
               router.user(
                 chat.members
@@ -171,7 +147,7 @@ class _ChatViewState extends State<ChatView>
               body: const Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.only(bottom: 4),
-                child: _bottomBar(c),
+                child: _bottomBar(c, context),
               ),
             );
           }
@@ -180,7 +156,7 @@ class _ChatViewState extends State<ChatView>
           final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
           return CustomDropTarget(
-            key: Key('ChatView_${widget.id}'),
+            key: Key('ChatView_${id}'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -260,40 +236,21 @@ class _ChatViewState extends State<ChatView>
                             const SizedBox(width: 10),
                           ],
                         ),
-                        padding: const EdgeInsets.only(left: 4, right: 0),
+                        padding: const EdgeInsets.only(left: 4),
                         leading: const [StyledBackButton()],
                         actions: [
                           Obx(() {
-                            if (c.chat?.blocked == true) {
-                              return const SizedBox.shrink();
-                            }
+                            final bool blocked = c.chat?.blocked == true;
+                            final bool inCall = c.chat?.inCall.value ?? false;
 
                             final List<Widget> children;
 
-                            if (c.chat!.chat.value.ongoingCall == null) {
-                              children = [
-                                if (c.mediaButtons == null ||
-                                    c.mediaButtons ==
-                                        MediaButtonsPosition.appBar) ...[
-                                  AnimatedButton(
-                                    onPressed: () => c.call(true),
-                                    child:
-                                        const SvgIcon(SvgIcons.chatVideoCall),
-                                  ),
-                                  const SizedBox(width: 28),
-                                  AnimatedButton(
-                                    key: const Key('AudioCall'),
-                                    onPressed: () => c.call(false),
-                                    child:
-                                        const SvgIcon(SvgIcons.chatAudioCall),
-                                  ),
-                                  const SizedBox(width: 10),
-                                ],
-                              ];
-                            } else {
+                            // Display the join/end call button, if [Chat] has an
+                            // [OngoingCall] happening in it.
+                            if (c.chat!.chat.value.ongoingCall != null) {
                               final Widget child;
 
-                              if (c.inCall) {
+                              if (inCall) {
                                 child = Container(
                                   key: const Key('Drop'),
                                   height: 32,
@@ -324,13 +281,37 @@ class _ChatViewState extends State<ChatView>
                               children = [
                                 AnimatedButton(
                                   key: const Key('ActiveCallButton'),
-                                  onPressed: c.inCall ? c.dropCall : c.joinCall,
+                                  onPressed: inCall ? c.dropCall : c.joinCall,
                                   child: SafeAnimatedSwitcher(
                                     duration: 300.milliseconds,
                                     child: child,
                                   ),
                                 ),
                               ];
+                            } else if (!blocked) {
+                              children = [
+                                if (c.callPosition == null ||
+                                    c.callPosition ==
+                                        CallButtonsPosition.appBar) ...[
+                                  AnimatedButton(
+                                    onPressed: () => c.call(true),
+                                    child:
+                                        const SvgIcon(SvgIcons.chatVideoCall),
+                                  ),
+                                  const SizedBox(width: 28),
+                                  AnimatedButton(
+                                    key: const Key('AudioCall'),
+                                    onPressed: () => c.call(false),
+                                    child:
+                                        const SvgIcon(SvgIcons.chatAudioCall),
+                                  ),
+                                  const SizedBox(width: 10),
+                                ],
+                              ];
+                            } else {
+                              // [Chat]-dialog is blocked, therefore no call
+                              // buttons should be displayed.
+                              children = [];
                             }
 
                             return Row(
@@ -354,12 +335,16 @@ class _ChatViewState extends State<ChatView>
                                     const SizedBox(width: 25),
                                 ],
                                 ...children,
-                                // const SizedBox(width: 28 - 8),
                                 Obx(() {
                                   final bool muted =
                                       c.chat?.chat.value.muted != null;
+
                                   final bool dialog =
                                       c.chat?.chat.value.isDialog == true;
+
+                                  final bool isLocal =
+                                      c.chat?.chat.value.id.isLocal == true;
+
                                   final bool monolog =
                                       c.chat?.chat.value.isMonolog == true;
 
@@ -372,17 +357,18 @@ class _ChatViewState extends State<ChatView>
                                   final Widget child;
 
                                   if (c.selecting.value) {
-                                    child = Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 0,
-                                      ),
-                                      key: c.moreKey,
-                                      height: double.infinity,
-                                      child: const Padding(
+                                    child = AnimatedButton(
+                                      onPressed: c.selecting.toggle,
+                                      child: Container(
                                         padding:
-                                            EdgeInsets.fromLTRB(10, 0, 21, 0),
-                                        child: SvgIcon(SvgIcons.closePrimary),
+                                            const EdgeInsets.only(left: 10),
+                                        key: c.moreKey,
+                                        height: double.infinity,
+                                        child: const Padding(
+                                          padding:
+                                              EdgeInsets.fromLTRB(10, 0, 21, 0),
+                                          child: SvgIcon(SvgIcons.closePrimary),
+                                        ),
                                       ),
                                     );
                                   } else {
@@ -396,34 +382,37 @@ class _ChatViewState extends State<ChatView>
                                         right: 10,
                                       ),
                                       actions: [
-                                        if (c.mediaButtons ==
-                                            MediaButtonsPosition
+                                        if (c.callPosition ==
+                                            CallButtonsPosition
                                                 .contextMenu) ...[
                                           ContextMenuButton(
                                             label: 'btn_audio_call'.l10n,
-                                            onPressed: hasCall
+                                            onPressed: blocked || inCall
                                                 ? null
                                                 : () => c.call(false),
                                             trailing: SvgIcon(
-                                              hasCall
+                                              blocked || inCall
                                                   ? SvgIcons
                                                       .makeAudioCallDisabled
                                                   : SvgIcons.makeAudioCall,
                                             ),
+                                            inverted: const SvgIcon(
+                                              SvgIcons.makeAudioCallWhite,
+                                            ),
                                           ),
                                           ContextMenuButton(
                                             label: 'btn_video_call'.l10n,
-                                            onPressed: hasCall
+                                            onPressed: blocked || inCall
                                                 ? null
                                                 : () => c.call(true),
-                                            trailing: Transform.translate(
-                                              offset: const Offset(2, 0),
-                                              child: SvgIcon(
-                                                hasCall
-                                                    ? SvgIcons
-                                                        .makeVideoCallDisabled
-                                                    : SvgIcons.makeVideoCall,
-                                              ),
+                                            trailing: SvgIcon(
+                                              blocked || inCall
+                                                  ? SvgIcons
+                                                      .makeVideoCallDisabled
+                                                  : SvgIcons.makeVideoCall,
+                                            ),
+                                            inverted: const SvgIcon(
+                                              SvgIcons.makeVideoCallWhite,
                                             ),
                                           ),
                                         ],
@@ -439,18 +428,17 @@ class _ChatViewState extends State<ChatView>
                                               ),
                                             ),
                                             trailing: const SvgIcon(
-                                                SvgIcons.gapopaCoin),
+                                              SvgIcons.gapopaCoin,
+                                            ),
                                             inverted: const SvgIcon(
-                                                SvgIcons.gapopaCoinWhite),
+                                              SvgIcons.gapopaCoinWhite,
+                                            ),
                                           ),
                                           ContextMenuButton(
                                             label: contact
                                                 ? 'btn_delete_from_contacts'
                                                     .l10n
                                                 : 'btn_add_to_contacts'.l10n,
-                                            onPressed: contact
-                                                ? c.removeFromContacts
-                                                : c.addToContacts,
                                             trailing: SvgIcon(
                                               contact
                                                   ? SvgIcons.deleteContact
@@ -461,15 +449,23 @@ class _ChatViewState extends State<ChatView>
                                                   ? SvgIcons.deleteContactWhite
                                                   : SvgIcons.addContactWhite,
                                             ),
+                                            onPressed: contact
+                                                ? () => _removeFromContacts(
+                                                      c,
+                                                      context,
+                                                    )
+                                                : c.addToContacts,
                                           ),
                                         ],
                                         ContextMenuButton(
+                                          key: Key(
+                                            favorite
+                                                ? 'UnfavoriteChatButton'
+                                                : 'FavoriteChatButton',
+                                          ),
                                           label: favorite
                                               ? 'btn_delete_from_favorites'.l10n
                                               : 'btn_add_to_favorites'.l10n,
-                                          onPressed: favorite
-                                              ? c.unfavoriteChat
-                                              : c.favoriteChat,
                                           trailing: SvgIcon(
                                             favorite
                                                 ? SvgIcons.favoriteSmall
@@ -480,43 +476,55 @@ class _ChatViewState extends State<ChatView>
                                                 ? SvgIcons.favoriteSmallWhite
                                                 : SvgIcons.unfavoriteSmallWhite,
                                           ),
+                                          onPressed: favorite
+                                              ? c.unfavoriteChat
+                                              : c.favoriteChat,
                                         ),
-                                        if (!monolog)
+                                        if (!isLocal) ...[
+                                          if (!monolog)
+                                            ContextMenuButton(
+                                              key: Key(
+                                                muted
+                                                    ? 'UnmuteChatButton'
+                                                    : 'MuteChatButton',
+                                              ),
+                                              label: muted
+                                                  ? PlatformUtils.isMobile
+                                                      ? 'btn_unmute'.l10n
+                                                      : 'btn_unmute_chat'.l10n
+                                                  : PlatformUtils.isMobile
+                                                      ? 'btn_mute'.l10n
+                                                      : 'btn_mute_chat'.l10n,
+                                              trailing: SvgIcon(
+                                                muted
+                                                    ? SvgIcons.unmuteSmall
+                                                    : SvgIcons.muteSmall,
+                                              ),
+                                              inverted: SvgIcon(
+                                                muted
+                                                    ? SvgIcons.unmuteSmallWhite
+                                                    : SvgIcons.muteSmallWhite,
+                                              ),
+                                              onPressed: muted
+                                                  ? c.unmuteChat
+                                                  : c.muteChat,
+                                            ),
                                           ContextMenuButton(
-                                            label: muted
-                                                ? PlatformUtils.isMobile
-                                                    ? 'btn_unmute'.l10n
-                                                    : 'btn_unmute_chat'.l10n
-                                                : PlatformUtils.isMobile
-                                                    ? 'btn_mute'.l10n
-                                                    : 'btn_mute_chat'.l10n,
-                                            onPressed: muted
-                                                ? c.unmuteChat
-                                                : c.muteChat,
-                                            trailing: SvgIcon(
-                                              muted
-                                                  ? SvgIcons.unmuteSmall
-                                                  : SvgIcons.muteSmall,
+                                            key:
+                                                const Key('ClearHistoryButton'),
+                                            label: 'btn_clear_history'.l10n,
+                                            trailing: const SvgIcon(
+                                              SvgIcons.cleanHistory,
                                             ),
-                                            inverted: SvgIcon(
-                                              muted
-                                                  ? SvgIcons.unmuteSmallWhite
-                                                  : SvgIcons.muteSmallWhite,
+                                            inverted: const SvgIcon(
+                                              SvgIcons.cleanHistoryWhite,
                                             ),
+                                            onPressed: () =>
+                                                _clearChat(c, context),
                                           ),
-                                        ContextMenuButton(
-                                          label: 'btn_clear_history'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.cleanHistory,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.cleanHistoryWhite,
-                                          ),
-                                          onPressed: () {},
-                                        ),
+                                        ],
                                         if (!monolog && !dialog)
                                           ContextMenuButton(
-                                            onPressed: () {},
                                             label: 'btn_leave_group'.l10n,
                                             trailing: const SvgIcon(
                                               SvgIcons.leaveGroup,
@@ -524,35 +532,39 @@ class _ChatViewState extends State<ChatView>
                                             inverted: const SvgIcon(
                                               SvgIcons.leaveGroupWhite,
                                             ),
+                                            onPressed: () =>
+                                                _leaveGroup(c, context),
                                           ),
-                                        ContextMenuButton(
-                                          label: 'btn_delete_chat'.l10n,
-                                          trailing:
-                                              const SvgIcon(SvgIcons.delete19),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.delete19White,
-                                          ),
-                                          onPressed: () {},
-                                        ),
-                                        if (!monolog) ...[
-                                          if (dialog)
-                                            ContextMenuButton(
-                                              label: 'btn_block'.l10n,
-                                              trailing:
-                                                  const SvgIcon(SvgIcons.block),
-                                              inverted: const SvgIcon(
-                                                SvgIcons.blockWhite,
-                                              ),
-                                              onPressed: () {},
+                                        if (!isLocal || monolog)
+                                          ContextMenuButton(
+                                            key: const Key('HideChatButton'),
+                                            label: 'btn_delete_chat'.l10n,
+                                            trailing: const SvgIcon(
+                                              SvgIcons.delete19,
                                             ),
-                                          // ContextMenuButton(
-                                          //   onPressed: () {},
-                                          //   label: 'btn_report'.l10n,
-                                          //   trailing: const SvgIcon(
-                                          //     SvgIcons.report,
-                                          //   ),
-                                          // ),
-                                        ],
+                                            inverted: const SvgIcon(
+                                              SvgIcons.delete19White,
+                                            ),
+                                            onPressed: () =>
+                                                _hideChat(c, context),
+                                          ),
+                                        if (dialog)
+                                          ContextMenuButton(
+                                            key: Key(
+                                              blocked ? 'Unblock' : 'Block',
+                                            ),
+                                            label: blocked
+                                                ? 'btn_unblock'.l10n
+                                                : 'btn_block'.l10n,
+                                            trailing:
+                                                const SvgIcon(SvgIcons.block),
+                                            inverted: const SvgIcon(
+                                              SvgIcons.blockWhite,
+                                            ),
+                                            onPressed: blocked
+                                                ? c.unblock
+                                                : () => _blockUser(c, context),
+                                          ),
                                         ContextMenuButton(
                                           label: 'btn_select_messages'.l10n,
                                           onPressed: c.selecting.toggle,
@@ -565,24 +577,18 @@ class _ChatViewState extends State<ChatView>
                                         ),
                                       ],
                                       child: Container(
+                                        key: const Key('MoreButton'),
                                         padding: const EdgeInsets.only(
-                                          left: 10,
-                                          right: 0,
+                                          left: 20,
+                                          right: 21,
                                         ),
                                         height: double.infinity,
-                                        child: const Padding(
-                                          padding:
-                                              EdgeInsets.fromLTRB(10, 0, 21, 0),
-                                          child: SvgIcon(SvgIcons.more),
-                                        ),
+                                        child: const SvgIcon(SvgIcons.more),
                                       ),
                                     );
                                   }
 
                                   return AnimatedButton(
-                                    onPressed: c.selecting.value
-                                        ? c.selecting.toggle
-                                        : null,
                                     child: SafeAnimatedSwitcher(
                                       duration: 250.milliseconds,
                                       child: child,
@@ -596,589 +602,387 @@ class _ChatViewState extends State<ChatView>
                       ),
                       body: Stack(
                         children: [
-                          Listener(
-                            onPointerSignal:
-                                c.settings.value?.timelineEnabled == true
-                                    ? (s) {
-                                        if (s is PointerScrollEvent) {
-                                          if ((s.scrollDelta.dy.abs() < 3 &&
-                                                  s.scrollDelta.dx.abs() > 3) ||
-                                              c.isHorizontalScroll.value) {
-                                            double value = _animation.value +
-                                                s.scrollDelta.dx / 100;
-                                            _animation.value =
-                                                value.clamp(0, 1);
+                          Column(
+                            children: [
+                              Obx(() {
+                                return AnimatedSizeAndFade.showHide(
+                                  fadeDuration: 250.milliseconds,
+                                  sizeDuration: 250.milliseconds,
+                                  show: c.pinned.isNotEmpty,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: ContextMenuRegion(
+                                          actions: [
+                                            ContextMenuButton(
+                                              key: const Key('Unpin'),
+                                              label: PlatformUtils.isMobile
+                                                  ? 'btn_unpin'.l10n
+                                                  : 'btn_unpin_message'.l10n,
+                                              trailing: const SvgIcon(
+                                                SvgIcons.unpinOutlined,
+                                              ),
+                                              inverted: const SvgIcon(
+                                                SvgIcons.unpinOutlinedWhite,
+                                              ),
+                                              onPressed: c.unpin,
+                                            ),
+                                          ],
+                                          child: WidgetButton(
+                                            onPressed: () {
+                                              double? offset = c.visible[c
+                                                  .pinned[c.displayPinned.value]
+                                                  .id];
 
-                                            if (_animation.value == 0 ||
-                                                _animation.value == 1) {
-                                              _resetHorizontalScroll(
-                                                  c, 10.milliseconds);
-                                            } else {
-                                              _resetHorizontalScroll(c);
-                                            }
-                                          }
-                                        }
-                                      }
-                                    : null,
-                            onPointerPanZoomUpdate: (s) {
-                              if (c.scrollOffset.dx.abs() < 7 &&
-                                  c.scrollOffset.dy.abs() < 7) {
-                                c.scrollOffset = c.scrollOffset.translate(
-                                  s.panDelta.dx.abs(),
-                                  s.panDelta.dy.abs(),
-                                );
-                              }
-                            },
-                            onPointerMove: (d) {
-                              if (c.scrollOffset.dx.abs() < 7 &&
-                                  c.scrollOffset.dy.abs() < 7) {
-                                c.scrollOffset = c.scrollOffset.translate(
-                                  d.delta.dx.abs(),
-                                  d.delta.dy.abs(),
-                                );
-                              }
-                            },
-                            onPointerUp: (_) => c.scrollOffset = Offset.zero,
-                            onPointerCancel: (_) =>
-                                c.scrollOffset = Offset.zero,
-                            child: RawGestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              gestures: {
-                                if (c.isSelecting.isFalse)
-                                  AllowMultipleHorizontalDragGestureRecognizer:
-                                      GestureRecognizerFactoryWithHandlers<
-                                          AllowMultipleHorizontalDragGestureRecognizer>(
-                                    () =>
-                                        AllowMultipleHorizontalDragGestureRecognizer(),
-                                    (AllowMultipleHorizontalDragGestureRecognizer
-                                        instance) {
-                                      if (c.settings.value?.timelineEnabled ==
-                                          true) {
-                                        instance.onUpdate = (d) {
-                                          if (!c.isItemDragged.value &&
-                                              c.scrollOffset.dy.abs() < 7 &&
-                                              c.scrollOffset.dx.abs() > 7 &&
-                                              c.isSelecting.isFalse) {
-                                            double value = (_animation.value -
-                                                    d.delta.dx / 100)
-                                                .clamp(0, 1);
-
-                                            if (_animation.value != 1 &&
-                                                    value == 1 ||
-                                                _animation.value != 0 &&
-                                                    value == 0) {
-                                              HapticFeedback.selectionClick();
-                                            }
-
-                                            _animation.value =
-                                                value.clamp(0, 1);
-                                          }
-                                        };
-
-                                        instance.onEnd = (d) async {
-                                          c.scrollOffset = Offset.zero;
-                                          if (!c.isItemDragged.value &&
-                                              _animation.value != 1 &&
-                                              _animation.value != 0) {
-                                            if (_animation.value >= 0.5) {
-                                              await _animation.forward();
-                                              HapticFeedback.selectionClick();
-                                            } else {
-                                              await _animation.reverse();
-                                              HapticFeedback.selectionClick();
-                                            }
-                                          }
-                                        };
-                                      }
-                                    },
-                                  )
-                              },
-                              child: Column(
-                                children: [
-                                  Obx(() {
-                                    return AnimatedSizeAndFade.showHide(
-                                      fadeDuration: 250.milliseconds,
-                                      sizeDuration: 250.milliseconds,
-                                      show: c.pinned.isNotEmpty,
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: ContextMenuRegion(
-                                              actions: [
-                                                ContextMenuButton(
-                                                  key: const Key('Unpin'),
-                                                  label: PlatformUtils.isMobile
-                                                      ? 'btn_unpin'.l10n
-                                                      : 'btn_unpin_message'
-                                                          .l10n,
-                                                  trailing: const SvgIcon(
-                                                    SvgIcons.unpinOutlined,
-                                                  ),
-                                                  inverted: const SvgIcon(
-                                                    SvgIcons.unpinOutlinedWhite,
-                                                  ),
-                                                  onPressed: c.unpin,
-                                                ),
-                                              ],
-                                              child: WidgetButton(
-                                                onPressed: () {
-                                                  double? offset = c.visible[c
-                                                      .pinned[
-                                                          c.displayPinned.value]
-                                                      .id];
-
-                                                  if (offset != null) {
-                                                    bool next = offset < 50 ||
+                                              if (offset != null) {
+                                                bool next = offset < 50 ||
+                                                    c.listController.position
+                                                            .pixels ==
                                                         c
-                                                                .listController
-                                                                .position
-                                                                .pixels ==
-                                                            c
-                                                                .listController
-                                                                .position
-                                                                .maxScrollExtent;
+                                                            .listController
+                                                            .position
+                                                            .maxScrollExtent;
 
-                                                    if (next) {
-                                                      c.displayPinned.value +=
-                                                          1;
-                                                      if (c.displayPinned
-                                                              .value >=
-                                                          c.pinned.length) {
-                                                        c.displayPinned.value =
-                                                            0;
-                                                      }
-                                                    }
+                                                if (next) {
+                                                  c.displayPinned.value += 1;
+                                                  if (c.displayPinned.value >=
+                                                      c.pinned.length) {
+                                                    c.displayPinned.value = 0;
                                                   }
+                                                }
+                                              }
 
-                                                  c.animateTo(
-                                                    c
-                                                        .pinned[c.displayPinned
-                                                            .value]
-                                                        .id,
-                                                  );
-                                                },
-                                                child: Padding(
+                                              c.animateTo(
+                                                c.pinned[c.displayPinned.value]
+                                                    .id,
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                left: 6,
+                                                right: 6,
+                                                top: 6,
+                                              ),
+                                              child: MouseRegion(
+                                                onEnter: (_) => c
+                                                    .hoveredPinned.value = true,
+                                                onExit: (_) => c.hoveredPinned
+                                                    .value = false,
+                                                opaque: false,
+                                                child: Container(
+                                                  width: double.infinity,
+                                                  height: 60,
                                                   padding:
-                                                      const EdgeInsets.only(
-                                                    left: 6,
-                                                    right: 6,
-                                                    top: 6,
+                                                      const EdgeInsets.fromLTRB(
+                                                    8,
+                                                    0,
+                                                    0,
+                                                    8,
                                                   ),
-                                                  child: MouseRegion(
-                                                    onEnter: (_) => c
-                                                        .hoveredPinned
-                                                        .value = true,
-                                                    onExit: (_) => c
-                                                        .hoveredPinned
-                                                        .value = false,
-                                                    opaque: false,
-                                                    child: Container(
-                                                      width: double.infinity,
-                                                      height: 60,
-                                                      padding: const EdgeInsets
-                                                          .fromLTRB(
-                                                        8,
-                                                        0,
-                                                        0,
-                                                        8,
+                                                  decoration: BoxDecoration(
+                                                    boxShadow: const [
+                                                      CustomBoxShadow(
+                                                        blurRadius: 8,
+                                                        color: Color(
+                                                          0x22000000,
+                                                        ),
                                                       ),
-                                                      decoration: BoxDecoration(
-                                                        boxShadow: const [
-                                                          CustomBoxShadow(
-                                                            blurRadius: 8,
-                                                            color: Color(
-                                                              0x22000000,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                        borderRadius:
-                                                            style.cardRadius,
-                                                        border: style
-                                                            .systemMessageBorder,
-                                                        color: Colors.white,
-                                                      ),
-                                                      child: LayoutBuilder(
-                                                        builder: (context,
-                                                            constraints) {
-                                                          return _pinned(
-                                                            c,
-                                                            constraints,
-                                                          );
-                                                        },
-                                                      ),
-                                                    ),
+                                                    ],
+                                                    borderRadius:
+                                                        style.cardRadius,
+                                                    border: style
+                                                        .systemMessageBorder,
+                                                    color: Colors.white,
+                                                  ),
+                                                  child: LayoutBuilder(
+                                                    builder:
+                                                        (context, constraints) {
+                                                      return _pinned(
+                                                        context,
+                                                        c,
+                                                        constraints,
+                                                      );
+                                                    },
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                  // Obx(() {
-                                  //   final Widget child;
-
-                                  //   if (c.paidDisclaimer.value) {
-                                  //     child = PaidNotification(
-                                  //       accepted: c.paidAccepted.value,
-                                  //       border: c.paidBorder.value
-                                  //           ? Border.all(
-                                  //               color: style.colors.primary,
-                                  //               width: 2,
-                                  //             )
-                                  //           : Border.all(
-                                  //               color: Colors.transparent,
-                                  //               width: 2,
-                                  //             ),
-                                  //       onPressed: () {
-                                  //         c.paidDisclaimer.value = false;
-                                  //         c.paidDisclaimerDismissed.value =
-                                  //             true;
-                                  //         c.paidBorder.value = false;
-                                  //         c.paidAccepted.value = true;
-                                  //       },
-                                  //     );
-                                  //   } else if (c.emailNotValidated.value) {
-                                  //     final RxUser? user = c
-                                  //         .chat?.members.values
-                                  //         .firstWhereOrNull(
-                                  //             (e) => e.user.value.id != c.me);
-
-                                  //     child = PaidNotification(
-                                  //       description:
-                                  //           'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
-                                  //       action: 'label_verify_email'.l10n,
-                                  //       border: c.paidBorder.value
-                                  //           ? Border.all(
-                                  //               color: Theme.of(context)
-                                  //                   .colorScheme
-                                  //                   .primary,
-                                  //               width: 2,
-                                  //             )
-                                  //           : Border.all(
-                                  //               color: Colors.transparent,
-                                  //               width: 2,
-                                  //             ),
-                                  //       onPressed: () {
-                                  //         router.profileSection.value =
-                                  //             ProfileTab.signing;
-                                  //         router.me(push: true);
-                                  //       },
-                                  //     );
-                                  //   } else {
-                                  //     child = const SizedBox(
-                                  //       key: Key('123'),
-                                  //       width: double.infinity,
-                                  //     );
-                                  //   }
-
-                                  //   return AnimatedSizeAndFade(child: child);
-                                  // }),
-                                  Expanded(
-                                    child: Stack(
-                                      children: [
-                                        // Required for the [Stack] to take [Scaffold]'s
-                                        // size.
-                                        IgnorePointer(
-                                          child: ContextMenuInterceptor(
-                                            child: Container(),
-                                          ),
                                         ),
-                                        Obx(() {
-                                          Widget child = FlutterListView(
-                                            key: const Key('MessagesList'),
-                                            controller: c.listController,
-                                            physics: c.isHorizontalScroll
-                                                        .isTrue ||
-                                                    (PlatformUtils.isDesktop &&
-                                                        c.isItemDragged.isTrue)
-                                                ? const NeverScrollableScrollPhysics()
-                                                : const BouncingScrollPhysics(),
-                                            reverse: true,
-                                            delegate: FlutterListViewDelegate(
-                                              (context, i) =>
-                                                  _listElement(context, c, i),
-                                              childCount:
-                                                  // ignore: invalid_use_of_protected_member
-                                                  c.elements.value.length,
-                                              stickyAtTailer: true,
-                                              keepPosition: true,
-                                              keepPositionOffset: c
-                                                      .active.isTrue
-                                                  ? c.keepPositionOffset.value
-                                                  : 1,
-                                              onItemKey: (i) => c
-                                                  .elements.values
-                                                  .elementAt(i)
-                                                  .id
-                                                  .toString(),
-                                              onItemSticky: (i) =>
-                                                  c.elements.values.elementAt(i)
-                                                      is DateTimeElement,
-                                              initIndex: c.initIndex,
-                                              initOffset: c.initOffset,
-                                              initOffsetBasedOnBottom: false,
-                                              disableCacheItems:
-                                                  kDebugMode ? true : false,
-                                            ),
-                                          );
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                              Expanded(
+                                child: Stack(
+                                  children: [
+                                    // Required for the [Stack] to take [Scaffold]'s
+                                    // size.
+                                    IgnorePointer(
+                                      child: ContextMenuInterceptor(
+                                        child: Container(),
+                                      ),
+                                    ),
+                                    Obx(() {
+                                      Widget child = FlutterListView(
+                                        key: const Key('MessagesList'),
+                                        controller: c.listController,
+                                        physics: const BouncingScrollPhysics(),
+                                        reverse: true,
+                                        delegate: FlutterListViewDelegate(
+                                          (context, i) =>
+                                              _listElement(context, c, i),
+                                          childCount:
+                                              // ignore: invalid_use_of_protected_member
+                                              c.elements.value.length,
+                                          stickyAtTailer: true,
+                                          keepPosition: true,
+                                          keepPositionOffset: c.active.isTrue
+                                              ? c.keepPositionOffset.value
+                                              : 1,
+                                          onItemKey: (i) => c.elements.values
+                                              .elementAt(i)
+                                              .id
+                                              .toString(),
+                                          onItemSticky: (i) => c.elements.values
+                                              .elementAt(i) is DateTimeElement,
+                                          initIndex: c.initIndex,
+                                          initOffset: c.initOffset,
+                                          initOffsetBasedOnBottom: false,
+                                          disableCacheItems:
+                                              kDebugMode ? true : false,
+                                        ),
+                                      );
 
-                                          child = AnimatedOpacity(
+                                      child = AnimatedOpacity(
+                                        duration: const Duration(
+                                          milliseconds: 250,
+                                        ),
+                                        opacity: c.joinWall.value ? 0 : 1,
+                                        child: child,
+                                      );
+
+                                      if (PlatformUtils.isMobile) {
+                                        if (!PlatformUtils.isWeb) {
+                                          return AnimatedOpacity(
                                             duration: const Duration(
                                               milliseconds: 250,
                                             ),
-                                            opacity: c.joinWall.value ? 0 : 1,
-                                            child: child,
-                                          );
-
-                                          if (PlatformUtils.isMobile) {
-                                            if (!PlatformUtils.isWeb) {
-                                              return AnimatedOpacity(
-                                                duration: const Duration(
-                                                  milliseconds: 250,
-                                                ),
-                                                opacity:
-                                                    c.joinWall.value ? 1 : 0,
-                                                child: Scrollbar(
-                                                  controller: c.listController,
-                                                  child: child,
-                                                ),
-                                              );
-                                            } else {
-                                              return child;
-                                            }
-                                          }
-
-                                          return SelectionArea(
-                                            onSelectionChanged: (a) =>
-                                                c.selection.value = a,
-                                            contextMenuBuilder: (_, __) =>
-                                                const SizedBox(),
-                                            selectionControls:
-                                                EmptyTextSelectionControls(),
-                                            child: ContextMenuInterceptor(
+                                            opacity: c.joinWall.value ? 1 : 0,
+                                            child: Scrollbar(
+                                              controller: c.listController,
                                               child: child,
                                             ),
                                           );
-                                        }),
-                                        Obx(() {
-                                          if (c.joinWall.value) {
-                                            return Center(
-                                              child: Container(
-                                                constraints:
-                                                    const BoxConstraints(
-                                                  maxWidth: 300,
-                                                ),
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 16,
-                                                  vertical: 16,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  border:
-                                                      style.systemMessageBorder,
-                                                  color:
-                                                      style.systemMessageColor,
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Text(
-                                                      'Приватная группа'.l10n,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: style.fonts.small
-                                                          .regular.onBackground,
-                                                    ),
-                                                    const SizedBox(height: 8),
-                                                    Text(
-                                                      'Просматривать и отправлять сообщения могут только участники группы.'
-                                                          .l10n,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: style.fonts.small
-                                                          .regular.onBackground,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }
+                                        } else {
+                                          return child;
+                                        }
+                                      }
 
-                                          if ((c.chat?.status.value.isSuccess ==
-                                                      true ||
-                                                  c.chat?.status.value
-                                                          .isEmpty ==
-                                                      true) &&
-                                              c.chat?.messages.isEmpty ==
-                                                  true) {
-                                            return Center(
-                                              child: Container(
-                                                constraints:
-                                                    const BoxConstraints(
-                                                  maxWidth: 300,
-                                                ),
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 8,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(15),
-                                                  border:
-                                                      style.systemMessageBorder,
-                                                  color:
-                                                      style.systemMessageColor,
-                                                ),
-                                                child: Text(
-                                                  key: const Key('NoMessages'),
-                                                  isMonolog
-                                                      ? 'label_chat_monolog_description'
-                                                          .l10n
-                                                      : 'label_no_messages'
-                                                          .l10n,
+                                      return SelectionArea(
+                                        onSelectionChanged: (a) =>
+                                            c.selection.value = a,
+                                        contextMenuBuilder: (_, __) =>
+                                            const SizedBox(),
+                                        selectionControls:
+                                            EmptyTextSelectionControls(),
+                                        child: ContextMenuInterceptor(
+                                          child: child,
+                                        ),
+                                      );
+                                    }),
+                                    Obx(() {
+                                      if (c.joinWall.value) {
+                                        return Center(
+                                          child: Container(
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 300,
+                                            ),
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 16,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: style.systemMessageBorder,
+                                              color: style.systemMessageColor,
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  'Приватная группа'.l10n,
                                                   textAlign: TextAlign.center,
                                                   style: style.fonts.small
                                                       .regular.onBackground,
                                                 ),
-                                              ),
-                                            );
-                                          }
-
-                                          if (c.chat?.status.value.isLoading !=
-                                              false) {
-                                            return const Center(
-                                              child: CustomProgressIndicator
-                                                  .primary(),
-                                            );
-                                          }
-
-                                          return const SizedBox();
-                                        }),
-                                        Obx(() {
-                                          final Widget child;
-
-                                          if (c.paidDisclaimer.value) {
-                                            child = Padding(
-                                              padding: EdgeInsets.only(
-                                                top: c.paidAlignment.value.y < 0
-                                                    ? 8
-                                                    : 8,
-                                                bottom:
-                                                    c.paidAlignment.value.y > 0
-                                                        ? 8
-                                                        : 8,
-                                              ),
-                                              child: PaidNotification(
-                                                accepted: c.paidAccepted.value,
-                                                border: c.paidBorder.value
-                                                    ? Border.all(
-                                                        color: style
-                                                            .colors.primary,
-                                                        width: 2,
-                                                      )
-                                                    : Border.all(
-                                                        color:
-                                                            Colors.transparent,
-                                                        width: 2,
-                                                      ),
-                                                onPressed: () {
-                                                  c.paidDisclaimer.value =
-                                                      false;
-                                                  c.paidDisclaimerDismissed
-                                                      .value = true;
-                                                  c.paidBorder.value = false;
-                                                  c.paidAccepted.value = true;
-                                                },
-                                              ),
-                                            );
-                                          } else if (c
-                                              .emailNotValidated.value) {
-                                            final RxUser? user = c
-                                                .chat?.members.values
-                                                .firstWhereOrNull((e) =>
-                                                    e.user.value.id != c.me);
-
-                                            child = Padding(
-                                              padding: EdgeInsets.only(
-                                                top: c.paidAlignment.value.y < 0
-                                                    ? 8
-                                                    : 8,
-                                                bottom:
-                                                    c.paidAlignment.value.y > 0
-                                                        ? 8
-                                                        : 8,
-                                              ),
-                                              child: PaidNotification(
-                                                description:
-                                                    'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
-                                                action:
-                                                    'label_verify_email'.l10n,
-                                                border: c.paidBorder.value
-                                                    ? Border.all(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .primary,
-                                                        width: 2,
-                                                      )
-                                                    : Border.all(
-                                                        color:
-                                                            Colors.transparent,
-                                                        width: 2,
-                                                      ),
-                                                onPressed: () {
-                                                  router.profileSection.value =
-                                                      ProfileTab.signing;
-                                                  router.me(push: true);
-                                                },
-                                              ),
-                                            );
-                                          } else {
-                                            child = const SizedBox(
-                                              key: Key('123'),
-                                              width: double.infinity,
-                                            );
-                                          }
-
-                                          return AnimatedAlign(
-                                            duration: const Duration(
-                                              milliseconds: 300,
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  'Просматривать и отправлять сообщения могут только участники группы.'
+                                                      .l10n,
+                                                  textAlign: TextAlign.center,
+                                                  style: style.fonts.small
+                                                      .regular.onBackground,
+                                                ),
+                                              ],
                                             ),
-                                            curve: Curves.ease,
-                                            alignment: c.paidAlignment.value,
-                                            child: AnimatedSizeAndFade(
-                                              child: child,
+                                          ),
+                                        );
+                                      }
+
+                                      if ((c.chat?.status.value.isSuccess ==
+                                                  true ||
+                                              c.chat?.status.value.isEmpty ==
+                                                  true) &&
+                                          c.chat?.messages.isEmpty == true) {
+                                        return Center(
+                                          child: Container(
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 300,
                                             ),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              border: style.systemMessageBorder,
+                                              color: style.systemMessageColor,
+                                            ),
+                                            child: Text(
+                                              key: const Key('NoMessages'),
+                                              isMonolog
+                                                  ? 'label_chat_monolog_description'
+                                                      .l10n
+                                                  : 'label_no_messages'.l10n,
+                                              textAlign: TextAlign.center,
+                                              style: style.fonts.small.regular
+                                                  .onBackground,
+                                            ),
+                                          ),
+                                        );
+                                      }
+
+                                      if (c.chat?.status.value.isLoading !=
+                                          false) {
+                                        return const Center(
+                                          child:
+                                              CustomProgressIndicator.primary(),
+                                        );
+                                      }
+
+                                      return const SizedBox();
+                                    }),
+                                    Obx(() {
+                                      final Widget child;
+
+                                      if (c.paidDisclaimer.value) {
+                                        child = Padding(
+                                          padding: EdgeInsets.only(
+                                            top: c.paidAlignment.value.y < 0
+                                                ? 8
+                                                : 8,
+                                            bottom: c.paidAlignment.value.y > 0
+                                                ? 8
+                                                : 8,
+                                          ),
+                                          child: PaidNotification(
+                                            accepted: c.paidAccepted.value,
+                                            border: c.paidBorder.value
+                                                ? Border.all(
+                                                    color: style.colors.primary,
+                                                    width: 2,
+                                                  )
+                                                : Border.all(
+                                                    color: Colors.transparent,
+                                                    width: 2,
+                                                  ),
+                                            onPressed: () {
+                                              c.paidDisclaimer.value = false;
+                                              c.paidDisclaimerDismissed.value =
+                                                  true;
+                                              c.paidBorder.value = false;
+                                              c.paidAccepted.value = true;
+                                            },
+                                          ),
+                                        );
+                                      } else if (c.emailNotValidated.value) {
+                                        final RxUser? user = c
+                                            .chat?.members.values
+                                            .firstWhereOrNull(
+                                                (e) => e.user.value.id != c.me);
+
+                                        child = Padding(
+                                          padding: EdgeInsets.only(
+                                            top: c.paidAlignment.value.y < 0
+                                                ? 8
+                                                : 8,
+                                            bottom: c.paidAlignment.value.y > 0
+                                                ? 8
+                                                : 8,
+                                          ),
+                                          child: PaidNotification(
+                                            description:
+                                                'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
+                                            action: 'label_verify_email'.l10n,
+                                            border: c.paidBorder.value
+                                                ? Border.all(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                    width: 2,
+                                                  )
+                                                : Border.all(
+                                                    color: Colors.transparent,
+                                                    width: 2,
+                                                  ),
+                                            onPressed: () {
+                                              router.profileSection.value =
+                                                  ProfileTab.signing;
+                                              router.me(push: true);
+                                            },
+                                          ),
+                                        );
+                                      } else {
+                                        child = const SizedBox(
+                                          key: Key('123'),
+                                          width: double.infinity,
+                                        );
+                                      }
+
+                                      return AnimatedAlign(
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        curve: Curves.ease,
+                                        alignment: c.paidAlignment.value,
+                                        child: AnimatedSizeAndFade(
+                                          child: child,
+                                        ),
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                          if (c.mediaButtons == MediaButtonsPosition.top ||
-                              c.mediaButtons == MediaButtonsPosition.bottom)
+                          if (c.callPosition == CallButtonsPosition.top ||
+                              c.callPosition == CallButtonsPosition.bottom)
                             Positioned(
-                              top: c.mediaButtons == MediaButtonsPosition.top
+                              top: c.callPosition == CallButtonsPosition.top
                                   ? 8
                                   : null,
                               bottom:
-                                  c.mediaButtons == MediaButtonsPosition.bottom
+                                  c.callPosition == CallButtonsPosition.bottom
                                       ? 8
                                       : null,
                               right: 12,
@@ -1229,7 +1033,7 @@ class _ChatViewState extends State<ChatView>
                       }),
                       bottomNavigationBar: Padding(
                         padding: const EdgeInsets.only(bottom: 4),
-                        child: _bottomBar(c),
+                        child: _bottomBar(c, context),
                       ),
                     );
                   }),
@@ -1274,61 +1078,6 @@ class _ChatViewState extends State<ChatView>
         });
       },
     );
-  }
-
-  Widget _selectable(
-    BuildContext context,
-    ChatController c, {
-    required ListElement item,
-    required bool overlay,
-    required Widget child,
-  }) {
-    return Obx(() {
-      // if (!c.selecting.value) {
-      //   return child;
-      // }
-
-      final bool selected = c.selected.contains(item);
-
-      return WidgetButton(
-        onPressed: c.selecting.value
-            ? selected
-                ? () => c.selected.remove(item)
-                : () => c.selected.add(item)
-            : null,
-        child: Stack(
-          children: [
-            // Container(color: Colors.red, width: 75, height: 36),
-            Row(
-              children: [
-                Expanded(
-                  child:
-                      IgnorePointer(ignoring: c.selecting.value, child: child),
-                ),
-                if (!overlay)
-                  AnimatedSize(
-                    duration: 150.milliseconds,
-                    child: c.selecting.value
-                        ? const SizedBox(key: Key('Expanded'), width: 32)
-                        : const SizedBox(),
-                  ),
-              ],
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: c.selecting.value
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: SelectedDot(selected: selected),
-                      )
-                    : const SizedBox(),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   /// Builds a visual representation of a [ListElement] identified by the
@@ -1428,7 +1177,6 @@ class _ChatViewState extends State<ChatView>
                   me: c.me!,
                   paid: c.paid,
                   avatar: !previousSame,
-                  loadImages: c.settings.value?.loadImages != false,
                   reads: c.chat!.members.length > 10
                       ? []
                       : c.chat!.reads.where((m) =>
@@ -1437,8 +1185,6 @@ class _ChatViewState extends State<ChatView>
                           m.memberId != e.value.author.id),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
                   onHide: () => c.hideChatItem(e.value),
                   onDelete: () => c.deleteMessage(e.value),
                   onReply: c.edit.value?.edited.value?.id != e.value.id
@@ -1468,13 +1214,11 @@ class _ChatViewState extends State<ChatView>
                   onGallery: c.calculateGallery,
                   onResend: () => c.resendItem(e.value),
                   onEdit: () => c.editMessage(e.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
                   onFileTap: (a) => c.downloadFile(e.value, a),
                   onAttachmentError: () async {
                     await c.chat?.updateAttachments(e.value);
                     await Future.delayed(Duration.zero);
                   },
-                  onSelecting: (s) => c.isSelecting.value = s,
                   onDownload: c.downloadMedia,
                   onDownloadAs: c.downloadMediaAs,
                   onSave: (a) => c.saveToGallery(a, e.value),
@@ -1519,7 +1263,6 @@ class _ChatViewState extends State<ChatView>
                   authorId: element.authorId,
                   me: c.me!,
                   paid: c.paid,
-                  loadImages: c.settings.value?.loadImages != false,
                   reads: c.chat!.members.length > 10
                       ? []
                       : c.chat!.reads.where((m) =>
@@ -1528,8 +1271,6 @@ class _ChatViewState extends State<ChatView>
                           m.memberId != element.authorId),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
-                  animation: _animation,
-                  timestamp: c.settings.value?.timelineEnabled != true,
                   onHide: () async {
                     final List<Future> futures = [];
 
@@ -1589,7 +1330,6 @@ class _ChatViewState extends State<ChatView>
                   },
                   onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
-                  onDrag: (d) => c.isItemDragged.value = d,
                   onForwardedTap: (quote) {
                     if (quote.original != null) {
                       if (quote.original!.chatId == c.id) {
@@ -1614,7 +1354,6 @@ class _ChatViewState extends State<ChatView>
 
                     await Future.delayed(Duration.zero);
                   },
-                  onSelecting: (s) => c.isSelecting.value = s,
                   onSelect: c.selecting.toggle,
                   pinned: c.pinned.contains(element.forwards.first.value),
                   onPin: () {
@@ -1634,7 +1373,6 @@ class _ChatViewState extends State<ChatView>
         child: Obx(() {
           return TimeLabelWidget(
             element.id.at.val,
-            animation: _animation,
             opacity: c.stickyIndex.value == i && c.showSticky.isFalse ? 0 : 1,
           );
         }),
@@ -1654,7 +1392,7 @@ class _ChatViewState extends State<ChatView>
                 padding: const EdgeInsets.only(top: 12, bottom: 12),
                 child: Center(
                   child: ColoredBox(
-                    color: style.colors.transparent,
+                    color: style.colors.almostTransparent,
                     child: const CustomProgressIndicator(),
                   ),
                 ),
@@ -1679,7 +1417,7 @@ class _ChatViewState extends State<ChatView>
         );
       });
     } else if (element is PaidElement) {
-      return _paidElement(c, element.messages, element.calls);
+      return _paidElement(context, c, element.messages, element.calls);
     } else if (element is FeeElement) {
       if (!element.fromMe) {
         return const SizedBox(height: 100);
@@ -1811,6 +1549,7 @@ class _ChatViewState extends State<ChatView>
   }
 
   Widget _paidElement(
+    BuildContext context,
     ChatController c,
     double messageCost,
     double callCost, {
@@ -1820,16 +1559,8 @@ class _ChatViewState extends State<ChatView>
 
     return Center(
       child: Container(
-        margin: const EdgeInsets.only(
-          left: 4,
-          right: 4,
-          top: 4,
-          bottom: 4,
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        margin: const EdgeInsets.only(left: 4, right: 4, top: 4, bottom: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
@@ -1869,92 +1600,15 @@ class _ChatViewState extends State<ChatView>
             style: style.systemMessageStyle,
           ),
         ),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             RichText(
-//               textAlign: TextAlign.center,
-//               text: TextSpan(
-//                 children: [
-//                   TextSpan(
-//                     text: '${user?.name?.val ?? user?.num.val}',
-//                     style: style.systemMessageStyle.copyWith(
-//                       color: Theme.of(context).colorScheme.primary,
-//                     ),
-//                     recognizer: TapGestureRecognizer()
-//                       ..onTap = () => router.user(user!.id, push: true),
-//                   ),
-//                   const TextSpan(text: ' has set a fee for:'),
-//                 ],
-//                 style: style.systemMessageStyle,
-//               ),
-//             ),
-//             const SizedBox(height: 5),
-//             Text(
-//               '''- incoming message - \$$messageCost
-// - incoming call - \$$callCost/min''',
-//               style: style.systemMessageStyle,
-//             ),
-//           ],
-//         ),
       ),
     );
   }
 
-//   Widget _paidElement(ChatController c, double messageCost, double callCost) {
-//     final style = Theme.of(context).style;
-//     final User? user = c.chat!.members.values
-//         .firstWhereOrNull((e) => e.id != c.me)
-//         ?.user
-//         .value;
-
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 12),
-//       child: Center(
-//         child: Container(
-//           padding: const EdgeInsets.symmetric(
-//             horizontal: 12,
-//             vertical: 8,
-//           ),
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.circular(15),
-//             border: style.systemMessageBorder,
-//             color: style.systemMessageColor,
-//           ),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               RichText(
-//                 textAlign: TextAlign.center,
-//                 text: TextSpan(
-//                   children: [
-//                     TextSpan(
-//                       text: '${user?.name?.val ?? user?.num.val}',
-//                       style: style.systemMessageStyle.copyWith(
-//                         color: Theme.of(context).colorScheme.primary,
-//                       ),
-//                       recognizer: TapGestureRecognizer()
-//                         ..onTap = () => router.user(user!.id, push: true),
-//                     ),
-//                     const TextSpan(text: ' has set a fee for:'),
-//                   ],
-//                   style: style.systemMessageStyle,
-//                 ),
-//               ),
-//               const SizedBox(height: 5),
-//               Text(
-//                 '''- incoming message - \$$messageCost
-// - incoming call - \$$callCost/min''',
-//                 style: style.systemMessageStyle,
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-  Widget _pinned(ChatController c, BoxConstraints constraints) {
+  Widget _pinned(
+    BuildContext context,
+    ChatController c,
+    BoxConstraints constraints,
+  ) {
     final style = Theme.of(context).style;
 
     Widget preview(Attachment attachment) {
@@ -2122,15 +1776,8 @@ class _ChatViewState extends State<ChatView>
                           }
                         : null,
                     child: Container(
-                      // width: 10,
-                      // height: 10,
                       key: const Key('Close'),
-                      // decoration: BoxDecoration(
-                      //   shape: BoxShape.circle,
-                      //   color: style.cardColor,
-                      // ),
                       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                      // color: Colors.red,
                       margin: const EdgeInsets.only(left: 4),
                       alignment: Alignment.center,
                       child: const SvgIcon(SvgIcons.closeSmallPrimary),
@@ -2144,17 +1791,6 @@ class _ChatViewState extends State<ChatView>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // const SizedBox(width: 6),
-                    // Transform.rotate(
-                    //   angle: pi / 5,
-                    //   child: const Icon(
-                    //     Icons.push_pin,
-                    //     // color: Theme.of(context).colorScheme.primary,
-                    //     color: Color(0xFF888888),
-                    //     size: 12,
-                    //   ),
-                    // ),
-                    // if (c.pinned.length > 1) ...[
                     const SizedBox(width: 6),
                     Text(
                       '${c.displayPinned.value + 1}/${c.pinned.length}',
@@ -2175,9 +1811,114 @@ class _ChatViewState extends State<ChatView>
     });
   }
 
+  /// Opens a confirmation popup leaving this [Chat].
+  Future<void> _leaveGroup(ChatController c, BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      'label_leave_group'.l10n,
+      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+    );
+
+    if (result == true) {
+      await c.leaveGroup();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title.value,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup blocking the [User].
+  Future<void> _blockUser(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_block'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
+        TextSpan(
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.block();
+    }
+  }
+
+  /// Opens a confirmation popup deleting the [User] from address book.
+  Future<void> _removeFromContacts(
+    ChatController c,
+    BuildContext context,
+  ) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_contact'.l10n,
+      description: [
+        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+        TextSpan(
+          text:
+              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.removeFromContacts();
+    }
+  }
+
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
-  Widget _bottomBar(ChatController c) {
+  Widget _bottomBar(ChatController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Obx(() {
@@ -2211,15 +1952,21 @@ class _ChatViewState extends State<ChatView>
                 children: [
                   const SizedBox(width: 20),
                   AnimatedButton(
+                    key: const Key('ForwardButton'),
                     enabled: canForward,
                     onPressed: canForward
                         ? () async {
+                            final items = c.selected.asItems
+                                .map((e) => ChatItemQuoteInput(item: e))
+                                .toList();
+
+                            items
+                                .sort((a, b) => b.item.at.compareTo(a.item.at));
+
                             final result = await ChatForwardView.show(
                               router.context!,
                               c.id,
-                              c.selectedAsItems
-                                  .map((e) => ChatItemQuoteInput(item: e))
-                                  .toList(),
+                              items,
                             );
 
                             if (result == true) {
@@ -2239,6 +1986,7 @@ class _ChatViewState extends State<ChatView>
                   ),
                   const SizedBox(width: 24),
                   AnimatedButton(
+                    key: const Key('DeleteButton'),
                     enabled: canDelete,
                     onPressed: canDelete
                         ? () async {
@@ -2270,10 +2018,16 @@ class _ChatViewState extends State<ChatView>
 
                             final result = await ConfirmDialog.show(
                               context,
-                              title: 'label_delete_message'.l10n,
+                              title: c.selected.length > 1
+                                  ? 'label_delete_messages'.l10n
+                                  : 'label_delete_message'.l10n,
                               description: deletable
                                   ? null
-                                  : 'label_message_will_deleted_for_you'.l10n,
+                                  : c.selected.length > 1
+                                      ? 'label_messages_will_deleted_for_you'
+                                          .l10n
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
                               initial: 1,
                               variants: [
                                 ConfirmDialogVariant(
@@ -2281,7 +2035,7 @@ class _ChatViewState extends State<ChatView>
                                   label: 'label_delete_for_me'.l10n,
                                   onProceed: () async {
                                     return await Future.wait(
-                                      c.selectedAsItems.map(c.hideChatItem),
+                                      c.selected.asItems.map(c.hideChatItem),
                                     );
                                   },
                                 ),
@@ -2291,7 +2045,7 @@ class _ChatViewState extends State<ChatView>
                                     label: 'label_delete_for_everyone'.l10n,
                                     onProceed: () async {
                                       return await Future.wait(
-                                        c.selectedAsItems.map(c.deleteMessage),
+                                        c.selected.asItems.map(c.deleteMessage),
                                       );
                                     },
                                   )
@@ -2360,10 +2114,6 @@ class _ChatViewState extends State<ChatView>
                         ),
                       );
                     }),
-                  // AnimatedButton(
-                  //   onPressed: c.selecting.toggle,
-                  //   child: const SvgIcon(SvgIcons.closePrimary),
-                  // ),
                   const SizedBox(width: 12),
                 ],
               ),
@@ -2385,7 +2135,7 @@ class _ChatViewState extends State<ChatView>
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),
-            child: UnblockButton(c.unblacklist),
+            child: UnblockButton(c.unblock),
           ),
         );
       }
@@ -2397,6 +2147,8 @@ class _ChatViewState extends State<ChatView>
             child: MessageFieldView(
               key: const Key('EditField'),
               controller: c.edit.value,
+              onChanged:
+                  c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
               onItemPressed: (id) =>
                   c.animateTo(id, offsetBasedOnBottom: false),
             ),
@@ -2407,50 +2159,6 @@ class _ChatViewState extends State<ChatView>
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Obx(() {
-          //   final Widget child;
-
-          //   if (c.paidDisclaimer.value) {
-          //     child = PaidNotification(
-          //       accepted: c.paidAccepted.value,
-          //       border: c.paidBorder.value
-          //           ? Border.all(color: style.colors.primary, width: 2)
-          //           : Border.all(color: Colors.transparent, width: 2),
-          //       onPressed: () {
-          //         c.paidDisclaimer.value = false;
-          //         c.paidDisclaimerDismissed.value = true;
-          //         c.paidBorder.value = false;
-          //         c.paidAccepted.value = true;
-          //       },
-          //     );
-          //   } else if (c.emailNotValidated.value) {
-          //     final RxUser? user = c.chat?.members.values
-          //         .firstWhereOrNull((e) => e.user.value.id != c.me);
-
-          //     child = PaidNotification(
-          //       description:
-          //           'Чат с пользователем ${user?.user.value.name?.val ?? user?.user.value.num.val} недоступен, т.к. Ваш E-mail не верифицирован.',
-          //       action: 'label_verify_email'.l10n,
-          //       border: c.paidBorder.value
-          //           ? Border.all(
-          //               color: Theme.of(context).colorScheme.primary,
-          //               width: 2,
-          //             )
-          //           : Border.all(
-          //               color: Colors.transparent,
-          //               width: 2,
-          //             ),
-          //       onPressed: () {
-          //         router.profileSection.value = ProfileTab.signing;
-          //         router.me(push: true);
-          //       },
-          //     );
-          //   } else {
-          //     child = const SizedBox(width: double.infinity);
-          //   }
-
-          //   return AnimatedSizeAndFade(child: child);
-          // }),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),
             child: SafeArea(
@@ -2470,21 +2178,57 @@ class _ChatViewState extends State<ChatView>
     });
   }
 
-  /// Cancels a [ChatController.horizontalScrollTimer] and starts it again with
-  /// the provided [duration].
-  ///
-  /// Defaults to 50 milliseconds if no [duration] is provided.
-  void _resetHorizontalScroll(ChatController c, [Duration? duration]) {
-    c.isHorizontalScroll.value = true;
-    c.horizontalScrollTimer.value?.cancel();
-    c.horizontalScrollTimer.value = Timer(duration ?? 50.milliseconds, () {
-      if (_animation.value >= 0.5) {
-        _animation.forward();
-      } else {
-        _animation.reverse();
-      }
-      c.isHorizontalScroll.value = false;
-      c.horizontalScrollTimer.value = null;
+  /// Builds a selectable clickable overlay over the provided [child].
+  Widget _selectable(
+    BuildContext context,
+    ChatController c, {
+    required ListElement item,
+    required bool overlay,
+    required Widget child,
+  }) {
+    return Obx(() {
+      final bool selected = c.selected.contains(item);
+
+      return WidgetButton(
+        onPressed: c.selecting.value
+            ? selected
+                ? () => c.selected.remove(item)
+                : () => c.selected.add(item)
+            : null,
+        child: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: c.selecting.value
+                      ? SelectionContainer.disabled(
+                          child: IgnorePointer(child: child),
+                        )
+                      : child,
+                ),
+                if (!overlay)
+                  AnimatedSize(
+                    duration: 150.milliseconds,
+                    child: c.selecting.value
+                        ? const SizedBox(key: Key('Expanded'), width: 32)
+                        : const SizedBox(),
+                  ),
+              ],
+            ),
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: c.selecting.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SelectedDot(selected: selected, darken: 0.1),
+                      )
+                    : const SizedBox(),
+              ),
+            ),
+          ],
+        ),
+      );
     });
   }
 }

@@ -87,10 +87,10 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
+    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
     Hive.maybeRegisterAdapter(UserNameAdapter());
-    Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserNumAdapter());
     Hive.maybeRegisterAdapter(UserTextStatusAdapter());
   }

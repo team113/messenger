@@ -60,11 +60,14 @@ class SwitchField extends StatelessWidget {
               transformHitTests: false,
               child: Theme(
                 data: ThemeData(platform: TargetPlatform.macOS),
-                child: Switch.adaptive(
-                  activeColor: style.colors.primary,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  value: value,
-                  onChanged: onChanged,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Switch.adaptive(
+                    activeColor: style.colors.primary,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    value: value,
+                    onChanged: onChanged,
+                  ),
                 ),
               ),
             ),

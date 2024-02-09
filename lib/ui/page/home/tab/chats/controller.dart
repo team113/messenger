@@ -707,8 +707,8 @@ class ChatsTabController extends GetxController {
       search.value = SearchController(
         _chatService,
         _userService,
-        _myUserService,
         _contactService,
+        _myUserService,
         categories: const [
           SearchCategory.recent,
           SearchCategory.chat,

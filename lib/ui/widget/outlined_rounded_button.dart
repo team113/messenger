@@ -25,7 +25,7 @@ import '/themes.dart';
 class OutlinedRoundedButton extends StatefulWidget {
   const OutlinedRoundedButton({
     super.key,
-    this.title,
+    this.child,
     this.subtitle,
     this.leading,
     this.trailing,
@@ -50,7 +50,7 @@ class OutlinedRoundedButton extends StatefulWidget {
   /// Primary content of this button.
   ///
   /// Typically a [Text] widget.
-  final Widget? title;
+  final Widget? child;
 
   /// Additional content displayed below the [title].
   ///
@@ -192,8 +192,8 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              widget.title ?? Container(),
-                              if (widget.title != null &&
+                              widget.child ?? Container(),
+                              if (widget.child != null &&
                                   widget.subtitle != null)
                                 const SizedBox(height: 3),
                               if (widget.subtitle != null)

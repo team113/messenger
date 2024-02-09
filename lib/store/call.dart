@@ -97,12 +97,16 @@ class CallRepository extends DisposableInterface
 
   @override
   void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+
     _subscribe(3);
     super.onInit();
   }
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
     _events?.cancel();
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
@@ -114,6 +118,8 @@ class CallRepository extends DisposableInterface
 
   @override
   Rx<OngoingCall>? add(ChatCall call) {
+    Log.debug('add($call)', '$runtimeType');
+
     Rx<OngoingCall>? ongoing = calls[call.chatId];
 
     // If we're already in this call or call already exists, then ignore it.
@@ -156,6 +162,11 @@ class CallRepository extends DisposableInterface
     bool withVideo = true,
     bool withScreen = false,
   }) {
+    Log.debug(
+      'addStored($stored, $withAudio, $withVideo, $withScreen)',
+      '$runtimeType',
+    );
+
     Rx<OngoingCall>? ongoing = calls[stored.chatId];
 
     if (ongoing == null) {
@@ -201,7 +212,10 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  bool contains(ChatId chatId) => calls.containsKey(chatId);
+  bool contains(ChatId chatId) {
+    Log.debug('contains($chatId)', '$runtimeType');
+    return calls.containsKey(chatId);
+  }
 
   @override
   Future<Rx<OngoingCall>> start(
@@ -371,7 +385,6 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
     Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
-
     // TODO: Implement optimism, if possible.
     await _graphQlProvider.removeChatCallMember(chatId, userId);
   }
@@ -479,6 +492,8 @@ class CallRepository extends DisposableInterface
     return _graphQlProvider
         .callEvents(id, deviceId)
         .asyncExpand((event) async* {
+      Log.trace('heartbeat($id): ${event.data}', '$runtimeType');
+
       final events =
           CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
 
@@ -509,6 +524,8 @@ class CallRepository extends DisposableInterface
     return _graphQlProvider
         .incomingCallsTopEvents(count)
         .asyncExpand((event) async* {
+      Log.trace('_incomingEvents($count): ${event.data}', '$runtimeType');
+
       final events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
           .incomingChatCallsTopEvents;
 
@@ -538,6 +555,8 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
+    Log.trace('_callEvent($e)', '$runtimeType');
+
     if (e.$$typename == 'EventChatCallFinished') {
       final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
@@ -693,6 +712,8 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCall] from the [ChatEventsVersionedMixin].
   ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
+    Log.trace('_chatCall($m)', '$runtimeType');
+
     for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
         final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;

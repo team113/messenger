@@ -157,7 +157,9 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
 
     Widget button = Container(
       constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
-      color: style.colors.transparent,
+      // Use [Palette.almostTransparent] instead of [Palette.transparent] to
+      // allow [ConditionalBackdropFilter] animate transparency correctly.
+      color: style.colors.almostTransparent,
       child: ConditionalBackdropFilter(
         condition: !WebUtils.isSafari && widget.withBlur,
         borderRadius: BorderRadius.circular(300),
@@ -193,20 +195,6 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
         child: button,
       );
     }
-
-    // if (widget.onPressed == null) {
-    //   button = DecoratedBox(
-    //     position: DecorationPosition.foreground,
-    //     decoration: BoxDecoration(
-    //       color: style.colors.onBackgroundOpacity13,
-    //       shape: BoxShape.circle,
-    //     ),
-    //     child: Opacity(
-    //       opacity: 0.5,
-    //       child: button,
-    //     ),
-    //   );
-    // }
 
     return widget.text == null
         ? button

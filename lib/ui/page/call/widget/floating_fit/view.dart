@@ -371,7 +371,7 @@ class _FloatingPanel<T> extends StatelessWidget {
             CustomBoxShadow(
               color: style.colors.onBackgroundOpacity27,
               blurRadius: 9,
-              blurStyle: BlurStyle.outer,
+              blurStyle: BlurStyle.outer.workaround,
             )
           ],
         ),

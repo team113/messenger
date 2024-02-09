@@ -350,9 +350,9 @@ class AuthService extends GetxService {
     Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
     status.value = RxStatus.loading();
-    return WebUtils.protect(() async {
+    await WebUtils.protect(() async {
       try {
-        Credentials data = await _authRepository.signIn(
+        final Credentials data = await _authRepository.signIn(
           password,
           login: login,
           num: num,

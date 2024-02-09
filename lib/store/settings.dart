@@ -30,6 +30,7 @@ import '/provider/hive/application_settings.dart';
 import '/provider/hive/background.dart';
 import '/provider/hive/call_rect.dart';
 import '/provider/hive/media_settings.dart';
+import '/util/log.dart';
 
 /// Application settings repository.
 class SettingsRepository extends DisposableInterface
@@ -74,6 +75,8 @@ class SettingsRepository extends DisposableInterface
 
   @override
   void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+
     mediaSettings.value = _mediaLocal.settings;
     applicationSettings.value = _settingsLocal.settings;
     background.value = _backgroundLocal.bytes;
@@ -86,6 +89,8 @@ class SettingsRepository extends DisposableInterface
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
     _mediaSubscription?.cancel();
     _settingsSubscription?.cancel();
     _backgroundSubscription?.cancel();
@@ -93,62 +98,109 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> clearCache() => _mediaLocal.clear();
+  Future<void> clearCache() async {
+    Log.debug('clearCache()', '$runtimeType');
+    await _mediaLocal.clear();
+  }
 
   @override
-  Future<void> setVideoDevice(String id) => _mediaLocal.setVideoDevice(id);
+  Future<void> setVideoDevice(String id) async {
+    Log.debug('setVideoDevice($id)', '$runtimeType');
+    await _mediaLocal.setVideoDevice(id);
+  }
 
   @override
-  Future<void> setAudioDevice(String id) => _mediaLocal.setAudioDevice(id);
+  Future<void> setAudioDevice(String id) async {
+    Log.debug('setAudioDevice($id)', '$runtimeType');
+    await _mediaLocal.setAudioDevice(id);
+  }
 
   @override
-  Future<void> setOutputDevice(String id) => _mediaLocal.setOutputDevice(id);
+  Future<void> setOutputDevice(String id) async {
+    Log.debug('setOutputDevice($id)', '$runtimeType');
+    await _mediaLocal.setOutputDevice(id);
+  }
 
   @override
-  Future<void> setPopupsEnabled(bool enabled) =>
-      _settingsLocal.setPopupsEnabled(enabled);
+  Future<void> setPopupsEnabled(bool enabled) async {
+    Log.debug('setPopupsEnabled($enabled)', '$runtimeType');
+    await _settingsLocal.setPopupsEnabled(enabled);
+  }
 
   @override
-  Future<void> setLocale(String locale) => _settingsLocal.setLocale(locale);
+  Future<void> setLocale(String locale) async {
+    Log.debug('setLocale($locale)', '$runtimeType');
+    await _settingsLocal.setLocale(locale);
+  }
 
   @override
-  Future<void> setShowIntroduction(bool show) =>
-      _settingsLocal.setShowIntroduction(show);
+  Future<void> setShowIntroduction(bool show) async {
+    Log.debug('setShowIntroduction($show)', '$runtimeType');
+    await _settingsLocal.setShowIntroduction(show);
+  }
 
   @override
-  Future<void> setSideBarWidth(double width) =>
-      _settingsLocal.setSideBarWidth(width);
+  Future<void> setSideBarWidth(double width) async {
+    Log.debug('setSideBarWidth($width)', '$runtimeType');
+    await _settingsLocal.setSideBarWidth(width);
+  }
 
   @override
-  Future<void> setBackground(Uint8List? bytes) =>
-      bytes == null ? _backgroundLocal.delete() : _backgroundLocal.set(bytes);
+  Future<void> setBackground(Uint8List? bytes) async {
+    Log.debug('setBackground(${bytes?.length})', '$runtimeType');
+
+    bytes == null
+        ? await _backgroundLocal.delete()
+        : await _backgroundLocal.set(bytes);
+  }
 
   @override
-  Future<void> setCallButtons(List<String> buttons) =>
-      _settingsLocal.setCallButtons(buttons);
+  Future<void> setCallButtons(List<String> buttons) async {
+    Log.debug('setCallButtons($buttons)', '$runtimeType');
+    await _settingsLocal.setCallButtons(buttons);
+  }
 
   @override
-  Future<void> setShowDragAndDropVideosHint(bool show) =>
-      _settingsLocal.setShowDragAndDropVideosHint(show);
+  Future<void> setShowDragAndDropVideosHint(bool show) async {
+    Log.debug('setShowDragAndDropVideosHint($show)', '$runtimeType');
+    await _settingsLocal.setShowDragAndDropVideosHint(show);
+  }
 
   @override
-  Future<void> setShowDragAndDropButtonsHint(bool show) =>
-      _settingsLocal.setShowDragAndDropButtonsHint(show);
+  Future<void> setShowDragAndDropButtonsHint(bool show) async {
+    Log.debug('setShowDragAndDropButtonsHint($show)', '$runtimeType');
+    await _settingsLocal.setShowDragAndDropButtonsHint(show);
+  }
 
   @override
-  Future<void> setSortContactsByName(bool enabled) =>
-      _settingsLocal.setSortContactsByName(enabled);
+  Future<void> setCallRect(ChatId chatId, Rect prefs) async {
+    Log.debug('setCallRect($chatId, $prefs)', '$runtimeType');
+    await _callRectLocal.put(chatId, prefs);
+  }
 
   @override
-  Future<void> setLoadImages(bool enabled) =>
-      _settingsLocal.setLoadImages(enabled);
+  Rect? getCallRect(ChatId id) {
+    Log.debug('getCallRect($id)', '$runtimeType');
+    return _callRectLocal.get(id);
+  }
 
   @override
-  Future<void> setCallRect(ChatId chatId, Rect prefs) =>
-      _callRectLocal.put(chatId, prefs);
+  Future<void> setPinnedActions(List<String> buttons) async {
+    Log.debug('setPinnedActions($buttons)', '$runtimeType');
+    await _settingsLocal.setPinnedActions(buttons);
+  }
 
   @override
-  Rect? getCallRect(ChatId id) => _callRectLocal.get(id);
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
+    await _settingsLocal.setCallButtonsPosition(position);
+  }
+
+  @override
+  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
+    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
+    await _settingsLocal.setWorkWithUsTabEnabled(enabled);
+  }
 
   @override
   Future<void> setDisplayFunds(bool enabled) =>
@@ -159,14 +211,6 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setDisplayTransactions(enabled);
 
   @override
-  Future<void> setTimelineEnabled(bool enabled) =>
-      _settingsLocal.setTimelineEnabled(enabled);
-
-  @override
-  Future<void> setPinnedActions(List<String> buttons) =>
-      _settingsLocal.setPinnedActions(buttons);
-
-  @override
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsLocal.setLeaveWhenAlone(enabled);
 
@@ -175,16 +219,8 @@ class SettingsRepository extends DisposableInterface
       _settingsLocal.setBalanceTabEnabled(enabled);
 
   @override
-  Future<void> setPartnerTabEnabled(bool enabled) =>
-      _settingsLocal.setPartnerTabEnabled(enabled);
-
-  @override
   Future<void> setPublicsTabEnabled(bool enabled) =>
       _settingsLocal.setPublicsTabEnabled(enabled);
-
-  @override
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
-      _settingsLocal.setMediaButtonsPosition(position);
 
   @override
   Future<void> setDisplayRates(bool enabled) =>

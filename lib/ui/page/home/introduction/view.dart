@@ -98,7 +98,6 @@ class IntroductionView extends StatelessWidget {
               final guestButton = Center(
                 child: OutlinedRoundedButton(
                   key: const Key('StartButton'),
-                  title: Text('btn_guest'.l10n),
                   maxWidth: 290,
                   height: 46,
                   leading: Transform.translate(
@@ -106,13 +105,14 @@ class IntroductionView extends StatelessWidget {
                     child: const SvgIcon(SvgIcons.oneTime),
                   ),
                   onPressed: Navigator.of(context).pop,
+                  child: Text('btn_guest'.l10n),
                 ),
               );
 
               final signInButton = Center(
                 child: OutlinedRoundedButton(
                   key: const Key('SignInButton'),
-                  title: Text('btn_sign_in'.l10n),
+                  child: Text('btn_sign_in'.l10n),
                   maxWidth: 290,
                   height: 46,
                   leading: Transform.translate(
@@ -126,7 +126,7 @@ class IntroductionView extends StatelessWidget {
 
               final applicationButton = Center(
                 child: OutlinedRoundedButton(
-                  title: Text('label_application'.l10n),
+                  child: Text('label_application'.l10n),
                   maxWidth: 290,
                   height: 46,
                   leading: const Padding(
@@ -215,7 +215,7 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('OkButton'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
@@ -264,7 +264,7 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),

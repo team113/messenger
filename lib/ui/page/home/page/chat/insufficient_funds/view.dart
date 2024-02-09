@@ -85,7 +85,7 @@ class InsufficientFundsView extends StatelessWidget {
                       child: OutlinedRoundedButton(
                         key: const Key('Close'),
                         maxWidth: double.infinity,
-                        title: Text('btn_close'.l10n),
+                        child: Text('btn_close'.l10n),
                         onPressed: () {},
                         color: const Color(0xFFEEEEEE),
                       ),
@@ -96,7 +96,7 @@ class InsufficientFundsView extends StatelessWidget {
                     child: OutlinedRoundedButton(
                       key: const Key('AddFunds'),
                       maxWidth: double.infinity,
-                      title: Text(
+                      child: Text(
                         'btn_add_funds'.l10n,
                         style: style.fonts.normal.regular.onBackground
                             .copyWith(color: Colors.white),

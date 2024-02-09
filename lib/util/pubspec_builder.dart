@@ -70,7 +70,7 @@ class PubspecBuilder implements Builder {
         );
 
         buffer.write(
-          '  static const String? ref = \'0.1.0-alpha.11-preview\';\n',
+          '  static const String? ref = \'0.1.0-alpha.12.1-preview\';\n',
         );
       }
     } catch (e) {

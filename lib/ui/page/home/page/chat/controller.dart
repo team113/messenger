@@ -29,11 +29,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/ui/worker/cache.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -50,32 +48,49 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallDoesNotExistException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
+        BlockUserException,
+        ClearChatException,
         ConnectionException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
         FavoriteChatException,
+        HideChatException,
         HideChatItemException,
+        JoinChatCallException,
         PostChatMessageException,
         ReadChatException,
+        RemoveChatMemberException,
         ToggleChatMuteException,
+        UnblockUserException,
         UnfavoriteChatException,
         UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -106,6 +121,7 @@ class ChatController extends GetxController {
     this._userService,
     this._myUserService,
     this._settingsRepository,
+    this._contactService,
     this._balanceService, {
     this.itemId,
     this.welcome,
@@ -129,11 +145,6 @@ class ChatController extends GetxController {
 
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
-
-  /// Indicator whether any [Text] is being selected right now.
-  ///
-  /// Used to discard [SwipeableStatus] gestures when [Text] is being selected.
-  final RxBool isSelecting = RxBool(false);
 
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
@@ -176,21 +187,11 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether any [ChatItem] is being dragged.
-  ///
-  /// Used to discard any horizontal gestures while this is `true`.
-  final RxBool isItemDragged = RxBool(false);
-
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
-
-  /// Indicator whether an ongoing horizontal scroll is happening.
-  ///
-  /// Used to discard any vertical gestures while this is `true`.
-  final RxBool isHorizontalScroll = RxBool(false);
 
   /// [Timer] for discarding any vertical movement in a [FlutterListView] of
   /// [ChatItem]s when non-`null`.
@@ -227,6 +228,16 @@ class ChatController extends GetxController {
   /// Index of an item from the [elements] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
+
+  /// Indicator whether the [user] has a [ChatContact] associated with them in
+  /// the address book of the authenticated [MyUser].
+  final RxBool inContacts = RxBool(false);
+
+  /// Indicator whether the [elements] selection mode is enabled.
+  final RxBool selecting = RxBool(false);
+
   // final RxList<ChatItemId> visible = RxList();
   final RxMap<ChatItemId, double> visible = RxMap();
 
@@ -251,10 +262,7 @@ class ChatController extends GetxController {
   final RxList<ChatItem> pinned = RxList();
   final RxInt displayPinned = RxInt(0);
 
-  final GlobalKey moreKey = GlobalKey();
-
-  Worker? _selectingWorker;
-  final RxBool selecting = RxBool(false);
+  /// [ListElement]s selected during [selecting] mode.
   final RxList<ListElement> selected = RxList();
 
   void pin(ChatItem item) {
@@ -313,6 +321,10 @@ class ChatController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
+  /// [StreamSubscription] to [ContactService.contacts] determining the
+  /// [inContacts] indicator.
+  StreamSubscription? _contactsSubscription;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -359,6 +371,12 @@ class ChatController extends GetxController {
 
   final BalanceService _balanceService;
 
+  /// [ContactService] maintaining [ChatContact]s of this [me].
+  final ContactService _contactService;
+
+  /// [TextFieldState] for blacklisting reason.
+  final TextFieldState reason = TextFieldState();
+
   /// Worker performing a [readChat] on [lastVisible] changes.
   Worker? _readWorker;
 
@@ -368,6 +386,9 @@ class ChatController extends GetxController {
 
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
+
+  /// Worker clearing [selected] on the [selected] changes.
+  Worker? _selectingWorker;
 
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
@@ -396,43 +417,21 @@ class ChatController extends GetxController {
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
-  bool get inCall =>
-      _callService.calls[id] != null || WebUtils.containsCall(id);
-
   /// Indicates whether a previous page of the [elements] is exists.
   RxBool get hasPrevious => chat!.hasPrevious;
 
   /// Indicates whether a next page of the [elements] is exists.
   RxBool get hasNext => chat!.hasNext;
 
-  MediaButtonsPosition? get mediaButtons =>
-      settings.value?.mediaButtonsPosition;
+  /// Returns the [CallButtonsPosition] currently set.
+  CallButtonsPosition? get callPosition => settings.value?.callButtonsPosition;
 
-  List<ChatItem> get selectedAsItems {
-    final List<ChatItem> items = [];
-
-    for (var e in selected) {
-      if (e is ChatMessageElement) {
-        items.add(e.item.value);
-      } else if (e is ChatCallElement) {
-        items.add(e.item.value);
-      } else if (e is ChatInfoElement) {
-        items.add(e.item.value);
-      } else if (e is ChatForwardElement) {
-        if (e.note.value != null) {
-          items.add(e.note.value!.value);
-        }
-
-        for (var f in e.forwards) {
-          items.add(f.value);
-        }
-      }
-    }
-
-    return items;
-  }
+  /// Returns [RxUser] being recipient of this [chat].
+  ///
+  /// Only meaningful, if the [chat] is a dialog.
+  RxUser? get user => chat?.chat.value.isDialog == true
+      ? chat?.members.values.firstWhereOrNull((e) => e.id != me)
+      : null;
 
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
@@ -446,6 +445,10 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+    }
+
     send = MessageFieldController(
       _chatService,
       _userService,
@@ -570,7 +573,7 @@ class ChatController extends GetxController {
       },
     );
 
-    send.hasCall.value = inCall;
+    send.hasCall.value = chat?.inCall.value ?? false;
 
     PlatformUtils.isActive.then((value) => active.value = value);
     _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
@@ -604,8 +607,10 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
+    _selectingWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
+    _contactsSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -615,7 +620,6 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
-    _selectingWorker?.dispose();
 
     send.onClose();
     edit.value?.onClose();
@@ -809,13 +813,16 @@ class ChatController extends GetxController {
     _ignorePositionChanges = true;
 
     status.value = RxStatus.loading();
-    chat = await _chatService.get(id);
+
+    final FutureOr<RxChat?> fetched = _chatService.get(id);
+    chat = fetched is RxChat? ? fetched : await fetched;
+
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
       joinWall.value =
           chat?.chat.value.isGroup == true && router.joinByLink != null;
-      send.hasCall.value = inCall;
+      send.hasCall.value = chat!.inCall.value;
 
       _chatSubscription = chat!.updates.listen((_) {});
 
@@ -827,6 +834,7 @@ class ChatController extends GetxController {
         send.field.unchecked = draft?.text?.val ?? send.field.text;
       }
 
+      send.inCall = chat!.inCall;
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
@@ -835,9 +843,6 @@ class ChatController extends GetxController {
       for (Attachment e in draft?.attachments ?? []) {
         send.attachments.add(MapEntry(GlobalKey(), e));
       }
-
-      // final InfoElement info = InfoElement();
-      // elements[info.id] = InfoElement();
 
       paid = chat!.members.values.any((e) =>
               e.user.value.name?.val.toLowerCase() == 'alex1' ||
@@ -1203,6 +1208,31 @@ class ChatController extends GetxController {
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
       }
+
+      if (chat?.chat.value.isDialog == true) {
+        inContacts.value = _contactService.contacts.values.any(
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
+
+        _contactsSubscription = _contactService.contacts.changes.listen((e) {
+          switch (e.op) {
+            case OperationKind.added:
+            case OperationKind.updated:
+              if (e.value!.contact.value.users.isNotEmpty &&
+                  e.value!.contact.value.users.any((e) => e.id == user?.id)) {
+                inContacts.value = true;
+              }
+              break;
+
+            case OperationKind.removed:
+              if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
+                  true) {
+                inContacts.value = false;
+              }
+              break;
+          }
+        });
+      }
     }
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -1213,14 +1243,7 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  FutureOr<RxUser?> getUser(UserId id) {
-    final RxUser? user = _userService.users[id];
-    if (user != null) {
-      return user;
-    }
-
-    return _userService.get(id);
-  }
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -1398,16 +1421,162 @@ class ChatController extends GetxController {
     });
   }
 
-  /// Removes a [User] being a recipient of this [chat] from the blacklist.
+  /// Removes [me] from the [chat].
+  Future<void> leaveGroup() async {
+    try {
+      await _chatService.removeChatMember(id, me!);
+      if (router.route.startsWith('${Routes.chats}/$id')) {
+        router.home();
+      }
+    } on RemoveChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Hides the [chat].
+  Future<void> hideChat() async {
+    try {
+      await _chatService.hideChat(id);
+    } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? id, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    try {
+      await _chatService.favoriteChat(chat?.id ?? id);
+    } on FavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    try {
+      await _chatService.unfavoriteChat(chat?.id ?? id);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Adds the [user] to the contacts list of the authenticated [MyUser].
   ///
   /// Only meaningful, if this [chat] is a dialog.
-  Future<void> unblacklist() async {
-    if (chat?.chat.value.isDialog == true) {
-      final RxUser? recipient =
-          chat!.members.values.firstWhereOrNull((e) => e.id != me);
-      if (recipient != null) {
-        await _userService.unblockUser(recipient.id);
+  Future<void> addToContacts() async {
+    if (!inContacts.value) {
+      try {
+        await _contactService.createChatContact(user!.user.value);
+        inContacts.value = true;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
       }
+    }
+  }
+
+  /// Removes the [user] from the contacts list of the authenticated [MyUser].
+  ///
+  /// Only meaningful, if this [chat] is a dialog.
+  Future<void> removeFromContacts() async {
+    if (inContacts.value) {
+      try {
+        final RxChatContact? contact =
+            _contactService.contacts.values.firstWhereOrNull(
+          (e) => e.contact.value.users.every((m) => m.id == user?.id),
+        );
+        await _contactService.deleteContact(contact!.contact.value.id);
+        inContacts.value = false;
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Clears all the [ChatItem]s of the [chat].
+  Future<void> clearChat() async {
+    try {
+      await _chatService.clearChat(id);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Blocks the [user] for the authenticated [MyUser].
+  ///
+  /// Only meaningful, if this [chat] is a dialog.
+  Future<void> block() async {
+    try {
+      if (user != null) {
+        await _userService.blockUser(
+          user!.id,
+          reason.text.isEmpty ? null : BlocklistReason(reason.text),
+        );
+      }
+      reason.clear();
+    } on BlockUserException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes a [User] being a recipient of this [chat] from the blocklist.
+  ///
+  /// Only meaningful, if this [chat] is a dialog.
+  Future<void> unblock() async {
+    try {
+      if (user != null) {
+        await _userService.unblockUser(user!.id);
+      }
+    } on UnblockUserException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
@@ -1547,60 +1716,6 @@ class ChatController extends GetxController {
       rethrow;
     }
   }
-
-  /// Unmutes the [chat].
-  Future<void> unmuteChat() async {
-    try {
-      await _chatService.toggleChatMute(chat?.id ?? id, null);
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Mutes the [chat].
-  Future<void> muteChat() async {
-    try {
-      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Marks the [chat] as favorited.
-  Future<void> favoriteChat() async {
-    try {
-      await _chatService.favoriteChat(chat?.id ?? id);
-    } on FavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Removes the [chat] from the favorites.
-  Future<void> unfavoriteChat() async {
-    try {
-      await _chatService.unfavoriteChat(chat?.id ?? id);
-    } on UnfavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  final RxBool inContacts = RxBool(false);
-
-  Future<void> addToContacts() async => inContacts.toggle();
-
-  Future<void> removeFromContacts() async => inContacts.toggle();
 
   /// Highlights the item with the provided [index].
   Future<void> _highlight(int index) async {
@@ -2175,6 +2290,34 @@ extension IsChatItemEditable on ChatItem {
     }
 
     return false;
+  }
+}
+
+/// Extension adding conversion on [ListElement]s to [ChatItem]s.
+extension SelectedToItemsExtension on RxList<ListElement> {
+  /// Returns the [ChatItem]s this list of [ListElement] represents.
+  List<ChatItem> get asItems {
+    final List<ChatItem> items = [];
+
+    for (var e in this) {
+      if (e is ChatMessageElement) {
+        items.add(e.item.value);
+      } else if (e is ChatCallElement) {
+        items.add(e.item.value);
+      } else if (e is ChatInfoElement) {
+        items.add(e.item.value);
+      } else if (e is ChatForwardElement) {
+        if (e.note.value != null) {
+          items.add(e.note.value!.value);
+        }
+
+        for (var f in e.forwards) {
+          items.add(f.value);
+        }
+      }
+    }
+
+    return items;
   }
 }
 

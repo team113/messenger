@@ -37,7 +37,6 @@ class MediaAttachment extends StatefulWidget {
     this.width,
     this.height,
     this.fit,
-    this.autoLoad = true,
     this.onError,
   });
 
@@ -52,10 +51,6 @@ class MediaAttachment extends StatefulWidget {
 
   /// [BoxFit] to apply to this [MediaAttachment].
   final BoxFit? fit;
-
-  /// Indicator whether the [attachment] provided should be fetched as soon as
-  /// this [MediaAttachment] is displayed.
-  final bool autoLoad;
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onError;
@@ -105,15 +100,14 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               ),
             );
           } else {
-            final Size? dimensions = attachment.file.dimensions.value;
-
             if (attachment.file.isSvg) {
               return SvgImage.bytes(
                 attachment.file.bytes.value!,
                 width: widget.width,
-                height: widget.height ?? min(dimensions?.height ?? 300, 300),
+                height: widget.height,
               );
             } else {
+              final Size? dimensions = attachment.file.dimensions.value;
               final double ratio =
                   (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
 
@@ -121,7 +115,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 attachment.file.bytes.value!,
                 fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
-                height: widget.height ?? min(dimensions?.height ?? 300, 300),
+                height: widget.height ??
+                    max(100, min(dimensions?.height ?? 300, 300)),
               );
             }
           }
@@ -133,10 +128,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         child = RetryImage.attachment(
           attachment as ImageAttachment,
           fit: widget.fit ?? (ratio > 3 ? BoxFit.contain : BoxFit.cover),
-          width: widget.width ??
-              (widget.fit == BoxFit.contain
-                  ? null
-                  : max(100, file.width?.toDouble() ?? 550)),
+          width: widget.width,
+          minWidth: 75,
           height: widget.height ??
               max(
                 100,
@@ -144,7 +137,6 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               ),
           onForbidden: widget.onError,
           cancelable: true,
-          autoLoad: widget.autoLoad,
         );
       }
     } else {

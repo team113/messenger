@@ -51,14 +51,11 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
-  Future<SignUp$Mutation> signUp([bool remember = true]) async {
-    Log.debug('signUp($remember)', '$runtimeType');
+  Future<SignUp$Mutation> signUp() async {
+    Log.debug('signUp()', '$runtimeType');
 
-
-    final QueryResult result = await client.query(QueryOptions(
-      document: SignUpMutation().document
-
-    ));
+    final QueryResult result = await client
+        .mutate(MutationOptions(document: SignUpMutation().document));
     return SignUp$Mutation.fromJson(result.data!);
   }
 
@@ -95,8 +92,7 @@ mixin AuthGraphQlMixin {
   /// Represents a sign-in action.
   ///
   /// The created [Session] has expiration, which may be prolonged via
-  /// [renewSession] if the [remember] argument is specified (so a
-  /// [RememberedSession] is returned).
+  /// [renewSession].
   ///
   /// ### Authentication
   ///
@@ -111,10 +107,9 @@ mixin AuthGraphQlMixin {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-    bool remember,
   ) async {
     Log.debug(
-      'signIn(***, $login, $num, $email, $phone, $remember)',
+      'signIn(***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
 
@@ -176,8 +171,7 @@ mixin AuthGraphQlMixin {
   ///
   /// Each time creates a new [Session] and generates a new [RefreshToken].
   Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
-    final Stopwatch watch = Stopwatch()..start();
-    Log.debug('renewSession($token) [debug][STARTED]', '$runtimeType');
+    Log.debug('renewSession($token)', '$runtimeType');
 
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
@@ -191,13 +185,6 @@ mixin AuthGraphQlMixin {
               .code),
       raw: const RawClientOptions(),
     );
-
-    Log.debug(
-      'renewSession($token) [debug][DONE for ${watch.elapsed}]',
-      '$runtimeType',
-    );
-    watch.stop();
-
     return RenewSession$Mutation.fromJson(result.data!);
   }
 

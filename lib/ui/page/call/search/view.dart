@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
 import 'package:messenger/ui/widget/selected_dot.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -30,10 +31,8 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_tile.dart';
-import '/ui/widget/text_field.dart';
 import 'controller.dart';
 import 'widget/search_field.dart';
 
@@ -108,37 +107,27 @@ class SearchView extends StatelessWidget {
       ),
       builder: (SearchController c) {
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 2),
           constraints: const BoxConstraints(maxHeight: 650),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
               ModalPopupHeader(onBack: onBack, text: title),
-              // const SizedBox(height: 12),
-              SearchField(
-                c.search,
-                onChanged: () => c.query.value = c.search.text,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: SearchField(
+                  c.search,
+                  onChanged: () => c.query.value = c.search.text,
+                ),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.symmetric(horizontal: 10),
-              //   child: Center(
-              //     child: ReactiveTextField(
-              //       key: const Key('SearchTextField'),
-              //       state: c.search,
-              //       label: 'label_search'.l10n,
-              //       style: style.fonts.normal.regular.onBackground,
-              //       onChanged: () => c.query.value = c.search.text,
-              //     ),
-              //   ),
-              // ),
-              const SizedBox(height: 9),
               Expanded(
                 child: Obx(() {
+                  final RxStatus status = c.searchStatus.value;
+
                   if (c.recent.isEmpty &&
                       c.contacts.isEmpty &&
                       c.users.isEmpty &&
                       c.chats.isEmpty) {
-                    if (c.searchStatus.value.isSuccess) {
+                    if (status.isSuccess && !status.isLoadingMore) {
                       return AnimatedDelayedSwitcher(
                         delay: const Duration(milliseconds: 300),
                         child: Center(
@@ -165,133 +154,139 @@ class SearchView extends StatelessWidget {
                       c.users.length +
                       c.recent.length;
 
-                  return Scrollbar(
+                  final Widget list = FlutterListView(
+                    key: const Key('SearchScrollable'),
                     controller: c.scrollController,
-                    child: FlutterListView(
-                      key: const Key('SearchScrollable'),
-                      controller: c.scrollController,
-                      delegate: FlutterListViewDelegate(
-                        (context, i) {
-                          final dynamic e = c.getIndex(i);
-                          Widget child;
+                    delegate: FlutterListViewDelegate(
+                      (context, i) {
+                        final dynamic element = c.elementAt(i);
+                        Widget child;
 
-                          if (e is RxUser) {
-                            child = Obx(() {
-                              if (e.dialog.value != null) {
-                                return RecentChatTile(
-                                  e.dialog.value!,
-                                  me: c.me,
-                                  onTap: () => c.select(user: e),
-                                  selected: c.selectedUsers.contains(e),
-                                  trailing: [
-                                    SelectedDot(
-                                      selected: c.selectedUsers.contains(e),
-                                      size: 20,
-                                    )
-                                  ],
-                                );
-                              }
-
-                              return SelectedTile(
-                                key: Key('SearchUser_${e.id}'),
-                                user: e,
-                                selected: c.selectedUsers.contains(e),
-                                darken: 0.05,
-                                onAvatarTap: null,
-                                onTap: selectable
-                                    ? () => c.select(user: e)
-                                    : enabled
-                                        ? () => onPressed?.call(e)
-                                        : null,
-                              );
-                            });
-                          } else if (e is RxChatContact) {
-                            child = Obx(() {
-                              if (e.user.value?.dialog.value != null) {
-                                return RecentChatTile(
-                                  e.user.value!.dialog.value!,
-                                  me: c.me,
-                                  onTap: () => c.select(contact: e),
-                                  selected: c.selectedContacts.contains(e),
-                                  trailing: [
-                                    SelectedDot(
-                                      selected: c.selectedContacts.contains(e),
-                                      size: 20,
-                                    )
-                                  ],
-                                );
-                              }
-
-                              return SelectedTile(
-                                key: Key('SearchContact_${e.id}'),
-                                contact: e,
-                                darken: 0.05,
-                                selected: c.selectedContacts.contains(e),
-                                onAvatarTap: null,
-                                onTap: selectable
-                                    ? () => c.select(contact: e)
-                                    : enabled
-                                        ? () => onPressed?.call(e)
-                                        : null,
-                              );
-                            });
-                          } else if (e is RxChat) {
-                            child = Obx(() {
+                        if (element is RxUser) {
+                          child = Obx(() {
+                            if (element.dialog.value != null) {
                               return RecentChatTile(
-                                e,
+                                key: Key('SearchUser_${element.id}'),
+                                element.dialog.value!,
                                 me: c.me,
-                                onTap: () => c.select(chat: e),
-                                selected: c.selectedChats.contains(e),
+                                onTap: () => c.select(user: element),
+                                selected: c.selectedUsers.contains(element),
+                                invertible: !selectable,
                                 trailing: [
                                   SelectedDot(
-                                    selected: c.selectedChats.contains(e),
+                                    selected: c.selectedUsers.contains(element),
                                     size: 20,
                                   )
                                 ],
                               );
-                            });
-                            // child = Obx(() {
-                            //   return SelectedTile(
-                            //     key: Key('SearchChat_${e.id}'),
-                            //     chat: e,
-                            //     darken: 0.05,
-                            //     selected: c.selectedChats.contains(e),
-                            //     onAvatarTap: null,
-                            //     onTap: selectable
-                            //         ? () => c.select(chat: e)
-                            //         : enabled
-                            //             ? () => onPressed?.call(e)
-                            //             : null,
-                            //   );
-                            // });
-                          } else {
-                            child = const SizedBox();
-                          }
+                            }
 
-                          if (i == childCount - 1) {
-                            Widget widget = child;
-                            child = Obx(() {
-                              if (c.searchStatus.value.isLoadingMore) {
-                                return Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    widget,
-                                    const CustomProgressIndicator(),
-                                  ],
-                                );
-                              } else {
-                                return widget;
-                              }
-                            });
-                          }
+                            return SelectedTile(
+                              key: Key('SearchUser_${element.id}'),
+                              user: element,
+                              selected: c.selectedUsers.contains(element),
+                              onAvatarTap: null,
+                              onTap: selectable
+                                  ? () => c.select(user: element)
+                                  : enabled
+                                      ? () => onPressed?.call(element)
+                                      : null,
+                            );
+                          });
+                        } else if (element is RxChatContact) {
+                          child = Obx(() {
+                            if (element.user.value?.dialog.value != null) {
+                              return RecentChatTile(
+                                key: Key('SearchContact_${element.id}'),
+                                element.user.value!.dialog.value!,
+                                me: c.me,
+                                onTap: () => c.select(contact: element),
+                                selected: c.selectedContacts.contains(element),
+                                invertible: !selectable,
+                                trailing: [
+                                  SelectedDot(
+                                    selected:
+                                        c.selectedContacts.contains(element),
+                                    size: 20,
+                                  )
+                                ],
+                              );
+                            }
 
-                          return child;
-                        },
-                        childCount: childCount,
-                        disableCacheItems: true,
-                      ),
+                            return SelectedTile(
+                              key: Key('SearchContact_${element.id}'),
+                              contact: element,
+                              selected: c.selectedContacts.contains(element),
+                              onAvatarTap: null,
+                              onTap: selectable
+                                  ? () => c.select(contact: element)
+                                  : enabled
+                                      ? () => onPressed?.call(element)
+                                      : null,
+                            );
+                          });
+                        } else if (element is RxChat) {
+                          child = Obx(() {
+                            return RecentChatTile(
+                              key: Key('SearchChat_${element.id}'),
+                              element,
+                              me: c.me,
+                              onTap: () => c.select(chat: element),
+                              selected: c.selectedChats.contains(element),
+                              invertible: !selectable,
+                              trailing: [
+                                SelectedDot(
+                                  selected: c.selectedChats.contains(element),
+                                  size: 20,
+                                )
+                              ],
+                            );
+                          });
+                        } else {
+                          child = const SizedBox();
+                        }
+
+                        if (i == 0) {
+                          child = Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: child,
+                          );
+                        }
+
+                        if (i == childCount - 1) {
+                          Widget widget = child;
+                          child = Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              widget,
+                              if (status.isLoadingMore || status.isLoading) ...[
+                                const SizedBox(height: 5),
+                                const CustomProgressIndicator(),
+                              ],
+                              const SizedBox(height: 10),
+                            ],
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: child,
+                        );
+                      },
+                      childCount: childCount,
+                      disableCacheItems: true,
                     ),
                   );
+
+                  // Force [Scrollbar]s to appear on mobile.
+                  if (PlatformUtils.isMobile) {
+                    return Scrollbar(
+                      controller: c.scrollController,
+                      child: list,
+                    );
+                  } else {
+                    return list;
+                  }
                 }),
               ),
               if (onSubmit != null) ...[

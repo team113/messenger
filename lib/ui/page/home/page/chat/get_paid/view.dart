@@ -56,9 +56,9 @@ class GetPaidView extends StatelessWidget {
                 child: OutlinedRoundedButton(
                   key: const Key('Close'),
                   maxWidth: double.infinity,
-                  title: Text('btn_close'.l10n),
                   onPressed: () {},
                   color: const Color(0xFFEEEEEE),
+                  child: Text('btn_close'.l10n),
                 ),
               ),
               const SizedBox(width: 10),
@@ -68,10 +68,6 @@ class GetPaidView extends StatelessWidget {
                 if (!c.verified.value) {
                   return OutlinedRoundedButton(
                     maxWidth: double.infinity,
-                    title: Text(
-                      'btn_verify_email'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
-                    ),
                     onPressed: () async {
                       Navigator.of(context).pop();
                       await Future.delayed(const Duration(milliseconds: 100));
@@ -81,17 +77,21 @@ class GetPaidView extends StatelessWidget {
                       );
                     },
                     color: style.colors.primary,
+                    child: Text(
+                      'btn_verify_email'.l10n,
+                      style: thin?.copyWith(color: Colors.white),
+                    ),
                   );
                 }
 
                 return OutlinedRoundedButton(
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_confirm'.l10n,
                     style: thin?.copyWith(color: Colors.white),
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 );
               }),
             ),

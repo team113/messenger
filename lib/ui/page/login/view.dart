@@ -583,7 +583,10 @@ class LoginView extends StatelessWidget {
                     final bool enabled = !c.phone.isEmpty.value;
 
                     return OutlinedRoundedButton(
-                      title: Text(
+                      onPressed: enabled ? c.phone.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
                         'btn_proceed'.l10n,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
@@ -591,9 +594,6 @@ class LoginView extends StatelessWidget {
                               : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
-                      onPressed: enabled ? c.phone.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
                     );
                   }),
                 ),
@@ -737,7 +737,10 @@ class LoginView extends StatelessWidget {
                     final bool enabled = !c.email.isEmpty.value;
 
                     return OutlinedRoundedButton(
-                      title: Text(
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
                         'btn_proceed'.l10n,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
@@ -745,9 +748,6 @@ class LoginView extends StatelessWidget {
                               : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
-                      onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
                     );
                   }),
                 ),
@@ -949,7 +949,10 @@ class LoginView extends StatelessWidget {
                     final bool enabled = !c.phone.isEmpty.value;
 
                     return OutlinedRoundedButton(
-                      title: Text(
+                      onPressed: enabled ? c.phone.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
                         'btn_proceed'.l10n,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
@@ -957,9 +960,6 @@ class LoginView extends StatelessWidget {
                               : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
-                      onPressed: enabled ? c.phone.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
                     );
                   }),
                 ),
@@ -1078,7 +1078,10 @@ class LoginView extends StatelessWidget {
                     final bool enabled = !c.email.isEmpty.value;
 
                     return OutlinedRoundedButton(
-                      title: Text(
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
                         'btn_proceed'.l10n,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: enabled
@@ -1086,9 +1089,6 @@ class LoginView extends StatelessWidget {
                               : style.fonts.medium.regular.onBackground.color,
                         ),
                       ),
-                      onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
                     );
                   }),
                 ),

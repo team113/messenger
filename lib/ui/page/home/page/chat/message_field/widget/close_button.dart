@@ -35,8 +35,8 @@ class CloseButton extends StatelessWidget {
     return WidgetButton(
       onPressed: onPressed,
       child: Container(
-        width: 16,
-        height: 16,
+        width: 16 * 1.5,
+        height: 16 * 1.5,
         margin: const EdgeInsets.only(left: 8, bottom: 8),
         child: Container(
           decoration: BoxDecoration(

@@ -462,7 +462,7 @@ class MenuTabView extends StatelessWidget {
                       key: const Key('Blocked'),
                       icon: Icons.block,
                       title: 'label_blocked_users'.l10n,
-                      subtitle: 'label_your_blacklist'.l10n,
+                      subtitle: 'label_your_blocklist'.l10n,
                       child: Container(
                         width: 34,
                         height: 34,
@@ -527,7 +527,7 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
-                  case ProfileTab.vacancies:
+                  case ProfileTab.sections:
                     child = card(
                       key: const Key('VacanciesButton'),
                       icon: Icons.work,

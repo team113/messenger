@@ -154,7 +154,7 @@ class _PublicViewState extends State<PublicView>
                   const SizedBox(width: 10),
                 ],
               ),
-              leading: const [StyledBackButton(color: Colors.green)],
+              // leading: const [StyledBackButton(color: Colors.green)],
               actions: [
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
@@ -876,9 +876,9 @@ class _PublicViewState extends State<PublicView>
           const SizedBox(height: 40),
           OutlinedRoundedButton(
             key: const Key('CloseButton'),
-            title: Text('btn_close'.l10n),
             onPressed: Navigator.of(context).pop,
             color: const Color(0xFFEEEEEE),
+            child: Text('btn_close'.l10n),
           ),
           const SizedBox(height: 10),
         ],

@@ -148,7 +148,7 @@ class ParticipantView extends StatelessWidget {
 
                             return MemberTile(
                               user: user,
-                              canLeave: user.id == c.me,
+                              me: user.id == c.me,
                               inCall: user.id == c.me ? null : inCall,
                               onTap: () {
                                 // TODO: Open the [Routes.user] page.
@@ -171,17 +171,17 @@ class ParticipantView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: OutlinedRoundedButton(
                         maxWidth: double.infinity,
-                        title: Text(
-                          'btn_add_participants'.l10n,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: style.fonts.medium.regular.onPrimary,
-                        ),
                         onPressed: () {
                           c.status.value = RxStatus.empty();
                           c.stage.value = ParticipantsFlowStage.search;
                         },
                         color: style.colors.primary,
+                        child: Text(
+                          'btn_add_participants'.l10n,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.medium.regular.onPrimary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),

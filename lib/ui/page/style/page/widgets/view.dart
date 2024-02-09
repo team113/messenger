@@ -584,8 +584,8 @@ class _WidgetsViewState extends State<WidgetsView> {
           (
             'OutlinedRoundedButton(title)',
             OutlinedRoundedButton(
-              title: const Text('Title'),
               onPressed: () {},
+              child: const Text('Title'),
             ),
           ),
           (
@@ -1825,6 +1825,12 @@ class DummyRxChat extends RxChat {
 
   @override
   RxBool get inCall => RxBool(false);
+
+  @override
+  Future<void> updateAvatar() {
+    // TODO: implement updateAvatar
+    throw UnimplementedError();
+  }
 }
 
 class _HoveredBuilder extends StatefulWidget {

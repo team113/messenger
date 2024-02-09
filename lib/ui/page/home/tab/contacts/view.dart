@@ -75,7 +75,6 @@ class ContactsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
       ),
       builder: (ContactsTabController c) => Obx(() {
         return Scaffold(
@@ -961,14 +960,14 @@ class ContactsTabView extends StatelessWidget {
             child: SizedBox(
               height: 42,
               child: OutlinedRoundedButton(
-                title: Text(
+                onPressed: c.toggleSelecting,
+                shadows: shadows,
+                child: Text(
                   'btn_cancel'.l10n,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: style.fonts.medium.regular.onBackground,
                 ),
-                onPressed: c.toggleSelecting,
-                shadows: shadows,
               ),
             ),
           ),
@@ -979,7 +978,12 @@ class ContactsTabView extends StatelessWidget {
                 height: 42,
                 child: OutlinedRoundedButton(
                   key: const Key('DeleteContacts'),
-                  title: Text(
+                  onPressed: c.selectedContacts.isEmpty
+                      ? null
+                      : () => _removeContacts(context, c),
+                  color: style.colors.primary,
+                  shadows: shadows,
+                  child: Text(
                     'btn_delete_count'
                         .l10nfmt({'count': c.selectedContacts.length}),
                     overflow: TextOverflow.ellipsis,
@@ -990,11 +994,6 @@ class ContactsTabView extends StatelessWidget {
                           : style.colors.onPrimary,
                     ),
                   ),
-                  onPressed: c.selectedContacts.isEmpty
-                      ? null
-                      : () => _removeContacts(context, c),
-                  color: style.colors.primary,
-                  shadows: shadows,
                 ),
               ),
             );

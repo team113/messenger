@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 
 import '/domain/repository/user.dart';
@@ -37,7 +36,7 @@ class MemberTile extends StatelessWidget {
     required this.user,
     this.inCall,
     this.onTap,
-    this.canLeave = false,
+    this.me = false,
     this.onKick,
     this.onCall,
   });
@@ -56,10 +55,11 @@ class MemberTile extends StatelessWidget {
   /// Callback, called when the call button is pressed.
   final void Function()? onCall;
 
-  /// Indicator whether the kick button should be a leave button.
-  final bool canLeave;
+  /// Indicator whether this [user] is treated as [MyUser], meaning displaying
+  /// appropriate labels.
+  final bool me;
 
-  /// Callback, called when the kick or leave button is pressed.
+  /// Callback, called when the kick button is pressed.
   final Future<void> Function()? onKick;
 
   @override
@@ -69,7 +69,6 @@ class MemberTile extends StatelessWidget {
     final trailing = [
       const SizedBox(width: 12),
       if (inCall != null) ...[
-        // const SizedBox(width: 8),
         SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Material(
@@ -95,19 +94,17 @@ class MemberTile extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: canLeave ? 12 : 16),
+        SizedBox(width: me ? 12 : 16),
       ],
       AnimatedButton(
-        enabled: !canLeave,
-        onPressed: canLeave
+        enabled: !me,
+        onPressed: me
             ? null
             : () async {
                 final bool? result = await MessagePopup.alert(
-                  canLeave
-                      ? 'label_leave_group'.l10n
-                      : 'label_remove_member'.l10n,
+                  me ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
                   description: [
-                    if (canLeave)
+                    if (me)
                       TextSpan(text: 'alert_you_will_leave_group'.l10n)
                     else ...[
                       TextSpan(text: 'alert_user_will_be_removed1'.l10n),
@@ -125,7 +122,7 @@ class MemberTile extends StatelessWidget {
                   await onKick?.call();
                 }
               },
-        child: canLeave
+        child: me
             ? Text(
                 'label_you'.l10n,
                 style: style.fonts.normal.regular.secondary,
@@ -135,10 +132,10 @@ class MemberTile extends StatelessWidget {
       const SizedBox(width: 6),
     ];
 
-    if (user.dialog.value != null && !canLeave) {
+    if (user.dialog.value != null && !me) {
       return Obx(() {
         final muted = user.dialog.value?.chat.value.muted != null;
-        final bool paid = !canLeave &&
+        final bool paid = !me &&
             (user.user.value.name?.val.toLowerCase().contains('alex2') ==
                     true ||
                 user.user.value.name?.val.toLowerCase().contains('kirey') ==
@@ -155,9 +152,6 @@ class MemberTile extends StatelessWidget {
           status: [
             if (paid) ...[
               const SizedBox(width: 8),
-              // const SvgIcon(SvgIcons.premium),
-              // const SvgIcon(SvgIcons.emerald),
-              // const SvgIcon(SvgIcons.sun),
               const SvgIcon(SvgIcons.faceSmile),
             ],
             if (muted) ...[
@@ -167,39 +161,14 @@ class MemberTile extends StatelessWidget {
           ],
         );
       });
-
-      // return RecentChatTile(
-      //   user.dialog.value!,
-      //   onTap: onTap,
-      //   trailing: trailing,
-      //   appendTrailing: true,
-      //   monolog: false,
-      // );
     }
 
     return ContactTile(
       user: user,
-      onTap: canLeave ? null : onTap,
+      onTap: me ? null : onTap,
       height: 58,
       avatarBuilder: (a) => Padding(padding: const EdgeInsets.all(4), child: a),
-      // subtitle: [
-      //   const SizedBox(height: 8),
-      //   Text(
-      //     'label_no_messages'.l10n,
-      //     maxLines: 1,
-      //     style: style.fonts.normal.regular.secondary,
-      //   ),
-      // ],
       trailing: trailing,
-      // trailing: [
-      //   Column(
-      //     children: [
-      //       const SizedBox(height: 13),
-      //       ...trailing,
-      //       const Spacer(),
-      //     ],
-      //   ),
-      // ],
     );
   }
 }

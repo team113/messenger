@@ -97,13 +97,6 @@ class ContactSupportView extends StatelessWidget {
                   return OutlinedRoundedButton(
                     key: const Key('Proceed'),
                     maxWidth: double.infinity,
-                    title: Text(
-                      'btn_proceed'.l10n,
-                      style: thin?.copyWith(
-                        color:
-                            c.name.isEmpty.value ? Colors.black : Colors.white,
-                      ),
-                    ),
                     onPressed: c.name.isEmpty.value
                         ? null
                         : () {
@@ -111,6 +104,13 @@ class ContactSupportView extends StatelessWidget {
                             c.support();
                           },
                     color: Theme.of(context).colorScheme.primary,
+                    child: Text(
+                      'btn_proceed'.l10n,
+                      style: thin?.copyWith(
+                        color:
+                            c.name.isEmpty.value ? Colors.black : Colors.white,
+                      ),
+                    ),
                   );
                 }),
               ),

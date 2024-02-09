@@ -1,11 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
-import 'buttons.dart';
+import 'widget/buttons.dart';
 
 class WrapButtons extends StatelessWidget {
   const WrapButtons(
@@ -19,8 +18,6 @@ class WrapButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     final int total = ((constraints.maxWidth - 220) / 50).floor() + 1;
     int count = ((constraints.maxWidth - 220) / 36).floor() + 1;
     int columns = (buttons.length / count).floor() + 1;
@@ -43,15 +40,11 @@ class WrapButtons extends StatelessWidget {
               : min((i * count) + count, buttons.length),
         );
 
-        print(
-          '(${i * count}, ${min((i * count) + count, buttons.length)}) $sub',
-        );
-
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: sub.map((e) {
             return WidgetButton(
-              onPressed: () => e.onPressed?.call(true),
+              onPressed: () => e.onPressed?.call(),
               child: MouseRegion(
                 onEnter: (_) => e.onHovered?.call(true),
                 // onExit: (_) => e.onHovered?.call(false),
@@ -61,16 +54,10 @@ class WrapButtons extends StatelessWidget {
                   width: 36 + 4 + 4,
                   height: 56,
                   child: Center(
-                    child: e.icon == null
-                        ? Transform.translate(
-                            offset: e.offset,
-                            child: SvgIcon(e.asset),
-                          )
-                        : Icon(
-                            e.icon,
-                            size: 28,
-                            color: style.colors.primary,
-                          ),
+                    child: Transform.translate(
+                      offset: e.offset,
+                      child: SvgIcon(e.asset),
+                    ),
                   ),
                 ),
               ),

@@ -120,4 +120,10 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Future<void> updateAvatar() {
+    // TODO: implement updateAvatar
+    throw UnimplementedError();
+  }
 }

@@ -33,6 +33,7 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'controller.dart';
 
 /// View of the call overlay settings.
@@ -161,87 +162,6 @@ class CallSettingsView extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  // ModalPopupHeader(text: 'label_calls'.l10n, close: false),
-                  // Padding(
-                  //   padding: padding,
-                  //   child: Align(
-                  //     alignment: Alignment.centerLeft,
-                  //     child: Padding(
-                  //       padding: const EdgeInsets.only(left: 21.0),
-                  //       child: Text(
-                  //         'label_open_calls_in'.l10n,
-                  //         style: style.systemMessageStyle.copyWith(
-                  //           color: Theme.of(context).colorScheme.secondary,
-                  //           fontSize: 15,
-                  //           fontWeight: FontWeight.w400,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 4),
-                  // Padding(
-                  //   padding: padding,
-                  //   child: WidgetButton(
-                  //     onPressed: () => CallWindowSwitchView.show(context),
-                  //     child: IgnorePointer(
-                  //       child: ReactiveTextField(
-                  //         state: TextFieldState(
-                  //           text: (c.settings.value?.enablePopups ?? true)
-                  //               ? 'label_open_calls_in_window'.l10n
-                  //               : 'label_open_calls_in_app'.l10n,
-                  //         ),
-                  //         maxLines: null,
-                  //         style: style.fonts.normal.regular.primary,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 16),
-                  // Padding(
-                  //   padding: padding,
-                  //   child: Stack(
-                  //     alignment: Alignment.centerRight,
-                  //     children: [
-                  //       IgnorePointer(
-                  //         child: ReactiveTextField(
-                  //           maxLines: null,
-                  //           state: TextFieldState(
-                  //             text: 'label_leave_group_call_when_alone'.l10n,
-                  //             editable: false,
-                  //           ),
-                  //           trailing: const SizedBox(width: 40),
-                  //           trailingWidth: 40,
-                  //         ),
-                  //       ),
-                  //       Align(
-                  //         alignment: Alignment.centerRight,
-                  //         child: Padding(
-                  //           padding: const EdgeInsets.only(right: 5),
-                  //           child: Transform.scale(
-                  //             scale: 0.7,
-                  //             transformHitTests: false,
-                  //             child: Theme(
-                  //               data: ThemeData(platform: TargetPlatform.macOS),
-                  //               child: Obx(
-                  //                 () => Switch.adaptive(
-                  //                   activeColor:
-                  //                       Theme.of(context).colorScheme.primary,
-                  //                   materialTapTargetSize:
-                  //                       MaterialTapTargetSize.shrinkWrap,
-                  //                   value: c.settings.value?.leaveWhenAlone ==
-                  //                       true,
-                  //                   onChanged: c.setLeaveWhenAlone,
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 16),
                 ],
               ),
             ),

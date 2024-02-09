@@ -48,7 +48,6 @@ class ShadowedRoundedButton extends StatelessWidget {
     return SizedBox(
       height: 42,
       child: OutlinedRoundedButton(
-        title: title,
         onPressed: onPressed,
         color: color,
         maxWidth: maxWidth ?? (250 * 0.72),
@@ -59,6 +58,7 @@ class ShadowedRoundedButton extends StatelessWidget {
             blurStyle: BlurStyle.outer.workaround,
           ),
         ],
+        child: title,
       ),
     );
   }

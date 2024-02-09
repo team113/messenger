@@ -50,6 +50,7 @@ import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
+import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -831,6 +832,28 @@ class HiveRxChat extends RxChat {
     );
   }
 
+  /// Updates the [avatar] of the [chat].
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  @override
+  Future<void> updateAvatar() async {
+    Log.debug('updateAvatar()', '$runtimeType($id)');
+
+    final ChatAvatar? avatar = await _chatRepository.avatar(id);
+
+    await _chatLocal.txn((txn) async {
+      final HiveChat? chatEntity = await txn.get(id.val);
+      if (chatEntity != null) {
+        chatEntity.value.avatar = avatar;
+
+        // TODO: Avatar should be updated by [Hive] subscription.
+        this.avatar.value = avatar;
+
+        await txn.put(chatEntity.value.id.val, chatEntity);
+      }
+    });
+  }
+
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
@@ -1337,8 +1360,8 @@ class HiveRxChat extends RxChat {
                 event as EventChatLastItemUpdated;
                 chatEntity.value.lastItem = event.lastItem?.value;
 
-                // TODO [ChatCall.conversationStartedAt] shouldn't be `null` here
-                //      when starting group or monolog [ChatCall].
+                // TODO [ChatCall.conversationStartedAt] shouldn't be `null`
+                //      here when starting group or monolog [ChatCall].
                 if (!chatEntity.value.isDialog &&
                     chatEntity.value.lastItem is ChatCall) {
                   (chatEntity.value.lastItem as ChatCall)
@@ -1354,7 +1377,7 @@ class HiveRxChat extends RxChat {
 
               case ChatEventKind.delivered:
                 event as EventChatDelivered;
-                chatEntity.value.lastDelivery = event.at;
+                chatEntity.value.lastDelivery = event.until;
                 break;
 
               case ChatEventKind.read:
@@ -1532,35 +1555,5 @@ extension ListInsertAfter<T> on List<T> {
         return;
       }
     }
-  }
-}
-
-/// [Timer] exposing its [future] to be awaited.
-class AwaitableTimer {
-  AwaitableTimer(Duration d, FutureOr Function() callback) {
-    _timer = Timer(d, () async {
-      try {
-        _completer.complete(await callback());
-      } on StateError {
-        // No-op, as [Future] is allowed to be completed.
-      } catch (e, stackTrace) {
-        _completer.completeError(e, stackTrace);
-      }
-    });
-  }
-
-  /// [Timer] executing the callback.
-  late final Timer _timer;
-
-  /// [Completer] completing when [_timer] is done executing.
-  final _completer = Completer();
-
-  /// [Future] completing when this [AwaitableTimer] is finished.
-  Future get future => _completer.future;
-
-  /// Cancels this [AwaitableTimer].
-  void cancel() {
-    _timer.cancel();
-    _completer.complete();
   }
 }

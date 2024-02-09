@@ -220,15 +220,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
               child = const SizedBox();
             }
 
-            return Row(
-              children: [
-                // if (chat.muted != null) ...[
-                //   const SvgIcon(SvgIcons.mutedSmall),
-                //   const SizedBox(width: 5),
-                // ],
-                Flexible(child: child),
-              ],
-            );
+            return child;
           });
         }
       }

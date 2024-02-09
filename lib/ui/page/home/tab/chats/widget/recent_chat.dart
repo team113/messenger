@@ -64,6 +64,7 @@ class RecentChatTile extends StatelessWidget {
     this.price = true,
     this.blocked = false,
     this.selected = false,
+    this.invertible = true,
     this.active = false,
     this.trailing,
     this.appendTrailing = false,
@@ -103,6 +104,9 @@ class RecentChatTile extends StatelessWidget {
 
   /// Indicator whether this [RecentChatTile] is selected.
   final bool selected;
+
+  /// Indicator whether [ChatIsRoute.isRoute] should be treated as [selected].
+  final bool invertible;
 
   /// Indicator whether this [RecentChatTile] is active.
   final bool active;
@@ -182,7 +186,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Chat chat = rxChat.chat.value;
       final bool isRoute = chat.isRoute(router.route, me);
-      final bool inverted = selected || active || isRoute;
+      final bool inverted = selected || active || (invertible && isRoute);
 
       final bool paid = rxChat.members.values.any(
         (e) =>

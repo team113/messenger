@@ -22,9 +22,7 @@ import '/ui/widget/svg/svg.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({super.key, this.onPressed, this.color});
-
-  final Color? color;
+  const StyledBackButton({super.key, this.onPressed});
 
   /// Callback, called when this button is pressed.
   ///

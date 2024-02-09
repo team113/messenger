@@ -21,13 +21,9 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/provider/gql/exceptions.dart'
-    show ResubscriptionRequiredException;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../service/call.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
@@ -603,7 +599,8 @@ class OngoingCall {
 
                 case ChatCallEventKind.memberLeft:
                   final node = event as EventChatCallMemberLeft;
-                  if (calls.me == node.user.id) {
+                  if (me.id.userId == node.user.id &&
+                      me.id.deviceId == node.deviceId) {
                     calls.remove(chatId.value);
                   }
 
@@ -881,7 +878,6 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
-            print('LocalTrackState.enabling');
             if (members[_me]
                     ?.tracks
                     .where((t) =>
@@ -889,7 +885,6 @@ class OngoingCall {
                         t.source == MediaSourceKind.device)
                     .isEmpty ??
                 false) {
-              print('enableAudio');
               await _room?.enableAudio();
 
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
@@ -2168,7 +2163,7 @@ class CallMember {
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
-    for (var t in tracks) {
+    for (final Track t in tracks) {
       t.dispose();
     }
   }

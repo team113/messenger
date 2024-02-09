@@ -18,6 +18,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/application_settings.dart';
+import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for [ApplicationSettings].
@@ -31,8 +32,9 @@ class ApplicationSettingsHiveProvider
 
   @override
   void registerAdapters() {
-    Hive.maybeRegisterAdapter(MediaButtonsPositionAdapter());
+    Log.debug('registerAdapters()', '$runtimeType');
     Hive.maybeRegisterAdapter(ApplicationSettingsAdapter());
+    Hive.maybeRegisterAdapter(CallButtonsPositionAdapter());
   }
 
   /// Returns the stored [ApplicationSettings] from [Hive].
@@ -74,25 +76,14 @@ class ApplicationSettingsHiveProvider
 
   /// Stores a new [show] value of
   /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
-  Future<void> setShowDragAndDropButtonsHint(bool show) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())
-          ..showDragAndDropButtonsHint = show,
-      );
+  Future<void> setShowDragAndDropButtonsHint(bool show) async {
+    // Log.debug('setShowDragAndDropButtonsHint($show)', '$runtimeType');
 
-  /// Stores a new [enabled] value of [ApplicationSettings.sortContactsByName]
-  /// to [Hive].
-  Future<void> setSortContactsByName(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..sortContactsByName = enabled,
-      );
-
-  /// Stores a new [enabled] value of [ApplicationSettings.loadImages]
-  /// to [Hive].
-  Future<void> setLoadImages(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..loadImages = enabled,
-      );
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..showDragAndDropButtonsHint = show,
+    );
+  }
 
   Future<void> setDisplayFunds(bool enabled) => putSafe(
         0,
@@ -104,19 +95,38 @@ class ApplicationSettingsHiveProvider
         (box.get(0) ?? ApplicationSettings())..displayTransactions = enabled,
       );
 
-  /// Stores a new [enabled] value of [ApplicationSettings.timelineEnabled]
-  /// to [Hive].
-  Future<void> setTimelineEnabled(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..timelineEnabled = enabled,
-      );
-
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
-  Future<void> setPinnedActions(List<String> buttons) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
-      );
+  Future<void> setPinnedActions(List<String> buttons) async {
+    Log.debug('setPinnedActions($buttons)', '$runtimeType');
+
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..pinnedActions = buttons,
+    );
+  }
+
+  /// Stores a new [position] value of
+  /// [ApplicationSettings.callButtonsPosition] to [Hive].
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
+
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..callButtonsPosition = position,
+    );
+  }
+
+  /// Stores a new [enabled] value of [ApplicationSettings.workWithUsTabEnabled]
+  /// to [Hive].
+  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
+    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
+
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..workWithUsTabEnabled = enabled,
+    );
+  }
 
   Future<void> setLeaveWhenAlone(bool enabled) => putSafe(
         0,
@@ -128,20 +138,9 @@ class ApplicationSettingsHiveProvider
         (box.get(0) ?? ApplicationSettings())..balanceTabEnabled = enabled,
       );
 
-  Future<void> setPartnerTabEnabled(bool enabled) => putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..partnerTabEnabled = enabled,
-      );
-
   Future<void> setPublicsTabEnabled(bool enabled) => putSafe(
         0,
         (box.get(0) ?? ApplicationSettings())..publicsTabEnabled = enabled,
-      );
-
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
-      putSafe(
-        0,
-        (box.get(0) ?? ApplicationSettings())..mediaButtonsPosition = position,
       );
 
   Future<void> setDisplayRates(bool enabled) => putSafe(

@@ -180,17 +180,8 @@ class ChatRepository extends DisposableInterface
   /// [Mutex]es guarding synchronized access to the [_putEntry].
   final Map<ChatId, Mutex> _putEntryGuards = {};
 
-  /// [dio.CancelToken] for cancelling the [_recentChats] query.
-  final dio.CancelToken _cancelToken = dio.CancelToken();
-
   /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
   final Mutex _monologGuard = Mutex();
-
-  /// Indicator whether a local [Chat]-monolog has been hidden.
-  ///
-  /// Used to prevent the [Chat]-monolog from re-appearing if the local
-  /// [Chat]-monolog was hidden.
-  bool _monologShouldBeHidden = false;
 
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
@@ -272,7 +263,6 @@ class ChatRepository extends DisposableInterface
 
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
-    _cancelToken.cancel();
     _pagination?.dispose();
     _localSubscription?.cancel();
     _draftSubscription?.cancel();
@@ -379,11 +369,14 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Ensures the provided [Chat]-monolog is remotely accessible.
-  Future<HiveRxChat> ensureRemoteMonolog([ChatName? name]) async {
+  Future<HiveRxChat> ensureRemoteMonolog({
+    ChatName? name,
+    bool? isHidden,
+  }) async {
     Log.debug('ensureRemoteMonolog($name)', '$runtimeType');
 
     final ChatData chatData = _chat(
-      await _graphQlProvider.createMonologChat(name),
+      await _graphQlProvider.createMonologChat(name: name),
     );
     final HiveRxChat chat = await _putEntry(chatData);
 
@@ -514,7 +507,7 @@ class ChatRepository extends DisposableInterface
     Log.debug('renameChat($id, $name)', '$runtimeType');
 
     if (id.isLocalWith(me)) {
-      await ensureRemoteMonolog(name);
+      await ensureRemoteMonolog(name: name);
       return;
     }
 
@@ -571,8 +564,8 @@ class ChatRepository extends DisposableInterface
     try {
       // If this [Chat] is local monolog, make it remote first.
       if (id.isLocalWith(me)) {
-        _monologShouldBeHidden = true;
-        monologData = _chat(await _graphQlProvider.createMonologChat(null));
+        monologData =
+            _chat(await _graphQlProvider.createMonologChat(isHidden: true));
 
         // Dispose and delete local monolog from [Hive], since it's just been
         // replaced with a remote one.
@@ -591,15 +584,6 @@ class ChatRepository extends DisposableInterface
       // [_localSubscription].
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      if (_monologShouldBeHidden) {
-        _monologShouldBeHidden = false;
-
-        if (monologData != null) {
-          // The monolog has already been created remotely.
-          chat = await _putEntry(monologData);
-        }
-      }
-
       chat?.chat.update((c) => c?.isHidden = false);
 
       rethrow;
@@ -608,12 +592,14 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
+    Log.debug('readChat($chatId, $untilId)', '$runtimeType');
     await chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
+    Log.debug('readUntil($chatId, $untilId)', '$runtimeType');
     await _graphQlProvider.readChat(chatId, untilId);
   }
 
@@ -624,6 +610,11 @@ class ChatRepository extends DisposableInterface
     model.ChatMessageAttachmentsInput? attachments,
     model.ChatMessageRepliesInput? repliesTo,
   }) async {
+    Log.debug(
+      'editChatMessage($message, $text)',
+      '$runtimeType',
+    );
+
     final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
@@ -705,6 +696,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> deleteChatMessage(ChatMessage message) async {
+    Log.debug('deleteChatMessage($message)', '$runtimeType');
+
     final HiveRxChat? chat = chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
@@ -738,6 +731,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> deleteChatForward(ChatForward forward) async {
+    Log.debug('deleteChatForward($forward)', '$runtimeType');
+
     final HiveRxChat? chat = chats[forward.chatId];
 
     if (forward.status.value != SendingStatus.sent) {
@@ -771,6 +766,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> hideChatItem(ChatId chatId, ChatItemId id) async {
+    Log.debug('hideChatItem($chatId, $id)', '$runtimeType');
+
     final HiveRxChat? chat = chats[chatId];
 
     Rx<ChatItem>? item =
@@ -800,6 +797,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+    Log.debug('uploadAttachment($attachment)', '$runtimeType');
+
     if (attachment.upload.value?.isCompleted != false) {
       attachment.upload.value = Completer();
     }
@@ -1053,8 +1052,18 @@ class ChatRepository extends DisposableInterface
 
   /// Fetches the [Attachment]s of the provided [item].
   Future<List<Attachment>> attachments(HiveChatItem item) async {
-    var response = await _graphQlProvider.attachments(item.value.id);
+    Log.debug('attachments($item)', '$runtimeType');
+
+    final response = await _graphQlProvider.attachments(item.value.id);
     return response.chatItem?.toModel() ?? [];
+  }
+
+  /// Fetches the [ChatAvatar]s of the provided [RxChat].
+  Future<ChatAvatar?> avatar(ChatId id) async {
+    Log.debug('avatar($id)', '$runtimeType');
+
+    final response = await _graphQlProvider.avatar(id);
+    return response.chat?.avatar?.toModel();
   }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
@@ -1109,6 +1118,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Stream<dynamic> keepTyping(ChatId chatId) {
+    Log.debug('keepTyping($chatId)', '$runtimeType');
+
     if (chatId.isLocal) {
       return const Stream.empty();
     }
@@ -1123,6 +1134,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
+    Log.debug('favoriteChat($id, $position)', '$runtimeType');
+
     final HiveRxChat? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
     final ChatFavoritePosition newPosition;
@@ -1155,7 +1168,7 @@ class ChatRepository extends DisposableInterface
       if (id.isLocalWith(me)) {
         _localMonologFavoritePosition = newPosition;
         final ChatData monolog =
-            _chat(await _graphQlProvider.createMonologChat(null));
+            _chat(await _graphQlProvider.createMonologChat());
 
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
@@ -1175,6 +1188,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> unfavoriteChat(ChatId id) async {
+    Log.debug('unfavoriteChat($id)', '$runtimeType');
+
     final HiveRxChat? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
 
@@ -1192,6 +1207,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
+    Log.debug('clearChat($id, $untilId)', '$runtimeType');
+
     if (id.isLocal) {
       await chats[id]?.clear();
       return;
@@ -1624,16 +1641,7 @@ class ChatRepository extends DisposableInterface
           final ChatData data = event.chat;
           final Chat chat = data.chat.value;
 
-          // TODO: Get rid of `_monologShouldBeHidden` when backend supports
-          //       creating chats with `isHidden` set to `true`.
           if (chat.isMonolog) {
-            if (_monologShouldBeHidden) {
-              // If local monolog was hidden, edit remote one's [ChatData] before
-              // saving.
-              chat.isHidden = true;
-              _monologShouldBeHidden = false;
-            }
-
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
               await _monologLocal.set(chat.id);

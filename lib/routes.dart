@@ -140,7 +140,7 @@ enum ProfileTab {
   language,
   blocklist,
   devices,
-  vacancies,
+  sections,
   download,
   danger,
   styles,

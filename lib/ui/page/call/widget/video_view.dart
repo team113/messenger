@@ -184,7 +184,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    Widget video = VideoView(
+    final Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
       mirror: widget.renderer.mirror,
@@ -361,7 +361,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   /// Recursively waits for the [RtcVideoRenderer]'s size to be determined and
   /// requests a rebuild when it becomes determined.
   void _waitTilSizeDetermined() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (widget.renderer.height.value == 0) {
           _waitTilSizeDetermined();

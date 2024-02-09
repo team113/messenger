@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/widget/paddings.dart';
+import 'package:messenger/ui/widget/info_tile.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/user.dart';
@@ -174,8 +175,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
       );
     } else {
       child = Paddings.basic(
-        ContactInfoContents(
-          padding: EdgeInsets.zero,
+        InfoTile(
           title: 'label_login'.l10n,
           content: _state.text,
           trailing: WidgetButton(

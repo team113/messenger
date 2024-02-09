@@ -30,7 +30,6 @@ class SelectionText extends StatefulWidget {
     this.style,
     this.onSelecting,
     this.onChanged,
-    this.textAlign,
   }) : span = null;
 
   const SelectionText.rich(
@@ -40,7 +39,6 @@ class SelectionText extends StatefulWidget {
     this.style,
     this.onSelecting,
     this.onChanged,
-    this.textAlign,
   }) : text = null;
 
   /// Text to be selected.
@@ -61,8 +59,6 @@ class SelectionText extends StatefulWidget {
   /// Callback, called when the [SelectedContent] changes.
   final void Function(SelectedContent?)? onChanged;
 
-  final TextAlign? textAlign;
-
   @override
   State<SelectionText> createState() => _SelectionTextState();
 }
@@ -81,17 +77,9 @@ class _SelectionTextState extends State<SelectionText> {
     Widget child;
 
     if (widget.text != null) {
-      child = Text(
-        widget.text!,
-        style: widget.style,
-        textAlign: widget.textAlign,
-      );
+      child = Text(widget.text!, style: widget.style);
     } else {
-      child = Text.rich(
-        widget.span!,
-        style: widget.style,
-        textAlign: widget.textAlign,
-      );
+      child = Text.rich(widget.span!, style: widget.style);
     }
 
     if (widget.selectable) {

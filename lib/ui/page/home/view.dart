@@ -204,21 +204,21 @@ class _HomeViewState extends State<HomeView> {
                           },
                           // [KeepAlivePage] used to keep the tabs' states.
                           children: [
-                            if (c.settings.value?.balanceTabEnabled != false)
-                              KeepAlivePage(
-                                key: c.keys[HomeTab.balance],
-                                child: const BalanceTabView(),
-                              ),
-                            if (c.settings.value?.partnerTabEnabled != false)
-                              KeepAlivePage(
-                                key: c.keys[HomeTab.work],
-                                child: const WorkTabView(),
-                              ),
-                            if (c.settings.value?.publicsTabEnabled != false)
-                              KeepAlivePage(
-                                key: c.keys[HomeTab.public],
-                                child: const PublicsTabView(),
-                              ),
+                            // if (c.settings.value?.balanceTabEnabled != false)
+                            KeepAlivePage(
+                              key: c.keys[HomeTab.balance],
+                              child: const BalanceTabView(),
+                            ),
+                            // if (c.settings.value?.workWithUsTabEnabled != false)
+                            KeepAlivePage(
+                              key: c.keys[HomeTab.work],
+                              child: const WorkTabView(),
+                            ),
+                            // if (c.settings.value?.publicsTabEnabled != false)
+                            KeepAlivePage(
+                              key: c.keys[HomeTab.public],
+                              child: const PublicsTabView(),
+                            ),
                             KeepAlivePage(
                               key: c.keys[HomeTab.chats],
                               child: const ChatsContactsTabView(),
@@ -252,7 +252,8 @@ class _HomeViewState extends State<HomeView> {
                           ContextMenuBuilder(
                             (_) => Obx(() {
                               final hasWork =
-                                  c.settings.value?.partnerTabEnabled == true;
+                                  c.settings.value?.workWithUsTabEnabled ==
+                                      true;
 
                               return ContextMenuTile(
                                 icon: const SvgIcon(SvgIcons.partner),
@@ -263,23 +264,6 @@ class _HomeViewState extends State<HomeView> {
                               );
                             }),
                           ),
-                          // ContextMenuBuilder(
-                          //   (_) => Obx(() {
-                          //     final hasPublics =
-                          //         c.settings.value?.publicsTabEnabled == true;
-
-                          //     return ContextMenuTile(
-                          //       icon: Transform.scale(
-                          //         scale: 1,
-                          //         child: const SvgIcon(SvgIcons.publics),
-                          //       ),
-                          //       label: 'label_publics'.l10n,
-                          //       pinned: hasPublics,
-                          //       onPinned: () =>
-                          //           c.setPublicsTabEnabled(!hasPublics),
-                          //     );
-                          //   }),
-                          // ),
                           const ContextMenuDivider(),
                         ];
 
@@ -288,232 +272,250 @@ class _HomeViewState extends State<HomeView> {
                           isOpen: router.navigation.value,
                           beginOffset: const Offset(0.0, 5),
                           translate: false,
-                          child: CustomNavigationBar(
-                            key: c.panelKey,
-                            items: [
-                              if (c.settings.value?.balanceTabEnabled != false)
-                                CustomNavigationBarItem(
-                                  key: const Key('BalanceButton'),
-                                  child: ContextMenuRegion(
-                                    selector: c.balanceKey,
-                                    alignment: Alignment.bottomLeft,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 16,
-                                      right: 32 + 16,
-                                    ),
-                                    actions: [
-                                      // ...top,
-                                      ContextMenuTile(
-                                        label: c.displayFunds
-                                            ? 'btn_hide_balance'.l10n
-                                            : 'btn_display_balance'.l10n,
-                                        pinnable: false,
-                                        onPressed: (context) {
-                                          c.setDisplayFunds(!c.displayFunds);
-                                          Navigator.of(context).pop();
-                                        },
-                                        asset: c.displayFunds
-                                            ? SvgIcons.showBalance
-                                            : SvgIcons.hideBalance,
-                                      ),
-                                    ],
-                                    child: WalletWidget(
-                                      key: c.balanceKey,
-                                      balance: c.balance.value,
-                                      visible: c.displayFunds,
-                                    ),
-                                  ),
-                                ),
-                              if (c.settings.value?.partnerTabEnabled != false)
-                                CustomNavigationBarItem(
-                                  key: const Key('PartnerButton'),
-                                  badge: c.displayTransactions
-                                      ? '${c.transactions.length}'
-                                      : null,
-                                  child: ContextMenuRegion(
-                                    selector: c.partnerKey,
-                                    alignment: Alignment.bottomCenter,
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    actions: [
-                                      // ...top,
-                                      ContextMenuTile(
-                                        label: c.displayTransactions
-                                            ? 'btn_hide_transactions'.l10n
-                                            : 'btn_display_transactions'.l10n,
-                                        pinnable: false,
-                                        onPressed: (context) {
-                                          c.setDisplayTransactions(
-                                            !c.displayTransactions,
-                                          );
-                                          Navigator.of(context).pop();
-                                        },
-                                        asset: c.displayTransactions
-                                            ? SvgIcons.showBalance
-                                            : SvgIcons.hideBalance,
-                                      ),
-                                    ],
-                                    child: SvgIcon(
-                                      SvgIcons.partner,
-                                      key: c.partnerKey,
-                                    ),
-                                  ),
-                                ),
-                              if (c.settings.value?.publicsTabEnabled != false)
-                                CustomNavigationBarItem(
-                                  key: const Key('PublicButton'),
-                                  child: ContextMenuRegion(
-                                    selector: c.publicsKey,
-                                    alignment: Alignment.bottomCenter,
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    actions: [
-                                      // ...top,
-                                      ContextMenuTile(
-                                        label: c.publicsToggle.value
-                                            ? 'btn_unmute_chats'.l10n
-                                            : 'btn_mute_chats'.l10n,
-                                        pinnable: false,
-                                        onPressed: (context) {
-                                          c.publicsToggle.toggle();
-                                          Navigator.of(context).pop();
-                                        },
-                                        asset: c.publicsToggle.value
-                                            ? SvgIcons.muted22
-                                            : SvgIcons.unmuted22,
-                                      ),
-                                    ],
-                                    child: Transform.translate(
-                                      key: c.publicsKey,
-                                      offset: const Offset(0, 1),
-                                      child: Obx(() {
-                                        return SvgIcon(
-                                          c.publicsToggle.value
-                                              ? SvgIcons.publicsMuted
-                                              : SvgIcons.publics,
-                                        );
-                                      }),
-                                    ),
-                                  ),
-                                ),
-                              CustomNavigationBarItem(
-                                badge: c.unreadChatsCount.value == 0
-                                    ? null
-                                    : '${c.unreadChatsCount.value}',
-                                badgeColor: c.myUser.value?.muted != null
-                                    ? style.colors.secondaryHighlightDarkest
-                                    : style.colors.danger,
-                                onPressed: () {
-                                  if (Get.isRegistered<
-                                      ChatsContactsTabController>()) {
-                                    Get.find<ChatsContactsTabController>()
-                                        .switched
-                                        .value = false;
-                                  }
-                                },
-                                child: ContextMenuRegion(
-                                  key: const Key('ChatsButton'),
-                                  selector: c.chatsKey,
-                                  alignment: Alignment.bottomCenter,
-                                  margin: const EdgeInsets.only(bottom: 16),
-                                  actions: [
-                                    // ...top,
-                                    ContextMenuTile(
-                                      label: c.myUser.value?.muted != null
-                                          ? 'btn_unmute_chats'.l10n
-                                          : 'btn_mute_chats'.l10n,
-                                      pinnable: false,
-                                      onPressed: (context) {
-                                        c.toggleMute(
-                                          c.myUser.value?.muted != null,
-                                        );
-                                        Navigator.of(context).pop();
-                                      },
-                                      trailing: true,
-                                      asset: c.myUser.value?.muted != null
-                                          ? SvgIcons.muted22
-                                          : SvgIcons.unmuted22,
-                                    ),
-                                  ],
-                                  child: Obx(() {
-                                    final Widget child;
-
-                                    if (c.myUser.value?.muted != null) {
-                                      child = const SvgIcon(
-                                        SvgIcons.chatsMuted,
-                                        key: Key('Muted'),
-                                      );
-                                    } else {
-                                      child = Transform.translate(
-                                        offset: const Offset(0, 0.5),
-                                        child: const SvgIcon(
-                                          SvgIcons.chats,
-                                          key: Key('Unmuted'),
+                          child: Obx(() {
+                            return CustomNavigationBar(
+                              key: c.panelKey,
+                              items: c.tabs.map((e) {
+                                switch (e) {
+                                  case HomeTab.balance:
+                                    return CustomNavigationBarItem(
+                                      key: const Key('BalanceButton'),
+                                      child: ContextMenuRegion(
+                                        selector: c.balanceKey,
+                                        alignment: Alignment.bottomLeft,
+                                        margin: const EdgeInsets.only(
+                                          bottom: 16,
+                                          right: 32 + 16,
                                         ),
-                                      );
-                                    }
-
-                                    return SafeAnimatedSwitcher(
-                                      key: c.chatsKey,
-                                      duration: 200.milliseconds,
-                                      child: child,
+                                        actions: [
+                                          // ...top,
+                                          ContextMenuTile(
+                                            label: c.displayFunds
+                                                ? 'btn_hide_balance'.l10n
+                                                : 'btn_display_balance'.l10n,
+                                            pinnable: false,
+                                            onPressed: (context) {
+                                              c.setDisplayFunds(
+                                                  !c.displayFunds);
+                                              Navigator.of(context).pop();
+                                            },
+                                            asset: c.displayFunds
+                                                ? SvgIcons.showBalance
+                                                : SvgIcons.hideBalance,
+                                          ),
+                                        ],
+                                        child: WalletWidget(
+                                          key: c.balanceKey,
+                                          balance: c.balance.value,
+                                          visible: c.displayFunds,
+                                        ),
+                                      ),
                                     );
-                                  }),
-                                ),
-                              ),
-                              CustomNavigationBarItem(
-                                child: ContextMenuRegion(
-                                  key: const Key('MenuButton'),
-                                  selector: c.panelKey,
-                                  alignment: Alignment.bottomRight,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 8,
-                                    left: 8,
-                                  ),
-                                  actions: [
-                                    ...top,
-                                    ContextMenuTile(
-                                      label: 'label_presence_present'.l10n,
-                                      pinnable: false,
-                                      onPressed: (context) {
-                                        c.setPresence(Presence.present);
-                                        Navigator.of(context).pop();
-                                      },
-                                      icon: Container(
-                                        width: 16,
-                                        height: 16,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: style.colors.acceptAuxiliary,
+
+                                  case HomeTab.work:
+                                    return CustomNavigationBarItem(
+                                      key: const Key('PartnerButton'),
+                                      badge: c.displayTransactions
+                                          ? '${c.transactions.length}'
+                                          : null,
+                                      child: ContextMenuRegion(
+                                        selector: c.partnerKey,
+                                        alignment: Alignment.bottomCenter,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        actions: [
+                                          // ...top,
+                                          ContextMenuTile(
+                                            label: c.displayTransactions
+                                                ? 'btn_hide_transactions'.l10n
+                                                : 'btn_display_transactions'
+                                                    .l10n,
+                                            pinnable: false,
+                                            onPressed: (context) {
+                                              c.setDisplayTransactions(
+                                                !c.displayTransactions,
+                                              );
+                                              Navigator.of(context).pop();
+                                            },
+                                            asset: c.displayTransactions
+                                                ? SvgIcons.showBalance
+                                                : SvgIcons.hideBalance,
+                                          ),
+                                        ],
+                                        child: SvgIcon(
+                                          SvgIcons.partner,
+                                          key: c.partnerKey,
                                         ),
                                       ),
-                                    ),
-                                    ContextMenuTile(
-                                      label: 'label_presence_away'.l10n,
-                                      pinnable: false,
-                                      onPressed: (context) {
-                                        c.setPresence(Presence.away);
-                                        Navigator.of(context).pop();
-                                      },
-                                      icon: Container(
-                                        width: 16,
-                                        height: 16,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: style.colors.warning,
+                                    );
+
+                                  case HomeTab.public:
+                                    return CustomNavigationBarItem(
+                                      key: const Key('PublicButton'),
+                                      child: ContextMenuRegion(
+                                        selector: c.publicsKey,
+                                        alignment: Alignment.bottomCenter,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        actions: [
+                                          // ...top,
+                                          ContextMenuTile(
+                                            label: c.publicsToggle.value
+                                                ? 'btn_unmute_chats'.l10n
+                                                : 'btn_mute_chats'.l10n,
+                                            pinnable: false,
+                                            onPressed: (context) {
+                                              c.publicsToggle.toggle();
+                                              Navigator.of(context).pop();
+                                            },
+                                            asset: c.publicsToggle.value
+                                                ? SvgIcons.muted22
+                                                : SvgIcons.unmuted22,
+                                          ),
+                                        ],
+                                        child: Transform.translate(
+                                          key: c.publicsKey,
+                                          offset: const Offset(0, 1),
+                                          child: Obx(() {
+                                            return SvgIcon(
+                                              c.publicsToggle.value
+                                                  ? SvgIcons.publicsMuted
+                                                  : SvgIcons.publics,
+                                            );
+                                          }),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                  child: AvatarWidget.fromMyUser(
-                                    c.myUser.value,
-                                    key: c.profileKey,
-                                    radius: AvatarRadius.medium,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            currentIndex: router.tab.index,
-                            onTap: c.pages.jumpToPage,
-                          ),
+                                    );
+
+                                  case HomeTab.chats:
+                                    return CustomNavigationBarItem(
+                                      badge: c.unreadChats.value == 0
+                                          ? null
+                                          : '${c.unreadChats.value}',
+                                      badgeColor: c.myUser.value?.muted != null
+                                          ? style
+                                              .colors.secondaryHighlightDarkest
+                                          : style.colors.danger,
+                                      onPressed: () {
+                                        if (Get.isRegistered<
+                                            ChatsContactsTabController>()) {
+                                          Get.find<ChatsContactsTabController>()
+                                              .switched
+                                              .value = false;
+                                        }
+                                      },
+                                      child: ContextMenuRegion(
+                                        key: const Key('ChatsButton'),
+                                        selector: c.chatsKey,
+                                        alignment: Alignment.bottomCenter,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        actions: [
+                                          // ...top,
+                                          ContextMenuTile(
+                                            label: c.myUser.value?.muted != null
+                                                ? 'btn_unmute_chats'.l10n
+                                                : 'btn_mute_chats'.l10n,
+                                            pinnable: false,
+                                            onPressed: (context) {
+                                              c.toggleMute(
+                                                c.myUser.value?.muted != null,
+                                              );
+                                              Navigator.of(context).pop();
+                                            },
+                                            trailing: true,
+                                            asset: c.myUser.value?.muted != null
+                                                ? SvgIcons.muted22
+                                                : SvgIcons.unmuted22,
+                                          ),
+                                        ],
+                                        child: Obx(() {
+                                          final Widget child;
+
+                                          if (c.myUser.value?.muted != null) {
+                                            child = const SvgIcon(
+                                              SvgIcons.chatsMuted,
+                                              key: Key('Muted'),
+                                            );
+                                          } else {
+                                            child = Transform.translate(
+                                              offset: const Offset(0, 0.5),
+                                              child: const SvgIcon(
+                                                SvgIcons.chats,
+                                                key: Key('Unmuted'),
+                                              ),
+                                            );
+                                          }
+
+                                          return SafeAnimatedSwitcher(
+                                            key: c.chatsKey,
+                                            duration: 200.milliseconds,
+                                            child: child,
+                                          );
+                                        }),
+                                      ),
+                                    );
+
+                                  case HomeTab.menu:
+                                    return CustomNavigationBarItem(
+                                      child: ContextMenuRegion(
+                                        key: const Key('MenuButton'),
+                                        selector: c.panelKey,
+                                        alignment: Alignment.bottomRight,
+                                        margin: const EdgeInsets.only(
+                                          bottom: 8,
+                                          left: 8,
+                                        ),
+                                        actions: [
+                                          ...top,
+                                          ContextMenuTile(
+                                            label:
+                                                'label_presence_present'.l10n,
+                                            pinnable: false,
+                                            onPressed: (context) {
+                                              c.setPresence(Presence.present);
+                                              Navigator.of(context).pop();
+                                            },
+                                            icon: Container(
+                                              width: 16,
+                                              height: 16,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: style
+                                                    .colors.acceptAuxiliary,
+                                              ),
+                                            ),
+                                          ),
+                                          ContextMenuTile(
+                                            label: 'label_presence_away'.l10n,
+                                            pinnable: false,
+                                            onPressed: (context) {
+                                              c.setPresence(Presence.away);
+                                              Navigator.of(context).pop();
+                                            },
+                                            icon: Container(
+                                              width: 16,
+                                              height: 16,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: style.colors.warning,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                        child: AvatarWidget.fromMyUser(
+                                          c.myUser.value,
+                                          key: c.profileKey,
+                                          radius: AvatarRadius.medium,
+                                        ),
+                                      ),
+                                    );
+                                }
+                              }).toList(),
+                              currentIndex: router.tab.index,
+                              onTap: c.pages.jumpToPage,
+                            );
+                          }),
                         );
                       }),
                     ),

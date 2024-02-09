@@ -709,16 +709,10 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Sets the [ApplicationSettings.loadImages] value.
-  Future<void> setLoadImages(bool enabled) =>
-      _settingsRepo.setLoadImages(enabled);
-
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsRepo.setLeaveWhenAlone(enabled);
 
-  Future<void> setPartnerTabEnabled(bool enabled) async {
-    await _settingsRepo.setPartnerTabEnabled(enabled);
-  }
+
 
   Future<void> setBalanceTabEnabled(bool enabled) =>
       _settingsRepo.setBalanceTabEnabled(enabled);
@@ -747,6 +741,11 @@ class MyProfileController extends GetxController {
     await _myUserService.updateUserName(name);
   }
 
+  /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
+  Future<void> updateUserBio(UserBio? bio) async {
+    await _myUserService.updateUserBio(bio);
+  }
+
   /// Updates or resets the [MyUser.status] field of the authenticated
   /// [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
@@ -763,6 +762,11 @@ class MyProfileController extends GetxController {
 
   /// Deletes the cache used by the application.
   Future<void> clearCache() => CacheWorker.instance.clear();
+
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
+      _settingsRepo.setWorkWithUsTabEnabled(enabled);
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

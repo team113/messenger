@@ -32,17 +32,14 @@ class ApplicationSettings extends HiveObject {
     this.callButtons = const [],
     this.showDragAndDropVideosHint = false,
     this.showDragAndDropButtonsHint = false,
-    this.sortContactsByName = true,
-    this.loadImages = true,
+    this.pinnedActions = const [],
+    this.callButtonsPosition = CallButtonsPosition.appBar,
+    this.workWithUsTabEnabled = true,
     this.displayFunds = true,
     this.displayTransactions = true,
-    this.timelineEnabled = false,
     this.leaveWhenAlone = false,
     this.balanceTabEnabled = true,
-    this.partnerTabEnabled = true,
     this.publicsTabEnabled = true,
-    this.pinnedActions = const [],
-    this.mediaButtonsPosition = MediaButtonsPosition.appBar,
     this.displayRates = true,
   });
 
@@ -78,28 +75,24 @@ class ApplicationSettings extends HiveObject {
   @HiveField(6)
   bool? showDragAndDropButtonsHint;
 
-  /// Indicator whether [ChatContact]s should be sorted by their names.
+  /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   @HiveField(7)
-  bool sortContactsByName;
+  List<String> pinnedActions;
 
-  /// Indicator whether [ImageAttachment]s should be loaded automatically.
+  /// [CallButtonsPosition] of the call buttons in [Chat].
   @HiveField(8)
-  bool loadImages;
+  CallButtonsPosition? callButtonsPosition;
 
+  /// Indicator whether [WorkTabView] should be displayed in the
+  /// [CustomNavigationBar] of [HomeView].
   @HiveField(9)
-  bool displayFunds;
+  bool workWithUsTabEnabled;
 
   @HiveField(10)
-  bool displayTransactions;
+  bool displayFunds;
 
-  /// Indicator whether [ChatItem.at] labels should be displayed as a timeline
-  /// in a [Chat].
   @HiveField(11)
-  bool timelineEnabled;
-
-  /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
-  @HiveField(15)
-  List<String> pinnedActions;
+  bool displayTransactions;
 
   @HiveField(12)
   bool leaveWhenAlone;
@@ -108,35 +101,32 @@ class ApplicationSettings extends HiveObject {
   bool balanceTabEnabled;
 
   @HiveField(14)
-  bool partnerTabEnabled;
-
-  @HiveField(17)
   bool publicsTabEnabled;
 
-  @HiveField(16)
-  MediaButtonsPosition? mediaButtonsPosition;
-
-  @HiveField(18)
+  @HiveField(15)
   bool displayRates;
 }
 
-@HiveType(typeId: ModelTypeId.mediaButtonsPosition)
-enum MediaButtonsPosition {
-  // @HiveField(5)
-  // automatic,
-
+/// Possible call buttons position.
+@HiveType(typeId: ModelTypeId.callButtonsPosition)
+enum CallButtonsPosition {
+  /// [AppBar] position.
   @HiveField(0)
   appBar,
 
+  /// [ContextMenu] position.
   @HiveField(1)
   contextMenu,
 
+  /// Top position in [ChatView] body.
   @HiveField(2)
   top,
 
+  /// Bottom position in [ChatView] body.
   @HiveField(3)
   bottom,
 
+  /// [ChatMoreWidget] button position.
   @HiveField(4)
   more,
 }

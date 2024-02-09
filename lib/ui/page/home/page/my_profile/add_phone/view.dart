@@ -101,7 +101,11 @@ class AddPhoneView extends StatelessWidget {
                             child: OutlinedRoundedButton(
                               key: const Key('Resend'),
                               maxWidth: double.infinity,
-                              title: Text(
+                              onPressed: c.resendPhoneTimeout.value == 0
+                                  ? c.resendPhone
+                                  : null,
+                              color: style.colors.primary,
+                              child: Text(
                                 c.resendPhoneTimeout.value == 0
                                     ? 'label_resend'.l10n
                                     : 'label_resend_timeout'.l10nfmt(
@@ -111,10 +115,6 @@ class AddPhoneView extends StatelessWidget {
                                     ? style.fonts.normal.regular.onPrimary
                                     : style.fonts.normal.regular.onBackground,
                               ),
-                              onPressed: c.resendPhoneTimeout.value == 0
-                                  ? c.resendPhone
-                                  : null,
-                              color: style.colors.primary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -122,16 +122,16 @@ class AddPhoneView extends StatelessWidget {
                             child: OutlinedRoundedButton(
                               key: const Key('Proceed'),
                               maxWidth: double.infinity,
-                              title: Text(
+                              onPressed: c.phoneCode.isEmpty.value
+                                  ? null
+                                  : c.phoneCode.submit,
+                              color: style.colors.primary,
+                              child: Text(
                                 'btn_proceed'.l10n,
                                 style: c.phoneCode.isEmpty.value
                                     ? style.fonts.normal.regular.onBackground
                                     : style.fonts.normal.regular.onPrimary,
                               ),
-                              onPressed: c.phoneCode.isEmpty.value
-                                  ? null
-                                  : c.phoneCode.submit,
-                              color: style.colors.primary,
                             ),
                           ),
                         ],
@@ -172,15 +172,15 @@ class AddPhoneView extends StatelessWidget {
                       return OutlinedRoundedButton(
                         key: const Key('Proceed'),
                         maxWidth: double.infinity,
-                        title: Text(
+                        onPressed:
+                            c.phone.isEmpty.value ? null : c.phone.submit,
+                        color: style.colors.primary,
+                        child: Text(
                           'btn_proceed'.l10n,
                           style: c.phone.isEmpty.value
                               ? style.fonts.normal.regular.onBackground
                               : style.fonts.normal.regular.onPrimary,
                         ),
-                        onPressed:
-                            c.phone.isEmpty.value ? null : c.phone.submit,
-                        color: style.colors.primary,
                       );
                     }),
                   ],

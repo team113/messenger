@@ -53,15 +53,15 @@ class PersonalizationView extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedRoundedButton(
-                  title: Text('btn_change'.l10n),
                   onPressed: c.pickBackground,
+                  child: Text('btn_change'.l10n),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedRoundedButton(
-                  title: Text('btn_remove'.l10n),
                   onPressed: c.removeBackground,
+                  child: Text('btn_remove'.l10n),
                 ),
               ),
             ],

@@ -54,12 +54,10 @@ import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
-  const ChatInfoView(this.id, {super.key, this.edit = false});
+  const ChatInfoView(this.id, {super.key});
 
   /// ID of the [Chat] of this info page.
   final ChatId id;
-
-  final bool edit;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +72,6 @@ class ChatInfoView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        edit: edit,
       ),
       tag: id.val,
       global: !Get.isRegistered<ChatInfoController>(tag: id.val),
@@ -330,17 +327,6 @@ class ChatInfoView extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // BigButton(
-          //   key: const Key('AddMemberButton'),
-          //   // leading: Icon(Icons.people, color: style.colors.primary),
-          //   // leading: const SvgIcon(SvgIcons.addUser),
-
-          //   title:
-          //       Text('label_participants'.l10nfmt({'count': members.length})),
-          //   leading: Text('btn_add'.l10n),
-          //   onPressed: () => AddChatMemberView.show(context, chatId: id),
-          // ),
-          // const SizedBox(height: 3),
           ...members.map((e) {
             final bool inCall = c.chat?.chat.value.ongoingCall?.members
                     .any((u) => u.user.id == e.id) ==
@@ -348,19 +334,13 @@ class ChatInfoView extends StatelessWidget {
 
             return MemberTile(
               user: e,
-              canLeave: e.id == c.me,
+              me: e.id == c.me,
               inCall: c.chat?.chat.value.ongoingCall == null
                   ? null
                   : e.id == c.me
-                      ? c.inCall
+                      ? c.chat?.inCall.value == true
                       : inCall,
-              onTap: () {
-                if (e.dialog.value != null) {
-                  router.chat(e.dialog.value!.id, push: true);
-                } else {
-                  router.user(e.id, push: true);
-                }
-              },
+              onTap: () => router.chat(e.user.value.dialog, push: true),
               onCall: inCall
                   ? () => c.removeChatCallMember(e.id)
                   : e.id == c.me
@@ -369,20 +349,6 @@ class ChatInfoView extends StatelessWidget {
               onKick: () => c.removeChatMember(e.id),
             );
           }),
-          // Padding(
-          //   padding:
-          //       EdgeInsets.fromLTRB(0, 12, Block.defaultPadding.right + 8, 0),
-          //   child: Align(
-          //     alignment: Alignment.centerRight,
-          //     child: AnimatedButton(
-          //       onPressed: () => AddChatMemberView.show(context, chatId: id),
-          //       child: Text(
-          //         'Добавить участника',
-          //         style: style.fonts.small.regular.primary,
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       );
     });
@@ -394,41 +360,6 @@ class ChatInfoView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        // if (!c.isMonolog)
-        //   Obx(() {
-        //     final bool muted = c.chat?.chat.value.muted != null;
-        //     return ActionButton(
-        //       onPressed: muted ? c.unmuteChat : c.muteChat,
-        //       text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-        //       trailing: Transform.translate(
-        //         offset: const Offset(0, -1),
-        //         child: muted
-        //             ? const SvgIcon(SvgIcons.muted16)
-        //             : const SvgIcon(SvgIcons.unmuted16),
-        //       ),
-        //     );
-        //   }),
-        // ActionButton(
-        //   key: const Key('HideChatButton'),
-        //   onPressed: () => _hideChat(c, context),
-        //   text: 'btn_delete_chat'.l10n,
-        //   trailing: Transform.translate(
-        //     offset: const Offset(0, -1),
-        //     child: const SvgIcon(SvgIcons.delete),
-        //   ),
-        // ),
-
-        // if (!c.isMonolog) ...[
-        //   ActionButton(
-        //     onPressed: () => _leaveGroup(c, context),
-        //     text: 'btn_leave_group'.l10n,
-        //     trailing: const SvgIcon(SvgIcons.leaveGroup16),
-        //   ),
-        //   ActionButton(
-        //     onPressed: () => _blacklistChat(c, context),
-        //     text: 'btn_block'.l10n,
-        //     trailing: const SvgIcon(SvgIcons.block16),
-        //   ),
         if (!c.isMonolog)
           ActionButton(
             onPressed: c.report,
@@ -445,25 +376,17 @@ class ChatInfoView extends StatelessWidget {
           trailing: const SvgIcon(SvgIcons.cleanHistory16),
         ),
         ActionButton(
-          key: const Key('HideButton'),
+          key: const Key('HideChatButton'),
           onPressed: () => _hideChat(c, context),
           text: 'btn_delete_chat'.l10n,
           trailing: const SvgIcon(SvgIcons.delete),
         ),
-
-        if (!c.isMonolog) ...[
-          // ActionButton(
-          //   onPressed: () => _blacklistChat(c, context),
-          //   text: 'btn_block'.l10n,
-          //   trailing: const SvgIcon(SvgIcons.block16),
-          // ),
+        if (!c.isMonolog)
           ActionButton(
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
             trailing: const SvgIcon(SvgIcons.leaveGroup16),
           ),
-        ],
-        // ],
       ],
     );
   }
@@ -499,12 +422,13 @@ class ChatInfoView extends StatelessWidget {
     });
   }
 
+  /// Returns information about the [Chat] and related to it action buttons in
+  /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool contact = false;
     final bool favorite = c.chat?.chat.value.favoritePosition != null;
-    final bool muted = c.chat?.chat.value.muted != null;
+    final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
     return Center(
       child: Row(
@@ -568,124 +492,76 @@ class ChatInfoView extends StatelessWidget {
             AnimatedButton(
               onPressed: c.editing.toggle,
               decorator: (child) => Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 18, 0),
+                padding: const EdgeInsets.only(right: 18),
                 child: child,
               ),
               child: const SvgIcon(SvgIcons.closePrimary),
             ),
           ] else ...[
-            // AnimatedButton(
-            //   onPressed: () {},
-            //   child: const SvgIcon(SvgIcons.edit),
-            // ),
             AnimatedButton(
               onPressed: () => router.chat(c.chat?.id ?? id),
               child: const SvgIcon(SvgIcons.chat),
             ),
-            // const SizedBox(width: 28),
-            // AnimatedButton(
-            //   onPressed: () => c.call(true),
-            //   child: const SvgIcon(SvgIcons.chatVideoCall),
-            // ),
-            // const SizedBox(width: 28),
-            // AnimatedButton(
-            //   onPressed: () => c.call(false),
-            //   child: const SvgIcon(SvgIcons.chatAudioCall),
-            // ),
-            // const SizedBox(width: 28),
-            // AnimatedButton(
-            //   onPressed: () {},
-            //   child: const SvgIcon(SvgIcons.edit),
-            // ),
-            // AnimatedButton(
-            //   onPressed: () => router.chat(c.chat?.id ?? id),
-            //   child: const SvgIcon(SvgIcons.chat),
-            // ),
-            // const SizedBox(width: 28),
-
-            // Obx(() {
-            //   final bool muted = c.chat?.chat.value.muted != null;
-
-            //   return AnimatedButton(
-            //     onPressed: muted ? c.unmuteChat : c.muteChat,
-            //     child: SvgIcon(muted ? SvgIcons.muted22 : SvgIcons.unmuted22),
-            //   );
-            // }),
-            // const SizedBox(width: 28),
-            // Obx(() {
-            //   final bool favorite = c.chat?.chat.value.favoritePosition != null;
-
-            //   return AnimatedButton(
-            //     onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-            //     child: SvgIcon(
-            //       favorite ? SvgIcons.favorite22 : SvgIcons.unfavorite22,
-            //     ),
-            //   );
-            // }),
-            // const SizedBox(width: 28),
-            // AnimatedButton(
-            //   decorator: (child) => Padding(
-            //     padding: const EdgeInsets.only(bottom: 1, right: 16),
-            //     child: child,
-            //   ),
-            //   onPressed: c.editing.toggle,
-            //   child: const SvgIcon(SvgIcons.editGroup),
-            // ),
-            // AnimatedButton(
-            //   onPressed: c.editing.toggle,
-            //   child: const SvgIcon(SvgIcons.edit22),
-            // ),
-            // AnimatedButton(
-            //   onPressed: c.editing.toggle,
-            //   decorator: (child) => Padding(
-            //     padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            //     child: child,
-            //   ),
-            //   child: Text(
-            //     'Редактировать',
-            //     style: style.fonts.normal.regular.primary,
-            //   ),
-            // ),
-            // const SizedBox(width: 21),
-            ContextMenuRegion(
-              key: c.moreKey,
-              selector: c.moreKey,
-              alignment: Alignment.topRight,
-              enablePrimaryTap: true,
-              margin: const EdgeInsets.only(
-                bottom: 4,
-                left: 20,
-              ),
-              actions: [
-                ContextMenuButton(
-                  label: 'btn_audio_call'.l10n,
-                  onPressed: () => c.call(false),
-                  trailing: const SvgIcon(SvgIcons.makeAudioCall),
-                  inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
-                ),
-                ContextMenuButton(
-                  label: 'btn_video_call'.l10n,
-                  onPressed: () => c.call(true),
-                  trailing: Transform.translate(
-                    offset: const Offset(2, 0),
-                    child: const SvgIcon(SvgIcons.makeVideoCall),
+            KeyedSubtree(
+              key: const Key('MoreButton'),
+              child: ContextMenuRegion(
+                key: c.moreKey,
+                selector: c.moreKey,
+                alignment: Alignment.topRight,
+                enablePrimaryTap: true,
+                margin: const EdgeInsets.only(bottom: 4, left: 20),
+                actions: [
+                  ContextMenuButton(
+                    label: 'btn_audio_call'.l10n,
+                    onPressed: hasCall ? null : () => c.call(false),
+                    trailing: hasCall
+                        ? const SvgIcon(SvgIcons.makeAudioCallDisabled)
+                        : const SvgIcon(SvgIcons.makeAudioCall),
+                    inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
                   ),
-                  inverted: Transform.translate(
-                    offset: const Offset(2, 0),
-                    child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                  ContextMenuButton(
+                    label: 'btn_video_call'.l10n,
+                    onPressed: hasCall ? null : () => c.call(true),
+                    trailing: Transform.translate(
+                      offset: const Offset(2, 0),
+                      child: hasCall
+                          ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+                          : const SvgIcon(SvgIcons.makeVideoCall),
+                    ),
+                    inverted: Transform.translate(
+                      offset: const Offset(2, 0),
+                      child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                    ),
                   ),
+                  ContextMenuButton(
+                    key: const Key('EditButton'),
+                    label: 'btn_edit'.l10n,
+                    onPressed: c.editing.toggle,
+                    trailing: const SvgIcon(SvgIcons.edit),
+                    inverted: const SvgIcon(SvgIcons.editWhite),
+                  ),
+                  ContextMenuButton(
+                    label: favorite
+                        ? 'btn_delete_from_favorites'.l10n
+                        : 'btn_add_to_favorites'.l10n,
+                    onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+                    trailing: SvgIcon(
+                      favorite
+                          ? SvgIcons.favoriteSmall
+                          : SvgIcons.unfavoriteSmall,
+                    ),
+                    inverted: SvgIcon(
+                      favorite
+                          ? SvgIcons.favoriteSmallWhite
+                          : SvgIcons.unfavoriteSmallWhite,
+                    ),
+                  ),
+                ],
+                child: Container(
+                  padding: const EdgeInsets.only(left: 31, right: 25),
+                  height: double.infinity,
+                  child: const SvgIcon(SvgIcons.more),
                 ),
-                ContextMenuButton(
-                  label: 'btn_edit'.l10n,
-                  onPressed: c.editing.toggle,
-                  trailing: const SvgIcon(SvgIcons.edit),
-                  inverted: const SvgIcon(SvgIcons.editWhite),
-                ),
-              ],
-              child: Container(
-                padding: const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
-                height: double.infinity,
-                child: const SvgIcon(SvgIcons.more),
               ),
             ),
           ],

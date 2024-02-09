@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
@@ -50,9 +51,8 @@ class ChatInfoController extends GetxController {
     this._authService,
     this._callService,
     this._userService,
-    this._settingsRepo, {
-    bool edit = false,
-  }) : editing = RxBool(edit);
+    this._settingsRepo,
+  );
 
   /// ID of the [Chat] this page is about.
   final ChatId chatId;
@@ -74,9 +74,23 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  final GlobalKey moreKey = GlobalKey();
+  /// Indicator whether the editing mode is enabled.
+  final RxBool editing = RxBool(false);
 
-  final RxBool editing;
+  /// List of [UserId]s that are being removed from the [chat].
+  final RxList<UserId> membersOnRemoval = RxList([]);
+
+  /// [Chat.name] field state.
+  late final TextFieldState name;
+
+  /// [Chat.directLink] field state.
+  late final TextFieldState link;
+
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  final GlobalKey avatarKey = GlobalKey();
+
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -92,19 +106,7 @@ class ChatInfoController extends GetxController {
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
-  /// List of [UserId]s that are being removed from the [chat].
-  final RxList<UserId> membersOnRemoval = RxList([]);
-
-  /// [Chat.name] field state.
-  late final TextFieldState name;
-
   late final TextFieldState textStatus;
-
-  /// [Chat.directLink] field state.
-  late final TextFieldState link;
-
-  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
-  final GlobalKey avatarKey = GlobalKey();
 
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
@@ -118,13 +120,11 @@ class ChatInfoController extends GetxController {
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
+  /// Subscription for the [chat] changes.
+  StreamSubscription? _chatSubscription;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
-
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
-  bool get inCall =>
-      _callService.calls[chatId] != null || WebUtils.containsCall(chatId);
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
@@ -275,7 +275,7 @@ class ChatInfoController extends GetxController {
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
   Future<void> call(bool withVideo) async {
     try {
-      _callService.call(chatId, withVideo: withVideo);
+      await _callService.call(chatId, withVideo: withVideo);
     } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -288,7 +288,9 @@ class ChatInfoController extends GetxController {
   Future<void> pickAvatar() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      withReadStream: true,
+      withReadStream: !PlatformUtils.isWeb,
+      withData: PlatformUtils.isWeb,
+      lockParentWindow: true,
     );
 
     if (result != null) {
@@ -382,6 +384,8 @@ class ChatInfoController extends GetxController {
       await _chatService.hideChat(chatId);
     } on HideChatException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -456,12 +460,16 @@ class ChatInfoController extends GetxController {
   }
 
   /// Fetches the [chat].
-  void _fetchChat() async {
+  Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
-    chat = await _chatService.get(chatId);
+
+    final FutureOr<RxChat?> fetched = _chatService.get(chatId);
+    chat = fetched is RxChat? ? fetched : await fetched;
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
+      _chatSubscription = chat!.updates.listen((_) {});
+
       name.unchecked = chat!.chat.value.name?.val;
 
       if (chat!.chat.value.directLink?.slug.val == null) {

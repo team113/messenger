@@ -23,6 +23,7 @@ import '../model/contact.dart';
 import '../repository/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/search.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
@@ -42,51 +43,73 @@ class ContactService extends DisposableService {
   /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
-  /// Returns the reactive map the currently paginated [ChatContact]s.
+  /// Returns the reactive map of the currently paginated [RxChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get paginated =>
       _contactRepository.paginated;
 
+  /// Returns the current reactive map of all [RxChatContact]s available.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
+      _contactRepository.contacts;
+
   /// Fetches the next [paginated] page.
   FutureOr<void> next() {
+    // Log.debug('next()', '$runtimeType');
     return _contactRepository.next();
   }
 
   /// Adds the specified [user] to the current [MyUser]'s address book.
-  Future<void> createChatContact(User user) => _contactRepository
-      .createChatContact(user.name ?? UserName(user.num.toString()), user.id);
+  Future<void> createChatContact(User user) {
+    Log.debug('createChatContact($user)', '$runtimeType');
+
+    return _contactRepository.createChatContact(
+      user.name ?? UserName(user.num.toString()),
+      user.id,
+    );
+  }
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
   /// address book.
-  Future<void> deleteContact(ChatContactId id) =>
-      _contactRepository.deleteContact(id);
+  Future<void> deleteContact(ChatContactId id) async {
+    Log.debug('deleteContact($id)', '$runtimeType');
+    await _contactRepository.deleteContact(id);
+  }
 
   /// Updates `name` of the specified [ChatContact] in the authenticated
   /// [MyUser]'s address book.
-  Future<void> changeContactName(ChatContactId id, UserName name) =>
-      _contactRepository.changeContactName(id, name);
+  Future<void> changeContactName(ChatContactId id, UserName name) async {
+    Log.debug('changeContactName($id, $name)', '$runtimeType');
+    await _contactRepository.changeContactName(id, name);
+  }
 
   /// Marks the specified [ChatContact] as favorited for the authenticated
   /// [MyUser] and sets its position in the favorites list.
   Future<void> favoriteChatContact(
     ChatContactId id, [
     ChatContactFavoritePosition? position,
-  ]) =>
-      _contactRepository.favoriteChatContact(id, position);
+  ]) async {
+    Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
+    await _contactRepository.favoriteChatContact(id, position);
+  }
 
   /// Removes the specified [ChatContact] from the favorites list of the
   /// authenticated [MyUser].
-  Future<void> unfavoriteChatContact(ChatContactId id) =>
-      _contactRepository.unfavoriteChatContact(id);
+  Future<void> unfavoriteChatContact(ChatContactId id) async {
+    Log.debug('unfavoriteChatContact($id)', '$runtimeType');
+    await _contactRepository.unfavoriteChatContact(id);
+  }
 
   /// Searches [ChatContact]s by the given criteria.
   SearchResult<ChatContactId, RxChatContact> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,
-  }) =>
-      _contactRepository.search(
-        name: name,
-        email: email,
-        phone: phone,
-      );
+  }) {
+    Log.debug('search($name, $email, $phone)', '$runtimeType');
+
+    return _contactRepository.search(
+      name: name,
+      email: email,
+      phone: phone,
+    );
+  }
 }

@@ -31,6 +31,7 @@ import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/expandable_text.dart';
+import 'package:messenger/ui/widget/info_tile.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -188,28 +189,6 @@ class UserView extends StatelessWidget {
                         ],
                       ),
                     Block(
-                      // title: 'label_public_information'.l10n,
-                      // title:
-                      //     '${c.user!.user.value.name ?? c.user!.user.value.num}',
-
-                      // overlay: [
-                      //   Positioned(
-                      //     top: 8,
-                      //     right: 8,
-                      //     child: Obx(() {
-                      //       // if (!c.inContacts.value) {
-                      //       //   return const SizedBox();
-                      //       // }
-
-                      //       return AnimatedButton(
-                      //         onPressed: c.editing.toggle,
-                      //         child: c.editing.value
-                      //             ? const SvgIcon(SvgIcons.closePrimary)
-                      //             : const SvgIcon(SvgIcons.editGroup),
-                      //       );
-                      //     }),
-                      //   ),
-                      // ],
                       children: [
                         SelectionContainer.disabled(
                           child: BigAvatarWidget.user(
@@ -251,11 +230,10 @@ class UserView extends StatelessWidget {
                       // padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
                       children: [
                         Paddings.basic(
-                          const ContactInfoContents(
-                            padding: EdgeInsets.zero,
+                          const InfoTile(
                             title: 'Login',
                             content: 'alice',
-                            icon: SvgIcon(SvgIcons.profileLogin),
+
                             trailing: CopyOrShareButton('alice'),
                             // trailing: WidgetButton(
                             //   onPressed: () {},
@@ -265,11 +243,9 @@ class UserView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Paddings.basic(
-                          ContactInfoContents(
-                            padding: EdgeInsets.zero,
+                          InfoTile(
                             title: 'Gapopa ID',
                             content: c.user!.user.value.num.toString(),
-                            icon: const SvgIcon(SvgIcons.profileNum),
                             trailing: CopyOrShareButton(
                               c.user!.user.value.num.toString(),
                             ),
@@ -281,11 +257,10 @@ class UserView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Paddings.basic(
-                          const ContactInfoContents(
-                            padding: EdgeInsets.zero,
+                          const InfoTile(
                             title: 'E-mail',
                             content: 'hello@example.com',
-                            icon: SvgIcon(SvgIcons.profileEmail),
+
                             trailing: CopyOrShareButton('hello@example.com'),
                             // trailing: WidgetButton(
                             //   onPressed: () {},
@@ -295,12 +270,10 @@ class UserView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Paddings.basic(
-                          const ContactInfoContents(
-                            padding: EdgeInsets.zero,
+                          const InfoTile(
                             title: 'Phone',
                             content: '+1 234 5678 90',
                             trailing: CopyOrShareButton('+1 234 5678 90'),
-                            icon: SvgIcon(SvgIcons.profilePhone),
                           ),
                         ),
                       ],

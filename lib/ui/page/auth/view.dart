@@ -98,7 +98,6 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
-            title: Text('btn_sign_up'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -106,11 +105,11 @@ class AuthView extends StatelessWidget {
               child: const SvgIcon(SvgIcons.register),
             ),
             onPressed: () => LoginView.show(context),
+            child: Text('btn_sign_up'.l10n),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_sign_in'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -119,11 +118,11 @@ class AuthView extends StatelessWidget {
             ),
             onPressed: () =>
                 LoginView.show(context, initial: LoginViewStage.signIn),
+            child: Text('btn_sign_in'.l10n),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            title: Text('btn_guest'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -131,6 +130,7 @@ class AuthView extends StatelessWidget {
               child: const SvgIcon(SvgIcons.oneTime),
             ),
             onPressed: c.register,
+            child: Text('btn_guest'.l10n),
           ),
           const SizedBox(height: 15),
         ];
@@ -204,41 +204,17 @@ class AuthView extends StatelessWidget {
               padding: ModalPopup.padding(context),
               shrinkWrap: true,
               children: const [
-                DownloadButton(
-                  asset: SvgIcons.windows,
-                  title: 'Windows',
-                  link: 'messenger-windows.zip',
-                ),
+                DownloadButton.windows(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.apple,
-                  title: 'macOS',
-                  link: 'messenger-macos.zip',
-                ),
+                DownloadButton.macos(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.linux,
-                  title: 'Linux',
-                  link: 'messenger-linux.zip',
-                ),
+                DownloadButton.linux(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.appStore,
-                  title: 'App Store',
-                  link: 'messenger-ios.zip',
-                ),
+                DownloadButton.appStore(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.googlePlay,
-                  title: 'Google Play',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.googlePlay(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.android,
-                  title: 'Android',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.android(),
               ],
             ),
           ),

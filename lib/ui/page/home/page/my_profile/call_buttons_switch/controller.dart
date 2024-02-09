@@ -24,18 +24,20 @@ import '/domain/repository/settings.dart';
 
 export 'view.dart';
 
-/// Controller of a [MediaButtonsSwitchView].
-class MediaButtonsSwitchController extends GetxController {
-  MediaButtonsSwitchController(this._settingsRepository);
+/// Controller of a [CallButtonsSwitchView].
+class CallButtonsSwitchController extends GetxController {
+  CallButtonsSwitchController(this._settingsRepository);
 
-  /// Settings repository updating the [ApplicationSettings.timelineEnabled].
+  /// Settings repository updating the
+  /// [ApplicationSettings.callButtonsPosition].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Sets the [ApplicationSettings.mediaButtonsPosition] value.
-  Future<void> setMediaButtonsPosition(MediaButtonsPosition position) =>
-      _settingsRepository.setMediaButtonsPosition(position);
+  /// Sets the [ApplicationSettings.callButtonsPosition] value.
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    _settingsRepository.setCallButtonsPosition(position);
+  }
 }

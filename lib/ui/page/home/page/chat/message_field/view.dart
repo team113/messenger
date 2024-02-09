@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
@@ -32,6 +33,7 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -43,14 +45,16 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-import 'buttons.dart';
 import 'controller.dart';
-import 'more.dart';
+import 'widget/chat_button.dart';
+import 'widget/close_button.dart';
 
 // TODO: Instead of `fileOnly`?
 enum MessageFieldAction {
@@ -170,30 +174,29 @@ class MessageFieldView extends StatelessWidget {
       builder: (MessageFieldController c) {
         return Theme(
           data: theme(context),
-          child: Container(
-            key: const Key('SendField'),
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              boxShadow: [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity13,
-                ),
-              ],
-            ),
-            child: ConditionalBackdropFilter(
-              condition: style.cardBlur > 0,
-              filter: ImageFilter.blur(
-                sigmaX: style.cardBlur,
-                sigmaY: style.cardBlur,
-              ),
-              borderRadius: style.cardRadius,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildHeader(c, context),
-                  _buildField(c, context),
+          child: SafeArea(
+            child: Container(
+              key: const Key('SendField'),
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
+                  ),
                 ],
+              ),
+              child: ConditionalBackdropFilter(
+                condition: style.cardBlur > 0,
+                filter: ImageFilter.blur(
+                  sigmaX: style.cardBlur,
+                  sigmaY: style.cardBlur,
+                ),
+                borderRadius: style.cardRadius,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [_buildHeader(c, context), _buildField(c, context)],
+                ),
               ),
             ),
           ),
@@ -376,6 +379,7 @@ class MessageFieldView extends StatelessWidget {
             color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
               duration: 400.milliseconds,
+              alignment: Alignment.bottomCenter,
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
@@ -483,7 +487,7 @@ class MessageFieldView extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: MouseRegion(
                           cursor: grab
-                              ? SystemMouseCursors.grab
+                              ? CustomMouseCursors.grab
                               : MouseCursor.defer,
                           opaque: false,
                           child: ScrollConfiguration(
@@ -522,70 +526,32 @@ class MessageFieldView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return LayoutBuilder(builder: (context, constraints) {
-      final first = c.panel.firstOrNull;
-
       return Container(
-        key: c.globalKey,
+        key: c.fieldKey,
         constraints: const BoxConstraints(minHeight: 56),
-        decoration: BoxDecoration(color: background ?? style.cardColor),
+        decoration: BoxDecoration(color: style.cardColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (c.panel.length > 1)
-              AnimatedButton(
-                enabled: canAttach,
-                onPressed: canAttach
-                    ? () {
-                        if (c.moreOpened.value) {
-                          c.removeEntries<MessageFieldMore>();
-                        } else {
-                          c.removeEntries<MessageFieldMore>();
-                          c.addEntry<MessageFieldMore>(MessageFieldMore(c));
-                        }
-                      }
-                    : null,
-                child: SizedBox(
-                  width: 50,
-                  height: 56,
-                  child: Center(
-                    child: Obx(() {
-                      return AnimatedScale(
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.bounceInOut,
-                        scale: c.moreOpened.value ? 1.1 : 1,
-                        child: const SvgIcon(SvgIcons.chatMore),
-                      );
-                    }),
-                  ),
-                ),
-              )
-            else if (first != null)
-              AnimatedButton(
-                onPressed: first.onPressed == null
-                    ? null
-                    : () => first.onPressed?.call(false),
-                child: SizedBox(
-                  width: 50,
-                  height: 56,
-                  child: Center(
-                    child: first.icon == null
-                        ? Transform.translate(
-                            offset: first.offset,
-                            child: SvgIcon(
-                              first.enabled
-                                  ? first.asset
-                                  : (first.disabled ?? first.asset),
-                            ),
-                          )
-                        : Icon(
-                            first.icon,
-                            size: 28,
-                            color: style.colors.primary,
-                          ),
-                  ),
+            AnimatedButton(
+              enabled: canAttach,
+              onPressed: canAttach ? c.toggleMore : null,
+              child: SizedBox(
+                width: 50,
+                height: 56,
+                child: Center(
+                  child: Obx(() {
+                    return AnimatedScale(
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.bounceInOut,
+                      scale: c.moreOpened.value ? 1.1 : 1,
+                      child: const SvgIcon(SvgIcons.chatMore),
+                    );
+                  }),
                 ),
               ),
+            ),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
@@ -618,112 +584,46 @@ class MessageFieldView extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 26 / 2 - 3),
+            const SizedBox(width: 10),
             Obx(() {
-              if (c.buttons.isEmpty || !true) {
-                return const SizedBox();
-              }
-
-              final buttons = c.buttons.where((p0) => p0.hidden == false);
-
-              int take = buttons.length;
-              if (constraints.maxWidth - 160 < 50 * buttons.length) {
-                take = ((constraints.maxWidth - 160) / 50).round();
-              }
-
-              take = max(take, 0);
-
-              final int total = ((constraints.maxWidth - 160) / 50).round();
+              int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
 
               SchedulerBinding.instance.addPostFrameCallback((_) {
-                c.canPin.value = buttons.length < total;
+                c.canPin.value = c.buttons.length < take;
               });
 
               final bool sendable = !c.field.isEmpty.value ||
                   c.attachments.isNotEmpty ||
-                  c.replied.isNotEmpty ||
-                  c.donation.value != null;
+                  c.replied.isNotEmpty;
 
-              return Wrap(
-                children: buttons
-                    .take(!sendable ? take : 1)
-                    .skip(sendable || buttons.length == 1 ? 0 : 1)
+              final List<Widget> children;
+
+              if (sendable || c.buttons.isEmpty) {
+                children = [
+                  Obx(() {
+                    return SafeAnimatedSwitcher(
+                      duration: 300.milliseconds,
+                      child: ChatButtonWidget.send(
+                        key: c.forwarding.value
+                            ? const Key('Forward')
+                            : sendKey ?? const Key('Send'),
+                        forwarding: c.forwarding.value,
+                        onPressed: c.field.submit,
+                        onLongPress: canForward ? c.forwarding.toggle : null,
+                      ),
+                    );
+                  })
+                ];
+              } else {
+                children = c.buttons
+                    .take(take)
                     .toList()
                     .reversed
-                    .mapIndexed((i, e) {
-                  if (e is SendButton) {
-                    Widget button() {
-                      return Obx(() {
-                        return GestureDetector(
-                          onLongPress: canForward ? c.forwarding.toggle : null,
-                          child: WidgetButton(
-                            onPressed: canSend
-                                ? () {
-                                    if (c.editing.value) {
-                                      c.field.unsubmit();
-                                    }
-                                    c.field.submit();
-                                  }
-                                : null,
-                            child: SizedBox(
-                              width: 50,
-                              height: 56,
-                              child: Center(
-                                child: AnimatedSwitcher(
-                                  duration: 300.milliseconds,
-                                  child: c.forwarding.value
-                                      ? const AnimatedButton(
-                                          child: SvgIcon(SvgIcons.forward),
-                                        )
-                                      : AnimatedButton(
-                                          key: sendKey ?? const Key('Send'),
-                                          child: const SvgIcon(SvgIcons.send),
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      });
-                    }
+                    .map((e) => ChatButtonWidget(e))
+                    .toList();
+              }
 
-                    return button();
-                  }
-
-                  return WidgetButton(
-                    onPressed: e.enabled ? () => e.onPressed?.call(true) : null,
-                    child: MouseRegion(
-                      onEnter: (_) => e.onHovered?.call(true),
-                      // onExit: (_) => e.onHovered?.call(false),
-                      opaque: false,
-                      child: SizedBox(
-                        key: e.key,
-                        width: 50,
-                        height: 56,
-                        child: Center(
-                          child: AnimatedButton(
-                            enabled: e.enabled,
-                            child: e.icon == null
-                                ? Transform.translate(
-                                    offset: e.offset,
-                                    child: SvgIcon(
-                                      e.enabled
-                                          ? e.asset
-                                          : (e.disabled ?? e.asset),
-                                    ),
-                                  )
-                                : Icon(
-                                    e.icon,
-                                    size: 28,
-                                    color: style.colors.primary,
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              );
+              return Wrap(children: children);
             }),
             const SizedBox(width: 3),
           ],
@@ -789,13 +689,15 @@ class MessageFieldView extends StatelessWidget {
                               .removeWhere((o) => o.value == attachments[i]);
                         },
                         children: attachments.map((o) {
-                          if (o is ImageAttachment ||
-                              (o is LocalAttachment && o.file.isImage)) {
+                          if (o is ImageAttachment) {
                             return GalleryItem.image(
                               o.original.url,
                               o.filename,
                               size: o.original.size,
+                              width: (o.original as ImageFile).width,
+                              height: (o.original as ImageFile).height,
                               checksum: o.original.checksum,
+                              thumbhash: o.big.thumbhash,
                             );
                           }
                           return GalleryItem.video(
@@ -851,14 +753,14 @@ class MessageFieldView extends StatelessWidget {
                   Flexible(
                     child: Text(
                       p.basenameWithoutExtension(e.filename),
-                      style: const TextStyle(fontSize: 13),
+                      style: style.fonts.small.regular.onBackground,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     p.extension(e.filename),
-                    style: const TextStyle(fontSize: 13),
+                    style: style.fonts.small.regular.onBackground,
                   )
                 ],
               ),
@@ -872,7 +774,7 @@ class MessageFieldView extends StatelessWidget {
                       ? 'dot'.l10n * 3
                       : e.original.size! ~/ 1024
                 }),
-                style: TextStyle(fontSize: 13, color: style.colors.secondary),
+                style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -935,23 +837,17 @@ class MessageFieldView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 4, top: 4),
                     child: Obx(() {
-                      final Widget child;
-
-                      if (c.hoveredAttachment.value == e ||
-                          PlatformUtils.isMobile) {
-                        child = InkWell(
-                          key: const Key('RemovePickedFile'),
-                          onTap: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
-                          child: _close(context),
-                        );
-                      } else {
-                        child = const SizedBox();
-                      }
-
-                      return AnimatedSwitcher(
+                      return AnimatedOpacity(
                         duration: 200.milliseconds,
-                        child: child,
+                        opacity: c.hoveredAttachment.value == e ||
+                                PlatformUtils.isMobile
+                            ? 1
+                            : 0,
+                        child: CloseButton(
+                          key: const Key('RemovePickedFile'),
+                          onPressed: () =>
+                              c.attachments.removeWhere((a) => a.value == e),
+                        ),
                       );
                     }),
                   ),
@@ -962,11 +858,20 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
+    return ObxValue(
+      (p) {
+        return Opacity(
+          opacity: 1 - p.value,
+          child: Dismissible(
+            key: Key(e.id.val),
+            direction: DismissDirection.up,
+            onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+            onUpdate: (d) => p.value = d.progress,
+            child: attachment(),
+          ),
+        );
+      },
+      RxDouble(0),
     );
   }
 
@@ -980,6 +885,8 @@ class MessageFieldView extends StatelessWidget {
   }) {
     final style = Theme.of(context).style;
 
+    final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
+
     final bool fromMe = item.author.id == c.me;
 
     if (edited) {
@@ -991,7 +898,6 @@ class MessageFieldView extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
           decoration: BoxDecoration(
-            // color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -999,21 +905,16 @@ class MessageFieldView extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Редактирование сообщения'.l10n,
-                  style: style.fonts.medium.regular.onBackground.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  'label_message_editing'.l10n,
+                  style: style.fonts.medium.regular.primary,
                 ),
               ),
-              WidgetButton(
-                key: const Key('CancelReplyButton'),
+              AnimatedButton(
+                key: const Key('CancelEditButton'),
                 onPressed: onClose,
                 child: Text(
-                  'Cancel',
-                  style: style.fonts.medium.regular.onBackground.copyWith(
-                    fontSize: 13,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  'btn_cancel'.l10n,
+                  style: style.fonts.small.regular.primary,
                 ),
               )
             ],
@@ -1052,6 +953,7 @@ class MessageFieldView extends StatelessWidget {
                   : RetryImage(
                       image.small.url,
                       checksum: image.small.checksum,
+                      thumbhash: image.small.thumbhash,
                       fit: BoxFit.cover,
                       height: double.infinity,
                       width: double.infinity,
@@ -1098,19 +1000,19 @@ class MessageFieldView extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 12, 0),
-            child: item.withVideo
-                ? SvgImage.asset(
-                    'assets/icons/call_video${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 13,
-                  )
-                : SvgImage.asset(
-                    'assets/icons/call_audio${isMissed && !fromMe ? '_red' : ''}.svg',
-                    height: 15,
-                  ),
+            child: SvgIcon(
+              item.withVideo
+                  ? isMissed && !fromMe
+                      ? SvgIcons.callVideoMissed
+                      : SvgIcons.callVideo
+                  : isMissed && !fromMe
+                      ? SvgIcons.callAudioMissed
+                      : SvgIcons.callAudio,
+            ),
           ),
           Flexible(
-              child:
-                  Text(title, style: style.fonts.medium.regular.onBackground)),
+            child: Text(title, style: style.fonts.medium.regular.onBackground),
+          ),
           if (time != null) ...[
             const SizedBox(width: 9),
             Padding(
@@ -1119,10 +1021,7 @@ class MessageFieldView extends StatelessWidget {
                 time,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: style.fonts.medium.regular.onBackground.copyWith(
-                  color: style.colors.secondary,
-                  fontSize: 13,
-                ),
+                style: style.fonts.small.regular.secondary,
               ),
             ),
           ],
@@ -1130,15 +1029,21 @@ class MessageFieldView extends StatelessWidget {
       );
     } else if (item is ChatForward) {
       // TODO: Implement `ChatForward`.
-      content = Text('label_forwarded_message'.l10n,
-          style: style.fonts.medium.regular.onBackground);
+      content = Text(
+        'label_forwarded_message'.l10n,
+        style: style.fonts.medium.regular.onBackground,
+      );
     } else if (item is ChatInfo) {
       // TODO: Implement `ChatInfo`.
-      content = Text(item.action.toString(),
-          style: style.fonts.medium.regular.onBackground);
+      content = Text(
+        item.action.toString(),
+        style: style.fonts.medium.regular.onBackground,
+      );
     } else {
-      content = Text('err_unknown'.l10n,
-          style: style.fonts.medium.regular.onBackground);
+      content = Text(
+        'err_unknown'.l10n,
+        style: style.fonts.medium.regular.onBackground,
+      );
     }
 
     final Widget expanded;
@@ -1183,7 +1088,8 @@ class MessageFieldView extends StatelessWidget {
       );
     } else {
       expanded = FutureBuilder<RxUser?>(
-        future: c.getUser(item.author.id),
+        future: userOrFuture is RxUser? ? null : userOrFuture,
+        initialData: userOrFuture is RxUser? ? userOrFuture : null,
         builder: (context, snapshot) {
           final Color color = snapshot.data?.user.value.id == c.me
               ? style.colors.primary
@@ -1213,9 +1119,7 @@ class MessageFieldView extends StatelessWidget {
                       })
                     : Text(
                         'dot'.l10n * 3,
-                        style: style.fonts.medium.regular.onBackground.copyWith(
-                          color: style.colors.primary,
-                        ),
+                        style: style.fonts.medium.regular.primary,
                       ),
                 if (content != null) ...[
                   const SizedBox(height: 2),
@@ -1247,21 +1151,18 @@ class MessageFieldView extends StatelessWidget {
           children: [
             Expanded(child: expanded),
             Obx(() {
-              final Widget child = WidgetButton(
-                key: const Key('CancelReplyButton'),
-                onPressed: onClose,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
-                  child: _close(context),
-                ),
-              );
-
               return AnimatedOpacity(
                 duration: 200.milliseconds,
                 opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
                     ? 1
                     : 0,
-                child: child,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                  child: CloseButton(
+                    key: const Key('CancelReplyButton'),
+                    onPressed: onClose,
+                  ),
+                ),
               );
             }),
           ],

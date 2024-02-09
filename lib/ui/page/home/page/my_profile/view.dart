@@ -41,6 +41,7 @@ import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/info_tile.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/util/web/web_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -83,15 +84,15 @@ import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
 import 'language/view.dart';
-import 'media_buttons_switch/view.dart';
+import 'call_buttons_switch/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'paid_list/view.dart';
 import 'password/view.dart';
 import 'set_price/view.dart';
-import 'timeline_switch/view.dart';
 import 'welcome_message/view.dart';
 import 'widget/background_preview.dart';
+import 'widget/bio.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
 import 'widget/status.dart';
@@ -123,9 +124,8 @@ class MyProfileView extends StatelessWidget {
                 ),
               ],
             ),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: ScrollablePositionedList.builder(
+            body: Builder(builder: (context) {
+              final Widget child = ScrollablePositionedList.builder(
                 key: const Key('MyProfileScrollable'),
                 initialScrollIndex: c.listInitIndex,
                 scrollController: c.scrollController,
@@ -179,13 +179,12 @@ class MyProfileView extends StatelessWidget {
                           ),
                           Paddings.basic(
                             Obx(() {
-                              return UserTextStatusField(
-                                c.myUser.value?.status,
-                                onSubmit: c.updateUserStatus,
+                              return UserBioField(
+                                c.myUser.value?.bio,
+                                onSubmit: c.updateUserBio,
                               );
                             }),
                           ),
-                          // _presence(context, c),
                         ],
                       );
 
@@ -193,28 +192,17 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_login_options'.l10n,
                         children: [
-                          // Paddings.basic(
-                          //   Obx(() {
-                          //     return UserNumCopyable(c.myUser.value?.num);
-                          //   }),
-                          // ),
                           Paddings.basic(
                             Obx(() {
-                              return ContactInfoContents(
-                                padding: EdgeInsets.zero,
-                                title: 'Gapopa ID',
+                              return InfoTile(
+                                title: 'label_num'.l10n,
                                 content: c.myUser.value?.num.toString() ?? '',
                                 trailing: CopyOrShareButton(
                                   c.myUser.value?.num.toString() ?? '',
                                 ),
-                                // trailing: WidgetButton(
-                                //   onPressed: () {},
-                                //   child: const SvgIcon(SvgIcons.copy),
-                                // ),
                               );
                             }),
                           ),
-
                           Obx(() {
                             if (c.myUser.value?.login == null) {
                               return const SizedBox();
@@ -226,6 +214,7 @@ class MyProfileView extends StatelessWidget {
                                 c.myUser.value?.login,
                                 onSubmit: (s) async {
                                   if (s == null) {
+                                    // TODO: Implement [UserLogin] deleting.
                                     c.myUser.value?.login = null;
                                     c.myUser.refresh();
                                   } else {
@@ -234,138 +223,11 @@ class MyProfileView extends StatelessWidget {
                                 },
                               ),
                             );
-
-                            return Paddings.basic(
-                              Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: ContactInfoContents(
-                                  padding: EdgeInsets.zero,
-                                  title: 'Login',
-                                  content: c.myUser.value!.login.toString(),
-                                  trailing: WidgetButton(
-                                    onPressed: () {},
-                                    child: const SvgIcon(SvgIcons.edit),
-                                  ),
-                                  // subtitle: [
-                                  //   const SizedBox(height: 4),
-                                  //   RichText(
-                                  //     text: TextSpan(
-                                  //       children: [
-                                  //         TextSpan(
-                                  //           text: 'label_login_visible'.l10n,
-                                  //           style: style
-                                  //               .fonts.small.regular.secondary,
-                                  //         ),
-                                  //         TextSpan(
-                                  //           text: 'label_nobody'
-                                  //                   .l10n
-                                  //                   .toLowerCase() +
-                                  //               'dot'.l10n,
-                                  //           style: style
-                                  //               .fonts.small.regular.primary,
-                                  //           recognizer: TapGestureRecognizer()
-                                  //             ..onTap = () async {
-                                  //               await ConfirmDialog.show(
-                                  //                 context,
-                                  //                 title: 'label_login'.l10n,
-                                  //                 additional: [
-                                  //                   Center(
-                                  //                     child: Text(
-                                  //                       'label_login_visibility_hint'
-                                  //                           .l10n,
-                                  //                       style: style
-                                  //                           .fonts
-                                  //                           .normal
-                                  //                           .regular
-                                  //                           .secondary,
-                                  //                     ),
-                                  //                   ),
-                                  //                   const SizedBox(height: 20),
-                                  //                   Align(
-                                  //                     alignment:
-                                  //                         Alignment.centerLeft,
-                                  //                     child: Text(
-                                  //                       'label_visible_to'.l10n,
-                                  //                       style: style
-                                  //                           .fonts
-                                  //                           .big
-                                  //                           .regular
-                                  //                           .onBackground,
-                                  //                     ),
-                                  //                   ),
-                                  //                 ],
-                                  //                 label: 'label_confirm'.l10n,
-                                  //                 initial: 2,
-                                  //                 variants: [
-                                  //                   ConfirmDialogVariant(
-                                  //                     onProceed: () {},
-                                  //                     label: 'label_all'.l10n,
-                                  //                   ),
-                                  //                   ConfirmDialogVariant(
-                                  //                     onProceed: () {},
-                                  //                     label: 'label_my_contacts'
-                                  //                         .l10n,
-                                  //                   ),
-                                  //                   ConfirmDialogVariant(
-                                  //                     onProceed: () {},
-                                  //                     label:
-                                  //                         'label_nobody'.l10n,
-                                  //                   ),
-                                  //                 ],
-                                  //               );
-                                  //             },
-                                  //         ),
-                                  //       ],
-                                  //     ),
-                                  //   ),
-                                  // ],
-                                ),
-                              ),
-                            );
                           }),
-
-                          // const SizedBox(height: 8),
-                          // const SizedBox(height: 8),
                           const SizedBox(height: 8),
-                          // Paddings.basic(
-                          //   Obx(() {
-                          //     return UserLoginField(
-                          //       c.myUser.value?.login,
-                          //       onSubmit: c.updateUserLogin,
-                          //     );
-                          //   }),
-                          // ),
-                          // const SizedBox(height: 8),
-                          // const SizedBox(height: 8),
-                          // Paddings.basic(
-                          //   Obx(() {
-                          //     return UserNumCopyable(c.myUser.value?.num);
-                          //   }),
-                          // ),
-
-                          // const SizedBox(height: 12),
-
                           _emails(context, c),
-                          // Obx(() {
-                          //   final hasEmails = [
-                          //     ...c.myUser.value?.emails.confirmed ?? [],
-                          //     c.myUser.value?.emails.unconfirmed,
-                          //     ...c.emails,
-                          //   ].whereNotNull().isNotEmpty;
-
-                          //   final hasPhones = [
-                          //     ...c.myUser.value?.phones.confirmed ?? [],
-                          //     c.myUser.value?.phones.unconfirmed,
-                          //     ...c.phones,
-                          //   ].whereNotNull().isNotEmpty;
-
-                          //   return SizedBox(
-                          //     height: hasPhones || hasEmails ? 54 : 0,
-                          //   );
-                          // }),
                           _phones(context, c),
                           _providers(context, c),
-                          // _password(context, c),
                           _addInfo(context, c),
                         ],
                       );
@@ -596,6 +458,10 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.storage:
+                      if (PlatformUtils.isWeb) {
+                        return const SizedBox();
+                      }
+
                       return block(
                         title: 'label_storage'.l10n,
                         children: [_storage(context, c)],
@@ -619,6 +485,12 @@ class MyProfileView extends StatelessWidget {
                         children: [_devices(context, c)],
                       );
 
+                    case ProfileTab.sections:
+                      return block(
+                        title: 'label_show_sections'.l10n,
+                        children: [_sections(context, c)],
+                      );
+
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
@@ -635,12 +507,6 @@ class MyProfileView extends StatelessWidget {
                         children: [_danger(context, c)],
                       );
 
-                    case ProfileTab.vacancies:
-                      return block(
-                        title: 'label_show_sections'.l10n,
-                        children: [_workWithUs(context, c)],
-                      );
-
                     case ProfileTab.styles:
                       return const SizedBox();
 
@@ -648,8 +514,14 @@ class MyProfileView extends StatelessWidget {
                       return const SizedBox();
                   }
                 },
-              ),
-            ),
+              );
+
+              if (PlatformUtils.isMobile) {
+                return Scrollbar(controller: c.scrollController, child: child);
+              }
+
+              return child;
+            }),
             floatingActionButton: Obx(() {
               if (c.myUser.value != null) {
                 return const SizedBox();
@@ -676,119 +548,14 @@ Widget _emails(BuildContext context, MyProfileController c) {
       ...c.emails.where((e) => !e.val.startsWith('unverified')),
     ]) {
       widgets.add(
-        ContactInfoContents(
-          padding: EdgeInsets.zero,
+        InfoTile(
           content: e.val,
           title: 'E-mail',
           trailing: WidgetButton(
             onPressed: () => _deleteEmail(c, context, e),
             child: const SvgIcon(SvgIcons.delete),
           ),
-          // subtitle: [
-          //   const SizedBox(height: 4),
-          //   RichText(
-          //     text: TextSpan(
-          //       children: [
-          //         TextSpan(
-          //           text: 'label_email_visible'.l10n,
-          //           style: style.fonts.small.regular.secondary,
-          //         ),
-          //         TextSpan(
-          //           text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-          //           style: style.fonts.small.regular.primary,
-          //           recognizer: TapGestureRecognizer()
-          //             ..onTap = () async {
-          //               await ConfirmDialog.show(
-          //                 context,
-          //                 title: 'label_email'.l10n,
-          //                 label: 'label_confirm'.l10n,
-          //                 initial: 2,
-          //                 variants: [
-          //                   ConfirmDialogVariant(
-          //                     onProceed: () {},
-          //                     label: 'label_all'.l10n,
-          //                   ),
-          //                   ConfirmDialogVariant(
-          //                     onProceed: () {},
-          //                     label: 'label_my_contacts'.l10n,
-          //                   ),
-          //                   ConfirmDialogVariant(
-          //                     onProceed: () {},
-          //                     label: 'label_nobody'.l10n,
-          //                   ),
-          //                 ],
-          //               );
-          //             },
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ],
         ),
-
-        // ReactiveTextField(
-        //   state: TextFieldState(text: e.val),
-        //   readOnly: true,
-        //   label: 'E-mail',
-        //   trailing: AnimatedButton(
-        //     key: const Key('DeleteEmail'),
-        //     onPressed: () => _deleteEmail(c, context, e),
-        //     child: const SvgIcon(SvgIcons.delete),
-        //   ),
-        //   subtitle: RichText(
-        //     text: TextSpan(
-        //       children: [
-        //         TextSpan(
-        //           text: 'label_email_visible'.l10n,
-        //           style: style.fonts.small.regular.secondary,
-        //         ),
-        //         TextSpan(
-        //           text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-        //           style: style.fonts.small.regular.primary,
-        //           recognizer: TapGestureRecognizer()
-        //             ..onTap = () async {
-        //               await ConfirmDialog.show(
-        //                 context,
-        //                 title: 'label_login'.l10n,
-        //                 additional: [
-        //                   Center(
-        //                     child: Text(
-        //                       'label_login_visibility_hint'.l10n,
-        //                       style: style.fonts.normal.regular.secondary,
-        //                     ),
-        //                   ),
-        //                   const SizedBox(height: 20),
-        //                   Align(
-        //                     alignment: Alignment.centerLeft,
-        //                     child: Text(
-        //                       'label_visible_to'.l10n,
-        //                       style: style.fonts.big.regular.onBackground,
-        //                     ),
-        //                   ),
-        //                 ],
-        //                 label: 'label_confirm'.l10n,
-        //                 initial: 2,
-        //                 variants: [
-        //                   ConfirmDialogVariant(
-        //                     onProceed: () {},
-        //                     label: 'label_all'.l10n,
-        //                   ),
-        //                   ConfirmDialogVariant(
-        //                     onProceed: () {},
-        //                     label: 'label_my_contacts'.l10n,
-        //                   ),
-        //                   ConfirmDialogVariant(
-        //                     onProceed: () {},
-        //                     label: 'label_nobody'.l10n,
-        //                   ),
-        //                 ],
-        //               );
-        //             },
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
       );
 
       widgets.add(const SizedBox(height: 8));
@@ -796,12 +563,10 @@ Widget _emails(BuildContext context, MyProfileController c) {
 
     final unconfirmed = c.myUser.value?.emails.unconfirmed ??
         c.emails.firstWhereOrNull((e) => e.val.startsWith('unverified'));
-    //??  UserEmail('unconfirmed@example.com');
 
     if (unconfirmed != null) {
       widgets.add(
-        ContactInfoContents(
-          padding: EdgeInsets.zero,
+        InfoTile(
           content: unconfirmed.val,
           trailing: WidgetButton(
             onPressed: () => _deleteEmail(c, context, unconfirmed),
@@ -821,50 +586,9 @@ Widget _emails(BuildContext context, MyProfileController c) {
           danger: true,
         ),
       );
-      // widgets.addAll([
-      //   Theme(
-      //     data: Theme.of(context).copyWith(
-      //       inputDecorationTheme:
-      //           Theme.of(context).inputDecorationTheme.copyWith(
-      //                 floatingLabelStyle:
-      //                     style.fonts.big.regular.onBackground.copyWith(
-      //                   color: style.colors.danger,
-      //                 ),
-      //               ),
-      //     ),
-      //     child: ReactiveTextField(
-      //       state: TextFieldState(text: unconfirmed.val),
-      //       readOnly: true,
-      //       label: 'E-mail не верифицирован',
-      //       trailing: AnimatedButton(
-      //         key: const Key('DeleteEmail'),
-      //         onPressed: () => _deleteEmail(c, context, unconfirmed),
-      //         child: const SvgIcon(SvgIcons.delete),
-      //       ),
-      //       subtitle: WidgetButton(
-      //         onPressed: () => AddEmailView.show(context, email: unconfirmed),
-      //         child: Text(
-      //           'Верифицировать.',
-      //           style: style.fonts.small.regular.primary,
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ]);
+
       widgets.add(const SizedBox(height: 8));
     }
-
-    // if (unconfirmed == null) {
-    //   widgets.add(
-    //     ReactiveTextField(
-    //       state: c.email,
-    //       label: 'Добавить E-mail',
-    //       floatingLabelBehavior: FloatingLabelBehavior.always,
-    //       hint: 'example@dummy.com',
-    //     ),
-    //   );
-    //   widgets.add(const SizedBox(height: 8));
-    // }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -886,121 +610,16 @@ Widget _phones(BuildContext context, MyProfileController c) {
       ...c.phones.where((e) => !e.val.startsWith('+0')),
     ]) {
       widgets.add(
-        ContactInfoContents(
-          padding: EdgeInsets.zero,
+        InfoTile(
           content: e.val,
           title: 'label_phone'.l10n,
           trailing: WidgetButton(
             onPressed: () => _deletePhone(c, context, e),
             child: const SvgIcon(SvgIcons.delete),
           ),
-          // subtitle: [
-          //   const SizedBox(height: 4),
-          //   RichText(
-          //     text: TextSpan(
-          //       children: [
-          //         TextSpan(
-          //           text: 'label_phone_visible'.l10n,
-          //           style: style.fonts.small.regular.secondary,
-          //         ),
-          //         TextSpan(
-          //           text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-          //           style: style.fonts.small.regular.primary,
-          //           recognizer: TapGestureRecognizer()
-          //             ..onTap = () async {
-          //               await ConfirmDialog.show(
-          //                 context,
-          //                 title: 'label_phone'.l10n,
-          //                 label: 'label_confirm'.l10n,
-          //                 initial: 2,
-          //                 variants: [
-          //                   ConfirmDialogVariant(
-          //                     onProceed: () {},
-          //                     label: 'label_all'.l10n,
-          //                   ),
-          //                   ConfirmDialogVariant(
-          //                     onProceed: () {},
-          //                     label: 'label_my_contacts'.l10n,
-          //                   ),
-          //                   ConfirmDialogVariant(
-          //                     onProceed: () {},
-          //                     label: 'label_nobody'.l10n,
-          //                   ),
-          //                 ],
-          //               );
-          //             },
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ],
         ),
       );
-      // widgets.add(
-      //   ReactiveTextField(
-      //     state: TextFieldState(text: e.val),
-      //     readOnly: true,
-      //     label: 'Phone',
-      //     trailing: AnimatedButton(
-      //       key: const Key('DeleteEmail'),
-      //       onPressed: () => _deletePhone(c, context, e),
-      //       child: const SvgIcon(SvgIcons.delete),
-      //     ),
-      //     subtitle: RichText(
-      //       text: TextSpan(
-      //         children: [
-      //           TextSpan(
-      //             text: 'label_login_visible'.l10n,
-      //             style: style.fonts.small.regular.secondary,
-      //           ),
-      //           TextSpan(
-      //             text: 'label_nobody'.l10n.toLowerCase() + 'dot'.l10n,
-      //             style: style.fonts.small.regular.primary,
-      //             recognizer: TapGestureRecognizer()
-      //               ..onTap = () async {
-      //                 await ConfirmDialog.show(
-      //                   context,
-      //                   title: 'label_login'.l10n,
-      //                   additional: [
-      //                     Center(
-      //                       child: Text(
-      //                         'label_login_visibility_hint'.l10n,
-      //                         style: style.fonts.normal.regular.secondary,
-      //                       ),
-      //                     ),
-      //                     const SizedBox(height: 20),
-      //                     Align(
-      //                       alignment: Alignment.centerLeft,
-      //                       child: Text(
-      //                         'label_visible_to'.l10n,
-      //                         style: style.fonts.big.regular.onBackground,
-      //                       ),
-      //                     ),
-      //                   ],
-      //                   label: 'label_confirm'.l10n,
-      //                   initial: 2,
-      //                   variants: [
-      //                     ConfirmDialogVariant(
-      //                       onProceed: () {},
-      //                       label: 'label_all'.l10n,
-      //                     ),
-      //                     ConfirmDialogVariant(
-      //                       onProceed: () {},
-      //                       label: 'label_my_contacts'.l10n,
-      //                     ),
-      //                     ConfirmDialogVariant(
-      //                       onProceed: () {},
-      //                       label: 'label_nobody'.l10n,
-      //                     ),
-      //                   ],
-      //                 );
-      //               },
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
-      // );
+
       widgets.add(const SizedBox(height: 8));
     }
 
@@ -1009,8 +628,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
 
     if (unconfirmed != null) {
       widgets.add(
-        ContactInfoContents(
-          padding: EdgeInsets.zero,
+        InfoTile(
           content: unconfirmed.val,
           title: 'Телефон не верифицирован',
           trailing: WidgetButton(
@@ -1020,9 +638,10 @@ Widget _phones(BuildContext context, MyProfileController c) {
           subtitle: [
             const SizedBox(height: 4),
             WidgetButton(
+              key: const Key('VerifyPhone'),
               onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
               child: Text(
-                'Верифицировать',
+                'label_verify'.l10n,
                 style: style.fonts.small.regular.primary,
               ),
             ),
@@ -1030,63 +649,9 @@ Widget _phones(BuildContext context, MyProfileController c) {
           danger: true,
         ),
       );
-      // widgets.addAll([
-      //   Theme(
-      //     data: Theme.of(context).copyWith(
-      //       inputDecorationTheme:
-      //           Theme.of(context).inputDecorationTheme.copyWith(
-      //                 floatingLabelStyle:
-      //                     style.fonts.big.regular.onBackground.copyWith(
-      //                   color: style.colors.danger,
-      //                 ),
-      //               ),
-      //     ),
-      //     child: ReactiveTextField(
-      //       state: TextFieldState(text: unconfirmed.val),
-      //       readOnly: true,
-      //       label: 'Телефон не верифицирован',
-      //       trailing: AnimatedButton(
-      //         key: const Key('DeleteEmail'),
-      //         onPressed: () => _deletePhone(c, context, unconfirmed),
-      //         child: const SvgIcon(SvgIcons.delete),
-      //       ),
-      //       subtitle: AnimatedButton(
-      //         onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
-      //         child: Text(
-      //           'Верифицировать',
-      //           style: style.fonts.small.regular.primary,
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ]);
+
       widgets.add(const SizedBox(height: 8));
     }
-
-    // if (unconfirmed == null) {
-    //   widgets.add(
-    //     ReactivePhoneField(
-    //       state: c.phone,
-    //       label: 'Добавить телефон',
-    //       // floatingLabelBehavior: FloatingLabelBehavior.always,
-    //       // hint: '+1 234 567 89 90',
-    //     ),
-    //     // ReactiveTextField(
-    //     //   state: c.phone,
-    //     //   label: 'Добавить телефон',
-    //     //   floatingLabelBehavior: FloatingLabelBehavior.always,
-    //     //   hint: '+1 234 567 89 90',
-    //     // ),
-    //   );
-    //   widgets.add(const SizedBox(height: 8));
-    // }
-
-    // if (widgets.length <= 1) {
-    //   widgets.add(const SizedBox(height: 0));
-    // } else {
-    //   // widgets.insert(0, const SizedBox(height: 24));
-    //   widgets.add(const SizedBox(height: 48));
-    // }
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1105,8 +670,7 @@ Widget _providers(BuildContext context, MyProfileController c) {
 
     for (var e in c.providers) {
       widgets.add(
-        ContactInfoContents(
-          padding: EdgeInsets.zero,
+        InfoTile(
           content: e.$2.user?.email ?? 'Привязан',
           title: switch (e.$1) {
             OAuthProvider.apple => 'Apple ID',
@@ -1126,26 +690,6 @@ Widget _providers(BuildContext context, MyProfileController c) {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: widgets.map((e) => Paddings.dense(e)).toList(),
-    );
-  });
-}
-
-/// Returns [WidgetButton] displaying the [MyUser.presence].
-Widget _presence(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
-  return Obx(() {
-    final Presence? presence = c.myUser.value?.presence;
-
-    return Paddings.basic(
-      FieldButton(
-        onPressed: () => StatusView.show(context, expanded: false),
-        hint: 'label_presence'.l10n,
-        text: presence?.localizedString(),
-        trailing:
-            CircleAvatar(backgroundColor: presence?.getColor(), radius: 7),
-        style: style.fonts.normal.regular.primary,
-      ),
     );
   });
 }
@@ -1304,39 +848,9 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                 ],
               ],
             ],
-            // WidgetButton(
-            //   onPressed: c.expanded.toggle,
-            //   child: Text(
-            //     c.expanded.value ? 'Скрыть' : 'Ещё',
-            //     style: style.fonts.small.regular.primary,
-            //   ),
-            // ),
           ],
         );
       }),
-
-      // ReactivePhoneField(
-      //   state: c.phone,
-      //   label: 'Добавить телефон',
-      // ),
-      // const SizedBox(height: 24),
-      // ReactiveTextField(
-      //   state: c.email,
-      //   label: 'Добавить E-mail',
-      //   floatingLabelBehavior: FloatingLabelBehavior.always,
-      //   hint: 'example@dummy.com',
-      // ),
-
-      // Paddings.dense(
-      //   FieldButton(
-      //     text: 'Добавить E-mail, телефон, Google, Apple или GitHub',
-      //     maxLines: 3,
-      //     onPressed: () => ChangePasswordView.show(context),
-      //     style: style.fonts.normal.regular.primary,
-      //     trailing: const SvgIcon(SvgIcons.addMember),
-      //   ),
-      // ),
-      // const SizedBox(height: 10),
     ],
   );
 }
@@ -1380,57 +894,10 @@ Widget _danger(BuildContext context, MyProfileController c) {
         FieldButton(
           key: const Key('DeleteAccount'),
           text: 'btn_delete_account'.l10n,
-          // trailing: Transform.translate(
-          //   offset: const Offset(0, -1),
-          //   child: const SvgIcon(SvgIcons.delete),
-          // ),
           onPressed: () => _deleteAccount(c, context),
           danger: true,
           style: style.fonts.normal.regular.danger,
         ),
-      ),
-    ],
-  );
-}
-
-/// Returns the contents of a [ProfileTab.danger] section.
-Widget _workWithUs(BuildContext context, MyProfileController c) {
-  // final style = Theme.of(context).style;
-
-  return Column(
-    children: [
-      Paddings.dense(
-        Obx(() {
-          final enabled = c.settings.value?.balanceTabEnabled == true;
-
-          return SwitchField(
-            text: 'label_balance'.l10n,
-            value: enabled,
-            onChanged: c.setBalanceTabEnabled,
-          );
-        }),
-      ),
-      Paddings.dense(
-        Obx(() {
-          final enabled = c.settings.value?.partnerTabEnabled == true;
-
-          return SwitchField(
-            text: 'btn_work_with_us'.l10n,
-            value: enabled,
-            onChanged: c.setPartnerTabEnabled,
-          );
-        }),
-      ),
-      Paddings.dense(
-        Obx(() {
-          final enabled = c.settings.value?.publicsTabEnabled == true;
-
-          return SwitchField(
-            text: 'label_publics'.l10n,
-            value: enabled,
-            onChanged: c.setPublicsTabEnabled,
-          );
-        }),
       ),
     ],
   );
@@ -1443,23 +910,6 @@ Widget _call(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      // Paddings.dense(
-      //   Align(
-      //     alignment: Alignment.centerLeft,
-      //     child: Padding(
-      //       padding: const EdgeInsets.only(left: 21.0),
-      //       child: Text(
-      //         'label_open_calls_in'.l10n,
-      //         style: style.systemMessageStyle.copyWith(
-      //           color: Theme.of(context).colorScheme.secondary,
-      //           fontSize: 15,
-      //           fontWeight: FontWeight.w400,
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
-
       Paddings.dense(
         Obx(() {
           return FieldButton(
@@ -1472,47 +922,6 @@ Widget _call(BuildContext context, MyProfileController c) {
           );
         }),
       ),
-      // const SizedBox(height: 16),
-
-      // Paddings.dense(
-      //   Stack(
-      //     alignment: Alignment.centerRight,
-      //     children: [
-      //       IgnorePointer(
-      //         child: ReactiveTextField(
-      //           maxLines: null,
-      //           state: TextFieldState(
-      //             text: 'label_leave_group_call_when_alone'.l10n,
-      //             editable: false,
-      //           ),
-      //           trailing: const SizedBox(width: 40),
-      //           trailingWidth: 40,
-      //         ),
-      //       ),
-      //       Align(
-      //         alignment: Alignment.centerRight,
-      //         child: Padding(
-      //           padding: const EdgeInsets.only(right: 5),
-      //           child: Transform.scale(
-      //             scale: 0.7,
-      //             transformHitTests: false,
-      //             child: Theme(
-      //               data: ThemeData(platform: TargetPlatform.macOS),
-      //               child: Obx(
-      //                 () => Switch.adaptive(
-      //                   activeColor: Theme.of(context).colorScheme.primary,
-      //                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      //                   value: c.settings.value?.leaveWhenAlone == true,
-      //                   onChanged: c.setLeaveWhenAlone,
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     ],
   );
 }
@@ -1524,48 +933,14 @@ Widget _chats(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      // Paddings.dense(
-      //   Align(
-      //     alignment: Alignment.centerLeft,
-      //     child: Padding(
-      //       padding: const EdgeInsets.only(left: 21.0),
-      //       child: Text(
-      //         'label_display_timestamps'.l10n,
-      //         style: style.systemMessageStyle.copyWith(
-      //           color: style.colors.secondary,
-      //           fontSize: 15,
-      //           fontWeight: FontWeight.w400,
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ),
-      // const SizedBox(height: 4),
-      // Paddings.dense(
-      //   Obx(() {
-      //     return FieldButton(
-      //       text: (c.settings.value?.timelineEnabled ?? true)
-      //           ? 'label_as_timeline'.l10n
-      //           : 'label_in_message'.l10n,
-      //       maxLines: null,
-      //       onPressed: () => TimelineSwitchView.show(context),
-      //       style: style.fonts.normal.regular.primary,
-      //     );
-      //   }),
-      // ),
-      // const SizedBox(height: 16),
       Paddings.dense(
         Align(
           alignment: Alignment.centerLeft,
           child: Padding(
-            padding: const EdgeInsets.only(left: 21.0),
+            padding: const EdgeInsets.symmetric(horizontal: 21),
             child: Text(
-              'Отображать кнопки аудио и видео звонка'.l10n,
-              style: style.systemMessageStyle.copyWith(
-                color: style.colors.secondary,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
+              'label_display_audio_and_video_call_buttons'.l10n,
+              style: style.fonts.normal.regular.secondary,
             ),
           ),
         ),
@@ -1574,19 +949,19 @@ Widget _chats(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: switch (c.settings.value?.mediaButtonsPosition) {
-              MediaButtonsPosition.appBar =>
+            text: switch (c.settings.value?.callButtonsPosition) {
+              CallButtonsPosition.appBar ||
+              null =>
                 'label_media_buttons_in_app_bar'.l10n,
-              MediaButtonsPosition.contextMenu =>
+              CallButtonsPosition.contextMenu =>
                 'label_media_buttons_in_context_menu'.l10n,
-              MediaButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
-              MediaButtonsPosition.bottom =>
+              CallButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
+              CallButtonsPosition.bottom =>
                 'label_media_buttons_in_bottom'.l10n,
-              MediaButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
-              null => 'В верхней панели',
+              CallButtonsPosition.more => 'label_media_buttons_in_more'.l10n,
             },
             maxLines: null,
-            onPressed: () => MediaButtonsSwitchView.show(context),
+            onPressed: () => CallButtonsSwitchView.show(context),
             style: style.fonts.normal.regular.primary,
           );
         }),
@@ -1891,16 +1266,9 @@ Widget _welcome(BuildContext context, MyProfileController c) {
             .add(const EdgeInsets.fromLTRB(8, 0, 8, 0)),
         child: Text(
           'label_welcome_message_description'.l10n,
-          // expandText: 'label_show_more'.l10n,
-          // collapseText: 'label_show_less'.l10n,
-          // maxLines: 2,
           style: style.fonts.small.regular.secondary,
         ),
       ),
-      // Text(
-      //   'label_welcome_message_description'.l10n,
-      //   style: style.fonts.small.regular.secondary,
-      // ),
 
       const SizedBox(height: 16),
       Stack(
@@ -1926,21 +1294,6 @@ Widget _welcome(BuildContext context, MyProfileController c) {
               }),
             ),
           ),
-
-          // Positioned.fill(
-          //   child: Container(
-          //     width: double.infinity,
-          //     height: double.infinity,
-          //     decoration: BoxDecoration(
-          //       color: style.unreadMessageColor,
-          //       borderRadius: style.cardRadius,
-          //       // borderRadius: BorderRadius.only(
-          //       //   bottomRight: style.cardRadius.bottomRight,
-          //       //   bottomLeft: style.cardRadius.bottomLeft,
-          //       // ),
-          //     ),
-          //   ),
-          // ),
           Obx(() {
             return Column(
               children: [
@@ -2070,44 +1423,42 @@ Widget _verification(BuildContext context, MyProfileController c) {
   });
 }
 
-Widget _title(BuildContext context, String label, [bool enabled = true]) {
-  final style = Theme.of(context).style;
+/// Returns the contents of a [ProfileTab.sections] section.
+Widget _sections(BuildContext context, MyProfileController c) {
+  return Column(
+    children: [
+      Paddings.dense(
+        Obx(() {
+          final enabled = c.settings.value?.balanceTabEnabled == true;
 
-  return Padding(
-    padding: Insets.dense.copyWith(left: 0, right: 0),
-    child: Row(
-      children: [
-        const SizedBox(width: 0),
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            height: 1,
-            color: Colors.transparent,
-          ),
-        ),
-        // const SizedBox(width: 8),
-        // Text(
-        //   label,
-        //   textAlign: TextAlign.center,
-        //   style: style.systemMessageStyle.copyWith(
-        //     // color: Theme.of(context).colorScheme.secondary,
-        //     color: enabled ? style.colors.onBackground : style.colors.secondary,
-        //     fontSize: 15,
+          return SwitchField(
+            text: 'label_balance'.l10n,
+            value: enabled,
+            onChanged: c.setBalanceTabEnabled,
+          );
+        }),
+      ),
+      Paddings.dense(
+        Obx(() {
+          return SwitchField(
+            text: 'btn_work_with_us'.l10n,
+            value: c.settings.value?.workWithUsTabEnabled == true,
+            onChanged: c.setWorkWithUsTabEnabled,
+          );
+        }),
+      ),
+      Paddings.dense(
+        Obx(() {
+          final enabled = c.settings.value?.publicsTabEnabled == true;
 
-        //     fontWeight: FontWeight.w400,
-        //   ),
-        // ),
-        // const SizedBox(width: 8),
-        Expanded(
-          child: Container(
-            width: double.infinity,
-            height: 1,
-            color: Colors.transparent,
-          ),
-        ),
-        const SizedBox(width: 0),
-      ],
-    ),
+          return SwitchField(
+            text: 'label_publics'.l10n,
+            value: enabled,
+            onChanged: c.setPublicsTabEnabled,
+          );
+        }),
+      ),
+    ],
   );
 }
 
@@ -2144,7 +1495,7 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
       const SizedBox(height: 8),
       Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-        child: ContactInfoContents(
+        child: InfoTile(
           title: 'Входящие сообщения, за 1 сообщение',
           content: '¤${c.allMessageCost.text}',
           trailing: AnimatedButton(
@@ -2167,31 +1518,10 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             ),
           ),
         ),
-        // ReactiveTextField(
-        //   state: c.allMessageCost,
-        //   style: style.fonts.medium.regular.onBackground,
-        //   floatingLabelBehavior: FloatingLabelBehavior.always,
-        //   formatters: [FilteringTextInputFormatter.digitsOnly],
-        //   trailing: Text('btn_edit'.l10n),
-        //   hint: '0',
-        //   prefix: Padding(
-        //     padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-        //     child: Transform.translate(
-        //       offset: PlatformUtils.isWeb
-        //           ? const Offset(0, -0)
-        //           : const Offset(0, -0.5),
-        //       child: Text(
-        //         '¤',
-        //         style: style.fonts.medium.regular.onBackground,
-        //       ),
-        //     ),
-        //   ),
-        //   label: 'Входящие сообщения, за 1 сообщение',
-        // ),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-        child: ContactInfoContents(
+        child: InfoTile(
           title: 'Входящие звонки, за 1 минуту',
           content: '¤${c.allCallCost.text}',
           trailing: AnimatedButton(
@@ -2215,28 +1545,6 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
           ),
         ),
       ),
-      // Paddings.basic(
-      //   ReactiveTextField(
-      //     state: c.allCallCost,
-      //     style: style.fonts.medium.regular.onBackground,
-      //     floatingLabelBehavior: FloatingLabelBehavior.always,
-      //     formatters: [FilteringTextInputFormatter.digitsOnly],
-      //     hint: '0',
-      //     prefix: Padding(
-      //       padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-      //       child: Transform.translate(
-      //         offset: PlatformUtils.isWeb
-      //             ? const Offset(0, -0)
-      //             : const Offset(0, -0.5),
-      //         child: Text(
-      //           '¤',
-      //           style: style.fonts.medium.regular.onBackground,
-      //         ),
-      //       ),
-      //     ),
-      //     label: 'Входящие звонки, за 1 минуту',
-      //   ),
-      // ),
       const SizedBox(height: 24),
       title('От Ваших контактов'),
       const SizedBox(height: 8),
@@ -2311,198 +1619,14 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
       Opacity(opacity: 0, child: _verification(context, c)),
     ],
   );
-
-  Widget field({
-    required TextFieldState state,
-    required String label,
-    bool contacts = false,
-    bool enabled = true,
-  }) {
-    return Paddings.basic(
-      Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          FieldButton(
-            text: state.text,
-            prefixText: '    ',
-            prefixStyle: const TextStyle(fontSize: 13),
-            label: label,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            onPressed: () async {
-              await GetPaidView.show(
-                context,
-                mode: contacts ? GetPaidMode.contacts : GetPaidMode.users,
-              );
-            },
-            style: TextStyle(
-              color: enabled
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 21, bottom: 3),
-            child: Text(
-              ' ¤',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                color: enabled
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.secondary,
-                fontSize: 15,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  return Obx(() {
-    return Column(
-      children: [
-        if (!c.verified.value) ...[],
-        _title(
-          context,
-          'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
-          c.verified.value,
-        ),
-        const SizedBox(height: 6),
-        field(
-          label: 'label_fee_per_incoming_message'.l10n,
-          state: c.allMessageCost,
-          enabled: c.verified.value,
-          contacts: false,
-        ),
-        field(
-          label: 'label_fee_per_incoming_call_minute'.l10n,
-          state: c.allCallCost,
-          enabled: c.verified.value,
-          contacts: false,
-        ),
-        const SizedBox(height: 12 * 2),
-        _title(context, 'От Ваших контактов', c.verified.value),
-        const SizedBox(height: 6),
-        field(
-          label: 'label_fee_per_incoming_message'.l10n,
-          state: c.contactMessageCost,
-          enabled: c.verified.value,
-          contacts: true,
-        ),
-        field(
-          label: 'label_fee_per_incoming_call_minute'.l10n,
-          state: c.contactCallCost,
-          enabled: c.verified.value,
-          contacts: true,
-        ),
-        const SizedBox(height: 12 * 2),
-        _title(context, 'От индивидуальных пользователей', c.verified.value),
-        const SizedBox(height: 6),
-        Paddings.dense(
-          FieldButton(
-            text: 'label_users_of'.l10n,
-            onPressed:
-                !c.verified.value ? null : () => PaidListView.show(context),
-            trailing: Text(
-              '0',
-              style: style.fonts.medium.regular.onBackground.copyWith(
-                fontSize: 15,
-                color: !c.verified.value
-                    ? style.colors.secondary
-                    : style.colors.onBackground,
-              ),
-            ),
-            style: TextStyle(
-              color: !c.verified.value
-                  ? style.colors.secondary
-                  : style.colors.onBackground,
-            ),
-          ),
-        ),
-        Opacity(opacity: 0, child: _verification(context, c)),
-      ],
-    );
-  });
 }
 
 Widget _donates(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  // Widget title(String label, [bool enabled = true]) {
-  //   return Paddings.dense(
-  //     Align(
-  //       alignment: Alignment.center,
-  //       child: Padding(
-  //         padding: const EdgeInsets.only(left: 0.0),
-  //         child: Text(
-  //           label,
-  //           textAlign: TextAlign.center,
-  //           style: style.systemMessageStyle.copyWith(
-  //             // color: Theme.of(context).colorScheme.secondary,
-  //             color:
-  //                 enabled ? style.colors.onBackground : style.colors.secondary,
-  //             fontSize: 15,
-
-  //             fontWeight: FontWeight.w400,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget field({
-    required TextFieldState state,
-    required String label,
-    bool contacts = false,
-    bool enabled = true,
-  }) {
-    return Paddings.basic(
-      Stack(
-        alignment: Alignment.centerLeft,
-        children: [
-          ReactiveTextField(
-            state: state,
-            prefixText: '    ',
-            prefixStyle: const TextStyle(fontSize: 13),
-            label: label,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            style: TextStyle(
-              color: enabled
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 21, bottom: 3),
-            child: Text(
-              ' ¤',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                color:
-                    enabled ? style.colors.onBackground : style.colors.primary,
-                fontSize: 15,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   return Obx(() {
     return Column(
       children: [
-        // title(
-        //   'От всех пользователей (кроме Ваших контактов и индивидуальных пользователей)',
-        //   c.verified.value,
-        // ),
-        // field(
-        //   label: 'Минимальная сумма подарка'.l10n,
-        //   state: c.contactMessageCost,
-        //   enabled: c.verified.value,
-        //   contacts: true,
-        // ),
         Paddings.basic(
           ReactiveTextField(
             state: c.donateCost,
@@ -2539,58 +1663,8 @@ Widget _donates(BuildContext context, MyProfileController c) {
             ),
           ),
         ),
-
         Opacity(opacity: 0, child: _verification(context, c)),
       ],
-    );
-  });
-}
-
-/// Returns the contents of a [ProfileTab.notifications] section.
-Widget _notifications(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
-  return Obx(() {
-    return Paddings.dense(
-      Stack(
-        alignment: Alignment.centerRight,
-        children: [
-          IgnorePointer(
-            child: ReactiveTextField(
-              state: TextFieldState(
-                text: (c.myUser.value?.muted == null
-                        ? 'label_enabled'
-                        : 'label_disabled')
-                    .l10n,
-                editable: false,
-              ),
-              style: style.fonts.normal.regular.onBackground
-                  .copyWith(color: style.colors.secondary),
-            ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Transform.scale(
-                scale: 0.7,
-                transformHitTests: false,
-                child: Theme(
-                  data: ThemeData(
-                    platform: TargetPlatform.macOS,
-                  ),
-                  child: Switch.adaptive(
-                    activeColor: style.colors.primary,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: c.myUser.value?.muted == null,
-                    onChanged: c.isMuting.value ? null : c.toggleMute,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   });
 }
@@ -2600,35 +1674,15 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     const Column(
       children: [
-        DownloadButton(
-          asset: SvgIcons.windows,
-          title: 'Windows',
-          link: 'messenger-windows.zip',
-        ),
+        DownloadButton.windows(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'macOS',
-          link: 'messenger-macos.zip',
-        ),
+        DownloadButton.macos(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.linux,
-          title: 'Linux',
-          link: 'messenger-linux.zip',
-        ),
+        DownloadButton.linux(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'iOS',
-          link: 'messenger-ios.zip',
-        ),
+        DownloadButton.appStore(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.googlePlay,
-          title: 'Android',
-          link: 'messenger-android.apk',
-        ),
+        DownloadButton.googlePlay(),
       ],
     ),
   );
@@ -2688,194 +1742,146 @@ Widget _storage(BuildContext context, MyProfileController c) {
     64.0,
   ];
 
-  final gbs = CacheWorker.instance.info.value.maxSize.toDouble() / GB;
-  var index = values.indexWhere((e) => gbs < e);
+  final gbs = (CacheWorker.instance.info.value.maxSize?.toDouble() ??
+          (values.last * GB)) /
+      GB;
+
+  var index = values.indexWhere((e) => gbs <= e);
   if (index == -1) {
     index = values.length - 1;
   }
 
   final v = (index / (values.length - 1) * 100).round();
-  print('$gbs $index $v');
 
   return Paddings.dense(
     Column(
       children: [
-        if (true || !PlatformUtils.isWeb) ...[
-          Column(
-            children: [
-              Obx(() {
-                final int size = CacheWorker.instance.info.value.size;
-                final int max = CacheWorker.instance.info.value.maxSize;
+        Obx(() {
+          final int size = CacheWorker.instance.info.value.size;
+          final int max = CacheWorker.instance.info.value.maxSize ??
+              (values.last * GB).toInt();
 
-                if (max >= 64 * GB) {
-                  return Text(
-                    'Занято ${(size / GB).toPrecision(2)} ГБ',
-                  );
-                } else if (max <= 0) {
-                  return const Text('Занято 0 ГБ');
-                }
+          if (max >= 64 * GB) {
+            return Text(
+              'label_gb_occupied'
+                  .l10nfmt({'count': (size / GB).toPrecision(2)}),
+            );
+          } else if (max <= 0) {
+            return Text('label_gb_occupied'.l10nfmt({'count': 0}));
+          }
 
-                return Text(
-                  'Занято ${(size / GB).toPrecision(2)} из ${max ~/ GB} ГБ',
+          return Text(
+            'label_gb_of_gb_occupied'.l10nfmt({
+              'a': (size / GB).toPrecision(2),
+              'b': max ~/ GB,
+            }),
+          );
+        }),
+        SizedBox(
+          height: 100,
+          child: FlutterSlider(
+            handlerHeight: 24,
+            values: [v.toDouble()],
+            tooltip: FlutterSliderTooltip(disabled: true),
+            fixedValues: values.mapIndexed(
+              (i, e) {
+                return FlutterSliderFixedValue(
+                  percent: ((i / (values.length - 1)) * 100).round(),
+                  value: e * GB,
                 );
-              }),
-
-              Container(
-                color: Colors.transparent,
-                height: 100,
-                child: FlutterSlider(
-                  handlerHeight: 24,
-                  handler: FlutterSliderHandler(),
-                  values: [v.toDouble()],
-                  tooltip: FlutterSliderTooltip(disabled: true),
-                  fixedValues: values.mapIndexed(
-                    (i, e) {
-                      return FlutterSliderFixedValue(
-                        percent: ((i / (values.length - 1)) * 100).round(),
-                        value: e * GB,
-                      );
-                    },
-                  ).toList(),
-                  trackBar: FlutterSliderTrackBar(
-                    inactiveTrackBar: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Colors.black12,
-                      // border: Border.all(width: 3, color: Colors.blue),
-                    ),
-                    activeTrackBar: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      color: Colors.blue.withOpacity(1),
-                    ),
-                  ),
-                  onDragging: (i, lower, upper) {
-                    if (lower is double) {
-                      if (lower == 64.0 * GB) {
-                        // TODO:  CacheWorker.instance.setMaxSize(null);
-                        CacheWorker.instance.setMaxSize(lower.round());
-                      } else {
-                        CacheWorker.instance.setMaxSize(lower.round());
-                      }
-                    }
-                  },
-                  onDragCompleted: (i, lower, upper) {
-                    if (lower is double) {
-                      if (lower == 64.0 * GB) {
-                        // TODO:  CacheWorker.instance.setMaxSize(null);
-                        CacheWorker.instance.setMaxSize(lower.round());
-                      } else {
-                        CacheWorker.instance.setMaxSize(lower.round());
-                      }
-                    }
-                  },
-                  hatchMark: FlutterSliderHatchMark(
-                    labelsDistanceFromTrackBar: -48,
-                    // displayLines: true,
-
-                    linesAlignment: FlutterSliderHatchMarkAlignment.right,
-                    density: 0.5, // means 50 lines, from 0 to 100 percent
-                    labels: [
-                      FlutterSliderHatchMarkLabel(
-                        percent: 0,
-                        label: Text(
-                          'Выкл',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 16,
-                        label: Text(
-                          '2 ГБ',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 32,
-                        label: Text(
-                          '4 ГБ',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 48,
-                        label: Text(
-                          '8 ГБ',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 64,
-                        label: Text(
-                          '16 ГБ',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 80,
-                        label: Text(
-                          '32 ГБ',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 100,
-                        label: Text(
-                          'No Limit',
-                          style: style.fonts.smallest.regular.secondary,
-                        ),
-                      ),
-                    ],
+              },
+            ).toList(),
+            trackBar: FlutterSliderTrackBar(
+              inactiveTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: style.colors.onBackgroundOpacity13,
+              ),
+              activeTrackBar: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: style.colors.primaryHighlight,
+              ),
+            ),
+            onDragging: (i, lower, upper) {
+              if (lower is double) {
+                if (lower == 64.0 * GB) {
+                  CacheWorker.instance.setMaxSize(null);
+                } else {
+                  CacheWorker.instance.setMaxSize(lower.round());
+                }
+              }
+            },
+            onDragCompleted: (i, lower, upper) {
+              if (lower is double) {
+                if (lower == 64.0 * GB) {
+                  CacheWorker.instance.setMaxSize(null);
+                } else {
+                  CacheWorker.instance.setMaxSize(lower.round());
+                }
+              }
+            },
+            hatchMark: FlutterSliderHatchMark(
+              labelsDistanceFromTrackBar: -48,
+              density: 0.5,
+              labels: [
+                FlutterSliderHatchMarkLabel(
+                  percent: 0,
+                  label: Text(
+                    'label_off'.l10n,
+                    style: style.fonts.smallest.regular.secondary,
                   ),
                 ),
-              ),
-              // SizedBox(
-              //   height: 120,
-              //   width: 300,
-              //   child: SfSlider(
-              //     min: 0.0,
-              //     max: 128 * GB,
-              //     value: max,
-              //     labelFormatterCallback: (i, s) {
-              //       if (i == 128 * GB) {
-              //         return 'No Limit';
-              //       }
-
-              //       return '${i / GB} ГБ';
-              //     },
-              //     interval: 20,
-              //     showTicks: true,
-              //     showLabels: true,
-              //     enableTooltip: true,
-              //     minorTicksPerInterval: 1,
-              //     onChanged: (v) => CacheWorker.instance.setMaxSize(v),
-              //   ),
-              // ),
-              // Stack(
-              //   alignment: Alignment.center,
-              //   children: [
-              //     LinearProgressIndicator(
-              //       value: size / max,
-              //       minHeight: 32,
-              //       color: style.colors.primary,
-              //       backgroundColor: style.colors.background,
-              //     ),
-              //     Text(
-              //       'label_gb_slash_gb'.l10nfmt({
-              //         'a': (size / GB).toPrecision(2),
-              //         'b': max ~/ GB,
-              //       }),
-              //       style: style.fonts.smaller.regular.onBackground,
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 8),
-              FieldButton(
-                onPressed: c.clearCache,
-                text: 'btn_clear_cache'.l10n,
-                style: style.fonts.normal.regular.primary,
-              ),
-            ],
+                FlutterSliderHatchMarkLabel(
+                  percent: 16,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 2}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 32,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 4}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 49,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 8}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 66,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 16}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 83,
+                  label: Text(
+                    'label_count_gb'.l10nfmt({'count': 32}),
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+                FlutterSliderHatchMarkLabel(
+                  percent: 100,
+                  label: Text(
+                    'label_no_limit'.l10n,
+                    style: style.fonts.smallest.regular.secondary,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
+        const SizedBox(height: 8),
+        FieldButton(
+          onPressed: c.clearCache,
+          text: 'btn_clear_cache'.l10n,
+          style: style.fonts.normal.regular.primary,
+        ),
       ],
     ),
   );
@@ -2897,8 +1903,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 21),
-      child: ContactInfoContents(
-        padding: EdgeInsets.zero,
+      child: InfoTile(
         title:
             '${thisDevice ? 'Это устройство' : activeAt == null ? 'Онлайн' : activeAt.toRelative()}, $location',
         content: name,
@@ -2907,8 +1912,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
             : WidgetButton(
                 onPressed: () => _deleteSession(
                   context,
-                  ContactInfoContents(
-                    padding: EdgeInsets.zero,
+                  InfoTile(
                     title:
                         '${thisDevice ? 'Это устройство' : activeAt == null ? 'Онлайн' : activeAt.toRelative()}, $location',
                     content: name,
@@ -2916,51 +1920,6 @@ Widget _devices(BuildContext context, MyProfileController c) {
                 ),
                 child: const SvgIcon(SvgIcons.delete),
               ),
-      ),
-    );
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: style.cardBorder,
-        borderRadius: style.cardRadius,
-      ),
-      child: Row(
-        children: [
-          // Container(
-          //   width: 32,
-          //   height: 32,
-          //   decoration: BoxDecoration(
-          //     borderRadius: BorderRadius.circular(8),
-          //     // color: Colors.blue,
-          //   ),
-          //   child: Center(child: icon),
-          // ),
-          // const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: style.fonts.medium.regular.onBackground),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(location, style: style.fonts.small.regular.secondary),
-                    const Spacer(),
-                    const SizedBox(width: 4),
-                    Text(
-                      activeAt == null ? 'Active' : activeAt.toRelative(),
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -3029,20 +1988,6 @@ Widget _devices(BuildContext context, MyProfileController c) {
           ],
         ),
         const SizedBox(height: 24),
-        // const SizedBox(height: 8),
-        // Paddings.dense(
-        //   Align(
-        //     alignment: Alignment.center,
-        //     child: Padding(
-        //       padding: const EdgeInsets.only(left: 21.0),
-        //       child: Text(
-        //         'Добавить устройство'.l10n,
-        //         style: style.fonts.big.regular.onBackground,
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        // const SizedBox(height: 12),
         FieldButton(
           text: 'btn_scan_qr_code'.l10n,
           onPressed: () {

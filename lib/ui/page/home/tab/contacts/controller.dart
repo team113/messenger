@@ -23,11 +23,9 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/my_user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
@@ -35,20 +33,20 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallIsInPopupException;
 import '/domain/repository/contact.dart';
-import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/tab/chats/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import 'view.dart';
 
 export 'view.dart';
 
@@ -58,7 +56,6 @@ class ContactsTabController extends GetxController {
     this._chatService,
     this._contactService,
     this._calls,
-    this._settingsRepository,
     this._userService,
     this._myUserService,
   );
@@ -106,31 +103,22 @@ class ContactsTabController extends GetxController {
   /// [User]s service used in [SearchController].
   final UserService _userService;
 
+  /// [MyUserService] searching [myUser].
   final MyUserService _myUserService;
 
   /// Call service used to start a [ChatCall].
   final CallService _calls;
 
-  /// Settings repository maintaining the [ApplicationSettings].
-  final AbstractSettingsRepository _settingsRepository;
-
   /// [Worker]s to [RxChatContact.user] reacting on its changes.
   final Map<ChatContactId, Worker> _rxUserWorkers = {};
 
-  /// [Worker]s to [RxUser.user] reacting on its changes.
-  final Map<UserId, Worker> _userWorkers = {};
-
   /// [StreamSubscription]s to the [contacts] updates.
   StreamSubscription? _contactsSubscription;
-
-  /// [StreamSubscription]s to the [favorites] updates.
-  StreamSubscription? _favoritesSubscription;
 
   /// Subscription for [SearchController.users] and [SearchController.contacts]
   /// changes updating the [elements].
   StreamSubscription? _searchSubscription;
 
-  /// Returns the [RxStatus] of the [contacts] and [favorites] fetching.
   /// Subscription for the [ContactService.status] changes.
   StreamSubscription? _statusSubscription;
 
@@ -143,11 +131,6 @@ class ContactsTabController extends GetxController {
 
   /// Indicates whether the [contacts] have a next page.
   RxBool get hasNext => _contactService.hasNext;
-
-  /// Indicates whether [contacts] should be sorted by their names or otherwise
-  /// by their [User.lastSeenAt] dates.
-  bool get sortByName =>
-      _settingsRepository.applicationSettings.value?.sortContactsByName ?? true;
 
   @override
   void onInit() {
@@ -304,8 +287,8 @@ class ContactsTabController extends GetxController {
       search.value = SearchController(
         _chatService,
         _userService,
-        _myUserService,
         _contactService,
+        _myUserService,
         categories: const [
           SearchCategory.contact,
           SearchCategory.user,

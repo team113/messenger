@@ -107,9 +107,9 @@ class AccountsView extends StatelessWidget {
                       child: OutlinedRoundedButton(
                         key: const Key('BackButton'),
                         maxWidth: double.infinity,
-                        title: Text('btn_back'.l10n, style: thin),
                         onPressed: () => c.stage.value = AccountsViewStage.add,
                         color: const Color(0xFFEEEEEE),
+                        child: Text('btn_back'.l10n, style: thin),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -117,12 +117,12 @@ class AccountsView extends StatelessWidget {
                       child: OutlinedRoundedButton(
                         key: const Key('LoginButton'),
                         maxWidth: double.infinity,
-                        title: Text(
+                        onPressed: () {},
+                        color: const Color(0xFF63B4FF),
+                        child: Text(
                           'Login'.l10n,
                           style: thin?.copyWith(color: Colors.white),
                         ),
-                        onPressed: () {},
-                        color: const Color(0xFF63B4FF),
                       ),
                     ),
                   ],
@@ -175,13 +175,13 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: Center(
                     child: OutlinedRoundedButton(
-                      title: Text('Login'.l10n),
                       onPressed: () {
                         Navigator.of(context).pop();
                         router.accounts.value++;
                       },
                       color: const Color(0xFFEEEEEE),
                       maxWidth: double.infinity,
+                      child: Text('Login'.l10n),
                     ),
                   ),
                 ),
@@ -197,16 +197,16 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: Center(
                     child: OutlinedRoundedButton(
-                      title: Text(
-                        'Create account'.l10n,
-                        style: const TextStyle(color: Colors.white),
-                      ),
                       onPressed: () {
                         Navigator.of(context).pop();
                         router.accounts.value++;
                       },
                       color: const Color(0xFF63B4FF),
                       maxWidth: double.infinity,
+                      child: Text(
+                        'Create account'.l10n,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -272,14 +272,14 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: OutlinedRoundedButton(
                     maxWidth: double.infinity,
-                    title: Text(
+                    onPressed: () => c.stage.value = AccountsViewStage.add,
+                    color: const Color(0xFF63B4FF),
+                    child: Text(
                       'Add account'.l10n,
                       style: thin?.copyWith(color: Colors.white),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    onPressed: () => c.stage.value = AccountsViewStage.add,
-                    color: const Color(0xFF63B4FF),
                     // color: Colors.white.darken(0.05),
                   ),
                 ),
