@@ -116,7 +116,7 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('btn_one_time_account_desc'.l10n),
+            subtitle: Text('btn_guest_desc'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
