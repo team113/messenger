@@ -996,7 +996,7 @@ class RecentChatTile extends StatelessWidget {
       }
 
       // const Color paidColor = Color(0xFFe0f0ff);
-      const Color paidColor = Color.fromRGBO(213, 232, 253, 1);
+      // const Color paidColor = Color.fromRGBO(213, 232, 253, 1);
 
       // Returns a rounded rectangular button representing an [OngoingCall]
       // associated action.

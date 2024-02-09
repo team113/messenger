@@ -16,28 +16,49 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/themes.dart';
 
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({super.key, this.onPressed});
+  const StyledBackButton({
+    super.key,
+    this.onPressed,
+    this.enlarge = false,
+  });
 
   /// Callback, called when this button is pressed.
   ///
   /// Invokes [Navigator.maybePop], if not specified.
   final void Function()? onPressed;
 
+  final bool enlarge;
+
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     if (onPressed != null || ModalRoute.of(context)?.canPop == true) {
       return AnimatedButton(
         onPressed: onPressed ?? () => Navigator.maybePop(context),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: SvgIcon(SvgIcons.back),
-        ),
+        child: enlarge
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SvgIcon(SvgIcons.back),
+                    const SizedBox(width: 8),
+                    Text('Назад', style: style.fonts.normal.regular.primary),
+                  ],
+                ),
+              )
+            : const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: SvgIcon(SvgIcons.back),
+              ),
       );
     } else {
       return const SizedBox(width: 30);

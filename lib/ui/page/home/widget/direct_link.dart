@@ -84,8 +84,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   @override
   void initState() {
     if (widget.link == null) {
-      _generated = /*widget.generated ?? */ ChatDirectLinkSlug.generate(10).val;
-      _editing = true;
+      _generated = widget.generated ?? ChatDirectLinkSlug.generate(10).val;
+      // _editing = true;
     }
 
     _state = TextFieldState(
@@ -189,6 +189,28 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   ? const SvgIcon(SvgIcons.share)
                   : const SvgIcon(SvgIcons.copy),
           label: '${Config.link}/',
+          // subtitle: false && widget.transitions
+          //     ? RichText(
+          //         text: TextSpan(
+          //           style: style.fonts.small.regular.onBackground,
+          //           children: [
+          //             TextSpan(
+          //               text: 'label_transition_count'.l10nfmt({
+          //                     'count': widget.link?.usageCount ?? 0,
+          //                   }) +
+          //                   'dot_space'.l10n,
+          //               style: style.fonts.small.regular.secondary,
+          //             ),
+          //             // TextSpan(
+          //             //   text: 'label_details'.l10n,
+          //             //   style: style.fonts.small.regular.primary,
+          //             //   recognizer: TapGestureRecognizer()
+          //             //     ..onTap = () => LinkDetailsView.show(context),
+          //             // ),
+          //           ],
+          //         ),
+          //       )
+          //     : null,
         ),
       );
     } else {

@@ -46,18 +46,8 @@ class _UserNameFieldState extends State<UserNameField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.name?.val,
-    approvable: true,
+    // approvable: true,
     onChanged: (s) async {
-      s.error.value = null;
-      try {
-        if (s.text.isNotEmpty) {
-          UserName(s.text);
-        }
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_input'.l10n;
-      }
-    },
-    onSubmitted: (s) async {
       s.error.value = null;
       try {
         if (s.text.isNotEmpty) {
@@ -84,6 +74,33 @@ class _UserNameFieldState extends State<UserNameField> {
         }
       }
     },
+    // onSubmitted: (s) async {
+    //   s.error.value = null;
+    //   try {
+    //     if (s.text.isNotEmpty) {
+    //       UserName(s.text);
+    //     }
+    //   } on FormatException catch (_) {
+    //     s.error.value = 'err_incorrect_input'.l10n;
+    //   }
+
+    //   if (s.error.value == null) {
+    //     s.editable.value = false;
+    //     s.status.value = RxStatus.loading();
+    //     try {
+    //       await widget.onSubmit?.call(
+    //         s.text.isNotEmpty ? UserName(s.text) : null,
+    //       );
+    //       s.status.value = RxStatus.empty();
+    //     } catch (e) {
+    //       s.error.value = 'err_data_transfer'.l10n;
+    //       s.status.value = RxStatus.empty();
+    //       rethrow;
+    //     } finally {
+    //       s.editable.value = true;
+    //     }
+    //   }
+    // },
   );
 
   @override

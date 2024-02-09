@@ -103,7 +103,47 @@ class UserView extends StatelessWidget {
 
           return LayoutBuilder(builder: (context, constraints) {
             return Scaffold(
-              appBar: CustomAppBar(title: _bar(c, context)),
+              appBar: CustomAppBar(
+                title: Stack(
+                  children: [
+                    Center(
+                      child: Obx(() {
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: c.displayName.value
+                              ? Text(
+                                  '${c.user?.user.value.name ?? c.user?.user.value.num}',
+                                )
+                              : Text('label_profile'.l10n, key: const Key('1')),
+                        );
+                      }),
+                    ),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: StyledBackButton(enlarge: true),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: AnimatedButton(
+                        key: const Key('EditButton'),
+                        decorator: (child) => Padding(
+                          padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
+                          child: child,
+                        ),
+                        onPressed: c.editing.toggle,
+                        child: Obx(() {
+                          return Text(
+                            key: Key(c.editing.value ? '1' : '2'),
+                            c.editing.value ? 'Готово' : 'Изменить',
+                            style: style.fonts.normal.regular.primary,
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // appBar: CustomAppBar(title: _bar(c, context)),
               body: Scrollbar(
                 controller: c.scrollController,
                 child: Obx(() {
@@ -180,6 +220,7 @@ class UserView extends StatelessWidget {
                         }),
                       ],
                     ),
+                    _quick(c, context),
                     if (subtitle != null) Block(children: [subtitle]),
                     Block(
                       children: [
@@ -407,10 +448,10 @@ class UserView extends StatelessWidget {
               child = Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AnimatedButton(
-                    onPressed: c.openChat,
-                    child: const SvgIcon(SvgIcons.chat),
-                  ),
+                  // AnimatedButton(
+                  //   onPressed: c.openChat,
+                  //   child: const SvgIcon(SvgIcons.chat),
+                  // ),
                   Obx(() {
                     final bool contact = c.inContacts.value;
                     final bool favorite = c.inFavorites.value;
@@ -423,95 +464,105 @@ class UserView extends StatelessWidget {
 
                     final bool muted = dialog?.chat.value.muted != null;
 
-                    return ContextMenuRegion(
-                      key: c.moreKey,
-                      selector: c.moreKey,
-                      alignment: Alignment.topRight,
-                      enablePrimaryTap: true,
-                      margin: const EdgeInsets.only(bottom: 4, left: 20),
-                      actions: [
-                        // ContextMenuButton(
-                        //   label: 'btn_set_price'.l10n,
-                        //   onPressed: () => GetPaidView.show(
-                        //     context,
-                        //     mode: GetPaidMode.user,
-                        //     user: c.user,
-                        //   ),
-                        //   trailing: const SvgIcon(SvgIcons.gapopaCoin),
-                        //   inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
-                        // ),
-
-                        ContextMenuButton(
-                          label: 'btn_audio_call'.l10n,
-                          onPressed: () => c.call(false),
-                          trailing: const SvgIcon(SvgIcons.makeAudioCall),
-                          inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
-                        ),
-                        ContextMenuButton(
-                          label: 'btn_video_call'.l10n,
-                          onPressed: () => c.call(true),
-                          trailing: Transform.translate(
-                            offset: const Offset(2, 0),
-                            child: const SvgIcon(SvgIcons.makeVideoCall),
-                          ),
-                          inverted: Transform.translate(
-                            offset: const Offset(2, 0),
-                            child: const SvgIcon(SvgIcons.makeVideoCallWhite),
-                          ),
-                        ),
-                        if (c.inContacts.value)
-                          ContextMenuButton(
-                            label: 'btn_edit'.l10n,
-                            onPressed: c.editing.toggle,
-                            trailing: const SvgIcon(SvgIcons.edit),
-                            inverted: const SvgIcon(SvgIcons.editWhite),
-                          ),
-                        ContextMenuButton(
-                          label: contact
-                              ? 'btn_delete_from_contacts'.l10n
-                              : 'btn_add_to_contacts'.l10n,
-                          onPressed:
-                              contact ? c.removeFromContacts : c.addToContacts,
-                          trailing: SvgIcon(
-                            contact
-                                ? SvgIcons.deleteContact
-                                : SvgIcons.addContact,
-                          ),
-                          inverted: SvgIcon(
-                            contact
-                                ? SvgIcons.deleteContactWhite
-                                : SvgIcons.addContactWhite,
-                          ),
-                        ),
-
-                        ContextMenuButton(
-                          label: favorite
-                              ? 'btn_delete_from_favorites'.l10n
-                              : 'btn_add_to_favorites'.l10n,
-
-                          // TODO: ADD TO CONTACTS AND THEN FAVORITE.
-                          onPressed: favorite
-                              ? c.unfavoriteContact
-                              : c.favoriteContact,
-                          trailing: SvgIcon(
-                            favorite
-                                ? SvgIcons.favoriteSmall
-                                : SvgIcons.unfavoriteSmall,
-                          ),
-                          inverted: SvgIcon(
-                            favorite
-                                ? SvgIcons.favoriteSmallWhite
-                                : SvgIcons.unfavoriteSmallWhite,
-                          ),
-                        ),
-                      ],
-                      child: Container(
-                        padding:
-                            const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
-                        height: double.infinity,
-                        child: const SvgIcon(SvgIcons.more),
+                    return AnimatedButton(
+                      key: const Key('EditButton'),
+                      decorator: (child) => Padding(
+                        padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
+                        child: child,
                       ),
+                      onPressed: c.editing.toggle,
+                      child: const SvgIcon(SvgIcons.edit22),
                     );
+
+                    // return ContextMenuRegion(
+                    //   key: c.moreKey,
+                    //   selector: c.moreKey,
+                    //   alignment: Alignment.topRight,
+                    //   enablePrimaryTap: true,
+                    //   margin: const EdgeInsets.only(bottom: 4, left: 20),
+                    //   actions: [
+                    //     // ContextMenuButton(
+                    //     //   label: 'btn_set_price'.l10n,
+                    //     //   onPressed: () => GetPaidView.show(
+                    //     //     context,
+                    //     //     mode: GetPaidMode.user,
+                    //     //     user: c.user,
+                    //     //   ),
+                    //     //   trailing: const SvgIcon(SvgIcons.gapopaCoin),
+                    //     //   inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
+                    //     // ),
+
+                    //     ContextMenuButton(
+                    //       label: 'btn_audio_call'.l10n,
+                    //       onPressed: () => c.call(false),
+                    //       trailing: const SvgIcon(SvgIcons.makeAudioCall),
+                    //       inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
+                    //     ),
+                    //     ContextMenuButton(
+                    //       label: 'btn_video_call'.l10n,
+                    //       onPressed: () => c.call(true),
+                    //       trailing: Transform.translate(
+                    //         offset: const Offset(2, 0),
+                    //         child: const SvgIcon(SvgIcons.makeVideoCall),
+                    //       ),
+                    //       inverted: Transform.translate(
+                    //         offset: const Offset(2, 0),
+                    //         child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+                    //       ),
+                    //     ),
+                    //     if (c.inContacts.value)
+                    //       ContextMenuButton(
+                    //         label: 'btn_edit'.l10n,
+                    //         onPressed: c.editing.toggle,
+                    //         trailing: const SvgIcon(SvgIcons.edit),
+                    //         inverted: const SvgIcon(SvgIcons.editWhite),
+                    //       ),
+                    //     ContextMenuButton(
+                    //       label: contact
+                    //           ? 'btn_delete_from_contacts'.l10n
+                    //           : 'btn_add_to_contacts'.l10n,
+                    //       onPressed:
+                    //           contact ? c.removeFromContacts : c.addToContacts,
+                    //       trailing: SvgIcon(
+                    //         contact
+                    //             ? SvgIcons.deleteContact
+                    //             : SvgIcons.addContact,
+                    //       ),
+                    //       inverted: SvgIcon(
+                    //         contact
+                    //             ? SvgIcons.deleteContactWhite
+                    //             : SvgIcons.addContactWhite,
+                    //       ),
+                    //     ),
+
+                    //     ContextMenuButton(
+                    //       label: favorite
+                    //           ? 'btn_delete_from_favorites'.l10n
+                    //           : 'btn_add_to_favorites'.l10n,
+
+                    //       // TODO: ADD TO CONTACTS AND THEN FAVORITE.
+                    //       onPressed: favorite
+                    //           ? c.unfavoriteContact
+                    //           : c.favoriteContact,
+                    //       trailing: SvgIcon(
+                    //         favorite
+                    //             ? SvgIcons.favoriteSmall
+                    //             : SvgIcons.unfavoriteSmall,
+                    //       ),
+                    //       inverted: SvgIcon(
+                    //         favorite
+                    //             ? SvgIcons.favoriteSmallWhite
+                    //             : SvgIcons.unfavoriteSmallWhite,
+                    //       ),
+                    //     ),
+                    //   ],
+                    //   child: Container(
+                    //     padding:
+                    //         const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
+                    //     height: double.infinity,
+                    //     child: const SvgIcon(SvgIcons.more),
+                    //   ),
+                    // );
                   }),
                 ],
               );
@@ -555,10 +606,64 @@ class UserView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
+    final bool contact = c.inContacts.value;
+    final bool favorite = c.inFavorites.value;
+    final bool blocked = c.isBlocked != null;
+
+    final RxChat? dialog = c.user?.user.value.dialog.isLocal == false
+        ? c.user?.dialog.value
+        : null;
+
+    final bool muted = dialog?.chat.value.muted != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
+        ActionButton(
+          text: 'btn_audio_call'.l10n,
+          onPressed: () => c.call(false),
+          trailing: Transform.translate(
+            offset: const Offset(0, 0),
+            child: const SvgIcon(SvgIcons.audioCall16),
+          ),
+        ),
+        ActionButton(
+          text: 'btn_video_call'.l10n,
+          onPressed: () => c.call(true),
+          trailing: Transform.translate(
+            offset: const Offset(-2, 0),
+            child: const SvgIcon(SvgIcons.videoCall16),
+          ),
+        ),
+        ActionButton(
+          text: 'label_chat'.l10n,
+          onPressed: () => router.chat(c.user!.user.value.dialog),
+          trailing: Transform.translate(
+            offset: const Offset(0, 0),
+            child: const SvgIcon(SvgIcons.chat16),
+          ),
+        ),
+
+        ActionButton(
+          text: contact
+              ? 'btn_delete_from_contacts'.l10n
+              : 'btn_add_to_contacts'.l10n,
+          onPressed: contact ? c.removeFromContacts : c.addToContacts,
+          trailing: SvgIcon(
+            contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
+          ),
+        ),
+
+        ActionButton(
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+          ),
+        ),
         // Obx(() {
         //   return ActionButton(
         //     key: Key(c.inContacts.value
@@ -757,6 +862,85 @@ class UserView extends StatelessWidget {
               ),
       );
     });
+  }
+
+  Widget _quick(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    Widget button({
+      required SvgData icon,
+      required String label,
+      void Function()? onPressed,
+    }) {
+      return WidgetButton(
+        onPressed: onPressed,
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: style.cardColor,
+            border: style.cardBorder,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgIcon(icon),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+                  child: FittedBox(
+                    child: Text(
+                      label,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SelectionContainer.disabled(
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          constraints:
+              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: button(
+                  label: 'label_chat'.l10n,
+                  icon: SvgIcons.chat,
+                  onPressed: () => router.chat(c.user!.user.value.dialog),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: button(
+                  label: 'btn_audio'.l10n,
+                  icon: SvgIcons.chatAudioCall,
+                  onPressed: () => c.call(false),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: button(
+                  label: 'btn_video'.l10n,
+                  icon: SvgIcons.chatVideoCall,
+                  onPressed: () => c.call(true),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   /// Returns a [User.name] copyable field.

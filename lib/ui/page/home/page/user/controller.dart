@@ -114,6 +114,8 @@ class UserController extends GetxController {
   /// - `status.isEmpty`, meaning no [blacklist] is executing.
   final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
 
+  final RxBool displayName = RxBool(false);
+
   late final TextFieldState messageCost;
   late final TextFieldState callsCost;
 
@@ -183,6 +185,10 @@ class UserController extends GetxController {
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
+  void _scrollListener() {
+    displayName.value = scrollController.position.pixels >= 365;
+  }
+
   @override
   void onInit() {
     _fetchUser();
@@ -237,6 +243,8 @@ class UserController extends GetxController {
       },
     );
 
+    scrollController.addListener(_scrollListener);
+
     super.onInit();
   }
 
@@ -249,6 +257,7 @@ class UserController extends GetxController {
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();
     _worker?.dispose();
+    scrollController.removeListener(_scrollListener);
     super.onClose();
   }
 

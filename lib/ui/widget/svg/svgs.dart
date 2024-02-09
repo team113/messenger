@@ -64,6 +64,12 @@ class SvgIcons {
     height: 22.63,
   );
 
+  static const SvgData chat16 = SvgData(
+    'assets/icons/chat16.svg',
+    width: 15,
+    height: 16,
+  );
+
   static const SvgData chatAudioCall = SvgData(
     'assets/icons/chat_audio_call.svg',
     width: 21,
@@ -1332,11 +1338,11 @@ class SvgIcons {
     height: 17,
   );
 
-  static const SvgData quickChat = SvgData(
-    'assets/icons/quick_chat.svg',
-    width: 29.81,
-    height: 32.61,
-  );
+  // static const SvgData quickChat = SvgData(
+  //   'assets/icons/quick_chat.svg',
+  //   width: 29.81,
+  //   height: 32.61,
+  // );
 
   static const SvgData quickVideoCall = SvgData(
     'assets/icons/quick_video_call.svg',
@@ -2126,5 +2132,47 @@ class SvgIcons {
     'assets/icons/rate_disabled.svg',
     width: 15.44,
     height: 21,
+  );
+
+  static const SvgData audioCall16 = SvgData(
+    'assets/icons/audio_call16.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData audioCall16Disabled = SvgData(
+    'assets/icons/audio_call16_disabled.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData videoCall16 = SvgData(
+    'assets/icons/video_call16.svg',
+    width: 19.82,
+    height: 16,
+  );
+
+  static const SvgData videoCall16Disabled = SvgData(
+    'assets/icons/video_call16_disabled.svg',
+    width: 19.82,
+    height: 16,
+  );
+
+  static const SvgData quickChat = SvgData(
+    'assets/icons/quick_chat.svg',
+    width: 30.83,
+    height: 33.5,
+  );
+
+  static const SvgData quickVideo = SvgData(
+    'assets/icons/quick_video.svg',
+    width: 38.06,
+    height: 26,
+  );
+
+  static const SvgData quickAudio = SvgData(
+    'assets/icons/quick_audio.svg',
+    width: 26.94,
+    height: 27,
   );
 }

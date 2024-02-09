@@ -108,6 +108,8 @@ class ChatInfoController extends GetxController {
 
   late final TextFieldState textStatus;
 
+  final RxBool displayName = RxBool(false);
+
   /// [Timer] to set the `RxStatus.empty` status of the [chatName] field.
   Timer? _nameTimer;
 
@@ -131,6 +133,10 @@ class ChatInfoController extends GetxController {
 
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
+
+  void _scrollListener() {
+    displayName.value = scrollController.position.pixels >= 365;
+  }
 
   @override
   void onInit() {
@@ -236,6 +242,8 @@ class ChatInfoController extends GetxController {
       },
     );
 
+    scrollController.addListener(_scrollListener);
+
     super.onInit();
   }
 
@@ -251,6 +259,7 @@ class ChatInfoController extends GetxController {
     _nameTimer?.cancel();
     _linkTimer?.cancel();
     _avatarTimer?.cancel();
+    scrollController.removeListener(_scrollListener);
     super.onClose();
   }
 

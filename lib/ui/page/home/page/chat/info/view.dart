@@ -28,6 +28,7 @@ import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/animated_switcher.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/domain/model/chat.dart';
@@ -91,15 +92,49 @@ class ChatInfoView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(
-              // actions: [
-              //   AnimatedButton(
-              //     onPressed: () {},
-              //     child: const SvgIcon(SvgIcons.favorite),
-              //   ),
-              // ],
-              title: _bar(c, context),
-              // padding: const EdgeInsets.only(left: 4, right: 20),
-              // leading: const [StyledBackButton()],
+              title: Stack(
+                children: [
+                  // Center(child: Text('label_profile'.l10n)),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                    child: Center(
+                      child: Obx(() {
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: Text(
+                            key: Key(c.displayName.value ? '1' : '0'),
+                            c.displayName.value
+                                ? '${c.chat?.title.value}'
+                                : 'label_profile'.l10n,
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: StyledBackButton(enlarge: true),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: AnimatedButton(
+                      key: const Key('EditButton'),
+                      decorator: (child) => Padding(
+                        padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
+                        child: child,
+                      ),
+                      onPressed: c.editing.toggle,
+                      child: Obx(() {
+                        return Text(
+                          key: Key(c.editing.value ? '1' : '2'),
+                          c.editing.value ? 'Готово' : 'Изменить',
+                          style: style.fonts.normal.regular.primary,
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
             ),
             body: Scrollbar(
               controller: c.scrollController,
@@ -133,6 +168,7 @@ class ChatInfoView extends StatelessWidget {
                         _name(c, context),
                       ],
                     ),
+                    _quick(c, context),
                     _status(c, context),
                     if (!c.isMonolog) ...[
                       SelectionContainer.disabled(
@@ -356,10 +392,44 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
+    final bool hasCall = c.chat?.chat.value.ongoingCall != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
+        ActionButton(
+          onPressed: hasCall ? null : () => c.call(false),
+          text: 'btn_audio_call'.l10n,
+          trailing: SvgIcon(
+            hasCall ? SvgIcons.audioCall16Disabled : SvgIcons.audioCall16,
+          ),
+        ),
+        ActionButton(
+          onPressed: hasCall ? null : () => c.call(true),
+          text: 'btn_video_call'.l10n,
+          trailing: Transform.translate(
+            offset: const Offset(-2, 0),
+            child: SvgIcon(
+              hasCall ? SvgIcons.videoCall16Disabled : SvgIcons.videoCall16,
+            ),
+          ),
+        ),
+        ActionButton(
+          text: 'label_chat'.l10n,
+          onPressed: () => router.chat(id),
+          trailing: const SvgIcon(SvgIcons.chat16),
+        ),
+        ActionButton(
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+          ),
+        ),
         if (!c.isMonolog)
           ActionButton(
             onPressed: c.report,
@@ -426,9 +496,6 @@ class ChatInfoView extends StatelessWidget {
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
-
-    final bool favorite = c.chat?.chat.value.favoritePosition != null;
-    final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
     return Center(
       child: Row(
@@ -498,74 +565,165 @@ class ChatInfoView extends StatelessWidget {
               child: const SvgIcon(SvgIcons.closePrimary),
             ),
           ] else ...[
+            // AnimatedButton(
+            //   onPressed: () => router.chat(c.chat?.id ?? id),
+            //   child: const SvgIcon(SvgIcons.chat),
+            // ),
             AnimatedButton(
-              onPressed: () => router.chat(c.chat?.id ?? id),
-              child: const SvgIcon(SvgIcons.chat),
+              key: const Key('EditButton'),
+              decorator: (child) => Padding(
+                padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
+                child: child,
+              ),
+              onPressed: c.editing.toggle,
+              child: const SvgIcon(SvgIcons.edit22),
             ),
-            KeyedSubtree(
-              key: const Key('MoreButton'),
-              child: ContextMenuRegion(
-                key: c.moreKey,
-                selector: c.moreKey,
-                alignment: Alignment.topRight,
-                enablePrimaryTap: true,
-                margin: const EdgeInsets.only(bottom: 4, left: 20),
-                actions: [
-                  ContextMenuButton(
-                    label: 'btn_audio_call'.l10n,
-                    onPressed: hasCall ? null : () => c.call(false),
-                    trailing: hasCall
-                        ? const SvgIcon(SvgIcons.makeAudioCallDisabled)
-                        : const SvgIcon(SvgIcons.makeAudioCall),
-                    inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
-                  ),
-                  ContextMenuButton(
-                    label: 'btn_video_call'.l10n,
-                    onPressed: hasCall ? null : () => c.call(true),
-                    trailing: Transform.translate(
-                      offset: const Offset(2, 0),
-                      child: hasCall
-                          ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
-                          : const SvgIcon(SvgIcons.makeVideoCall),
-                    ),
-                    inverted: Transform.translate(
-                      offset: const Offset(2, 0),
-                      child: const SvgIcon(SvgIcons.makeVideoCallWhite),
-                    ),
-                  ),
-                  ContextMenuButton(
-                    key: const Key('EditButton'),
-                    label: 'btn_edit'.l10n,
-                    onPressed: c.editing.toggle,
-                    trailing: const SvgIcon(SvgIcons.edit),
-                    inverted: const SvgIcon(SvgIcons.editWhite),
-                  ),
-                  ContextMenuButton(
-                    label: favorite
-                        ? 'btn_delete_from_favorites'.l10n
-                        : 'btn_add_to_favorites'.l10n,
-                    onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                    trailing: SvgIcon(
-                      favorite
-                          ? SvgIcons.favoriteSmall
-                          : SvgIcons.unfavoriteSmall,
-                    ),
-                    inverted: SvgIcon(
-                      favorite
-                          ? SvgIcons.favoriteSmallWhite
-                          : SvgIcons.unfavoriteSmallWhite,
+            // KeyedSubtree(
+            //   key: const Key('MoreButton'),
+            //   child: ContextMenuRegion(
+            //     key: c.moreKey,
+            //     selector: c.moreKey,
+            //     alignment: Alignment.topRight,
+            //     enablePrimaryTap: true,
+            //     margin: const EdgeInsets.only(bottom: 4, left: 20),
+            //     actions: [
+            //       ContextMenuButton(
+            //         label: 'btn_audio_call'.l10n,
+            //         onPressed: hasCall ? null : () => c.call(false),
+            //         trailing: hasCall
+            //             ? const SvgIcon(SvgIcons.makeAudioCallDisabled)
+            //             : const SvgIcon(SvgIcons.makeAudioCall),
+            //         inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
+            //       ),
+            //       ContextMenuButton(
+            //         label: 'btn_video_call'.l10n,
+            //         onPressed: hasCall ? null : () => c.call(true),
+            //         trailing: Transform.translate(
+            //           offset: const Offset(2, 0),
+            //           child: hasCall
+            //               ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+            //               : const SvgIcon(SvgIcons.makeVideoCall),
+            //         ),
+            //         inverted: Transform.translate(
+            //           offset: const Offset(2, 0),
+            //           child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+            //         ),
+            //       ),
+            //       ContextMenuButton(
+            //         key: const Key('EditButton'),
+            //         label: 'btn_edit'.l10n,
+            //         onPressed: c.editing.toggle,
+            //         trailing: const SvgIcon(SvgIcons.edit),
+            //         inverted: const SvgIcon(SvgIcons.editWhite),
+            //       ),
+            //       ContextMenuButton(
+            //         label: favorite
+            //             ? 'btn_delete_from_favorites'.l10n
+            //             : 'btn_add_to_favorites'.l10n,
+            //         onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+            //         trailing: SvgIcon(
+            //           favorite
+            //               ? SvgIcons.favoriteSmall
+            //               : SvgIcons.unfavoriteSmall,
+            //         ),
+            //         inverted: SvgIcon(
+            //           favorite
+            //               ? SvgIcons.favoriteSmallWhite
+            //               : SvgIcons.unfavoriteSmallWhite,
+            //         ),
+            //       ),
+            //     ],
+            //     child: Container(
+            //       padding: const EdgeInsets.only(left: 31, right: 25),
+            //       height: double.infinity,
+            //       child: const SvgIcon(SvgIcons.more),
+            //     ),
+            //   ),
+            // ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _quick(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    Widget button({
+      required SvgData icon,
+      required String label,
+      void Function()? onPressed,
+    }) {
+      return WidgetButton(
+        onPressed: onPressed,
+        child: Container(
+          height: 60,
+          decoration: BoxDecoration(
+            color: style.cardColor,
+            border: style.cardBorder,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Transform.translate(
+              offset: const Offset(0, 1),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgIcon(icon),
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+                    child: FittedBox(
+                      child: Text(
+                        label,
+                        style: style.fonts.small.regular.primary,
+                      ),
                     ),
                   ),
                 ],
-                child: Container(
-                  padding: const EdgeInsets.only(left: 31, right: 25),
-                  height: double.infinity,
-                  child: const SvgIcon(SvgIcons.more),
-                ),
               ),
             ),
-          ],
-        ],
+          ),
+        ),
+      );
+    }
+
+    return SelectionContainer.disabled(
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          constraints:
+              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: button(
+                  label: 'label_chat'.l10n,
+                  icon: SvgIcons.chat,
+                  onPressed: () => router.chat(id),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: button(
+                  label: 'btn_audio'.l10n,
+                  icon: SvgIcons.chatAudioCall,
+                  onPressed: () => c.call(false),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: button(
+                  label: 'btn_video'.l10n,
+                  icon: SvgIcons.chatVideoCall,
+                  onPressed: () => c.call(true),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
