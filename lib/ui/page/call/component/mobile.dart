@@ -26,9 +26,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../controller.dart';
 import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
-import '../widget/chat_info_card.dart';
 import '../widget/conditional_backdrop.dart';
-import '../widget/double_bounce_indicator.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
@@ -37,6 +35,7 @@ import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
+import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -75,7 +74,7 @@ Widget mobileCall(CallController c, BuildContext context) {
     List<Widget> overlay = [];
 
     // Active call.
-    if (c.state.value == OngoingCallState.active) {
+    if ((c.isGroup && isOutgoing) || c.state.value == OngoingCallState.active) {
       content.addAll([
         Obx(() {
           if (c.isDialog && c.primary.length == 1 && c.secondary.length == 1) {
@@ -259,39 +258,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                       vertical: avatar.full,
                     ),
                   );
+                } else {
+                  return CallCoverWidget(null, chat: c.chat.value);
                 }
               }
-
-              return const SizedBox();
             }),
-
-            // Dim the primary view in a non-active call.
-            Obx(() {
-              final Widget child;
-
-              if (c.state.value == OngoingCallState.active) {
-                child = const SizedBox();
-              } else {
-                child = IgnorePointer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: style.colors.onBackgroundOpacity50,
-                  ),
-                );
-              }
-
-              return SafeAnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
-
-            if (isOutgoing)
-              const Padding(
-                padding: EdgeInsets.all(21.0),
-                child: Center(child: DoubleBounceLoadingIndicator()),
-              ),
           ],
         );
       }));
@@ -393,8 +364,11 @@ Widget mobileCall(CallController c, BuildContext context) {
       // Sliding from the top title bar.
       SafeArea(
         child: Obx(() {
-          bool showUi =
-              (c.state.value != OngoingCallState.active && !c.minimized.value);
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool incoming = !isOutgoing;
+
+          final bool showUi =
+              (!c.isGroup || incoming) && !active && !c.minimized.value;
 
           return AnimatedSlider(
             duration: const Duration(milliseconds: 400),
@@ -415,6 +389,89 @@ Widget mobileCall(CallController c, BuildContext context) {
         }),
       ),
 
+      // Sliding from the top call information.
+      SafeArea(
+        child: Obx(() {
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool showUi = c.showUi.value && active && !c.minimized.value;
+
+          return Align(
+            alignment: Alignment.topCenter,
+            child: AnimatedSlider(
+              duration: const Duration(milliseconds: 250),
+              isOpen: showUi,
+              beginOffset: Offset(0, -50 - MediaQuery.of(context).padding.top),
+              endOffset: const Offset(0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity20,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.colors.primaryAuxiliaryOpacity25,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.chat.value?.title.value ?? ('dot'.l10n * 3),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                        width: 1,
+                        height: 14,
+                        color: style.colors.onPrimary,
+                      ),
+                      if (c.isGroup) ...[
+                        Text(
+                          'label_a_of_b'.l10nfmt({
+                            'a': c.members.keys
+                                .where((e) => e.deviceId != null)
+                                .map((k) => k.userId)
+                                .toSet()
+                                .length,
+                            'b': c.chat.value?.members.length ?? 1,
+                          }),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                          width: 1,
+                          height: 14,
+                          color: style.colors.onPrimary,
+                        ),
+                      ],
+                      Text(
+                        Config.disableInfiniteAnimations
+                            ? '00:00'
+                            : c.duration.value.hhMmSs(),
+                        style: style.fonts.small.regular.onPrimary,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+
       // Sliding from the bottom buttons panel.
       Obx(() {
         bool showUi =
@@ -424,10 +481,13 @@ Widget mobileCall(CallController c, BuildContext context) {
         double panelHeight = 0;
         List<Widget> panelChildren = [];
 
+        final bool panel = (c.isGroup && isOutgoing) ||
+            c.state.value == OngoingCallState.active ||
+            c.state.value == OngoingCallState.joining;
+
         // Populate the sliding panel height and its content.
-        if (c.state.value == OngoingCallState.active ||
-            c.state.value == OngoingCallState.joining) {
-          panelHeight = 360 + 37;
+        if (panel) {
+          panelHeight = 260 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [
@@ -456,33 +516,12 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding(RemoteVideoButton(c).build(expanded: true)),
               ],
             ),
-            const SizedBox(height: 20),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 366),
-              child: ChatInfoCard(
-                chat: c.chat.value,
-                duration: c.duration.value,
-                trailing: 'label_a_of_b'.l10nfmt({
-                  'a': '${c.members.keys.map((k) => k.userId).toSet().length}',
-                  'b': '${c.chat.value?.members.length}',
-                }),
-                subtitle: c.chat.value?.members.values
-                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
-                        ?.user
-                        .value
-                        .status
-                        ?.val ??
-                    'label_online'.l10n,
-                onTap: () => c.openAddMember(context),
-              ),
-            ),
           ];
         }
 
         return SafeAnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
-          child: c.state.value == OngoingCallState.active ||
-                  c.state.value == OngoingCallState.joining
+          child: panel
               ? AnimatedSlider(
                   beginOffset: Offset(
                     0,
@@ -559,7 +598,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 30),
+                        padding: EdgeInsets.only(bottom: isOutgoing ? 0 : 30),
                         child: AnimatedSlider(
                           isOpen: showUi,
                           duration: const Duration(milliseconds: 400),
@@ -573,13 +612,33 @@ Widget mobileCall(CallController c, BuildContext context) {
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
-                                            ? SwitchButton(c).build(blur: true)
-                                            : SpeakerButton(c)
-                                                .build(blur: true),
+                                            ? SwitchButton(c).build(
+                                                hinted: false,
+                                                opaque: true,
+                                              )
+                                            : SpeakerButton(c).build(
+                                                hinted: false,
+                                                opaque: true,
+                                              ),
                                       ),
-                                    padding(AudioButton(c).build(blur: true)),
-                                    padding(VideoButton(c).build(blur: true)),
-                                    padding(CancelButton(c).build(blur: true)),
+                                    padding(
+                                      AudioButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
+                                    padding(
+                                      VideoButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
+                                    padding(
+                                      CancelButton(c).build(
+                                        hinted: false,
+                                        opaque: true,
+                                      ),
+                                    ),
                                   ]
                                 : [
                                     padding(
