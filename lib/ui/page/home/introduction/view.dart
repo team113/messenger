@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -25,12 +26,16 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/num.dart';
+import '/ui/page/login/controller.dart';
+import '/ui/page/login/view.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/non_web.dart';
 import 'controller.dart';
 
 /// Introduction displaying important information alongside with an ability to
@@ -139,6 +144,106 @@ class IntroductionView extends StatelessWidget {
                 ),
               ];
               break;
+            case IntroductionViewStage.link:
+              final guestButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('StartButton'),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: const SvgIcon(SvgIcons.oneTime),
+                  ),
+                  onPressed: Navigator.of(context).pop,
+                  child: Text('btn_guest'.l10n),
+                ),
+              );
+
+              final signInButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('SignInButton'),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: const SvgIcon(SvgIcons.enter),
+                  ),
+                  onPressed: () =>
+                      LoginView.show(context, initial: LoginViewStage.signIn),
+                  child: Text('btn_sign_in'.l10n),
+                ),
+              );
+
+              final applicationButton = Center(
+                child: OutlinedRoundedButton(
+                  maxWidth: 290,
+                  height: 46,
+                  leading: const Padding(
+                    padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                    child: SvgIcon(SvgIcons.logo),
+                  ),
+                  onPressed: () async {
+                    await WebUtils.launchScheme('/d/${router.joinByLink}');
+                    if (context.mounted) {
+                      await _download(context);
+                    }
+                  },
+                  child: Text('label_application'.l10n),
+                ),
+              );
+
+              if (PlatformUtils.isMobile) {
+                header = const ModalPopupHeader(dense: true);
+                children = [
+                  const SizedBox(height: 8),
+                  guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
+                  if (PlatformUtils.isWeb) ...[
+                    const SizedBox(height: 15),
+                    applicationButton,
+                  ],
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Animate(
+                      effects: const [
+                        FadeEffect(
+                          delay: Duration(milliseconds: 0),
+                          duration: Duration(milliseconds: 2000),
+                        ),
+                        MoveEffect(
+                          delay: Duration(milliseconds: 0),
+                          begin: Offset(0, 100),
+                          end: Offset(0, 0),
+                          curve: Curves.ease,
+                          duration: Duration(milliseconds: 1000),
+                        ),
+                      ],
+                      child: Text(
+                        'Messenger by Gapopa',
+                        style: style.fonts.normal.regular.secondary,
+                      ),
+                    ),
+                  ),
+                ];
+              } else {
+                header = const ModalPopupHeader(
+                  text: 'Messenger by Gapopa',
+                  dense: false,
+                );
+                children = [
+                  const SizedBox(height: 8),
+                  if (PlatformUtils.isWeb) ...[
+                    applicationButton,
+                    const SizedBox(height: 15),
+                  ],
+                  guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
+                  const SizedBox(height: 16),
+                ];
+              }
+              break;
           }
 
           return AnimatedSizeAndFade(
@@ -197,6 +302,64 @@ class IntroductionView extends StatelessWidget {
           ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
+    );
+  }
+
+  /// Opens a [ModalPopup] listing the buttons for downloading the application.
+  Future<void> _download(BuildContext context) async {
+    await ModalPopup.show(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ModalPopupHeader(text: 'btn_download'.l10n),
+          const SizedBox(height: 12),
+          Flexible(
+            child: ListView(
+              padding: ModalPopup.padding(context),
+              shrinkWrap: true,
+              children: const [
+                DownloadButton(
+                  asset: SvgIcons.windows,
+                  title: 'Windows',
+                  link: 'messenger-windows.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.apple,
+                  title: 'macOS',
+                  link: 'messenger-macos.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.linux,
+                  title: 'Linux',
+                  link: 'messenger-linux.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.appStore,
+                  title: 'App Store',
+                  link: 'messenger-ios.zip',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.googlePlay,
+                  title: 'Google Play',
+                  link: 'messenger-android.apk',
+                ),
+                SizedBox(height: 8),
+                DownloadButton(
+                  asset: SvgIcons.android,
+                  title: 'Android',
+                  link: 'messenger-android.apk',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+        ],
+      ),
     );
   }
 }

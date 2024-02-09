@@ -151,7 +151,9 @@ class ModalPopupHeader extends StatelessWidget {
     super.key,
     this.text,
     this.onBack,
+    this.onClose,
     this.close = true,
+    this.dense = false,
   });
 
   /// Text to display as a title of this [ModalPopupHeader].
@@ -162,15 +164,19 @@ class ModalPopupHeader extends StatelessWidget {
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
 
+  final void Function()? onClose;
+
   /// Indicator whether a close button should be displayed.
   final bool close;
+
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 42),
+      constraints: BoxConstraints(minHeight: dense ? 0 : 42),
       child: Center(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,10 +210,10 @@ class ModalPopupHeader extends StatelessWidget {
               )
             else
               const Spacer(),
-            if (!context.isMobile && close)
+            if ((!context.isMobile || onClose != null) && close)
               WidgetButton(
                 key: const Key('CloseButton'),
-                onPressed: Navigator.of(context).pop,
+                onPressed: onClose ?? Navigator.of(context).pop,
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(12, 14, 14, 8),
                   child: const SvgIcon(SvgIcons.closeSmallPrimary),

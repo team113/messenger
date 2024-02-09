@@ -392,4 +392,8 @@ class WebUtils {
 
     return agent;
   }
+
+  static Future<void> launchScheme(String link) async {
+    // No-op.
+  }
 }

@@ -53,6 +53,8 @@ class ChatDirectLinkController extends GetxController {
     if (_auth.status.value.isSuccess) {
       await _useChatDirectLink();
     } else if (_auth.status.value.isEmpty) {
+      router.directLink = true;
+      router.joinByLink = slug.value?.val;
       await _register();
       if (_auth.status.value.isSuccess) {
         await _useChatDirectLink();

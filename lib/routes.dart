@@ -162,6 +162,10 @@ class RouterState extends ChangeNotifier {
   /// This router's global [OverlayState] to use in contextless scenarios.
   OverlayState? overlay;
 
+  // TODO: На первое время пусть будет, нужно придумать лучше
+  bool directLink = false;
+  String? joinByLink;
+
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =
       Rx<AppLifecycleState>(AppLifecycleState.resumed);
