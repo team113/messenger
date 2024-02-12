@@ -101,11 +101,21 @@ class ChatInfoView extends StatelessWidget {
                       child: Obx(() {
                         return AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
-                          child: Text(
-                            key: Key(c.displayName.value ? '1' : '0'),
-                            c.displayName.value
-                                ? '${c.chat?.title.value}'
-                                : 'label_profile'.l10n,
+                          child: Row(
+                            key: Key(c.displayName.value.toString()),
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (c.displayName.value)
+                                AvatarWidget.fromRxChat(c.chat,
+                                    radius: AvatarRadius.smaller),
+                              if (c.displayName.value) const SizedBox(width: 5),
+                              Text(
+                                key: Key(c.displayName.value ? '1' : '0'),
+                                c.displayName.value
+                                    ? '${c.chat?.title.value}'
+                                    : 'label_profile'.l10n,
+                              ),
+                            ],
                           ),
                         );
                       }),
