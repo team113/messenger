@@ -571,7 +571,7 @@ class ChatView extends StatelessWidget {
                                   .elementAt(i) is DateTimeElement,
                               initIndex: c.initIndex,
                               initOffset: c.initOffset,
-                              initOffsetBasedOnBottom: false,
+                              initOffsetBasedOnBottom: true,
                               disableCacheItems: kDebugMode ? true : false,
                             ),
                           );

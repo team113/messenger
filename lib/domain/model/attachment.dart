@@ -25,6 +25,7 @@ import 'package:uuid/uuid.dart';
 import '../model_type_id.dart';
 import '/ui/worker/cache.dart';
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -116,18 +117,20 @@ class FileAttachment extends Attachment {
 
   /// Initializes this [FileAttachment].
   Future<void> init() async {
-    if (_initialized) {
-      return;
+    if (!PlatformUtils.isWeb) {
+      if (_initialized) {
+        return;
+      }
+
+      _initialized = true;
+
+      await CacheWorker.instance.checkDownloaded(
+        filename: filename,
+        checksum: original.checksum,
+        size: original.size,
+        url: original.url,
+      );
     }
-
-    _initialized = true;
-
-    await CacheWorker.instance.checkDownloaded(
-      filename: filename,
-      checksum: original.checksum,
-      size: original.size,
-      url: original.url,
-    );
   }
 
   /// Downloads this [FileAttachment].

@@ -152,7 +152,7 @@ class UserRepository extends DisposableInterface
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
-    final Paginated<UserId, RxUser> searchResult = PaginatedImpl(
+    return PaginatedImpl(
       pagination: pagination,
       initial: [
         {for (var u in users) u.id: u},
@@ -161,8 +161,6 @@ class UserRepository extends DisposableInterface
         if (link != null) searchByLink(link).then(toMap),
       ],
     );
-
-    return searchResult;
   }
 
   @override

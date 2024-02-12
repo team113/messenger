@@ -28,52 +28,18 @@ import '/util/obs/obs.dart';
 import 'pagination.dart';
 
 /// Implementation of a [Paginated].
-class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
+class PaginatedImpl<K extends Comparable, T, C> extends Paginated<K, T> {
   PaginatedImpl({
     this.pagination,
-    List<FutureOr<Map<K, T>>> initial = const [],
-  }) {
-    for (var f in initial) {
-      if (f is Future<Map<K, T>>) {
-        _futures.add(f..then(items.addAll));
-      } else {
-        items.addAll(f);
-      }
-    }
-
-    if (pagination != null) {
-      _paginationSubscription = pagination!.changes.listen((event) {
-        switch (event.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            items[event.key!] = event.value as T;
-            break;
-
-          case OperationKind.removed:
-            items.remove(event.key);
-            break;
-        }
-      });
-
-      _futures.add(pagination!.around());
-    }
-
-    if (_futures.isEmpty) {
-      status.value = RxStatus.success();
-    } else {
-      if (items.isNotEmpty) {
-        status.value = RxStatus.loadingMore();
-      } else {
-        status.value = RxStatus.loading();
-      }
-
-      Future.wait(_futures)
-          .whenComplete(() => status.value = RxStatus.success());
-    }
-  }
+    this.initial = const [],
+    super.onDispose,
+  });
 
   /// Pagination fetching [items].
-  final Pagination<T, Object, K>? pagination;
+  final Pagination<T, C, K>? pagination;
+
+  /// Initial [T] items to put inside the [items].
+  final List<FutureOr<Map<K, T>>> initial;
 
   /// [Future]s loading the initial [items].
   final List<Future> _futures = [];
@@ -96,7 +62,47 @@ class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
-    await Future.wait(_futures);
+    if (_futures.isEmpty && !status.value.isSuccess) {
+      for (var f in initial) {
+        if (f is Future<Map<K, T>>) {
+          _futures.add(f..then(items.addAll));
+        } else {
+          items.addAll(f);
+        }
+      }
+
+      if (pagination != null) {
+        _paginationSubscription = pagination!.changes.listen((event) {
+          switch (event.op) {
+            case OperationKind.added:
+            case OperationKind.updated:
+              items[event.key!] = event.value as T;
+              break;
+
+            case OperationKind.removed:
+              items.remove(event.key);
+              break;
+          }
+        });
+
+        _futures.add(pagination!.around());
+      }
+
+      if (_futures.isEmpty) {
+        status.value = RxStatus.success();
+      } else {
+        if (items.isNotEmpty) {
+          status.value = RxStatus.loadingMore();
+        } else {
+          status.value = RxStatus.loading();
+        }
+
+        await Future.wait(_futures);
+        status.value = RxStatus.success();
+      }
+    } else {
+      await Future.wait(_futures);
+    }
   }
 
   @override
@@ -156,12 +162,12 @@ class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
 }
 
 /// Implementation of a [Paginated] for [ChatItem]s.
-class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
-  MessagesFragment({
+class MessagesPaginated extends Paginated<ChatItemKey, Rx<ChatItem>> {
+  MessagesPaginated({
     required this.pagination,
     this.initialKey,
     this.initialCursor,
-    this.onDispose,
+    super.onDispose,
   });
 
   /// Pagination fetching [items].
@@ -172,9 +178,6 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
 
   /// [ChatItemsCursor] to fetch [items] around.
   final ChatItemsCursor? initialCursor;
-
-  /// Callback, called when this [MessagesFragment] is disposed.
-  final void Function()? onDispose;
 
   /// [Future]s loading the initial [items].
   final List<Future> _futures = [];
@@ -231,8 +234,6 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
 
     pagination.dispose();
     _paginationSubscription?.cancel();
-
-    onDispose?.call();
     super.dispose();
   }
 

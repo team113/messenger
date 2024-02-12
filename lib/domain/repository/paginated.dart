@@ -24,6 +24,8 @@ import '/util/obs/obs.dart';
 
 /// Paginated view of [T] items.
 abstract class Paginated<K extends Comparable, T> {
+  Paginated({this.onDispose});
+
   /// Paginated [T] items themselves.
   final RxObsMap<K, T> items = RxObsMap<K, T>();
 
@@ -36,6 +38,9 @@ abstract class Paginated<K extends Comparable, T> {
   ///   storage.
   /// - `status.isSuccess`, meaning the [items] were successfully fetched.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Callback, called when this [Paginated] is disposed.
+  final void Function()? onDispose;
 
   /// [StreamController] for [updates] of this [Paginated].
   ///
@@ -70,6 +75,7 @@ abstract class Paginated<K extends Comparable, T> {
   @mustCallSuper
   void dispose() {
     _controller.close();
+    onDispose?.call();
   }
 
   /// Fetches next page of the [items].

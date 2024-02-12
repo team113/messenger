@@ -1032,7 +1032,7 @@ class ChatController extends GetxController {
           // [FlutterListView] ignores the [initIndex], if it is 0.
           if (index == 0) {
             initIndex = 1;
-            initOffset = 5000;
+            initOffset = -5000;
           } else {
             initIndex = index;
             initOffset = offset;
@@ -1052,7 +1052,7 @@ class ChatController extends GetxController {
           listController.sliverController.jumpToIndex(
             initIndex,
             offset: initOffset,
-            offsetBasedOnBottom: false,
+            offsetBasedOnBottom: offsetBasedOnBottom,
           );
           _ignorePositionChanges = false;
 

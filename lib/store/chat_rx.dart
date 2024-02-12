@@ -129,10 +129,10 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
-  /// [MessagesFragment]s created by this [HiveRxChat].
-  final List<MessagesFragment> _fragments = [];
+  /// [MessagesPaginated]s created by this [HiveRxChat].
+  final List<MessagesPaginated> _fragments = [];
 
-  /// Subscriptions to the [MessagesFragment.items] changes updating the
+  /// Subscriptions to the [MessagesPaginated.items] changes updating the
   /// [reads].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
@@ -948,9 +948,9 @@ class HiveRxChat extends RxChat {
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
-  /// Constructs a [MessagesFragment] around the specified [item], [reply] or
+  /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
   /// [forward].
-  Future<MessagesFragment> _paginateAround(
+  Future<MessagesPaginated> _paginateAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
@@ -1000,7 +1000,7 @@ class HiveRxChat extends RxChat {
     }
 
     // Try to find any [MessagesFragment] already containing the item requested.
-    MessagesFragment? fragment = _fragments.firstWhereOrNull(
+    MessagesPaginated? fragment = _fragments.firstWhereOrNull(
       (e) => e.items[key] != null,
     );
 
@@ -1017,7 +1017,7 @@ class HiveRxChat extends RxChat {
     Timer? debounce;
 
     _fragments.add(
-      fragment = MessagesFragment(
+      fragment = MessagesPaginated(
         initialKey: key,
         initialCursor: cursor,
         pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
@@ -1183,7 +1183,7 @@ class HiveRxChat extends RxChat {
   /// Recalculates the [LastChatRead]s pointing at the [item], if any.
   ///
   /// Should be called when a [ChatItem] is removed from the [messages] or the
-  /// [MessagesFragment.items].
+  /// [MessagesPaginated.items].
   void _recalculateReadsFor(ChatItem item) {
     for (LastChatRead i in reads) {
       if (item.at == i.at) {

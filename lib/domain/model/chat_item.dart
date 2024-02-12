@@ -21,7 +21,6 @@ import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
-import '/util/platform_utils.dart';
 import 'attachment.dart';
 import 'chat.dart';
 import 'chat_item_quote.dart';
@@ -81,13 +80,7 @@ class ChatMessage extends ChatItem {
     this.text,
     this.editedAt,
     this.attachments = const [],
-  }) {
-    if (!PlatformUtils.isWeb) {
-      for (var a in attachments.whereType<FileAttachment>()) {
-        a.init();
-      }
-    }
-  }
+  });
 
   /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
@@ -139,16 +132,7 @@ class ChatForward extends ChatItem {
     super.author,
     super.at, {
     required this.quote,
-  }) {
-    if (!PlatformUtils.isWeb) {
-      final ChatItemQuote nested = quote;
-      if (nested is ChatMessageQuote) {
-        for (var a in nested.attachments.whereType<FileAttachment>()) {
-          a.init();
-        }
-      }
-    }
-  }
+  });
 
   /// [ChatItemQuote] of the forwarded [ChatItem].
   ///
