@@ -218,6 +218,11 @@ class UserView extends StatelessWidget {
                             ),
                           );
                         }),
+                        const SizedBox(height: 4),
+                        Text(
+                          c.user!.user.value.getStatus2()!,
+                          style: style.fonts.small.regular.secondary,
+                        ),
                       ],
                     ),
                     _quick(c, context),
@@ -661,7 +666,7 @@ class UserView extends StatelessWidget {
               : 'btn_add_to_favorites'.l10n,
           onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
           trailing: SvgIcon(
-            favorite ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
         ),
         // Obx(() {

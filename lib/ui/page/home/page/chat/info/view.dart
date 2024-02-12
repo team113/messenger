@@ -101,11 +101,21 @@ class ChatInfoView extends StatelessWidget {
                       child: Obx(() {
                         return AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
-                          child: Text(
-                            key: Key(c.displayName.value ? '1' : '0'),
-                            c.displayName.value
-                                ? '${c.chat?.title.value}'
-                                : 'label_profile'.l10n,
+                          child: Row(
+                            key: Key(c.displayName.value.toString()),
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (c.displayName.value)
+                                AvatarWidget.fromRxChat(c.chat,
+                                    radius: AvatarRadius.smaller),
+                              if (c.displayName.value) const SizedBox(width: 8),
+                              Text(
+                                key: Key(c.displayName.value ? '1' : '0'),
+                                c.displayName.value
+                                    ? '${c.chat?.title.value}'
+                                    : 'label_profile'.l10n,
+                              ),
+                            ],
                           ),
                         );
                       }),
@@ -427,7 +437,7 @@ class ChatInfoView extends StatelessWidget {
               ? 'btn_delete_from_favorites'.l10n
               : 'btn_add_to_favorites'.l10n,
           trailing: SvgIcon(
-            favorite ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
         ),
         if (!c.isMonolog)
@@ -661,7 +671,7 @@ class ChatInfoView extends StatelessWidget {
           decoration: BoxDecoration(
             color: style.cardColor,
             border: style.cardBorder,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: Center(
             child: Transform.translate(

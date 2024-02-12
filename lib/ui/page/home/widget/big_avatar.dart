@@ -207,7 +207,6 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             widget.user,
             key: _avatarKey,
             radius: AvatarRadius.largest,
-            badge: false,
           );
           break;
 

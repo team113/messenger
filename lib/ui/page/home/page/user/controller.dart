@@ -594,6 +594,37 @@ extension UserViewExt on User {
         return null;
     }
   }
+
+  /// Returns a text represented status of this [User] based on its
+  /// [User.presence] and [User.online] fields.
+  String? getStatus2([PreciseDateTime? lastSeen]) {
+    switch (presence) {
+      case Presence.present:
+        if (online) {
+          return 'label_online'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'Был ' +
+              (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase();
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case Presence.away:
+        if (online) {
+          return 'label_away'.l10n;
+        } else if (lastSeenAt != null) {
+          return (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo();
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case null:
+        return 'label_hidden'.l10n;
+
+      case Presence.artemisUnknown:
+        return null;
+    }
+  }
 }
 
 /// Extension adding an ability to get text represented indication of how long
