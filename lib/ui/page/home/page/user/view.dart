@@ -218,6 +218,11 @@ class UserView extends StatelessWidget {
                             ),
                           );
                         }),
+                        const SizedBox(height: 4),
+                        Text(
+                          c.user!.user.value.getStatus()!,
+                          style: style.fonts.small.regular.secondary,
+                        ),
                       ],
                     ),
                     _quick(c, context),
