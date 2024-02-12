@@ -1741,15 +1741,12 @@ class ChatController extends GetxController {
       _messagesSubscription = chat.messages.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
+          case OperationKind.updated:
             _add(e.element);
             break;
 
           case OperationKind.removed:
             _remove(e.element.value);
-            break;
-
-          case OperationKind.updated:
-            // No-op.
             break;
         }
       });
@@ -1757,15 +1754,12 @@ class ChatController extends GetxController {
       _messagesSubscription = fragment.items.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
+          case OperationKind.updated:
             _add(e.value!);
             break;
 
           case OperationKind.removed:
             _remove(e.value!.value);
-            break;
-
-          case OperationKind.updated:
-            // No-op.
             break;
         }
       });

@@ -517,7 +517,7 @@ class HiveRxChat extends RxChat {
       lastRead = await get(chat.value.lastReadItem!);
     }
 
-    // TODO: Perhaps the [messages] should be in a [MessagesFragment] as well?
+    // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
     //       This will make it easy to dispose the messages, when they aren't
     //       needed, so that RAM is freed.
     await _pagination.around(
@@ -999,7 +999,7 @@ class HiveRxChat extends RxChat {
       key = hiveItem?.value.key;
     }
 
-    // Try to find any [MessagesFragment] already containing the item requested.
+    // Try to find any [MessagesPaginated] already containing the item requested.
     MessagesPaginated? fragment = _fragments.firstWhereOrNull(
       (e) => e.items[key] != null,
     );

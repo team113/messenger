@@ -208,6 +208,7 @@ class MessagesPaginated extends Paginated<ChatItemKey, Rx<ChatItem>> {
           case OperationKind.updated:
             if (items.containsKey(event.key!)) {
               items[event.key!]!.value = event.value!.value;
+              items[event.key!]!.refresh();
             } else {
               items[event.key!] = Rx(event.value!.value);
             }
