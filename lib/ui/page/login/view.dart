@@ -400,10 +400,7 @@ class LoginView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 25 / 2),
-                PrimaryButton(
-                  title: 'btn_one_time_account'.l10n,
-                  onPressed: c.register,
-                ),
+                PrimaryButton(title: 'btn_guest'.l10n, onPressed: c.register),
                 const SizedBox(height: 16),
               ];
               break;

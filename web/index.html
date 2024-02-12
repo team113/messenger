@@ -314,6 +314,13 @@
       });
     }
   </script>
+  <!-- Return the currently held locks of Navigator. -->
+  <script>
+    async function getLocks() {
+      var locks = await navigator.locks.query();
+      return locks.held;
+    }
+  </script>
 </body>
 
 </html>

@@ -6,7 +6,39 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.12] · 2024-??-??
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Redesigned incoming/outgoing call. ([#832], [#812])
+
+[#812]: /../../issues/812
+[#832]: /../../pull/832
+
+
+
+
+## [0.1.0-alpha.12.1] · 2024-02-08
+[0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
+
+[Diff](/../../compare/v0.1.0-alpha.12...v0.1.0-alpha.12.1) | [Milestone](/../../milestone/16)
+
+### Fixed
+
+- Web:
+    - Authentication token not being refreshed. ([#844])
+
+[#844]: /../../pull/844
+
+
+
+
+## [0.1.0-alpha.12] · 2024-02-08
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
@@ -46,11 +78,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats tab:
-        - Restore button displaying under mobile navigation bar. ([#763, #758])
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
     - Contacts tab:
-        - Restore button displaying under mobile navigation bar. ([#763, #758])
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
     - User page:
-        - Downloaded avatar missing its extension on desktop. ([#756, #726])
+        - Downloaded avatar missing its extension on desktop. ([#756], [#726])
     - Chat page:
         - Read partially message status missing in forwards. ([#776])
     - Media panel:
