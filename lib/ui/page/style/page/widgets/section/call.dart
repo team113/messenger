@@ -149,7 +149,6 @@ class CallSection {
       Headline(
         background: style.colors.backgroundAuxiliaryLight,
         child: const CallTitle(
-          UserId('me'),
           title: 'Title',
           state: 'State',
         ),
