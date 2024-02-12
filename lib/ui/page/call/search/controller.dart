@@ -170,7 +170,7 @@ class SearchController extends GetxController {
   /// Whether this [SearchController] has potentially more search results.
   bool get hasNext {
     final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
-        ((contactsSearch.value?.hasNext.isTrue ?? false) ||
+        (contactsSearch.value?.hasNext.isTrue ??
             _contactService.hasNext.isTrue);
     final bool usersHaveMore = categories.contains(SearchCategory.user) &&
         (usersSearch.value?.hasNext.isTrue ?? false);
