@@ -108,7 +108,7 @@ class ChatInfoView extends StatelessWidget {
                               if (c.displayName.value)
                                 AvatarWidget.fromRxChat(c.chat,
                                     radius: AvatarRadius.smaller),
-                              if (c.displayName.value) const SizedBox(width: 5),
+                              if (c.displayName.value) const SizedBox(width: 8),
                               Text(
                                 key: Key(c.displayName.value ? '1' : '0'),
                                 c.displayName.value
@@ -701,7 +701,7 @@ class ChatInfoView extends StatelessWidget {
     return SelectionContainer.disabled(
       child: Center(
         child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          padding: const EdgeInsets.all(8.0),
           constraints:
               context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
           child: Row(
