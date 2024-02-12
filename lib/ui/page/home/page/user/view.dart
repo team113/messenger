@@ -220,7 +220,7 @@ class UserView extends StatelessWidget {
                         }),
                         const SizedBox(height: 4),
                         Text(
-                          c.user!.user.value.getStatus()!,
+                          c.user!.user.value.getStatus2()!,
                           style: style.fonts.small.regular.secondary,
                         ),
                       ],
