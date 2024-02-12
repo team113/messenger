@@ -603,7 +603,8 @@ extension UserViewExt on User {
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
-          return 'Был ' + (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo();
+          return 'Был ' +
+              (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase();
         } else {
           return 'label_offline'.l10n;
         }
