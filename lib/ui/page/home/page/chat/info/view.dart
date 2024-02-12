@@ -701,7 +701,7 @@ class ChatInfoView extends StatelessWidget {
     return SelectionContainer.disabled(
       child: Center(
         child: Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
           constraints:
               context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
           child: Row(
