@@ -75,9 +75,7 @@ class HiveRxChat extends RxChat {
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
-        // TODO: Don't ignore version, when all events are surely delivered by
-        //       subscribing to `chatEvents` with that version.
-        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
+        ver = hiveChat.ver;
 
   @override
   final Rx<Chat> chat;
@@ -925,6 +923,28 @@ class HiveRxChat extends RxChat {
     );
   }
 
+  /// Updates the [avatar] of the [chat].
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  @override
+  Future<void> updateAvatar() async {
+    Log.debug('updateAvatar()', '$runtimeType($id)');
+
+    final ChatAvatar? avatar = await _chatRepository.avatar(id);
+
+    await _chatLocal.txn((txn) async {
+      final HiveChat? chatEntity = await txn.get(id.val);
+      if (chatEntity != null) {
+        chatEntity.value.avatar = avatar;
+
+        // TODO: Avatar should be updated by [Hive] subscription.
+        this.avatar.value = avatar;
+
+        await txn.put(chatEntity.value.id.val, chatEntity);
+      }
+    });
+  }
+
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
@@ -1544,8 +1564,8 @@ class HiveRxChat extends RxChat {
                 event as EventChatLastItemUpdated;
                 chatEntity.value.lastItem = event.lastItem?.value;
 
-                // TODO [ChatCall.conversationStartedAt] shouldn't be `null` here
-                //      when starting group or monolog [ChatCall].
+                // TODO [ChatCall.conversationStartedAt] shouldn't be `null`
+                //      here when starting group or monolog [ChatCall].
                 if (!chatEntity.value.isDialog &&
                     chatEntity.value.lastItem is ChatCall) {
                   (chatEntity.value.lastItem as ChatCall)
@@ -1561,7 +1581,7 @@ class HiveRxChat extends RxChat {
 
               case ChatEventKind.delivered:
                 event as EventChatDelivered;
-                chatEntity.value.lastDelivery = event.at;
+                chatEntity.value.lastDelivery = event.until;
                 break;
 
               case ChatEventKind.read:

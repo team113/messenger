@@ -338,14 +338,8 @@ Future<CustomUser> createUser({
     if (password != null) {
       await provider.updateUserPassword(null, password);
 
-      final result = await provider.signIn(
-        password,
-        null,
-        customUser.userNum,
-        null,
-        null,
-        true,
-      );
+      final result =
+          await provider.signIn(password, null, customUser.userNum, null, null);
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }

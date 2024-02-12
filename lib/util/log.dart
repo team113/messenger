@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -65,7 +66,7 @@ class Log {
     String? tag,
     SentryLevel level,
   ) async {
-    if (Config.sentryDsn.isNotEmpty) {
+    if (!kDebugMode && Config.sentryDsn.isNotEmpty) {
       try {
         await Sentry.addBreadcrumb(
           Breadcrumb.console(

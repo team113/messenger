@@ -1516,10 +1516,11 @@ mixin ChatGraphQlMixin {
   ///
   /// Succeeds as no-op if the [Chat]-monolog for the authenticated [MyUser]
   /// exists already, and returns it.
-  Future<ChatMixin> createMonologChat(ChatName? name) async {
+  Future<ChatMixin> createMonologChat({ChatName? name, bool? isHidden}) async {
     Log.debug('createMonologChat($name)', '$runtimeType');
 
-    final variables = CreateMonologChatArguments(name: name);
+    final variables =
+        CreateMonologChatArguments(name: name, isHidden: isHidden);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateMonologChat',
@@ -1553,5 +1554,26 @@ mixin ChatGraphQlMixin {
       ),
     );
     return GetMonolog$Query.fromJson(result.data!).monolog;
+  }
+
+  /// Fetches the [ChatAvatar]s of a [Chat] identified by the provided [id].
+  ///
+  /// The authenticated [MyUser] should be a member of the [Chat].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetAvatar$Query> avatar(ChatId id) async {
+    Log.debug('avatar($id)', '$runtimeType');
+
+    final variables = GetAvatarArguments(id: id);
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetAvatar',
+        document: GetAvatarQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetAvatar$Query.fromJson(result.data!);
   }
 }

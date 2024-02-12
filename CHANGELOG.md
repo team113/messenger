@@ -6,7 +6,39 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.12] · 2024-??-??
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Redesigned incoming/outgoing call. ([#832], [#812])
+
+[#812]: /../../issues/812
+[#832]: /../../pull/832
+
+
+
+
+## [0.1.0-alpha.12.1] · 2024-02-08
+[0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
+
+[Diff](/../../compare/v0.1.0-alpha.12...v0.1.0-alpha.12.1) | [Milestone](/../../milestone/16)
+
+### Fixed
+
+- Web:
+    - Authentication token not being refreshed. ([#844])
+
+[#844]: /../../pull/844
+
+
+
+
+## [0.1.0-alpha.12] · 2024-02-08
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
@@ -19,6 +51,7 @@ All user visible changes to this project will be documented in this file. This p
         - Cache maximum size slider. ([#794], [#789])
     - Media panel:
         - Screen dimming when close to ear on mobile. ([#823], [#808])
+        - Secondary panel mode switches. ([#837], [#811])
 
 ### Changed
 
@@ -45,11 +78,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats tab:
-        - Restore button displaying under mobile navigation bar. ([#763, #758])
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
     - Contacts tab:
-        - Restore button displaying under mobile navigation bar. ([#763, #758])
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
     - User page:
-        - Downloaded avatar missing its extension on desktop. ([#756, #726])
+        - Downloaded avatar missing its extension on desktop. ([#756], [#726])
     - Chat page:
         - Read partially message status missing in forwards. ([#776])
     - Media panel:
@@ -91,9 +124,11 @@ All user visible changes to this project will be documented in this file. This p
 [#805]: /../../pull/805
 [#808]: /../../issues/808
 [#810]: /../../issues/810
+[#811]: /../../issues/811
 [#816]: /../../pull/816
 [#823]: /../../pull/823
 [#827]: /../../pull/827
+[#837]: /../../pull/837
 
 
 
