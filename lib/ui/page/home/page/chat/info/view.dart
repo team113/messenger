@@ -671,7 +671,7 @@ class ChatInfoView extends StatelessWidget {
           decoration: BoxDecoration(
             color: style.cardColor,
             border: style.cardBorder,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: Center(
             child: Transform.translate(
@@ -701,7 +701,7 @@ class ChatInfoView extends StatelessWidget {
     return SelectionContainer.disabled(
       child: Center(
         child: Container(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           constraints:
               context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
           child: Row(
