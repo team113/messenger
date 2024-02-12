@@ -90,14 +90,14 @@ extension LocalTrackStateImpl on LocalTrackState {
   }
 
   /// Indicates whether the current value is [LocalTrackState.enabled] or
-  /// [LocalTrackState.disabling].
+  /// [LocalTrackState.enabling].
   bool get isEnabled {
     switch (this) {
       case LocalTrackState.enabled:
-      case LocalTrackState.disabling:
+      case LocalTrackState.enabling:
         return true;
       case LocalTrackState.disabled:
-      case LocalTrackState.enabling:
+      case LocalTrackState.disabling:
         return false;
     }
   }
@@ -894,9 +894,7 @@ class OngoingCall {
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
           try {
-            await _updateSettings(
-              screenDevice: device ?? displays.firstOrNull,
-            );
+            await _updateSettings(screenDevice: device ?? displays.firstOrNull);
             await _room?.enableVideo(MediaSourceKind.display);
             screenShareState.value = LocalTrackState.enabled;
 
@@ -1547,24 +1545,27 @@ class OngoingCall {
         // No-op.
       }
 
-      this.outputDevice.value = devices
+      outputDevice.value = devices
               .output()
               .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
           devices.output().firstOrNull;
+
       audioDevice.value = devices
               .audio()
               .firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
           devices.audio().firstOrNull;
+
       videoDevice.value = devices
           .video()
           .firstWhereOrNull((e) => e.id() == _preferredVideoDevice);
+
       screenDevice.value = displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
-      final String? outputDevice = this.outputDevice.value?.deviceId() ??
+      final String? setOutputDevice = outputDevice.value?.deviceId() ??
           devices.output().firstOrNull?.deviceId();
-      if (outputDevice != null) {
-        MediaUtils.mediaManager?.setOutputAudioId(outputDevice);
+      if (setOutputDevice != null) {
+        MediaUtils.mediaManager?.setOutputAudioId(setOutputDevice);
       }
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -1647,9 +1648,6 @@ class OngoingCall {
       for (LocalMediaTrack track in tracks) {
         _addLocalTrack(track);
       }
-
-      // Update the list of [devices] just in case the permissions were given.
-      enumerateDevices();
 
       audioState.value = audioState.value == LocalTrackState.enabling
           ? LocalTrackState.enabled
@@ -1773,19 +1771,23 @@ class OngoingCall {
               : MediaSourceKind.display,
         );
 
-        MediaStreamSettings settings;
         try {
           // On Web settings do not change if provided the same IDs, so we
           // should reset settings first.
           if (PlatformUtils.isWeb) {
-            settings = _mediaStreamSettings();
-            await _room?.setLocalMediaSettings(settings, true, true);
+            await _room?.setLocalMediaSettings(
+              _mediaStreamSettings(),
+              true,
+              true,
+            );
           }
-          settings = _mediaStreamSettings(
+
+          final MediaStreamSettings settings = _mediaStreamSettings(
             audioDevice: audioDevice ?? this.audioDevice.value,
             videoDevice: videoDevice ?? this.videoDevice.value,
             screenDevice: screenDevice ?? this.screenDevice.value,
           );
+
           await _room?.setLocalMediaSettings(settings, true, true);
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
@@ -1796,8 +1798,11 @@ class OngoingCall {
             video: videoDevice != null,
             screen: screenDevice != null,
           );
-        } catch (_) {
-          // No-op.
+        } catch (e) {
+          Log.error(
+            '_updateSettings(audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice) failed: $e',
+            '$runtimeType',
+          );
         }
       } finally {
         _mediaSettingsGuard.release();
@@ -1844,17 +1849,10 @@ class OngoingCall {
 
       switch (track.kind()) {
         case MediaKind.audio:
-          // Currently used [audioDevice] has ended its track, thus set it to
-          // `null`.
-          //
-          // This might happen in Web, when `default` device is picked. In such
-          // scenarios afterwards the [MediaUtilsImpl.onDeviceChange] will
-          // probably fire its event and pick a new default device.
-          if (audioDevice.value?.deviceId() == track.getTrack().deviceId()) {
-            audioDevice.value = null;
-          }
-
-          _removeLocalTracks(track.kind(), track.mediaSourceKind());
+          // Currently used [MediaKind.audio] track has ended, try picking a new
+          // one.
+          audioDevice.value = null;
+          _pickAudioDevice();
           break;
 
         case MediaKind.video:

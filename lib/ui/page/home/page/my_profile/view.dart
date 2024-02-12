@@ -691,12 +691,13 @@ Widget _media(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
+          final selected = c.devices.video().firstWhereOrNull(
+                    (e) => e.deviceId() == c.media.value?.videoDevice,
+                  ) ??
+              c.devices.video().firstOrNull;
+
           return FieldButton(
-            text: (c.devices.video().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.videoDevice) ??
-                        c.devices.video().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
+            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
             headline: Text('label_media_camera'.l10n),
             onPressed: () async {
               await CameraSwitchView.show(
@@ -715,12 +716,13 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       Paddings.dense(
         Obx(() {
+          final selected = c.devices.audio().firstWhereOrNull(
+                    (e) => e.id() == c.media.value?.audioDevice,
+                  ) ??
+              c.devices.audio().firstOrNull;
+
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull(
-                            (e) => e.id() == c.media.value?.audioDevice) ??
-                        c.devices.audio().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
+            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
             headline: Text('label_media_microphone'.l10n),
             onPressed: () async {
               await MicrophoneSwitchView.show(
@@ -744,12 +746,13 @@ Widget _media(BuildContext context, MyProfileController c) {
         const SizedBox(height: 16),
         Paddings.dense(
           Obx(() {
+            final selected = c.devices.output().firstWhereOrNull(
+                      (e) => e.id() == c.media.value?.outputDevice,
+                    ) ??
+                c.devices.output().firstOrNull;
+
             return FieldButton(
-              text: (c.devices.output().firstWhereOrNull(
-                              (e) => e.id() == c.media.value?.outputDevice) ??
-                          c.devices.output().firstOrNull)
-                      ?.label() ??
-                  'label_media_no_device_available'.l10n,
+              text: selected?.label() ?? 'label_media_no_device_available'.l10n,
               headline: Text('label_media_output'.l10n),
               onPressed: () async {
                 await OutputSwitchView.show(

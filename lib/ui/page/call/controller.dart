@@ -901,10 +901,7 @@ class CallController extends GetxController {
             await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
-          await _currentCall.value.setScreenShareEnabled(
-            true,
-            device: display,
-          );
+          await _currentCall.value.setScreenShareEnabled(true, device: display);
         }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
@@ -938,19 +935,17 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<DeviceDetails> cameras = _currentCall.value.devices.video().toList();
+    final List<DeviceDetails> cameras =
+        _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
-      int selected = _currentCall.value.videoDevice.value == null
+      final DeviceDetails? videoDevice = _currentCall.value.videoDevice.value;
+      int selected = videoDevice == null
           ? 0
-          : cameras.indexWhere(
-              (e) =>
-                  e.deviceId() ==
-                  _currentCall.value.videoDevice.value!.deviceId(),
-            );
+          : cameras.indexWhere((e) => e.deviceId() == videoDevice.deviceId());
       selected += 1;
       cameraSwitched.toggle();
       await _currentCall.value.setVideoDevice(
-        cameras[(selected) % cameras.length],
+        cameras[selected % cameras.length],
       );
     }
   }
@@ -989,11 +984,12 @@ class CallController extends GetxController {
           }
 
           if (device == null) {
-            int selected = _currentCall.value.outputDevice.value == null
+            final DeviceDetails? outputDevice =
+                _currentCall.value.outputDevice.value;
+            int selected = outputDevice == null
                 ? 0
-                : outputs.indexWhere((e) =>
-                    e.deviceId() ==
-                    _currentCall.value.outputDevice.value!.deviceId());
+                : outputs
+                    .indexWhere((e) => e.deviceId() == outputDevice.deviceId());
             selected += 1;
             device = outputs[(selected) % outputs.length];
           }
@@ -2065,16 +2061,16 @@ class CallController extends GetxController {
           _currentCall.value.videoState.value == LocalTrackState.enabling) {
         final bool ear;
 
+        final DeviceDetails? outputDevice =
+            _currentCall.value.outputDevice.value;
         if (PlatformUtils.isIOS) {
-          ear = _currentCall.value.outputDevice.value?.deviceId() ==
-                  'ear-piece' ||
-              (_currentCall.value.outputDevice.value == null &&
+          ear = outputDevice?.deviceId() == 'ear-piece' ||
+              (outputDevice == null &&
                   _currentCall.value.devices.output().firstOrNull?.deviceId() ==
                       'ear-piece');
         } else {
-          ear = _currentCall.value.outputDevice.value?.deviceId() ==
-                  'ear-speaker' ||
-              (_currentCall.value.outputDevice.value == null &&
+          ear = outputDevice?.deviceId() == 'ear-speaker' ||
+              (outputDevice == null &&
                   _currentCall.value.devices.output().firstOrNull?.deviceId() ==
                       'ear-speaker');
         }
