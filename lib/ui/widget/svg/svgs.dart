@@ -66,8 +66,8 @@ class SvgIcons {
 
   static const SvgData chat16 = SvgData(
     'assets/icons/chat16.svg',
-    width: 15,
-    height: 16,
+    // width: 15,
+    height: 18,
   );
 
   static const SvgData chatAudioCall = SvgData(
@@ -1788,8 +1788,8 @@ class SvgIcons {
 
   static const SvgData favorite16 = SvgData(
     'assets/icons/favorite16.svg',
-    width: 16.82,
-    height: 16,
+    // width: 16.82,
+    height: 17,
   );
 
   static const SvgData cleanHistory16 = SvgData(
@@ -1818,8 +1818,8 @@ class SvgIcons {
 
   static const SvgData unfavorite16 = SvgData(
     'assets/icons/unfavorite16.svg',
-    width: 16.82,
-    height: 16,
+    // width: 16.82,
+    height: 17,
   );
 
   static const SvgData verifyEmail = SvgData(
@@ -2148,8 +2148,8 @@ class SvgIcons {
 
   static const SvgData videoCall16 = SvgData(
     'assets/icons/video_call16.svg',
-    width: 19.82,
-    height: 16,
+    // width: 19.82,
+    height: 17,
   );
 
   static const SvgData videoCall16Disabled = SvgData(
