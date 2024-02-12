@@ -119,7 +119,7 @@ class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
 
       // TODO: Probably shouldn't do that in the store.
       int length = items.length;
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10 && hasNext.isTrue; i++) {
         await pagination!.next();
 
         if (length != items.length || hasNext.isFalse) {
@@ -142,7 +142,7 @@ class PaginatedImpl<K extends Comparable, T> extends Paginated<K, T> {
 
       // TODO: Probably shouldn't do that in the store.
       int length = items.length;
-      for (int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10 && hasPrevious.isTrue; i++) {
         await pagination!.previous();
 
         if (length != items.length || hasPrevious.isFalse) {
@@ -203,7 +203,11 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
-            items[event.key!] = Rx(event.value!.value);
+            if (items.containsKey(event.key!)) {
+              items[event.key!]!.value = event.value!.value;
+            } else {
+              items[event.key!] = Rx(event.value!.value);
+            }
             break;
 
           case OperationKind.removed:
@@ -214,8 +218,8 @@ class MessagesFragment extends Paginated<ChatItemKey, Rx<ChatItem>> {
 
       _futures.add(pagination.around(key: initialKey, cursor: initialCursor));
 
-      await Future.wait(_futures)
-          .whenComplete(() => status.value = RxStatus.success());
+      await Future.wait(_futures);
+      status.value = RxStatus.success();
     } else {
       await Future.wait(_futures);
     }
