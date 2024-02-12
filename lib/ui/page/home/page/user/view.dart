@@ -666,7 +666,7 @@ class UserView extends StatelessWidget {
               : 'btn_add_to_favorites'.l10n,
           onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
           trailing: SvgIcon(
-            favorite ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
         ),
         // Obx(() {

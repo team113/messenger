@@ -437,7 +437,7 @@ class ChatInfoView extends StatelessWidget {
               ? 'btn_delete_from_favorites'.l10n
               : 'btn_add_to_favorites'.l10n,
           trailing: SvgIcon(
-            favorite ? SvgIcons.unfavorite16 : SvgIcons.favorite16,
+            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
         ),
         if (!c.isMonolog)
