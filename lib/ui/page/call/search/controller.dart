@@ -167,11 +167,11 @@ class SearchController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  /// Whether this [SearchController] has more potential search results.
+  /// Whether this [SearchController] has potentially more search results.
   bool get hasNext {
     final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
-        (contactsSearch.value?.hasNext.isTrue ??
-            false || _contactService.hasNext.isTrue);
+        ((contactsSearch.value?.hasNext.isTrue ?? false) ||
+            _contactService.hasNext.isTrue);
     final bool usersHaveMore = categories.contains(SearchCategory.user) &&
         (usersSearch.value?.hasNext.isTrue ?? false);
     final bool chatsHaveMore = _chatService.hasNext.isTrue;
@@ -318,6 +318,7 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
+    // If any [contactsSearch] has been done, dispose it.
     if (contactsSearch.value != null) {
       contactsSearch.value?.dispose();
       contactsSearch.value = null;
@@ -325,12 +326,14 @@ class SearchController extends GetxController {
       _populateContacts();
     }
 
+    // If any [usersSearch] has been done, dispose it.
     if (usersSearch.value != null) {
       if (!(usersSearch.value?.status.value.isEmpty ?? false)) {
         // Prevent [chats] from containing results of the previous [usersSearch]
         // as it will used during the [_populateUsers] call.
         _populateChats();
       }
+
       usersSearch.value?.dispose();
       usersSearch.value = null;
 
@@ -660,7 +663,7 @@ class SearchController extends GetxController {
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
       bool inChats(RxUser u) => chats.values
           .any((c) => c.chat.value.isDialog && c.members.containsKey(u.id));
-      bool hasRemoteDialog(RxUser u) => !(u.user.value.dialog.isLocal);
+      bool hasRemoteDialog(RxUser u) => !u.user.value.dialog.isLocal;
 
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);

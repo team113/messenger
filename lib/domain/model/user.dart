@@ -358,25 +358,20 @@ class ChatDirectLinkSlug extends NewType<String> {
   /// Creates an object without any validation.
   const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
 
-  /// Creates a new [ChatDirectLinkSlug] from the provided [val] if it's valid
-  /// and returns `null` otherwise.
+  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
+  /// validation, or returns `null` otherwise.
   ///
-  /// [val] can be either a slug or a full URL.
+  /// If [val] starts with [Config.link], then that part is omitted.
   static ChatDirectLinkSlug? tryParse(String val) {
-    ChatDirectLinkSlug? slug;
-
     if (val.startsWith('${Config.link}/')) {
-      // [val] is a full URL.
       val = val.substring(Config.link.length + 1);
     }
 
     try {
-      slug = ChatDirectLinkSlug(val);
+      return ChatDirectLinkSlug(val);
     } catch (_) {
-      // No-op.
+      return null;
     }
-
-    return slug;
   }
 
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
