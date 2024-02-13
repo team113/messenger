@@ -15,9 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -56,8 +56,13 @@ class IntroductionView extends StatelessWidget {
     BuildContext context, {
     IntroductionViewStage initial = IntroductionViewStage.oneTime,
   }) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
+      background: initial == IntroductionViewStage.link
+          ? style.colors.background
+          : null,
       child: IntroductionView(initial: initial),
     );
   }
@@ -176,6 +181,7 @@ class IntroductionView extends StatelessWidget {
 
               final applicationButton = Center(
                 child: OutlinedRoundedButton(
+                  key: const Key('DownloadButton'),
                   maxWidth: 290,
                   height: 46,
                   leading: const Padding(
@@ -185,7 +191,7 @@ class IntroductionView extends StatelessWidget {
                   onPressed: () async {
                     await WebUtils.launchScheme('/d/${router.joinByLink}');
                     if (context.mounted) {
-                      await _download(context);
+                      await _showDownloadModal(context);
                     }
                   },
                   child: Text('label_application'.l10n),
@@ -306,7 +312,7 @@ class IntroductionView extends StatelessWidget {
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
-  Future<void> _download(BuildContext context) async {
+  Future<void> _showDownloadModal(BuildContext context) async {
     await ModalPopup.show(
       context: context,
       child: Column(
