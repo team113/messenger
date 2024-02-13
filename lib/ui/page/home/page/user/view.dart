@@ -23,6 +23,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import 'package:messenger/ui/page/home/page/user/set_price/view.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
@@ -103,286 +104,372 @@ class UserView extends StatelessWidget {
           }
 
           return LayoutBuilder(builder: (context, constraints) {
-            return Scaffold(
-              appBar: CustomAppBar(
-                title: Stack(
-                  children: [
-                    Center(
-                      child: Obx(() {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: Row(
-                            key: Key(c.displayName.value.toString()),
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (c.displayName.value)
-                                AvatarWidget.fromRxUser(c.user,
-                                    radius: AvatarRadius.smaller),
-                              if (c.displayName.value) const SizedBox(width: 8),
-                              c.displayName.value
-                                  ? Text(
-                                      '${c.user?.user.value.name ?? c.user?.user.value.num}',
-                                    )
-                                  : Text('label_profile'.l10n,
-                                      key: const Key('1')),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: StyledBackButton(enlarge: true),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: AnimatedButton(
-                        key: const Key('EditButton'),
-                        decorator: (child) => Padding(
-                          padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
-                          child: child,
-                        ),
-                        onPressed: c.editing.toggle,
-                        child: Obx(() {
-                          return Text(
-                            key: Key(c.editing.value ? '1' : '2'),
-                            c.editing.value ? 'Готово' : 'Изменить',
-                            style: style.fonts.normal.regular.primary,
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // appBar: CustomAppBar(title: _bar(c, context)),
-              body: Scrollbar(
-                controller: c.scrollController,
-                child: Obx(() {
-                  // final String? status = c.user?.user.value.getStatus();
-                  final UserBio? status = c.user?.user.value.bio;
-                  Widget? subtitle;
-
-                  if (status != null) {
-                    subtitle = Text(
-                      status.toString(),
-                      style: style.fonts.normal.regular.secondary,
-                    );
-                  }
-
-                  // if (textStatus != null || onlineStatus != null) {
-                  //   final StringBuffer buffer = StringBuffer(textStatus ?? '');
-
-                  //   if (textStatus != null && onlineStatus != null) {
-                  //     buffer.write('space_vertical_space'.l10n);
-                  //   }
-
-                  //   buffer.write(onlineStatus ?? '');
-
-                  //   subtitle = Text(
-                  //     buffer.toString(),
-                  //     style: style.fonts.small.regular.secondary,
-                  //   );
-                  // }
-
-                  final List<Widget> blocks = [
-                    const SizedBox(height: 8),
-                    if (c.isBlocked != null)
-                      Block(
-                        title: 'label_user_is_blocked'.l10n,
-                        children: [
-                          BlocklistRecordWidget(
-                            c.isBlocked!,
-                            onUnblock: c.unblacklist,
-                          )
-                        ],
-                      ),
-                    Block(
-                      children: [
-                        SelectionContainer.disabled(
-                          child: BigAvatarWidget.user(
-                            c.user,
-                            onUpload: c.editing.value ? () {} : null,
-                            onDelete: c.editing.value &&
-                                    c.user?.user.value.avatar != null
-                                ? () {}
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Obx(() {
-                          if (c.editing.value) {
-                            return SelectionContainer.disabled(
-                              child: ReactiveTextField(
-                                state: c.name,
-                                label: 'Name',
-                                hint: c.user!.user.value.name?.val ??
-                                    c.user!.user.value.num.toString(),
-                              ),
-                            );
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: Text(
-                              c.name.text,
-                              style: style.fonts.large.regular.onBackground,
-                            ),
-                          );
-                        }),
-                        const SizedBox(height: 4),
-                        Text(
-                          c.user!.user.value.getStatus2()!,
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                      ],
-                    ),
-                    _quick(c, context),
-                    if (subtitle != null) Block(children: [subtitle]),
-                    Block(
-                      children: [
-                        Paddings.basic(
-                          const InfoTile(
-                            title: 'Login',
-                            content: 'alice',
-                            trailing: CopyOrShareButton('alice'),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Paddings.basic(
-                          InfoTile(
-                            title: 'Gapopa ID',
-                            content: c.user!.user.value.num.toString(),
-                            trailing: CopyOrShareButton(
-                              c.user!.user.value.num.toString(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Paddings.basic(
-                          const InfoTile(
-                            title: 'E-mail',
-                            content: 'hello@example.com',
-                            trailing: CopyOrShareButton('hello@example.com'),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Paddings.basic(
-                          const InfoTile(
-                            title: 'Phone',
-                            content: '+1 234 5678 90',
-                            trailing: CopyOrShareButton('+1 234 5678 90'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Block(
-                      title: 'label_direct_chat_link'.l10n,
-                      children: [
-                        DirectLinkField(
-                          ChatDirectLink(
-                            slug: ChatDirectLinkSlug('dqwdqwdqwd'),
-                          ),
-                          transitions: false,
-                          background: c.background.value,
-                        ),
-                      ],
-                    ),
-                    SelectionContainer.disabled(
-                      child: Stack(
-                        children: [
-                          Block(
-                            title: 'Индивидуальный тариф',
-                            // title: 'label_get_paid_for_incoming_from'.l10nfmt({
-                            //   'user': c.user!.user.value.name?.val ??
-                            //       c.user!.user.value.num.toString(),
-                            // }),
-                            children: [_paid(c, context)],
-                          ),
-                          Positioned.fill(
-                            child: Obx(() {
-                              return IgnorePointer(
-                                ignoring: c.verified.value,
+            return Obx(() {
+              return Scaffold(
+                appBar: CustomAppBar(
+                  leading: [if (c.displayName.value) StyledBackButton()],
+                  padding:
+                      c.displayName.value ? EdgeInsets.only(left: 4) : null,
+                  title: c.displayName.value
+                      ? Row(children: [
+                          FittedBox(
+                            child: Material(
+                              elevation: 6,
+                              type: MaterialType.circle,
+                              shadowColor: style.colors.onBackgroundOpacity27,
+                              color: style.colors.onPrimary,
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: null,
                                 child: Center(
-                                  child: AnimatedContainer(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                                    duration: 200.milliseconds,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: c.verified.value
-                                          ? const Color(0x00000000)
-                                          : const Color(0x0A000000),
-                                    ),
-                                    constraints: context.isNarrow
-                                        ? null
-                                        : const BoxConstraints(maxWidth: 400),
+                                  child: AvatarWidget.fromRxUser(
+                                    c.user,
+                                    radius: AvatarRadius.medium,
                                   ),
                                 ),
-                              );
-                            }),
+                              ),
+                            ),
                           ),
-                          Positioned.fill(
-                            child: Center(
-                              child: Obx(() {
-                                return AnimatedSwitcher(
-                                  duration: 200.milliseconds,
-                                  child: c.verified.value
-                                      ? const SizedBox()
-                                      : Container(
-                                          key: const Key('123'),
-                                          alignment: Alignment.bottomCenter,
-                                          padding: const EdgeInsets.fromLTRB(
-                                            32,
-                                            16,
-                                            32,
-                                            16,
-                                          ),
-                                          margin: const EdgeInsets.fromLTRB(
-                                            8,
-                                            4,
-                                            8,
-                                            4,
-                                          ),
-                                          constraints: context.isNarrow
-                                              ? null
-                                              : const BoxConstraints(
-                                                  maxWidth: 400,
-                                                ),
-                                          child: Column(
-                                            children: [
-                                              const Spacer(),
-                                              _verification(context, c),
-                                            ],
-                                          ),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: DefaultTextStyle.merge(
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          '${c.user?.user.value.name ?? c.user?.user.value.num}',
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                         ),
+                                      ),
+
+                                      // if (c.chat?.chat.value.muted ==
+                                      //     null) {
+                                      //   return const SizedBox();
+                                      // },
+                                    ],
+                                  ),
+                                  Text(c.user!.user.value.getStatus2()!,
+                                      style:
+                                          style.fonts.small.regular.secondary),
+                                  //ChatSubtitle(c.chat!, c.me),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: AnimatedButton(
+                              key: const Key('EditButton'),
+                              decorator: (child) => Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(19, 8, 19, 8),
+                                child: child,
+                              ),
+                              onPressed: c.editing.toggle,
+                              child: Obx(() {
+                                return Text(
+                                  key: Key(c.editing.value ? '1' : '2'),
+                                  c.editing.value ? 'Готово' : 'Изменить',
+                                  style: style.fonts.normal.regular.primary,
                                 );
                               }),
                             ),
                           ),
+                        ])
+                      : Stack(
+                          children: [
+                            if (!c.displayName.value)
+                              Center(
+                                child: Obx(() {
+                                  return AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 200),
+                                    child: Row(
+                                      key: Key(c.displayName.value.toString()),
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (c.displayName.value)
+                                          AvatarWidget.fromRxUser(c.user,
+                                              radius: AvatarRadius.smaller),
+                                        if (c.displayName.value)
+                                          const SizedBox(width: 8),
+                                        c.displayName.value
+                                            ? Text(
+                                                '${c.user?.user.value.name ?? c.user?.user.value.num}',
+                                              )
+                                            : Text('label_profile'.l10n,
+                                                key: const Key('1')),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                            if (!c.displayName.value)
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: StyledBackButton(enlarge: true),
+                              ),
+                            if (!c.displayName.value)
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: AnimatedButton(
+                                  key: const Key('EditButton'),
+                                  decorator: (child) => Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(19, 8, 19, 8),
+                                    child: child,
+                                  ),
+                                  onPressed: c.editing.toggle,
+                                  child: Obx(() {
+                                    return Text(
+                                      key: Key(c.editing.value ? '1' : '2'),
+                                      c.editing.value ? 'Готово' : 'Изменить',
+                                      style: style.fonts.normal.regular.primary,
+                                    );
+                                  }),
+                                ),
+                              ),
+                          ],
+                        ),
+                ),
+                // appBar: CustomAppBar(title: _bar(c, context)),
+                body: Scrollbar(
+                  controller: c.scrollController,
+                  child: Obx(() {
+                    // final String? status = c.user?.user.value.getStatus();
+                    final UserBio? status = c.user?.user.value.bio;
+                    Widget? subtitle;
+
+                    if (status != null) {
+                      subtitle = Text(
+                        status.toString(),
+                        style: style.fonts.normal.regular.secondary,
+                      );
+                    }
+
+                    // if (textStatus != null || onlineStatus != null) {
+                    //   final StringBuffer buffer = StringBuffer(textStatus ?? '');
+
+                    //   if (textStatus != null && onlineStatus != null) {
+                    //     buffer.write('space_vertical_space'.l10n);
+                    //   }
+
+                    //   buffer.write(onlineStatus ?? '');
+
+                    //   subtitle = Text(
+                    //     buffer.toString(),
+                    //     style: style.fonts.small.regular.secondary,
+                    //   );
+                    // }
+
+                    final List<Widget> blocks = [
+                      const SizedBox(height: 8),
+                      if (c.isBlocked != null)
+                        Block(
+                          title: 'label_user_is_blocked'.l10n,
+                          children: [
+                            BlocklistRecordWidget(
+                              c.isBlocked!,
+                              onUnblock: c.unblacklist,
+                            )
+                          ],
+                        ),
+                      Block(
+                        children: [
+                          SelectionContainer.disabled(
+                            child: BigAvatarWidget.user(
+                              c.user,
+                              onUpload: c.editing.value ? () {} : null,
+                              onDelete: c.editing.value &&
+                                      c.user?.user.value.avatar != null
+                                  ? () {}
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Obx(() {
+                            if (c.editing.value) {
+                              return SelectionContainer.disabled(
+                                child: ReactiveTextField(
+                                  state: c.name,
+                                  label: 'Name',
+                                  hint: c.user!.user.value.name?.val ??
+                                      c.user!.user.value.num.toString(),
+                                ),
+                              );
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: Text(
+                                c.name.text,
+                                style: style.fonts.large.regular.onBackground,
+                              ),
+                            );
+                          }),
+                          const SizedBox(height: 4),
+                          Text(
+                            c.user!.user.value.getStatus2()!,
+                            style: style.fonts.small.regular.secondary,
+                          ),
                         ],
                       ),
-                    ),
-                    SelectionContainer.disabled(
-                      child: Block(children: [_actions(c, context)]),
-                    ),
-                  ];
+                      _quick(c, context),
+                      if (subtitle != null) Block(children: [subtitle]),
+                      Block(
+                        children: [
+                          Paddings.basic(
+                            const InfoTile(
+                              title: 'Login',
+                              content: 'alice',
+                              trailing: CopyOrShareButton('alice'),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Paddings.basic(
+                            InfoTile(
+                              title: 'Gapopa ID',
+                              content: c.user!.user.value.num.toString(),
+                              trailing: CopyOrShareButton(
+                                c.user!.user.value.num.toString(),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Paddings.basic(
+                            const InfoTile(
+                              title: 'E-mail',
+                              content: 'hello@example.com',
+                              trailing: CopyOrShareButton('hello@example.com'),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Paddings.basic(
+                            const InfoTile(
+                              title: 'Phone',
+                              content: '+1 234 5678 90',
+                              trailing: CopyOrShareButton('+1 234 5678 90'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Block(
+                        title: 'label_direct_chat_link'.l10n,
+                        children: [
+                          DirectLinkField(
+                            ChatDirectLink(
+                              slug: ChatDirectLinkSlug('dqwdqwdqwd'),
+                            ),
+                            transitions: false,
+                            background: c.background.value,
+                          ),
+                        ],
+                      ),
+                      SelectionContainer.disabled(
+                        child: Stack(
+                          children: [
+                            Block(
+                              title:
+                                  'Принимать оплату за входящие сообщения и входящие звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
+                              // title: 'label_get_paid_for_incoming_from'.l10nfmt({
+                              //   'user': c.user!.user.value.name?.val ??
+                              //       c.user!.user.value.num.toString(),
+                              // }),
+                              children: [_paid(c, context)],
+                            ),
+                            Positioned.fill(
+                              child: Obx(() {
+                                return IgnorePointer(
+                                  ignoring: c.verified.value,
+                                  child: Center(
+                                    child: AnimatedContainer(
+                                      margin:
+                                          const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                                      duration: 200.milliseconds,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: c.verified.value
+                                            ? const Color(0x00000000)
+                                            : const Color(0x0A000000),
+                                      ),
+                                      constraints: context.isNarrow
+                                          ? null
+                                          : const BoxConstraints(maxWidth: 400),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            Positioned.fill(
+                              child: Center(
+                                child: Obx(() {
+                                  return AnimatedSwitcher(
+                                    duration: 200.milliseconds,
+                                    child: c.verified.value
+                                        ? const SizedBox()
+                                        : Container(
+                                            key: const Key('123'),
+                                            alignment: Alignment.bottomCenter,
+                                            padding: const EdgeInsets.fromLTRB(
+                                              32,
+                                              16,
+                                              32,
+                                              16,
+                                            ),
+                                            margin: const EdgeInsets.fromLTRB(
+                                              8,
+                                              4,
+                                              8,
+                                              4,
+                                            ),
+                                            constraints: context.isNarrow
+                                                ? null
+                                                : const BoxConstraints(
+                                                    maxWidth: 400,
+                                                  ),
+                                            child: Column(
+                                              children: [
+                                                const Spacer(),
+                                                _verification(context, c),
+                                              ],
+                                            ),
+                                          ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SelectionContainer.disabled(
+                        child: Block(children: [_actions(c, context)]),
+                      ),
+                    ];
 
-                  return SelectionArea(
-                    child: ScrollablePositionedList.builder(
-                      key: const Key('UserScrollable'),
-                      itemCount: blocks.length,
-                      itemBuilder: (_, i) => blocks[i],
-                      scrollController: c.scrollController,
-                      itemScrollController: c.itemScrollController,
-                      itemPositionsListener: c.positionsListener,
-                      initialScrollIndex: c.initialScrollIndex,
-                    ),
-                  );
-                }),
-              ),
-            );
+                    return SelectionArea(
+                      child: ScrollablePositionedList.builder(
+                        key: const Key('UserScrollable'),
+                        itemCount: blocks.length,
+                        itemBuilder: (_, i) => blocks[i],
+                        scrollController: c.scrollController,
+                        itemScrollController: c.itemScrollController,
+                        itemPositionsListener: c.positionsListener,
+                        initialScrollIndex: c.initialScrollIndex,
+                      ),
+                    );
+                  }),
+                ),
+              );
+            });
           });
         });
       },
@@ -966,33 +1053,11 @@ class UserView extends StatelessWidget {
   Widget _paid(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    Widget title(String label) {
-      return Paddings.dense(
-        Align(
-          alignment: Alignment.center,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 0.0),
-            child: Text(
-              label,
-              style: style.systemMessageStyle.copyWith(
-                color: style.colors.secondary,
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      );
-    }
-
     String userName =
         c.user!.user.value.name?.val ?? c.user!.user.value.num.toString();
 
     return Column(
       children: [
-        title(
-            'Настройка индивидуальной тарификации для пользователя: $userName'),
         Paddings.basic(
           Stack(
             children: [
