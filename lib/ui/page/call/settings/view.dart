@@ -99,11 +99,6 @@ class CallSettingsView extends StatelessWidget {
                     }),
                   ),
                   const SizedBox(height: 16),
-                  Obx(() {
-                    return Text(
-                      'mic: ${c.mic.value?.label()} (ID: ${c.mic.value?.id()})',
-                    );
-                  }),
                   Padding(
                     padding: padding,
                     child: Obx(() {
@@ -113,9 +108,8 @@ class CallSettingsView extends StatelessWidget {
                           c.devices.audio().firstOrNull;
 
                       return FieldButton(
-                        text: '${selected?.label()} (ID: ${selected?.id()})',
-                        // text: selected?.label() ??
-                        //     'label_media_no_device_available'.l10n,
+                        text: selected?.label() ??
+                            'label_media_no_device_available'.l10n,
                         headline: Text('label_media_microphone'.l10n),
                         style: style.fonts.normal.regular.primary,
                         onPressed: () async {
@@ -133,11 +127,6 @@ class CallSettingsView extends StatelessWidget {
                     }),
                   ),
 
-                  Obx(() {
-                    return Text(
-                      'mic: ${c.output.value?.label()} (ID: ${c.output.value?.id()})',
-                    );
-                  }),
                   // TODO: Remove, when Safari supports output devices without
                   //       tweaking the developer options:
                   //       https://bugs.webkit.org/show_bug.cgi?id=216641

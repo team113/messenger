@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:mutex/mutex.dart';
 
 import '/l10n/l10n.dart';
 import 'log.dart';
@@ -46,6 +47,9 @@ class MediaUtilsImpl {
 
   /// [StreamController] piping the [MediaDisplayDetails] changes.
   StreamController<List<MediaDisplayDetails>>? _displaysController;
+
+  /// [Mutex] guarding synchronous access to the [setOutputAudioId].
+  final Mutex _outputGuard = Mutex();
 
   /// Returns the [Jason] instance of these [MediaUtils].
   Jason? get jason {
@@ -193,6 +197,14 @@ class MediaUtilsImpl {
     return (await mediaManager?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();
+  }
+
+  /// Switches output audio device to the device with the provided [deviceId].
+  Future<void> setOutputAudioId(String deviceId) async {
+    await _outputGuard.protect(() async {
+      Log.debug('setOutputAudioId($deviceId)', '$runtimeType');
+      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
+    });
   }
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or

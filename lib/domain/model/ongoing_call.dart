@@ -363,6 +363,8 @@ class OngoingCall {
       _background = false;
 
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
+        Log.debug('onDeviceChange(${e.map((e) => e.label())})', '$runtimeType');
+
         final List<DeviceDetails> previous =
             List.from(devices, growable: false);
 
@@ -2009,7 +2011,7 @@ class OngoingCall {
     Log.debug('_setOutputDevice($device)', '$runtimeType');
 
     if (device != outputDevice.value) {
-      await MediaUtils.mediaManager?.setOutputAudioId(device.deviceId());
+      await MediaUtils.setOutputAudioId(device.deviceId());
       outputDevice.value = device;
     }
   }
