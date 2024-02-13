@@ -192,7 +192,7 @@ class MyProfileController extends GetxController {
   final RxBool isMuting = RxBool(false);
 
   /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+  final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
 
   /// Index of an item from [ProfileTab] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
@@ -712,8 +712,6 @@ class MyProfileController extends GetxController {
   Future<void> setLeaveWhenAlone(bool enabled) =>
       _settingsRepo.setLeaveWhenAlone(enabled);
 
-
-
   Future<void> setBalanceTabEnabled(bool enabled) =>
       _settingsRepo.setBalanceTabEnabled(enabled);
 
@@ -762,7 +760,6 @@ class MyProfileController extends GetxController {
 
   /// Deletes the cache used by the application.
   Future<void> clearCache() => CacheWorker.instance.clear();
-
 
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled) =>

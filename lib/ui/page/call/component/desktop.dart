@@ -629,6 +629,21 @@ Widget desktopCall(CallController c, BuildContext context) {
           });
         }),
 
+        // [MouseRegion] changing the cursor.
+        Obx(() {
+          return MouseRegion(
+            opaque: false,
+            cursor: c.draggedRenderer.value != null ||
+                    c.doughDraggedRenderer.value != null
+                ? CustomMouseCursors.grabbing
+                : c.hoveredRenderer.value != null
+                    ? CustomMouseCursors.grab
+                    : c.isCursorHidden.value
+                        ? SystemMouseCursors.none
+                        : MouseCursor.defer,
+          );
+        }),
+
         // Top [MouseRegion] that toggles info header on hover.
         Align(
           alignment: Alignment.topCenter,
@@ -696,10 +711,6 @@ Widget desktopCall(CallController c, BuildContext context) {
         // Sliding from the top info header.
         if (WebUtils.isPopup)
           Obx(() {
-            // if (!c.fullscreen.value) {
-            //   return const SizedBox();
-            // }
-
             return Align(
               alignment: Alignment.topCenter,
               child: AnimatedSlider(
@@ -761,31 +772,30 @@ Widget desktopCall(CallController c, BuildContext context) {
                               ),
                               Container(
                                 margin: const EdgeInsets.fromLTRB(6, 0, 12, 0),
-                                color: Colors.white,
+                                color: style.colors.onPrimary,
                                 width: 1,
                                 height: 12,
                               ),
                             ],
-                            TooltipButton(
-                              onTap: c.layoutAsPrimary,
+                            AnimatedButton(
+                              onPressed: c.layoutAsPrimary,
                               child: const SvgIcon(SvgIcons.callGallery),
                             ),
                             const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: () => c.layoutAsSecondary(floating: true),
+                            AnimatedButton(
+                              onPressed: () =>
+                                  c.layoutAsSecondary(floating: true),
                               child: const SvgIcon(SvgIcons.callFloating),
                             ),
                             const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: () => c.layoutAsSecondary(floating: false),
+                            AnimatedButton(
+                              onPressed: () =>
+                                  c.layoutAsSecondary(floating: false),
                               child: const SvgIcon(SvgIcons.callSide),
                             ),
                             const SizedBox(width: 16),
-                            TooltipButton(
-                              onTap: c.toggleFullscreen,
-                              // hint: fullscreen
-                              //     ? 'btn_fullscreen_exit'.l10n
-                              //     : 'btn_fullscreen_enter'.l10n,
+                            AnimatedButton(
+                              onPressed: c.toggleFullscreen,
                               child: SvgIcon(
                                 c.fullscreen.value
                                     ? SvgIcons.fullscreenExitSmall
@@ -917,7 +927,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         //
         // 1) + is a cornered scale point;
         // 2) | is a horizontal scale point;
-        // 3) - is a vertical scale point;
+        // 3) - is a vertical scale point.
         return Stack(
           children: [
             // top middle
@@ -936,6 +946,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
+
             // center left
             Obx(() {
               return Positioned(
@@ -1187,12 +1198,8 @@ Widget _primaryView(CallController c) {
                           context,
                         );
 
-                // final bool isAnyDrag =
-                //     c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
-
                 return MouseRegion(
                   opaque: false,
-                  // cursor: SystemMouseCursors.grab,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
                       c.hoveredRenderer.value = data.participant;

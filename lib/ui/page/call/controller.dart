@@ -31,6 +31,7 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/ui/worker/call.dart';
 import 'package:messenger/util/log.dart';
+import 'package:messenger/util/media_utils.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -350,13 +351,11 @@ class CallController extends GetxController {
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirey' ||
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'alex2';
 
-  RxnString get outputDevice => _currentCall.value.outputDevice;
+  DeviceDetails? get outputDevice => _currentCall.value.outputDevice.value;
   AudioSpeakerKind get output =>
       _currentCall.value.devices
           .output()
-          .firstWhereOrNull(
-            (e) => e.deviceId() == _currentCall.value.outputDevice.value,
-          )
+          .firstWhereOrNull((e) => e.deviceId() == outputDevice?.deviceId())
           ?.speaker ??
       AudioSpeakerKind.earpiece;
 
@@ -849,7 +848,7 @@ class CallController extends GetxController {
       final MediaDeviceDetails? device = _determineOutput();
       if (device != null) {
         // speaker = Rx(device.speaker);
-        _currentCall.value.setOutputDevice(device.deviceId());
+        _currentCall.value.setOutputDevice(DeviceDetails(device));
       } else {
         // speaker = Rx(
         //   PlatformUtils.isWeb ||
@@ -865,7 +864,7 @@ class CallController extends GetxController {
           final MediaDeviceDetails? device = _determineOutput();
           if (device != null) {
             // speaker.value = device.speaker;
-            _currentCall.value.setOutputDevice(device.deviceId());
+            _currentCall.value.setOutputDevice(DeviceDetails(device));
           }
         });
       }
@@ -985,10 +984,7 @@ class CallController extends GetxController {
             await ScreenShareView.show(router.context!, _currentCall);
 
         if (display != null) {
-          await _currentCall.value.setScreenShareEnabled(
-            true,
-            deviceId: display.deviceId(),
-          );
+          await _currentCall.value.setScreenShareEnabled(true, device: display);
         }
       } else {
         await _currentCall.value.setScreenShareEnabled(true);
@@ -1032,7 +1028,7 @@ class CallController extends GetxController {
       selected += 1;
       cameraSwitched.toggle();
       await _currentCall.value.setVideoDevice(
-        cameras[(selected) % cameras.length].deviceId(),
+        DeviceDetails(cameras[(selected) % cameras.length]),
       );
     }
   }
@@ -1050,7 +1046,7 @@ class CallController extends GetxController {
 
       if (outputs.length > 1) {
         int index = outputs.indexWhere(
-          (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+          (e) => e.deviceId() == outputDevice?.deviceId(),
         );
 
         if (index == -1) {
@@ -1090,7 +1086,7 @@ class CallController extends GetxController {
           '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
         );
 
-        await _currentCall.value.setOutputDevice(output.deviceId());
+        await _currentCall.value.setOutputDevice(DeviceDetails(output));
 
         Log.debug('Switching is done!');
       }

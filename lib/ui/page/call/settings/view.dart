@@ -18,20 +18,16 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
-import 'package:messenger/util/web/web_utils.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
 import '/ui/page/home/page/my_profile/output_switch/view.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'controller.dart';
@@ -78,26 +74,27 @@ class CallSettingsView extends StatelessWidget {
                   Padding(
                     padding: padding,
                     child: Obx(() {
+                      final selected = c.devices.video().firstWhereOrNull(
+                                (e) => e.id() == c.camera.value?.id(),
+                              ) ??
+                          c.devices.video().firstOrNull;
+
                       return FieldButton(
-                        text: (c.devices.video().firstWhereOrNull((e) =>
-                                        e.deviceId() == c.camera.value) ??
-                                    c.devices.video().firstOrNull)
-                                ?.label() ??
+                        text: selected?.label() ??
                             'label_media_no_device_available'.l10n,
-                        hint: 'label_media_camera'.l10n,
                         headline: Text('label_media_camera'.l10n),
+                        style: style.fonts.normal.regular.primary,
                         onPressed: () async {
                           await CameraSwitchView.show(
                             context,
                             onChanged: (device) => c.setVideoDevice(device),
-                            camera: c.camera.value,
+                            camera: c.camera.value?.id(),
                           );
 
                           if (c.devices.video().isEmpty) {
                             await c.enumerateDevices();
                           }
                         },
-                        style: style.fonts.normal.regular.primary,
                       );
                     }),
                   ),
@@ -105,26 +102,27 @@ class CallSettingsView extends StatelessWidget {
                   Padding(
                     padding: padding,
                     child: Obx(() {
+                      final selected = c.devices.audio().firstWhereOrNull(
+                                (e) => e.id() == c.mic.value?.id(),
+                              ) ??
+                          c.devices.audio().firstOrNull;
+
                       return FieldButton(
-                        text: (c.devices.audio().firstWhereOrNull(
-                                        (e) => e.deviceId() == c.mic.value) ??
-                                    c.devices.audio().firstOrNull)
-                                ?.label() ??
+                        text: selected?.label() ??
                             'label_media_no_device_available'.l10n,
-                        hint: 'label_media_microphone'.l10n,
                         headline: Text('label_media_microphone'.l10n),
+                        style: style.fonts.normal.regular.primary,
                         onPressed: () async {
                           await MicrophoneSwitchView.show(
                             context,
                             onChanged: (device) => c.setAudioDevice(device),
-                            mic: c.mic.value,
+                            mic: c.mic.value?.id(),
                           );
 
                           if (c.devices.audio().isEmpty) {
                             await c.enumerateDevices();
                           }
                         },
-                        style: style.fonts.normal.regular.primary,
                       );
                     }),
                   ),
@@ -137,26 +135,27 @@ class CallSettingsView extends StatelessWidget {
                     Padding(
                       padding: padding,
                       child: Obx(() {
+                        final selected = c.devices.output().firstWhereOrNull(
+                                  (e) => e.id() == c.output.value?.id(),
+                                ) ??
+                            c.devices.output().firstOrNull;
+
                         return FieldButton(
-                          text: (c.devices.output().firstWhereOrNull((e) =>
-                                          e.deviceId() == c.output.value) ??
-                                      c.devices.output().firstOrNull)
-                                  ?.label() ??
+                          text: selected?.label() ??
                               'label_media_no_device_available'.l10n,
-                          hint: 'label_media_output'.l10n,
                           headline: Text('label_media_output'.l10n),
+                          style: style.fonts.normal.regular.primary,
                           onPressed: () async {
                             await OutputSwitchView.show(
                               context,
                               onChanged: (device) => c.setOutputDevice(device),
-                              output: c.output.value,
+                              output: c.output.value?.id(),
                             );
 
                             if (c.devices.output().isEmpty) {
                               await c.enumerateDevices();
                             }
                           },
-                          style: style.fonts.normal.regular.primary,
                         );
                       }),
                     ),

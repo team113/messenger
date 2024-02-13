@@ -258,39 +258,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                       vertical: avatar.full,
                     ),
                   );
+                } else {
+                  return CallCoverWidget(null, chat: c.chat.value);
                 }
               }
-
-              return const SizedBox();
             }),
-
-            // Dim the primary view in a non-active call.
-            Obx(() {
-              final Widget child;
-
-              if (c.state.value == OngoingCallState.active) {
-                child = const SizedBox();
-              } else {
-                child = IgnorePointer(
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: style.colors.onBackgroundOpacity50,
-                  ),
-                );
-              }
-
-              return SafeAnimatedSwitcher(
-                duration: 200.milliseconds,
-                child: child,
-              );
-            }),
-
-            // if (isOutgoing)
-            //   const Padding(
-            //     padding: EdgeInsets.all(21.0),
-            //     child: Center(child: DoubleBounceLoadingIndicator()),
-            //   ),
           ],
         );
       }));
@@ -393,13 +365,10 @@ Widget mobileCall(CallController c, BuildContext context) {
       SafeArea(
         child: Obx(() {
           final bool active = c.state.value == OngoingCallState.active;
-          final bool group = c.chat.value != null && c.isGroup;
-          // final bool dialog = c.chat.value != null && c.isDialog;
           final bool incoming = !isOutgoing;
 
-          bool showUi = (c.chat.value != null && !group || incoming) &&
-              !active &&
-              !c.minimized.value;
+          final bool showUi =
+              (!c.isGroup || incoming) && !active && !c.minimized.value;
 
           return AnimatedSlider(
             duration: const Duration(milliseconds: 400),
@@ -424,20 +393,14 @@ Widget mobileCall(CallController c, BuildContext context) {
       SafeArea(
         child: Obx(() {
           final bool active = c.state.value == OngoingCallState.active;
-          // final bool group = c.chat.value != null && c.isGroup;
-          // final bool dialog = c.chat.value != null && c.isDialog;
-          // final bool incoming = !isOutgoing;
-
-          bool showUi = c.showUi.value && active && !c.minimized.value;
+          final bool showUi = c.showUi.value && active && !c.minimized.value;
 
           return Align(
             alignment: Alignment.topCenter,
             child: AnimatedSlider(
               duration: const Duration(milliseconds: 250),
               isOpen: showUi,
-              // translate: false,
               beginOffset: Offset(0, -50 - MediaQuery.of(context).padding.top),
-              // beginOffset: const Offset(0, -1),
               endOffset: const Offset(0, 0),
               child: Container(
                 decoration: BoxDecoration(
@@ -456,10 +419,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     color: style.colors.primaryAuxiliaryOpacity25,
                     borderRadius: BorderRadius.circular(11),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 10,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -527,28 +487,23 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         // Populate the sliding panel height and its content.
         if (panel) {
-          panelHeight = 360 + 37 - 100;
+          panelHeight = 260 + 37;
           panelHeight = min(c.size.height - 45, panelHeight);
 
           panelChildren = [
             const SizedBox(height: 12),
             buttons(
               [
-                // if (PlatformUtils.isIOS && !PlatformUtils.isWeb)
-                //   padding(
-                //     AirPlayButton(c).build(expanded: c.isPanelOpen.value),
-                //   ),
-                // if (PlatformUtils.isMobile)
-                padding(
-                  c.videoState.value.isEnabled
-                      ? SwitchButton(c).build(expanded: c.isPanelOpen.value)
-                      : SpeakerButton(c).build(expanded: c.isPanelOpen.value),
-                ),
-                // if (PlatformUtils.isDesktop)
-                //   padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
+                if (PlatformUtils.isMobile)
+                  padding(
+                    c.videoState.value.isEnabled
+                        ? SwitchButton(c).build(expanded: c.isPanelOpen.value)
+                        : SpeakerButton(c).build(expanded: c.isPanelOpen.value),
+                  ),
+                if (PlatformUtils.isDesktop)
+                  padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
-                // padding(SettingsButton(c).build(expanded: c.isPanelOpen.value)),
                 padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
               ],
             ),
@@ -561,23 +516,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                 padding(RemoteVideoButton(c).build(expanded: true)),
               ],
             ),
-            // const SizedBox(height: 20),
-            // ConstrainedBox(
-            //   constraints: const BoxConstraints(maxWidth: 366),
-            //   child: ChatInfoCard(
-            //     chat: c.chat.value,
-            //     duration: c.duration.value,
-            //     trailing: c.isGroup
-            //         ? 'label_a_of_b'.l10nfmt({
-            //             'a':
-            //                 '${c.members.keys.where((e) => e.deviceId != null).map((k) => k.userId).toSet().length}',
-            //             'b': '${c.chat.value?.members.length}',
-            //           })
-            //         : null,
-            //     at: c.startedAt,
-            //     onTap: () => c.openAddMember(context),
-            //   ),
-            // ),
           ];
         }
 
@@ -660,7 +598,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 30),
+                        padding: EdgeInsets.only(bottom: isOutgoing ? 0 : 30),
                         child: AnimatedSlider(
                           isOpen: showUi,
                           duration: const Duration(milliseconds: 400),
@@ -671,14 +609,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                           child: buttons(
                             isOutgoing
                                 ? [
-                                    // if (PlatformUtils.isIOS &&
-                                    //     !PlatformUtils.isWeb)
-                                    //   padding(
-                                    //     AirPlayButton(c).build(
-                                    //       expanded: c.isPanelOpen.value,
-                                    //       opaque: true,
-                                    //     ),
-                                    //   ),
                                     if (PlatformUtils.isMobile)
                                       padding(
                                         c.videoState.value.isEnabled
@@ -703,12 +633,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                                         opaque: true,
                                       ),
                                     ),
-                                    // padding(
-                                    //   SettingsButton(c).build(
-                                    //     hinted: false,
-                                    //     opaque: true,
-                                    //   ),
-                                    // ),
                                     padding(
                                       CancelButton(c).build(
                                         hinted: false,

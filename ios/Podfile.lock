@@ -167,7 +167,7 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
   - libyuv-iOS (1.0.2)
-  - medea_flutter_webrtc (0.9.1-dev):
+  - medea_flutter_webrtc (0.10.0-dev):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 118.0.5993.88)
     - libyuv-iOS
@@ -455,7 +455,7 @@ SPEC CHECKSUMS:
   integration_test: 13825b8a9334a850581300559b8839134b124670
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
-  medea_flutter_webrtc: b19006676164ce2b6c917af3ed0397d92de47c0d
+  medea_flutter_webrtc: ca2335744f08d45963f26f8db159c6dcd19a31a3
   medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
   media_kit_libs_ios_video: a5fe24bc7875ccd6378a0978c13185e1344651c1
   media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a

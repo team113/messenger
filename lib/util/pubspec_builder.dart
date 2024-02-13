@@ -53,8 +53,10 @@ class PubspecBuilder implements Builder {
     );
 
     try {
-      final ProcessResult git =
-          await Process.run('git', ['describe', '--tags', '--dirty']);
+      final ProcessResult git = await Process.run(
+        'git',
+        ['describe', '--tags', '--dirty', '--match', 'v*'],
+      );
 
       if (git.exitCode == 0) {
         final String response = git.stdout.toString();

@@ -18,7 +18,6 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 
 import '/domain/model/media_settings.dart';
@@ -28,6 +27,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/media_utils.dart';
 import 'controller.dart';
 
 /// View for updating the [MediaSettings.videoDevice].
@@ -37,7 +37,7 @@ class CameraSwitchView extends StatelessWidget {
   const CameraSwitchView({super.key, this.onChanged, this.camera});
 
   /// Callback, called when the selected camera device changes.
-  final void Function(String)? onChanged;
+  final void Function(DeviceDetails)? onChanged;
 
   /// ID of the initially selected video device.
   final String? camera;
@@ -45,7 +45,7 @@ class CameraSwitchView extends StatelessWidget {
   /// Displays a [CameraSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChanged,
+    void Function(DeviceDetails)? onChanged,
     String? camera,
   }) {
     return ModalPopup.show(
@@ -125,7 +125,7 @@ class CameraSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceDetails e = c.devices[i];
+                            final DeviceDetails e = c.devices[i];
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||
@@ -137,8 +137,7 @@ class CameraSwitchView extends StatelessWidget {
                                   ? null
                                   : () {
                                       c.camera.value = e.deviceId();
-                                      (onChanged ?? c.setVideoDevice)
-                                          .call(e.deviceId());
+                                      (onChanged ?? c.setVideoDevice).call(e);
                                     },
                               label: e.label(),
                             );
