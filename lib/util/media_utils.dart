@@ -147,17 +147,32 @@ class MediaUtilsImpl {
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
     //
-    // Browsers already include their own default devices.
-    if (!PlatformUtils.isWeb) {
-      if (kind == null || kind == MediaDeviceKind.audioInput) {
+    // Browsers and mobiles already may include their own default devices.
+    if (kind == null || kind == MediaDeviceKind.audioInput) {
+      final DeviceDetails? hasDefault = devices.firstWhereOrNull((d) =>
+          d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default');
+
+      if (hasDefault == null) {
         final DeviceDetails? device = devices
             .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
         if (device != null) {
           devices.insert(0, DefaultDeviceDetails(device));
         }
+      } else {
+        // Audio input on mobile devices is handled by `medea_jason`, and we
+        // should not interfere, as otherwise we may run into
+        // [MediaSettingsUpdateException].
+        if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+          devices.remove(hasDefault);
+        }
       }
+    }
 
-      if (kind == null || kind == MediaDeviceKind.audioOutput) {
+    if (kind == null || kind == MediaDeviceKind.audioOutput) {
+      final bool hasDefault = devices.any((d) =>
+          d.kind() == MediaDeviceKind.audioOutput && d.deviceId() == 'default');
+
+      if (!hasDefault) {
         final DeviceDetails? device = devices
             .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
         if (device != null) {

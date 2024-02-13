@@ -949,13 +949,7 @@ class OngoingCall {
         if (enabled) {
           audioState.value = LocalTrackState.enabling;
           try {
-            if (members[_me]
-                    ?.tracks
-                    .where((t) =>
-                        t.kind == MediaKind.audio &&
-                        t.source == MediaSourceKind.device)
-                    .isEmpty ??
-                false) {
+            if (!hasAudio) {
               await _room?.enableAudio();
 
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
@@ -1803,6 +1797,8 @@ class OngoingCall {
             '_updateSettings(audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice) failed: $e',
             '$runtimeType',
           );
+
+          rethrow;
         }
       } finally {
         _mediaSettingsGuard.release();
@@ -1936,12 +1932,13 @@ class OngoingCall {
   void _pickOutputDevice() {
     Log.debug('_pickOutputDevice()', '$runtimeType');
 
+    // TODO: For Android and iOS, default device is __NOT__ the first one.
     final Iterable<DeviceDetails> output = devices.output();
-    final DeviceDetails device =
+    final DeviceDetails? device =
         output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-            output.first;
+            output.firstOrNull;
 
-    if (outputDevice.value != device) {
+    if (device != null && outputDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
       _setOutputDevice(device);
     }
@@ -1951,12 +1948,13 @@ class OngoingCall {
   void _pickAudioDevice() async {
     Log.debug('_pickAudioDevice()', '$runtimeType');
 
+    // TODO: For Android and iOS, default device is __NOT__ the first one.
     final Iterable<DeviceDetails> audio = devices.audio();
-    final DeviceDetails device =
+    final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
-            audio.first;
+            audio.firstOrNull;
 
-    if (audioDevice.value != device) {
+    if (device != null && audioDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
       await _setAudioDevice(device);
     }
