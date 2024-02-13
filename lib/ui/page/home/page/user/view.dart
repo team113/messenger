@@ -884,7 +884,7 @@ class UserView extends StatelessWidget {
           decoration: BoxDecoration(
             color: style.cardColor,
             border: style.cardBorder,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(15),
           ),
           child: Center(
             child: Column(
