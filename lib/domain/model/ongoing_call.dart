@@ -1770,7 +1770,7 @@ class OngoingCall {
         try {
           // On Web settings do not change if provided the same IDs, so we
           // should reset settings first.
-          if (PlatformUtils.isWeb) {
+          if (PlatformUtils.isWeb && audioDevice != this.audioDevice.value) {
             await _room?.setLocalMediaSettings(
               _mediaStreamSettings(),
               true,
@@ -1842,10 +1842,13 @@ class OngoingCall {
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
     Log.debug('_addLocalTrack($track)', '$runtimeType');
 
+    final MediaKind kind = track.kind();
+    final MediaSourceKind source = track.mediaSourceKind();
+
     track.onEnded(() {
       Log.debug('track.onEnded($track)', '$runtimeType');
 
-      switch (track.kind()) {
+      switch (kind) {
         case MediaKind.audio:
           // Currently used [MediaKind.audio] track has ended, try picking a new
           // one.
@@ -1854,7 +1857,7 @@ class OngoingCall {
           break;
 
         case MediaKind.video:
-          switch (track.mediaSourceKind()) {
+          switch (source) {
             case MediaSourceKind.device:
               setVideoEnabled(false);
               break;
@@ -1867,9 +1870,9 @@ class OngoingCall {
       }
     });
 
-    if (track.kind() == MediaKind.video) {
+    if (kind == MediaKind.video) {
       LocalTrackState state;
-      switch (track.mediaSourceKind()) {
+      switch (source) {
         case MediaSourceKind.device:
           state = videoState.value;
           break;
@@ -1883,31 +1886,35 @@ class OngoingCall {
           state == LocalTrackState.disabled) {
         track.free();
       } else {
-        _removeLocalTracks(track.kind(), track.mediaSourceKind());
+        _removeLocalTracks(kind, source);
 
         Track t = Track(track);
         members[_me]?.tracks.add(t);
 
-        if (track.mediaSourceKind() == MediaSourceKind.device) {
-          videoDevice.value = videoDevice.value ??
-              devices.firstWhereOrNull(
-                (e) => e.deviceId() == track.getTrack().deviceId(),
-              );
-        } else if (track.mediaSourceKind() == MediaSourceKind.display) {
-          screenDevice.value = screenDevice.value ??
-              displays.firstWhereOrNull(
-                (e) => e.deviceId() == track.getTrack().deviceId(),
-              );
+        switch (source) {
+          case MediaSourceKind.device:
+            videoDevice.value = videoDevice.value ??
+                devices.firstWhereOrNull(
+                  (e) => e.deviceId() == track.getTrack().deviceId(),
+                );
+            break;
+
+          case MediaSourceKind.display:
+            screenDevice.value = screenDevice.value ??
+                displays.firstWhereOrNull(
+                  (e) => e.deviceId() == track.getTrack().deviceId(),
+                );
+            break;
         }
 
         await t.createRenderer();
       }
     } else {
-      _removeLocalTracks(track.kind(), track.mediaSourceKind());
+      _removeLocalTracks(kind, source);
 
       members[_me]?.tracks.add(Track(track));
 
-      if (track.mediaSourceKind() == MediaSourceKind.device) {
+      if (source == MediaSourceKind.device) {
         audioDevice.value = audioDevice.value ??
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
