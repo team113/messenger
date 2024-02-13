@@ -58,7 +58,6 @@ class UserService extends DisposableService {
 
   /// Returns an [User] by the provided [id].
   FutureOr<RxUser?> get(UserId id) {
-    Log.debug('get($id)', '$runtimeType');
     return _userRepository.get(id);
   }
 

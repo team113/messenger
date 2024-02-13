@@ -1197,14 +1197,14 @@ class SvgIcons {
 
   static const SvgData fullscreenEnterSmall = SvgData(
     'assets/icons/fullscreen_enter_small.svg',
-    width: 12,
-    height: 12,
+    width: 13,
+    height: 13,
   );
 
   static const SvgData fullscreenExitSmall = SvgData(
     'assets/icons/fullscreen_exit_small.svg',
-    width: 12,
-    height: 12,
+    width: 13,
+    height: 13,
   );
 
   static const SvgData fullscreenEnter = SvgData(
@@ -1267,6 +1267,24 @@ class SvgIcons {
   static const SvgData callAudioDisabled = SvgData(
     'assets/icons/call_audio_grey.svg',
     height: 12,
+  );
+
+  static const SvgData callFloating = SvgData(
+    'assets/icons/call_floating.svg',
+    width: 17,
+    height: 13,
+  );
+
+  static const SvgData callGallery = SvgData(
+    'assets/icons/call_gallery.svg',
+    width: 17,
+    height: 13,
+  );
+
+  static const SvgData callSide = SvgData(
+    'assets/icons/call_side.svg',
+    width: 17,
+    height: 13,
   );
 
   static const SvgData callVideo = SvgData(

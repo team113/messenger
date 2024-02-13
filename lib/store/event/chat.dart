@@ -405,10 +405,10 @@ class EventChatLastItemUpdated extends ChatEvent {
 /// Event of last [ChatItem]s posted by the authenticated [MyUser] being
 /// delivered to other [User]s in a [Chat].
 class EventChatDelivered extends ChatEvent {
-  const EventChatDelivered(super.chatId, this.at);
+  const EventChatDelivered(super.chatId, this.until);
 
-  /// [PreciseDateTime] when [ChatItem]s were delivered.
-  final PreciseDateTime at;
+  /// [PreciseDateTime] until which the [ChatItem]s in [Chat] were delivered.
+  final PreciseDateTime until;
 
   @override
   ChatEventKind get kind => ChatEventKind.delivered;

@@ -105,6 +105,7 @@ class VideoButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       bool isVideo = c.videoState.value == LocalTrackState.enabled ||
@@ -117,6 +118,7 @@ class VideoButton extends CallButton {
         big: big,
         withBlur: blur,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: c.toggleVideo,
       );
     });
@@ -147,6 +149,7 @@ class AudioButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       bool isAudio = c.audioState.value == LocalTrackState.enabled ||
@@ -159,6 +162,7 @@ class AudioButton extends CallButton {
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: c.toggleAudio,
       );
     });
@@ -259,8 +263,13 @@ class ParticipantsButton extends CallButton {
   const ParticipantsButton(super.c);
 
   @override
-  String get hint =>
-      c.isMobile ? 'btn_participants_desc'.l10n : 'btn_participants'.l10n;
+  String get hint => c.isGroup
+      ? c.isMobile
+          ? 'btn_participants_desc'.l10n
+          : 'btn_participants'.l10n
+      : c.isMobile
+          ? 'btn_add_participant_desc'.l10n
+          : 'btn_add_participant'.l10n;
 
   @override
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
@@ -272,7 +281,7 @@ class ParticipantsButton extends CallButton {
       expanded: expanded,
       big: big,
       constrained: c.isMobile,
-      onPressed: () => c.openAddMember(router.context!),
+      onPressed: c.isMonolog ? null : () => c.openAddMember(router.context!),
     );
   }
 }
@@ -416,7 +425,7 @@ class DeclineButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       asset: SvgIcons.callEndBig,
-      color: style.colors.decline,
+      color: style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -440,18 +449,22 @@ class CancelButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
       hint: hint,
       asset: SvgIcons.callEndBig,
-      color: style.colors.decline,
+      color: opaque
+          ? style.colors.declineOpacity88
+          : style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       withBlur: blur,
       big: big,
       constrained: c.isMobile,
+      opaque: opaque,
       onPressed: c.drop,
     );
   }
@@ -475,7 +488,7 @@ class EndCallButton extends CallButton {
     return CallButtonWidget(
       asset: SvgIcons.callEndBig,
       hint: hint,
-      color: style.colors.decline,
+      color: style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       big: big,
@@ -500,6 +513,7 @@ class SpeakerButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       final SvgData asset;
@@ -521,6 +535,7 @@ class SpeakerButton extends CallButton {
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
       );
     });
@@ -542,6 +557,7 @@ class SwitchButton extends CallButton {
     bool blur = false,
     bool big = false,
     bool expanded = false,
+    bool opaque = false,
   }) {
     return Obx(() {
       return CallButtonWidget(
@@ -554,6 +570,7 @@ class SwitchButton extends CallButton {
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: c.switchCamera,
       );
     });
@@ -587,10 +604,7 @@ Widget callTitle(CallController c) {
                     : 'label_audio_call'.l10nfmt(args);
 
     return CallTitle(
-      c.me.id.userId,
-      chat: c.chat.value?.chat.value,
       title: c.chat.value?.title.value,
-      avatar: c.chat.value?.avatar.value,
       state: state,
       withDots: withDots,
     );
