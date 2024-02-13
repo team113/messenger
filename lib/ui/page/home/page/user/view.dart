@@ -111,11 +111,23 @@ class UserView extends StatelessWidget {
                       child: Obx(() {
                         return AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
-                          child: c.displayName.value
-                              ? Text(
-                                  '${c.user?.user.value.name ?? c.user?.user.value.num}',
-                                )
-                              : Text('label_profile'.l10n, key: const Key('1')),
+                          child: Row(
+                            key: Key(c.displayName.value.toString()),
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (c.displayName.value)
+                                AvatarWidget.fromRxUser(c.user,
+                                    radius: AvatarRadius.smaller),
+                              if (c.displayName.value) const SizedBox(width: 8),
+                              c.displayName.value
+                                  ? Text(
+                                      '${c.user?.user.value.name ?? c.user?.user.value.num}',
+                                    )
+                                  : Text('label_profile'.l10n,
+                                      key: const Key('1')),
+                            ],
+                          ),
                         );
                       }),
                     ),
