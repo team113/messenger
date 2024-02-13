@@ -23,6 +23,7 @@ import 'package:gherkin/gherkin.dart';
 enum TestCredential {
   num,
   login,
+  directLink,
 }
 
 /// [CustomParameter] of [TestCredential]s representing [Credentials] of a
@@ -31,10 +32,14 @@ class CredentialsParameter extends CustomParameter<TestCredential> {
   CredentialsParameter()
       : super(
           'credential',
-          RegExp(
-            '(${TestCredential.values.map((e) => e.name).join('|')})',
-            caseSensitive: true,
-          ),
-          (c) => TestCredential.values.firstWhere((e) => e.name == c),
+          RegExp('(num|login|direct link)'),
+          (c) {
+            switch (c) {
+              case 'direct link':
+                return TestCredential.directLink;
+              default:
+                return TestCredential.values.firstWhere((e) => e.name == c);
+            }
+          },
         );
 }
