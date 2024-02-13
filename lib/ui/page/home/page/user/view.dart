@@ -281,10 +281,11 @@ class UserView extends StatelessWidget {
                       child: Stack(
                         children: [
                           Block(
-                            title: 'label_get_paid_for_incoming_from'.l10nfmt({
-                              'user': c.user!.user.value.name?.val ??
-                                  c.user!.user.value.num.toString(),
-                            }),
+                            title: 'Индивидуальный тариф',
+                            // title: 'label_get_paid_for_incoming_from'.l10nfmt({
+                            //   'user': c.user!.user.value.name?.val ??
+                            //       c.user!.user.value.num.toString(),
+                            // }),
                             children: [_paid(c, context)],
                           ),
                           Positioned.fill(
@@ -953,15 +954,40 @@ class UserView extends StatelessWidget {
   Widget _paid(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
+    Widget title(String label) {
+      return Paddings.dense(
+        Align(
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 0.0),
+            child: Text(
+              label,
+              style: style.systemMessageStyle.copyWith(
+                color: style.colors.secondary,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    String userName =
+        c.user!.user.value.name?.val ?? c.user!.user.value.num.toString();
+
     return Column(
       children: [
+        title(
+            'Настройка индивидуальной тарификации для пользователя: $userName'),
         Paddings.basic(
           Stack(
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                 child: InfoTile(
-                  title: 'Входящие сообщения, за 1 сообщение',
+                  title: 'Цена входящего сообщения',
                   content: '¤${c.messageCost.text}',
                   trailing: AnimatedButton(
                     onPressed: () async {
@@ -1024,10 +1050,9 @@ class UserView extends StatelessWidget {
         Paddings.basic(
           Stack(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                child: InfoTile(
-                  title: 'Входящие звонки, за 1 минуту',
+              Paddings.basic(
+                InfoTile(
+                  title: 'Цена входящего звонка (за 1 минуту)',
                   content: '¤${c.callsCost.text}',
                   trailing: AnimatedButton(
                     onPressed: () async {

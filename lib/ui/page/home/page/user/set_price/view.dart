@@ -95,7 +95,7 @@ class SetPriceView2 extends StatelessWidget {
                     ),
                   ),
                 ),
-                label: 'Входящие звонки, за 1 минуту',
+                label: 'Цена входящего звонка (за 1 минуту)',
               ),
             ),
             const SizedBox(height: 24),
