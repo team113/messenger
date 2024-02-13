@@ -53,7 +53,6 @@ class ChatDirectLinkController extends GetxController {
     if (_auth.status.value.isSuccess) {
       await _useChatDirectLink();
     } else if (_auth.status.value.isEmpty) {
-      router.joinByLink = slug.value?.val;
       await _register();
       if (_auth.status.value.isSuccess) {
         await _useChatDirectLink();
@@ -78,7 +77,7 @@ class ChatDirectLinkController extends GetxController {
   Future<void> _useChatDirectLink() async {
     try {
       ChatId chatId = await _auth.useChatDirectLink(slug.value!);
-      router.chat(chatId);
+      router.chat(chatId, joinedLink: slug.value!.val);
     } on UseChatDirectLinkException catch (e) {
       if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {
         slug.value = null;

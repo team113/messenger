@@ -44,13 +44,24 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+  const HomeView(
+    this._depsFactory, {
+    super.key,
+    this.signedUp = false,
+    this.joinedLink,
+  });
 
   /// Indicator whether the [IntroductionView] should be displayed with
   /// [IntroductionViewStage.signUp] initial stage.
   ///
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
+
+  /// Slug of the chat direct link joined, if any.
+  ///
+  /// If not `null`, the [IntroductionView] will be displayed with
+  /// [IntroductionViewStage.link] initial stage.
+  final String? joinedLink;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -122,6 +133,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         signedUp: widget.signedUp,
+        joinedLink: widget.joinedLink,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.

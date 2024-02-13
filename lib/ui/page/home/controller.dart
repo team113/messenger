@@ -43,6 +43,7 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings, {
     this.signedUp = false,
+    this.joinedLink,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -93,6 +94,9 @@ class HomeController extends GetxController {
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
+
+  /// Slug of the joined chat direct link.
+  final String? joinedLink;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
@@ -220,7 +224,7 @@ class HomeController extends GetxController {
   void _displayIntroduction(MyUser myUser) {
     IntroductionViewStage? stage;
 
-    if (router.joinByLink != null) {
+    if (joinedLink != null) {
       stage = IntroductionViewStage.link;
     } else if (!myUser.hasPassword &&
         myUser.emails.confirmed.isEmpty &&

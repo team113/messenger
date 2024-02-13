@@ -46,10 +46,16 @@ class IntroductionView extends StatelessWidget {
   const IntroductionView({
     super.key,
     this.initial = IntroductionViewStage.oneTime,
+    this.joinedLink,
   });
 
   /// Initial [IntroductionViewStage] to display.
   final IntroductionViewStage initial;
+
+  /// Slug of the direct link joined by the user.
+  ///
+  /// Required if [initial] is [IntroductionViewStage.link].
+  final String? joinedLink;
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -60,6 +66,7 @@ class IntroductionView extends StatelessWidget {
 
     return ModalPopup.show(
       context: context,
+      // TODO: иначе?
       background: initial == IntroductionViewStage.link
           ? style.colors.background
           : null,
@@ -189,7 +196,9 @@ class IntroductionView extends StatelessWidget {
                     child: SvgIcon(SvgIcons.logo),
                   ),
                   onPressed: () async {
-                    await WebUtils.launchScheme('/d/${router.joinByLink}');
+                    await WebUtils.launchScheme(
+                      '${Routes.chatDirectLink}/$joinedLink',
+                    );
                     if (context.mounted) {
                       await _showDownloadModal(context);
                     }

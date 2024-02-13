@@ -162,8 +162,6 @@ class RouterState extends ChangeNotifier {
   /// This router's global [OverlayState] to use in contextless scenarios.
   OverlayState? overlay;
 
-  String? joinByLink;
-
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle =
       Rx<AppLifecycleState>(AppLifecycleState.resumed);
@@ -760,6 +758,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             return deps;
           },
           signedUp: router.arguments?['signedUp'] as bool? ?? false,
+          joinedLink: router.arguments?['joinedLink'] as String?,
         ),
       ));
     } else if (_state.route.startsWith(Routes.work)) {
@@ -882,13 +881,18 @@ extension RouteLinks on RouterState {
     ChatId id, {
     bool push = false,
     ChatItemId? itemId,
+    String? joinedLink,
 
     // TODO: Remove when backend supports welcome messages.
     ChatMessageText? welcome,
   }) {
     (push ? this.push : go)('${Routes.chats}/$id');
 
-    arguments = {'itemId': itemId, 'welcome': welcome};
+    arguments = {
+      'itemId': itemId,
+      'welcome': welcome,
+      'joinedLink': joinedLink,
+    };
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
