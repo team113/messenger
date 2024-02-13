@@ -651,10 +651,7 @@ Widget callTitle(CallController c) {
                     : 'label_audio_call'.l10nfmt(args);
 
     return CallTitle(
-      c.me.id.userId,
-      chat: c.chat.value?.chat.value,
       title: c.chat.value?.title.value,
-      avatar: c.chat.value?.avatar.value,
       state: state,
       withDots: withDots,
     );

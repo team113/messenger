@@ -15,16 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/repository/chat.dart';
-import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/repository/chat.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -35,24 +33,16 @@ import '/ui/widget/svg/svg.dart';
 ///
 /// Builds a background on `null` [cover] and [user].
 class CallCoverWidget extends StatelessWidget {
-  const CallCoverWidget(
-    this.cover, {
-    super.key,
-    this.user,
-    this.chat,
-    this.me,
-  });
+  const CallCoverWidget(this.cover, {super.key, this.user, this.chat});
 
   /// [UserCallCover] to display.
   final UserCallCover? cover;
 
-  /// [User] this [UserCallCover] belongs to.
+  /// [User] to display [CallCoverWidget] of.
   final User? user;
 
-  /// [Chat] this [UserCallCover] belongs to.
+  /// [Chat] to display [CallCoverWidget] of.
   final RxChat? chat;
-
-  final UserId? me;
 
   @override
   Widget build(BuildContext context) {
@@ -67,12 +57,14 @@ class CallCoverWidget extends StatelessWidget {
             height: double.infinity,
             fit: BoxFit.cover,
           ),
-        if (user != null || (chat != null && me != null))
+        if (user != null || chat != null)
           LayoutBuilder(builder: (context, constraints) {
             final String? title = chat?.title.value.initials() ??
                 user?.name?.val ??
                 user?.num.toString();
-            final int? color = chat?.chat.value.colorDiscriminant(me).sum();
+            final int? color =
+                chat?.chat.value.colorDiscriminant(chat?.me).sum() ??
+                    user?.num.val.sum();
 
             final Color gradient;
 
@@ -109,17 +101,17 @@ class CallCoverWidget extends StatelessWidget {
                   ),
 
                   // Disable the accessibility size settings for this [Text].
-                  textScaleFactor: 1,
+                  textScaler: const TextScaler.linear(1),
                 ),
               ),
             );
           }),
         if (user?.callCover != null || cover != null)
           RetryImage(
-            (user?.callCover ?? cover)!.full.url,
-            key: Key((user?.callCover ?? cover)!.full.url),
-            checksum: (user?.callCover ?? cover)!.full.checksum,
-            thumbhash: (user?.callCover ?? cover)!.full.thumbhash,
+            (cover ?? user?.callCover)!.full.url,
+            key: Key((cover ?? user?.callCover)!.full.url),
+            checksum: (cover ?? user?.callCover)!.full.checksum,
+            thumbhash: (cover ?? user?.callCover)!.full.thumbhash,
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,

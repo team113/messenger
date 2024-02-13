@@ -90,61 +90,117 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: Stack(
+          final Widget editButton = AnimatedButton(
+            key: const Key('EditButton'),
+            decorator: (child) => Padding(
+              padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
+              child: child,
+            ),
+            onPressed: c.editing.toggle,
+            child: Obx(() {
+              return IndexedStack(
+                alignment: Alignment.centerRight,
+                index: c.editing.value ? 0 : 1,
                 children: [
-                  // Center(child: Text('label_profile'.l10n)),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-                    child: Center(
-                      child: Obx(() {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: Row(
-                            key: Key(c.displayName.value.toString()),
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (c.displayName.value)
-                                AvatarWidget.fromRxChat(c.chat,
-                                    radius: AvatarRadius.smaller),
-                              if (c.displayName.value) const SizedBox(width: 8),
-                              Text(
-                                key: Key(c.displayName.value ? '1' : '0'),
-                                c.displayName.value
-                                    ? '${c.chat?.title.value}'
-                                    : 'label_profile'.l10n,
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
+                  Text(
+                    'Готово',
+                    style: style.fonts.normal.regular.primary,
                   ),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: StyledBackButton(enlarge: true),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: AnimatedButton(
-                      key: const Key('EditButton'),
-                      decorator: (child) => Padding(
-                        padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
-                        child: child,
-                      ),
-                      onPressed: c.editing.toggle,
-                      child: Obx(() {
-                        return Text(
-                          key: Key(c.editing.value ? '1' : '2'),
-                          c.editing.value ? 'Готово' : 'Изменить',
-                          style: style.fonts.normal.regular.primary,
-                        );
-                      }),
-                    ),
+                  Text(
+                    'Изменить',
+                    style: style.fonts.normal.regular.primary,
                   ),
                 ],
+              );
+            }),
+          );
+
+          final Widget title;
+
+          if (!c.displayName.value) {
+            title = Row(
+              key: const Key('Profile'),
+              children: [
+                const StyledBackButton(enlarge: true),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+                    child: Center(child: Text('label_profile'.l10n)),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            title = Row(
+              children: [
+                const StyledBackButton(),
+                Material(
+                  elevation: 6,
+                  type: MaterialType.circle,
+                  shadowColor: style.colors.onBackgroundOpacity27,
+                  color: style.colors.onPrimary,
+                  child: AvatarWidget.fromRxChat(
+                    c.chat,
+                    radius: AvatarRadius.medium,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: DefaultTextStyle.merge(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(() {
+                          return Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  c.chat!.title.value,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Obx(() {
+                                if (c.chat?.chat.value.muted == null) {
+                                  return const SizedBox();
+                                }
+
+                                return const Padding(
+                                  padding: EdgeInsets.only(left: 5),
+                                  child: SvgIcon(SvgIcons.muted),
+                                );
+                              }),
+                            ],
+                          );
+                        }),
+                        ChatSubtitle(c.chat!, c.me),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
+            );
+          }
+
+          return Scaffold(
+            appBar: CustomAppBar(
+              title: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: title,
+                      ),
+                    ),
+                    editButton,
+                  ],
+                ),
               ),
             ),
             body: Scrollbar(

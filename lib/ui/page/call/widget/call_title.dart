@@ -16,42 +16,19 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
-import '/ui/page/home/widget/avatar.dart';
 
-/// [AvatarWidget] with caption and subtitle texts used to display
-/// [ChatCall.author] and [OngoingCall] state.
+/// Caption and subtitle texts used to display [ChatCall.author] and
+/// [OngoingCall] state.
 class CallTitle extends StatelessWidget {
-  const CallTitle(
-    this.me, {
-    super.key,
-    this.chat,
-    this.title,
-    this.avatar,
-    this.state,
-    this.withDots = false,
-    this.withDecoration = false,
-  });
+  const CallTitle({super.key, this.title, this.state, this.withDots = false});
 
-  /// [Chat] that contains the current [OngoingCall].
-  final Chat? chat;
-
-  /// Title of the [chat].
+  /// Title of this [CallTitle].
   final String? title;
-
-  /// [UserId] of the current [MyUser].
-  final UserId me;
-
-  /// [Avatar] of the [chat].
-  final Avatar? avatar;
 
   /// Optional state text.
   final String? state;
@@ -62,11 +39,14 @@ class CallTitle extends StatelessWidget {
   /// Only meaningful if [state] is non-`null`.
   final bool withDots;
 
-  final bool withDecoration;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final List<Shadow> shadows = [
+      Shadow(blurRadius: 6, color: style.colors.onBackground),
+      Shadow(blurRadius: 6, color: style.colors.onBackground),
+    ];
 
     return DefaultTextStyle.merge(
       maxLines: 1,
@@ -77,68 +57,25 @@ class CallTitle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // AvatarWidget.fromChat(
-          //   chat,
-          //   title,
-          //   avatar,
-          //   me,
-          //   radius: AvatarRadius.larger,
-          //   opacity: 0.8,
-          // ),
-          // const SizedBox(height: 16),
           Text(
             title ?? ('dot'.l10n * 3),
-            style: style.fonts.largest.bold.onPrimary.copyWith(
-              shadows: [
-                Shadow(
-                  blurRadius: 6,
-                  color: style.colors.onBackground,
-                ),
-                Shadow(
-                  blurRadius: 6,
-                  color: style.colors.onBackground,
-                ),
-              ],
-            ),
+            style:
+                style.fonts.largest.bold.onPrimary.copyWith(shadows: shadows),
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
-            AnimatedContainer(
-              duration: 200.milliseconds,
-              padding: withDecoration
-                  ? const EdgeInsets.fromLTRB(16, 8, 16, 8)
-                  : EdgeInsets.zero,
-              decoration: BoxDecoration(
-                // color: const Color(0xFFFFFFFF),
-                color: withDecoration
-                    // ? const Color(0xFFB68AD1)
-                    ? const Color(0xFF7eae76)
-                    : const Color(0x00B68AD1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (withDots) const SizedBox(width: 13),
-                  Text(
-                    state!,
-                    style: style.fonts.big.regular.onPrimary.copyWith(
-                      shadows: [
-                        Shadow(
-                          blurRadius: 6,
-                          color: style.colors.onBackground,
-                        ),
-                        Shadow(
-                          blurRadius: 6,
-                          color: style.colors.onBackground,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (withDots) const AnimatedDots(),
-                ],
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (withDots) const SizedBox(width: 13),
+                Text(
+                  state!,
+                  style: style.fonts.big.regular.onPrimary
+                      .copyWith(shadows: shadows),
+                ),
+                if (withDots) const AnimatedDots(),
+              ],
             ),
         ],
       ),

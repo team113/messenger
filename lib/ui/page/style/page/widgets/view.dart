@@ -1662,7 +1662,6 @@ class _WidgetsViewState extends State<WidgetsView> {
       _headline(
         color: style.colors.backgroundAuxiliaryLight,
         child: const CallTitle(
-          UserId('me'),
           title: 'Title',
           state: 'State',
         ),
