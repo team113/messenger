@@ -23,6 +23,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
+import 'package:messenger/ui/page/home/page/user/set_price/view.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 import 'package:messenger/ui/page/home/widget/direct_link.dart';
@@ -957,30 +958,58 @@ class UserView extends StatelessWidget {
         Paddings.basic(
           Stack(
             children: [
-              ReactiveTextField(
-                state: c.messageCost,
-                style: style.fonts.medium.regular.onBackground,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [FilteringTextInputFormatter.digitsOnly],
-                hint: '0',
-                // prefixText: '    ',
-                // prefixText: '¤',
-                // prefixStyle: style.fonts.medium.regular.onBackground,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: InfoTile(
+                  title: 'Входящие сообщения, за 1 сообщение',
+                  content: '¤${c.messageCost.text}',
+                  trailing: AnimatedButton(
+                    onPressed: () async {
+                      final result = await SetPriceView2.show(
+                        context,
+                        initialCalls: c.callsCost.text,
+                        initialMessages: c.messageCost.text,
+                      );
 
-                prefix: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                  child: Transform.translate(
-                    offset: PlatformUtils.isWeb
-                        ? const Offset(0, -0)
-                        : const Offset(0, -0.5),
+                      if (result is MapEntry<String, String>) {
+                        c.messageCost.text = result.value;
+                        c.callsCost.text = result.key;
+                        c.refresh();
+                      }
+                    },
                     child: Text(
-                      '¤',
-                      style: style.fonts.medium.regular.onBackground,
+                      'Изменить'.l10n,
+                      style: style.fonts.small.regular.primary,
                     ),
                   ),
                 ),
-                label: 'Входящие сообщения, за 1 сообщение',
               ),
+
+              // ReactiveTextField(
+              //   state: c.messageCost,
+              //   style: style.fonts.medium.regular.onBackground,
+              //   floatingLabelBehavior: FloatingLabelBehavior.always,
+              //   formatters: [FilteringTextInputFormatter.digitsOnly],
+              //   hint: '0',
+              //   // prefixText: '    ',
+              //   // prefixText: '¤',
+              //   // prefixStyle: style.fonts.medium.regular.onBackground,
+
+              //   prefix: Padding(
+              //     padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+              //     child: Transform.translate(
+              //       offset: PlatformUtils.isWeb
+              //           ? const Offset(0, -0)
+              //           : const Offset(0, -0.5),
+              //       child: Text(
+              //         '¤',
+              //         style: style.fonts.medium.regular.onBackground,
+              //       ),
+              //     ),
+              //   ),
+              //   label: 'Входящие сообщения, за 1 сообщение',
+              // ),
+
               // Padding(
               //   padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
               //   child: Text(
@@ -995,30 +1024,58 @@ class UserView extends StatelessWidget {
         Paddings.basic(
           Stack(
             children: [
-              ReactiveTextField(
-                state: c.callsCost,
-                style: style.fonts.medium.regular.onBackground,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [FilteringTextInputFormatter.digitsOnly],
-                hint: '0',
-                // prefixText: '    ',
-                // prefixStyle: TextStyle(fontSize: 12),
-                // prefixText: '¤',
-                // prefixStyle: style.fonts.medium.regular.onBackground,
-                prefix: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                  child: Transform.translate(
-                    offset: PlatformUtils.isWeb
-                        ? const Offset(0, -0)
-                        : const Offset(0, -1),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: InfoTile(
+                  title: 'Входящие звонки, за 1 минуту',
+                  content: '¤${c.callsCost.text}',
+                  trailing: AnimatedButton(
+                    onPressed: () async {
+                      final result = await SetPriceView2.show(
+                        context,
+                        initialCalls: c.callsCost.text,
+                        initialMessages: c.messageCost.text,
+                      );
+
+                      if (result is MapEntry<String, String>) {
+                        c.messageCost.text = result.value;
+                        c.callsCost.text = result.key;
+                        c.refresh();
+                      }
+                    },
                     child: Text(
-                      '¤',
-                      style: style.fonts.medium.regular.onBackground,
+                      'Изменить'.l10n,
+                      style: style.fonts.small.regular.primary,
                     ),
                   ),
                 ),
-                label: 'Входящие звонки, за 1 минуту',
               ),
+
+              // ReactiveTextField(
+              //   state: c.callsCost,
+              //   style: style.fonts.medium.regular.onBackground,
+              //   floatingLabelBehavior: FloatingLabelBehavior.always,
+              //   formatters: [FilteringTextInputFormatter.digitsOnly],
+              //   hint: '0',
+              //   // prefixText: '    ',
+              //   // prefixStyle: TextStyle(fontSize: 12),
+              //   // prefixText: '¤',
+              //   // prefixStyle: style.fonts.medium.regular.onBackground,
+              //   prefix: Padding(
+              //     padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+              //     child: Transform.translate(
+              //       offset: PlatformUtils.isWeb
+              //           ? const Offset(0, -0)
+              //           : const Offset(0, -1),
+              //       child: Text(
+              //         '¤',
+              //         style: style.fonts.medium.regular.onBackground,
+              //       ),
+              //     ),
+              //   ),
+              //   label: 'Входящие звонки, за 1 минуту',
+              // ),
+
               // Padding(
               //   padding: const EdgeInsets.fromLTRB(21, 16.3, 0, 0),
               //   child: Text(
