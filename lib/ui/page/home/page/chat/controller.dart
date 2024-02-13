@@ -807,7 +807,7 @@ class ChatController extends GetxController {
         });
       } else {
         _determineFirstUnread();
-        var result = _calculateListViewIndex();
+        final result = _calculateListViewIndex();
         initIndex = result.index;
         initOffset = result.offset;
 
@@ -838,12 +838,10 @@ class ChatController extends GetxController {
       Rx<ChatItem>? firstUnread = _firstUnread;
       _determineFirstUnread();
 
-      // Scroll to the last read message if [_firstUnread] was updated or there
-      // are no unread messages in [chat]. Otherwise,
-      // [FlutterListViewDelegate.keepPosition] handles this as the last read
-      // item is already in the list.
-      if (firstUnread?.value.id != _firstUnread?.value.id ||
-          chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
+      // Scroll to the last read message if [_firstUnread] was updated.
+      // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
+      // last read item is already in the list.
+      if (firstUnread?.value.id != _firstUnread?.value.id) {
         _scrollToLastRead();
       }
 
@@ -1966,9 +1964,9 @@ class ChatController extends GetxController {
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
-        _highlight(elements.values.elementAt(index).id);
         index = i;
-        offset = (MediaQuery.of(router.context!).size.height) / 3;
+        offset = 50;
+        _highlight(elements.values.elementAt(index).id);
       }
     } else {
       if (chat?.messages.isEmpty == false) {
