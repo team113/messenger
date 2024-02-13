@@ -1005,13 +1005,12 @@ class UserView extends StatelessWidget {
                     onPressed: () async {
                       final result = await SetPriceView2.show(
                         context,
-                        initialCalls: c.callsCost.text,
-                        initialMessages: c.messageCost.text,
+                        initialValue: c.messageCost.text,
+                        label: 'Цена входящего сообщения',
                       );
 
-                      if (result is MapEntry<String, String>) {
-                        c.messageCost.text = result.value;
-                        c.callsCost.text = result.key;
+                      if (result is String) {
+                        c.messageCost.text = result;
                         c.refresh();
                       }
                     },
@@ -1070,13 +1069,12 @@ class UserView extends StatelessWidget {
                     onPressed: () async {
                       final result = await SetPriceView2.show(
                         context,
-                        initialCalls: c.callsCost.text,
-                        initialMessages: c.messageCost.text,
+                        initialValue: c.callsCost.text,
+                        label: 'Цена входящего звонка (за 1 минуту)',
                       );
 
-                      if (result is MapEntry<String, String>) {
-                        c.messageCost.text = result.value;
-                        c.callsCost.text = result.key;
+                      if (result is String) {
+                        c.callsCost.text = result;
                         c.refresh();
                       }
                     },

@@ -14,24 +14,24 @@ import 'controller.dart';
 class SetPriceView2 extends StatelessWidget {
   const SetPriceView2({
     super.key,
-    this.initialCalls,
-    this.initialMessages,
+    this.initialValue,
+    this.label,
   });
 
-  final String? initialCalls;
-  final String? initialMessages;
+  final String? initialValue;
+  final String? label;
 
   /// Displays a [SetPriceView2] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    String? initialCalls,
-    String? initialMessages,
+    String? initialValue,
+    String? label,
   }) {
     return ModalPopup.show(
       context: context,
       child: SetPriceView2(
-        initialCalls: initialCalls,
-        initialMessages: initialMessages,
+        initialValue: initialValue,
+        label: label,
       ),
     );
   }
@@ -41,10 +41,7 @@ class SetPriceView2 extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: SetPriceController(
-        initialCalls: initialCalls,
-        initialMessages: initialMessages,
-      ),
+      init: SetPriceController(initialValue: initialValue),
       builder: (SetPriceController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -54,7 +51,7 @@ class SetPriceView2 extends StatelessWidget {
             Padding(
               padding: ModalPopup.padding(context),
               child: ReactiveTextField(
-                state: c.messages,
+                state: c.value,
                 style: style.fonts.medium.regular.onBackground,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
@@ -71,31 +68,7 @@ class SetPriceView2 extends StatelessWidget {
                     ),
                   ),
                 ),
-                label: 'Входящие сообщения, за 1 сообщение',
-              ),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: ModalPopup.padding(context),
-              child: ReactiveTextField(
-                state: c.calls,
-                style: style.fonts.medium.regular.onBackground,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [FilteringTextInputFormatter.digitsOnly],
-                hint: '0',
-                prefix: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                  child: Transform.translate(
-                    offset: PlatformUtils.isWeb
-                        ? const Offset(0, -0)
-                        : const Offset(0, -0.5),
-                    child: Text(
-                      '¤',
-                      style: style.fonts.medium.regular.onBackground,
-                    ),
-                  ),
-                ),
-                label: 'Цена входящего звонка (за 1 минуту)',
+                label: label,
               ),
             ),
             const SizedBox(height: 24),
@@ -112,12 +85,7 @@ class SetPriceView2 extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: PrimaryButton(
-                      onPressed: () => Navigator.of(context).pop(
-                        MapEntry(
-                          c.calls.text,
-                          c.messages.text,
-                        ),
-                      ),
+                      onPressed: () => Navigator.of(context).pop(c.value.text),
                       title: 'Сохранить',
                     ),
                   ),

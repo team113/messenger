@@ -3,13 +3,10 @@ import 'package:messenger/ui/widget/text_field.dart';
 
 class SetPriceController extends GetxController {
   SetPriceController({
-    String? initialCalls,
-    String? initialMessages,
+    String? initialValue,
   }) {
-    calls = TextFieldState(text: initialCalls ?? '0');
-    messages = TextFieldState(text: initialMessages ?? '0');
+    value = TextFieldState(text: initialValue ?? '0');
   }
 
-  late final TextFieldState calls;
-  late final TextFieldState messages;
+  late final TextFieldState value;
 }
