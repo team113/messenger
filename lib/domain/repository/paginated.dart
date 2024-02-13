@@ -73,6 +73,7 @@ abstract class Paginated<K extends Comparable, T> {
 
   /// Disposes this [Paginated].
   @mustCallSuper
+  @protected
   void dispose() {
     _controller.close();
     onDispose?.call();
