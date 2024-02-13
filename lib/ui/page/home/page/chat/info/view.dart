@@ -104,6 +104,7 @@ class ChatInfoView extends StatelessWidget {
                           child: Row(
                             key: Key(c.displayName.value.toString()),
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               if (c.displayName.value)
                                 AvatarWidget.fromRxChat(c.chat,
