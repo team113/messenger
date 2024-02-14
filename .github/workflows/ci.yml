@@ -965,7 +965,7 @@ jobs:
       - uses: azure/setup-kubectl@v3
 
       - name: Login to Kubernetes cluster
-      - run: |
+        run: |
           set -ex
 
           kubectl config set-cluster ${{ secrets.K8S_CLUSTER }} --server=${{ secrets.K8S_API }} --insecure-skip-tls-verify=true
