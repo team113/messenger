@@ -11,12 +11,20 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Default device on desktop platforms. ([#465], [#464])
+
 ### Changed
 
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
 
+[#464]: /../../issues/464
+[#465]: /../../pull/465
 [#812]: /../../issues/812
 [#832]: /../../pull/832
 
