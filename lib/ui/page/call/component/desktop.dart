@@ -183,7 +183,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                                 child = CallCoverWidget(
                                   null,
                                   chat: c.chat.value,
-                                  me: c.me.id.userId,
                                 );
                                 // child = const SizedBox();
                               }
