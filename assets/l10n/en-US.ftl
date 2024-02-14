@@ -642,6 +642,7 @@ label_delete_messages = Delete the messages?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_details = Details.
+label_device_by_default = By default - {$device}
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_did_not_receive_code = Didn't receive the code?

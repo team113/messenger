@@ -17,11 +17,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 
 export 'view.dart';
@@ -42,17 +42,17 @@ class CallSettingsController extends GetxController {
   /// Returns the local [Track]s.
   ObsList<Track>? get localTracks => _call.value.localTracks;
 
-  /// Returns a list of [MediaDeviceDetails] of all the available devices.
-  RxList<MediaDeviceDetails> get devices => _call.value.devices;
+  /// Returns a list of [DeviceDetails] of all the available devices.
+  RxList<DeviceDetails> get devices => _call.value.devices;
 
   /// Returns ID of the currently used video device.
-  RxnString get camera => _call.value.videoDevice;
+  Rx<DeviceDetails?> get camera => _call.value.videoDevice;
 
   /// Returns ID of the currently used microphone device.
-  RxnString get mic => _call.value.audioDevice;
+  Rx<DeviceDetails?> get mic => _call.value.audioDevice;
 
   /// Returns ID of the currently used output device.
-  RxnString get output => _call.value.outputDevice;
+  Rx<DeviceDetails?> get output => _call.value.outputDevice;
 
   /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
@@ -81,22 +81,22 @@ class CallSettingsController extends GetxController {
     _stateWorker.dispose();
   }
 
-  /// Sets device with [id] as a used by default camera device.
-  void setVideoDevice(String id) {
-    _call.value.setVideoDevice(id);
-    _settingsRepo.setVideoDevice(id);
+  /// Sets the provided [device] as a used by default camera device.
+  void setVideoDevice(DeviceDetails device) {
+    _call.value.setVideoDevice(device);
+    _settingsRepo.setVideoDevice(device.id());
   }
 
-  /// Sets device with [id] as a used by default microphone device.
-  void setAudioDevice(String id) {
-    _call.value.setAudioDevice(id);
-    _settingsRepo.setAudioDevice(id);
+  /// Sets the provided [device] as a used by default microphone device.
+  void setAudioDevice(DeviceDetails device) {
+    _call.value.setAudioDevice(device);
+    _settingsRepo.setAudioDevice(device.id());
   }
 
-  /// Sets device with [id] as a used by default output device.
-  void setOutputDevice(String id) {
-    _call.value.setOutputDevice(id);
-    _settingsRepo.setOutputDevice(id);
+  /// Sets the provided [device] as a used by default output device.
+  void setOutputDevice(DeviceDetails device) {
+    _call.value.setOutputDevice(device);
+    _settingsRepo.setOutputDevice(device.id());
   }
 
   /// Populates media input devices, such as microphones, cameras, and so forth.
