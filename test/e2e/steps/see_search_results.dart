@@ -74,16 +74,15 @@ final StepDefinitionGeneric seeUserInSearchResults =
   },
 );
 
-/// Waits until the provided [Chat] is found and displayed in the ongoing search
-/// results.
+/// Waits until a group [Chat] with the provided [name] is found and displayed
+/// in the ongoing search results.
 ///
 /// Examples:
 /// - Then I see chat "Example" in search results
 /// - Then I see recent "Example" in search results
-final StepDefinitionGeneric seeChatInSearchResults =
-    then2<SearchCategory, String, CustomWorld>(
-  'I see {search_category} {string} in search results',
-  (SearchCategory category, String name, context) async {
+final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
+  'I see chat {string} in search results',
+  (String name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
@@ -101,7 +100,7 @@ final StepDefinitionGeneric seeChatInSearchResults =
   },
 );
 
-/// Waits until the [Chat]-dialog with provided [User] is found and displayed in
+/// Waits until a [Chat]-dialog with provided [User] is found and displayed in
 /// the ongoing search results.
 ///
 /// Examples:
