@@ -15,12 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
-/// Result of a search query.
-abstract class SearchResult<K extends Comparable, T> {
-  /// Found [T] items themselves.
-  final RxMap<K, T> items = RxMap<K, T>();
+import '/util/obs/obs.dart';
+
+/// Paginated view of [T] items.
+abstract class Paginated<K extends Comparable, T> {
+  Paginated({this.onDispose});
+
+  /// Paginated [T] items themselves.
+  final RxObsMap<K, T> items = RxObsMap<K, T>();
 
   /// Reactive [RxStatus] of [items] being fetched.
   ///
@@ -32,15 +39,49 @@ abstract class SearchResult<K extends Comparable, T> {
   /// - `status.isSuccess`, meaning the [items] were successfully fetched.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
+  /// Callback, called when this [Paginated] is disposed.
+  final void Function()? onDispose;
+
+  /// [StreamController] for [updates] of this [Paginated].
+  ///
+  /// Behaves like a reference counter: when [updates] are listened to, this
+  /// invokes [ensureInitialized], and when [updates] aren't listened,
+  /// [dispose]s this [Paginated].
+  late final StreamController<void> _controller = StreamController.broadcast(
+    onListen: ensureInitialized,
+    onCancel: dispose,
+  );
+
   /// Indicates whether the [items] have next page.
   RxBool get hasNext;
+
+  /// Indicates whether the [items] have previous page.
+  RxBool get hasPrevious;
 
   /// Indicates whether the [next] page of [items] is being fetched.
   RxBool get nextLoading;
 
-  /// Disposes this [SearchResult].
-  void dispose();
+  /// Indicates whether the [previous] page of [items] is being fetched.
+  RxBool get previousLoading;
+
+  /// Initializes this [Paginated] while the returned [Stream] is listened and
+  /// disposes when canceled.
+  Stream<void> get updates => _controller.stream;
+
+  /// Ensures this [Paginated] is initialized.
+  Future<void> ensureInitialized();
+
+  /// Disposes this [Paginated].
+  @mustCallSuper
+  @protected
+  void dispose() {
+    _controller.close();
+    onDispose?.call();
+  }
 
   /// Fetches next page of the [items].
   Future<void> next();
+
+  /// Fetches previous page of the [items].
+  Future<void> previous();
 }
