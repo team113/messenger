@@ -123,7 +123,9 @@ class _PlayableAssetState extends State<PlayableAsset> {
     if (widget.once) {
       AudioUtils.once(AudioSource.asset('assets/audio/${widget.asset}.mp3'));
     } else {
-      _audio = AudioUtils.play(AudioSource.asset('assets/audio/${widget.asset}.mp3'));
+      _audio = AudioUtils.play(
+        AudioSource.asset('assets/audio/${widget.asset}.mp3'),
+      );
       setState(() {});
     }
   }
