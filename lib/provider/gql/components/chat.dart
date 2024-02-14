@@ -315,6 +315,28 @@ mixin ChatGraphQlMixin {
     return GetMessages$Query.fromJson(result.data!);
   }
 
+  /// Returns a [ChatItem] by its ID.
+  ///
+  /// The authenticated [MyUser] should be a member of the [Chat] the provided
+  /// [ChatItem] belongs to, in order to view it.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetMessage$Query> chatItem(ChatItemId id) async {
+    Log.debug('chatItem($id)', '$runtimeType');
+
+    final variables = GetMessageArguments(id: id);
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetMessage',
+        document: GetMessageQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetMessage$Query.fromJson(result.data!);
+  }
+
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///

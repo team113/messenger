@@ -1843,7 +1843,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: MouseRegion(
                         cursor: isAnyDrag
                             ? MouseCursor.defer
-                            : CustomMouseCursors.grab,
+                            : c.secondaryDragged.isTrue
+                                ? CustomMouseCursors.grabbing
+                                : CustomMouseCursors.grab,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;

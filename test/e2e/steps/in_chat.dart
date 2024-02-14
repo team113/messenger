@@ -46,9 +46,9 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
 /// Routes the [router] to the [Chat]-group page with the provided [ChatName].
 ///
 /// Examples:
-/// - Given I am in "Example" chat
+/// - Given I am in "Example" group
 final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
-  'I am in {string} chat',
+  'I am in {string} group',
   (String chatName, context) async {
     router.chat(context.world.groups[chatName]!);
 

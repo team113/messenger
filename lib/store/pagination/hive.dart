@@ -40,6 +40,7 @@ class HivePageProvider<T extends Object, C, K>
     this.isLast,
     this.strategy = PaginationStrategy.fromStart,
     this.reversed = false,
+    this.readOnly = false,
   }) : orderBy = orderBy ?? _defaultOrderBy<K>;
 
   /// Callback, called when a key of the provided [T] is required.
@@ -64,6 +65,9 @@ class HivePageProvider<T extends Object, C, K>
   /// Indicator whether this [HivePageProvider] is reversed.
   final bool reversed;
 
+  /// Indicator whether this [HivePageProvider] is read only.
+  final bool readOnly;
+
   /// [IterableHiveProvider] to fetch the items from.
   IterableHiveProvider<T, K> _provider;
 
@@ -71,10 +75,10 @@ class HivePageProvider<T extends Object, C, K>
   set provider(IterableHiveProvider<T, K> value) => _provider = value;
 
   @override
-  Future<Page<T, C>> init(T? item, int count) => around(item, null, count);
+  Future<Page<T, C>> init(K? key, int count) => around(key, null, count);
 
   @override
-  Future<Page<T, C>> around(T? item, C? cursor, int count) async {
+  Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Iterable<K> ordered = orderBy(_provider.keys);
 
     if (ordered.isEmpty) {
@@ -92,29 +96,28 @@ class HivePageProvider<T extends Object, C, K>
     }
 
     Iterable<dynamic>? keys;
-    if (item != null) {
-      final K key = getKey(item);
+    if (key != null) {
       final int initial = ordered.toList().indexOf(key);
 
       if (initial != -1) {
-        ordered.around(initial, count);
+        keys = ordered.around(initial, count);
+      }
+    } else {
+      switch (strategy) {
+        case PaginationStrategy.fromStart:
+          keys = ordered.take(count);
+          break;
+
+        case PaginationStrategy.fromEnd:
+          keys = ordered.skip(
+            (ordered.length - count).clamp(0, double.maxFinite.toInt()),
+          );
+          break;
       }
     }
 
-    switch (strategy) {
-      case PaginationStrategy.fromStart:
-        keys ??= ordered.take(count);
-        break;
-
-      case PaginationStrategy.fromEnd:
-        keys ??= ordered.skip(
-          (ordered.length - count).clamp(0, double.maxFinite.toInt()),
-        );
-        break;
-    }
-
     List<T> items = [];
-    for (var k in keys) {
+    for (var k in keys ?? []) {
       final T? item = await _provider.get(k);
       if (item != null) {
         items.add(item);
@@ -126,20 +129,19 @@ class HivePageProvider<T extends Object, C, K>
 
   @override
   FutureOr<Page<T, C>?> after(
-    T? item,
+    K? key,
     C? cursor,
     int count, {
     bool reversed = false,
   }) async {
-    if (item == null) {
+    if (key == null) {
       return null;
     }
 
     if (this.reversed && !reversed) {
-      return before(item, cursor, count, reversed: true);
+      return before(key, cursor, count, reversed: true);
     }
 
-    final key = getKey(item);
     final Iterable<K> ordered = orderBy(_provider.keys);
     final index = ordered.toList().indexOf(key);
     if (index != -1 && index < ordered.length - 1) {
@@ -159,20 +161,19 @@ class HivePageProvider<T extends Object, C, K>
 
   @override
   FutureOr<Page<T, C>?> before(
-    T? item,
+    K? key,
     C? cursor,
     int count, {
     bool reversed = false,
   }) async {
-    if (item == null) {
+    if (key == null) {
       return null;
     }
 
     if (this.reversed && !reversed) {
-      return after(item, cursor, count, reversed: true);
+      return after(key, cursor, count, reversed: true);
     }
 
-    final K key = getKey(item);
     final Iterable<K> ordered = orderBy(_provider.keys);
     final int index = ordered.toList().indexOf(key);
     if (index > 0) {
@@ -196,7 +197,7 @@ class HivePageProvider<T extends Object, C, K>
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
     // synchronization, thus writes from multiple applications may lead to
     // missing events.
-    if (WebUtils.isPopup) {
+    if (WebUtils.isPopup || readOnly) {
       return;
     }
 
@@ -239,6 +240,21 @@ class HivePageProvider<T extends Object, C, K>
     } else {
       await _provider.clear();
     }
+  }
+
+  /// Returns a copy of this [HivePageProvider] with the provided parameters.
+  HivePageProvider<T, C, K> copyWith({bool? readOnly}) {
+    return HivePageProvider(
+      _provider,
+      getCursor: getCursor,
+      getKey: getKey,
+      orderBy: orderBy,
+      isFirst: isFirst,
+      isLast: isLast,
+      strategy: strategy,
+      reversed: reversed,
+      readOnly: readOnly ?? this.readOnly,
+    );
   }
 
   /// Creates a [Page] from the provided [items].

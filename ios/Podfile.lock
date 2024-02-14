@@ -1,4 +1,6 @@
 PODS:
+  - all_sensors (0.0.1):
+    - Flutter
   - callkeep (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -108,7 +110,7 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - libyuv-iOS (1.0.2)
-  - medea_flutter_webrtc (0.9.0):
+  - medea_flutter_webrtc (0.10.0-dev):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 118.0.5993.88)
     - libyuv-iOS
@@ -166,6 +168,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - all_sensors (from `.symlinks/plugins/all_sensors/ios`)
   - callkeep (from `.symlinks/plugins/callkeep/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -221,6 +224,8 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
+  all_sensors:
+    :path: ".symlinks/plugins/all_sensors/ios"
   callkeep:
     :path: ".symlinks/plugins/callkeep/ios"
   connectivity_plus:
@@ -285,6 +290,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
+  all_sensors: 13f46502204bebbd1e06b65ff3d7cdaa03d88b26
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
@@ -298,7 +304,7 @@ SPEC CHECKSUMS:
   FirebaseCoreInternal: b444828ea7cfd594fca83046b95db98a2be4f290
   FirebaseInstallations: 033d199474164db20c8350736842a94fe717b960
   FirebaseMessaging: 9bc34a98d2e0237e1b121915120d4d48ddcf301e
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_app_badger: b87fc231847b03b92ce1412aa351842e7e97932f
   flutter_background_service_ios: e30e0d3ee69e4cee66272d0c78eacd48c2e94aac
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
@@ -309,7 +315,7 @@ SPEC CHECKSUMS:
   instrumentisto-libwebrtc-bin: 295e1721ff9a8ccfc030c0de5f095c7d6b3e53ce
   integration_test: 13825b8a9334a850581300559b8839134b124670
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
-  medea_flutter_webrtc: 4be3b47ae44588d2e1197e87e0611d3f85d14e60
+  medea_flutter_webrtc: ca2335744f08d45963f26f8db159c6dcd19a31a3
   medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
   media_kit_libs_ios_video: a5fe24bc7875ccd6378a0978c13185e1344651c1
   media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a
