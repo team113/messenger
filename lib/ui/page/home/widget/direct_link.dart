@@ -53,6 +53,8 @@ class DirectLinkField extends StatefulWidget {
     this.transitions = true,
     this.background,
     this.generated,
+    this.editOnly = false,
+    this.canDelete = true,
   });
 
   /// Reactive state of the [ReactiveTextField].
@@ -64,6 +66,9 @@ class DirectLinkField extends StatefulWidget {
   final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
 
   final bool transitions;
+  final bool editOnly;
+  final bool canDelete;
+
   final Uint8List? background;
 
   @override
@@ -85,7 +90,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   void initState() {
     if (widget.link == null) {
       _generated = widget.generated ?? ChatDirectLinkSlug.generate(10).val;
-      // _editing = true;
+      _editing = widget.generated == null;
     }
 
     _state = TextFieldState(
@@ -109,7 +114,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
-        setState(() => _editing = false);
+        if (!widget.editOnly) {
+          setState(() => _editing = false);
+        }
 
         if (slug == null || slug == widget.link?.slug) {
           return;
@@ -139,6 +146,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       },
     );
 
+    if (widget.editOnly) {
+      _editing = true;
+    }
+
     super.initState();
   }
 
@@ -149,7 +160,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
 
-      if (oldWidget.link != widget.link) {
+      if (oldWidget.link != widget.link && !widget.editOnly) {
         _editing = widget.link == null;
       }
     }
@@ -355,12 +366,12 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       // ),
                     ],
                   ),
-                  textAlign: widget.onSubmit == null
+                  textAlign: widget.onSubmit == null || !widget.canDelete
                       ? TextAlign.center
                       : TextAlign.left,
                 ),
               ),
-              if (widget.onSubmit != null) ...[
+              if (widget.onSubmit != null && widget.canDelete) ...[
                 const SizedBox(width: 8),
                 Text.rich(
                   TextSpan(

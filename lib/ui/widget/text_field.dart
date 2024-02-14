@@ -282,9 +282,13 @@ class ReactiveTextField extends StatelessWidget {
                                           state.hasAllowance.value))
                                   ? AllowOverflow(
                                       key: const ValueKey('Approve'),
-                                      child: Text(
-                                        'btn_save'.l10n,
-                                        style: style.fonts.small.regular.danger,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 8),
+                                        child: Text(
+                                          'btn_save'.l10n,
+                                          style:
+                                              style.fonts.small.regular.danger,
+                                        ),
                                       ),
                                     )
                                   : (state.allowable &&

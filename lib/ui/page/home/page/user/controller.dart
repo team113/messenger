@@ -125,7 +125,7 @@ class UserController extends GetxController {
 
   final RxBool editing = RxBool(false);
   final TextFieldState name = TextFieldState(
-    approvable: true,
+    // approvable: true,
     onChanged: (s) {
       if (s.text.isNotEmpty) {
         try {

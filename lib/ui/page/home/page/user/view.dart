@@ -207,7 +207,7 @@ class UserView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
+                      duration: const Duration(milliseconds: 400),
                       child: title,
                     ),
                   ),
@@ -215,9 +215,41 @@ class UserView extends StatelessWidget {
                 ],
               ),
             ),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: Obx(() {
+            body: Obx(() {
+              final Widget child;
+
+              if (c.editing.value) {
+                child = ListView(
+                  children: [
+                    const SizedBox(height: 8),
+                    Block(
+                      children: [
+                        SelectionContainer.disabled(
+                          child: BigAvatarWidget.user(
+                            c.user,
+                            onUpload: c.editing.value ? () {} : null,
+                            onDelete: c.editing.value &&
+                                    c.user?.user.value.avatar != null
+                                ? () {}
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        SelectionContainer.disabled(
+                          child: ReactiveTextField(
+                            state: c.name,
+                            label: 'Name',
+                            hint: c.user!.user.value.name?.val ??
+                                c.user!.user.value.num.toString(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    _money(c, context),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              } else {
                 // final String? status = c.user?.user.value.getStatus();
                 final UserBio? status = c.user?.user.value.bio;
                 Widget? subtitle;
@@ -254,26 +286,33 @@ class UserView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      Obx(() {
-                        if (c.editing.value) {
-                          return SelectionContainer.disabled(
-                            child: ReactiveTextField(
-                              state: c.name,
-                              label: 'Name',
-                              hint: c.user!.user.value.name?.val ??
-                                  c.user!.user.value.num.toString(),
-                            ),
-                          );
-                        }
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                        child: Text(
+                          c.name.text,
+                          style: style.fonts.large.regular.onBackground,
+                        ),
+                      ),
+                      // Obx(() {
+                      //   if (c.editing.value) {
+                      //     return SelectionContainer.disabled(
+                      //       child: ReactiveTextField(
+                      //         state: c.name,
+                      //         label: 'Name',
+                      //         hint: c.user!.user.value.name?.val ??
+                      //             c.user!.user.value.num.toString(),
+                      //       ),
+                      //     );
+                      //   }
 
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: Text(
-                            c.name.text,
-                            style: style.fonts.large.regular.onBackground,
-                          ),
-                        );
-                      }),
+                      //   return Padding(
+                      //     padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      //     child: Text(
+                      //       c.name.text,
+                      //       style: style.fonts.large.regular.onBackground,
+                      //     ),
+                      //   );
+                      // }),
                       const SizedBox(height: 4),
                       Text(
                         c.user!.user.value.getStatus2()!,
@@ -332,99 +371,36 @@ class UserView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SelectionContainer.disabled(
-                    child: Stack(
-                      children: [
-                        Block(
-                          title:
-                              'Принимать оплату за входящие сообщения и входящие звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
-                          // title: 'label_get_paid_for_incoming_from'.l10nfmt({
-                          //   'user': c.user!.user.value.name?.val ??
-                          //       c.user!.user.value.num.toString(),
-                          // }),
-                          children: [_paid(c, context)],
-                        ),
-                        Positioned.fill(
-                          child: Obx(() {
-                            return IgnorePointer(
-                              ignoring: c.verified.value,
-                              child: Center(
-                                child: AnimatedContainer(
-                                  margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                                  duration: 200.milliseconds,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: c.verified.value
-                                        ? const Color(0x00000000)
-                                        : const Color(0x0A000000),
-                                  ),
-                                  constraints: context.isNarrow
-                                      ? null
-                                      : const BoxConstraints(maxWidth: 400),
-                                ),
-                              ),
-                            );
-                          }),
-                        ),
-                        Positioned.fill(
-                          child: Center(
-                            child: Obx(() {
-                              return AnimatedSwitcher(
-                                duration: 200.milliseconds,
-                                child: c.verified.value
-                                    ? const SizedBox()
-                                    : Container(
-                                        key: const Key('123'),
-                                        alignment: Alignment.bottomCenter,
-                                        padding: const EdgeInsets.fromLTRB(
-                                          32,
-                                          16,
-                                          32,
-                                          16,
-                                        ),
-                                        margin: const EdgeInsets.fromLTRB(
-                                          8,
-                                          4,
-                                          8,
-                                          4,
-                                        ),
-                                        constraints: context.isNarrow
-                                            ? null
-                                            : const BoxConstraints(
-                                                maxWidth: 400,
-                                              ),
-                                        child: Column(
-                                          children: [
-                                            const Spacer(),
-                                            _verification(context, c),
-                                          ],
-                                        ),
-                                      ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _money(c, context),
                   SelectionContainer.disabled(
                     child: Block(children: [_actions(c, context)]),
                   ),
                 ];
 
-                return SelectionArea(
-                  child: ScrollablePositionedList.builder(
-                    key: const Key('UserScrollable'),
-                    itemCount: blocks.length,
-                    itemBuilder: (_, i) => blocks[i],
-                    scrollController: c.scrollController,
-                    itemScrollController: c.itemScrollController,
-                    itemPositionsListener: c.positionsListener,
-                    initialScrollIndex: c.initialScrollIndex,
+                child = SelectionArea(
+                  key: const Key('SelectionArea'),
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: ScrollablePositionedList.builder(
+                      key: const Key('UserScrollable'),
+                      itemCount: blocks.length,
+                      itemBuilder: (_, i) => blocks[i],
+                      scrollController: c.scrollController,
+                      itemScrollController: c.itemScrollController,
+                      itemPositionsListener: c.positionsListener,
+                      initialScrollIndex: c.initialScrollIndex,
+                    ),
                   ),
                 );
-              }),
-            ),
+              }
+
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.ease,
+                switchOutCurve: Curves.ease,
+                child: child,
+              );
+            }),
           );
         });
       },
@@ -1000,6 +976,84 @@ class UserView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _money(UserController c, BuildContext context) {
+    return SelectionContainer.disabled(
+      child: Stack(
+        children: [
+          Block(
+            title:
+                'Принимать оплату за входящие сообщения и входящие звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
+            // title: 'label_get_paid_for_incoming_from'.l10nfmt({
+            //   'user': c.user!.user.value.name?.val ??
+            //       c.user!.user.value.num.toString(),
+            // }),
+            children: [_paid(c, context)],
+          ),
+          Positioned.fill(
+            child: Obx(() {
+              return IgnorePointer(
+                ignoring: c.verified.value,
+                child: Center(
+                  child: AnimatedContainer(
+                    margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    duration: 200.milliseconds,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: c.verified.value
+                          ? const Color(0x00000000)
+                          : const Color(0x0A000000),
+                    ),
+                    constraints: context.isNarrow
+                        ? null
+                        : const BoxConstraints(maxWidth: 400),
+                  ),
+                ),
+              );
+            }),
+          ),
+          Positioned.fill(
+            child: Center(
+              child: Obx(() {
+                return AnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: c.verified.value
+                      ? const SizedBox()
+                      : Container(
+                          key: const Key('123'),
+                          alignment: Alignment.bottomCenter,
+                          padding: const EdgeInsets.fromLTRB(
+                            32,
+                            16,
+                            32,
+                            16,
+                          ),
+                          margin: const EdgeInsets.fromLTRB(
+                            8,
+                            4,
+                            8,
+                            4,
+                          ),
+                          constraints: context.isNarrow
+                              ? null
+                              : const BoxConstraints(
+                                  maxWidth: 400,
+                                ),
+                          child: Column(
+                            children: [
+                              const Spacer(),
+                              _verification(context, c),
+                            ],
+                          ),
+                        ),
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }

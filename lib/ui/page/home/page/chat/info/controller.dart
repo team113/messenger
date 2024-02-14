@@ -141,10 +141,11 @@ class ChatInfoController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      approvable: true,
+      // approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) async {
+      onChanged: (s) async {
+        s.error.value = null;
+
         s.error.value = null;
         s.focus.unfocus();
         _nameTimer?.cancel();
