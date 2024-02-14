@@ -84,7 +84,7 @@ class MessageFieldView extends StatelessWidget {
   final bool canAttach;
 
   /// Callback, called when a [ChatItem] being a reply or edited is pressed.
-  final Future<void> Function(ChatItemId id)? onItemPressed;
+  final Future<void> Function(ChatItem item)? onItemPressed;
 
   /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
@@ -315,7 +315,7 @@ class MessageFieldView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: WidgetButton(
-                      onPressed: () => onItemPressed?.call(e.id),
+                      onPressed: () => onItemPressed?.call(e),
                       child: _buildPreview(
                         context,
                         e,
@@ -357,8 +357,7 @@ class MessageFieldView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: WidgetButton(
-                          onPressed: () =>
-                              onItemPressed?.call(c.edited.value!.id),
+                          onPressed: () => onItemPressed?.call(c.edited.value!),
                           child: _buildPreview(
                             context,
                             c.edited.value!,

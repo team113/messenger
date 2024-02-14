@@ -438,6 +438,12 @@ extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
       );
 }
 
+/// Extension adding models construction from [GetMessage$Query$ChatItem].
+extension GetMessageConversion on GetMessage$Query$ChatItem {
+  /// Constructs a new [HiveChatItem] from this [GetMessage$Query$ChatItem].
+  HiveChatItem toHive() => _chatItem(node, cursor);
+}
+
 /// Extension adding models construction from [ChatInfoQuoteMixin$Action].
 extension ChatInfoQuoteActionConversion on ChatInfoQuoteMixin$Action {
   /// Constructs a new [ChatInfo] from this [ChatInfoQuoteMixin$Action].

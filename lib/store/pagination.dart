@@ -118,7 +118,7 @@ class Pagination<T, C, K> {
   }
 
   /// Fetches the initial [Page] of [items].
-  Future<void> init(T? item) {
+  Future<void> init(K? key) {
     if (_disposed) {
       return Future.value();
     }
@@ -130,9 +130,9 @@ class Pagination<T, C, K> {
 
       try {
         final Page<T, C>? page =
-            await Backoff.run(() => provider.init(item, perPage), _cancelToken);
+            await Backoff.run(() => provider.init(key, perPage), _cancelToken);
         Log.debug(
-          'init(item: $item)... \n'
+          'init(key: $key)... \n'
               '\tFetched ${page?.edges.length} items\n'
               '\tstartCursor: ${page?.info.startCursor}\n'
               '\tendCursor: ${page?.info.endCursor}\n'
@@ -149,7 +149,7 @@ class Pagination<T, C, K> {
         endCursor = page?.info.endCursor;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.debug('init(item: $item)... done', '$runtimeType');
+        Log.debug('init(key: $key)... done', '$runtimeType');
       } catch (e) {
         if (e is! OperationCanceledException) {
           rethrow;
@@ -161,7 +161,7 @@ class Pagination<T, C, K> {
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  Future<void> around({T? item, C? cursor}) {
+  Future<void> around({K? key, C? cursor}) {
     if (_disposed) {
       return Future.value();
     }
@@ -173,15 +173,15 @@ class Pagination<T, C, K> {
         return;
       }
 
-      Log.debug('around(item: $item, cursor: $cursor)...', '$runtimeType');
+      Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
 
       try {
         final Page<T, C>? page = await Backoff.run(
-          () => provider.around(item, cursor, perPage),
+          () => provider.around(key, cursor, perPage),
           _cancelToken,
         );
         Log.debug(
-          'around(item: $item, cursor: $cursor)... \n'
+          'around(key: $key, cursor: $cursor)... \n'
               '\tFetched ${page?.edges.length} items\n'
               '\tstartCursor: ${page?.info.startCursor}\n'
               '\tendCursor: ${page?.info.endCursor}\n'
@@ -199,7 +199,7 @@ class Pagination<T, C, K> {
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
         Log.debug(
-          'around(item: $item, cursor: $cursor)... done',
+          'around(key: $key, cursor: $cursor)... done',
           '$runtimeType',
         );
       } catch (e) {
@@ -231,7 +231,7 @@ class Pagination<T, C, K> {
         if (items.isNotEmpty) {
           try {
             final Page<T, C>? page = await Backoff.run(
-              () => provider.after(items.last, endCursor, perPage),
+              () => provider.after(onKey(items.last), endCursor, perPage),
               _cancelToken,
             );
             Log.debug(
@@ -281,7 +281,7 @@ class Pagination<T, C, K> {
         if (items.isNotEmpty) {
           try {
             final Page<T, C>? page = await Backoff.run(
-              () => provider.before(items.first, startCursor, perPage),
+              () => provider.before(onKey(items.first), startCursor, perPage),
               _cancelToken,
             );
             Log.debug(
@@ -347,7 +347,7 @@ class Pagination<T, C, K> {
 
   /// Removes the item with the provided [key] from the [items] and [provider].
   Future<void> remove(K key) {
-    Log.debug('remove($K)', '$runtimeType');
+    Log.debug('remove($key)', '$runtimeType');
 
     if (_disposed) {
       return Future.value();
@@ -395,18 +395,18 @@ class Page<T, C> {
 /// Utility providing the [Page]s.
 abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
-  Future<Page<T, C>?> init(T? item, int count);
+  Future<Page<T, C>?> init(K? key, int count);
 
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count);
+  FutureOr<Page<T, C>?> around(K? key, C? cursor, int count);
 
   /// Fetches the [Page] after the provided [item] or [cursor].
-  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count);
+  FutureOr<Page<T, C>?> after(K? key, C? cursor, int count);
 
   /// Fetches the [Page] before the provided [item] or [cursor].
-  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count);
+  FutureOr<Page<T, C>?> before(K? key, C? cursor, int count);
 
   /// Adds the provided [item] to this [PageProvider].
   Future<void> put(T item, {int Function(T, T)? compare});
