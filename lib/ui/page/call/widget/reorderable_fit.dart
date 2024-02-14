@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -633,7 +634,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
-                      AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
+                      AudioUtils.once(AudioSource.asset('assets/audio/pop.mp3'));
                     },
                   ),
           ),

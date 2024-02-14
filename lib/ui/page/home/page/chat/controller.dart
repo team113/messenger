@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -421,7 +422,7 @@ class ChatController extends GetxController {
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
                 .then((_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3')))
+                    AudioSource.asset('assets/audio/message_sent.mp3')))
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -571,7 +572,7 @@ class ChatController extends GetxController {
       await _chatService
           .resendChatItem(item)
           .then((_) =>
-              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
+              AudioUtils.once(AudioSource.asset('assets/audio/message_sent.mp3')))
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});

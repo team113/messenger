@@ -22,6 +22,7 @@ import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -318,14 +319,14 @@ class CallWorker extends DisposableService {
       if (asset == _incoming) {
         final previous = _incomingAudio;
         _incomingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
+          AudioSource.asset('assets/audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
       } else {
         final previous = _outgoingAudio;
         _outgoingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
+          AudioSource.asset('assets/audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();

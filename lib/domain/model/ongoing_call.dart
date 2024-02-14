@@ -1057,13 +1057,13 @@ class OngoingCall {
 
             if (speaker) {
               device = output.firstWhereOrNull(
-                    (e) => e.speaker == AudioSpeakerKind.speaker,
-                  );
+                (e) => e.speaker == AudioSpeakerKind.speaker,
+              );
             }
 
             device ??= output.firstWhereOrNull(
-                  (e) => e.speaker == AudioSpeakerKind.earpiece,
-                );
+              (e) => e.speaker == AudioSpeakerKind.earpiece,
+            );
           }
 
           if (device != null) {
@@ -1114,8 +1114,8 @@ class OngoingCall {
     Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
     if (deviceId != outputDevice.value) {
-      await MediaUtils.mediaManager?.setOutputAudioId(deviceId);
       outputDevice.value = deviceId;
+      await MediaUtils.setOutputDevice(deviceId);
     }
   }
 
@@ -1543,7 +1543,7 @@ class OngoingCall {
         _ensureCorrectDevices();
 
         if (outputDevice.value != null) {
-          MediaUtils.mediaManager?.setOutputAudioId(outputDevice.value!);
+          MediaUtils.setOutputDevice(outputDevice.value!);
         }
       }
 

@@ -24,6 +24,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -206,7 +207,7 @@ class NotificationService extends DisposableService {
     // Other platforms don't require playing a sound explicitly, as the local or
     // push notification displayed plays it instead.
     if (PlatformUtils.isWeb || PlatformUtils.isWindows) {
-      AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+      AudioUtils.once(AudioSource.asset('assets/audio/notification.mp3'));
     }
 
     if (PlatformUtils.isWeb) {
@@ -460,7 +461,7 @@ class NotificationService extends DisposableService {
       // listens to `BroadcastChannel` fired from FCM Service Worker to play a
       // sound by ourselves.
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
-        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        AudioUtils.once(AudioSource.asset('assets/audio/notification.mp3'));
       });
 
       _token =

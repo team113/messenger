@@ -17,7 +17,11 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
+import 'package:audio_session/audio_session.dart';
+import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:mutex/mutex.dart';
 
 import 'log.dart';
 import 'platform_utils.dart';
@@ -32,6 +36,9 @@ MediaUtilsImpl MediaUtils = MediaUtilsImpl();
 /// Helper providing direct access to media related resources like media
 /// devices, media tracks, etc.
 class MediaUtilsImpl {
+  /// [Mutex] guarding synchronized output device updating.
+  final Mutex outputGuard = Mutex();
+
   /// [Jason] communicating with the media resources.
   Jason? _jason;
 
@@ -44,6 +51,12 @@ class MediaUtilsImpl {
 
   /// [StreamController] piping the [MediaDisplayDetails] changes.
   StreamController<List<MediaDisplayDetails>>? _displaysController;
+
+  /// ID of the currently used output device.
+  String? _outputDeviceId;
+
+  /// [Mutex] guarding synchronized access to the [_setOutputDevice].
+  final Mutex _mutex = Mutex();
 
   /// Returns the [Jason] instance of these [MediaUtils].
   Jason? get jason {
@@ -139,6 +152,52 @@ class MediaUtilsImpl {
         .where((e) => e.deviceId().isNotEmpty)
         .where((e) => kind == null || e.kind() == kind)
         .toList();
+  }
+
+  /// Sets device with [deviceId] as a currently used output device.
+  Future<void> setOutputDevice(String deviceId) async {
+    _outputDeviceId = deviceId;
+
+    await _setOutputDevice();
+  }
+
+  /// Invokes a [MediaManagerHandle.setOutputAudioId] method.
+  Future<void> _setOutputDevice() async {
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    await _mutex.protect(() async {
+      await outputGuard.protect(() async {
+        if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.allowBluetooth |
+                AVAudioSessionCategoryOptions.allowBluetoothA2dp |
+                AVAudioSessionCategoryOptions.allowAirPlay,
+            AVAudioSessionMode.voiceChat,
+          );
+        }
+
+        final String deviceId = _outputDeviceId!;
+
+        if (mediaManager != null) {
+          final CancelableOperation operation = CancelableOperation.fromFuture(
+            mediaManager!.setOutputAudioId(deviceId),
+          );
+
+          // Cancel the operation if it takes too long.
+          Timer timer = Timer(1.seconds, operation.cancel);
+
+          await operation.valueOrCancellation();
+          timer.cancel();
+        }
+
+        if (deviceId != _outputDeviceId) {
+          _setOutputDevice();
+        }
+      });
+    });
   }
 
   /// Returns the currently available [MediaDisplayDetails].

@@ -10,6 +10,7 @@ dependencies:
   all_sensors: ^0.4.2
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
+  audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
   callkeep: ^0.3.3
   collection: ^1.17.2
@@ -59,6 +60,7 @@ dependencies:
       url: https://github.com/krida2000/image_picker.git
   intl: ^0.17.0
   js: ^0.6.5
+  just_audio: ^0.9.36
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f

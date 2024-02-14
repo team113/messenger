@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
 import '/config.dart';
 import '/themes.dart';
@@ -120,9 +121,9 @@ class _PlayableAssetState extends State<PlayableAsset> {
   /// Plays the audio.
   void _playAudio() {
     if (widget.once) {
-      AudioUtils.once(AudioSource.asset('audio/${widget.asset}.mp3'));
+      AudioUtils.once(AudioSource.asset('assets/audio/${widget.asset}.mp3'));
     } else {
-      _audio = AudioUtils.play(AudioSource.asset('audio/${widget.asset}.mp3'));
+      _audio = AudioUtils.play(AudioSource.asset('assets/audio/${widget.asset}.mp3'));
       setState(() {});
     }
   }

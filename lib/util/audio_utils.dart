@@ -17,8 +17,11 @@
 
 import 'dart:async';
 
-import 'package:media_kit/media_kit.dart';
+import 'package:audio_session/audio_session.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:mutex/mutex.dart';
 
+import '/util/media_utils.dart';
 import 'log.dart';
 import 'platform_utils.dart';
 
@@ -30,17 +33,23 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
-  /// [Player] lazily initialized to play sounds [once].
-  Player? _player;
+  /// [AudioPlayer] lazily initialized to play sounds [once].
+  AudioPlayer? _player;
 
   /// [StreamController]s of [AudioSource]s added in [play].
   final Map<AudioSource, StreamController<void>> _players = {};
+
+  /// [AudioSpeakerKind] currently used for audio output.
+  AudioSpeakerKind? _speaker;
+
+  /// [Mutex] guarding synchronized access to the [setSpeaker].
+  final Mutex _mutex = Mutex();
 
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
     try {
-      _player ??= Player();
+      _player ??= AudioPlayer();
     } catch (e) {
       // If [Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
@@ -57,11 +66,12 @@ class AudioUtilsImpl {
   Future<void> once(AudioSource sound, {double? volume}) async {
     ensureInitialized();
 
-    await _player?.open(sound.media);
-
+    await _player?.setAudioSource(sound);
     if (volume != null) {
       await _player?.setVolume(volume);
     }
+
+    await _player?.play();
   }
 
   /// Plays the provided [music] looped with the specified [fade].
@@ -72,16 +82,15 @@ class AudioUtilsImpl {
     Duration fade = Duration.zero,
   }) {
     StreamController? controller = _players[music];
-    StreamSubscription? position;
 
     if (controller == null) {
-      Player? player;
+      AudioPlayer? player;
       Timer? timer;
 
       controller = StreamController.broadcast(
         onListen: () async {
           try {
-            player = Player();
+            player = AudioPlayer();
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -93,17 +102,9 @@ class AudioUtilsImpl {
             }
           }
 
-          await player?.open(music.media);
-
-          // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-          if (PlatformUtils.isWeb) {
-            position = player?.stream.completed.listen((e) async {
-              await player?.seek(Duration.zero);
-              await player?.play();
-            });
-          } else {
-            await player?.setPlaylistMode(PlaylistMode.loop);
-          }
+          await player?.setAudioSource(music);
+          await player?.setLoopMode(LoopMode.all);
+          await player?.play();
 
           if (fade != Duration.zero) {
             await player?.setVolume(0);
@@ -121,7 +122,6 @@ class AudioUtilsImpl {
         },
         onCancel: () async {
           _players.remove(music);
-          position?.cancel();
           timer?.cancel();
 
           Future<void>? dispose = player?.dispose();
@@ -135,90 +135,105 @@ class AudioUtilsImpl {
 
     return controller.stream.listen((_) {});
   }
+
+  /// Sets the [speaker] to use for audio output.
+  Future<void> setSpeaker(AudioSpeakerKind speaker) async {
+    _speaker = speaker;
+
+    await _setSpeaker();
+  }
+
+  /// Sets the [speaker] to use for audio output.
+  Future<void> _setSpeaker() async {
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    await _mutex.protect(() async {
+      await MediaUtils.outputGuard.protect(() async {
+        final AudioSpeakerKind speaker = _speaker!;
+
+        if (PlatformUtils.isIOS) {
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.allowBluetooth |
+                AVAudioSessionCategoryOptions.allowBluetoothA2dp |
+                AVAudioSessionCategoryOptions.allowAirPlay,
+            AVAudioSessionMode.voiceChat,
+          );
+
+          switch (speaker) {
+            case AudioSpeakerKind.headphones:
+              await AVAudioSession()
+                  .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
+              break;
+
+            case AudioSpeakerKind.earpiece:
+              await AVAudioSession()
+                  .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
+              break;
+
+            case AudioSpeakerKind.speaker:
+              await AVAudioSession()
+                  .overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
+              break;
+          }
+          return;
+        }
+
+        final session = await AudioSession.instance;
+
+        await session.configure(
+          const AudioSessionConfiguration(
+            androidAudioAttributes: AndroidAudioAttributes(
+              usage: AndroidAudioUsage.voiceCommunication,
+              flags: AndroidAudioFlags.none,
+              contentType: AndroidAudioContentType.speech,
+            ),
+          ),
+        );
+
+        switch (speaker) {
+          case AudioSpeakerKind.headphones:
+            await AndroidAudioManager()
+                .setMode(AndroidAudioHardwareMode.inCommunication);
+            await AndroidAudioManager().startBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(true);
+            break;
+
+          case AudioSpeakerKind.speaker:
+            await AndroidAudioManager().requestAudioFocus(
+              const AndroidAudioFocusRequest(
+                gainType: AndroidAudioFocusGainType.gain,
+                audioAttributes: AndroidAudioAttributes(
+                  contentType: AndroidAudioContentType.music,
+                  usage: AndroidAudioUsage.media,
+                ),
+              ),
+            );
+            await AndroidAudioManager()
+                .setMode(AndroidAudioHardwareMode.inCall);
+            await AndroidAudioManager().stopBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(false);
+            await AndroidAudioManager().setSpeakerphoneOn(true);
+            break;
+
+          case AudioSpeakerKind.earpiece:
+            await AndroidAudioManager()
+                .setMode(AndroidAudioHardwareMode.inCommunication);
+            await AndroidAudioManager().stopBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(false);
+            await AndroidAudioManager().setSpeakerphoneOn(false);
+            break;
+        }
+
+        if (speaker != _speaker) {
+          _setSpeaker();
+        }
+      });
+    });
+  }
 }
 
 /// Possible [AudioSource] kind.
 enum AudioSourceKind { asset, file, url }
-
-/// Source to play an audio stream from.
-abstract class AudioSource {
-  const AudioSource();
-
-  /// Constructs an [AudioSource] from the provided [asset].
-  factory AudioSource.asset(String asset) = AssetAudioSource;
-
-  /// Constructs an [AudioSource] from the provided [file].
-  factory AudioSource.file(String file) = FileAudioSource;
-
-  /// Constructs an [AudioSource] from the provided [url].
-  factory AudioSource.url(String url) = UrlAudioSource;
-
-  /// Returns a [AudioSourceKind] of this [AudioSource].
-  AudioSourceKind get kind;
-}
-
-/// [AudioSource] of the provided [asset].
-class AssetAudioSource extends AudioSource {
-  const AssetAudioSource(this.asset);
-
-  /// Path to an asset to play audio from.
-  final String asset;
-
-  @override
-  AudioSourceKind get kind => AudioSourceKind.asset;
-
-  @override
-  int get hashCode => asset.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is AssetAudioSource && other.asset == asset;
-}
-
-/// [AudioSource] of the provided [file].
-class FileAudioSource extends AudioSource {
-  const FileAudioSource(this.file);
-
-  /// Path to a file to play audio from.
-  final String file;
-
-  @override
-  AudioSourceKind get kind => AudioSourceKind.file;
-
-  @override
-  int get hashCode => file.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is FileAudioSource && other.file == file;
-}
-
-/// [AudioSource] of the provided [url].
-class UrlAudioSource extends AudioSource {
-  const UrlAudioSource(this.url);
-
-  /// URL to play audio from.
-  final String url;
-
-  @override
-  AudioSourceKind get kind => AudioSourceKind.url;
-
-  @override
-  int get hashCode => url.hashCode;
-
-  @override
-  bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
-}
-
-/// Extension adding conversion from an [AudioSource] to a [Media].
-extension on AudioSource {
-  /// Returns a [Media] corresponding to this [AudioSource].
-  Media get media => switch (kind) {
-        AudioSourceKind.asset => Media(
-            'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
-          ),
-        AudioSourceKind.file =>
-          Media('file:///${(this as FileAudioSource).file}'),
-        AudioSourceKind.url => Media((this as UrlAudioSource).url),
-      };
-}

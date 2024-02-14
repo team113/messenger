@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -49,6 +50,7 @@ import '/ui/page/call/participant/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -799,7 +801,7 @@ class CallController extends GetxController {
     _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
       if (b) {
         _reconnectAudio =
-            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
+            AudioUtils.play(AudioSource.asset('assets/audio/reconnect.mp3'));
       } else {
         _reconnectAudio?.cancel();
       }
@@ -1002,7 +1004,13 @@ class CallController extends GetxController {
           }
         }
 
-        await _currentCall.value.setOutputDevice(outputs[index].deviceId());
+        final MediaDeviceDetails output = outputs[index];
+
+        if (members.values.where((e) => e.isConnected.isTrue).length < 2) {
+          AudioUtils.setSpeaker(output.speaker);
+        }
+
+        await _currentCall.value.setOutputDevice(output.deviceId());
       }
     } on InvalidOutputAudioDeviceIdException catch (e) {
       MessagePopup.error(e);
