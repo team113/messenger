@@ -723,7 +723,7 @@ label_introduction_description1 =
 
          • you click the button "Sign out".
 
-     To save access to your account, please set a password, e-mail or phone number in the{" "}
+    To save access to your account, please set a password, e-mail or phone number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
 label_kb = {$amount} KB
@@ -796,7 +796,7 @@ label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
-label_one_time_account_created = Guest account created
+label_guest_account_created = Guest account created
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window

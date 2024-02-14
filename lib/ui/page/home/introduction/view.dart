@@ -52,7 +52,7 @@ class IntroductionView extends StatelessWidget {
   /// Initial [IntroductionViewStage] to display.
   final IntroductionViewStage initial;
 
-  /// Slug of the direct link joined by the user.
+  /// Slug of the direct link joined, if any.
   ///
   /// Required if [initial] is [IntroductionViewStage.link].
   final String? joinedLink;
@@ -111,7 +111,7 @@ class IntroductionView extends StatelessWidget {
 
             case IntroductionViewStage.oneTime:
               header = ModalPopupHeader(
-                text: 'label_one_time_account_created'.l10n,
+                text: 'label_guest_account_created'.l10n,
               );
 
               children = [

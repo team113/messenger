@@ -89,7 +89,7 @@ class HomeController extends GetxController {
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
-  /// Slug of the joined chat direct link.
+  /// Slug of the joined chat direct link, if any.
   final String? joinedLink;
 
   /// Returns user authentication status.

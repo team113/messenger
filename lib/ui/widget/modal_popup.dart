@@ -150,13 +150,19 @@ class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
     this.text,
+    this.header,
     this.onBack,
     this.onClose,
     this.close = true,
     this.dense = false,
   });
 
+  /// [Widget] to put as a title of this [ModalPopupHeader].
+  final Widget? header;
+
   /// Text to display as a title of this [ModalPopupHeader].
+  ///
+  /// Will be ignored if [header] is specified.
   final String? text;
 
   /// Callback, called when a back button is pressed.
@@ -164,11 +170,14 @@ class ModalPopupHeader extends StatelessWidget {
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
 
+  /// Callback, called when a close button is pressed.
   final void Function()? onClose;
 
   /// Indicator whether a close button should be displayed.
   final bool close;
 
+  /// Indicator whether indicators within this [ModalPopupHeader] should be
+  /// dense.
   final bool dense;
 
   @override
@@ -191,7 +200,19 @@ class ModalPopupHeader extends StatelessWidget {
               )
             else
               const SizedBox(width: 40),
-            if (text != null)
+            if (header != null)
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    10,
+                    context.isMobile ? 8 : 22,
+                    10,
+                    8,
+                  ),
+                  child: header,
+                ),
+              )
+            else if (text != null)
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(

@@ -658,14 +658,15 @@ class WebUtils {
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
 
-  static Future<void> launchScheme(String link) async {
+  /// Composes and launches a URI scheme with the given [slug].
+  static Future<void> launchScheme(String slug) async {
     if (PlatformUtils.isIOS && WebUtils.isSafari) {
       // Mobile Safari already displays an open app banner on the top.
       // Opening the scheme will always fail with a popup, which is bad UX.
       return;
     }
 
-    html.window.location.replace('gapopa://open$link');
+    html.window.location.replace('gapopa://open$slug');
   }
 }
 
