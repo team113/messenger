@@ -28,18 +28,26 @@ import '/util/obs/obs.dart';
 import 'pagination.dart';
 
 /// Implementation of a [Paginated].
-class PaginatedImpl<K extends Comparable, T, C> extends Paginated<K, T> {
+class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
   PaginatedImpl({
     this.pagination,
     this.initial = const [],
+    this.initialKey,
+    this.initialCursor,
     super.onDispose,
   });
 
   /// Pagination fetching [items].
-  final Pagination<T, C, K>? pagination;
+  final Pagination<V, C, K>? pagination;
 
   /// Initial [T] items to put inside the [items].
   final List<FutureOr<Map<K, T>>> initial;
+
+  /// [ChatItemKey] to fetch [items] around.
+  final K? initialKey;
+
+  /// [ChatItemsCursor] to fetch [items] around.
+  final C? initialCursor;
 
   /// [Future]s loading the initial [items].
   final List<Future> _futures = [];
@@ -85,7 +93,9 @@ class PaginatedImpl<K extends Comparable, T, C> extends Paginated<K, T> {
           }
         });
 
-        _futures.add(pagination!.around());
+        _futures.add(
+          pagination!.around(key: initialKey, cursor: initialCursor),
+        );
       }
 
       if (_futures.isEmpty) {
@@ -162,47 +172,21 @@ class PaginatedImpl<K extends Comparable, T, C> extends Paginated<K, T> {
 }
 
 /// Implementation of a [Paginated] for [ChatItem]s.
-class MessagesPaginated extends Paginated<ChatItemKey, Rx<ChatItem>> {
+class MessagesPaginated extends PaginatedImpl<ChatItemKey, Rx<ChatItem>,
+    HiveChatItem, ChatItemsCursor> {
   MessagesPaginated({
-    required this.pagination,
-    this.initialKey,
-    this.initialCursor,
+    required super.pagination,
+    super.initialKey,
+    super.initialCursor,
     super.onDispose,
   });
-
-  /// Pagination fetching [items].
-  final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination;
-
-  /// [ChatItemKey] to fetch [items] around.
-  final ChatItemKey? initialKey;
-
-  /// [ChatItemsCursor] to fetch [items] around.
-  final ChatItemsCursor? initialCursor;
-
-  /// [Future]s loading the initial [items].
-  final List<Future> _futures = [];
-
-  /// [StreamSubscription] to the [Pagination.changes].
-  StreamSubscription? _paginationSubscription;
-
-  @override
-  RxBool get hasNext => pagination.hasNext;
-
-  @override
-  RxBool get hasPrevious => pagination.hasPrevious;
-
-  @override
-  RxBool get nextLoading => pagination.nextLoading;
-
-  @override
-  RxBool get previousLoading => pagination.previousLoading;
 
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty) {
-      _paginationSubscription = pagination.changes.listen((event) {
+      _paginationSubscription = pagination!.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
@@ -220,7 +204,7 @@ class MessagesPaginated extends Paginated<ChatItemKey, Rx<ChatItem>> {
         }
       });
 
-      _futures.add(pagination.around(key: initialKey, cursor: initialCursor));
+      _futures.add(pagination!.around(key: initialKey, cursor: initialCursor));
 
       await Future.wait(_futures);
       status.value = RxStatus.success();
@@ -230,20 +214,11 @@ class MessagesPaginated extends Paginated<ChatItemKey, Rx<ChatItem>> {
   }
 
   @override
-  void dispose() {
-    Log.debug('dispose()', '$runtimeType');
-
-    pagination.dispose();
-    _paginationSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
     if (nextLoading.isFalse) {
-      await pagination.next();
+      await pagination?.next();
     }
   }
 
@@ -252,7 +227,7 @@ class MessagesPaginated extends Paginated<ChatItemKey, Rx<ChatItem>> {
     Log.debug('previous()', '$runtimeType');
 
     if (previousLoading.isFalse) {
-      await pagination.previous();
+      await pagination?.previous();
     }
   }
 }

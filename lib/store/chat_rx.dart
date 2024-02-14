@@ -761,7 +761,7 @@ class HiveRxChat extends RxChat {
     Log.debug('put($item)', '$runtimeType($id)');
     await _pagination.put(item, ignoreBounds: ignoreBounds);
     for (var e in _fragments) {
-      await e.pagination.put(item, ignoreBounds: ignoreBounds);
+      await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
   }
 
@@ -778,7 +778,7 @@ class HiveRxChat extends RxChat {
     if (key != null) {
       _pagination.remove(key);
       for (var e in _fragments) {
-        e.pagination.remove(key);
+        e.pagination?.remove(key);
       }
 
       final HiveChat? chatEntity = await _chatLocal.get(id);
@@ -813,9 +813,9 @@ class HiveRxChat extends RxChat {
     if (key != null) {
       item = _pagination.items[key];
       item ??= _fragments
-          .firstWhereOrNull((e) => e.pagination.items[key] != null)
+          .firstWhereOrNull((e) => e.pagination?.items[key] != null)
           ?.pagination
-          .items[key];
+          ?.items[key];
       item ??= await _local.get(key);
     }
 

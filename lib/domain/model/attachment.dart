@@ -117,13 +117,13 @@ class FileAttachment extends Attachment {
 
   /// Initializes this [FileAttachment].
   Future<void> init() async {
+    if (_initialized) {
+      return;
+    }
+
+    _initialized = true;
+
     if (!PlatformUtils.isWeb) {
-      if (_initialized) {
-        return;
-      }
-
-      _initialized = true;
-
       await CacheWorker.instance.checkDownloaded(
         filename: filename,
         checksum: original.checksum,

@@ -1044,14 +1044,16 @@ class ChatController extends GetxController {
         }
       } finally {
         SchedulerBinding.instance.addPostFrameCallback((_) {
-          // Stop the animation if any.
+          // Stop the animation, if any.
           listController.jumpTo(listController.offset);
-          // Ensures [FlutterListView] has correct index and offset.
+
+          // Ensure [FlutterListView] has correct index and offset.
           listController.sliverController.jumpToIndex(
             initIndex,
             offset: initOffset,
             offsetBasedOnBottom: offsetBasedOnBottom,
           );
+
           _ignorePositionChanges = false;
 
           elements.remove(_topLoader?.id);
@@ -1509,6 +1511,7 @@ class ChatController extends GetxController {
 
     final ChatItemId itemId = (reply?.original ?? forward?.original ?? item).id;
 
+    // If the [itemId] is within [RxChat.messages], then [switchToMessages].
     if (chat!.messages.any((e) => e.value.id == itemId)) {
       switchToMessages();
     } else {
