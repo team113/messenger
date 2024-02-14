@@ -54,7 +54,7 @@ class IntroductionView extends StatelessWidget {
 
   /// Slug of the direct link joined, if any.
   ///
-  /// Required if [initial] is [IntroductionViewStage.link].
+  /// Required if [initial] stage is [IntroductionViewStage.link].
   final String? joinedLink;
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
@@ -66,7 +66,6 @@ class IntroductionView extends StatelessWidget {
 
     return ModalPopup.show(
       context: context,
-      // TODO: иначе?
       background: initial == IntroductionViewStage.link
           ? style.colors.background
           : null,
@@ -164,7 +163,7 @@ class IntroductionView extends StatelessWidget {
                   height: 46,
                   leading: Transform.translate(
                     offset: const Offset(4, 0),
-                    child: const SvgIcon(SvgIcons.oneTime),
+                    child: const SvgIcon(SvgIcons.guest),
                   ),
                   onPressed: Navigator.of(context).pop,
                   child: Text('btn_guest'.l10n),

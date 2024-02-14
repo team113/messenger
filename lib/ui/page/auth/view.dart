@@ -121,7 +121,7 @@ class AuthView extends StatelessWidget {
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
-              child: const SvgIcon(SvgIcons.oneTime),
+              child: const SvgIcon(SvgIcons.guest),
             ),
             onPressed: c.register,
           ),
