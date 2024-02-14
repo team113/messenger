@@ -1054,6 +1054,12 @@ class ChatRepository extends DisposableInterface
     );
   }
 
+  /// Fetches the [HiveChatItem] with the provided [id].
+  Future<HiveChatItem?> message(ChatItemId id) async {
+    Log.debug('message($id)', '$runtimeType');
+    return (await _graphQlProvider.chatItem(id)).chatItem?.toHive();
+  }
+
   /// Fetches the [Attachment]s of the provided [item].
   Future<List<Attachment>> attachments(HiveChatItem item) async {
     Log.debug('attachments($item)', '$runtimeType');
@@ -1325,7 +1331,7 @@ class ChatRepository extends DisposableInterface
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
-        node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
+        node.repliesTo?.changed.map((e) => e.toHive()).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
@@ -1823,7 +1829,7 @@ class ChatRepository extends DisposableInterface
           getCursor: (e) => e?.favoriteCursor,
           getKey: (e) => e.value.id,
           orderBy: (_) => _favoriteLocal.values,
-          isLast: (_) => true,
+          isLast: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           isFirst: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,

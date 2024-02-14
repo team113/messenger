@@ -40,6 +40,7 @@ class ParticipantView extends StatelessWidget {
     super.key,
     required this.call,
     required this.duration,
+    this.initial = ParticipantsFlowStage.participants,
   });
 
   /// [OngoingCall] this modal is bound to.
@@ -48,11 +49,15 @@ class ParticipantView extends StatelessWidget {
   /// Duration of the [call].
   final Rx<Duration> duration;
 
+  /// Initial [ParticipantsFlowStage] of this [ParticipantView].
+  final ParticipantsFlowStage initial;
+
   /// Displays a [ParticipantView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Rx<OngoingCall> call,
     required Rx<Duration> duration,
+    ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
   }) {
     final style = Theme.of(context).style;
 
@@ -60,7 +65,7 @@ class ParticipantView extends StatelessWidget {
       context: context,
       background: style.colors.background,
       mobilePadding: const EdgeInsets.only(bottom: 16),
-      child: ParticipantView(call: call, duration: duration),
+      child: ParticipantView(call: call, duration: duration, initial: initial),
     );
   }
 
@@ -74,6 +79,7 @@ class ParticipantView extends StatelessWidget {
         Get.find(),
         Get.find(),
         pop: context.popModal,
+        initial: initial,
       ),
       builder: (ParticipantController c) {
         return Obx(() {
@@ -93,8 +99,9 @@ class ParticipantView extends StatelessWidget {
                     SearchCategory.user,
                   ],
                   title: 'label_add_participants'.l10n,
-                  onBack: () =>
-                      c.stage.value = ParticipantsFlowStage.participants,
+                  onBack: initial == ParticipantsFlowStage.participants
+                      ? () => c.stage.value = ParticipantsFlowStage.participants
+                      : null,
                   submit: 'btn_add'.l10n,
                   onSubmit: c.addMembers,
                   enabled: c.status.value.isEmpty,

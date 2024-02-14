@@ -45,6 +45,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
+import '/ui/page/call/participant/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -53,7 +54,6 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
-import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
 import 'widget/dock.dart';
@@ -401,9 +401,7 @@ class CallController extends GetxController {
   CallMember get me => _currentCall.value.me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
-  bool get outgoing =>
-      _calls.me == _currentCall.value.caller?.id ||
-      _currentCall.value.caller == null;
+  bool get outgoing => _currentCall.value.outgoing;
 
   /// Indicates whether the current [OngoingCall] has started or not.
   bool get started => _currentCall.value.conversationStartedAt != null;
@@ -547,7 +545,7 @@ class CallController extends GetxController {
   void onInit() {
     super.onInit();
 
-    _currentCall.value.init();
+    _currentCall.value.init(getChat: _chatService.get);
 
     final Size size = router.context!.mediaQuerySize;
 
@@ -1250,6 +1248,9 @@ class CallController extends GetxController {
       context,
       call: _currentCall,
       duration: duration,
+      initial: isGroup
+          ? ParticipantsFlowStage.participants
+          : ParticipantsFlowStage.search,
     );
   }
 

@@ -179,7 +179,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   ),
                                 );
                               } else {
-                                child = const SizedBox();
+                                child = CallCoverWidget(
+                                  null,
+                                  chat: c.chat.value,
+                                );
                               }
                             }
                           }
@@ -212,25 +215,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 )),
           ],
         ),
-
-        // Dim the primary view in a non-active call.
-        Obx(() {
-          final Widget child;
-
-          if (c.state.value == OngoingCallState.active) {
-            child = const SizedBox();
-          } else {
-            child = IgnorePointer(
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: style.colors.onBackgroundOpacity40,
-              ),
-            );
-          }
-
-          return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
-        }),
 
         // Reconnection indicator.
         Obx(() {
@@ -361,11 +345,13 @@ Widget desktopCall(CallController c, BuildContext context) {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: 11),
-                AcceptAudioButton(c, highlight: !c.withVideo).build(),
+                AcceptAudioButton(c, highlight: !c.withVideo)
+                    .build(hinted: false),
                 const SizedBox(width: 24),
-                AcceptVideoButton(c, highlight: c.withVideo).build(),
+                AcceptVideoButton(c, highlight: c.withVideo)
+                    .build(hinted: false),
                 const SizedBox(width: 24),
-                DeclineButton(c).build(),
+                DeclineButton(c).build(hinted: false),
                 const SizedBox(width: 11),
               ],
             );
@@ -527,21 +513,6 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       List<Widget> ui = [
-        IgnorePointer(
-          child: Obx(() {
-            bool preferTitle = c.state.value != OngoingCallState.active;
-            return SafeAnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: preferTitle &&
-                      c.primary
-                          .where((e) => e.video.value?.renderer.value != null)
-                          .isNotEmpty
-                  ? Container(color: style.colors.onBackgroundOpacity27)
-                  : null,
-            );
-          }),
-        ),
-
         Obx(() {
           bool preferTitle = c.state.value != OngoingCallState.active;
           return GestureDetector(
@@ -872,8 +843,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                       )
                     ],
                   ),
-                  child: Obx(
-                    () => TitleBar(
+                  child: Obx(() {
+                    return TitleBar(
                       title: 'label_call_title'.l10nfmt(c.titleArguments),
                       chat: c.chat.value,
                       fullscreen: c.fullscreen.value,
@@ -882,8 +853,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                       onPrimary: c.layoutAsPrimary,
                       onFloating: () => c.layoutAsSecondary(floating: true),
                       onSecondary: () => c.layoutAsSecondary(floating: false),
-                    ),
-                  ),
+                    );
+                  }),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),
