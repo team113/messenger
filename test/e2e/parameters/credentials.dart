@@ -37,6 +37,7 @@ class CredentialsParameter extends CustomParameter<TestCredential> {
             switch (c) {
               case 'direct link':
                 return TestCredential.directLink;
+
               default:
                 return TestCredential.values.firstWhere((e) => e.name == c);
             }

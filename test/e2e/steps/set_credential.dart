@@ -15,8 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
 import '../parameters/credentials.dart';
@@ -87,7 +89,7 @@ Future<void> _setCredentialTo(
       break;
 
     case TestCredential.directLink:
-      final slug = ChatDirectLinkSlug('direct_link_${user.userId}');
+      final slug = ChatDirectLinkSlug('direct_link_${user.userNum.val}');
       await provider.createUserDirectLink(slug);
       break;
 
