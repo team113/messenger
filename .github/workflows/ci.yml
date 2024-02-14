@@ -966,11 +966,11 @@ jobs:
 
       - name: Login to Kubernetes cluster
       - run: |
-        set -ex
+          set -ex
 
-        kubectl config set-cluster ${{ secrets.K8S_CLUSTER }} --server=${{ secrets.K8S_API }} --insecure-skip-tls-verify=true
-        kubectl config set-credentials ${{ secrets.K8S_USER }} --token ${{ secrets.K8S_TOKEN }}
-        kubectl config set-context ${{ secrets.K8S_CONTEXT }} --namespace=${{ secrets.K8S_NAMESPACE }} --cluster=${{ secrets.K8S_CLUSTER }} --user=${{ secrets.K8S_USER }}
+          kubectl config set-cluster ${{ secrets.K8S_CLUSTER }} --server=${{ secrets.K8S_API }} --insecure-skip-tls-verify=true
+          kubectl config set-credentials ${{ secrets.K8S_USER }} --token ${{ secrets.K8S_TOKEN }}
+          kubectl config set-context ${{ secrets.K8S_CONTEXT }} --namespace=${{ secrets.K8S_NAMESPACE }} --cluster=${{ secrets.K8S_CLUSTER }} --user=${{ secrets.K8S_USER }}
 
       - name: Prepare Helm values
         run: echo ${{ secrets.K8S_VALUES }} >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
