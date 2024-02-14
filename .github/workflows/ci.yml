@@ -974,7 +974,7 @@ jobs:
           kubectl config set-context ${{ secrets.K8S_CONTEXT }} --namespace=${{ secrets.K8S_NAMESPACE }} --cluster=${{ secrets.K8S_CLUSTER }} --user=${{ secrets.K8S_USER }}
 
       - name: Prepare Helm values
-        run: echo ${{ secrets.K8S_VALUES }} >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+        run: echo "${{ secrets.K8S_VALUES }}" >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
 
       - name: Deploy Helm release to Kubernetes cluster
         run: make helm.up cluster=${{ secrets.K8S_CLUSTER }}
