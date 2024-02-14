@@ -135,7 +135,7 @@ class ChatInfoController extends GetxController {
   Rx<Uint8List?> get background => _settingsRepo.background;
 
   void _scrollListener() {
-    displayName.value = scrollController.position.pixels >= 365;
+    displayName.value = scrollController.position.pixels >= 250; //>= 365;
   }
 
   @override

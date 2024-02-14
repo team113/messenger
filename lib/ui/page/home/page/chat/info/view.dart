@@ -188,19 +188,16 @@ class ChatInfoView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(
-              title: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        child: title,
-                      ),
+              title: Row(
+                children: [
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: title,
                     ),
-                    editButton,
-                  ],
-                ),
+                  ),
+                  editButton,
+                ],
               ),
             ),
             body: Scrollbar(
