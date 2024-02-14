@@ -54,4 +54,4 @@ Feature: Chats searching
 
     When I tap `SearchButton` button
     And I fill `SearchField` field with Bob's direct link
-    Then I see user Bob in search results
+    Then I see chat with Bob in search results

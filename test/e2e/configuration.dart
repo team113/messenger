@@ -216,6 +216,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatMessage,
         seeChatMessages,
         seeChatSelection,
+        seeChatWithUserInSearchResults,
         seeContactAsDismissed,
         seeContactAsFavorite,
         seeContactPosition,

@@ -101,6 +101,36 @@ final StepDefinitionGeneric seeChatInSearchResults =
   },
 );
 
+/// Waits until the [Chat]-dialog with provided [User] is found and displayed in
+/// the ongoing search results.
+///
+/// Examples:
+/// - Then I see chat with Bob in search results
+final StepDefinitionGeneric seeChatWithUserInSearchResults =
+    then1<TestUser, CustomWorld>(
+  'I see chat with {user} in search results',
+  (TestUser user, context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+
+        final ChatId? chatId = context.world.sessions[user.name]?.dialog;
+        if (chatId != null) {
+          return context.world.appDriver.isPresent(
+            context.world.appDriver.findBy(
+              'SearchChat_$chatId',
+              FindType.key,
+            ),
+          );
+        }
+
+        return false;
+      },
+      timeout: const Duration(seconds: 30),
+    );
+  },
+);
+
 /// Waits until the monolog is found and displayed in the ongoing search
 /// results.
 final StepDefinitionGeneric seeMonologInSearchResults = then<CustomWorld>(
