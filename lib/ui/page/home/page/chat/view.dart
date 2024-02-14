@@ -571,7 +571,7 @@ class ChatView extends StatelessWidget {
                                   .elementAt(i) is DateTimeElement,
                               initIndex: c.initIndex,
                               initOffset: c.initOffset,
-                              initOffsetBasedOnBottom: false,
+                              initOffsetBasedOnBottom: true,
                               disableCacheItems: kDebugMode ? true : false,
                             ),
                           );
@@ -820,8 +820,8 @@ class ChatView extends StatelessWidget {
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlightIndex.value == i || c.selected.contains(element),
+              highlight: c.highlighted.value == element.id ||
+                  c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
                 context,
@@ -862,7 +862,7 @@ class ChatView extends StatelessWidget {
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(q.original!.id);
+                      await c.animateTo(e.value, reply: q);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -898,8 +898,8 @@ class ChatView extends StatelessWidget {
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlightIndex.value == i || c.selected.contains(element),
+              highlight: c.highlighted.value == element.id ||
+                  c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
                 context,
@@ -982,14 +982,14 @@ class ChatView extends StatelessWidget {
                   },
                   onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
-                  onForwardedTap: (quote) {
-                    if (quote.original != null) {
-                      if (quote.original!.chatId == c.id) {
-                        c.animateTo(quote.original!.id);
+                  onForwardedTap: (item) {
+                    if (item.quote.original != null) {
+                      if (item.quote.original!.chatId == c.id) {
+                        c.animateTo(item, forward: item.quote);
                       } else {
                         router.chat(
-                          quote.original!.chatId,
-                          itemId: quote.original!.id,
+                          item.quote.original!.chatId,
+                          itemId: item.quote.original!.id,
                           push: true,
                         );
                       }
@@ -1388,7 +1388,7 @@ class ChatView extends StatelessWidget {
           key: const Key('EditField'),
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-          onItemPressed: (id) => c.animateTo(id),
+          onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         );
       }
 
@@ -1396,7 +1396,7 @@ class ChatView extends StatelessWidget {
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-        onItemPressed: (id) => c.animateTo(id),
+        onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         canForward: true,
       );
     });

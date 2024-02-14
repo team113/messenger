@@ -45,7 +45,7 @@ Feature: Messages selection
 
     And I tap on "Forwards" chat
     And I tap `SendForward` button
-    And I am in "Forwards" chat
+    And I am in "Forwards" group
     Then I wait until status of "01" message is read
     And I wait until status of "02" message is read
     And I wait until status of "03" message is read

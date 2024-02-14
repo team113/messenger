@@ -213,10 +213,11 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                   child: Text(
                     widget.text!,
                     textAlign: TextAlign.center,
-                    style: (widget.minified
-                            ? style.fonts.smaller.regular.onPrimary
-                            : style.fonts.small.regular.onPrimary)
-                        .copyWith(shadows: shadows),
+                    style: widget.minified
+                        ? style.fonts.smaller.regular.onPrimary
+                        : style.fonts.small.regular.onPrimary.copyWith(
+                            shadows: widget.withBlur ? shadows : null,
+                          ),
                     maxLines: 2,
                   ),
                 ),
