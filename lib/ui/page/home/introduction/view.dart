@@ -227,15 +227,15 @@ class IntroductionView extends StatelessWidget {
                         ),
                       ],
                       child: Text(
-                        'Messenger by Gapopa',
+                        'label_messenger_by_gapopa'.l10n,
                         style: style.fonts.normal.regular.secondary,
                       ),
                     ),
                   ),
                 ];
               } else {
-                header = const ModalPopupHeader(
-                  text: 'Messenger by Gapopa',
+                header = ModalPopupHeader(
+                  text: 'label_messenger_by_gapopa'.l10n,
                   dense: false,
                 );
                 children = [

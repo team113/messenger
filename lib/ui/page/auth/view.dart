@@ -69,7 +69,7 @@ class AuthView extends StatelessWidget {
         // flickering.
         List<Widget> header = [
           Text(
-            'Messenger',
+            'label_messenger'.l10n,
             style: style.fonts.largest.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
@@ -77,7 +77,7 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'by Gapopa',
+            'label_by_gapopa'.l10n,
             style: style.fonts.large.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,

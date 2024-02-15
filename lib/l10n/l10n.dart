@@ -74,8 +74,17 @@ class L10n {
     if (languages.contains(lang)) {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
+
+      // Localized assets loaded from the disk in `.ftl` format.
+      final String source =
+          await rootBundle.loadString('assets/l10n/$lang.ftl');
+      // Non-localized in-memory assets in `.ftl` format.
+      final String inMemory =
+          _nonLocalized.entries.map((e) => '${e.key} = ${e.value}').join('\n');
+
       _bundle = FluentBundle(lang.toString())
-        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'));
+        ..addMessages(source)
+        ..addMessages(inMemory);
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -274,3 +283,13 @@ extension L10nDurationExtension on Duration {
     return result;
   }
 }
+
+/// In-memory map for non-localized assets.
+///
+/// Entries of this map will be converted to ".ftl" format as
+/// '`key` = `value`'.
+const Map<String, String> _nonLocalized = {
+  'label_by_gapopa': 'by Gapopa',
+  'label_messenger_by_gapopa': 'Messenger by Gapopa',
+  'label_messenger': 'Messenger',
+};
