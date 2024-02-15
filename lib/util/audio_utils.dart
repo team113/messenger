@@ -147,11 +147,7 @@ class AudioUtilsImpl {
           }
 
           if (fade != Duration.zero) {
-            if (_mobile) {
-              await jaPlayer?.setVolume(0);
-            } else {
-              await player?.setVolume(0);
-            }
+            await (jaPlayer?.setVolume ?? player?.setVolume)?.call(0);
 
             timer = Timer.periodic(
               Duration(microseconds: fade.inMicroseconds ~/ 10),
@@ -159,11 +155,8 @@ class AudioUtilsImpl {
                 if (timer.tick > 9) {
                   timer.cancel();
                 } else {
-                  if (_mobile) {
-                    await jaPlayer?.setVolume(100 * (timer.tick + 1) / 10);
-                  } else {
-                    await player?.setVolume(100 * (timer.tick + 1) / 10);
-                  }
+                  await (jaPlayer?.setVolume ?? player?.setVolume)
+                      ?.call(100 * (timer.tick + 1) / 10);
                 }
               },
             );
