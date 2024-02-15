@@ -67,12 +67,6 @@ class HomeController extends GetxController {
   /// Reactive [MyUser.unreadChatsCount] value.
   final RxInt unreadChats = RxInt(0);
 
-  /// [Timer] for discarding any horizontal movement in a [PageView] when
-  /// non-`null`.
-  ///
-  /// Indicates currently ongoing vertical scroll of a view.
-  final Rx<Timer?> verticalScrollTimer = Rx(null);
-
   /// [GlobalKey] of an [AvatarWidget] in the navigation bar.
   ///
   /// Used to position a status changing [Selector] properly.

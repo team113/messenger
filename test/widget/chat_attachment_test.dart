@@ -76,16 +76,19 @@ import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
+  AudioUtils = AudioUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_attachment_widget');
   Config.files = 'test';
@@ -253,6 +256,10 @@ void main() async {
           }
         }
       })));
+
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
 
   when(
     graphQlProvider.postChatMessage(
@@ -602,5 +609,10 @@ void main() async {
     expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
+
+    for (int i = 0; i < 25; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

@@ -32,34 +32,51 @@ export 'view.dart';
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
   MicrophoneSwitchController(this._settingsRepository, {String? mic})
-      : mic = RxnString(mic);
+      : _mic = mic ?? _settingsRepository.mediaSettings.value?.audioDevice;
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// ID of the initially selected microphone device.
-  RxnString mic;
+  /// List of [DeviceDetails] of all the available devices.
+  final RxList<DeviceDetails> devices = RxList([]);
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+  /// Currently selected [DeviceDetails].
+  final Rx<DeviceDetails?> selected = Rx(null);
 
   /// Error message to display, if any.
   final RxnString error = RxnString();
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// ID of the initially selected microphone device.
+  String? _mic;
+
+  /// [Worker] reacting on the [MediaSettings] changes updating the [selected].
+  Worker? _worker;
+
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) => devices.value = e.audio().toList(),
+      (e) {
+        devices.value = e.audio().toList();
+        selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
+      },
     );
+
+    _worker = ever(_settingsRepository.mediaSettings, (e) {
+      if (e != null) {
+        _mic = e.audioDevice;
+        selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
+      }
+    });
 
     try {
       await WebUtils.microphonePermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+      selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {
@@ -73,11 +90,12 @@ class MicrophoneSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _worker?.dispose();
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default microphone device.
-  Future<void> setAudioDevice(String id) async {
-    await _settingsRepository.setAudioDevice(id);
+  /// Sets the provided [device] as a used by default microphone device.
+  Future<void> setAudioDevice(DeviceDetails device) async {
+    await _settingsRepository.setAudioDevice(device.id());
   }
 }

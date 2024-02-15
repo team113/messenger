@@ -27,7 +27,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
@@ -84,11 +84,10 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<SearchResult<UserId, RxUser>?> usersSearch = Rx(null);
+  final Rx<Paginated<UserId, RxUser>?> usersSearch = Rx(null);
 
   /// [ChatContact]s search results.
-  final Rx<SearchResult<ChatContactId, RxChatContact>?> contactsSearch =
-      Rx(null);
+  final Rx<Paginated<ChatContactId, RxChatContact>?> contactsSearch = Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -136,6 +135,12 @@ class SearchController extends GetxController {
 
   /// Worker to react on the [contactsSearch] status changes.
   Worker? _contactsSearchWorker;
+
+  /// Subscriptions to the [usersSearch] updates.
+  StreamSubscription? _usersSearchSubscription;
+
+  /// Subscriptions to the [contactsSearch] updates.
+  StreamSubscription? _contactsSearchSubscription;
 
   /// Worker to react on [query] changes.
   Worker? _searchWorker;
@@ -195,9 +200,9 @@ class SearchController extends GetxController {
     _searchDebounce = debounce(query, (q) => _search(q.trim()));
     _searchWorker = ever(query, (String q) {
       if (q.length < 2) {
-        usersSearch.value?.dispose();
+        _usersSearchSubscription?.cancel();
         usersSearch.value = null;
-        contactsSearch.value?.dispose();
+        _contactsSearchSubscription?.cancel();
         contactsSearch.value = null;
         users.clear();
         contacts.clear();
@@ -220,8 +225,6 @@ class SearchController extends GetxController {
   void onClose() {
     scrollController.removeListener(_updateScrollPosition);
     _nextInterval?.dispose();
-    usersSearch.value?.dispose();
-    contactsSearch.value?.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _usersSearchWorker?.dispose();
@@ -229,6 +232,8 @@ class SearchController extends GetxController {
     _ensureScrollableTimer?.cancel();
     _contactsSearchWorker?.dispose();
     _contactsSearchWorker = null;
+    _usersSearchSubscription?.cancel();
+    _contactsSearchSubscription?.cancel();
     super.onClose();
   }
 
@@ -317,13 +322,13 @@ class SearchController extends GetxController {
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
     if (contactsSearch.value != null) {
-      contactsSearch.value?.dispose();
+      _contactsSearchSubscription?.cancel();
       contactsSearch.value = null;
       _populateContacts();
     }
 
     if (usersSearch.value != null) {
-      usersSearch.value?.dispose();
+      _usersSearchSubscription?.cancel();
       usersSearch.value = null;
       _populateUsers();
     }
@@ -373,11 +378,13 @@ class SearchController extends GetxController {
             ? RxStatus.loadingMore()
             : RxStatus.loading();
 
-        final SearchResult<ChatContactId, RxChatContact> result =
+        final Paginated<ChatContactId, RxChatContact> result =
             _contactService.search(name: name, email: email, phone: phone);
 
-        contactsSearch.value?.dispose();
+        _contactsSearchSubscription?.cancel();
         contactsSearch.value = result;
+        _contactsSearchSubscription =
+            contactsSearch.value?.updates.listen((_) {});
         searchStatus.value = result.status.value;
 
         _contactsSearchWorker = ever(result.status, (RxStatus s) {
@@ -399,12 +406,12 @@ class SearchController extends GetxController {
           searchStatus.value = RxStatus.empty();
         }
 
-        contactsSearch.value?.dispose();
+        _contactsSearchSubscription?.cancel();
         contactsSearch.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      contactsSearch.value?.dispose();
+      _contactsSearchSubscription?.cancel();
       contactsSearch.value = null;
     }
   }
@@ -450,12 +457,12 @@ class SearchController extends GetxController {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-
-        final SearchResult<UserId, RxUser> result =
+        final Paginated<UserId, RxUser> result =
             _userService.search(num: num, name: name, login: login, link: link);
 
-        usersSearch.value?.dispose();
+        _usersSearchSubscription?.cancel();
         usersSearch.value = result;
+        _usersSearchSubscription = usersSearch.value?.updates.listen((_) {});
         searchStatus.value = result.status.value;
 
         _usersSearchWorker = ever(result.status, (RxStatus s) {
@@ -470,12 +477,12 @@ class SearchController extends GetxController {
         _populateUsers();
       } else {
         searchStatus.value = RxStatus.empty();
-        usersSearch.value?.dispose();
+        _usersSearchSubscription?.cancel();
         usersSearch.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      usersSearch.value?.dispose();
+      _usersSearchSubscription?.cancel();
       usersSearch.value = null;
     }
   }
