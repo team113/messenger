@@ -518,7 +518,7 @@ class SearchController extends GetxController {
           return;
         }
 
-        // Account searching via [MyUser]s chat direct link.
+        // Account searching via [MyUser.chatDirectLink].
         final link = ChatDirectLinkSlug.tryParse(queryString);
         if (link != null && myUser.chatDirectLink?.slug == link) {
           chats.value = {monologId: monolog, ...chats};
