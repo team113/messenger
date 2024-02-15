@@ -525,15 +525,13 @@ class SearchController extends GetxController {
           return;
         }
 
-        queryString = queryString.toLowerCase();
-
         final String title = monolog.title.value;
         final String? name = myUser.name?.val;
         final String? login = myUser.login?.val;
         final String num = myUser.num.val;
 
         for (final param in [title, login, name].whereNotNull()) {
-          if (param.toLowerCase().contains(queryString)) {
+          if (param.toLowerCase().contains(queryString.toLowerCase())) {
             chats.value = {monologId: monolog, ...chats};
             return;
           }
