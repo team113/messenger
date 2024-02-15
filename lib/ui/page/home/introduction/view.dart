@@ -22,6 +22,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -35,7 +36,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'controller.dart';
 
 /// Introduction displaying important information alongside with an ability to
@@ -46,16 +46,16 @@ class IntroductionView extends StatelessWidget {
   const IntroductionView({
     super.key,
     this.initial = IntroductionViewStage.oneTime,
-    this.joinedLink,
+    this.link,
   });
 
   /// Initial [IntroductionViewStage] to display.
   final IntroductionViewStage initial;
 
-  /// Slug of the direct link joined, if any.
+  /// Slug of the chat direct link joined, if any.
   ///
   /// Required if [initial] stage is [IntroductionViewStage.link].
-  final String? joinedLink;
+  final ChatDirectLinkSlug? link;
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -194,14 +194,7 @@ class IntroductionView extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
                     child: SvgIcon(SvgIcons.logo),
                   ),
-                  onPressed: () async {
-                    await WebUtils.launchScheme(
-                      '${Routes.chatDirectLink}/$joinedLink',
-                    );
-                    if (context.mounted) {
-                      await _showDownloadModal(context);
-                    }
-                  },
+                  onPressed: () => _showDownloadModal(context),
                   child: Text('label_application'.l10n),
                 ),
               );
@@ -333,41 +326,17 @@ class IntroductionView extends StatelessWidget {
               padding: ModalPopup.padding(context),
               shrinkWrap: true,
               children: const [
-                DownloadButton(
-                  asset: SvgIcons.windows,
-                  title: 'Windows',
-                  link: 'messenger-windows.zip',
-                ),
+                DownloadButton.windows(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.apple,
-                  title: 'macOS',
-                  link: 'messenger-macos.zip',
-                ),
+                DownloadButton.macos(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.linux,
-                  title: 'Linux',
-                  link: 'messenger-linux.zip',
-                ),
+                DownloadButton.linux(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.appStore,
-                  title: 'App Store',
-                  link: 'messenger-ios.zip',
-                ),
+                DownloadButton.appStore(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.googlePlay,
-                  title: 'Google Play',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.googlePlay(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.android,
-                  title: 'Android',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.android(),
               ],
             ),
           ),

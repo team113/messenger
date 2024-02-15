@@ -392,9 +392,4 @@ class WebUtils {
 
     return agent;
   }
-
-  /// Composes and launches a URI scheme with the given [slug].
-  static Future<void> launchScheme(String slug) async {
-    // No-op.
-  }
 }

@@ -26,6 +26,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
@@ -43,7 +44,7 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings, {
     this.signedUp = false,
-    this.joinedLink,
+    this.link,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -76,6 +77,9 @@ class HomeController extends GetxController {
   /// [GlobalKey] of a [Chat]s button in the navigation bar.
   final GlobalKey chatsKey = GlobalKey();
 
+  /// Slug of the joined chat direct link, if any.
+  final ChatDirectLinkSlug? link;
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
@@ -88,9 +92,6 @@ class HomeController extends GetxController {
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
-
-  /// Slug of the joined chat direct link, if any.
-  final String? joinedLink;
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
@@ -218,7 +219,7 @@ class HomeController extends GetxController {
   void _displayIntroduction(MyUser myUser) {
     IntroductionViewStage? stage;
 
-    if (joinedLink != null) {
+    if (link != null) {
       stage = IntroductionViewStage.link;
     } else if (!myUser.hasPassword &&
         myUser.emails.confirmed.isEmpty &&

@@ -150,28 +150,18 @@ class ModalPopupHeader extends StatelessWidget {
   const ModalPopupHeader({
     super.key,
     this.text,
-    this.header,
     this.onBack,
-    this.onClose,
     this.close = true,
     this.dense = false,
   });
 
-  /// [Widget] to put as a title of this [ModalPopupHeader].
-  final Widget? header;
-
   /// Text to display as a title of this [ModalPopupHeader].
-  ///
-  /// Will be ignored if [header] is specified.
   final String? text;
 
   /// Callback, called when a back button is pressed.
   ///
   /// If `null`, then no back button is displayed at all.
   final void Function()? onBack;
-
-  /// Callback, called when a close button is pressed.
-  final void Function()? onClose;
 
   /// Indicator whether a close button should be displayed.
   final bool close;
@@ -200,19 +190,7 @@ class ModalPopupHeader extends StatelessWidget {
               )
             else
               const SizedBox(width: 40),
-            if (header != null)
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    10,
-                    context.isMobile ? 8 : 22,
-                    10,
-                    8,
-                  ),
-                  child: header,
-                ),
-              )
-            else if (text != null)
+            if (text != null)
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -231,10 +209,10 @@ class ModalPopupHeader extends StatelessWidget {
               )
             else
               const Spacer(),
-            if ((!context.isMobile || onClose != null) && close)
+            if (!context.isMobile && close)
               WidgetButton(
                 key: const Key('CloseButton'),
-                onPressed: onClose ?? Navigator.of(context).pop,
+                onPressed: Navigator.of(context).pop,
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(12, 14, 14, 8),
                   child: const SvgIcon(SvgIcons.closeSmallPrimary),

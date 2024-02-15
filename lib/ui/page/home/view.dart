@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -47,7 +48,7 @@ class HomeView extends StatefulWidget {
     this._depsFactory, {
     super.key,
     this.signedUp = false,
-    this.joinedLink,
+    this.link,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -60,7 +61,7 @@ class HomeView extends StatefulWidget {
   ///
   /// If not `null`, the [IntroductionView] will be displayed with
   /// [IntroductionViewStage.link] initial stage.
-  final String? joinedLink;
+  final ChatDirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -132,7 +133,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         signedUp: widget.signedUp,
-        joinedLink: widget.joinedLink,
+        link: widget.link,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
