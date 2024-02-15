@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -128,11 +129,15 @@ class Block extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: padding,
-                  child: AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
+                  child: AnimatedSizeAndFade(
+                    fadeDuration: const Duration(milliseconds: 300),
+                    sizeDuration: const Duration(milliseconds: 300),
                     alignment: Alignment.topCenter,
-                    curve: Curves.easeInOut,
+                    sizeCurve: Curves.ease,
+                    fadeInCurve: Curves.ease,
+                    fadeOutCurve: Curves.ease,
                     child: Column(
+                      // key: Key(children.map((e) => e.hashCode).toString()),
                       children: [
                         Column(
                           mainAxisSize: MainAxisSize.min,

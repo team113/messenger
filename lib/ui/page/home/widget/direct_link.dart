@@ -29,6 +29,7 @@ import 'package:messenger/ui/widget/animated_switcher.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
 import '/domain/model/user.dart';
@@ -258,17 +259,18 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: WidgetButton(
-                      onPressed: () {
+                      onPressed: () async {
                         final share = '${Config.link}/${_state.text}';
+                        await launchUrlString(share);
 
-                        if (PlatformUtils.isMobile) {
-                          Share.share(share);
-                        } else {
-                          PlatformUtils.copy(text: share);
-                          MessagePopup.success(
-                            'label_copied'.l10n,
-                          );
-                        }
+                        // if (PlatformUtils.isMobile) {
+                        //   Share.share(share);
+                        // } else {
+                        //   PlatformUtils.copy(text: share);
+                        //   MessagePopup.success(
+                        //     'label_copied'.l10n,
+                        //   );
+                        // }
                       },
                       child: MessagePreviewWidget(
                         fromMe: true,
@@ -325,53 +327,35 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           ),
           const SizedBox(height: 12),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: PlatformUtils.isMobile
-                            ? 'Поделиться'
-                            : 'Копировать',
-                        style: style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            final share = '${Config.link}/${_state.text}';
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: WidgetButton(
+                  onUp: (d) {
+                    final share = '${Config.link}/${_state.text}';
 
-                            if (PlatformUtils.isMobile) {
-                              Share.share(share);
-                            } else {
-                              PlatformUtils.copy(text: share);
-                              MessagePopup.success('label_copied'.l10n);
-                            }
-                          },
-                      ),
-                      // TextSpan(
-                      //   text: ' | ',
-                      //   style: style.fonts.small.regular.secondary,
-                      // ),
-                      // TextSpan(
-                      //   text: 'label_transition_count'.l10nfmt({
-                      //     'count': widget.link?.usageCount ?? 0,
-                      //   }), //+
-                      //   // 'dot_space'.l10n,
-                      //   style: style.fonts.small.regular.primary,
-                      // ),
-                      // TextSpan(
-                      //   text: 'label_details'.l10n,
-                      //   style: style.fonts.small.regular.primary,
-                      //   recognizer: TapGestureRecognizer()
-                      //     ..onTap = () => LinkDetailsView.show(context),
-                      // ),
-                    ],
+                    if (PlatformUtils.isMobile) {
+                      Share.share(share);
+                    } else {
+                      PlatformUtils.copy(text: share);
+                      MessagePopup.success(
+                        'label_copied'.l10n,
+                        at: d.globalPosition,
+                      );
+                    }
+                  },
+                  child: Text(
+                    PlatformUtils.isMobile ? 'Поделиться' : 'Копировать',
+                    style: style.fonts.small.regular.primary,
+                    textAlign: widget.onSubmit == null || !widget.canDelete
+                        ? TextAlign.center
+                        : TextAlign.left,
                   ),
-                  textAlign: widget.onSubmit == null || !widget.canDelete
-                      ? TextAlign.center
-                      : TextAlign.left,
                 ),
               ),
               if (widget.onSubmit != null && widget.canDelete) ...[
+                const Spacer(),
                 const SizedBox(width: 8),
                 Text.rich(
                   TextSpan(

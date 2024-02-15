@@ -124,6 +124,8 @@ class UserController extends GetxController {
   final RxBool hintVerified = RxBool(false);
 
   final RxBool editing = RxBool(false);
+  final RxBool profileEditing = RxBool(false);
+
   final TextFieldState name = TextFieldState(
     // approvable: true,
     onChanged: (s) {
@@ -239,7 +241,7 @@ class UserController extends GetxController {
     _myUserWorker = ever(
       _myUserService.myUser,
       (MyUser? v) {
-        verified.value = v?.emails.confirmed.isNotEmpty == true;
+        // verified.value = v?.emails.confirmed.isNotEmpty == true;
       },
     );
 

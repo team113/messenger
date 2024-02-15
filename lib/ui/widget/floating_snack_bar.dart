@@ -28,9 +28,10 @@ class FloatingSnackBar extends StatefulWidget {
   const FloatingSnackBar({
     super.key,
     required this.child,
-    this.duration = const Duration(seconds: 2),
+    this.duration = const Duration(seconds: 1),
     this.onEnd,
     this.bottom = 16,
+    this.offset,
   });
 
   /// Content to display in this [FloatingSnackBar].
@@ -45,12 +46,17 @@ class FloatingSnackBar extends StatefulWidget {
   /// Bottom margin to apply to this [FloatingSnackBar].
   final double bottom;
 
+  final Offset? offset;
+
+  static OverlayEntry? entry;
+
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
-  static void show(String title, {double bottom = 16}) {
+  static void show(String title, {double bottom = 16, Offset? at}) {
     final style = Theme.of(router.context!).style;
 
-    OverlayEntry? entry;
+    // OverlayEntry? entry;
 
+    entry?.remove();
     entry = OverlayEntry(
       builder: (_) => FloatingSnackBar(
         onEnd: () {
@@ -60,7 +66,8 @@ class FloatingSnackBar extends StatefulWidget {
           entry = null;
         },
         bottom: bottom,
-        child: Text(title, style: style.fonts.normal.regular.onBackground),
+        offset: at,
+        child: Text(title, style: style.fonts.normal.regular.onPrimary),
       ),
     );
 
@@ -97,40 +104,59 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
   Widget build(BuildContext context) {
     final style = Theme.of(router.context!).style;
 
-    return Stack(
-      children: [
-        Positioned(
-          bottom: widget.bottom,
-          width: MediaQuery.of(context).size.width,
-          child: Center(
-            child: GestureDetector(
-              onTap: () => setState(() => _opacity = _initialOpacity),
-              child: AnimatedOpacity(
-                opacity: _opacity,
-                duration: const Duration(milliseconds: 120),
-                onEnd: _onEnd,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: style.cardColor.darken(0.03),
-                    border: style.cardHoveredBorder,
-                    boxShadow: [
-                      BoxShadow(
-                        color: style.colors.onBackgroundOpacity20,
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer.workaround,
+    return LayoutBuilder(builder: (context, constraints) {
+      double qx = 1, qy = 1;
+
+      if (widget.offset != null) {
+        if (widget.offset!.dx > (constraints.maxWidth) / 2) qx = -1;
+        if (widget.offset!.dy > (constraints.maxHeight) / 2) qy = -1;
+      }
+
+      final Alignment alignment = Alignment(qx, qy);
+
+      return Stack(
+        children: [
+          Positioned(
+            top: widget.offset?.dy,
+            left: widget.offset?.dx,
+            bottom: widget.offset == null ? widget.bottom : null,
+            width: widget.offset == null
+                ? MediaQuery.of(context).size.width
+                : null,
+            child: Center(
+              child: GestureDetector(
+                onTap: () => setState(() => _opacity = _initialOpacity),
+                child: FractionalTranslation(
+                  translation: const Offset(-0.5, 0.5),
+                  child: AnimatedOpacity(
+                    opacity: _opacity,
+                    duration: const Duration(milliseconds: 120),
+                    onEnd: _onEnd,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        // color: style.cardColor.darken(0.03),
+                        color: style.colors.onSecondaryOpacity50,
+                        border: style.cardHoveredBorder,
+                        boxShadow: [
+                          BoxShadow(
+                            color: style.colors.onBackgroundOpacity20,
+                            blurRadius: 8,
+                            blurStyle: BlurStyle.outer.workaround,
+                          ),
+                        ],
                       ),
-                    ],
+                      child: widget.child,
+                    ),
                   ),
-                  child: widget.child,
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   /// Changes the [_opacity] after some delay to the [_initialOpacity] and
