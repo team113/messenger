@@ -23,10 +23,16 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
 
+### Fixed
+
+- Web:
+    - Inability to preview camera, microphone and output devices in Firefox. ([#855])
+
 [#464]: /../../issues/464
 [#465]: /../../pull/465
 [#812]: /../../issues/812
 [#832]: /../../pull/832
+[#855]: /../../pull/855
 
 
 
