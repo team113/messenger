@@ -499,8 +499,9 @@ class SearchController extends GetxController {
 
   /// Updates [chats] by adding the [Chat]-monolog, if it matches the [query].
   Future<void> _populateMonolog() async {
-    // Formatted string representation of the current [query].
-    String queryString = query.value.trim();
+    // Formatted string representations of the current [query].
+    final String trimmed = query.value.trim();
+    final String lowercase = trimmed.toLowerCase();
 
     final MyUser? myUser = _myUserService.myUser.value;
 
@@ -512,14 +513,14 @@ class SearchController extends GetxController {
           monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
 
       if (monolog != null) {
-        if (queryString.isEmpty) {
+        if (trimmed.isEmpty) {
           // Display [monolog] as the first item in [chats] by default.
           chats.value = {monologId: monolog, ...chats};
           return;
         }
 
         // Account searching via [MyUser.chatDirectLink].
-        final link = ChatDirectLinkSlug.tryParse(queryString);
+        final link = ChatDirectLinkSlug.tryParse(trimmed);
         if (link != null && myUser.chatDirectLink?.slug == link) {
           chats.value = {monologId: monolog, ...chats};
           return;
@@ -531,14 +532,14 @@ class SearchController extends GetxController {
         final String num = myUser.num.val;
 
         for (final param in [title, login, name].whereNotNull()) {
-          if (param.toLowerCase().contains(queryString.toLowerCase())) {
+          if (param.toLowerCase().contains(lowercase)) {
             chats.value = {monologId: monolog, ...chats};
             return;
           }
         }
 
         // Account possible spaces in [UserNum].
-        if (num.contains(queryString.split(' ').join())) {
+        if (num.contains(trimmed.split(' ').join())) {
           chats.value = {monologId: monolog, ...chats};
         }
       }
