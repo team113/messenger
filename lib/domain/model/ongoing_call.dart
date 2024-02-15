@@ -288,6 +288,10 @@ class OngoingCall {
   /// the [displays].
   StreamSubscription? _displaysSubscription;
 
+  /// [Worker] reacting on the [MediaUtilsImpl.outputDeviceId] changes updating
+  /// the [outputDevice].
+  Worker? _outputWorker;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -380,6 +384,10 @@ class OngoingCall {
         }
 
         _pickScreenDevice(removed);
+      });
+
+      _outputWorker = ever(MediaUtils.outputDeviceId, (device) {
+        outputDevice.value = device;
       });
 
       _initRoom();
@@ -797,6 +805,7 @@ class OngoingCall {
       _displaysSubscription?.cancel();
       _heartbeat?.cancel();
       _membersSubscription?.cancel();
+      _outputWorker?.dispose();
       connected = false;
     });
   }
@@ -1114,8 +1123,17 @@ class OngoingCall {
     Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
     if (deviceId != outputDevice.value) {
+      final String? previous = outputDevice.value;
+
       outputDevice.value = deviceId;
-      await MediaUtils.setOutputDevice(deviceId);
+
+      try {
+        await MediaUtils.setOutputDevice(deviceId);
+      } catch (e) {
+        addError(e.toString());
+        outputDevice.value = previous;
+        rethrow;
+      }
     }
   }
 

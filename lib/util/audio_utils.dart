@@ -42,7 +42,7 @@ class AudioUtilsImpl {
   /// [AudioSpeakerKind] currently used for audio output.
   AudioSpeakerKind? _speaker;
 
-  /// [Mutex] guarding synchronized access to the [setSpeaker].
+  /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
 
   /// Ensures the underlying resources are initialized to reduce possible delays
@@ -143,7 +143,25 @@ class AudioUtilsImpl {
     await _setSpeaker();
   }
 
-  /// Sets the [speaker] to use for audio output.
+  /// Sets the default audio output device as used.
+  Future<void> setDefaultSpeaker() async {
+    final List<AndroidAudioDeviceInfo> devices =
+        await AndroidAudioManager().getAvailableCommunicationDevices();
+
+    if (devices.any((e) =>
+        e.type == AndroidAudioDeviceType.bluetoothSco ||
+        e.type == AndroidAudioDeviceType.wiredHeadphones ||
+        e.type == AndroidAudioDeviceType.wiredHeadset ||
+        e.type == AndroidAudioDeviceType.usbHeadset)) {
+      await setSpeaker(AudioSpeakerKind.headphones);
+    } else {
+      await setSpeaker(AudioSpeakerKind.speaker);
+    }
+
+    await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
+  }
+
+  /// Sets the [_speaker] to use for audio output.
   Future<void> _setSpeaker() async {
     if (_mutex.isLocked) {
       return;

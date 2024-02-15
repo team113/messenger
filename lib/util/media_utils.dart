@@ -53,7 +53,7 @@ class MediaUtilsImpl {
   StreamController<List<MediaDisplayDetails>>? _displaysController;
 
   /// ID of the currently used output device.
-  String? _outputDeviceId;
+  final RxnString outputDeviceId = RxnString();
 
   /// [Mutex] guarding synchronized access to the [_setOutputDevice].
   final Mutex _mutex = Mutex();
@@ -156,7 +156,7 @@ class MediaUtilsImpl {
 
   /// Sets device with [deviceId] as a currently used output device.
   Future<void> setOutputDevice(String deviceId) async {
-    _outputDeviceId = deviceId;
+    outputDeviceId.value = deviceId;
 
     await _setOutputDevice();
   }
@@ -179,7 +179,7 @@ class MediaUtilsImpl {
           );
         }
 
-        final String deviceId = _outputDeviceId!;
+        final String deviceId = outputDeviceId.value!;
 
         if (mediaManager != null) {
           final CancelableOperation operation = CancelableOperation.fromFuture(
@@ -187,13 +187,13 @@ class MediaUtilsImpl {
           );
 
           // Cancel the operation if it takes too long.
-          Timer timer = Timer(1.seconds, operation.cancel);
+          Timer timer = Timer(2.seconds, operation.cancel);
 
           await operation.valueOrCancellation();
           timer.cancel();
         }
 
-        if (deviceId != _outputDeviceId) {
+        if (deviceId != outputDeviceId.value) {
           _setOutputDevice();
         }
       });
