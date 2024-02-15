@@ -346,6 +346,7 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> remove(ChatId id) async {
     Log.debug('remove($id)', '$runtimeType');
+    // paginated.remove(id)?.dispose();
     await _chatLocal.remove(id);
   }
 

@@ -450,39 +450,7 @@ class OngoingCall {
         });
       }
 
-      try {
-        // Set all the constraints to ensure no disabled track is sent while
-        // initializing the local media.
-        await _room?.setLocalMediaSettings(
-          _mediaStreamSettings(
-            audio: audioState.value == LocalTrackState.enabling,
-            video: videoState.value == LocalTrackState.enabling,
-            screen: false,
-          ),
-          false,
-          true,
-        );
-
-        Log.debug(
-          'init(): await _room?.setLocalMediaSettings() done',
-          '$runtimeType',
-        );
-      } on StateError catch (e) {
-        // [_room] is allowed to be in a detached state there as the call might
-        // has already ended.
-        if (!e.toString().contains('detached')) {
-          addError('setLocalMediaSettings() failed: $e');
-          rethrow;
-        }
-      } catch (e) {
-        Log.error(
-          'init(): await _room?.setLocalMediaSettings() error: $e',
-          '$runtimeType',
-        );
-
-        addError('setLocalMediaSettings() failed: $e');
-        rethrow;
-      }
+      await _setInitialMediaSettings();
 
       Log.debug('init(): await _initLocalMedia()', '$runtimeType');
       await _initLocalMedia();
@@ -1129,11 +1097,16 @@ class OngoingCall {
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> setOutputDevice(DeviceDetails device) {
+  Future<void> setOutputDevice(DeviceDetails device) async {
     Log.debug('setOutputDevice($device)', '$runtimeType');
 
+    // final deviceId = devices.output().first.deviceId();
+    // print('Setting $deviceId...');
+    // await MediaUtils.setOutputAudioId(deviceId);
+    // print('Setting $deviceId... done');
+
     _preferredOutputDevice = device.id();
-    return _setOutputDevice(device);
+    await _setOutputDevice(device);
   }
 
   /// Sets inbound audio in this [OngoingCall] as [enabled] or not.
@@ -1746,6 +1719,44 @@ class OngoingCall {
     members[_me]?.tracks.clear();
   }
 
+  Future<void> _setInitialMediaSettings() async {
+    Log.debug('_setInitialMediaSettings()', '$runtimeType');
+
+    try {
+      // Set all the constraints to ensure no disabled track is sent while
+      // initializing the local media.
+      await _room?.setLocalMediaSettings(
+        _mediaStreamSettings(
+          audio: audioState.value.isEnabled,
+          video: videoState.value.isEnabled,
+          screen: screenShareState.value.isEnabled,
+        ),
+        false,
+        true,
+      );
+
+      Log.debug(
+        'init(): await _room?.setLocalMediaSettings() done',
+        '$runtimeType',
+      );
+    } on StateError catch (e) {
+      // [_room] is allowed to be in a detached state there as the call might
+      // has already ended.
+      if (!e.toString().contains('detached')) {
+        addError('setLocalMediaSettings() failed: $e');
+        rethrow;
+      }
+    } catch (e) {
+      Log.error(
+        'init(): await _room?.setLocalMediaSettings() error: $e',
+        '$runtimeType',
+      );
+
+      addError('setLocalMediaSettings() failed: $e');
+      rethrow;
+    }
+  }
+
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].
   ///
   /// Re-initializes the [_room], if this [link] is different from the currently
@@ -1761,6 +1772,8 @@ class OngoingCall {
       );
       _closeRoom();
       _initRoom();
+      await _setInitialMediaSettings();
+      await _initLocalMedia();
     }
 
     if (creds == null) {
