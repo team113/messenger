@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:just_audio/just_audio.dart';
 import 'package:messenger/util/audio_utils.dart';
 
 /// Mocked [AudioUtilsImpl] to use in the tests.

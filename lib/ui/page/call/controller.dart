@@ -25,7 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -796,7 +795,7 @@ class CallController extends GetxController {
     _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
       if (b) {
         _reconnectAudio =
-            AudioUtils.play(AudioSource.asset('assets/audio/reconnect.mp3'));
+            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
       } else {
         _reconnectAudio?.cancel();
       }

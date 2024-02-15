@@ -29,7 +29,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -445,7 +444,7 @@ class ChatController extends GetxController {
                 )
                 .then(
                   (_) => AudioUtils.once(
-                    AudioSource.asset('assets/audio/message_sent.mp3'),
+                    AudioSource.asset('audio/message_sent.mp3'),
                   ),
                 )
                 .onError<PostChatMessageException>(
@@ -602,7 +601,7 @@ class ChatController extends GetxController {
           .resendChatItem(item)
           .then(
             (_) => AudioUtils.once(
-              AudioSource.asset('assets/audio/message_sent.mp3'),
+              AudioSource.asset('audio/message_sent.mp3'),
             ),
           )
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))

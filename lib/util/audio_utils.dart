@@ -18,7 +18,8 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:just_audio/just_audio.dart' as ja;
+import 'package:media_kit/media_kit.dart';
 import 'package:mutex/mutex.dart';
 
 import '/util/media_utils.dart';
@@ -33,8 +34,12 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
-  /// [AudioPlayer] lazily initialized to play sounds [once].
-  AudioPlayer? _player;
+  /// [Player] lazily initialized to play sounds [once].
+  Player? _player;
+
+  /// [AudioPlayer] lazily initialized to play sounds [once] on mobile
+  /// platforms.
+  ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
   final Map<AudioSource, StreamController<void>> _players = {};
@@ -45,11 +50,18 @@ class AudioUtilsImpl {
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
 
+  /// Indicates whether the mobile player should be used.
+  bool get _mobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
+
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
     try {
-      _player ??= AudioPlayer();
+      if (_mobile) {
+        _jaPlayer ??= ja.AudioPlayer();
+      } else {
+        _player ??= Player();
+      }
     } catch (e) {
       // If [Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
@@ -66,12 +78,20 @@ class AudioUtilsImpl {
   Future<void> once(AudioSource sound, {double? volume}) async {
     ensureInitialized();
 
-    await _player?.setAudioSource(sound);
-    if (volume != null) {
-      await _player?.setVolume(volume);
-    }
+    if (_mobile) {
+      await _jaPlayer?.setAudioSource(sound.source);
+      if (volume != null) {
+        await _jaPlayer?.setVolume(volume);
+      }
 
-    await _player?.play();
+      await _jaPlayer?.play();
+    } else {
+      await _player?.open(sound.media);
+
+      if (volume != null) {
+        await _player?.setVolume(volume);
+      }
+    }
   }
 
   /// Plays the provided [music] looped with the specified [fade].
@@ -82,15 +102,21 @@ class AudioUtilsImpl {
     Duration fade = Duration.zero,
   }) {
     StreamController? controller = _players[music];
+    StreamSubscription? position;
 
     if (controller == null) {
-      AudioPlayer? player;
+      ja.AudioPlayer? jaPlayer;
+      Player? player;
       Timer? timer;
 
       controller = StreamController.broadcast(
         onListen: () async {
           try {
-            player = AudioPlayer();
+            if (_mobile) {
+              jaPlayer = ja.AudioPlayer();
+            } else {
+              player = Player();
+            }
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -102,19 +128,42 @@ class AudioUtilsImpl {
             }
           }
 
-          await player?.setAudioSource(music);
-          await player?.setLoopMode(LoopMode.all);
-          await player?.play();
+          if (_mobile) {
+            await jaPlayer?.setAudioSource(music.source);
+            await jaPlayer?.setLoopMode(ja.LoopMode.all);
+            await jaPlayer?.play();
+          } else {
+            await player?.open(music.media);
+
+            // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
+            if (PlatformUtils.isWeb) {
+              position = player?.stream.completed.listen((e) async {
+                await player?.seek(Duration.zero);
+                await player?.play();
+              });
+            } else {
+              await player?.setPlaylistMode(PlaylistMode.loop);
+            }
+          }
 
           if (fade != Duration.zero) {
-            await player?.setVolume(0);
+            if (_mobile) {
+              await jaPlayer?.setVolume(0);
+            } else {
+              await player?.setVolume(0);
+            }
+
             timer = Timer.periodic(
               Duration(microseconds: fade.inMicroseconds ~/ 10),
               (timer) async {
                 if (timer.tick > 9) {
                   timer.cancel();
                 } else {
-                  await player?.setVolume(100 * (timer.tick + 1) / 10);
+                  if (_mobile) {
+                    await jaPlayer?.setVolume(100 * (timer.tick + 1) / 10);
+                  } else {
+                    await player?.setVolume(100 * (timer.tick + 1) / 10);
+                  }
                 }
               },
             );
@@ -122,9 +171,11 @@ class AudioUtilsImpl {
         },
         onCancel: () async {
           _players.remove(music);
+          position?.cancel();
           timer?.cancel();
 
-          Future<void>? dispose = player?.dispose();
+          Future<void>? dispose = jaPlayer?.dispose() ?? player?.dispose();
+          jaPlayer = null;
           player = null;
           await dispose;
         },
@@ -251,4 +302,101 @@ class AudioUtilsImpl {
       });
     });
   }
+}
+
+/// Possible [AudioSource] kind.
+enum AudioSourceKind { asset, file, url }
+
+/// Source to play an audio stream from.
+abstract class AudioSource {
+  const AudioSource();
+
+  /// Constructs an [AudioSource] from the provided [asset].
+  factory AudioSource.asset(String asset) = AssetAudioSource;
+
+  /// Constructs an [AudioSource] from the provided [file].
+  factory AudioSource.file(String file) = FileAudioSource;
+
+  /// Constructs an [AudioSource] from the provided [url].
+  factory AudioSource.url(String url) = UrlAudioSource;
+
+  /// Returns a [AudioSourceKind] of this [AudioSource].
+  AudioSourceKind get kind;
+}
+
+/// [AudioSource] of the provided [asset].
+class AssetAudioSource extends AudioSource {
+  const AssetAudioSource(this.asset);
+
+  /// Path to an asset to play audio from.
+  final String asset;
+
+  @override
+  AudioSourceKind get kind => AudioSourceKind.asset;
+
+  @override
+  int get hashCode => asset.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is AssetAudioSource && other.asset == asset;
+}
+
+/// [AudioSource] of the provided [file].
+class FileAudioSource extends AudioSource {
+  const FileAudioSource(this.file);
+
+  /// Path to a file to play audio from.
+  final String file;
+
+  @override
+  AudioSourceKind get kind => AudioSourceKind.file;
+
+  @override
+  int get hashCode => file.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is FileAudioSource && other.file == file;
+}
+
+/// [AudioSource] of the provided [url].
+class UrlAudioSource extends AudioSource {
+  const UrlAudioSource(this.url);
+
+  /// URL to play audio from.
+  final String url;
+
+  @override
+  AudioSourceKind get kind => AudioSourceKind.url;
+
+  @override
+  int get hashCode => url.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
+}
+
+/// Extension adding conversion from an [AudioSource] to a [Media] or
+/// [ja.AudioSource].
+extension on AudioSource {
+  /// Returns a [Media] corresponding to this [AudioSource].
+  Media get media => switch (kind) {
+        AudioSourceKind.asset => Media(
+            'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
+          ),
+        AudioSourceKind.file =>
+          Media('file:///${(this as FileAudioSource).file}'),
+        AudioSourceKind.url => Media((this as UrlAudioSource).url),
+      };
+
+  /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
+  ja.AudioSource get source => switch (kind) {
+        AudioSourceKind.asset =>
+          ja.AudioSource.asset('assets/${(this as AssetAudioSource).asset}'),
+        AudioSourceKind.file =>
+          ja.AudioSource.file((this as FileAudioSource).file),
+        AudioSourceKind.url =>
+          ja.AudioSource.uri(Uri.parse((this as UrlAudioSource).url)),
+      };
 }
