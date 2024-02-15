@@ -112,12 +112,6 @@ external cleanIndexedDB();
 @JS('window.isPopup')
 external bool _isPopup;
 
-@JS('window.hasCameraPermission')
-external bool? _hasCameraPermission;
-
-@JS('window.hasMicrophonePermission')
-external bool? _hasMicrophonePermission;
-
 @JS('document.hasFocus')
 external bool _hasFocus();
 
@@ -138,6 +132,12 @@ class WebUtils {
 
   /// [Mutex] guarding the [protect] method.
   static final Mutex _guard = Mutex();
+
+  /// Indicator whether [cameraPermission] has finished successfully.
+  static bool _hasCameraPermission = false;
+
+  /// Indicator whether [microphonePermission] has finished successfully.
+  static bool _hasMicrophonePermission = false;
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
@@ -594,7 +594,7 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (isFirefox) {
-      granted = _hasCameraPermission ?? false;
+      granted = _hasCameraPermission;
     } else {
       final permission =
           await html.window.navigator.permissions?.query({'name': 'camera'});
@@ -623,10 +623,10 @@ class WebUtils {
   static Future<void> microphonePermission() async {
     bool granted = false;
 
-    // Firefox doesn't allow to check whether app has camera permission:
+    // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (isFirefox) {
-      granted = _hasMicrophonePermission ?? false;
+      granted = _hasMicrophonePermission;
     } else {
       final permission = await html.window.navigator.permissions
           ?.query({'name': 'microphone'});
