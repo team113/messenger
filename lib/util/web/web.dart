@@ -112,6 +112,12 @@ external cleanIndexedDB();
 @JS('window.isPopup')
 external bool _isPopup;
 
+@JS('window.hasCameraPermission')
+external bool? _hasCameraPermission;
+
+@JS('window.hasMicrophonePermission')
+external bool? _hasMicrophonePermission;
+
 @JS('document.hasFocus')
 external bool _hasFocus();
 
@@ -139,6 +145,9 @@ class WebUtils {
 
   /// Indicates whether device's browser is Safari or not.
   static bool get isSafari => browser.isSafari;
+
+  /// Indicates whether device's browser is Firefox or not.
+  static bool get isFirefox => browser.isFirefox;
 
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen {
@@ -576,15 +585,28 @@ class WebUtils {
 
   /// Requests the permission to use a camera.
   static Future<void> cameraPermission() async {
-    final status =
-        await html.window.navigator.permissions?.query({'name': 'camera'});
+    bool granted = false;
 
-    if (status?.state != 'granted') {
+    // Firefox doesn't allow to check whether app has camera permission:
+    // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+    if (isFirefox) {
+      granted = _hasCameraPermission ?? false;
+    } else {
+      final permission =
+          await html.window.navigator.permissions?.query({'name': 'camera'});
+      granted = permission?.state == 'granted';
+    }
+
+    if (!granted) {
       final html.MediaStream? stream = await html.window.navigator.mediaDevices
           ?.getUserMedia({'video': true});
 
       if (stream == null) {
         throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
+
+      if (isFirefox) {
+        _hasCameraPermission = true;
       }
 
       for (var e in stream.getTracks()) {
@@ -595,16 +617,27 @@ class WebUtils {
 
   /// Requests the permission to use a microphone.
   static Future<void> microphonePermission() async {
-    final status =
-        await html.window.navigator.permissions?.query({'name': 'microphone'});
+    bool granted = false;
 
-    if (status?.state != 'granted') {
+    // Firefox doesn't allow to check whether app has camera permission:
+    // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+    if (isFirefox) {
+      granted = _hasMicrophonePermission ?? false;
+    } else {
+      final permission = await html.window.navigator.permissions
+          ?.query({'name': 'microphone'});
+      granted = permission?.state == 'granted';
+    }
+
+    if (!granted) {
       final html.MediaStream? stream = await html.window.navigator.mediaDevices
           ?.getUserMedia({'audio': true});
 
       if (stream == null) {
         throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
       }
+
+      _hasMicrophonePermission = true;
 
       for (var e in stream.getTracks()) {
         e.stop();

@@ -312,7 +312,14 @@ class DeviceDetails extends MediaDeviceDetails {
   MediaDeviceKind kind() => _device.kind();
 
   @override
-  String label() => _device.label();
+  String label() {
+    final String description = _device.label();
+    if (description.isEmpty) {
+      return deviceId();
+    }
+
+    return description;
+  }
 
   @override
   String toString() => id();
