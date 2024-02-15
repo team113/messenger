@@ -551,6 +551,11 @@ class ChatView extends StatelessWidget {
                           child: ContextMenuInterceptor(child: Container()),
                         ),
                         Obx(() {
+
+                          /// TODO: Keep Chat scroll position when leaving and re-entering it
+                          /// https://github.com/team113/messenger/issues/471
+
+
                           final Widget child = FlutterListView(
                             key: const Key('MessagesList'),
                             controller: c.listController,
