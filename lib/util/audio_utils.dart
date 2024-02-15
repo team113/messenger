@@ -252,6 +252,3 @@ class AudioUtilsImpl {
     });
   }
 }
-
-/// Possible [AudioSource] kind.
-enum AudioSourceKind { asset, file, url }

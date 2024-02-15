@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';

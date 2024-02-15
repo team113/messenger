@@ -495,12 +495,7 @@ class CallController extends GetxController {
 
   /// Returns [AudioSpeakerKind] of the used output device.
   AudioSpeakerKind get outputKind =>
-      _currentCall.value.devices
-          .output()
-          .firstWhereOrNull(
-            (e) => e.deviceId() == _currentCall.value.outputDevice.value,
-          )
-          ?.speaker ??
+      _currentCall.value.outputDevice.value?.speaker ??
       _currentCall.value.devices.output().firstOrNull?.speaker ??
       AudioSpeakerKind.earpiece;
 
@@ -962,9 +957,7 @@ class CallController extends GetxController {
     }
   }
 
-  /// Toggles between the speakerphone and earpiece output.
-  ///
-  /// Does nothing, if output device is a bluetooth headset.
+  /// Toggles between the speakerphone, earpiece and headphones output.
   Future<void> toggleSpeaker() async {
     if (PlatformUtils.isMobile) {
       keepUi();
@@ -975,7 +968,7 @@ class CallController extends GetxController {
 
     if (outputs.length > 1) {
       int index = outputs.indexWhere(
-        (e) => e.deviceId() == _currentCall.value.outputDevice.value,
+        (e) => e == _currentCall.value.outputDevice.value,
       );
 
       if (index == -1) {

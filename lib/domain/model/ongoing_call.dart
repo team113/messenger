@@ -427,9 +427,9 @@ class OngoingCall {
         _pickScreenDevice(removed);
       });
 
-      _outputWorker = ever(MediaUtils.outputDeviceId, (d) {
+      _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
         final DeviceDetails? device =
-            devices.output().firstWhereOrNull((e) => e.deviceId() == d);
+            devices.output().firstWhereOrNull((e) => e.deviceId() == id);
         outputDevice.value = device ?? outputDevice.value;
       });
 
@@ -1091,34 +1091,6 @@ class OngoingCall {
     try {
       if (media) {
         devices.value = await MediaUtils.enumerateDevices();
-
-        if (PlatformUtils.isMobile && outputDevice.value == null) {
-          final Iterable<DeviceDetails> output = devices.output();
-          var device = output.firstWhereOrNull(
-            (e) => e.speaker == AudioSpeakerKind.headphones,
-          );
-
-          if (device == null) {
-            final bool speaker = PlatformUtils.isWeb
-                ? true
-                : videoState.value == LocalTrackState.enabling ||
-                    videoState.value == LocalTrackState.enabled;
-
-            if (speaker) {
-              device = output.firstWhereOrNull(
-                (e) => e.speaker == AudioSpeakerKind.speaker,
-              );
-            }
-
-            device ??= output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.earpiece,
-            );
-          }
-
-          if (device != null) {
-            _setOutputDevice(device);
-          }
-        }
       }
 
       if (screen && PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
@@ -1580,10 +1552,38 @@ class OngoingCall {
         // No-op.
       }
 
-      outputDevice.value = devices
-              .output()
-              .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-          devices.output().firstOrNull;
+      if (PlatformUtils.isMobile && outputDevice.value == null) {
+        final Iterable<DeviceDetails> output = devices.output();
+        var device = output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.headphones,
+        );
+
+        if (device == null) {
+          final bool speaker = PlatformUtils.isWeb
+              ? true
+              : videoState.value == LocalTrackState.enabling ||
+              videoState.value == LocalTrackState.enabled;
+
+          if (speaker) {
+            device = output.firstWhereOrNull(
+                  (e) => e.speaker == AudioSpeakerKind.speaker,
+            );
+          }
+
+          device ??= output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.earpiece,
+          );
+        }
+
+        if (device != null) {
+          _setOutputDevice(device);
+        }
+      } else {
+        outputDevice.value = devices
+            .output()
+            .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+            devices.output().firstOrNull;
+      }
 
       if (outputDevice.value != null) {
         MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
