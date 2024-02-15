@@ -22,11 +22,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
+        - Improve speaker switching on mobile. ([#840], [#817])
 
 [#464]: /../../issues/464
 [#465]: /../../pull/465
 [#812]: /../../issues/812
+[#817]: /../../issues/817
 [#832]: /../../pull/832
+[#840]: /../../pull/840
 
 
 
