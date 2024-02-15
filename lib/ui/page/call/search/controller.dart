@@ -500,7 +500,7 @@ class SearchController extends GetxController {
   /// Updates [chats] by adding the [Chat]-monolog, if it matches the [query].
   Future<void> _populateMonolog() async {
     // Formatted string representation of the current [query].
-    final String queryString = query.value.toLowerCase().trim();
+    String queryString = query.value.trim();
 
     final MyUser? myUser = _myUserService.myUser.value;
 
@@ -524,6 +524,8 @@ class SearchController extends GetxController {
           chats.value = {monologId: monolog, ...chats};
           return;
         }
+
+        queryString = queryString.toLowerCase();
 
         final String title = monolog.title.value;
         final String? name = myUser.name?.val;
