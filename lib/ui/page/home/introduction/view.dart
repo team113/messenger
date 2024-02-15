@@ -52,7 +52,7 @@ class IntroductionView extends StatelessWidget {
   /// Initial [IntroductionViewStage] to display.
   final IntroductionViewStage initial;
 
-  /// Slug of the chat direct link joined, if any.
+  /// Slug of the joined chat direct link, if any.
   ///
   /// Required if [initial] stage is [IntroductionViewStage.link].
   final ChatDirectLinkSlug? link;

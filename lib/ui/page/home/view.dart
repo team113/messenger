@@ -57,7 +57,7 @@ class HomeView extends StatefulWidget {
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
 
-  /// Slug of the chat direct link joined, if any.
+  /// Slug of the joined chat direct link, if any.
   ///
   /// If not `null`, the [IntroductionView] will be displayed with
   /// [IntroductionViewStage.link] initial stage.

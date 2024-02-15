@@ -284,10 +284,9 @@ extension L10nDurationExtension on Duration {
   }
 }
 
-/// In-memory map for non-localized assets.
+/// String assets that should not be localized.
 ///
-/// Entries of this map will be converted to ".ftl" format as
-/// '`key` = `value`'.
+/// These assets will be used in `.ftl` format, thus formatting is supported.
 const Map<String, String> _nonLocalized = {
   'label_by_gapopa': 'by Gapopa',
   'label_messenger_by_gapopa': 'Messenger by Gapopa',
