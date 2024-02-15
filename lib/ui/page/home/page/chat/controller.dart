@@ -253,7 +253,7 @@ class ChatController extends GetxController {
   final Rx<ChatItem?> _lastSeenItem = Rx<ChatItem?>(null);
 
   /// [Duration] considered as a timeout of the ongoing typing.
-  static const Duration _typingDuration = Duration(seconds: 3);
+  static const Duration _typingTimeout = Duration(seconds: 3);
 
   /// [StreamSubscription] to [ChatService.keepTyping] indicating an ongoing
   /// typing in this [chat].
@@ -286,7 +286,7 @@ class ChatController extends GetxController {
   /// Currently displayed [LoaderElement] in the bottom of the [elements] list.
   LoaderElement? _bottomLoader;
 
-  /// [Timer] canceling the [_typingSubscription] after [_typingDuration].
+  /// [Timer] canceling the [_typingSubscription] after [_typingTimeout].
   Timer? _typingTimer;
 
   /// [Timer] for resetting the [showSticky].
@@ -454,9 +454,7 @@ class ChatController extends GetxController {
 
             chat?.setDraft();
 
-            _typingSubscription?.cancel();
-            _typingSubscription = null;
-            _typingTimer?.cancel();
+            _stopTyping();
 
             if (!PlatformUtils.isMobile) {
               Future.delayed(Duration.zero, send.field.focus.requestFocus);
@@ -480,6 +478,9 @@ class ChatController extends GetxController {
         selected.clear();
       }
     });
+
+    // Stop the [_typingSubscription] when the send field loses focus.
+    send.field.focus.addListener(_focusListener);
 
     super.onInit();
   }
@@ -511,6 +512,9 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+
+    edit.value?.field.focus.removeListener(_focusListener);
+    send.field.focus.removeListener(_focusListener);
 
     send.onClose();
     edit.value?.onClose();
@@ -651,6 +655,8 @@ class ChatController extends GetxController {
           } else {
             MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
           }
+
+          _stopTyping();
         },
         onChanged: () {
           if (edit.value?.edited.value == null) {
@@ -661,11 +667,15 @@ class ChatController extends GetxController {
 
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
+
+      // Stop the [_typingSubscription] when the edit field loses focus.
+      edit.value?.field.focus.addListener(_focusListener);
     }
   }
 
   /// Closes the [edit]ing if any.
   void closeEditing() {
+    edit.value?.field.focus.removeListener(_focusListener);
     edit.value?.onClose();
     edit.value = null;
   }
@@ -1188,13 +1198,30 @@ class ChatController extends GetxController {
 
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
-  void keepTyping() async {
+  void keepTyping() {
     _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
     _typingTimer?.cancel();
-    _typingTimer = Timer(_typingDuration, () {
-      _typingSubscription?.cancel();
-      _typingSubscription = null;
-    });
+    _typingTimer = Timer(_typingTimeout, _stopTyping);
+  }
+
+  /// Stops the [ChatService.keepTyping] subscription when message field loses
+  /// focus.
+  void _focusListener() {
+    final bool sendHasFocus = send.field.focus.hasFocus;
+    final bool editHasFocus = edit.value?.field.focus.hasFocus ?? false;
+
+    if (!sendHasFocus && !editHasFocus) {
+      _stopTyping();
+    }
+  }
+
+  /// Stops the [ChatService.keepTyping] subscription indicating the typing has
+  /// been stopped in this [chat].
+  void _stopTyping() {
+    _typingTimer?.cancel();
+
+    _typingSubscription?.cancel();
+    _typingSubscription = null;
   }
 
   /// Removes [me] from the [chat].
