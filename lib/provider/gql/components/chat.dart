@@ -1576,7 +1576,7 @@ mixin ChatGraphQlMixin {
     );
     return GetAvatar$Query.fromJson(result.data!);
   }
-  
+
   /// Fetches [ChatMember]s of a [Chat] identified by its [id] ordered by their
   /// joining time.
   ///

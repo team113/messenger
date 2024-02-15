@@ -1084,7 +1084,7 @@ class ChatRepository extends DisposableInterface
       query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
     );
   }
-  
+
   /// Fetches the [HiveChatItem] with the provided [id].
   Future<HiveChatItem?> message(ChatItemId id) async {
     Log.debug('message($id)', '$runtimeType');

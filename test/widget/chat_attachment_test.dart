@@ -273,7 +273,7 @@ void main() async {
           }
         }
       })));
-      
+
   when(graphQlProvider.chatItem(any)).thenAnswer(
     (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
   );
