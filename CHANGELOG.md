@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Default device on desktop platforms. ([#465], [#464])
+    - Home page:
+        - Introduction modal `link` stage. ([#848], [#820])
 
 ### Changed
 
@@ -26,7 +28,9 @@ All user visible changes to this project will be documented in this file. This p
 [#464]: /../../issues/464
 [#465]: /../../pull/465
 [#812]: /../../issues/812
+[#820]: /../../issues/820
 [#832]: /../../pull/832
+[#848]: /../../pull/848
 
 
 
