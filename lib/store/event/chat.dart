@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,6 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
@@ -306,8 +305,8 @@ class EventChatItemEdited extends ChatEvent {
   /// Edited [Attachment]s of the [ChatItem].
   final List<Attachment>? attachments;
 
-  /// [ChatItemQuote]s the edited [ChatItem] replies to.
-  final List<ChatItemQuote>? quotes;
+  /// [HiveChatItemQuote]s the edited [ChatItem] replies to.
+  final List<HiveChatItemQuote>? quotes;
 
   @override
   ChatEventKind get kind => ChatEventKind.itemEdited;
@@ -405,10 +404,10 @@ class EventChatLastItemUpdated extends ChatEvent {
 /// Event of last [ChatItem]s posted by the authenticated [MyUser] being
 /// delivered to other [User]s in a [Chat].
 class EventChatDelivered extends ChatEvent {
-  const EventChatDelivered(super.chatId, this.at);
+  const EventChatDelivered(super.chatId, this.until);
 
-  /// [PreciseDateTime] when [ChatItem]s were delivered.
-  final PreciseDateTime at;
+  /// [PreciseDateTime] until which the [ChatItem]s in [Chat] were delivered.
+  final PreciseDateTime until;
 
   @override
   ChatEventKind get kind => ChatEventKind.delivered;

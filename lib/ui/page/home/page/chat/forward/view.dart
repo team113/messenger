@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -73,14 +73,17 @@ class ChatForwardView extends StatelessWidget {
     List<Attachment> attachments = const [],
     void Function()? onSent,
   }) {
+    final Style style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
         maxHeight: 800,
       ),
-      mobilePadding: const EdgeInsets.all(0),
-      desktopPadding: const EdgeInsets.all(0),
+      mobilePadding: const EdgeInsets.only(bottom: 12),
+      desktopPadding: const EdgeInsets.only(bottom: 12),
+      background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
         from: from,
@@ -122,7 +125,6 @@ class ChatForwardView extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      const SizedBox(height: 16),
                       Expanded(
                         child: SearchView(
                           key: const Key('SearchView'),
@@ -136,7 +138,7 @@ class ChatForwardView extends StatelessWidget {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                         child: MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),

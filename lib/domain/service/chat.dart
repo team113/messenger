@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -50,7 +50,7 @@ class ChatService extends DisposableService {
   /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
-  /// Returns the reactive map the currently paginated [RxChat]s.
+  /// Returns the reactive map of the currently paginated [RxChat]s.
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
   /// Returns the current reactive map of all [RxChat]s available.
@@ -88,9 +88,9 @@ class ChatService extends DisposableService {
   }
 
   /// Returns a [RxChat] by the provided [id].
-  Future<RxChat?> get(ChatId id) async {
+  FutureOr<RxChat?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
-    return await _chatRepository.get(id);
+    return _chatRepository.get(id);
   }
 
   /// Fetches the next [paginated] page.

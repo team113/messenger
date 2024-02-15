@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -273,15 +273,15 @@ class LoginView extends StatelessWidget {
                     final bool enabled = !c.email.isEmpty.value;
 
                     return OutlinedRoundedButton(
-                      title: Text(
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
                         'btn_proceed'.l10n,
                         style: enabled
                             ? style.fonts.medium.regular.onPrimary
                             : style.fonts.medium.regular.onBackground,
                       ),
-                      onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
                     );
                   }),
                 ),
@@ -400,10 +400,7 @@ class LoginView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 25 / 2),
-                PrimaryButton(
-                  title: 'btn_one_time_account'.l10n,
-                  onPressed: c.register,
-                ),
+                PrimaryButton(title: 'btn_guest'.l10n, onPressed: c.register),
                 const SizedBox(height: 16),
               ];
               break;

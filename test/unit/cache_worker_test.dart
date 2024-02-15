@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -113,11 +113,11 @@ void main() async {
       await worker.add(base64Decode('$i' * 4 * 3000));
     }
 
-    expect(worker.info.value.size >= worker.info.value.maxSize, true);
+    expect(worker.info.value.size >= worker.info.value.maxSize!, true);
 
     await worker.ensureOptimized();
 
-    expect(worker.info.value.size >= worker.info.value.maxSize, false);
+    expect(worker.info.value.size >= worker.info.value.maxSize!, false);
 
     final List<FileSystemEntity> files = cache.listSync();
     expect(files.length < 100, true);

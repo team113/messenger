@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -191,6 +191,47 @@ List<String?>?
             List<UserName?>? v) =>
         v
             ?.map((e) => fromDartUserNameNullableToGraphQLUserNameNullable(e))
+            .toList();
+
+// UserBio
+
+UserBio fromGraphQLUserBioToDartUserBio(String v) => UserBio.unchecked(v);
+String fromDartUserBioToGraphQLUserBio(UserBio v) => v.val;
+List<UserBio> fromGraphQLListUserBioToDartListUserBio(List<Object?> v) =>
+    v.map((e) => fromGraphQLUserBioToDartUserBio(e as String)).toList();
+List<String> fromDartListUserBioToGraphQLListUserBio(List<UserBio> v) =>
+    v.map((e) => fromDartUserBioToGraphQLUserBio(e)).toList();
+List<UserBio>? fromGraphQLListNullableUserBioToDartListNullableUserBio(
+        List<Object?>? v) =>
+    v?.map((e) => fromGraphQLUserBioToDartUserBio(e as String)).toList();
+List<String>? fromDartListNullableUserBioToGraphQLListNullableUserBio(
+        List<UserBio>? v) =>
+    v?.map((e) => fromDartUserBioToGraphQLUserBio(e)).toList();
+
+UserBio? fromGraphQLUserBioNullableToDartUserBioNullable(String? v) =>
+    v == null ? null : UserBio.unchecked(v);
+String? fromDartUserBioNullableToGraphQLUserBioNullable(UserBio? v) => v?.val;
+List<UserBio?> fromGraphQLListUserBioNullableToDartListUserBioNullable(
+        List<Object?> v) =>
+    v
+        .map((e) =>
+            fromGraphQLUserBioNullableToDartUserBioNullable(e as String?))
+        .toList();
+List<String?> fromDartListUserBioNullableToGraphQLListUserBioNullable(
+        List<UserBio?> v) =>
+    v.map((e) => fromDartUserBioNullableToGraphQLUserBioNullable(e)).toList();
+List<UserBio?>?
+    fromGraphQLListNullableUserBioNullableToDartListNullableUserBioNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLUserBioNullableToDartUserBioNullable(e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableUserBioNullableToGraphQLListNullableUserBioNullable(
+            List<UserBio?>? v) =>
+        v
+            ?.map((e) => fromDartUserBioNullableToGraphQLUserBioNullable(e))
             .toList();
 
 // UserPassword

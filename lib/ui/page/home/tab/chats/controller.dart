@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +35,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
+        CallAlreadyExistsException,
         CallAlreadyJoinedException,
         CallDoesNotExistException,
         CallIsInPopupException;
@@ -48,19 +50,19 @@ import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
+        ClearChatException,
         CreateGroupChatException,
         FavoriteChatException,
         HideChatException,
+        JoinChatCallException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException,
-        ClearChatException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -322,9 +324,11 @@ class ChatsTabController extends GetxController {
   Future<void> call(ChatId id, [bool withVideo = false]) async {
     try {
       await _callService.call(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
-    } on CallDoesNotExistException catch (e) {
+    } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
@@ -336,6 +340,8 @@ class ChatsTabController extends GetxController {
   Future<void> joinCall(ChatId id, {bool withVideo = false}) async {
     try {
       await _callService.join(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallDoesNotExistException catch (e) {
@@ -360,11 +366,21 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Hides the [Chat] identified by the provided [id].
-  Future<void> hideChat(ChatId id) async {
+  /// Hides the [Chat] identified by the provided [id] and clears its history as
+  /// well if [clear] is `true`.
+  Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
-      await _chatService.hideChat(id);
+      final Iterable<Future> futures = [
+        if (clear) _chatService.clearChat(id),
+        _chatService.hideChat(id)
+      ];
+
+      await Future.wait(futures);
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -388,6 +404,8 @@ class ChatsTabController extends GetxController {
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -449,17 +467,79 @@ class ChatsTabController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  Future<RxUser?> getUser(UserId id) => _userService.get(id);
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// contains an [OngoingCall] happening in a [Chat] identified by the
-  /// provided [ChatId].
-  bool containsCall(ChatId id) {
-    if (WebUtils.containsCall(id)) {
-      return true;
+  /// Indicates whether [User] from this [chat] is already in contacts.
+  ///
+  /// Only meaningful, if [chat] is dialog.
+  bool inContacts(RxChat chat) {
+    if (!chat.chat.value.isDialog) {
+      return false;
     }
 
-    return _callService.calls[id] != null;
+    final UserId? userId =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.id;
+    if (userId == null) {
+      return false;
+    }
+
+    return _contactService.contacts.values.any((e) =>
+        e.contact.value.users.length == 1 &&
+        e.contact.value.users.every((m) => m.id == userId));
+  }
+
+  /// Adds the [User] from this [chat] to the contacts list of the authenticated
+  /// [MyUser].
+  ///
+  /// Only meaningful, if [chat] is dialog.
+  Future<void> addToContacts(RxChat chat) async {
+    if (inContacts(chat)) {
+      return;
+    }
+
+    final User? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      await _contactService.createChatContact(user);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [User] from this [chat] from the contacts list of the
+  /// authenticated [MyUser].
+  ///
+  /// Only meaningful, if [chat] is dialog.
+  Future<void> removeFromContacts(RxChat chat) async {
+    if (!inContacts(chat)) {
+      return;
+    }
+
+    final User? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    if (user == null) {
+      return;
+    }
+
+    try {
+      final RxChatContact? contact =
+          _contactService.contacts.values.firstWhereOrNull(
+        (e) =>
+            e.contact.value.users.length == 1 &&
+            e.contact.value.users.every((m) => m.id == user.id),
+      );
+      if (contact != null) {
+        await _contactService.deleteContact(contact.contact.value.id);
+      }
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
   }
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
@@ -515,7 +595,6 @@ class ChatsTabController extends GetxController {
       );
 
       router.chat(chat.chat.value.id);
-      router.chatInfo(chat.chat.value.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -550,9 +629,13 @@ class ChatsTabController extends GetxController {
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
     final List<ChatEntry> favorites = chats
-        .where((e) =>
-            e.chat.value.ongoingCall == null &&
-            e.chat.value.favoritePosition != null)
+        .where(
+          (e) =>
+              e.chat.value.ongoingCall == null &&
+              e.chat.value.favoritePosition != null &&
+              !e.chat.value.isHidden &&
+              !e.hidden.value,
+        )
         .toList();
 
     double position;
@@ -631,6 +714,7 @@ class ChatsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
+        _myUserService,
         categories: [
           SearchCategory.recent,
           if (groupCreating.isFalse) SearchCategory.chat,

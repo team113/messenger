@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,6 +40,7 @@ import '/domain/model/chat_item_quote_input.dart' as model;
 import '/domain/model/chat_message_input.dart' as model;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -180,11 +181,8 @@ class ChatRepository extends DisposableInterface
   /// [Mutex]es guarding synchronized access to the [_putEntry].
   final Map<ChatId, Mutex> _putEntryGuards = {};
 
-  /// Indicator whether a local [Chat]-monolog has been hidden.
-  ///
-  /// Used to prevent the [Chat]-monolog from re-appearing if the local
-  /// [Chat]-monolog was hidden.
-  bool _monologShouldBeHidden = false;
+  /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
+  final Mutex _monologGuard = Mutex();
 
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
@@ -209,6 +207,11 @@ class ChatRepository extends DisposableInterface
   /// Indicates whether this [ChatRepository] uses a remote pagination.
   @visibleForTesting
   bool get isRemote => _localPagination == null && _pagination != null;
+
+  /// Returns the map of the current [OngoingCall]s.
+  ///
+  /// Used for [RxChat.inCall] indicator.
+  RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callRepo.calls;
 
   @override
   Future<void> init({
@@ -300,12 +303,12 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<HiveRxChat?> get(ChatId id) async {
+  FutureOr<HiveRxChat?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
     HiveRxChat? chat = chats[id];
     if (chat != null) {
-      return Future.value(chat);
+      return chat;
     }
 
     // If [chat] doesn't exists, we should lock the [mutex] to avoid remote
@@ -369,11 +372,14 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Ensures the provided [Chat]-monolog is remotely accessible.
-  Future<HiveRxChat> ensureRemoteMonolog([ChatName? name]) async {
+  Future<HiveRxChat> ensureRemoteMonolog({
+    ChatName? name,
+    bool? isHidden,
+  }) async {
     Log.debug('ensureRemoteMonolog($name)', '$runtimeType');
 
     final ChatData chatData = _chat(
-      await _graphQlProvider.createMonologChat(name),
+      await _graphQlProvider.createMonologChat(name: name),
     );
     final HiveRxChat chat = await _putEntry(chatData);
 
@@ -408,7 +414,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    HiveRxChat? rxChat = chats[chatId] ?? (await get(chatId));
+    HiveRxChat? rxChat = chats[chatId] ?? await get(chatId);
     ChatItem? local;
 
     if (chatId.isLocal) {
@@ -504,7 +510,7 @@ class ChatRepository extends DisposableInterface
     Log.debug('renameChat($id, $name)', '$runtimeType');
 
     if (id.isLocalWith(me)) {
-      await ensureRemoteMonolog(name);
+      await ensureRemoteMonolog(name: name);
       return;
     }
 
@@ -555,39 +561,35 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    final HiveRxChat? chat = chats.remove(id);
-    final HiveRxChat? pagination = paginated.remove(id);
-    ChatData? monolog;
+    HiveRxChat? chat = chats[id];
+    ChatData? monologData;
+
+    chat?.chat.update((c) => c?.isHidden = true);
 
     try {
+      // If this [Chat] is local monolog, make it remote first.
       if (id.isLocalWith(me)) {
-        _monologShouldBeHidden = true;
-        monolog = _chat(await _graphQlProvider.createMonologChat(null));
+        monologData =
+            _chat(await _graphQlProvider.createMonologChat(isHidden: true));
 
-        // Delete the local [Chat]-monolog from [Hive], since it won't be
-        // removed as is will be hidden right away.
+        // Dispose and delete local monolog from [Hive], since it's just been
+        // replaced with a remote one.
         await remove(id);
 
-        id = monolog.chat.value.id;
+        id = monologData.chat.value.id;
         await _monologLocal.set(id);
       }
 
+      if (chat == null || chat.chat.value.favoritePosition != null) {
+        await unfavoriteChat(id);
+      }
+
+      // [Chat.isHidden] will be changed by [HiveRxChat]'s own remote event
+      // handler. Chat will be removed from [paginated] on [BoxEvent] from the
+      // [_localSubscription].
       await _graphQlProvider.hideChat(id);
     } catch (_) {
-      if (id == monolog?.chat.value.id) {
-        _monologShouldBeHidden = false;
-        final HiveRxChat entry = await _putEntry(monolog!);
-        chats[id] = entry;
-        paginated[id] = entry;
-      } else {
-        if (chat != null) {
-          chats[id] = chat;
-        }
-
-        if (pagination != null) {
-          paginated[id] = pagination;
-        }
-      }
+      chat?.chat.update((c) => c?.isHidden = false);
 
       rethrow;
     }
@@ -1082,20 +1084,34 @@ class ChatRepository extends DisposableInterface
       query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
     );
   }
+  
+  /// Fetches the [HiveChatItem] with the provided [id].
+  Future<HiveChatItem?> message(ChatItemId id) async {
+    Log.debug('message($id)', '$runtimeType');
+    return (await _graphQlProvider.chatItem(id)).chatItem?.toHive();
+  }
 
   /// Fetches the [Attachment]s of the provided [item].
   Future<List<Attachment>> attachments(HiveChatItem item) async {
     Log.debug('attachments($item)', '$runtimeType');
 
-    var response = await _graphQlProvider.attachments(item.value.id);
+    final response = await _graphQlProvider.attachments(item.value.id);
     return response.chatItem?.toModel() ?? [];
+  }
+
+  /// Fetches the [ChatAvatar]s of the provided [RxChat].
+  Future<ChatAvatar?> avatar(ChatId id) async {
+    Log.debug('avatar($id)', '$runtimeType');
+
+    final response = await _graphQlProvider.avatar(id);
+    return response.chat?.avatar?.toModel();
   }
 
   /// Removes the [ChatCallCredentials] of an [OngoingCall] identified by the
   /// provided [id].
-  Future<void> removeCredentials(ChatItemId id) async {
-    Log.debug('removeCredentials($id)', '$runtimeType');
-    await _callRepo.removeCredentials(id);
+  Future<void> removeCredentials(ChatId chatId, ChatItemId callId) {
+    Log.debug('removeCredentials($callId)', '$runtimeType');
+    return _callRepo.removeCredentials(chatId, callId);
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
@@ -1157,9 +1173,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> getUser(UserId id) async {
+  FutureOr<RxUser?> getUser(UserId id) {
     Log.debug('getUser($id)', '$runtimeType');
-    return await _userRepo.get(id);
+    return _userRepo.get(id);
   }
 
   @override
@@ -1198,7 +1214,7 @@ class ChatRepository extends DisposableInterface
       if (id.isLocalWith(me)) {
         _localMonologFavoritePosition = newPosition;
         final ChatData monolog =
-            _chat(await _graphQlProvider.createMonologChat(null));
+            _chat(await _graphQlProvider.createMonologChat());
 
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
@@ -1346,7 +1362,7 @@ class ChatRepository extends DisposableInterface
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
-        node.repliesTo?.changed.map((e) => e.toHive().value).toList(),
+        node.repliesTo?.changed.map((e) => e.toHive()).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
@@ -1401,7 +1417,7 @@ class ChatRepository extends DisposableInterface
       var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
       return EventChatDelivered(
         e.chatId,
-        node.at,
+        node.until,
       );
     } else if (e.$$typename == 'EventChatRead') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
@@ -1473,12 +1489,26 @@ class ChatRepository extends DisposableInterface
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
   /// Puts the provided [chat] to [Pagination] and [Hive].
+  ///
+  /// Puts it always, if [ignoreVersion] is `true`, or otherwise compares the
+  /// stored version with the provided one.
+  ///
+  /// Overwrites the stored version with the provided, if [updateVersion] is
+  /// `true`. Disabling it makes the [chat] update its fields, if version is
+  /// lower, yet doesn't update the version.
+  ///
+  /// Note, that if [chat] isn't stored, then this always puts it and stores the
+  /// version, despite the parameters.
   Future<HiveRxChat> put(
     HiveChat chat, {
     bool pagination = false,
+    bool updateVersion = true,
     bool ignoreVersion = false,
   }) async {
-    Log.debug('put($chat, $pagination)', '$runtimeType');
+    Log.debug(
+      'put($chat, $pagination, $updateVersion, $ignoreVersion)',
+      '$runtimeType',
+    );
 
     final ChatId chatId = chat.value.id;
     final HiveRxChat? saved = chats[chatId];
@@ -1499,12 +1529,6 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    // [pagination] is `true`, if the [chat] is received from [Pagination],
-    // thus otherwise we should try putting it to it.
-    if (!pagination) {
-      await _pagination?.put(chat);
-    }
-
     final HiveRxChat rxChat = _add(chat, pagination: pagination);
 
     // TODO: https://github.com/team113/messenger/issues/27
@@ -1515,26 +1539,39 @@ class ChatRepository extends DisposableInterface
     // Favorite [HiveChat]s will be putted to [Hive] through
     // [HiveGraphQlPageProvider].
     if (!WebUtils.isPopup || chat.value.favoritePosition == null) {
-      HiveChat? saved;
+      await _chatLocal.txn((txn) async {
+        HiveChat? saved;
 
-      // If version is ignored, there's no need to retrieve the stored chat.
-      if (!ignoreVersion) {
-        saved = await _chatLocal.get(chatId);
-      }
-
-      // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
-      chat.value.firstItem ??=
-          saved?.value.firstItem ?? rxChat.chat.value.firstItem;
-
-      if (saved == null || saved.ver < chat.ver) {
-        _recentLocal.put(chat.value.updatedAt, chatId);
-
-        if (chat.value.favoritePosition != null) {
-          _favoriteLocal.put(chat.value.favoritePosition!, chatId);
+        // If version is ignored, there's no need to retrieve the stored chat.
+        if (!ignoreVersion || !updateVersion) {
+          saved = await txn.get(chatId.val);
         }
 
-        await _chatLocal.put(chat);
-      }
+        // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
+        chat.value.firstItem ??=
+            saved?.value.firstItem ?? rxChat.chat.value.firstItem;
+
+        if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
+          _recentLocal.put(chat.value.updatedAt, chatId);
+
+          if (chat.value.favoritePosition != null) {
+            _favoriteLocal.put(chat.value.favoritePosition!, chatId);
+          }
+
+          // Set the version to the [saved] one, if not [updateVersion].
+          if (saved != null && !updateVersion) {
+            chat.ver = saved.ver;
+          }
+
+          await txn.put(chat.value.id.val, chat);
+        }
+      });
+    }
+
+    // [pagination] is `true`, if the [chat] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
+    if (!pagination && !chat.value.isHidden) {
+      await _pagination?.put(chat);
     }
 
     return rxChat;
@@ -1559,11 +1596,6 @@ class ChatRepository extends DisposableInterface
           chat.value.favoritePosition = _localMonologFavoritePosition;
           _localMonologFavoritePosition = null;
         }
-
-        if (_monologShouldBeHidden) {
-          chat.value.isHidden = _monologShouldBeHidden;
-          _monologShouldBeHidden = false;
-        }
       }
 
       if (entry.chat.value.favoritePosition != chat.value.favoritePosition) {
@@ -1578,7 +1610,7 @@ class ChatRepository extends DisposableInterface
       entry.chat.refresh();
     }
 
-    if (pagination) {
+    if (pagination && !entry.chat.value.isHidden) {
       paginated[chatId] ??= entry;
     }
 
@@ -1587,6 +1619,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [ChatHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
+    Log.debug('_initLocalSubscription()', '$runtimeType');
+
     _localSubscription = StreamIterator(_chatLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;
@@ -1604,10 +1638,16 @@ class ChatRepository extends DisposableInterface
           _add(event.value);
         }
 
-        _recentLocal.put(event.value.value.updatedAt, chatId);
-
         if (event.value.value.favoritePosition != null) {
           _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
+          _recentLocal.remove(chatId);
+        } else {
+          _recentLocal.put(event.value.value.updatedAt, chatId);
+          _favoriteLocal.remove(chatId);
+        }
+
+        if (event.value.value.isHidden) {
+          paginated.remove(chatId);
         }
       }
     }
@@ -1672,7 +1712,7 @@ class ChatRepository extends DisposableInterface
         var node = event as RecentChatsTop;
         for (ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
-            _putEntry(c);
+            _putEntry(c, updateVersion: false);
           }
         }
         break;
@@ -1682,7 +1722,17 @@ class ChatRepository extends DisposableInterface
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
         if (chats[event.chat.chat.value.id]?.subscribed != true) {
-          _putEntry(event.chat);
+          final ChatData data = event.chat;
+          final Chat chat = data.chat.value;
+
+          if (chat.isMonolog) {
+            if (monolog.isLocal) {
+              // Keep track of the [monolog]'s [isLocal] status.
+              await _monologLocal.set(chat.id);
+            }
+          }
+
+          _putEntry(data, updateVersion: false);
         }
         break;
 
@@ -1745,7 +1795,22 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _putEntry(ChatData(event.value!, null, null), pagination: true);
+          final ChatItem? last = event.value!.value.lastItem;
+
+          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
+          // and might not be happening remotely at all.
+          _putEntry(
+            ChatData(
+              event.value!
+                ..value.ongoingCall = null
+                ..value.lastItem = last is ChatCall
+                    ? (last..conversationStartedAt = null)
+                    : last,
+              null,
+              null,
+            ),
+            pagination: true,
+          );
           break;
 
         case OperationKind.removed:
@@ -1795,14 +1860,15 @@ class ChatRepository extends DisposableInterface
           getCursor: (e) => e?.favoriteCursor,
           getKey: (e) => e.value.id,
           orderBy: (_) => _favoriteLocal.values,
-          isLast: (_) => true,
+          isLast: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           isFirst: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           strategy: PaginationStrategy.fromEnd,
           reversed: true,
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
-            Page<HiveChat, FavoriteChatsCursor> page = await _favoriteChats(
+            final Page<HiveChat, FavoriteChatsCursor> page =
+                await _favoriteChats(
               after: after,
               first: first,
               before: before,
@@ -1856,7 +1922,12 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(chatData, pagination: true, ignoreVersion: true);
+          _putEntry(
+            chatData,
+            pagination: true,
+            ignoreVersion: event.op == OperationKind.added,
+            updateVersion: false,
+          );
           break;
 
         case OperationKind.removed:
@@ -1880,6 +1951,7 @@ class ChatRepository extends DisposableInterface
         ChatData(e, null, null),
         pagination: true,
         ignoreVersion: true,
+        updateVersion: false,
       ),
     );
 
@@ -1983,12 +2055,26 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Puts the provided [data] to [Hive].
+  ///
+  /// Puts it always, if [ignoreVersion] is `true`, or otherwise compares the
+  /// stored version with the provided one.
+  ///
+  /// Overwrites the stored version with the provided, if [updateVersion] is
+  /// `true`. Disabling it makes the [chat] update its fields, if version is
+  /// lower, yet doesn't update the version.
+  ///
+  /// Note, that if [data] isn't stored, then this always puts it and stores the
+  /// version, despite the parameters.
   Future<HiveRxChat> _putEntry(
     ChatData data, {
     bool pagination = false,
+    bool updateVersion = true,
     bool ignoreVersion = false,
   }) async {
-    Log.trace('_putEntry($data, $pagination, $ignoreVersion)', '$runtimeType');
+    Log.trace(
+      '_putEntry($data, $pagination, $updateVersion, $ignoreVersion)',
+      '$runtimeType',
+    );
 
     final ChatId chatId = data.chat.value.id;
 
@@ -2004,6 +2090,7 @@ class ChatRepository extends DisposableInterface
       return put(
         data.chat,
         pagination: pagination,
+        updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
       );
     }
@@ -2045,6 +2132,7 @@ class ChatRepository extends DisposableInterface
       entry = await put(
         data.chat,
         pagination: pagination,
+        updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
       );
 
@@ -2205,9 +2293,12 @@ class ChatRepository extends DisposableInterface
 
     final ChatId chatId = ChatId.local(responderId);
 
+    final FutureOr<RxUser?> myUser = _userRepo.get(me);
+    final FutureOr<RxUser?> responder = _userRepo.get(responderId);
+
     final List<RxUser?> users = [
-      await _userRepo.get(me),
-      if (responderId != me) await _userRepo.get(responderId)
+      myUser is RxUser? ? myUser : await myUser,
+      if (responderId != me) responder is RxUser? ? responder : await responder,
     ];
 
     final ChatData chatData = ChatData(
@@ -2239,11 +2330,43 @@ class ChatRepository extends DisposableInterface
   Future<void> _initMonolog() async {
     Log.debug('_initMonolog()', '$runtimeType');
 
-    if (monolog.isLocal &&
-        paginated[monolog] == null &&
-        _pagination?.hasNext.value == false) {
-      await _createLocalDialog(me);
-    }
+    await _monologGuard.protect(() async {
+      final bool isLocal = monolog.isLocal;
+      final bool isPaginated = paginated[monolog] != null;
+      final bool canFetchMore = _pagination?.hasNext.value ?? true;
+
+      // If a non-local [monolog] isn't stored and it won't appear from the
+      // [Pagination], then initialize local monolog or get a remote one.
+      if (isLocal && !isPaginated && !canFetchMore) {
+        // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
+        final bool isStored = _monologLocal.get() != null;
+
+        if (isStored) {
+          // Initialize local monolog, if its ID was saved. If `isStored`, local
+          // monolog will appear for a moment since it's stored in [Hive], but
+          // then disappear, because it's not in the remote [Pagination]. This
+          // line makes [monolog] be present despite it is not remote.
+          await _createLocalDialog(me);
+        }
+
+        // Check if there's a remote update (monolog could've been hidden)
+        // before creating a local chat.
+        final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
+
+        if (maybeMonolog != null) {
+          // If the [monolog] was fetched, then update [_monologLocal].
+          final ChatData monologChatData = _chat(maybeMonolog);
+          final HiveRxChat monolog = await _putEntry(monologChatData);
+
+          await _monologLocal.set(monolog.id);
+        } else if (!isStored) {
+          // If remote monolog doesn't exist and local one is not stored, then
+          // create it.
+          await _createLocalDialog(me);
+          await _monologLocal.set(monolog);
+        }
+      }
+    });
   }
 }
 

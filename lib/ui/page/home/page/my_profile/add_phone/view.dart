@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,14 +33,24 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {
-  const AddPhoneView({super.key, this.phone});
+  const AddPhoneView({super.key, this.phone, this.timeout = false});
 
   /// Initial [UserPhone] to confirm.
   final UserPhone? phone;
 
+  /// Indicator whether the resend [Timer] should be started initially.
+  final bool timeout;
+
   /// Displays a [AddPhoneView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {UserPhone? phone}) {
-    return ModalPopup.show(context: context, child: AddPhoneView(phone: phone));
+  static Future<T?> show<T>(
+    BuildContext context, {
+    UserPhone? phone,
+    bool timeout = false,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: AddPhoneView(phone: phone, timeout: timeout),
+    );
   }
 
   @override
@@ -51,6 +61,7 @@ class AddPhoneView extends StatelessWidget {
       init: AddPhoneController(
         Get.find(),
         initial: phone,
+        timeout: timeout,
         pop: context.popModal,
       ),
       builder: (AddPhoneController c) {
@@ -91,7 +102,11 @@ class AddPhoneView extends StatelessWidget {
                             child: OutlinedRoundedButton(
                               key: const Key('Resend'),
                               maxWidth: double.infinity,
-                              title: Text(
+                              onPressed: c.resendPhoneTimeout.value == 0
+                                  ? c.resendPhone
+                                  : null,
+                              color: style.colors.primary,
+                              child: Text(
                                 c.resendPhoneTimeout.value == 0
                                     ? 'label_resend'.l10n
                                     : 'label_resend_timeout'.l10nfmt(
@@ -101,10 +116,6 @@ class AddPhoneView extends StatelessWidget {
                                     ? style.fonts.normal.regular.onPrimary
                                     : style.fonts.normal.regular.onBackground,
                               ),
-                              onPressed: c.resendPhoneTimeout.value == 0
-                                  ? c.resendPhone
-                                  : null,
-                              color: style.colors.primary,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -112,16 +123,16 @@ class AddPhoneView extends StatelessWidget {
                             child: OutlinedRoundedButton(
                               key: const Key('Proceed'),
                               maxWidth: double.infinity,
-                              title: Text(
+                              onPressed: c.phoneCode.isEmpty.value
+                                  ? null
+                                  : c.phoneCode.submit,
+                              color: style.colors.primary,
+                              child: Text(
                                 'btn_proceed'.l10n,
                                 style: c.phoneCode.isEmpty.value
                                     ? style.fonts.normal.regular.onBackground
                                     : style.fonts.normal.regular.onPrimary,
                               ),
-                              onPressed: c.phoneCode.isEmpty.value
-                                  ? null
-                                  : c.phoneCode.submit,
-                              color: style.colors.primary,
                             ),
                           ),
                         ],
@@ -162,15 +173,15 @@ class AddPhoneView extends StatelessWidget {
                       return OutlinedRoundedButton(
                         key: const Key('Proceed'),
                         maxWidth: double.infinity,
-                        title: Text(
+                        onPressed:
+                            c.phone.isEmpty.value ? null : c.phone.submit,
+                        color: style.colors.primary,
+                        child: Text(
                           'btn_proceed'.l10n,
                           style: c.phone.isEmpty.value
                               ? style.fonts.normal.regular.onBackground
                               : style.fonts.normal.regular.onPrimary,
                         ),
-                        onPressed:
-                            c.phone.isEmpty.value ? null : c.phone.submit,
-                        color: style.colors.primary,
                       );
                     }),
                   ],

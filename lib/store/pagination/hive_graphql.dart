@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -43,19 +43,20 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
       hiveProvider.provider = provider;
 
   @override
-  Future<Page<T, C>?> init(T? item, int count) =>
-      hiveProvider.init(item, count);
+  Future<Page<T, C>> init(K? key, int count) => hiveProvider.init(key, count);
 
   @override
-  FutureOr<Page<T, C>?> around(T? item, C? cursor, int count) async {
-    final cached = await hiveProvider.around(item, cursor, count);
+  Future<Page<T, C>> around(K? key, C? cursor, int count) async {
+    final Page<T, C> cached = await hiveProvider.around(key, cursor, count);
 
-    if (cached != null &&
-        (cached.edges.length >= count || !cached.info.hasNext)) {
+    if (cached.edges.length >= count ||
+        !cached.info.hasNext ||
+        !cached.info.hasPrevious) {
       return cached;
     }
 
-    final remote = await graphQlProvider.around(item, cursor, count);
+    final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
+
     for (T e in remote.edges) {
       hiveProvider.put(e);
     }
@@ -64,36 +65,34 @@ class HiveGraphQlPageProvider<T extends Object, C, K>
   }
 
   @override
-  FutureOr<Page<T, C>?> after(T? item, C? cursor, int count) async {
-    final cached = await hiveProvider.after(item, cursor, count);
+  Future<Page<T, C>> after(K? key, C? cursor, int count) async {
+    final Page<T, C>? cached = await hiveProvider.after(key, cursor, count);
 
     if (cached != null && cached.edges.isNotEmpty) {
       return cached;
     }
 
-    final remote = await graphQlProvider.after(item, cursor, count);
-    if (remote != null) {
-      for (T e in remote.edges) {
-        await hiveProvider.put(e);
-      }
+    final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
+
+    for (T e in remote.edges) {
+      await hiveProvider.put(e);
     }
 
     return remote;
   }
 
   @override
-  FutureOr<Page<T, C>?> before(T? item, C? cursor, int count) async {
-    final cached = await hiveProvider.before(item, cursor, count);
+  Future<Page<T, C>> before(K? key, C? cursor, int count) async {
+    final Page<T, C>? cached = await hiveProvider.before(key, cursor, count);
 
     if (cached != null && cached.edges.isNotEmpty) {
       return cached;
     }
 
-    final remote = await graphQlProvider.before(item, cursor, count);
-    if (remote != null) {
-      for (T e in remote.edges) {
-        await hiveProvider.put(e);
-      }
+    final Page<T, C> remote = await graphQlProvider.before(key, cursor, count);
+
+    for (T e in remote.edges) {
+      await hiveProvider.put(e);
     }
 
     return remote;

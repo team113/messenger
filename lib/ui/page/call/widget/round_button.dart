@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -193,6 +193,11 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
       );
     }
 
+    final List<Shadow> shadows = [
+      Shadow(blurRadius: 6, color: style.colors.onBackground),
+      Shadow(blurRadius: 6, color: style.colors.onBackground),
+    ];
+
     return widget.text == null
         ? button
         : Column(
@@ -210,7 +215,9 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
                     textAlign: TextAlign.center,
                     style: widget.minified
                         ? style.fonts.smaller.regular.onPrimary
-                        : style.fonts.small.regular.onPrimary,
+                        : style.fonts.small.regular.onPrimary.copyWith(
+                            shadows: widget.withBlur ? shadows : null,
+                          ),
                     maxLines: 2,
                   ),
                 ),

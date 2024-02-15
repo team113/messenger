@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -46,6 +46,15 @@ class DataAttachment extends StatefulWidget {
 class _DataAttachmentState extends State<DataAttachment> {
   /// Indicator whether this [DataAttachment] is hovered.
   bool _hovered = false;
+
+  @override
+  void initState() {
+    if (widget.attachment is FileAttachment) {
+      (widget.attachment as FileAttachment).init();
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

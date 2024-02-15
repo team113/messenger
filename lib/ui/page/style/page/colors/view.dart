@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -78,6 +78,8 @@ class ColorsView extends StatelessWidget {
       (style.colors.acceptLightest, 'acceptLightest'),
       (style.colors.danger, 'danger'),
       (style.colors.decline, 'decline'),
+      (style.colors.declineOpacity88, 'declineOpacity88'),
+      (style.colors.declineOpacity50, 'declineOpacity50'),
       (style.colors.warning, 'warning'),
     ];
 

@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -21,12 +21,14 @@ Feature: Chat avatar
     Given I am Alice
     And user Bob
     And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" chat
+    And I am in "Alice and Bob" group
     And I open chat's info
 
   Scenario: User uploads and deletes chat avatar
     When I update chat avatar with "test.jpg"
     Then I see chat avatar as "test.jpg"
 
-    When I tap `DeleteAvatar` button
+    When I tap `MoreButton` button
+    And I tap `EditButton` button
+    And I tap `DeleteAvatar` button
     Then I see chat avatar as none

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -1146,7 +1146,7 @@ class IconsView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SvgIcons.info,
-                        SvgIcons.copy18,
+                        SvgIcons.copy19,
                         SvgIcons.reply,
                         SvgIcons.forwardSmall,
                         SvgIcons.edit,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -55,6 +55,16 @@ class CacheInfoHiveProvider extends HiveBaseProvider<CacheInfo> {
     info.size = size ?? info.size;
     info.maxSize = maxSize ?? info.maxSize;
     info.modified = modified ?? info.modified;
+
+    return putSafe(0, info);
+  }
+
+  /// Updates the stored [CacheInfo.maxSize] with the provided.
+  Future<void> setMaxSize(int? maxSize) {
+    Log.trace('setMaxSize($maxSize)', '$runtimeType');
+
+    final CacheInfo info = this.info;
+    info.maxSize = maxSize;
 
     return putSafe(0, info);
   }

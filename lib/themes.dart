@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
+import 'ui/widget/custom_page.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';
@@ -36,7 +37,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary']
   },
   'big': {
-    'regular': ['onBackground', 'onPrimary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
   },
   'medium': {
     'regular': [
@@ -74,7 +75,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
   },
   'smallest': {
-    'regular': ['onBackground', 'onPrimary']
+    'regular': ['onBackground', 'onPrimary', 'secondary']
   },
 })
 class Themes {
@@ -110,7 +111,7 @@ class Themes {
       acceptLight: const Color(0xFFBFE3B9),
       acceptLighter: const Color(0xFFD9FDD3),
       acceptLightest: const Color(0xFFF2FDED),
-      decline: const Color(0x7FFF0000),
+      decline: const Color(0xFFFF0000),
       danger: const Color(0xFFF44336),
       warning: const Color(0xFFFF9800),
       userColors: const [
@@ -137,7 +138,7 @@ class Themes {
     );
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'NotoSansDisplay',
+      fontFamily: 'Roboto',
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
@@ -271,7 +272,7 @@ class Themes {
         prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
         counterStyle: fonts.small.regular.secondaryHighlightDarkest,
-        floatingLabelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        floatingLabelStyle: fonts.big.regular.secondary,
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
@@ -366,10 +367,10 @@ class Themes {
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
           TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
         },
       ),
@@ -685,6 +686,8 @@ class Palette {
     required this.acceptLighter,
     required this.acceptLightest,
     required this.decline,
+    Color? declineOpacity50,
+    Color? declineOpacity88,
     required this.danger,
     required this.warning,
     required this.userColors,
@@ -724,7 +727,9 @@ class Palette {
         onBackgroundOpacity50 =
             onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
         onBackgroundOpacity70 =
-            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70);
+            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70),
+        declineOpacity50 = declineOpacity50 ?? decline.withOpacity(0.50),
+        declineOpacity88 = declineOpacity88 ?? decline.withOpacity(0.88);
 
   /// Primary [Color] of the application.
   ///
@@ -959,9 +964,17 @@ class Palette {
 
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
+  final Color decline;
+
+  /// 88% opacity of the [decline] color.
   ///
   /// Used in decline call button.
-  final Color decline;
+  final Color declineOpacity88;
+
+  /// 50% opacity of the [decline] color.
+  ///
+  /// Used in decline call button.
+  final Color declineOpacity50;
 
   /// [Color] used to indicate dangerous or critical elements in the user
   /// interface.
@@ -1072,6 +1085,10 @@ class Palette {
       acceptLightest:
           Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
       decline: Color.lerp(color.decline, other.decline, t)!,
+      declineOpacity50:
+          Color.lerp(color.declineOpacity50, other.declineOpacity50, t)!,
+      declineOpacity88:
+          Color.lerp(color.declineOpacity88, other.declineOpacity88, t)!,
       danger: Color.lerp(color.danger, other.danger, t)!,
       warning: Color.lerp(color.warning, other.warning, t)!,
       userColors:

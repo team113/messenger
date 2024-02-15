@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -82,12 +82,12 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('OkButton'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -130,12 +130,12 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -194,7 +194,7 @@ class IntroductionView extends StatelessWidget {
       onSuffixPressed: copy,
       selectable: c.myUser.value?.chatDirectLink != null,
       trailing: PlatformUtils.isMobile
-          ? const SvgIcon(SvgIcons.shareThick)
+          ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
     );

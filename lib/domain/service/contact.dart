@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,10 +19,10 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/contact.dart';
-import '../repository/contact.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/contact.dart';
+import '/domain/repository/paginated.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'disposable_service.dart';
@@ -43,9 +43,13 @@ class ContactService extends DisposableService {
   /// Indicates whether a next page of the [paginated] is loading.
   RxBool get nextLoading => _contactRepository.nextLoading;
 
-  /// Returns the reactive map the currently paginated [ChatContact]s.
+  /// Returns the reactive map of the currently paginated [RxChatContact]s.
   RxObsMap<ChatContactId, RxChatContact> get paginated =>
       _contactRepository.paginated;
+
+  /// Returns the current reactive map of all [RxChatContact]s available.
+  RxObsMap<ChatContactId, RxChatContact> get contacts =>
+      _contactRepository.contacts;
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() {
@@ -54,10 +58,10 @@ class ContactService extends DisposableService {
   }
 
   /// Adds the specified [user] to the current [MyUser]'s address book.
-  Future<void> createChatContact(User user) async {
+  Future<void> createChatContact(User user) {
     Log.debug('createChatContact($user)', '$runtimeType');
 
-    await _contactRepository.createChatContact(
+    return _contactRepository.createChatContact(
       user.name ?? UserName(user.num.toString()),
       user.id,
     );
@@ -95,7 +99,7 @@ class ContactService extends DisposableService {
   }
 
   /// Searches [ChatContact]s by the given criteria.
-  SearchResult<ChatContactId, RxChatContact> search({
+  Paginated<ChatContactId, RxChatContact> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,

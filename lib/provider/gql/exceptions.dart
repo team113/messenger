@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -715,7 +715,7 @@ class AddUserEmailException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case AddUserEmailErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
       case AddUserEmailErrorCode.busy:
         return 'err_you_already_has_unconfirmed_email'.l10n;
       case AddUserEmailErrorCode.tooMany:
@@ -838,7 +838,7 @@ class AddUserPhoneException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case AddUserPhoneErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
+        return 'err_data_transfer'.l10n;
       case AddUserPhoneErrorCode.busy:
         return 'err_you_already_has_unconfirmed_phone'.l10n;
       case AddUserPhoneErrorCode.tooMany:

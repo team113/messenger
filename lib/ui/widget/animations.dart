@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ class ElasticAnimatedSwitcher extends StatelessWidget {
   ///
   /// If there was a previous child, then it will be elastically faded out,
   /// while the new one is faded in.
-  final Widget child;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

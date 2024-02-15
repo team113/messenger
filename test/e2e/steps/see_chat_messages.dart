@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,8 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../configuration.dart';
 import '../parameters/iterable_amount.dart';
@@ -50,4 +55,36 @@ final StepDefinitionGeneric seeChatMessages =
       },
     );
   },
+);
+
+/// Indicates whether a [ChatItem] with the provided text is visible in the
+/// opened [Chat].
+///
+/// Examples:
+/// - I see "dummy message" message.
+final StepDefinitionGeneric seeChatMessage = when1<String, CustomWorld>(
+  'I see {string} message',
+  (String text, context) async {
+    final controller =
+        Get.find<ChatController>(tag: router.route.split('/').last);
+
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+
+        final ChatMessageElement? message = controller.elements.values
+            .whereType<ChatMessageElement>()
+            .firstWhereOrNull(
+              (e) => (e.item.value as ChatMessage).text?.val == text,
+            );
+
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver
+              .findByKeySkipOffstage('Message_${message?.id.id}'),
+        );
+      },
+    );
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

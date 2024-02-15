@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -52,6 +52,9 @@ abstract class AbstractMyUserRepository {
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status);
+
+  /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
+  Future<void> updateUserBio(UserBio? bio);
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   Future<void> updateUserLogin(UserLogin login);

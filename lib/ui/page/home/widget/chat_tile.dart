@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,12 +41,13 @@ class ChatTile extends StatelessWidget {
     this.actions = const [],
     this.selected = false,
     this.onTap,
-    this.height = 94,
+    this.height = 80,
     this.darken = 0,
     this.dimmed = false,
     Widget Function(Widget)? titleBuilder,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
+    this.onForbidden,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -98,6 +101,9 @@ class ChatTile extends StatelessWidget {
   /// Indicator whether this [ChatTile] should have its background a bit dimmed.
   final bool dimmed;
 
+  /// Callback, called when [ChatAvatar] fetching fails with `Forbidden` error.
+  final FutureOr<void> Function()? onForbidden;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -108,33 +114,37 @@ class ChatTile extends StatelessWidget {
       actions: actions,
       indicateOpenedMenu: true,
       enabled: enableContextMenu,
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
-          child: InkWellWithHover(
-            selectedColor: style.colors.primary,
-            unselectedColor: dimmed
-                ? style.colors.onPrimaryOpacity50
-                : style.cardColor.darken(darken),
-            selected: selected,
-            hoveredBorder:
-                selected ? style.cardSelectedBorder : style.cardHoveredBorder,
-            border: selected ? style.cardSelectedBorder : style.cardBorder,
-            borderRadius: style.cardRadius,
-            onTap: onTap,
-            unselectedHoverColor: style.cardHoveredColor,
-            selectedHoverColor: style.colors.primary,
-            folded: chat?.chat.value.favoritePosition != null,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
+        child: InkWellWithHover(
+          selectedColor: style.colors.primary,
+          unselectedColor: dimmed
+              ? style.colors.onPrimaryOpacity50
+              : style.cardColor.darken(darken),
+          selected: selected,
+          hoveredBorder:
+              selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+          border: selected ? style.cardSelectedBorder : style.cardBorder,
+          borderRadius: style.cardRadius,
+          onTap: onTap,
+          unselectedHoverColor: style.cardHoveredColor,
+          selectedHoverColor: style.colors.primary,
+          folded: chat?.chat.value.favoritePosition != null,
+          child: SizedBox(
+            height: height,
             child: Padding(
               key: chat?.chat.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${chat?.chat.value.id}')
                   : null,
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Row(
                 children: [
                   avatarBuilder(
-                    AvatarWidget.fromRxChat(chat, radius: AvatarRadius.large),
+                    AvatarWidget.fromRxChat(
+                      chat,
+                      radius: AvatarRadius.large,
+                      onForbidden: onForbidden,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   ...leading,

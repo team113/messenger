@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,12 +18,13 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
+import '/util/media_utils.dart';
 import 'controller.dart';
 
 /// View for updating the [MediaSettings.outputDevice].
@@ -33,7 +34,7 @@ class OutputSwitchView extends StatelessWidget {
   const OutputSwitchView({super.key, this.onChanged, this.output});
 
   /// Callback, called when the selected output device changes.
-  final void Function(String)? onChanged;
+  final void Function(DeviceDetails)? onChanged;
 
   /// ID of the initially selected audio output device.
   final String? output;
@@ -41,7 +42,7 @@ class OutputSwitchView extends StatelessWidget {
   /// Displays a [OutputSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChanged,
+    void Function(DeviceDetails)? onChanged,
     String? output,
   }) {
     return ModalPopup.show(
@@ -52,6 +53,8 @@ class OutputSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: OutputSwitchController(Get.find(), output: output),
       builder: (OutputSwitchController c) {
@@ -69,6 +72,19 @@ class OutputSwitchView extends StatelessWidget {
                   children: [
                     const SizedBox(height: 13),
                     Obx(() {
+                      if (c.error.value == null) {
+                        return const SizedBox();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          c.error.value!,
+                          style: style.fonts.normal.regular.danger,
+                        ),
+                      );
+                    }),
+                    Obx(() {
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
@@ -76,20 +92,19 @@ class OutputSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceDetails e = c.devices[i];
+                            final DeviceDetails e = c.devices[i];
 
                             final bool selected =
-                                (c.output.value == null && i == 0) ||
-                                    c.output.value == e.deviceId();
+                                (c.selected.value == null && i == 0) ||
+                                    c.selected.value?.id() == e.id();
 
                             return RectangleButton(
                               selected: selected,
                               onPressed: selected
                                   ? null
                                   : () {
-                                      c.output.value = e.deviceId();
-                                      (onChanged ?? c.setOutputDevice)
-                                          .call(e.deviceId());
+                                      c.selected.value = e;
+                                      (onChanged ?? c.setOutputDevice).call(e);
                                     },
                               label: e.label(),
                             );

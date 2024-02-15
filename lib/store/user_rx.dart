@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -66,7 +66,7 @@ class HiveRxUser extends RxUser {
   final UserHiveProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
-  final Rx<RxChat?> _dialog = Rx<RxChat?>(null);
+  Rx<RxChat?>? _dialog;
 
   /// [UserRepository.userEvents] subscription.
   StreamQueue<UserEvents>? _remoteSubscription;
@@ -92,14 +92,20 @@ class HiveRxUser extends RxUser {
 
   @override
   Rx<RxChat?> get dialog {
-    Log.debug('get dialog', '$runtimeType($id)');
-
     final ChatId dialogId = user.value.dialog;
-    if (_dialog.value == null) {
-      _userRepository.getChat?.call(dialogId).then((v) => _dialog.value = v);
+    if (_dialog == null) {
+      final FutureOr<RxChat?> chatOrFuture =
+          _userRepository.getChat?.call(dialogId);
+
+      if (chatOrFuture is RxChat?) {
+        _dialog = Rx(chatOrFuture);
+      } else {
+        _dialog = Rx(null);
+        chatOrFuture.then((v) => _dialog?.value = v);
+      }
     }
 
-    return _dialog;
+    return _dialog!;
   }
 
   @override

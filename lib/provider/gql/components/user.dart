@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -161,6 +161,35 @@ mixin UserGraphQlMixin {
       ),
     );
     return UpdateUserName$Mutation.fromJson(res.data!).updateUserName;
+  }
+
+  /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserBioUpdated] (if the [bio] argument is specified);
+  /// - [EventUserBioDeleted] (if the [bio] argument is absent or is `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser] uses the provided [bio] already.
+  Future<MyUserEventsVersionedMixin?> updateUserBio(UserBio? bio) async {
+    Log.debug('updateUserBio($bio)', '$runtimeType');
+
+    final variables = UpdateUserBioArguments(bio: bio);
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        document: UpdateUserBioMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return UpdateUserBio$Mutation.fromJson(res.data!).updateUserBio;
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].

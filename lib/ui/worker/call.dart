@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -193,7 +193,10 @@ class CallWorker extends DisposableService {
               // Show a notification of an incoming call.
               if (!outgoing && !PlatformUtils.isMobile && !_focused) {
                 if (_myUser.value?.muted == null) {
-                  _chatService.get(c.chatId.value).then((RxChat? chat) {
+                  final FutureOr<RxChat?> chat =
+                      _chatService.get(c.chatId.value);
+
+                  void showIncomingCallNotification(RxChat? chat) {
                     if (chat?.chat.value.muted == null) {
                       String? title = chat?.title.value ??
                           c.caller?.name?.val ??
@@ -207,7 +210,13 @@ class CallWorker extends DisposableService {
                         tag: '${c.chatId}_${c.call.value?.id}',
                       );
                     }
-                  });
+                  }
+
+                  if (chat is RxChat?) {
+                    showIncomingCallNotification(chat);
+                  } else {
+                    chat.then(showIncomingCallNotification);
+                  }
                 }
               }
             }
@@ -242,7 +251,7 @@ class CallWorker extends DisposableService {
 
   @override
   void onReady() {
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _callKeep.setup(router.context!, Config.callKeep);
 

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -55,7 +55,8 @@ class ParticipantController extends GetxController {
     this._chatService,
     this._callService, {
     this.pop,
-  });
+    ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
+  }) : stage = Rx(initial);
 
   /// Reactive [RxChat] this modal is about.
   Rx<RxChat?> chat = Rx(null);
@@ -68,8 +69,7 @@ class ParticipantController extends GetxController {
   final void Function()? pop;
 
   /// [ParticipantsFlowStage] currently being displayed.
-  final Rx<ParticipantsFlowStage> stage =
-      Rx(ParticipantsFlowStage.participants);
+  final Rx<ParticipantsFlowStage> stage;
 
   /// Status of a [addMembers] completion.
   ///
@@ -188,7 +188,7 @@ class ParticipantController extends GetxController {
     status.value = RxStatus.loading();
 
     try {
-      if (chat.value?.chat.value.isGroup != false) {
+      if (chat.value?.chat.value.isGroup ?? true) {
         List<Future> futures = ids
             .map((e) => _chatService.addChatMember(chatId.value, e))
             .toList();
@@ -223,10 +223,13 @@ class ParticipantController extends GetxController {
     }
   }
 
-  /// Fetches the [chat].
-  void _fetchChat() async {
+  /// Fetches the [chat], or [pop]s, if it's `null`.
+  Future<void> _fetchChat() async {
     chat.value = null;
-    chat.value = (await _chatService.get(chatId.value));
+
+    final FutureOr<RxChat?> fetched = _chatService.get(chatId.value);
+    chat.value = fetched is RxChat? ? fetched : await fetched;
+
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();

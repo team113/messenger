@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -65,13 +65,7 @@ class HomeController extends GetxController {
   late final Rx<HomeTab> page;
 
   /// Reactive [MyUser.unreadChatsCount] value.
-  final Rx<int> unreadChatsCount = Rx<int>(0);
-
-  /// [Timer] for discarding any horizontal movement in a [PageView] when
-  /// non-`null`.
-  ///
-  /// Indicates currently ongoing vertical scroll of a view.
-  final Rx<Timer?> verticalScrollTimer = Rx(null);
+  final RxInt unreadChats = RxInt(0);
 
   /// [GlobalKey] of an [AvatarWidget] in the navigation bar.
   ///
@@ -107,15 +101,30 @@ class HomeController extends GetxController {
   /// Returns the background's [Uint8List].
   Rx<Uint8List?> get background => _settings.background;
 
+  /// Returns the current [ApplicationSettings] value.
+  Rx<ApplicationSettings?> get settings => _settings.applicationSettings;
+
+  /// Returns the [List] of the [HomeTab]s to display.
+  List<HomeTab> get tabs {
+    final List<HomeTab> tabs = HomeTab.values.toList();
+
+    if (settings.value?.workWithUsTabEnabled == false) {
+      tabs.remove(HomeTab.work);
+    }
+
+    return tabs;
+  }
+
   @override
   void onInit() {
     super.onInit();
     page = Rx<HomeTab>(router.tab);
     pages = PageController(initialPage: page.value.index, keepPage: true);
 
-    unreadChatsCount.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
-    _myUserSubscription = _myUserService.myUser.listen((u) =>
-        unreadChatsCount.value = u?.unreadChatsCount ?? unreadChatsCount.value);
+    unreadChats.value = _myUserService.myUser.value?.unreadChatsCount ?? 0;
+    _myUserSubscription = _myUserService.myUser.listen(
+      (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
+    );
 
     sideBarWidth =
         RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);

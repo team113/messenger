@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -184,7 +184,11 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    Widget video = VideoView(
+    if (widget.renderer.height.value == 0) {
+      _waitTilSizeDetermined();
+    }
+
+    final Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
       mirror: widget.renderer.mirror,
@@ -195,7 +199,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
       if (widget.renderer.height.value == 0) {
-        _waitTilSizeDetermined();
         return Stack(
           children: [
             Offstage(child: video),
@@ -212,7 +215,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       if (widget.respectAspectRatio && fit != BoxFit.cover) {
         return Obx(() {
           if (widget.renderer.height.value == 0) {
-            _waitTilSizeDetermined();
             if (widget.framelessBuilder != null) {
               return widget.framelessBuilder!();
             }
@@ -342,7 +344,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   /// Recursively waits for the [RtcVideoRenderer]'s size to be determined and
   /// requests a rebuild when it becomes determined.
   void _waitTilSizeDetermined() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (widget.renderer.height.value == 0) {
           _waitTilSizeDetermined();

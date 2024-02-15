@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,7 +31,7 @@ class RectangleButton extends StatelessWidget {
     required this.label,
     this.trailingColor,
     this.radio = false,
-    this.lockWhenSelected = true,
+    this.toggleable = false,
   });
 
   /// Label of this [RectangleButton].
@@ -50,8 +50,8 @@ class RectangleButton extends StatelessWidget {
   /// [Color] of the trailing background, when [selected] is `true`.
   final Color? trailingColor;
 
-  /// Indicator whether [onPressed] shouldn't be invoked when [selected].
-  final bool lockWhenSelected;
+  /// Indicator whether [onPressed] can be invoked when [selected].
+  final bool toggleable;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,7 @@ class RectangleButton extends StatelessWidget {
           : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: selected && lockWhenSelected ? null : onPressed,
+        onTap: selected && !toggleable ? null : onPressed,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/util/log.dart';
 import 'disposable_service.dart';
@@ -40,7 +40,7 @@ class UserService extends DisposableService {
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
   /// Searches [User]s by the given criteria.
-  SearchResult<UserId, RxUser> search({
+  Paginated<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -57,9 +57,8 @@ class UserService extends DisposableService {
   }
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> get(UserId id) async {
-    Log.debug('get($id)', '$runtimeType');
-    return await _userRepository.get(id);
+  FutureOr<RxUser?> get(UserId id) {
+    return _userRepository.get(id);
   }
 
   /// Blocks the specified [User] for the authenticated [MyUser].

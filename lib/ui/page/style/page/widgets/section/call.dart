@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -57,6 +57,7 @@ class CallSection {
                 child: Dock(
                   items: List.generate(5, (i) => i),
                   itemWidth: CallController.buttonSize,
+                  delayed: false,
                   onReorder: (buttons) {},
                   onDragStarted: (b) {},
                   onDragEnded: (_) {},
@@ -148,7 +149,6 @@ class CallSection {
       Headline(
         background: style.colors.backgroundAuxiliaryLight,
         child: const CallTitle(
-          UserId('me'),
           title: 'Title',
           state: 'State',
         ),

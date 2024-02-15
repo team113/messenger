@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -262,14 +262,19 @@ class ChatsTabView extends StatelessWidget {
                       if (c.searching.value) {
                         if (c.search.value?.search.isEmpty.value == false) {
                           child = const SvgIcon(
-                            SvgIcons.searchExit,
+                            SvgIcons.clearSearch,
+                            key: Key('CloseSearch'),
+                          );
+                        } else {
+                          child = const SvgIcon(
+                            SvgIcons.closePrimary,
                             key: Key('CloseSearch'),
                           );
                         }
                       } else {
                         if (c.groupCreating.value || c.selecting.value) {
                           child = const SvgIcon(
-                            SvgIcons.searchExit,
+                            SvgIcons.closePrimary,
                             key: Key('CloseGroupSearching'),
                           );
                         }
@@ -334,12 +339,14 @@ class ChatsTabView extends StatelessWidget {
                                 label: 'btn_create_group'.l10n,
                                 onPressed: c.startGroupCreating,
                                 trailing: const SvgIcon(SvgIcons.group),
+                                inverted: const SvgIcon(SvgIcons.groupWhite),
                               ),
                               ContextMenuButton(
                                 key: const Key('SelectChatsButton'),
                                 label: 'btn_select_and_delete'.l10n,
                                 onPressed: c.toggleSelecting,
                                 trailing: const SvgIcon(SvgIcons.select),
+                                inverted: const SvgIcon(SvgIcons.selectWhite),
                               ),
                             ],
                             child: AnimatedButton(
@@ -367,6 +374,9 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
+                  final RxStatus? searchStatus =
+                      c.search.value?.searchStatus.value;
+
                   if (c.status.value.isLoading) {
                     return const Center(
                       child: CustomProgressIndicator.primary(),
@@ -382,9 +392,8 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.recent.isEmpty == true &&
                         c.search.value?.contacts.isEmpty == true &&
                         c.search.value?.users.isEmpty == true) {
-                      if (c.search.value?.searchStatus.value.isSuccess ==
-                              true ||
-                          c.search.value?.searchStatus.value.isEmpty == true) {
+                      if ((searchStatus?.isSuccess ?? false) ||
+                          (searchStatus?.isEmpty ?? false)) {
                         center = Center(
                           key: UniqueKey(),
                           child: Text(
@@ -522,7 +531,8 @@ class ChatsTabView extends StatelessWidget {
                             }
 
                             if (i == c.elements.length - 1 &&
-                                c.search.value?.hasNext.value == true) {
+                                ((searchStatus?.isLoadingMore ?? false) ||
+                                    (searchStatus?.isLoading ?? false))) {
                               child = Column(
                                 children: [
                                   child,
@@ -531,7 +541,10 @@ class ChatsTabView extends StatelessWidget {
                               );
                             }
 
-                            return child;
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: child,
+                            );
                           },
                         ),
                       );
@@ -575,10 +588,8 @@ class ChatsTabView extends StatelessWidget {
                                       me: c.me,
                                       blocked: chat.blocked,
                                       getUser: c.getUser,
-                                      onCall: (video) => c.call(chat.id, video),
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
-                                      inCall: () => c.containsCall(chat.id),
                                     );
                                   }),
                                 );
@@ -597,19 +608,23 @@ class ChatsTabView extends StatelessWidget {
                                   onTap: () => c.openChat(user: element.user),
                                 );
                               } else if (element is DividerElement) {
-                                child = Center(
-                                  child: Container(
-                                    margin:
-                                        const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12, 10, 12, 6),
-                                    width: double.infinity,
-                                    child: Center(
-                                      child: Text(
-                                        element.category.name.capitalizeFirst!,
-                                        style: style
-                                            .fonts.normal.regular.onBackground,
-                                      ),
+                                child = Container(
+                                  margin: EdgeInsets.fromLTRB(
+                                    8,
+                                    i == 0 ? 0 : 8,
+                                    8,
+                                    3,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      element.category.name.capitalizeFirst!,
+                                      style: style
+                                          .fonts.normal.regular.onBackground,
                                     ),
                                   ),
                                 );
@@ -618,7 +633,8 @@ class ChatsTabView extends StatelessWidget {
                               }
 
                               if (i == c.elements.length - 1) {
-                                if (c.search.value?.hasNext.value == true) {
+                                if ((searchStatus?.isLoadingMore ?? false) ||
+                                    (searchStatus?.isLoading ?? false)) {
                                   child = Column(
                                     children: [
                                       child,
@@ -746,8 +762,10 @@ class ChatsTabView extends StatelessWidget {
                                 onLeave: e.chat.value.isMonolog
                                     ? null
                                     : () => c.leaveChat(e.id),
-                                onHide: () => c.hideChat(e.id),
-                                inCall: () => c.containsCall(e.id),
+                                onHide: (clear) => c.hideChat(e.id, clear),
+                                inContacts: e.chat.value.isDialog
+                                    ? () => c.inContacts(e)
+                                    : null,
                                 onMute: e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal
                                     ? null
@@ -765,10 +783,12 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.unfavoriteChat(e.id),
                                 onSelect: c.toggleSelecting,
+                                onContact: (b) => b
+                                    ? c.addToContacts(e)
+                                    : c.removeFromContacts(e),
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
                                     : null,
-                                onCall: (video) => c.call(e.id, video),
                                 onDismissed: () => c.dismiss(e),
                                 enableContextMenu: !c.selecting.value,
                                 trailing: c.selecting.value
@@ -1001,7 +1021,7 @@ class ChatsTabView extends StatelessWidget {
                             10 + 10,
                             0,
                             10 + 10,
-                            72 + MediaQuery.of(context).viewPadding.bottom,
+                            72 + router.context!.mediaQueryViewPadding.bottom,
                           ),
                           child: WidgetButton(
                             key: const Key('Restore'),
@@ -1168,7 +1188,7 @@ class ChatsTabView extends StatelessWidget {
             label: 'btn_clear_history'.l10n,
             selected: clear,
             radio: true,
-            lockWhenSelected: false,
+            toggleable: true,
             onPressed: () => setState(() => clear = !clear),
           );
         })

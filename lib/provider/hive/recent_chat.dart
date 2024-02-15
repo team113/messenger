@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,7 +23,8 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/util/log.dart';
 import 'base.dart';
 
-/// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s.
+/// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s and secondary
+/// by [ChatId].
 class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
   /// [Mutex] guarding synchronized access to the [put] and [remove].
   final Mutex _mutex = Mutex();
@@ -47,7 +48,7 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
   Future<void> put(PreciseDateTime key, ChatId item) async {
     Log.debug('put($key, $item)', '$runtimeType');
 
-    final String i = key.toUtc().toString();
+    final String i = '${key.toUtc().toString()}_$item';
 
     if (getSafe(i) != item) {
       await _mutex.protect(() async {

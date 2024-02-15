@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -44,7 +44,7 @@ class BackgroundHiveProvider extends HiveBaseProvider<HiveBackground> {
 
   /// Saves the provided [Uint8List] to [Hive].
   Future<void> set(Uint8List bytes) async {
-    Log.debug('set($bytes)', '$runtimeType');
+    Log.debug('set(${bytes.length})', '$runtimeType');
     await putSafe(0, HiveBackground(bytes));
   }
 

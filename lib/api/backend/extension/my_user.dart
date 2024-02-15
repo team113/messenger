@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,9 @@ import '../schema.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
+import '/store/model/my_user.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [MyUserMixin].
@@ -31,6 +33,7 @@ extension MyUserConversion on MyUserMixin {
         online: online.$$typename == 'UserOnline',
         login: login,
         name: name,
+        bio: bio,
         hasPassword: hasPassword,
         unreadChatsCount: unreadChatsCount,
         chatDirectLink: chatDirectLink != null
@@ -70,4 +73,18 @@ extension MyUserEventsMyUserConversion
   /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
   HiveMyUser toHive() =>
       HiveMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
+}
+
+/// Extension adding models construction from a [BlocklistRecordMixin].
+extension BlocklistRecordConversion on BlocklistRecordMixin {
+  /// Constructs a new [BlocklistRecord] from this [BlocklistRecordMixin].
+  BlocklistRecord toModel() => BlocklistRecord(
+        userId: user.id,
+        reason: reason,
+        at: at,
+      );
+
+  /// Constructs a new [HiveBlocklistRecord] from this [BlocklistRecordMixin].
+  HiveBlocklistRecord toHive({BlocklistCursor? cursor}) =>
+      HiveBlocklistRecord(toModel(), cursor);
 }

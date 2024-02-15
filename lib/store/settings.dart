@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -147,7 +147,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   Future<void> setBackground(Uint8List? bytes) async {
-    Log.debug('setBackground($bytes)', '$runtimeType');
+    Log.debug('setBackground(${bytes?.length})', '$runtimeType');
 
     bytes == null
         ? await _backgroundLocal.delete()
@@ -173,12 +173,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setLoadImages(bool enabled) async {
-    Log.debug('setLoadImages($enabled)', '$runtimeType');
-    await _settingsLocal.setLoadImages(enabled);
-  }
-
-  @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) async {
     Log.debug('setCallRect($chatId, $prefs)', '$runtimeType');
     await _callRectLocal.put(chatId, prefs);
@@ -191,15 +185,21 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setTimelineEnabled(bool enabled) async {
-    Log.debug('setTimelineEnabled($enabled)', '$runtimeType');
-    await _settingsLocal.setTimelineEnabled(enabled);
-  }
-
-  @override
   Future<void> setPinnedActions(List<String> buttons) async {
     Log.debug('setPinnedActions($buttons)', '$runtimeType');
     await _settingsLocal.setPinnedActions(buttons);
+  }
+
+  @override
+  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
+    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
+    await _settingsLocal.setCallButtonsPosition(position);
+  }
+
+  @override
+  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
+    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
+    await _settingsLocal.setWorkWithUsTabEnabled(enabled);
   }
 
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.

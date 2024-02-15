@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -51,7 +51,7 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     when(graphQlProvider.signIn(
-            UserPassword('123'), UserLogin('user'), null, null, null, true))
+            UserPassword('123'), UserLogin('user'), null, null, null))
         .thenAnswer(
       (_) => Future.value(
         SignIn$Mutation$CreateSession$CreateSessionOk.fromJson({
@@ -85,7 +85,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, getStorage));
 
-    expect(await authService.init(), Routes.auth);
+    expect(authService.init(), Routes.auth);
 
     await authService.signIn(UserPassword('123'), login: UserLogin('user'));
 
@@ -97,7 +97,7 @@ void main() async {
 
     expect(authService.status.value.isEmpty, true);
     verify(graphQlProvider.signIn(
-        UserPassword('123'), UserLogin('user'), null, null, null, true));
+        UserPassword('123'), UserLogin('user'), null, null, null));
   });
 
   test('AuthService successfully logins with saved session', () async {
@@ -120,11 +120,13 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
 
-    expect(await authService.init(), null);
+    expect(authService.init(), null);
 
     expect(authService.status.value.isSuccess, true);
-    expect(authService.credentials.value?.session.token,
-        const AccessToken('token'));
+    expect(
+      authService.credentials.value?.session.token,
+      const AccessToken('token'),
+    );
 
     await authService.logout();
 
@@ -135,8 +137,7 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(
-            UserPassword('123'), null, null, null, null, true))
+    when(graphQlProvider.signIn(UserPassword('123'), null, null, null, null))
         .thenThrow(
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
@@ -144,7 +145,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService = Get.put(AuthService(authRepository, provider));
 
-    expect(await authService.init(), Routes.auth);
+    expect(authService.init(), Routes.auth);
     try {
       await authService.signIn(UserPassword('123'));
       fail('Exception is not thrown');
@@ -152,8 +153,7 @@ void main() async {
       expect(e, isA<CreateSessionException>());
     }
 
-    verify(graphQlProvider.signIn(
-        UserPassword('123'), null, null, null, null, true));
+    verify(graphQlProvider.signIn(UserPassword('123'), null, null, null, null));
   });
 
   test('AuthService successfully resets password', () async {

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,6 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/extension/chat.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -47,6 +48,30 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
         .firstWhere((e) => e.text?.val == msg);
 
     await provider.readChat(chat.id, message.id);
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Reads all messages by the provided [TestUser] in the [Chat]-group with the
+/// provided name.
+///
+/// Examples:
+/// - When Alice reads all messages in "Name" group.
+final StepDefinitionGeneric readsAllMessages =
+    when2<TestUser, String, CustomWorld>(
+  '{user} reads all messages in {string} group',
+  (TestUser user, String name, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    final ChatId chatId = context.world.groups[name]!;
+    final ChatItemId lastItemId =
+        (await provider.getChat(chatId)).chat!.lastItem!.toHive().value.id;
+
+    await provider.readChat(chatId, lastItemId);
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

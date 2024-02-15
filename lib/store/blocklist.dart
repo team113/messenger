@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,15 +20,20 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
-import '/provider/hive/user.dart';
+import '/provider/hive/blocklist_sorting.dart';
+import '/provider/hive/session_data.dart';
+import '/store/pagination/hive.dart';
+import '/store/pagination/hive_graphql.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
@@ -43,7 +48,9 @@ class BlocklistRepository extends DisposableInterface
   BlocklistRepository(
     this._graphQlProvider,
     this._blocklistLocal,
+    this._blocklistSortingLocal,
     this._userRepo,
+    this._sessionLocal,
   );
 
   @override
@@ -58,14 +65,22 @@ class BlocklistRepository extends DisposableInterface
   /// Blocked [User]s local [Hive] storage.
   final BlocklistHiveProvider _blocklistLocal;
 
+  /// [UserId]s sorted by [PreciseDateTime] representing [BlocklistRecord]s
+  /// [Hive] storage.
+  final BlocklistSortingHiveProvider _blocklistSortingLocal;
+
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
+
+  /// [SessionDataHiveProvider] used to store blocked [User]s list related data.
+  final SessionDataHiveProvider _sessionLocal;
 
   /// [BlocklistHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
   /// [Pagination] loading [blocklist] with pagination.
-  late final Pagination<HiveUser, BlocklistCursor, UserId> _pagination;
+  late final Pagination<HiveBlocklistRecord, BlocklistCursor, UserId>
+      _pagination;
 
   /// Subscription to the [Pagination.items] changes.
   StreamSubscription? _paginationSubscription;
@@ -77,7 +92,7 @@ class BlocklistRepository extends DisposableInterface
   RxBool get nextLoading => _pagination.nextLoading;
 
   @override
-  Future<void> onInit() async {
+  void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
     _initLocalSubscription();
@@ -101,10 +116,13 @@ class BlocklistRepository extends DisposableInterface
   Future<void> around() async {
     Log.debug('around()', '$runtimeType');
 
-    if (blocklist.isEmpty && _pagination.hasNext.isTrue) {
-      await _pagination.around();
-      status.value = RxStatus.success();
+    if (status.value.isSuccess) {
+      return;
     }
+
+    await _pagination.around();
+
+    status.value = RxStatus.success();
   }
 
   @override
@@ -113,23 +131,26 @@ class BlocklistRepository extends DisposableInterface
     return _pagination.next();
   }
 
-  /// Puts the provided [user] to [Pagination] and [Hive].
-  Future<void> put(HiveUser user, {bool pagination = false}) async {
-    Log.debug('put($user, $pagination)', '$runtimeType');
+  /// Puts the provided [record] to [Pagination] and [Hive].
+  Future<void> put(
+    HiveBlocklistRecord record, {
+    bool pagination = false,
+  }) async {
+    Log.debug('put($record, $pagination)', '$runtimeType');
 
     // [pagination] is `true`, if the [user] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
-      await _pagination.put(user);
+      await _pagination.put(record);
     } else {
-      _add(user.value.id);
+      _add(record.value.userId);
 
       // TODO: https://github.com/team113/messenger/issues/27
       // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
       // synchronization, thus writes from multiple applications may lead to
       // missing events.
       if (!WebUtils.isPopup) {
-        await _blocklistLocal.put(user.value.id);
+        await _blocklistLocal.put(record);
       }
     }
   }
@@ -143,12 +164,13 @@ class BlocklistRepository extends DisposableInterface
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
+    await _sessionLocal.setBlocklistSynchronized(false);
     await _pagination.clear();
     await _pagination.around();
   }
 
   /// Fetches blocked [User]s with pagination.
-  Future<Page<HiveUser, BlocklistCursor>> _blocklist({
+  Future<Page<HiveBlocklistRecord, BlocklistCursor>> _blocklist({
     int? first,
     BlocklistCursor? after,
     int? last,
@@ -168,18 +190,28 @@ class BlocklistRepository extends DisposableInterface
     // Ensure all [users] are stored in [_userRepo].
     await Future.wait(users.map(_userRepo.put));
 
-    return Page(users, query.pageInfo.toModel((c) => BlocklistCursor(c)));
+    return Page(
+      query.edges.map((e) => e.node.toHive(cursor: e.cursor)).toList(),
+      query.pageInfo.toModel((c) => BlocklistCursor(c)),
+    );
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
-  Future<void> _add(UserId userId) async {
+  FutureOr<void> _add(UserId userId) {
     Log.debug('_add($userId)', '$runtimeType');
 
     final RxUser? user = blocklist[userId];
     if (user == null) {
-      final RxUser? user = await _userRepo.get(userId);
-      if (user != null) {
-        blocklist[userId] = user;
+      final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
+
+      if (userOrFuture is RxUser?) {
+        if (userOrFuture != null) {
+          blocklist[userId] = userOrFuture;
+        }
+      } else {
+        return userOrFuture.then(
+          (user) => user != null ? blocklist[userId] = user : null,
+        );
       }
     }
   }
@@ -194,39 +226,53 @@ class BlocklistRepository extends DisposableInterface
       final UserId userId = UserId(event.key);
       if (event.deleted) {
         blocklist.remove(userId);
+        _blocklistSortingLocal.remove(userId);
       } else {
-        if (blocklist[userId] == null) {
-          await _add(userId);
-        }
+        _blocklistSortingLocal.put(event.value.value.at, userId);
       }
     }
   }
 
   /// Initializes the [_pagination].
-  Future<void> _initRemotePagination() async {
+  void _initRemotePagination() {
     Log.debug('_initRemotePagination()', '$runtimeType');
 
     _pagination = Pagination(
-      onKey: (e) => e.value.id,
+      onKey: (e) => e.value.userId,
       perPage: 15,
-      provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _blocklist(
-          after: after,
-          before: before,
-          first: first,
-          last: last,
+      provider: HiveGraphQlPageProvider(
+        hiveProvider: HivePageProvider(
+          _blocklistLocal,
+          getCursor: (e) => e?.cursor,
+          getKey: (e) => e.value.userId,
+          orderBy: (_) => _blocklistSortingLocal.values,
+          isFirst: (_) => _sessionLocal.getBlocklistSynchronized() == true,
+          isLast: (_) => _sessionLocal.getBlocklistSynchronized() == true,
+          reversed: true,
+          strategy: PaginationStrategy.fromEnd,
+        ),
+        graphQlProvider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) async {
+            final Page<HiveBlocklistRecord, BlocklistCursor> page =
+                await _blocklist(
+              after: after,
+              before: before,
+              first: first,
+              last: last,
+            );
+
+            if (page.info.hasNext == false) {
+              _sessionLocal.setBlocklistSynchronized(true);
+            }
+
+            return page;
+          },
         ),
       ),
-      compare: (a, b) {
-        if (a.value.isBlocked == null || b.value.isBlocked == null) {
-          return 0;
-        }
-
-        return b.value.isBlocked!.at.compareTo(a.value.isBlocked!.at);
-      },
+      compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    _paginationSubscription = _pagination.changes.listen((event) async {
+    _paginationSubscription = _pagination.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:

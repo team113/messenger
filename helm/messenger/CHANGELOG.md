@@ -6,6 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.1] · 2024-01-29
+[0.1.1]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.1/helm/messenger
+
+### Fixed
+
+- `copy-src` init container not copying hidden files. ([#818])
+
+[#818]: https://github.com/team113/messenger/pull/818
+
+
+
+
 ## [0.1.0] · 2022-09-28
 [0.1.0]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.0/helm/messenger
 

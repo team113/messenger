@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -969,9 +969,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             curve: Curves.linearToEaseOut,
             beginRect: beginRect,
             endRect: endRect,
-            onEnd: () {
-              setState(() => to.entry = null);
-            },
+            onEnd: () => setState(() => to.entry = null),
             child: widget.itemBuilder(to.item),
           );
         });

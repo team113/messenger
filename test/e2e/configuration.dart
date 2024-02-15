@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,6 +34,7 @@ import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
 import 'parameters/exception.dart';
@@ -67,7 +68,7 @@ import 'steps/go_to.dart';
 import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
-import 'steps/in_chat_with.dart';
+import 'steps/in_chat.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
@@ -78,6 +79,7 @@ import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
+import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
@@ -106,11 +108,13 @@ import 'steps/sees_muted_chat.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
+import 'steps/set_login.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_message.dart';
+import 'steps/tap_reply.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -158,11 +162,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         dragContactDown,
         fillField,
         fillFieldN,
+        fillFieldWithMyCredential,
+        fillFieldWithUserCredential,
         goToUserPage,
         hasContacts,
         hasDialogWithMe,
         hasFavoriteContacts,
         hasFavoriteGroups,
+        hasGroupNamed,
         hasGroupWithMembers,
         hasGroups,
         haveGroup1Named,
@@ -174,18 +181,22 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInChatNamed,
         iAmInChatWith,
         iAmInMonolog,
+        iTapChatGroup,
         iTapChatWith,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
         longPressMessageByText,
+        longPressMonolog,
         longPressWidget,
         monologAvailability,
         noInternetConnection,
         openChatInfo,
         pasteToField,
         popupWindows,
+        readsAllMessages,
         readsMessage,
+        repliesToMessage,
         restartApp,
         returnToPreviousPage,
         rightClickMessage,
@@ -201,6 +212,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAsNone,
         seeChatInSearchResults,
         seeChatMembers,
+        seeChatMessage,
         seeChatMessages,
         seeChatSelection,
         seeContactAsDismissed,
@@ -213,6 +225,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
+        seeMonologInSearchResults,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
         seeUserInSearchResults,
@@ -221,12 +234,20 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesNoDialogWithMe,
         selectMessageText,
         sendsAttachmentToMe,
+        sendsCountMessages,
+        sendsMessageToGroup,
         sendsMessageToMe,
         sendsMessageWithException,
+        setLogin,
+        setMyLogin,
         signInAs,
         tapChat,
         tapContact,
         tapDropdownItem,
+
+        // TODO: Fix `gherkin` matching `tapMessage` instead.
+        tapReply,
+
         tapMessage,
         tapText,
         tapUserInSearchResults,
@@ -269,6 +290,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..customStepParameterDefinitions = [
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
+        CredentialsParameter(),
         DownloadStatusParameter(),
         EnabledParameter(),
         ExceptionParameter(),
@@ -315,14 +337,8 @@ Future<CustomUser> createUser({
     if (password != null) {
       await provider.updateUserPassword(null, password);
 
-      final result = await provider.signIn(
-        password,
-        null,
-        customUser.userNum,
-        null,
-        null,
-        true,
-      );
+      final result =
+          await provider.signIn(password, null, customUser.userNum, null, null);
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,7 +21,6 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
-import 'package:mutex/mutex.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -70,13 +69,10 @@ class AuthService extends GetxService {
   Timer? _refreshTimer;
 
   /// [_refreshTimer] interval.
-  final Duration _refreshTaskInterval = const Duration(minutes: 1);
+  final Duration _refreshTaskInterval = const Duration(seconds: 30);
 
-  /// Minimal allowed [_session] TTL.
+  /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
-
-  /// Guard used to track [renewSession] completion.
-  final Mutex _tokenGuard = Mutex();
 
   /// [StreamSubscription] to [CredentialsHiveProvider.boxEvents] saving new
   /// [Credentials] to the browser's storage.
@@ -102,7 +98,6 @@ class AuthService extends GetxService {
 
     _storageSubscription?.cancel();
     _credentialsSubscription?.cancel();
-    _credentialsProvider.close();
     _refreshTimer?.cancel();
   }
 
@@ -111,7 +106,7 @@ class AuthService extends GetxService {
   /// Tries to load user data from the storage and navigates to the
   /// [Routes.auth] page if this operation fails. Otherwise, fetches user data
   /// from the server to be up-to-date with it.
-  Future<String?> init() async {
+  String? init() {
     Log.debug('init()', '$runtimeType');
 
     // Try to refresh session, otherwise just force logout.
@@ -126,7 +121,6 @@ class AuthService extends GetxService {
       }
     };
 
-    await _credentialsProvider.init();
     Credentials? creds = _credentialsProvider.get();
     Session? session = creds?.session;
     RememberedSession? remembered = creds?.rememberedSession;
@@ -134,8 +128,14 @@ class AuthService extends GetxService {
     // Listen to the [Credentials] changes.
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       if (e.key == 'credentials') {
+        Log.debug(
+          '_storageSubscription(${e.key}): received new credentials',
+          '$runtimeType',
+        );
+
         if (e.newValue != null) {
-          Credentials creds = Credentials.fromJson(json.decode(e.newValue!));
+          final Credentials creds =
+              Credentials.fromJson(json.decode(e.newValue!));
           if (creds.session.token != credentials.value?.session.token &&
               creds.userId == credentials.value?.userId) {
             _authRepository.token = creds.session.token;
@@ -270,7 +270,7 @@ class AuthService extends GetxService {
     Log.debug('register()', '$runtimeType');
 
     status.value = RxStatus.loading();
-    return _tokenGuard.protect(() async {
+    return WebUtils.protect(() async {
       try {
         var data = await _authRepository.signUp();
         _authorized(data);
@@ -331,9 +331,9 @@ class AuthService extends GetxService {
     Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
     status.value = RxStatus.loadingMore();
-    return _tokenGuard.protect(() async {
+    await WebUtils.protect(() async {
       try {
-        Credentials data = await _authRepository.signIn(
+        final Credentials data = await _authRepository.signIn(
           password,
           login: login,
           num: num,
@@ -360,7 +360,7 @@ class AuthService extends GetxService {
         await _authRepository.renewSession(credentials.rememberedSession.token);
 
     status.value = RxStatus.loadingMore();
-    await _tokenGuard.protect(() async {
+    await WebUtils.protect(() async {
       _authorized(credentials);
       _credentialsProvider.set(credentials);
       status.value = RxStatus.success();
@@ -411,30 +411,49 @@ class AuthService extends GetxService {
     }
   }
 
-  /// Refreshes the current [session].
+  /// Refreshes the current [credentials].
   Future<void> renewSession() async {
-    Log.debug('renewSession()', '$runtimeType');
+    final FutureOr<bool> isLocked = WebUtils.isLocked;
+    final bool alreadyRenewing = isLocked is bool ? isLocked : await isLocked;
 
-    if (WebUtils.credentialsUpdating) {
-      // Wait until the [Credentials] are done updating in another tab.
-      await Future.delayed((_accessTokenMinTtl - _refreshTaskInterval) ~/ 2);
+    Log.debug(
+      'renewSession() with `alreadyRenewing`: $alreadyRenewing',
+      '$runtimeType',
+    );
 
-      if (!_shouldRefresh) {
-        // [Credentials] are successfully updated.
-        return;
-      }
-    }
+    try {
+      // Do not perform renew since some other task has already renewed it. But
+      // still wait for the lock to be sure that session was renewed when
+      // current `renewSession()` call resolves.
+      await WebUtils.protect(() async {
+        if (alreadyRenewing) {
+          Log.debug(
+            'renewSession(): acquired the lock, while it was locked, thus should proceed: $_shouldRefresh',
+            '$runtimeType',
+          );
 
-    final bool alreadyRenewing = _tokenGuard.isLocked;
+          if (!_shouldRefresh) {
+            // [Credentials] are successfully updated.
+            return;
+          }
+        } else {
+          Log.debug(
+            'renewSession(): acquired the lock, while it was unlocked',
+            '$runtimeType',
+          );
+        }
 
-    // Do not perform renew since some other task has already renewed it. But
-    // still wait for the lock to be sure that session was renewed when current
-    // renewSession() call resolves.
-    return _tokenGuard.protect(() async {
-      if (!alreadyRenewing) {
+        // Fetch the fresh [WebUtils.credentials], if there are any.
+        if (WebUtils.credentials != null &&
+            WebUtils.credentials?.session.token !=
+                credentials.value?.session.token) {
+          _authorized(WebUtils.credentials!);
+          _credentialsProvider.set(WebUtils.credentials!);
+          return;
+        }
+
         try {
-          WebUtils.credentialsUpdating = true;
-          Credentials data = await _authRepository
+          final Credentials data = await _authRepository
               .renewSession(credentials.value!.rememberedSession.token);
           _authorized(data);
 
@@ -443,11 +462,17 @@ class AuthService extends GetxService {
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
           rethrow;
-        } finally {
-          WebUtils.credentialsUpdating = false;
         }
-      }
-    });
+      });
+    } on RenewSessionException catch (_) {
+      // No-op, already handled in the [WebUtils.protect].
+    } catch (e) {
+      Log.debug('renewSession(): Exception occurred: $e', '$runtimeType');
+
+      // If any unexpected exception happens, just retry the mutation.
+      await Future.delayed(const Duration(seconds: 2));
+      await renewSession();
+    }
   }
 
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
@@ -464,12 +489,14 @@ class AuthService extends GetxService {
     _authRepository.token = creds.session.token;
     credentials.value = creds;
     _refreshTimer?.cancel();
+
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
       if (credentials.value?.rememberedSession != null && _shouldRefresh) {
         renewSession();
       }
     });
+
     status.value = RxStatus.loadingMore();
   }
 

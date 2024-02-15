@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -71,9 +71,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.showDragAndDropButtonsHint] value.
   Future<void> setShowDragAndDropButtonsHint(bool show);
 
-  /// Sets the [ApplicationSettings.loadImages] value.
-  Future<void> setLoadImages(bool enabled);
-
   /// Sets the provided [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
   Future<void> setCallRect(ChatId chatId, Rect prefs);
@@ -82,9 +79,12 @@ abstract class AbstractSettingsRepository {
   /// specified [Chat].
   Rect? getCallRect(ChatId id);
 
-  /// Sets the [ApplicationSettings.timelineEnabled] value.
-  Future<void> setTimelineEnabled(bool enabled);
-
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);
+
+  /// Sets the [ApplicationSettings.callButtonsPosition] value.
+  Future<void> setCallButtonsPosition(CallButtonsPosition position);
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled);
 }

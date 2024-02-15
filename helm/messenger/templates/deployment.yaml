@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -78,7 +78,7 @@ spec:
           image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           command: ["sh"]
-          args: ["-c", "set -ex; cp -rp /var/www/public/* /target/"]
+          args: ["-c", "set -ex; cp -rp /var/www/public/. /target/"]
           volumeMounts:
             - name: src
               mountPath: /target/

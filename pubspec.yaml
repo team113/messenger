@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.11
+version: 0.1.0-alpha.12.1
 publish_to: none
 
 environment:
@@ -7,6 +7,7 @@ environment:
   sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
+  all_sensors: ^0.4.2
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
   back_button_interceptor: ^7.0.0
@@ -23,8 +24,8 @@ dependencies:
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^6.1.1
-  firebase_core: ^2.15.0
-  firebase_messaging: ^14.6.5
+  firebase_core: ^2.24.2
+  firebase_messaging: ^14.7.9
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
@@ -33,6 +34,7 @@ dependencies:
   flutter_background_service: ^2.4.6
   flutter_background_service_android: ^3.0.3
   flutter_background_service_ios: ^2.4.0
+  flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^16.1.0
@@ -41,8 +43,10 @@ dependencies:
   flutter_spinkit: ^5.2.0
   flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.6
+  flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
+  flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.6
   hive_flutter: ^1.1.0
@@ -57,8 +61,8 @@ dependencies:
   js: ^0.6.5
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.8.3-dev+rev.1f3fc1eb3978066c078c90651f1d3e1418094a1b
-  medea_jason: ^0.4.0
+  medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f
+  medea_jason: 0.4.1-dev+rev.bdc39e03f2c129d82538a8b96741b93eac1cef38
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -85,17 +89,17 @@ dependencies:
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
   sound_fonts: ^0.1.1
+  qr_flutter: ^4.1.0
   stdlibc: ^0.1.4
   toml: ^0.14.0
-  flutter_thumbhash: ^0.1.0+1
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
   uuid: ^3.0.7
   vibration: ^1.8.1
   wakelock_plus: ^1.1.1
   web_socket_channel: ^2.4.0
-  win32: ^5.0.6
   win_toast: ^0.3.0
+  win32: ^5.0.6
   window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
 
@@ -126,8 +130,6 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^6.2.0
-  # TODO: Remove when `medea_jason` updates.
-  flutter_rust_bridge: 1.81.0
   # TODO: Remove when `artemis` updates.
   gql: ^1.0.0
   # TODO: Remove when `artemis` updates.
@@ -143,9 +145,9 @@ dependency_overrides:
       url: https://github.com/krida2000/git-hive.git
   # TODO: Remove when `artemis` updates.
   http: ^1.1.0
-  # TODO: Remove when `sentry_flutter` updates.
-  package_info_plus: ^4.0.0
   # TODO: Remove when `medea_jason` updates.
+  medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f
+  # TODO: Remove when `graphql` updates.
   uuid: ^3.0.7
 
 flutter:
@@ -159,17 +161,19 @@ flutter:
     - assets/icons/notification/
     - assets/images/
     - assets/images/logo/
+    - assets/images/media_buttons/
     - assets/l10n/
   fonts:
-    - family: NotoSansDisplay
+    - family: Roboto
       fonts:
-        - asset: assets/fonts/NotoSansDisplay-Regular.ttf
+        - asset: assets/fonts/Roboto-Regular.ttf
           weight: 400
-        - asset: assets/fonts/NotoSansDisplay-Bold.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
           weight: 700
 
 sentry:
-  upload_native_symbols: true
+  upload_debug_symbols: true
   upload_source_maps: true
-  include_native_sources: true
+  upload_sources: true
   wait_for_processing: true
+  ignore_missing: true

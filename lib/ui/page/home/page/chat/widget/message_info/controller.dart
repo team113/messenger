@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
@@ -54,13 +56,16 @@ class MessageInfoController extends GetxController {
 
   /// Fetches the [users] from the [UserService].
   Future<void> _fetchUsers() async {
-    final List<Future> futures = reads
-        .map((e) => _userService.get(e.memberId)
-          ..then((u) {
-            if (u != null) {
-              users.add(u);
+    final List<Future<void>> futures = reads
+        .map(
+          (read) async {
+            final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
+            final RxUser? user = fetched is RxUser? ? fetched : await fetched;
+            if (user != null) {
+              users.add(user);
             }
-          }))
+          },
+        )
         .whereNotNull()
         .toList();
 

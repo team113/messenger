@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,6 +27,7 @@ class ShadowedRoundedButton extends StatelessWidget {
     this.child,
     this.color,
     this.onPressed,
+    this.maxWidth,
   });
 
   /// Primary content of this button.
@@ -38,21 +39,21 @@ class ShadowedRoundedButton extends StatelessWidget {
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
 
+  /// Maximum width this button is allowed to occupy.
+  final double? maxWidth;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return OutlinedRoundedButton(
-      title: child,
       onPressed: onPressed,
       color: color,
+      maxWidth: maxWidth ?? 180,
       shadows: [
-        CustomBoxShadow(
-          blurRadius: 8,
-          color: style.colors.onBackgroundOpacity13,
-          blurStyle: BlurStyle.outer.workaround,
-        ),
+        BoxShadow(blurRadius: 8, color: style.colors.onBackgroundOpacity13),
       ],
+      child: child,
     );
   }
 }

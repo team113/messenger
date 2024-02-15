@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,8 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_custom_cursor/cursor_manager.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
@@ -33,6 +35,7 @@ import 'package:window_manager/window_manager.dart';
 import '/config.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
+import '/util/log.dart';
 import 'backoff.dart';
 import 'web/web_utils.dart';
 
@@ -81,7 +84,8 @@ class PlatformUtilsImpl {
 
   /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
   /// passed.
-  Timer? _activityTimer;
+  @visibleForTesting
+  Timer? activityTimer;
 
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);
@@ -594,10 +598,10 @@ class PlatformUtilsImpl {
       _activityController?.add(active);
     }
 
-    _activityTimer?.cancel();
+    activityTimer?.cancel();
 
     if (active) {
-      _activityTimer = Timer(_activityTimeout, () {
+      activityTimer = Timer(_activityTimeout, () {
         _isActive = false;
         _activityController?.add(false);
       });
@@ -623,18 +627,76 @@ extension MobileExtensionOnContext on BuildContext {
 /// Extension adding an ability to pop the current [ModalRoute].
 extension PopExtensionOnContext on BuildContext {
   /// Pops the [ModalRoute] from this [BuildContext], if any is active.
-  void popModal() {
+  void popModal([dynamic result]) {
     if (mounted) {
       final NavigatorState navigator = Navigator.of(this);
       final ModalRoute? modal = ModalRoute.of(this);
 
       if (modal?.isActive == true) {
         if (modal?.isCurrent == true) {
-          navigator.pop();
+          navigator.pop(result);
         } else {
           navigator.removeRoute(modal!);
         }
       }
+    }
+  }
+}
+
+/// Helper defining custom [MouseCursor]s.
+class CustomMouseCursors {
+  /// Indicator whether these [CustomMouseCursors] are initialized.
+  static bool _initialized = false;
+
+  /// Returns a grab [MouseCursor].
+  static MouseCursor get grab {
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'grab');
+    }
+
+    return SystemMouseCursors.grab;
+  }
+
+  /// Returns a grabbing [MouseCursor].
+  static MouseCursor get grabbing {
+    if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'grabbing');
+    }
+
+    return SystemMouseCursors.grabbing;
+  }
+
+  /// Ensures these [CustomMouseCursors] are initialized.
+  static Future<void> ensureInitialized() async {
+    if (!_initialized) {
+      _initialized = true;
+
+      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
+        await _initCursor('assets/images/grab.bgra', 'grab');
+        await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+      }
+    }
+  }
+
+  /// Registers a custom [MouseCursor] from the provided [path] and [name].
+  static Future<void> _initCursor(String path, String name) async {
+    try {
+      final ByteData bytes = await rootBundle.load(path);
+
+      await CursorManager.instance.registerCursor(
+        CursorData()
+          ..name = name
+          ..buffer = bytes.buffer.asUint8List()
+          ..height = 30
+          ..width = 30
+          ..hotX = 15
+          ..hotY = 15,
+      );
+    } catch (e) {
+      Log.error(
+        'Failed to initialize `$name` cursor due to: $e',
+        'CustomMouseCursors',
+      );
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -37,9 +38,13 @@ class AddChatMemberView extends StatelessWidget {
 
   /// Displays an [AddChatMemberView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context, {required ChatId chatId}) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
-      mobilePadding: const EdgeInsets.all(0),
+      background: style.colors.background,
+      desktopPadding: const EdgeInsets.only(bottom: 12),
+      mobilePadding: const EdgeInsets.only(bottom: 12),
       child: AddChatMemberView(chatId: chatId),
     );
   }

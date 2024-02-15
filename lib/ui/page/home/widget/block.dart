@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -113,25 +113,30 @@ class Block extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: padding,
-                  child: Column(
-                    crossAxisAlignment: crossAxisAlignment,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (title != null) ...[
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                            child: Text(
-                              title!,
-                              textAlign: TextAlign.center,
-                              style: style.fonts.big.regular.onBackground,
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.topCenter,
+                    curve: Curves.easeInOut,
+                    child: Column(
+                      crossAxisAlignment: crossAxisAlignment,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null) ...[
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                              child: Text(
+                                title!,
+                                textAlign: TextAlign.center,
+                                style: style.fonts.big.regular.onBackground,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
+                          const SizedBox(height: 8),
+                        ],
+                        ...children,
                       ],
-                      ...children,
-                    ],
+                    ),
                   ),
                 ),
                 if (headline != null)

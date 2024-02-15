@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -22,7 +22,7 @@ Feature: Chat members
     And I pause for 1 second
     And users Bob and Charlie
     And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" chat
+    And I am in "Alice and Bob" group
     And I open chat's info
 
   Scenario: User removes a member
@@ -33,7 +33,8 @@ Feature: Chat members
     Then I wait until text "Bob" is absent
 
   Scenario: User adds a member
-    When I tap `AddMemberButton` button
+    When I scroll `ChatInfoScrollable` until `AddMemberButton` is present
+    And I tap `AddMemberButton` button
     Then I wait until `SearchView` is present
 
     When I fill `SearchTextField` field with "Charlie"

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,6 +38,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
@@ -51,13 +52,16 @@ import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
+import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
+import 'paginated.dart';
 import 'pagination/graphql.dart';
 
 /// [RxChat] implementation backed by local [Hive] storage.
@@ -72,9 +76,7 @@ class HiveRxChat extends RxChat {
         _local = ChatItemHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
-        // TODO: Don't ignore version, when all events are surely delivered by
-        //       subscribing to `chatEvents` with that version.
-        ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
+        ver = hiveChat.ver;
 
   @override
   final Rx<Chat> chat;
@@ -100,9 +102,6 @@ class HiveRxChat extends RxChat {
   @override
   final Rx<ChatMessage?> draft;
 
-  /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
-  ChatItemsCursor? _lastReadItemCursor;
-
   @override
   final RxList<LastChatRead> reads = RxList();
 
@@ -111,6 +110,10 @@ class HiveRxChat extends RxChat {
 
   /// [ChatVersion] of this [HiveRxChat].
   ChatVersion? ver;
+
+  @override
+  late final RxBool inCall =
+      RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -130,6 +133,13 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [members] with pagination.
   late final Pagination<HiveChatMember, ChatMembersCursor, UserId>
       _membersPagination;
+
+  /// [MessagesPaginated]s created by this [HiveRxChat].
+  final List<MessagesPaginated> _fragments = [];
+
+  /// Subscriptions to the [MessagesPaginated.items] changes updating the
+  /// [reads].
+  final List<StreamSubscription> _fragmentSubscriptions = [];
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
@@ -180,6 +190,10 @@ class HiveRxChat extends RxChat {
   /// Subscription for the [RxUser]s changes.
   final Map<UserId, StreamSubscription> _userSubscriptions = {};
 
+  /// [StreamSubscription] to [AbstractCallRepository.calls] and
+  /// [WebUtils.onStorageChange] determining the [inCall] indicator.
+  StreamSubscription? _callSubscription;
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
@@ -192,6 +206,9 @@ class HiveRxChat extends RxChat {
   /// Indicator whether this [HiveRxChat] has been disposed, meaning no requests
   /// should be made.
   bool _disposed = false;
+
+  /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
+  ChatItemsCursor? _lastReadItemCursor;
 
   @override
   UserId? get me => _chatRepository.me;
@@ -307,13 +324,7 @@ class HiveRxChat extends RxChat {
     _messagesSubscription = messages.changes.listen((e) {
       switch (e.op) {
         case OperationKind.removed:
-          for (LastChatRead i in reads) {
-            // Recalculate the [LastChatRead]s pointing at the removed
-            // [ChatItem], if any.
-            if (e.element.value.at == i.at) {
-              i.at = _lastReadAt(i.at) ?? i.at;
-            }
-          }
+          _recalculateReadsFor(e.element.value);
           break;
 
         case OperationKind.added:
@@ -321,6 +332,14 @@ class HiveRxChat extends RxChat {
           // No-op.
           break;
       }
+    });
+
+    _callSubscription = StreamGroup.mergeBroadcast([
+      _chatRepository.calls.changes,
+      WebUtils.onStorageChange,
+    ]).listen((_) {
+      inCall.value =
+          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
     });
 
     _initMessagesPagination();
@@ -345,6 +364,7 @@ class HiveRxChat extends RxChat {
     _pagination.dispose();
     _membersPagination.dispose();
     _messagesSubscription?.cancel();
+    _callSubscription?.cancel();
     await _local.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
@@ -354,6 +374,12 @@ class HiveRxChat extends RxChat {
     }
 
     for (StreamSubscription s in _userSubscriptions.values) {
+      s.cancel();
+    }
+    for (var e in _fragments.toList()) {
+      e.dispose();
+    }
+    for (final s in _fragmentSubscriptions) {
       s.cancel();
     }
   }
@@ -402,13 +428,23 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> around() async {
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {
     Log.debug('around()', '$runtimeType($id)');
+
+    // Even if the [item] is within [_local], still create a [MessageFragment],
+    // at it handles such cases as well.
+    if (item != null) {
+      return _paginateAround(item, reply: reply, forward: forward);
+    }
 
     if (id.isLocal ||
         status.value.isSuccess ||
         (hasNext.isFalse && hasPrevious.isFalse)) {
-      return;
+      return null;
     }
 
     if (!status.value.isLoading) {
@@ -418,16 +454,24 @@ class HiveRxChat extends RxChat {
     // Ensure [_local] storage is initialized.
     await _local.init(userId: me);
 
-    HiveChatItem? item;
+    HiveChatItem? lastRead;
     if (chat.value.lastReadItem != null) {
-      item = await get(chat.value.lastReadItem!);
+      lastRead = await get(chat.value.lastReadItem!);
     }
 
-    await _pagination.around(cursor: _lastReadItemCursor, item: item);
+    // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
+    //       This will make it easy to dispose the messages, when they aren't
+    //       needed, so that RAM is freed.
+    await _pagination.around(
+      cursor: _lastReadItemCursor,
+      key: lastRead?.value.key,
+    );
 
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
+
+    return null;
   }
 
   @override
@@ -680,10 +724,13 @@ class HiveRxChat extends RxChat {
     return message.value;
   }
 
-  /// Adds the provided [item] to [Pagination] and [Hive].
-  Future<void> put(HiveChatItem item) async {
+  /// Adds the provided [item] to the [Pagination]s.
+  Future<void> put(HiveChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
-    await _pagination.put(item);
+    await _pagination.put(item, ignoreBounds: ignoreBounds);
+    for (var e in _fragments) {
+      await e.pagination?.put(item, ignoreBounds: ignoreBounds);
+    }
   }
 
   @override
@@ -691,9 +738,16 @@ class HiveRxChat extends RxChat {
     Log.debug('remove($itemId, $key)', '$runtimeType($id)');
 
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+    key ??= _fragments.fold(
+      <ChatItemKey>[],
+      (keys, e) => keys..addAll(e.items.keys),
+    ).firstWhereOrNull((e) => e.id == itemId);
 
     if (key != null) {
       _pagination.remove(key);
+      for (var e in _fragments) {
+        e.pagination?.remove(key);
+      }
 
       final HiveChat? chatEntity = await _chatLocal.get(id);
       if (chatEntity?.value.lastItem?.id == itemId) {
@@ -713,8 +767,8 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Returns a stored [HiveChatItem] identified by the provided [itemId], if
-  /// any.
+  /// Returns the stored or fetched [HiveChatItem] identified by the provided
+  /// [itemId].
   ///
   /// Optionally, a [key] may be specified, otherwise it will be fetched
   /// from the [_local] store.
@@ -723,11 +777,23 @@ class HiveRxChat extends RxChat {
 
     key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
 
+    HiveChatItem? item;
     if (key != null) {
-      return await _local.get(key);
+      item = _pagination.items[key];
+      item ??= _fragments
+          .firstWhereOrNull((e) => e.pagination?.items[key] != null)
+          ?.pagination
+          ?.items[key];
+      item ??= await _local.get(key);
     }
 
-    return null;
+    try {
+      item ??= await _chatRepository.message(itemId);
+    } catch (_) {
+      // No-op.
+    }
+
+    return item;
   }
 
   /// Recalculates the [reads] to represent the actual [messages].
@@ -773,7 +839,7 @@ class HiveRxChat extends RxChat {
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
 
-      await _pagination.clear();
+      await clear();
       _provider.hive = _local;
 
       for (var e in saved.whereType<HiveChatMessage>()) {
@@ -785,17 +851,23 @@ class HiveRxChat extends RxChat {
           copy.value.status.value = SendingStatus.sending;
         }
 
-        _pagination.put(copy, ignoreBounds: true);
+        put(copy, ignoreBounds: true);
       }
 
       _pagination.around();
     }
   }
 
-  /// Clears the [_pagination].
+  /// Clears the [_pagination] and [_fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
+    for (var e in _fragments) {
+      e.dispose();
+    }
+    _fragments.clear();
+
     await _pagination.clear();
+    await _membersPagination.clear();
   }
 
   // TODO: Remove when backend supports welcome messages.
@@ -818,6 +890,28 @@ class HiveRxChat extends RxChat {
         null,
       ),
     );
+  }
+
+  /// Updates the [avatar] of the [chat].
+  ///
+  /// Intended to be used to update the [StorageFile.relativeRef] links.
+  @override
+  Future<void> updateAvatar() async {
+    Log.debug('updateAvatar()', '$runtimeType($id)');
+
+    final ChatAvatar? avatar = await _chatRepository.avatar(id);
+
+    await _chatLocal.txn((txn) async {
+      final HiveChat? chatEntity = await txn.get(id.val);
+      if (chatEntity != null) {
+        chatEntity.value.avatar = avatar;
+
+        // TODO: Avatar should be updated by [Hive] subscription.
+        this.avatar.value = avatar;
+
+        await txn.put(chatEntity.value.id.val, chatEntity);
+      }
+    });
   }
 
   @override
@@ -920,7 +1014,7 @@ class HiveRxChat extends RxChat {
       item = await get(chat.value.lastReadItem!);
     }
 
-    await _pagination.init(item);
+    await _pagination.init(item?.value.key);
     if (_pagination.items.isNotEmpty) {
       status.value = RxStatus.success();
     }
@@ -974,25 +1068,122 @@ class HiveRxChat extends RxChat {
     await membersAround();
   }
 
-  /// Adds the provided [ChatItem] to the [messages] list, initializing the
-  /// [FileAttachment]s, if any.
+  /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
+  /// [forward].
+  Future<MessagesPaginated> _paginateAround(
+    ChatItem item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {
+    Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
+
+    // Retrieve the [item] itself pointed around.
+    final HiveChatItem? hiveItem = await get(item.key.id, key: item.key);
+
+    final ChatItemsCursor? cursor;
+    final ChatItemKey? key;
+
+    // If [reply] or [forward] is provided, then the [item] should contain it,
+    // let's try to retrieve the key and cursor to paginate around it.
+    if (reply != null) {
+      if (hiveItem is! HiveChatMessage) {
+        throw ArgumentError.value(
+          item,
+          'item',
+          'Should be `ChatMessage`, if `reply` is provided.',
+        );
+      }
+
+      final ChatMessage message = hiveItem.value as ChatMessage;
+      final int replyIndex =
+          message.repliesTo.indexWhere((e) => e.original?.id == reply);
+      if (replyIndex == -1) {
+        throw ArgumentError.value(reply, 'reply', 'Not found.');
+      }
+
+      cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
+      key = message.repliesTo.elementAt(replyIndex).original?.key;
+    } else if (forward != null) {
+      if (hiveItem is! HiveChatForward) {
+        throw ArgumentError.value(
+          item,
+          'item',
+          'Should be `ChatForward`, if `forward` is provided.',
+        );
+      }
+
+      cursor = hiveItem.quoteCursor;
+      key = (hiveItem.value as ChatForward).quote.original?.key;
+    } else {
+      cursor = hiveItem?.cursor;
+      key = hiveItem?.value.key;
+    }
+
+    // Try to find any [MessagesPaginated] already containing the item requested.
+    MessagesPaginated? fragment = _fragments.firstWhereOrNull(
+      (e) => e.items[key] != null,
+    );
+
+    // If found, then return it, or otherwise construct a new one.
+    if (fragment != null) {
+      return fragment;
+    }
+
+    if (cursor == null) {
+      throw ArgumentError.value(item, 'item', 'Cursor not found.');
+    }
+
+    StreamSubscription? subscription;
+    Timer? debounce;
+
+    _fragments.add(
+      fragment = MessagesPaginated(
+        initialKey: key,
+        initialCursor: cursor,
+        pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+          onKey: (e) => e.value.key,
+          provider: HiveGraphQlPageProvider(
+            hiveProvider: _provider.hiveProvider.copyWith(
+              readOnly: !_local.keys.contains(key),
+            ),
+            graphQlProvider: _provider.graphQlProvider,
+          ),
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
+        ),
+        onDispose: () {
+          _fragments.remove(fragment);
+          _fragmentSubscriptions.remove(subscription);
+          subscription?.cancel();
+          debounce?.cancel();
+        },
+      ),
+    );
+
+    _fragmentSubscriptions.add(
+      subscription = fragment.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            debounce?.cancel();
+
+            // Debounce the [updateReads], when [event]s are adding items
+            // rapidly.
+            debounce = Timer(1.milliseconds, updateReads);
+            break;
+
+          case OperationKind.removed:
+            _recalculateReadsFor(event.value!.value);
+            break;
+        }
+      }),
+    );
+
+    return fragment;
+  }
+
+  /// Adds the provided [ChatItem] to the [messages] list.
   void _add(ChatItem item) {
     Log.debug('_add($item)', '$runtimeType($id)');
-
-    if (!PlatformUtils.isWeb) {
-      if (item is ChatMessage) {
-        for (var a in item.attachments.whereType<FileAttachment>()) {
-          a.init();
-        }
-      } else if (item is ChatForward) {
-        ChatItemQuote nested = item.quote;
-        if (nested is ChatMessageQuote) {
-          for (var a in nested.attachments.whereType<FileAttachment>()) {
-            a.init();
-          }
-        }
-      }
-    }
 
     final int i = messages.indexWhere((e) => e.value.id == item.id);
     if (i == -1) {
@@ -1127,16 +1318,53 @@ class HiveRxChat extends RxChat {
     }
   }
 
+  /// Recalculates the [LastChatRead]s pointing at the [item], if any.
+  ///
+  /// Should be called when a [ChatItem] is removed from the [messages] or the
+  /// [MessagesPaginated.items].
+  void _recalculateReadsFor(ChatItem item) {
+    for (LastChatRead i in reads) {
+      if (item.at == i.at) {
+        i.at = _lastReadAt(i.at) ?? i.at;
+      }
+    }
+  }
+
   /// Returns the [ChatItem.at] being the predecessor of the provided [at].
   PreciseDateTime? _lastReadAt(PreciseDateTime at) {
     Log.debug('_lastReadAt($at)', '$runtimeType($id)');
+
+    PreciseDateTime? lastReadAt =
+        _lastReadAmong(at, messages: messages, hasNext: hasNext.isTrue);
+
+    for (var fragment in _fragments) {
+      lastReadAt ??= _lastReadAmong(
+        at,
+        messages: fragment.items.values,
+        hasNext: fragment.hasNext.isTrue,
+      );
+    }
+
+    return lastReadAt;
+  }
+
+  /// Returns the [ChatItem.at] being the predecessor of the provided [at] in
+  /// the provided [messages] list.
+  PreciseDateTime? _lastReadAmong(
+    PreciseDateTime at, {
+    required Iterable<Rx<ChatItem>> messages,
+    required bool hasNext,
+  }) {
+    Log.debug('_lastReadAmong($at)', '$runtimeType($id)');
+
+    messages = messages.sortedBy((e) => e.value.at);
 
     final Rx<ChatItem>? message = messages
         .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at);
 
     // Return `null` if [hasNext] because the provided [at] can be actually
     // connected to another [message].
-    if (message == null || hasNext.isTrue && messages.last == message) {
+    if (message == null || hasNext && messages.last == message) {
       return null;
     } else {
       return message.value.at;
@@ -1194,7 +1422,7 @@ class HiveRxChat extends RxChat {
       }
 
       stored.value = item;
-      _pagination.put(stored);
+      put(stored);
     }
   }
 
@@ -1216,9 +1444,7 @@ class HiveRxChat extends RxChat {
         _chatEvent,
         onError: (e) async {
           if (e is StaleVersionException) {
-            await _pagination.clear();
-            await _membersPagination.clear();
-
+            await clear();
             await _pagination.around(cursor: _lastReadItemCursor);
             await _membersPagination.around();
           }
@@ -1238,7 +1464,7 @@ class HiveRxChat extends RxChat {
 
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
-        var node = event as ChatEventsChat;
+        final node = event as ChatEventsChat;
         final HiveChat? chatEntity = await _chatLocal.get(id);
         if (chatEntity != null) {
           chatEntity.value = node.chat.value;
@@ -1252,399 +1478,425 @@ class HiveRxChat extends RxChat {
         break;
 
       case ChatEventsKind.event:
-        final HiveChat? chatEntity = await _chatLocal.get(id);
-        var versioned = (event as ChatEventsEvent).event;
-        if (chatEntity == null || versioned.ver <= chatEntity.ver) {
-          Log.debug(
-            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
-            '$runtimeType($id)',
-          );
+        await _chatLocal.txn((txn) async {
+          final HiveChat? chatEntity = await txn.get(id.val);
+          final ChatEventsVersioned versioned =
+              (event as ChatEventsEvent).event;
+          if (chatEntity == null ||
+              versioned.ver <= chatEntity.ver ||
+              !subscribed) {
+            Log.debug(
+              '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+              '$runtimeType($id)',
+            );
 
-          return;
-        }
-
-        Log.debug(
-          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
-          '$runtimeType($id)',
-        );
-
-        chatEntity.ver = versioned.ver;
-
-        bool putChat = subscribed;
-        for (var event in versioned.events) {
-          putChat = subscribed;
-
-          // Subscription was already disposed while processing the events.
-          if (!subscribed) {
             return;
           }
 
-          switch (event.kind) {
-            case ChatEventKind.redialed:
-              // TODO: Implement EventChatCallMemberRedialed.
-              break;
+          Log.debug(
+            '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
 
-            case ChatEventKind.cleared:
-              chatEntity.value.lastItem = null;
-              chatEntity.value.lastReadItem = null;
-              chatEntity.lastItemCursor = null;
-              chatEntity.lastReadItemCursor = null;
-              _lastReadItemCursor = null;
-              await _pagination.clear();
-              break;
+          chatEntity.ver = versioned.ver;
 
-            case ChatEventKind.itemHidden:
-              event as EventChatItemHidden;
-              await remove(event.itemId);
-              break;
+          bool shouldPutChat = subscribed;
 
-            case ChatEventKind.muted:
-              event as EventChatMuted;
-              chatEntity.value.muted = event.duration;
-              break;
+          for (var event in versioned.events) {
+            shouldPutChat = subscribed;
 
-            case ChatEventKind.typingStarted:
-              event as EventChatTypingStarted;
-              typingUsers.addIf(
-                !typingUsers.any((e) => e.id == event.user.id),
-                event.user,
-              );
-              break;
+            // Subscription was already disposed while processing the events.
+            if (!subscribed) {
+              return;
+            }
 
-            case ChatEventKind.unmuted:
-              chatEntity.value.muted = null;
-              break;
+            switch (event.kind) {
+              case ChatEventKind.redialed:
+                // TODO: Implement EventChatCallMemberRedialed.
+                break;
 
-            case ChatEventKind.typingStopped:
-              event as EventChatTypingStopped;
-              typingUsers.removeWhere((e) => e.id == event.user.id);
-              break;
+              case ChatEventKind.cleared:
+                chatEntity.value.lastItem = null;
+                chatEntity.value.lastReadItem = null;
+                chatEntity.lastItemCursor = null;
+                chatEntity.lastReadItemCursor = null;
+                _lastReadItemCursor = null;
+                await clear();
+                break;
 
-            case ChatEventKind.hidden:
-              event as EventChatHidden;
-              _chatRepository.remove(event.chatId);
-              putChat = false;
-              continue;
+              case ChatEventKind.itemHidden:
+                event as EventChatItemHidden;
+                await remove(event.itemId);
+                break;
 
-            case ChatEventKind.itemDeleted:
-              event as EventChatItemDeleted;
-              await remove(event.itemId);
-              break;
+              case ChatEventKind.muted:
+                event as EventChatMuted;
+                chatEntity.value.muted = event.duration;
+                break;
 
-            case ChatEventKind.itemEdited:
-              event as EventChatItemEdited;
-              final item = await get(event.itemId);
-              if (item != null) {
-                final message = item.value as ChatMessage;
-                message.text =
-                    event.text != null ? event.text!.newText : message.text;
-                message.attachments = event.attachments ?? message.attachments;
-                message.repliesTo = event.quotes ?? message.repliesTo;
-                put(item);
-              }
+              case ChatEventKind.typingStarted:
+                event as EventChatTypingStarted;
+                typingUsers.addIf(
+                  !typingUsers.any((e) => e.id == event.user.id),
+                  event.user,
+                );
+                break;
 
-              if (chatEntity.value.lastItem?.id == event.itemId) {
-                final message = chatEntity.value.lastItem as ChatMessage;
-                message.text =
-                    event.text != null ? event.text!.newText : message.text;
-                message.attachments = event.attachments ?? message.attachments;
-                message.repliesTo = event.quotes ?? message.repliesTo;
-              }
-              break;
+              case ChatEventKind.unmuted:
+                chatEntity.value.muted = null;
+                break;
 
-            case ChatEventKind.callStarted:
-              event as EventChatCallStarted;
+              case ChatEventKind.typingStopped:
+                event as EventChatTypingStopped;
+                typingUsers.removeWhere((e) => e.id == event.user.id);
+                break;
 
-              if (!chat.value.isDialog) {
-                event.call.conversationStartedAt ??= PreciseDateTime.now();
-              }
+              case ChatEventKind.hidden:
+                event as EventChatHidden;
+                chatEntity.value.isHidden = true;
+                continue;
 
-              chatEntity.value.ongoingCall = event.call;
-              _chatRepository.addCall(event.call);
+              case ChatEventKind.itemDeleted:
+                event as EventChatItemDeleted;
+                await remove(event.itemId);
+                break;
 
-              final message = await get(event.call.id, key: event.call.key);
+              case ChatEventKind.itemEdited:
+                event as EventChatItemEdited;
+                final item = await get(event.itemId);
+                if (item != null) {
+                  final message = item.value as ChatMessage;
+                  message.text =
+                      event.text != null ? event.text!.newText : message.text;
+                  message.attachments =
+                      event.attachments ?? message.attachments;
+                  message.repliesTo =
+                      event.quotes?.map((e) => e.value).toList() ??
+                          message.repliesTo;
+                  (item as HiveChatMessage).repliesToCursors =
+                      event.quotes?.map((e) => e.cursor).toList() ??
+                          item.repliesToCursors;
+                  put(item);
+                }
 
-              if (message != null) {
-                event.call.at = message.value.at;
-                message.value = event.call;
-                put(message);
-              }
-              break;
+                if (chatEntity.value.lastItem?.id == event.itemId) {
+                  final message = chatEntity.value.lastItem as ChatMessage;
+                  message.text =
+                      event.text != null ? event.text!.newText : message.text;
+                  message.attachments =
+                      event.attachments ?? message.attachments;
+                  message.repliesTo =
+                      event.quotes?.map((e) => e.value).toList() ??
+                          message.repliesTo;
+                }
+                break;
 
-            case ChatEventKind.unreadItemsCountUpdated:
-              event as EventChatUnreadItemsCountUpdated;
-              if (event.count < unreadCount.value || _readTimer == null) {
-                unreadCount.value = event.count;
-              } else if (event.count > chatEntity.value.unreadCount) {
-                unreadCount.value += event.count - chatEntity.value.unreadCount;
-              }
+              case ChatEventKind.callStarted:
+                event as EventChatCallStarted;
 
-              chatEntity.value.unreadCount = event.count;
-              break;
+                if (!chat.value.isDialog) {
+                  event.call.conversationStartedAt ??= PreciseDateTime.now();
+                }
 
-            case ChatEventKind.callFinished:
-              event as EventChatCallFinished;
-              chatEntity.value.ongoingCall = null;
-              if (chatEntity.value.lastItem?.id == event.call.id) {
-                chatEntity.value.lastItem = event.call;
-              }
+                // Call is already finished, no reason to try adding it.
+                if (event.call.finishReason == null) {
+                  chatEntity.value.ongoingCall = event.call;
+                  _chatRepository.addCall(event.call);
+                }
 
-              if (event.reason != ChatCallFinishReason.moved) {
-                _chatRepository.removeCredentials(event.call.id);
-                _chatRepository.endCall(event.call.chatId);
-              }
+                final message = await get(event.call.id, key: event.call.key);
 
-              final message = await get(event.call.id, key: event.call.key);
+                if (message != null) {
+                  event.call.at = message.value.at;
+                  message.value = event.call;
+                  put(message);
+                }
+                break;
 
-              if (message != null) {
-                event.call.at = message.value.at;
-                message.value = event.call;
-                put(message);
-              }
-              break;
+              case ChatEventKind.unreadItemsCountUpdated:
+                event as EventChatUnreadItemsCountUpdated;
+                if (event.count < unreadCount.value || _readTimer == null) {
+                  unreadCount.value = event.count;
+                } else if (event.count > chatEntity.value.unreadCount) {
+                  unreadCount.value +=
+                      event.count - chatEntity.value.unreadCount;
+                }
 
-            case ChatEventKind.callMemberLeft:
-              event as EventChatCallMemberLeft;
-              int? i = chatEntity.value.ongoingCall?.members
-                      .indexWhere((e) => e.user.id == event.user.id) ??
-                  -1;
+                chatEntity.value.unreadCount = event.count;
+                break;
 
-              if (i != -1) {
-                chatEntity.value.ongoingCall?.members.removeAt(i);
-              }
-              break;
+              case ChatEventKind.callFinished:
+                event as EventChatCallFinished;
 
-            case ChatEventKind.callMemberJoined:
-              event as EventChatCallMemberJoined;
-              chatEntity.value.ongoingCall?.members.add(
-                ChatCallMember(
-                  user: event.user,
-                  handRaised: false,
-                  joinedAt: event.at,
-                ),
-              );
+                if (chatEntity.value.ongoingCall?.id == event.call.id) {
+                  chatEntity.value.ongoingCall = null;
+                }
 
-              if (chatEntity.value.ongoingCall?.conversationStartedAt == null &&
-                  chat.value.isDialog) {
-                final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
-                    .map((e) => e.user.id)
-                    .toSet();
+                if (chatEntity.value.lastItem?.id == event.call.id) {
+                  chatEntity.value.lastItem = event.call;
+                }
 
-                if (ids != null && ids.length >= 2) {
-                  chatEntity.value.ongoingCall?.conversationStartedAt =
-                      event.call.conversationStartedAt ?? event.at;
+                if (event.reason != ChatCallFinishReason.moved) {
+                  _chatRepository.removeCredentials(
+                    event.call.chatId,
+                    event.call.id,
+                  );
+                  _chatRepository.endCall(event.call.chatId);
+                }
 
-                  if (chatEntity.value.ongoingCall != null) {
-                    final call = chatEntity.value.ongoingCall!;
-                    final message = await get(call.id, key: call.key);
+                final message = await get(event.call.id, key: event.call.key);
 
-                    if (message != null) {
-                      call.at = message.value.at;
-                      message.value = call;
-                      put(message);
+                if (message != null) {
+                  event.call.at = message.value.at;
+                  message.value = event.call;
+                  put(message);
+                }
+                break;
+
+              case ChatEventKind.callMemberLeft:
+                event as EventChatCallMemberLeft;
+                int? i = chatEntity.value.ongoingCall?.members
+                        .indexWhere((e) => e.user.id == event.user.id) ??
+                    -1;
+
+                if (i != -1) {
+                  chatEntity.value.ongoingCall?.members.removeAt(i);
+                }
+                break;
+
+              case ChatEventKind.callMemberJoined:
+                event as EventChatCallMemberJoined;
+                chatEntity.value.ongoingCall?.members.add(
+                  ChatCallMember(
+                    user: event.user,
+                    handRaised: false,
+                    joinedAt: event.at,
+                  ),
+                );
+
+                if (chatEntity.value.ongoingCall?.conversationStartedAt ==
+                        null &&
+                    chat.value.isDialog) {
+                  final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
+                      .map((e) => e.user.id)
+                      .toSet();
+
+                  if (ids != null && ids.length >= 2) {
+                    chatEntity.value.ongoingCall?.conversationStartedAt =
+                        event.call.conversationStartedAt ?? event.at;
+
+                    if (chatEntity.value.ongoingCall != null) {
+                      final call = chatEntity.value.ongoingCall!;
+                      final message = await get(call.id, key: call.key);
+
+                      if (message != null) {
+                        call.at = message.value.at;
+                        message.value = call;
+                        put(message);
+                      }
                     }
                   }
                 }
-              }
-              break;
+                break;
 
-            case ChatEventKind.lastItemUpdated:
-              event as EventChatLastItemUpdated;
-              chatEntity.value.lastItem = event.lastItem?.value;
+              case ChatEventKind.lastItemUpdated:
+                event as EventChatLastItemUpdated;
+                chatEntity.value.lastItem = event.lastItem?.value;
 
-              // TODO [ChatCall.conversationStartedAt] shouldn't be `null` here
-              //      when starting group or monolog [ChatCall].
-              if (!chatEntity.value.isDialog &&
-                  chatEntity.value.lastItem is ChatCall) {
-                (chatEntity.value.lastItem as ChatCall).conversationStartedAt =
-                    PreciseDateTime.now();
-              }
+                // TODO [ChatCall.conversationStartedAt] shouldn't be `null`
+                //      here when starting group or monolog [ChatCall].
+                if (!chatEntity.value.isDialog &&
+                    chatEntity.value.lastItem is ChatCall) {
+                  (chatEntity.value.lastItem as ChatCall)
+                      .conversationStartedAt = PreciseDateTime.now();
+                }
 
-              chatEntity.value.updatedAt =
-                  event.lastItem?.value.at ?? chatEntity.value.updatedAt;
-              if (event.lastItem != null) {
-                await put(event.lastItem!);
-              }
-              break;
+                chatEntity.value.updatedAt =
+                    event.lastItem?.value.at ?? chatEntity.value.updatedAt;
+                if (event.lastItem != null) {
+                  await put(event.lastItem!);
+                }
+                break;
 
-            case ChatEventKind.delivered:
-              event as EventChatDelivered;
-              chatEntity.value.lastDelivery = event.at;
-              break;
+              case ChatEventKind.delivered:
+                event as EventChatDelivered;
+                chatEntity.value.lastDelivery = event.until;
+                break;
 
-            case ChatEventKind.read:
-              event as EventChatRead;
+              case ChatEventKind.read:
+                event as EventChatRead;
 
-              final PreciseDateTime? at = _lastReadAt(event.at);
-              if (at != null) {
-                final LastChatRead? read = reads
+                final PreciseDateTime? at = _lastReadAt(event.at);
+                if (at != null) {
+                  final LastChatRead? read = reads
+                      .firstWhereOrNull((e) => e.memberId == event.byUser.id);
+
+                  if (read == null) {
+                    reads.add(LastChatRead(event.byUser.id, at));
+                  } else {
+                    read.at = at;
+                  }
+
+                  if (event.byUser.id == me) {
+                    final ChatItemKey? key =
+                        _local.keys.lastWhereOrNull((e) => e.at == at);
+                    if (key != null) {
+                      final HiveChatItem? item = await _local.get(key);
+                      if (item != null) {
+                        chatEntity.lastReadItemCursor = item.cursor!;
+                        chatEntity.value.lastReadItem = item.value.id;
+                        _lastReadItemCursor = item.cursor!;
+                      }
+                    }
+                  }
+                }
+
+                LastChatRead? lastRead = chatEntity.value.lastReads
                     .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-
-                if (read == null) {
-                  reads.add(LastChatRead(event.byUser.id, at));
+                if (lastRead == null) {
+                  chatEntity.value.lastReads
+                      .add(LastChatRead(event.byUser.id, event.at));
                 } else {
-                  read.at = at;
+                  lastRead.at = event.at;
+                }
+                break;
+
+              case ChatEventKind.callDeclined:
+                // TODO: Implement EventChatCallDeclined.
+                break;
+
+              case ChatEventKind.itemPosted:
+                event as EventChatItemPosted;
+                final HiveChatItem item = event.item;
+
+                if (chatEntity.value.isHidden) {
+                  chatEntity.value.isHidden = false;
                 }
 
-                if (event.byUser.id == me) {
-                  final ChatItemKey? key =
-                      _local.keys.lastWhereOrNull((e) => e.at == at);
-                  if (key != null) {
-                    final HiveChatItem? item = await _local.get(key);
-                    if (item != null) {
-                      chatEntity.lastReadItemCursor = item.cursor!;
-                      chatEntity.value.lastReadItem = item.value.id;
-                      _lastReadItemCursor = item.cursor!;
-                    }
+                if (item.value is ChatMessage && item.value.author.id == me) {
+                  ChatMessage? pending =
+                      _pending.whereType<ChatMessage>().firstWhereOrNull(
+                            (e) =>
+                                e.status.value == SendingStatus.sending &&
+                                (item.value as ChatMessage).isEquals(e),
+                          );
+
+                  // If any [ChatMessage] sharing the same fields as the posted
+                  // one is found in the [_pending] messages, and this message
+                  // is not yet added to the store, then remove the [pending].
+                  if (pending != null &&
+                      await get(item.value.id, key: item.value.key) == null) {
+                    remove(pending.id, pending.key);
+                    _pending.remove(pending);
                   }
                 }
-              }
 
-              LastChatRead? lastRead = chatEntity.value.lastReads
-                  .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-              if (lastRead == null) {
-                chatEntity.value.lastReads
-                    .add(LastChatRead(event.byUser.id, event.at));
-              } else {
-                lastRead.at = event.at;
-              }
-              break;
+                put(item);
 
-            case ChatEventKind.callDeclined:
-              // TODO: Implement EventChatCallDeclined.
-              break;
+                if (item.value is ChatInfo) {
+                  var msg = item.value as ChatInfo;
 
-            case ChatEventKind.itemPosted:
-              event as EventChatItemPosted;
-              final HiveChatItem item = event.item;
+                  switch (msg.action.kind) {
+                    case ChatInfoActionKind.avatarUpdated:
+                      final action = msg.action as ChatInfoActionAvatarUpdated;
+                      chatEntity.value.avatar = action.avatar;
+                      break;
 
-              if (chatEntity.value.isHidden) {
-                chatEntity.value.isHidden = false;
-              }
+                    case ChatInfoActionKind.created:
+                      // No-op.
+                      break;
 
-              if (item.value is ChatMessage && item.value.author.id == me) {
-                ChatMessage? pending =
-                    _pending.whereType<ChatMessage>().firstWhereOrNull(
-                          (e) =>
-                              e.status.value == SendingStatus.sending &&
-                              (item.value as ChatMessage).isEquals(e),
+                    case ChatInfoActionKind.memberAdded:
+                      final action = msg.action as ChatInfoActionMemberAdded;
+
+                      if (chatEntity.value.members.length < 3) {
+                        chatEntity.value.members.add(
+                          ChatMember(action.user, msg.at),
                         );
+                      }
 
-                // If any [ChatMessage] sharing the same fields as the posted
-                // one is found in the [_pending] messages, and this message
-                // is not yet added to the store, then remove the [pending].
-                if (pending != null &&
-                    await get(item.value.id, key: item.value.key) == null) {
-                  remove(pending.id, pending.key);
-                  _pending.remove(pending);
-                }
-              }
-
-              put(item);
-
-              if (item.value is ChatInfo) {
-                var msg = item.value as ChatInfo;
-
-                switch (msg.action.kind) {
-                  case ChatInfoActionKind.avatarUpdated:
-                    final action = msg.action as ChatInfoActionAvatarUpdated;
-                    chatEntity.value.avatar = action.avatar;
-                    break;
-
-                  case ChatInfoActionKind.created:
-                    // No-op.
-                    break;
-
-                  case ChatInfoActionKind.memberAdded:
-                    final action = msg.action as ChatInfoActionMemberAdded;
-
-                    if (chatEntity.value.members.length < 3) {
-                      chatEntity.value.members.add(
-                        ChatMember(action.user, msg.at),
+                      _putMember(
+                        HiveChatMember(ChatMember(action.user, msg.at), null),
                       );
-                    }
+                      break;
 
-                    _putMember(
-                      HiveChatMember(ChatMember(action.user, msg.at), null),
-                    );
-                    break;
+                    case ChatInfoActionKind.memberRemoved:
+                      final action = msg.action as ChatInfoActionMemberRemoved;
 
-                  case ChatInfoActionKind.memberRemoved:
-                    final action = msg.action as ChatInfoActionMemberRemoved;
+                      await _membersPagination.remove(action.user.id);
 
-                    await _membersPagination.remove(action.user.id);
+                      chatEntity.value.members
+                          .removeWhere((e) => e.user.id == action.user.id);
 
-                    chatEntity.value.members
-                        .removeWhere((e) => e.user.id == action.user.id);
+                      if (chatEntity.value.members.length < 3) {
+                        if (_membersPagination.items.length < 3) {
+                          await membersNext();
+                        }
 
-                    if (chatEntity.value.members.length < 3) {
-                      if (_membersPagination.items.length < 3) {
-                        await membersNext();
+                        chatEntity.value.members.clear();
+                        for (var m in _membersPagination.items.values.take(3)) {
+                          chatEntity.value.members.add(m.value);
+                        }
                       }
 
-                      chatEntity.value.members.clear();
-                      for (var m in _membersPagination.items.values.take(3)) {
-                        chatEntity.value.members.add(m.value);
-                      }
-                    }
+                      // TODO: https://github.com/team113/messenger/issues/627
+                      chatEntity.value.lastReads
+                          .removeWhere((e) => e.memberId == action.user.id);
+                      reads.removeWhere((e) => e.memberId == action.user.id);
+                      await _chatRepository.onMemberRemoved(id, action.user.id);
+                      break;
 
-                    // TODO: https://github.com/team113/messenger/issues/627
-                    chatEntity.value.lastReads
-                        .removeWhere((e) => e.memberId == action.user.id);
-                    reads.removeWhere((e) => e.memberId == action.user.id);
-                    await _chatRepository.onMemberRemoved(id, action.user.id);
-                    break;
-
-                  case ChatInfoActionKind.nameUpdated:
-                    final action = msg.action as ChatInfoActionNameUpdated;
-                    chatEntity.value.name = action.name;
-                    break;
+                    case ChatInfoActionKind.nameUpdated:
+                      final action = msg.action as ChatInfoActionNameUpdated;
+                      chatEntity.value.name = action.name;
+                      break;
+                  }
                 }
-              }
-              break;
+                break;
 
-            case ChatEventKind.totalItemsCountUpdated:
-              event as EventChatTotalItemsCountUpdated;
-              chatEntity.value.totalCount = event.count;
-              break;
+              case ChatEventKind.totalItemsCountUpdated:
+                event as EventChatTotalItemsCountUpdated;
+                chatEntity.value.totalCount = event.count;
+                break;
 
-            case ChatEventKind.directLinkUpdated:
-              event as EventChatDirectLinkUpdated;
-              chatEntity.value.directLink = event.link;
-              break;
+              case ChatEventKind.directLinkUpdated:
+                event as EventChatDirectLinkUpdated;
+                chatEntity.value.directLink = event.link;
+                break;
 
-            case ChatEventKind.directLinkUsageCountUpdated:
-              event as EventChatDirectLinkUsageCountUpdated;
-              chatEntity.value.directLink?.usageCount = event.usageCount;
-              break;
+              case ChatEventKind.directLinkUsageCountUpdated:
+                event as EventChatDirectLinkUsageCountUpdated;
+                chatEntity.value.directLink?.usageCount = event.usageCount;
+                break;
 
-            case ChatEventKind.directLinkDeleted:
-              chatEntity.value.directLink = null;
-              break;
+              case ChatEventKind.directLinkDeleted:
+                chatEntity.value.directLink = null;
+                break;
 
-            case ChatEventKind.callMoved:
-              // TODO: Implement EventChatCallMoved.
-              break;
+              case ChatEventKind.callMoved:
+                // TODO: Implement EventChatCallMoved.
+                break;
 
-            case ChatEventKind.favorited:
-              event as EventChatFavorited;
-              chatEntity.value.favoritePosition = event.position;
-              break;
+              case ChatEventKind.favorited:
+                event as EventChatFavorited;
+                chatEntity.value.favoritePosition = event.position;
+                break;
 
-            case ChatEventKind.unfavorited:
-              chatEntity.value.favoritePosition = null;
-              break;
+              case ChatEventKind.unfavorited:
+                chatEntity.value.favoritePosition = null;
+                break;
 
-            case ChatEventKind.callConversationStarted:
-              event as EventChatCallConversationStarted;
-              chatEntity.value.ongoingCall = event.call;
-              break;
+              case ChatEventKind.callConversationStarted:
+                event as EventChatCallConversationStarted;
+                chatEntity.value.ongoingCall = event.call;
+                break;
+            }
           }
-        }
 
-        if (putChat) {
-          await _chatRepository.put(chatEntity);
-        }
+          if (shouldPutChat) {
+            await txn.put(chatEntity.value.id.val, chatEntity);
+          }
+        });
         break;
     }
   }
@@ -1669,35 +1921,5 @@ extension ListInsertAfter<T> on List<T> {
         return;
       }
     }
-  }
-}
-
-/// [Timer] exposing its [future] to be awaited.
-class AwaitableTimer {
-  AwaitableTimer(Duration d, FutureOr Function() callback) {
-    _timer = Timer(d, () async {
-      try {
-        _completer.complete(await callback());
-      } on StateError {
-        // No-op, as [Future] is allowed to be completed.
-      } catch (e, stackTrace) {
-        _completer.completeError(e, stackTrace);
-      }
-    });
-  }
-
-  /// [Timer] executing the callback.
-  late final Timer _timer;
-
-  /// [Completer] completing when [_timer] is done executing.
-  final _completer = Completer();
-
-  /// [Future] completing when this [AwaitableTimer] is finished.
-  Future get future => _completer.future;
-
-  /// Cancels this [AwaitableTimer].
-  void cancel() {
-    _timer.cancel();
-    _completer.complete();
   }
 }

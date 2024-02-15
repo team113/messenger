@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -37,6 +37,7 @@ import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show FavoriteChatContactException, UnfavoriteChatContactException;
@@ -56,6 +57,7 @@ class ContactsTabController extends GetxController {
     this._contactService,
     this._calls,
     this._userService,
+    this._myUserService,
   );
 
   /// Reactive list of sorted [ChatContact]s.
@@ -100,6 +102,9 @@ class ContactsTabController extends GetxController {
 
   /// [User]s service used in [SearchController].
   final UserService _userService;
+
+  /// [MyUserService] searching [myUser].
+  final MyUserService _myUserService;
 
   /// Call service used to start a [ChatCall].
   final CallService _calls;
@@ -286,6 +291,7 @@ class ContactsTabController extends GetxController {
         _chatService,
         _userService,
         _contactService,
+        _myUserService,
         categories: const [
           SearchCategory.contact,
           SearchCategory.user,

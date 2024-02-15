@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,13 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
-import '/ui/widget/animated_button.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
-import '/util/platform_utils.dart';
 
 /// [ReactiveTextField]-styled button.
 class FieldButton extends StatefulWidget {
@@ -30,14 +27,15 @@ class FieldButton extends StatefulWidget {
     super.key,
     this.text,
     this.textAlign = TextAlign.start,
-    this.hint,
     this.maxLines = 1,
     this.onPressed,
     this.onTrailingPressed,
     this.trailing,
-    this.prefix,
     this.style,
     this.subtitle,
+    this.headline,
+    this.warning = false,
+    this.danger = false,
   });
 
   /// Optional label of this [FieldButton].
@@ -45,9 +43,6 @@ class FieldButton extends StatefulWidget {
 
   /// [TextAlign] of the [text].
   final TextAlign textAlign;
-
-  /// Optional hint of this [FieldButton].
-  final String? hint;
 
   /// Maximum number of lines to show at one time, wrapping if necessary.
   final int? maxLines;
@@ -66,11 +61,17 @@ class FieldButton extends StatefulWidget {
   /// Optional subtitle [Widget].
   final Widget? subtitle;
 
-  /// Optional prefix [Widget].
-  final Widget? prefix;
+  /// Optional headline [Widget].
+  final Widget? headline;
 
   /// [TextStyle] of the [text].
   final TextStyle? style;
+
+  /// Indicator whether this [FieldButton] should have warning style.
+  final bool warning;
+
+  /// Indicator whether the [text] should have danger color.
+  final bool danger;
 
   @override
   State<FieldButton> createState() => _FieldButtonState();
@@ -78,81 +79,37 @@ class FieldButton extends StatefulWidget {
 
 /// State of a [FieldButton] maintaining the [_hovered] indicator.
 class _FieldButtonState extends State<FieldButton> {
-  /// Indicator whether this [FieldButton] is hovered.
-  bool _hovered = false;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Widget child = MouseRegion(
-      onEnter: PlatformUtils.isMobile
-          ? null
-          : (_) => setState(() => _hovered = true),
-      onExit: PlatformUtils.isMobile
-          ? null
-          : (_) => setState(() => _hovered = false),
-      child: WidgetButton(
-        behavior: HitTestBehavior.deferToChild,
-        onPressed: widget.onPressed,
-        child: IgnorePointer(
-          child: ReactiveTextField(
-            textAlign: widget.textAlign,
-            state: TextFieldState(text: widget.text, editable: false),
-            label: widget.hint,
-            maxLines: widget.maxLines,
-            trailing: widget.onTrailingPressed == null
-                ? AnimatedScale(
-                    duration: const Duration(milliseconds: 100),
-                    scale: _hovered ? AnimatedButton.scale : 1,
-                    child: Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: widget.trailing,
-                    ),
-                  )
-                : null,
-            prefix: widget.prefix,
-            style: widget.style,
-            fillColor: _hovered && widget.onPressed != null
-                ? style.colors.onPrimary.darken(0.03)
-                : style.colors.onPrimary,
-          ),
-        ),
-      ),
-    );
-
-    if (widget.trailing == null || widget.onTrailingPressed == null) {
-      return child;
-    }
-
     return Column(
       children: [
-        Stack(
-          alignment: Alignment.centerRight,
-          children: [
-            child,
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: AnimatedButton(
-                  onPressed: widget.onTrailingPressed,
-                  enabled: widget.onTrailingPressed != null,
-                  decorator: (child) {
-                    return SizedBox(
-                      width: 50,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8, top: 8),
-                          child: child,
-                        ),
-                      ),
-                    );
-                  },
-                  child: widget.trailing!,
-                ),
-              ),
-            ),
-          ],
+        OutlinedRoundedButton(
+          maxWidth: double.infinity,
+          color: widget.warning ? style.colors.primary : style.colors.onPrimary,
+          disabled: style.colors.onPrimary,
+          onPressed: widget.onPressed,
+          style: (widget.style ?? style.fonts.medium.regular.onBackground)
+              .copyWith(
+            // Exception, as [widget.style] may vary.
+            color: widget.onPressed == null
+                ? style.colors.onBackgroundOpacity40
+                : widget.warning
+                    ? style.colors.onPrimary
+                    : widget.danger
+                        ? style.colors.danger
+                        : style.colors.onBackground,
+          ),
+          height: 46,
+          leading: Transform.translate(
+            offset: const Offset(0, 1),
+            child: widget.trailing,
+          ),
+          headline: widget.headline,
+          maxHeight: double.infinity,
+          border: BorderSide(width: 0.5, color: style.colors.secondary),
+          child: Text(widget.text ?? '', maxLines: widget.maxLines),
         ),
         if (widget.subtitle != null)
           Align(

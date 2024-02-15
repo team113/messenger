@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -60,7 +60,7 @@ enum AvatarRadius {
       AvatarRadius.big => 20,
       AvatarRadius.large => 30,
       AvatarRadius.larger => 32,
-      AvatarRadius.largest => 100,
+      AvatarRadius.largest => 200,
     };
   }
 }
@@ -220,7 +220,11 @@ class AvatarWidget extends StatelessWidget {
         key: key,
         label: LayoutBuilder(
           builder: (context, constraints) {
-            return SvgIcon(SvgIcons.notes, height: constraints.maxWidth / 2);
+            return SvgIcon(
+              SvgIcons.notes,
+              width: constraints.maxWidth,
+              height: constraints.maxWidth / 2,
+            );
           },
         ),
         avatar: chat?.avatar,
@@ -254,6 +258,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    FutureOr<void> Function()? onForbidden,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -273,7 +278,7 @@ class AvatarWidget extends StatelessWidget {
         );
       }
 
-      RxUser? user =
+      final RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
         key: key,
@@ -284,6 +289,7 @@ class AvatarWidget extends StatelessWidget {
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,
+        onForbidden: onForbidden,
       );
     });
   }
@@ -386,76 +392,81 @@ class AvatarWidget extends StatelessWidget {
                   ? avatar?.medium
                   : avatar?.small;
 
-      return Badge(
-        largeSize: badgeSize * 1.16,
-        isLabelVisible: isOnline,
-        alignment: Alignment.bottomRight,
-        backgroundColor: style.colors.onPrimary,
-        padding: EdgeInsets.all(badgeSize / 12),
-        offset: maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
-        label: SizedBox(
-          width: badgeSize,
-          height: badgeSize,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color:
-                  isAway ? style.colors.warning : style.colors.acceptAuxiliary,
+      final Widget defaultAvatar = Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [gradient.lighten(), gradient],
+          ),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: label ??
+              SelectionContainer.disabled(
+                child: Text(
+                  (title ?? '??').initials(),
+                  style: style.fonts.normal.bold.onPrimary.copyWith(
+                    fontSize: style.fonts.normal.bold.onPrimary.fontSize! *
+                        (maxWidth / 40.0),
+                  ),
+
+                  // Disable the accessibility size settings for this [Text].
+                  textScaler: const TextScaler.linear(1),
+                ),
+              ),
+        ),
+      );
+
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: minWidth,
+          minHeight: minHeight,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        ),
+        child: Badge(
+          largeSize: badgeSize * 1.16,
+          isLabelVisible: isOnline,
+          alignment: Alignment.bottomRight,
+          backgroundColor: style.colors.onPrimary,
+          padding: EdgeInsets.all(badgeSize / 12),
+          offset:
+              maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
+          label: SizedBox(
+            width: badgeSize,
+            height: badgeSize,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isAway
+                    ? style.colors.warning
+                    : style.colors.acceptAuxiliary,
+              ),
             ),
           ),
-        ),
-        child: Stack(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(0.5),
-              constraints: BoxConstraints(
-                minHeight: minHeight,
-                minWidth: minWidth,
-                maxWidth: maxWidth,
-                maxHeight: maxHeight,
-              ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [gradient.lighten(), gradient],
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: label ??
-                    SelectionContainer.disabled(
-                      child: Text(
-                        (title ?? '??').initials(),
-                        style: style.fonts.normal.bold.onPrimary.copyWith(
-                          fontSize:
-                              style.fonts.normal.bold.onPrimary.fontSize! *
-                                  (maxWidth / 40.0),
+          child: Stack(
+            children: [
+              if (avatar == null) defaultAvatar,
+              if (avatar != null || child != null)
+                Positioned.fill(
+                  child: ClipOval(
+                    child: child ??
+                        RetryImage(
+                          image!.url,
+                          checksum: image.checksum,
+                          thumbhash: image.thumbhash,
+                          fit: BoxFit.cover,
+                          height: double.infinity,
+                          width: double.infinity,
+                          displayProgress: false,
+                          onForbidden: onForbidden,
+                          loadingBuilder: () => defaultAvatar,
                         ),
-
-                        // Disable the accessibility size settings for this [Text].
-                        textScaler: const TextScaler.linear(1),
-                      ),
-                    ),
-              ),
-            ),
-            if (avatar != null || child != null)
-              Positioned.fill(
-                child: ClipOval(
-                  child: child ??
-                      RetryImage(
-                        image!.url,
-                        checksum: image.checksum,
-                        thumbhash: image.thumbhash,
-                        fit: BoxFit.cover,
-                        height: double.infinity,
-                        width: double.infinity,
-                        displayProgress: false,
-                        onForbidden: onForbidden,
-                      ),
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       );
     });
@@ -463,7 +474,7 @@ class AvatarWidget extends StatelessWidget {
 }
 
 /// Extension adding an ability to get initials from a [String].
-extension _InitialsExtension on String {
+extension InitialsExtension on String {
   /// Returns initials (two letters which begin each word) of this string.
   String initials() {
     List<String> words = split(' ').where((e) => e.isNotEmpty).toList();

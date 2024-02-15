@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart'
     show PostChatMessageErrorCode;
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -42,6 +43,30 @@ final StepDefinitionGeneric sendsMessageToMe =
       context.world.sessions[user.name]!.dialog!,
       text: ChatMessageText(msg),
     );
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Sends a text message from the specified [User] to the [Chat]-group with the
+/// provided name.
+///
+/// Examples:
+/// - Bob sends "Hello, Alice!" message to "Name" group
+/// - Charlie sends "dummy msg" message to "Name" group
+final StepDefinitionGeneric sendsMessageToGroup =
+    and3<TestUser, String, String, CustomWorld>(
+  '{user} sends {string} message to {string} group',
+  (TestUser user, String msg, String group, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    await provider.postChatMessage(
+      context.world.groups[group]!,
+      text: ChatMessageText(msg),
+    );
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -84,6 +109,32 @@ final StepDefinitionGeneric sendsMessageWithException =
         assert(exception == null);
         break;
     }
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Sends the provided count of messages from the specified [TestUser] to the
+/// [Chat]-group with the provided name.
+///
+/// Examples:
+/// - Given Alice sends 100 messages to "Name" group
+final StepDefinitionGeneric sendsCountMessages =
+    given3<TestUser, int, String, CustomWorld>(
+  '{user} sends {int} messages to {string} group',
+  (TestUser user, int count, String name, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    final ChatId chatId = context.world.groups[name]!;
+    final List<Future> futures = List.generate(
+      count,
+      (i) => provider.postChatMessage(chatId, text: ChatMessageText('$i')),
+    );
+
+    await Future.wait(futures);
 
     provider.disconnect();
   },

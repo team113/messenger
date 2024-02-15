@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:uuid/uuid.dart';
 import '../model_type_id.dart';
 import '/ui/worker/cache.dart';
 import '/util/new_type.dart';
+import '/util/platform_utils.dart';
 import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -122,12 +123,14 @@ class FileAttachment extends Attachment {
 
     _initialized = true;
 
-    await CacheWorker.instance.checkDownloaded(
-      filename: filename,
-      checksum: original.checksum,
-      size: original.size,
-      url: original.url,
-    );
+    if (!PlatformUtils.isWeb) {
+      await CacheWorker.instance.checkDownloaded(
+        filename: filename,
+        checksum: original.checksum,
+        size: original.size,
+        url: original.url,
+      );
+    }
   }
 
   /// Downloads this [FileAttachment].

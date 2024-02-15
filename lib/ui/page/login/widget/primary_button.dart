@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,14 +40,14 @@ class PrimaryButton extends StatelessWidget {
 
     return OutlinedRoundedButton(
       maxWidth: double.infinity,
-      title: Text(
+      onPressed: onPressed,
+      color: style.colors.primary,
+      child: Text(
         title,
         style: onPressed == null
             ? style.fonts.medium.regular.onBackground
             : style.fonts.medium.regular.onPrimary,
       ),
-      onPressed: onPressed,
-      color: style.colors.primary,
     );
   }
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,17 +24,20 @@ library main;
 import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'api/backend/schema.dart';
@@ -44,10 +47,11 @@ import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
+import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
-import 'provider/hive/download.dart';
 import 'provider/hive/credentials.dart';
+import 'provider/hive/download.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -56,6 +60,7 @@ import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
+import 'util/backoff.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -63,12 +68,18 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-  MediaKit.ensureInitialized();
 
-  me.Log.options = me.LogOptions(level: Config.logLevel);
+  me.Log.options = me.LogOptions(
+    level: Config.logLevel,
+
+    // Browsers collect timestamps for log themselves.
+    timeStamp: !PlatformUtils.isWeb,
+    dateStamp: !PlatformUtils.isWeb,
+  );
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
+    MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
     await _initHive();
@@ -100,7 +111,7 @@ Future<void> main() async {
         Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
     router = RouterState(authService);
 
-    await authService.init();
+    authService.init();
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
@@ -122,15 +133,39 @@ Future<void> main() async {
     return appRunner();
   }
 
-  return SentryFlutter.init(
+  await SentryFlutter.init(
     (options) => {
       options.dsn = Config.sentryDsn,
       options.tracesSampleRate = 1.0,
-      options.release = '${Pubspec.name}@${Config.version ?? Pubspec.version}',
+      options.release =
+          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}',
       options.debug = true,
       options.diagnosticLevel = SentryLevel.info,
       options.enablePrintBreadcrumbs = true,
-      options.integrations.add(OnErrorIntegration()),
+      options.maxBreadcrumbs = 512,
+      options.beforeSend = (SentryEvent event, {Hint? hint}) {
+        final exception = event.exceptions?.firstOrNull?.throwable;
+
+        // Connection related exceptions shouldn't be logged.
+        if (exception is ConnectionException ||
+            exception is SocketException ||
+            exception is WebSocketException ||
+            exception is WebSocketChannelException ||
+            exception is HttpException ||
+            exception is ClientException ||
+            exception is DioException ||
+            exception is ResubscriptionRequiredException) {
+          return null;
+        }
+
+        // [Backoff] related exceptions shouldn't be logged.
+        if (exception is OperationCanceledException ||
+            exception.toString() == 'Data is not loaded') {
+          return null;
+        }
+
+        return event;
+      },
       options.logger = (
         SentryLevel level,
         String message, {
@@ -139,15 +174,22 @@ Future<void> main() async {
         StackTrace? stackTrace,
       }) {
         if (exception != null) {
-          StringBuffer buf = StringBuffer('$exception');
-          if (stackTrace != null) {
-            buf.write(
-              '\n\nWhen the exception was thrown, this was the stack:\n',
-            );
-            buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
+          if (stackTrace == null) {
+            stackTrace = StackTrace.current;
+          } else {
+            stackTrace = FlutterError.demangleStackTrace(stackTrace);
           }
 
-          Log.error(buf.toString(), 'SentryFlutter');
+          final Iterable<String> lines =
+              stackTrace.toString().trimRight().split('\n').take(100);
+
+          Log.error(
+            [
+              exception.toString(),
+              if (lines.where((e) => e.isNotEmpty).isNotEmpty)
+                FlutterError.defaultStackFilter(lines).join('\n')
+            ].join('\n'),
+          );
         }
       },
     },

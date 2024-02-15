@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -443,10 +443,28 @@ mixin ContactGraphQlMixin {
       last: last,
       before: before,
     );
-    QueryResult res = await client.query(QueryOptions(
+    final QueryResult res = await client.query(QueryOptions(
+      operationName: 'SearchChatContacts',
       document: SearchChatContactsQuery(variables: variables).document,
       variables: variables.toJson(),
     ));
     return SearchChatContacts$Query.fromJson(res.data!);
+  }
+
+  /// Returns a [ChatContact] by its ID.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetContact$Query> chatContact(ChatContactId id) async {
+    Log.debug('chatContact($id)', '$runtimeType');
+
+    final variables = GetContactArguments(id: id);
+    final QueryResult res = await client.query(QueryOptions(
+      operationName: 'GetContact',
+      document: GetContactQuery(variables: variables).document,
+      variables: variables.toJson(),
+    ));
+    return GetContact$Query.fromJson(res.data!);
   }
 }

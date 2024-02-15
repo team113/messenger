@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,6 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
-import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -43,9 +42,11 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
+import 'package:messenger/provider/hive/blocklist_sorting.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
@@ -70,11 +71,12 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mock/overflow_error.dart';
+import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
@@ -83,6 +85,7 @@ import 'extension/rich_text.dart';
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
+  AudioUtils = AudioUtilsMock();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
 
   var userData = {
@@ -300,6 +303,10 @@ void main() async {
         }
       })));
 
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
+
   when(graphQlProvider.recentChats(
     first: anyNamed('first'),
     after: null,
@@ -444,8 +451,7 @@ void main() async {
   );
 
   AuthService authService =
-      AuthService(AuthRepository(graphQlProvider), CredentialsHiveProvider());
-  await authService.init();
+      AuthService(AuthRepository(graphQlProvider), credentialsProvider);
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
@@ -469,8 +475,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
   var myUserProvider = MyUserHiveProvider();
@@ -490,6 +498,8 @@ void main() async {
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
+  var blocklistSortingProvider = BlocklistSortingHiveProvider();
+  await blocklistSortingProvider.init();
 
   var messagesProvider = Get.put(ChatItemHiveProvider(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -498,7 +508,6 @@ void main() async {
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
-    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(
@@ -517,7 +526,7 @@ void main() async {
         credentialsProvider,
       ),
     );
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -525,7 +534,9 @@ void main() async {
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
+        blocklistSortingProvider,
         userRepository,
+        sessionProvider,
       ),
     );
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -536,10 +547,11 @@ void main() async {
         callRectProvider,
       ),
     );
-    AbstractCallRepository callRepository = CallRepository(
+    final callRepository = CallRepository(
       graphQlProvider,
       userRepository,
       callCredentialsProvider,
+      chatCredentialsProvider,
       settingsRepository,
       me: const UserId('me'),
     );
@@ -631,5 +643,8 @@ void main() async {
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
+
+    await tester.runAsync(() => Future.delayed(1.milliseconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

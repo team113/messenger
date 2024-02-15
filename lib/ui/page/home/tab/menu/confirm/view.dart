@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -90,16 +90,16 @@ class ConfirmLogoutView extends StatelessWidget {
                 const SizedBox(height: 25),
                 OutlinedRoundedButton(
                   key: const Key('ChangePasswordButton'),
-                  title: Text(
+                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
+                      ? null
+                      : c.setPassword,
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_proceed'.l10n,
                     style: c.password.isEmpty.value || c.repeat.isEmpty.value
                         ? style.fonts.normal.regular.onBackground
                         : style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
-                      ? null
-                      : c.setPassword,
-                  color: style.colors.primary,
                 ),
               ];
               break;
@@ -117,12 +117,12 @@ class ConfirmLogoutView extends StatelessWidget {
                   child: OutlinedRoundedButton(
                     key: const Key('CloseButton'),
                     maxWidth: double.infinity,
-                    title: Text(
+                    onPressed: Navigator.of(context).pop,
+                    color: style.colors.primary,
+                    child: Text(
                       'btn_close'.l10n,
                       style: style.fonts.medium.regular.onPrimary,
                     ),
-                    onPressed: Navigator.of(context).pop,
-                    color: style.colors.primary,
                   ),
                 ),
               ];
@@ -158,12 +158,12 @@ class ConfirmLogoutView extends StatelessWidget {
                   OutlinedRoundedButton(
                     key: const Key('ConfirmLogoutButton'),
                     maxWidth: double.infinity,
-                    title: Text(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    color: style.colors.primary,
+                    child: Text(
                       'btn_logout'.l10n,
                       style: style.fonts.medium.regular.onPrimary,
                     ),
-                    onPressed: () => Navigator.of(context).pop(true),
-                    color: style.colors.primary,
                   ),
                 ] else ...[
                   RichText(
@@ -181,12 +181,12 @@ class ConfirmLogoutView extends StatelessWidget {
                         child: OutlinedRoundedButton(
                           key: const Key('ConfirmLogoutButton'),
                           maxWidth: double.infinity,
-                          title: Text(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          color: style.colors.secondaryHighlight,
+                          child: Text(
                             'btn_logout'.l10n,
                             style: style.fonts.normal.regular.onBackground,
                           ),
-                          onPressed: () => Navigator.of(context).pop(true),
-                          color: style.colors.secondaryHighlight,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -194,13 +194,13 @@ class ConfirmLogoutView extends StatelessWidget {
                         child: OutlinedRoundedButton(
                           key: const Key('SetPasswordButton'),
                           maxWidth: double.infinity,
-                          title: Text(
-                            'btn_set_password'.l10n,
-                            style: style.fonts.normal.regular.onPrimary,
-                          ),
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
                           color: style.colors.primary,
+                          child: Text(
+                            'btn_set_password'.l10n,
+                            style: style.fonts.normal.regular.onPrimary,
+                          ),
                         ),
                       ),
                     ],

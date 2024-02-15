@@ -1,4 +1,4 @@
-# Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -21,7 +21,7 @@ Feature: Half read status of messages in group chats
     Given I am Alice
     And users Bob and Charlie
     And I have "Group" group with Bob and Charlie
-    And I am in "Group" chat
+    And I am in "Group" group
 
   Scenario: User sees messages half read
     When I fill `MessageField` field with "123"

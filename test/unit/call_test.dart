@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,9 +36,10 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_call_credentials.dart';
+import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
@@ -134,8 +135,10 @@ void main() async {
   await applicationSettingsProvider.init();
   var backgroundProvider = BackgroundHiveProvider();
   await backgroundProvider.init();
-  var callCredentialsProvider = ChatCallCredentialsHiveProvider();
+  final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
+  final chatCredentialsProvider = ChatCredentialsHiveProvider();
+  await chatCredentialsProvider.init();
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -195,7 +198,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
         Get.put(AuthService(authRepository, credentialsProvider));
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -208,11 +211,12 @@ void main() async {
       ),
     );
 
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -327,7 +331,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
         Get.put(AuthService(authRepository, credentialsProvider));
-    await authService.init();
+    authService.init();
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -340,11 +344,12 @@ void main() async {
       ),
     );
 
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -372,7 +377,7 @@ void main() async {
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
 
-    callService.call(
+    await callService.call(
       const ChatId('outgoing'),
       withAudio: false,
       withVideo: false,
@@ -387,7 +392,7 @@ void main() async {
     expect(callService.calls.values.first.value.chatId.value.val, 'outgoing');
     expect(callService.calls.values.first.value.caller?.id.val, 'me');
 
-    callService.leave(
+    await callService.leave(
       const ChatId('outgoing'),
       const ChatCallDeviceId('device'),
     );
@@ -402,7 +407,7 @@ void main() async {
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
     AuthService authService =
         Get.put(AuthService(authRepository, credentialsProvider));
-    await authService.init();
+    authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -415,11 +420,12 @@ void main() async {
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
 
-    CallRepository callRepository = Get.put(
+    final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
         userRepository,
         callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
@@ -479,7 +485,7 @@ void main() async {
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
-    callService.decline(const ChatId('incoming'));
+    await callService.decline(const ChatId('incoming'));
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
@@ -516,7 +522,7 @@ void main() async {
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
-    callService.join(
+    await callService.join(
       const ChatId('incoming'),
       withAudio: true,
       withVideo: false,
@@ -831,5 +837,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<GetUser$Query> getUser(UserId id) async {
     return GetUser$Query.fromJson({'user': null});
+  }
+
+  @override
+  Future<GetMessage$Query> chatItem(ChatItemId id) async {
+    return GetMessage$Query.fromJson({'chatItem': null});
   }
 }

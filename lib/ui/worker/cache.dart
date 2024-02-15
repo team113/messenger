@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -118,14 +118,25 @@ class CacheWorker extends DisposableService {
       responseType = CacheResponseType.bytes;
     }
 
-    if (checksum != null && FIFOCache.exists(checksum)) {
-      final Uint8List? bytes = FIFOCache.get(checksum);
+    // Try to retrieve the [CacheEntry] by URL as well, yet [checksum] is still
+    // more preferred.
+    final String? key = checksum ?? url;
+
+    if (key != null && FIFOCache.exists(key)) {
+      final Uint8List? bytes = FIFOCache.get(key);
 
       if (bytes != null) {
         switch (responseType) {
           case CacheResponseType.file:
+            // If [CacheEntry] is supposed to contain a [File], and we don't
+            // have a [checksum], then there won't be a [File], thus we should
+            // break and proceed to fetch the [File] by the [url] provided.
+            if (checksum == null) {
+              break;
+            }
+
             return Future(
-              () async => CacheEntry(file: await add(bytes, checksum)),
+              () async => CacheEntry(file: await add(bytes, checksum, url)),
             );
 
           case CacheResponseType.bytes:
@@ -188,13 +199,13 @@ class CacheWorker extends DisposableService {
             case CacheResponseType.file:
               return Future(
                 () async => CacheEntry(
-                  file: data == null ? null : await add(data, checksum),
+                  file: data == null ? null : await add(data, checksum, url),
                 ),
               );
 
             case CacheResponseType.bytes:
               if (data != null) {
-                add(data, checksum);
+                add(data, checksum, url);
               }
               return CacheEntry(bytes: data);
           }
@@ -221,14 +232,17 @@ class CacheWorker extends DisposableService {
   }
 
   /// Adds the provided [data] to the cache.
-  FutureOr<File?> add(Uint8List data, [String? checksum]) {
-    // Calculating SHA-256 hash from [data] on Web may freeze the application.
-    if (!PlatformUtils.isWeb) {
-      checksum ??= sha256.convert(data).toString();
+  FutureOr<File?> add(Uint8List data, [String? checksum, String? url]) {
+    // Set [url] to the [FIFOCache] as well, yet if [checksum] isn't specified,
+    // then there will be no [File] written, only this.
+    final String? key = checksum ?? url;
+    if (key != null && !FIFOCache.exists(key)) {
+      FIFOCache.set(key, data);
     }
 
-    if (checksum != null && !FIFOCache.exists(checksum)) {
-      FIFOCache.set(checksum, data);
+    // Calculating SHA-256 hash from [data] on Web freezes the application.
+    if (!PlatformUtils.isWeb) {
+      checksum ??= sha256.convert(data).toString();
     }
 
     return _mutex.protect(() async {
@@ -383,6 +397,10 @@ class CacheWorker extends DisposableService {
     });
   }
 
+  /// Sets the maximum allowed size of the cache.
+  Future<void> setMaxSize(int? size) async =>
+      await _cacheLocal?.setMaxSize(size);
+
   /// Waits for locking operations to release the lock.
   @visibleForTesting
   Future<void> ensureOptimized() => _mutex.protect(() async {});
@@ -411,12 +429,16 @@ class CacheWorker extends DisposableService {
   /// Uses LRU (Least Recently Used) approach sorting [File]s by their
   /// [FileStat.accessed] times.
   Future<void> _optimizeCache() {
+    if (info.value.maxSize == null) {
+      return Future.value();
+    }
+
     return _mutex.protect(() async {
       final Directory? cache = await PlatformUtils.cacheDirectory;
 
-      int overflow = info.value.size - info.value.maxSize;
+      int overflow = info.value.size - info.value.maxSize!;
       if (overflow > 0 && cache != null) {
-        overflow += (info.value.maxSize * 0.05).floor();
+        overflow += (info.value.maxSize! * 0.05).floor();
 
         final List<File> files =
             info.value.checksums.map((e) => File('${cache.path}/$e')).toList();

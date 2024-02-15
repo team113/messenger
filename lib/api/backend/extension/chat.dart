@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -437,6 +437,12 @@ extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
             ? null
             : _chatItem(original!.node, original!.cursor).cursor,
       );
+}
+
+/// Extension adding models construction from [GetMessage$Query$ChatItem].
+extension GetMessageConversion on GetMessage$Query$ChatItem {
+  /// Constructs a new [HiveChatItem] from this [GetMessage$Query$ChatItem].
+  HiveChatItem toHive() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatInfoQuoteMixin$Action].

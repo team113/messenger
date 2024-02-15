@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,6 +29,8 @@ import '/provider/hive/user.dart';
 enum MyUserEventKind {
   avatarDeleted,
   avatarUpdated,
+  bioUpdated,
+  bioDeleted,
   blocklistRecordAdded,
   blocklistRecordRemoved,
   callCoverDeleted,
@@ -95,6 +97,31 @@ class EventUserAvatarUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarUpdated;
+}
+
+/// Event of a [UserBio] being deleted.
+class EventUserBioDeleted extends MyUserEvent {
+  const EventUserBioDeleted(super.userId, this.at);
+
+  /// [PreciseDateTime] when the [UserBio] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.bioDeleted;
+}
+
+/// Event of a [UserBio] being updated.
+class EventUserBioUpdated extends MyUserEvent {
+  const EventUserBioUpdated(super.userId, this.bio, this.at);
+
+  /// New [UserBio].
+  final UserBio bio;
+
+  /// [PreciseDateTime] when the [UserBio] was updated.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.bioUpdated;
 }
 
 /// Event of an [UserCallCover] being deleted.

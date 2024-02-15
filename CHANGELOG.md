@@ -6,10 +6,145 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.12] · 2023-??-??
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Default device on desktop platforms. ([#465], [#464])
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Redesigned incoming/outgoing call. ([#832], [#812])
+
+[#464]: /../../issues/464
+[#465]: /../../pull/465
+[#812]: /../../issues/812
+[#832]: /../../pull/832
+
+
+
+
+## [0.1.0-alpha.12.1] · 2024-02-08
+[0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
+
+[Diff](/../../compare/v0.1.0-alpha.12...v0.1.0-alpha.12.1) | [Milestone](/../../milestone/16)
+
+### Fixed
+
+- Web:
+    - Authentication token not being refreshed. ([#844])
+
+[#844]: /../../pull/844
+
+
+
+
+## [0.1.0-alpha.12] · 2024-02-08
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
-[Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.12) | [Milestone](/../../milestone/13)
+[Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Work with us tab hiding and showing. ([#794], [#789])
+        - Cache maximum size slider. ([#794], [#789])
+    - Media panel:
+        - Screen dimming when close to ear on mobile. ([#823], [#808])
+        - Secondary panel mode switches. ([#837], [#811])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Call buttons position setting and adjusting. ([#750], [#718])
+        - Removed timeline mode. ([#791], [#788])
+        - Attachments fading out when dismissed by swipe gesture. ([#786], [#699])
+    - Chats tab:
+        - Monolog searching. ([#745], [#582])
+    - Redesigned user page. ([#769], [#771], [#766])
+    - Chat info page:
+        - Redesigned general information and group members. ([#769], [#766])
+        - Redesigned direct chat link. ([#796], [#787])
+    - Tuned up page transition animation. ([#775], [#573])
+    - Profile page:
+        - Redesigned direct chat link. ([#796], [#787])
+        - Redesigned sign in section. ([#827], [#794], [#789])
+    - Redesigned search modal. ([#805], [#790])
+    - Media panel:
+        - Grab cursor over participants. ([#816], [#810])
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
+    - Contacts tab:
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
+    - User page:
+        - Downloaded avatar missing its extension on desktop. ([#756], [#726])
+    - Chat page:
+        - Read partially message status missing in forwards. ([#776])
+    - Media panel:
+        - Dock animations lagging when dragging buttons. ([#774], [#698])
+        - Participants duplicating in rare cases. ([#759], [#743])
+- Web:
+    - Media devices not showing up on profile page in Safari. ([#780])
+    - Video popup calls starting without camera enabled. ([#797])
+
+[#573]: /../../issues/573
+[#582]: /../../issues/582
+[#698]: /../../issues/698
+[#699]: /../../issues/699
+[#718]: /../../issues/718
+[#726]: /../../issues/726
+[#743]: /../../issues/743
+[#745]: /../../pull/745
+[#750]: /../../pull/750
+[#756]: /../../pull/756
+[#758]: /../../issues/758
+[#759]: /../../pull/759
+[#763]: /../../pull/763
+[#766]: /../../issues/766
+[#769]: /../../pull/769
+[#771]: /../../pull/771
+[#774]: /../../pull/774
+[#775]: /../../pull/775
+[#776]: /../../pull/776
+[#780]: /../../pull/780
+[#786]: /../../pull/786
+[#787]: /../../issues/787
+[#788]: /../../issues/788
+[#789]: /../../issues/789
+[#790]: /../../issues/790
+[#791]: /../../pull/791
+[#794]: /../../pull/794
+[#796]: /../../pull/796
+[#797]: /../../pull/797
+[#805]: /../../pull/805
+[#808]: /../../issues/808
+[#810]: /../../issues/810
+[#811]: /../../issues/811
+[#816]: /../../pull/816
+[#823]: /../../pull/823
+[#827]: /../../pull/827
+[#837]: /../../pull/837
+
+
+
+
+## [0.1.0-alpha.11.1] · 2023-12-22
+[0.1.0-alpha.11.1]: /../../tree/v0.1.0-alpha.11.1
+
+[Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.11.1) | [Milestone](/../../milestone/13)
 
 ### Added
 
@@ -18,6 +153,7 @@ All user visible changes to this project will be documented in this file. This p
         - Icons tab. ([#730], [#710])
     - Chat page:
         - `Download` and `Save as` context menu options. ([#697], [#654])
+        - Multiple messages selection, forwarding and deletion. ([#735], [#584])
     - Chats tab:
         - Swipe to delete gesture. ([#732])
     - Contacts tab:
@@ -36,6 +172,9 @@ All user visible changes to this project will be documented in this file. This p
         - Actions moved to more button. ([#736], [#719])
     - User page:
         - Actions moved to more button. ([#736], [#719])
+    - Chats tab:
+        - Redesigned chat tile. ([#748], [#741])
+    - Icons in desktop context menu. ([#757])
 
 ### Fixed
 
@@ -45,6 +184,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Invalid caller name in popup calls. ([#711])
 
+[#584]: /../../issues/584
 [#632]: /../../issues/632
 [#654]: /../../issues/654
 [#666]: /../../issues/666
@@ -60,7 +200,11 @@ All user visible changes to this project will be documented in this file. This p
 [#719]: /../../issues/719
 [#730]: /../../pull/730
 [#732]: /../../pull/732
+[#735]: /../../pull/735
 [#736]: /../../pull/736
+[#741]: /../../issues/741
+[#748]: /../../pull/748
+[#757]: /../../pull/757
 
 
 

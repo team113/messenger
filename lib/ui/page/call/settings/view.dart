@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,15 +22,14 @@ import 'package:get/get.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/my_profile/call_window_switch/view.dart';
 import '/ui/page/home/page/my_profile/camera_switch/view.dart';
 import '/ui/page/home/page/my_profile/microphone_switch/view.dart';
 import '/ui/page/home/page/my_profile/output_switch/view.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'controller.dart';
 
 /// View of the call overlay settings.
@@ -74,121 +73,93 @@ class CallSettingsView extends StatelessWidget {
                   ModalPopupHeader(text: 'label_media'.l10n),
                   Padding(
                     padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await CameraSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setVideoDevice(device),
-                          camera: c.camera.value,
-                        );
+                    child: Obx(() {
+                      final selected = c.devices.video().firstWhereOrNull(
+                                (e) => e.id() == c.camera.value?.id(),
+                              ) ??
+                          c.devices.video().firstOrNull;
 
-                        if (c.devices.video().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_camera'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.video().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.camera.value) ??
-                                          c.devices.video().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
+                      return FieldButton(
+                        text: selected?.label() ??
+                            'label_media_no_device_available'.l10n,
+                        headline: Text('label_media_camera'.l10n),
+                        style: style.fonts.normal.regular.primary,
+                        onPressed: () async {
+                          await CameraSwitchView.show(
+                            context,
+                            onChanged: (device) => c.setVideoDevice(device),
+                            camera: c.camera.value?.id(),
                           );
-                        }),
-                      ),
-                    ),
+
+                          if (c.devices.video().isEmpty) {
+                            await c.enumerateDevices();
+                          }
+                        },
+                      );
+                    }),
                   ),
                   const SizedBox(height: 16),
                   Padding(
                     padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await MicrophoneSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setAudioDevice(device),
-                          mic: c.mic.value,
-                        );
+                    child: Obx(() {
+                      final selected = c.devices.audio().firstWhereOrNull(
+                                (e) => e.id() == c.mic.value?.id(),
+                              ) ??
+                          c.devices.audio().firstOrNull;
 
-                        if (c.devices.audio().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_microphone'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.audio().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.mic.value) ??
-                                          c.devices.audio().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
+                      return FieldButton(
+                        text: selected?.label() ??
+                            'label_media_no_device_available'.l10n,
+                        headline: Text('label_media_microphone'.l10n),
+                        style: style.fonts.normal.regular.primary,
+                        onPressed: () async {
+                          await MicrophoneSwitchView.show(
+                            context,
+                            onChanged: (device) => c.setAudioDevice(device),
+                            mic: c.mic.value?.id(),
                           );
-                        }),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: padding,
-                    child: WidgetButton(
-                      onPressed: () async {
-                        await OutputSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setOutputDevice(device),
-                          output: c.output.value,
-                        );
 
-                        if (c.devices.output().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                      child: IgnorePointer(
-                        child: Obx(() {
-                          return ReactiveTextField(
-                            label: 'label_media_output'.l10n,
-                            state: TextFieldState(
-                              text: (c.devices.output().firstWhereOrNull((e) =>
-                                              e.deviceId() == c.output.value) ??
-                                          c.devices.output().firstOrNull)
-                                      ?.label() ??
-                                  'label_media_no_device_available'.l10n,
-                              editable: false,
-                            ),
-                            style: style.fonts.normal.regular.primary,
-                          );
-                        }),
-                      ),
-                    ),
+                          if (c.devices.audio().isEmpty) {
+                            await c.enumerateDevices();
+                          }
+                        },
+                      );
+                    }),
                   ),
-                  const SizedBox(height: 16),
-                  ModalPopupHeader(text: 'label_calls'.l10n, close: false),
-                  Padding(
-                    padding: padding,
-                    child: WidgetButton(
-                      onPressed: () => CallWindowSwitchView.show(context),
-                      child: IgnorePointer(
-                        child: ReactiveTextField(
-                          state: TextFieldState(
-                            text: (c.settings.value?.enablePopups ?? true)
-                                ? 'label_open_calls_in_window'.l10n
-                                : 'label_open_calls_in_app'.l10n,
-                          ),
-                          maxLines: null,
+
+                  // TODO: Remove, when Safari supports output devices without
+                  //       tweaking the developer options:
+                  //       https://bugs.webkit.org/show_bug.cgi?id=216641
+                  if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: padding,
+                      child: Obx(() {
+                        final selected = c.devices.output().firstWhereOrNull(
+                                  (e) => e.id() == c.output.value?.id(),
+                                ) ??
+                            c.devices.output().firstOrNull;
+
+                        return FieldButton(
+                          text: selected?.label() ??
+                              'label_media_no_device_available'.l10n,
+                          headline: Text('label_media_output'.l10n),
                           style: style.fonts.normal.regular.primary,
-                        ),
-                      ),
+                          onPressed: () async {
+                            await OutputSwitchView.show(
+                              context,
+                              onChanged: (device) => c.setOutputDevice(device),
+                              output: c.output.value?.id(),
+                            );
+
+                            if (c.devices.output().isEmpty) {
+                              await c.enumerateDevices();
+                            }
+                          },
+                        );
+                      }),
                     ),
-                  ),
+                  ],
                   const SizedBox(height: 16),
                 ],
               ),

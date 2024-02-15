@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ import 'package:medea_jason/medea_jason.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -31,30 +32,57 @@ export 'view.dart';
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
   MicrophoneSwitchController(this._settingsRepository, {String? mic})
-      : mic = RxnString(mic);
+      : _mic = mic ?? _settingsRepository.mediaSettings.value?.audioDevice;
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
 
+  /// List of [DeviceDetails] of all the available devices.
+  final RxList<DeviceDetails> devices = RxList([]);
+
+  /// Currently selected [DeviceDetails].
+  final Rx<DeviceDetails?> selected = Rx(null);
+
+  /// Error message to display, if any.
+  final RxnString error = RxnString();
+
   /// ID of the initially selected microphone device.
-  RxnString mic;
+  String? _mic;
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+  /// [Worker] reacting on the [MediaSettings] changes updating the [selected].
+  Worker? _worker;
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) => devices.value = e.audio().toList(),
+      (e) {
+        devices.value = e.audio().toList();
+        selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
+      },
     );
 
-    await WebUtils.microphonePermission();
-    devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+    _worker = ever(_settingsRepository.mediaSettings, (e) {
+      if (e != null) {
+        _mic = e.audioDevice;
+        selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
+      }
+    });
+
+    try {
+      await WebUtils.microphonePermission();
+      devices.value =
+          await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+      selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
+    } on UnsupportedError {
+      error.value = 'err_media_devices_are_null'.l10n;
+    } catch (e) {
+      error.value = e.toString();
+      rethrow;
+    }
 
     super.onInit();
   }
@@ -62,11 +90,12 @@ class MicrophoneSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _worker?.dispose();
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default microphone device.
-  Future<void> setAudioDevice(String id) async {
-    await _settingsRepository.setAudioDevice(id);
+  /// Sets the provided [device] as a used by default microphone device.
+  Future<void> setAudioDevice(DeviceDetails device) async {
+    await _settingsRepository.setAudioDevice(device.id());
   }
 }

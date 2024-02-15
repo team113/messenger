@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
@@ -66,12 +68,14 @@ class HiveRxChatContact extends RxChatContact {
       contact.value.compareTo(other.contact.value);
 
   /// Updates the [user] fetched from the [AbstractUserRepository], if needed.
-  void _updateUser(ChatContact c) async {
+  Future<void> _updateUser(ChatContact c) async {
     Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');
 
     if (user.value?.id != c.users.firstOrNull?.id) {
-      user.value =
-          c.users.isEmpty ? null : await _userRepository.get(c.users.first.id);
+      final FutureOr<RxUser?> userOrFuture =
+          c.users.isNotEmpty ? _userRepository.get(c.users.first.id) : null;
+
+      user.value = userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
     }
   }
 }

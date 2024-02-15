@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
@@ -83,7 +84,7 @@ class MessageFieldView extends StatelessWidget {
   final bool canAttach;
 
   /// Callback, called when a [ChatItem] being a reply or edited is pressed.
-  final Future<void> Function(ChatItemId id)? onItemPressed;
+  final Future<void> Function(ChatItem item)? onItemPressed;
 
   /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
@@ -314,7 +315,7 @@ class MessageFieldView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: WidgetButton(
-                      onPressed: () => onItemPressed?.call(e.id),
+                      onPressed: () => onItemPressed?.call(e),
                       child: _buildPreview(
                         context,
                         e,
@@ -356,8 +357,7 @@ class MessageFieldView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: WidgetButton(
-                          onPressed: () =>
-                              onItemPressed?.call(c.edited.value!.id),
+                          onPressed: () => onItemPressed?.call(c.edited.value!),
                           child: _buildPreview(
                             context,
                             c.edited.value!,
@@ -387,7 +387,7 @@ class MessageFieldView extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: MouseRegion(
                           cursor: grab
-                              ? SystemMouseCursors.grab
+                              ? CustomMouseCursors.grab
                               : MouseCursor.defer,
                           opaque: false,
                           child: ScrollConfiguration(
@@ -752,11 +752,20 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    return Dismissible(
-      key: Key(e.id.val),
-      direction: DismissDirection.up,
-      onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-      child: attachment(),
+    return ObxValue(
+      (p) {
+        return Opacity(
+          opacity: 1 - p.value,
+          child: Dismissible(
+            key: Key(e.id.val),
+            direction: DismissDirection.up,
+            onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+            onUpdate: (d) => p.value = d.progress,
+            child: attachment(),
+          ),
+        );
+      },
+      RxDouble(0),
     );
   }
 
@@ -769,6 +778,8 @@ class MessageFieldView extends StatelessWidget {
     bool edited = false,
   }) {
     final style = Theme.of(context).style;
+
+    final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
 
     final bool fromMe = item.author.id == c.me;
 
@@ -925,7 +936,8 @@ class MessageFieldView extends StatelessWidget {
     }
 
     final Widget expanded = FutureBuilder<RxUser?>(
-      future: c.getUser(item.author.id),
+      future: userOrFuture is RxUser? ? null : userOrFuture,
+      initialData: userOrFuture is RxUser? ? userOrFuture : null,
       builder: (context, snapshot) {
         final Color color = snapshot.data?.user.value.id == c.me
             ? style.colors.primary

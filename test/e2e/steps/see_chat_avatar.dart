@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -45,7 +45,7 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
           context.world.appDriver
               .findBy('ChatAvatar_${chat?.id}', FindType.key),
           context.world.appDriver.findBy(
-            'Image_${chat?.avatar.value?.big.url}',
+            'Image_${chat?.avatar.value?.full.url}',
             FindType.key,
           ),
           firstMatchOnly: true,

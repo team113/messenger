@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -53,8 +53,10 @@ class PubspecBuilder implements Builder {
     );
 
     try {
-      final ProcessResult git =
-          await Process.run('git', ['describe', '--tags', '--dirty']);
+      final ProcessResult git = await Process.run(
+        'git',
+        ['describe', '--tags', '--dirty', '--match', 'v*'],
+      );
 
       if (git.exitCode == 0) {
         final String response = git.stdout.toString();

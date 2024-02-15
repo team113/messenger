@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,6 +36,7 @@ class MyUser extends HiveObject {
     required this.num,
     this.login,
     this.name,
+    this.bio,
     this.hasPassword = false,
     required this.emails,
     required this.phones,
@@ -81,11 +82,15 @@ class MyUser extends HiveObject {
   @HiveField(3)
   UserName? name;
 
+  /// Arbitrary descriptive information about this [MyUser].
+  @HiveField(4)
+  UserBio? bio;
+
   /// Indicator whether this [MyUser] has a password.
   ///
   /// Password allows [MyUser] to perform a sign-in, when combined with a
   /// [login], [num], [emails] or [phones].
-  @HiveField(4)
+  @HiveField(5)
   bool hasPassword;
 
   /// List of already confirmed email addresses.
@@ -93,7 +98,7 @@ class MyUser extends HiveObject {
   /// Any confirmed email address can be used in combination with
   /// password to sign-in a [MyUser].
   /// All confirmed email addresses can be used for a password recovery.
-  @HiveField(5)
+  @HiveField(6)
   final MyUserEmails emails;
 
   /// List of already confirmed phone numbers.
@@ -101,31 +106,31 @@ class MyUser extends HiveObject {
   /// Any confirmed phone number can be used in combination with
   /// password to sign-in a [MyUser].
   /// All confirmed phone numbers can be used for a password recovery.
-  @HiveField(6)
+  @HiveField(7)
   MyUserPhones phones;
 
   /// Count of the unread Chats of this [MyUser].
-  @HiveField(7)
+  @HiveField(8)
   int unreadChatsCount;
 
   /// [ChatDirectLink] to the `Chat` with this [MyUser].
-  @HiveField(8)
+  @HiveField(9)
   ChatDirectLink? chatDirectLink;
 
   /// Custom text status of this [MyUser].
-  @HiveField(9)
+  @HiveField(10)
   UserTextStatus? status;
 
   /// Call cover of this [MyUser].
-  @HiveField(10)
+  @HiveField(11)
   UserCallCover? callCover;
 
   /// Avatar of this [MyUser].
-  @HiveField(11)
+  @HiveField(12)
   UserAvatar? avatar;
 
   /// Presence of this [MyUser].
-  @HiveField(12)
+  @HiveField(13)
   int presenceIndex;
 
   Presence get presence => Presence.values[presenceIndex];
@@ -134,15 +139,15 @@ class MyUser extends HiveObject {
   }
 
   /// Online state of this [MyUser].
-  @HiveField(13)
+  @HiveField(14)
   bool online;
 
   /// Mute duration of this [MyUser].
-  @HiveField(14)
+  @HiveField(15)
   MuteDuration? muted;
 
   /// Total count of blocked users.
-  @HiveField(15)
+  @HiveField(16)
   int? blocklistCount;
 }
 

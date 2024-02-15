@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -56,7 +56,7 @@ class IntroductionController extends GetxController {
 
   /// Origin to display withing the [link] field.
   late final String _origin =
-      '${Config.origin.substring(Config.origin.indexOf(':') + 3)}/';
+      '${Config.link.substring(Config.link.indexOf(':') + 3)}/';
 
   /// Creates a [ChatDirectLink] from the [link].
   Future<void> createLink() async {

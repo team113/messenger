@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -44,12 +44,8 @@ class TypographyView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final List<(FontWeight, String, String)> families = [
-      (
-        FontWeight.w400,
-        'Noto Sans Display (Regular)',
-        'NotoSansDisplay-Regular.ttf'
-      ),
-      (FontWeight.w700, 'Noto Sans Display (Bold)', 'NotoSansDisplay-Bold.ttf'),
+      (FontWeight.w400, 'Roboto (Regular)', 'Roboto-Regular.ttf'),
+      (FontWeight.w700, 'Roboto (Bold)', 'Roboto-Bold.ttf'),
     ];
 
     return ScrollableColumn(

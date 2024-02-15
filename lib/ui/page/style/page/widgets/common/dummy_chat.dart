@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
 
@@ -79,6 +80,9 @@ class DummyRxChat extends RxChat {
   RxBool get membersNextLoading => RxBool(false);
 
   @override
+  RxBool get inCall => RxBool(false);
+
+  @override
   RxList<LastChatRead> get reads => RxList();
 
   @override
@@ -98,6 +102,9 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<void> updateAttachments(ChatItem item) async {}
+
+  @override
+  Future<void> updateAvatar() async {}
 
   @override
   void setDraft({
@@ -125,7 +132,12 @@ class DummyRxChat extends RxChat {
   Future<void> addMessage(ChatMessageText text) async {}
 
   @override
-  Future<void> around() async {}
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async =>
+      null;
 
   @override
   int compareTo(RxChat other) => 0;

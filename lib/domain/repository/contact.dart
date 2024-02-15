@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,11 +19,11 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/contact.dart';
-import '../model/user.dart';
-import '../repository/user.dart';
+import '/domain/model/contact.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
-import 'search.dart';
+import 'paginated.dart';
 
 /// [ChatContact]s repository interface.
 abstract class AbstractContactRepository {
@@ -78,7 +78,7 @@ abstract class AbstractContactRepository {
   Future<void> unfavoriteChatContact(ChatContactId id);
 
   /// Searches [ChatContact]s by the given criteria.
-  SearchResult<ChatContactId, RxChatContact> search({
+  Paginated<ChatContactId, RxChatContact> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:medea_jason/medea_jason.dart' as jason;
+import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
@@ -41,6 +42,9 @@ import 'web_utils.dart';
 class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
+
+  /// [Mutex] guarding the [protect] method.
+  static final Mutex _guard = Mutex();
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -69,6 +73,9 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's broadcast channel changes.
   static Stream<dynamic> get onBroadcastMessage => const Stream.empty();
 
+  /// Indicates whether the current window is a popup.
+  static bool get isPopup => false;
+
   /// Sets the provided [Credentials] to the browser's storage.
   static set credentials(Credentials? creds) {
     // No-op.
@@ -77,17 +84,13 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials].
   static Credentials? get credentials => null;
 
-  /// Sets the provided [updating] value to the browser's storage indicating an
-  /// ongoing [Credentials] refresh.
-  static set credentialsUpdating(bool updating) {
-    // No-op.
-  }
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked => _guard.isLocked;
 
-  /// Indicates whether [Credentials] are considered being updated currently.
-  static bool get credentialsUpdating => false;
-
-  /// Indicates whether the current window is a popup.
-  static bool get isPopup => false;
+  /// Guarantees the [callback] is invoked synchronously, only by single tab or
+  /// code block at the same time.
+  static Future<void> protect(Future<void> Function() callback) =>
+      _guard.protect(callback);
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {

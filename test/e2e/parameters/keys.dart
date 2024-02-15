@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,8 @@ enum WidgetKey {
   AddEmail,
   AddMemberButton,
   AddPhone,
+  AddToContactsButton,
+  AddToFavoriteButton,
   AlertDialog,
   AlertNoButton,
   AlertYesButton,
@@ -69,14 +71,17 @@ enum WidgetKey {
   Delete,
   DeleteAccount,
   DeleteAvatar,
+  DeleteButton,
   DeleteChats,
   DeleteContacts,
   DeleteEmail,
   DeleteForAll,
   DeleteMemberButton,
   DeletePhone,
+  EditButton,
   Email,
   EmailsExpandable,
+  ExpandSigning,
   FavoriteChatButton,
   FavoriteContactButton,
   ForwardButton,
@@ -132,6 +137,7 @@ enum WidgetKey {
   SearchSubmitButton,
   SearchTextField,
   SearchView,
+  Select,
   SelectChatsButton,
   SelectContactsButton,
   Selected,
@@ -154,8 +160,10 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
-  UsernameField,
   UserScrollable,
+  UsernameField,
+  VerifyEmail,
+  VerifyPhone,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

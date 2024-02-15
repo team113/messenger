@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
 import '/util/web/web_utils.dart';
 
@@ -33,19 +34,24 @@ export 'view.dart';
 /// Controller of a [CameraSwitchView].
 class CameraSwitchController extends GetxController {
   CameraSwitchController(this._settingsRepository, {String? camera})
-      : camera = RxnString(camera);
+      : camera = RxnString(
+          camera ?? _settingsRepository.mediaSettings.value?.videoDevice,
+        );
 
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+  /// List of [DeviceDetails] of all the available devices.
+  final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
 
   /// ID of the initially selected video device.
   RxnString camera;
 
   /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);
+
+  /// Error message to display, if any.
+  final RxnString error = RxnString();
 
   /// [LocalMediaTrack] of the currently selected [camera] device.
   LocalMediaTrack? _localTrack;
@@ -56,8 +62,8 @@ class CameraSwitchController extends GetxController {
   /// Mutex guarding [initRenderer].
   final Mutex _initRendererGuard = Mutex();
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   @override
@@ -66,11 +72,18 @@ class CameraSwitchController extends GetxController {
     _devicesSubscription = MediaUtils.onDeviceChange
         .listen((e) => devices.value = e.video().toList());
 
-    await WebUtils.cameraPermission();
-    devices.value =
-        await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
+    try {
+      await WebUtils.cameraPermission();
+      devices.value =
+          await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
 
-    initRenderer();
+      initRenderer();
+    } on UnsupportedError {
+      error.value = 'err_media_devices_are_null'.l10n;
+    } catch (e) {
+      error.value = e.toString();
+      rethrow;
+    }
 
     super.onInit();
   }
@@ -86,9 +99,9 @@ class CameraSwitchController extends GetxController {
     super.onClose();
   }
 
-  /// Sets device with [id] as a used by default camera device.
-  Future<void> setVideoDevice(String id) async {
-    await _settingsRepository.setVideoDevice(id);
+  /// Sets the provided [device] as a used by default camera device.
+  Future<void> setVideoDevice(DeviceDetails device) async {
+    await _settingsRepository.setVideoDevice(device.id());
   }
 
   /// Initializes a [RtcVideoRenderer] for the current [camera].

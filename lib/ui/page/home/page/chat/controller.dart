@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
@@ -48,8 +49,15 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallDoesNotExistException,
+        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
@@ -69,6 +77,7 @@ import '/provider/gql/exceptions.dart'
         FavoriteChatException,
         HideChatException,
         HideChatItemException,
+        JoinChatCallException,
         PostChatMessageException,
         ReadChatException,
         RemoveChatMemberException,
@@ -126,11 +135,6 @@ class ChatController extends GetxController {
   /// Indicator whether the return FAB should be visible.
   final RxBool canGoBack = RxBool(false);
 
-  /// Indicator whether any [Text] is being selected right now.
-  ///
-  /// Used to discard [SwipeableStatus] gestures when [Text] is being selected.
-  final RxBool isSelecting = RxBool(false);
-
   /// Index of a [ChatItem] in a [FlutterListView] that should be visible on
   /// initialization.
   int initIndex = 0;
@@ -156,6 +160,9 @@ class ChatController extends GetxController {
   /// [MessageFieldController] for editing a [ChatMessage].
   final Rx<MessageFieldController?> edit = Rx(null);
 
+  /// [TextFieldState] for blocking reason.
+  final TextFieldState reason = TextFieldState();
+
   /// [SelectedContent] of a [SelectionArea] within this [ChatView].
   final Rx<SelectedContent?> selection = Rx(null);
 
@@ -172,18 +179,8 @@ class ChatController extends GetxController {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool isDraggingFiles = RxBool(false);
 
-  /// Indicator whether any [ChatItem] is being dragged.
-  ///
-  /// Used to discard any horizontal gestures while this is `true`.
-  final RxBool isItemDragged = RxBool(false);
-
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
-
-  /// Indicator whether an ongoing horizontal scroll is happening.
-  ///
-  /// Used to discard any vertical gestures while this is `true`.
-  final RxBool isHorizontalScroll = RxBool(false);
 
   /// [Timer] for discarding any vertical movement in a [FlutterListView] of
   /// [ChatItem]s when non-`null`.
@@ -217,8 +214,8 @@ class ChatController extends GetxController {
   /// Height of a [LoaderElement] displayed in the message list.
   static const double loaderHeight = 64;
 
-  /// Index of an item from the [elements] that should be highlighted.
-  final RxnInt highlightIndex = RxnInt(null);
+  /// [ListElementId] of an item from the [elements] that should be highlighted.
+  final Rx<ListElementId?> highlighted = Rx<ListElementId?>(null);
 
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
@@ -226,6 +223,12 @@ class ChatController extends GetxController {
   /// Indicator whether the [user] has a [ChatContact] associated with them in
   /// the address book of the authenticated [MyUser].
   final RxBool inContacts = RxBool(false);
+
+  /// Indicator whether the [elements] selection mode is enabled.
+  final RxBool selecting = RxBool(false);
+
+  /// [ListElement]s selected during [selecting] mode.
+  final RxList<ListElement> selected = RxList();
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -256,7 +259,7 @@ class ChatController extends GetxController {
   /// typing in this [chat].
   StreamSubscription? _typingSubscription;
 
-  /// Subscription for the [RxChat.messages] updating the [elements].
+  /// Subscription updating the [elements].
   StreamSubscription? _messagesSubscription;
 
   /// Subscription to the [PlatformUtils.onActivityChanged] updating the
@@ -266,7 +269,7 @@ class ChatController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
-  /// [StreamSubscription] to [ContactService.paginated] determining the
+  /// [StreamSubscription] to [ContactService.contacts] determining the
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
@@ -310,10 +313,7 @@ class ChatController extends GetxController {
   /// [ContactService] maintaining [ChatContact]s of this [me].
   final ContactService _contactService;
 
-  /// [TextFieldState] for blacklisting reason.
-  final TextFieldState reason = TextFieldState();
-
-  /// Worker performing a [readChat] on [lastVisible] changes.
+  /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
   /// Worker performing a jump to the last read message on a successful
@@ -323,10 +323,13 @@ class ChatController extends GetxController {
   /// Worker capturing any [RxChat.chat] changes.
   Worker? _chatWorker;
 
+  /// Worker clearing [selected] on the [selected] changes.
+  Worker? _selectingWorker;
+
   /// [Duration] of the highlighting.
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
-  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// [Timer] resetting the [highlighted] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
 
@@ -340,6 +343,19 @@ class ChatController extends GetxController {
   /// current frame.
   bool _messagesAreLoading = false;
 
+  /// History of the [animateTo] transitions to [ChatItem]s to return back on
+  /// the [animateToBottom] invokes.
+  final List<ChatItem> _history = [];
+
+  /// [Paginated] of [ChatItem]s to display in the [elements].
+  Paginated<ChatItemKey, Rx<ChatItem>>? _fragment;
+
+  /// [Paginated]es used by this [ChatController].
+  final HashSet<Paginated<ChatItemKey, Rx<ChatItem>>> _fragments = HashSet();
+
+  /// Subscriptions to the [Paginated.updates].
+  final List<StreamSubscription> _fragmentSubscriptions = [];
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -350,16 +366,21 @@ class ChatController extends GetxController {
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
-  /// Indicates whether this device of the currently authenticated [MyUser]
-  /// takes part in the [Chat.ongoingCall], if any.
-  bool get inCall =>
-      _callService.calls[id] != null || WebUtils.containsCall(id);
-
   /// Indicates whether a previous page of the [elements] is exists.
-  RxBool get hasPrevious => chat!.hasPrevious;
+  RxBool get hasPrevious => _fragment?.hasPrevious ?? chat!.hasPrevious;
 
   /// Indicates whether a next page of the [elements] is exists.
-  RxBool get hasNext => chat!.hasNext;
+  RxBool get hasNext => _fragment?.hasNext ?? chat!.hasNext;
+
+  /// Indicates whether a previous page of the [elements] is loading.
+  RxBool get previousLoading =>
+      _fragment?.previousLoading ?? chat!.previousLoading;
+
+  /// Indicates whether a next page of the [elements] is loading.
+  RxBool get nextLoading => _fragment?.nextLoading ?? chat!.nextLoading;
+
+  /// Returns the [CallButtonsPosition] currently set.
+  CallButtonsPosition? get callPosition => settings.value?.callButtonsPosition;
 
   /// Returns [RxUser] being recipient of this [chat].
   ///
@@ -389,6 +410,7 @@ class ChatController extends GetxController {
       _userService,
       _settingsRepository,
       onChanged: updateDraft,
+      onCall: call,
       onSubmit: () async {
         if (chat == null) {
           return;
@@ -456,6 +478,12 @@ class ChatController extends GetxController {
       }
     });
 
+    _selectingWorker = ever(selecting, (bool value) {
+      if (!value) {
+        selected.clear();
+      }
+    });
+
     super.onInit();
   }
 
@@ -473,6 +501,7 @@ class ChatController extends GetxController {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _chatWorker?.dispose();
+    _selectingWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _contactsSubscription?.cancel();
@@ -494,16 +523,42 @@ class ChatController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
+    for (final s in _fragmentSubscriptions) {
+      s.cancel();
+    }
+
     super.onClose();
   }
 
-  // TODO: Handle [CallAlreadyExistsException].
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
-  Future<void> call(bool withVideo) =>
-      _callService.call(id, withVideo: withVideo);
+  Future<void> call(bool withVideo) async {
+    try {
+      await _callService.call(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyExistsException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
 
   /// Joins the call in the [Chat] identified by the [id].
-  Future<void> joinCall() => _callService.join(id, withVideo: false);
+  Future<void> joinCall() async {
+    try {
+      await _callService.join(id, withVideo: false);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallDoesNotExistException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    }
+  }
 
   /// Drops the call in the [Chat] identified by the [id].
   Future<void> dropCall() => _callService.leave(id);
@@ -513,6 +568,8 @@ class ChatController extends GetxController {
     try {
       await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -639,7 +696,10 @@ class ChatController extends GetxController {
     _ignorePositionChanges = true;
 
     status.value = RxStatus.loading();
-    chat = await _chatService.get(id);
+
+    final FutureOr<RxChat?> fetched = _chatService.get(id);
+    chat = fetched is RxChat? ? fetched : await fetched;
+
     if (chat == null) {
       status.value = RxStatus.empty();
     } else {
@@ -653,6 +713,7 @@ class ChatController extends GetxController {
         send.field.unchecked = draft?.text?.val ?? send.field.text;
       }
 
+      send.inCall = chat!.inCall;
       send.field.unsubmit();
       send.replied.value = List.from(
         draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
@@ -662,201 +723,11 @@ class ChatController extends GetxController {
         send.attachments.add(MapEntry(GlobalKey(), e));
       }
 
-      // Adds the provided [ChatItem] to the [elements].
-      void add(Rx<ChatItem> e) {
-        ChatItem item = e.value;
-
-        // Put a [DateTimeElement] with [ChatItem.at] day, if not already.
-        PreciseDateTime day = item.at.toDay();
-        DateTimeElement dateElement = DateTimeElement(day);
-        elements.putIfAbsent(dateElement.id, () => dateElement);
-
-        if (item is ChatMessage) {
-          ChatMessageElement element = ChatMessageElement(e);
-
-          ListElement? previous = elements[elements.firstKeyAfter(element.id)];
-          ListElement? next = elements[elements.lastKeyBefore(element.id)];
-
-          bool insert = true;
-
-          // Combine this [ChatMessage] with previous and next [ChatForward]s,
-          // if it was posted less than [groupForwardThreshold] ago.
-          if (previous is ChatForwardElement &&
-              previous.authorId == item.author.id &&
-              item.at.val
-                      .difference(previous.forwards.last.value.at.val)
-                      .abs() <
-                  groupForwardThreshold &&
-              previous.note.value == null) {
-            insert = false;
-            previous.note.value = e;
-          } else if (next is ChatForwardElement &&
-              next.authorId == item.author.id &&
-              next.forwards.last.value.at.val.difference(item.at.val).abs() <
-                  groupForwardThreshold &&
-              next.note.value == null) {
-            insert = false;
-            next.note.value = e;
-          }
-
-          if (insert) {
-            elements[element.id] = element;
-          }
-        } else if (item is ChatCall) {
-          ChatCallElement element = ChatCallElement(e);
-          elements[element.id] = element;
-        } else if (item is ChatInfo) {
-          ChatInfoElement element = ChatInfoElement(e);
-          elements[element.id] = element;
-        } else if (item is ChatForward) {
-          ChatForwardElement element =
-              ChatForwardElement(forwards: [e], e.value.at);
-
-          ListElementId? previousKey = elements.firstKeyAfter(element.id);
-          ListElement? previous = elements[previousKey];
-
-          ListElementId? nextKey = elements.lastKeyBefore(element.id);
-          ListElement? next = elements[nextKey];
-
-          bool insert = true;
-
-          if (previous is ChatForwardElement &&
-              previous.authorId == item.author.id &&
-              item.at.val
-                      .difference(previous.forwards.last.value.at.val)
-                      .abs() <
-                  groupForwardThreshold) {
-            // Add this [ChatForward] to previous [ChatForwardElement], if it
-            // was posted less than [groupForwardThreshold] ago.
-            previous.forwards.add(e);
-            previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
-            insert = false;
-          } else if (previous is ChatMessageElement &&
-              previous.item.value.author.id == item.author.id &&
-              item.at.val.difference(previous.item.value.at.val).abs() <
-                  groupForwardThreshold) {
-            // Add the previous [ChatMessage] to this [ChatForwardElement.note],
-            // if it was posted less than [groupForwardThreshold] ago.
-            element.note.value = previous.item;
-            elements.remove(previousKey);
-          } else if (next is ChatForwardElement &&
-              next.authorId == item.author.id &&
-              next.forwards.first.value.at.val.difference(item.at.val).abs() <
-                  groupForwardThreshold) {
-            // Add this [ChatForward] to next [ChatForwardElement], if it was
-            // posted less than [groupForwardThreshold] ago.
-            next.forwards.add(e);
-            next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
-            insert = false;
-          } else if (next is ChatMessageElement &&
-              next.item.value.author.id == item.author.id &&
-              next.item.value.at.val.difference(item.at.val).abs() <
-                  groupForwardThreshold) {
-            // Add the next [ChatMessage] to this [ChatForwardElement.note], if
-            // it was posted less than [groupForwardThreshold] ago.
-            element.note.value = next.item;
-            elements.remove(nextKey);
-          }
-
-          if (insert) {
-            elements[element.id] = element;
-          }
-        }
-      }
-
       for (Rx<ChatItem> e in chat!.messages) {
-        add(e);
+        _add(e);
       }
 
-      _messagesSubscription = chat!.messages.changes.listen((e) {
-        switch (e.op) {
-          case OperationKind.added:
-            add(e.element);
-            break;
-
-          case OperationKind.removed:
-            ChatItem item = e.element.value;
-
-            ListElementId key = ListElementId(item.at, item.id);
-            ListElement? element = elements[key];
-
-            ListElementId? before = elements.firstKeyAfter(key);
-            ListElement? beforeElement = elements[before];
-
-            ListElementId? after = elements.lastKeyBefore(key);
-            ListElement? afterElement = elements[after];
-
-            // Remove the [DateTimeElement] before, if this [ChatItem] is the
-            // last in this [DateTime] period.
-            if (beforeElement is DateTimeElement &&
-                (afterElement == null || afterElement is DateTimeElement) &&
-                (element is! ChatForwardElement ||
-                    (element.forwards.length == 1 &&
-                        element.note.value == null))) {
-              elements.remove(before);
-            }
-
-            // When removing [ChatMessage] or [ChatForward], the [before] and
-            // [after] elements must be considered as well, since they may be
-            // grouped in the same [ChatForwardElement].
-            if (item is ChatMessage) {
-              if (element is ChatMessageElement &&
-                  item.id == element.item.value.id) {
-                elements.remove(key);
-              } else if (beforeElement is ChatForwardElement &&
-                  beforeElement.note.value?.value.id == item.id) {
-                beforeElement.note.value = null;
-              } else if (afterElement is ChatForwardElement &&
-                  afterElement.note.value?.value.id == item.id) {
-                afterElement.note.value = null;
-              } else if (element is ChatForwardElement &&
-                  element.note.value?.value.id == item.id) {
-                element.note.value = null;
-              }
-            } else if (item is ChatCall && element is ChatCallElement) {
-              if (item.id == element.item.value.id) {
-                elements.remove(key);
-              }
-            } else if (item is ChatInfo && element is ChatInfoElement) {
-              if (item.id == element.item.value.id) {
-                elements.remove(key);
-              }
-            } else if (item is ChatForward) {
-              ChatForwardElement? forward;
-
-              if (beforeElement is ChatForwardElement &&
-                  beforeElement.forwards.any((e) => e.value.id == item.id)) {
-                forward = beforeElement;
-              } else if (afterElement is ChatForwardElement &&
-                  afterElement.forwards.any((e) => e.value.id == item.id)) {
-                forward = afterElement;
-              } else if (element is ChatForwardElement &&
-                  element.forwards.any((e) => e.value.id == item.id)) {
-                forward = element;
-              }
-
-              if (forward != null) {
-                if (forward.forwards.length == 1 &&
-                    forward.forwards.first.value.id == item.id) {
-                  elements.remove(forward.id);
-
-                  if (forward.note.value != null) {
-                    ChatMessageElement message =
-                        ChatMessageElement(forward.note.value!);
-                    elements[message.id] = message;
-                  }
-                } else {
-                  forward.forwards.removeWhere((e) => e.value.id == item.id);
-                }
-              }
-            }
-            break;
-
-          case OperationKind.updated:
-            // No-op.
-            break;
-        }
-      });
+      _subscribeFor(chat: chat);
 
       _chatWorker = ever(chat!.chat, (Chat e) {
         if (e.id != id) {
@@ -937,7 +808,7 @@ class ChatController extends GetxController {
         });
       } else {
         _determineFirstUnread();
-        var result = _calculateListViewIndex();
+        final result = _calculateListViewIndex();
         initIndex = result.index;
         initOffset = result.offset;
 
@@ -968,12 +839,10 @@ class ChatController extends GetxController {
       Rx<ChatItem>? firstUnread = _firstUnread;
       _determineFirstUnread();
 
-      // Scroll to the last read message if [_firstUnread] was updated or there
-      // are no unread messages in [chat]. Otherwise,
-      // [FlutterListViewDelegate.keepPosition] handles this as the last read
-      // item is already in the list.
-      if (firstUnread?.value.id != _firstUnread?.value.id ||
-          chat!.chat.value.unreadCount == 0 && _bottomLoader == null) {
+      // Scroll to the last read message if [_firstUnread] was updated.
+      // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
+      // last read item is already in the list.
+      if (firstUnread?.value.id != _firstUnread?.value.id) {
         _scrollToLastRead();
       }
 
@@ -1000,11 +869,11 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog == true) {
-        inContacts.value = _contactService.paginated.values.any(
+        inContacts.value = _contactService.contacts.values.any(
           (e) => e.contact.value.users.every((m) => m.id == user?.id),
         );
 
-        _contactsSubscription = _contactService.paginated.changes.listen((e) {
+        _contactsSubscription = _contactService.contacts.changes.listen((e) {
           switch (e.op) {
             case OperationKind.added:
             case OperationKind.updated:
@@ -1033,14 +902,7 @@ class ChatController extends GetxController {
   }
 
   /// Returns an [User] from [UserService] by the provided [id].
-  FutureOr<RxUser?> getUser(UserId id) {
-    final RxUser? user = _userService.users[id];
-    if (user != null) {
-      return user;
-    }
-
-    return _userService.get(id);
-  }
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -1064,21 +926,29 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Animates [listController] to a [ChatItem] identified by the provided [id].
+  /// Animates [listController] to a [ChatItem] identified by the provided
+  /// [item] and its [reply] or [forward].
   Future<void> animateTo(
-    ChatItemId id, {
+    ChatItem item, {
+    ChatItemQuote? reply,
+    ChatItemQuote? forward,
     bool offsetBasedOnBottom = true,
+    bool addToHistory = true,
     double offset = 50,
   }) async {
-    int index = elements.values.toList().indexWhere((e) {
-      return e.id.id == id ||
+    final ChatItem original = reply?.original ?? forward?.original ?? item;
+    final ChatItemId animateTo = original.id;
+
+    final int index = elements.values.toList().indexWhere((e) {
+      return e.id.id == animateTo ||
           (e is ChatForwardElement &&
-              (e.forwards.any((e1) => e1.value.id == id) ||
-                  e.note.value?.value.id == id));
+              (e.forwards.any((e1) => e1.value.id == animateTo) ||
+                  e.note.value?.value.id == animateTo));
     });
 
+    // If [original] is within the [elements], then just [animateToIndex].
     if (index != -1) {
-      _highlight(index);
+      _highlight(elements.values.elementAt(index).id);
 
       if (listController.hasClients) {
         await listController.sliverController.animateToIndex(
@@ -1091,13 +961,125 @@ class ChatController extends GetxController {
       } else {
         initIndex = index;
       }
+
+      // And add the transition to the [history].
+      if (addToHistory) {
+        this.addToHistory(item);
+      }
+    } else {
+      final ListElementId itemId = ListElementId(original.at, original.id);
+      final ListElementId? lastId = elements.values
+          .lastWhereOrNull(
+            (e) =>
+                e is ChatMessageElement ||
+                e is ChatInfoElement ||
+                e is ChatCallElement ||
+                e is ChatForwardElement,
+          )
+          ?.id;
+
+      // If the [original] is placed before the first item, then animate to top,
+      // or otherwise to bottom.
+      if (lastId != null && itemId.compareTo(lastId) == 1) {
+        if (_topLoader == null) {
+          _topLoader = LoaderElement.top();
+          elements[_topLoader!.id] = _topLoader!;
+        }
+
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          _ignorePositionChanges = true;
+          await listController.sliverController.animateToIndex(
+            elements.length - 1,
+            offsetBasedOnBottom: true,
+            offset: 0,
+            duration: 300.milliseconds,
+            curve: Curves.ease,
+          );
+          _ignorePositionChanges = false;
+        });
+      } else {
+        if (_bottomLoader == null) {
+          _bottomLoader = LoaderElement.bottom();
+          elements[_bottomLoader!.id] = _bottomLoader!;
+        }
+
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          _ignorePositionChanges = true;
+          await listController.sliverController.animateToIndex(
+            0,
+            offsetBasedOnBottom: true,
+            offset: 0,
+            duration: 300.milliseconds,
+            curve: Curves.ease,
+          );
+          _ignorePositionChanges = false;
+        });
+      }
+
+      // And then try to fetch the items.
+      try {
+        await _fetchItemsAround(item, reply: reply, forward: forward);
+
+        final int index = elements.values.toList().indexWhere((e) {
+          return e.id.id == animateTo ||
+              (e is ChatForwardElement &&
+                  (e.forwards.any((e1) => e1.value.id == animateTo) ||
+                      e.note.value?.value.id == animateTo));
+        });
+
+        if (index != -1) {
+          // [FlutterListView] ignores the [initIndex], if it is 0.
+          if (index == 0) {
+            initIndex = 1;
+            initOffset = -5000;
+          } else {
+            initIndex = index;
+            initOffset = offset;
+          }
+
+          _highlight(elements.values.elementAt(index).id);
+
+          if (addToHistory) {
+            this.addToHistory(item);
+          }
+        }
+      } finally {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          // Stop the animation, if any.
+          listController.jumpTo(listController.offset);
+
+          // Ensure [FlutterListView] has correct index and offset.
+          listController.sliverController.jumpToIndex(
+            initIndex,
+            offset: initOffset,
+            offsetBasedOnBottom: offsetBasedOnBottom,
+          );
+
+          _ignorePositionChanges = false;
+
+          elements.remove(_topLoader?.id);
+          elements.remove(_bottomLoader?.id);
+          _topLoader = null;
+          _bottomLoader = null;
+        });
+      }
     }
   }
 
-  /// Animates [listController] to the last [ChatItem] in the [RxChat.messages]
-  /// list.
+  /// Adds the provided [item] to the [_history].
+  void addToHistory(ChatItem item) {
+    _history.removeWhere((e) => e.key == item.key);
+    _history.add(item);
+    canGoDown.value = true;
+  }
+
+  /// Animates [listController] to the last [_history], if any, or the last
+  /// [ChatItem] in the [RxChat.messages] otherwise.
   Future<void> animateToBottom() async {
-    if (chat?.messages.isEmpty == false && listController.hasClients) {
+    if (_history.isNotEmpty) {
+      await animateTo(_history.removeLast(), addToHistory: false);
+      _updateFabStates();
+    } else if (chat?.messages.isEmpty == false && listController.hasClients) {
       canGoDown.value = false;
 
       _itemToReturnTo = _topVisibleItem;
@@ -1237,6 +1219,8 @@ class ChatController extends GetxController {
       await _chatService.hideChat(id);
     } on HideChatException catch (e) {
       MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
@@ -1313,7 +1297,7 @@ class ChatController extends GetxController {
     if (inContacts.value) {
       try {
         final RxChatContact? contact =
-            _contactService.paginated.values.firstWhereOrNull(
+            _contactService.contacts.values.firstWhereOrNull(
           (e) => e.contact.value.users.every((m) => m.id == user?.id),
         );
         await _contactService.deleteContact(contact!.contact.value.id);
@@ -1510,13 +1494,287 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Fetches the [ChatItem]s around the provided [item] or its [reply] or
+  /// [forward] and replaces the [elements] with them.
+  Future<void> _fetchItemsAround(
+    ChatItem item, {
+    ChatItemQuote? reply,
+    ChatItemQuote? forward,
+  }) async {
+    // Uses the [chat] as [elements] source.
+    void switchToMessages() {
+      _fragment = null;
+
+      elements.clear();
+      chat!.messages.forEach(_add);
+      _subscribeFor(chat: chat);
+    }
+
+    final ChatItemId itemId = (reply?.original ?? forward?.original ?? item).id;
+
+    // If the [itemId] is within [RxChat.messages], then [switchToMessages].
+    if (chat!.messages.any((e) => e.value.id == itemId)) {
+      switchToMessages();
+    } else {
+      _fragment = _fragments.firstWhereOrNull(
+        (e) => e.items.keys.any((e) => e.id == itemId),
+      );
+
+      // If no fragments from the [_fragments] already contain the [itemId],
+      // then fetch and use a new one from the [RxChat.around].
+      if (_fragment == null) {
+        final Paginated<ChatItemKey, Rx<ChatItem>>? fragment =
+            await chat!.around(
+          item: item,
+          reply: reply?.original?.id,
+          forward: forward?.original?.id,
+        );
+
+        StreamSubscription? subscription;
+        subscription = fragment!.updates.listen(
+          null,
+          onDone: () {
+            _fragments.remove(fragment);
+            _fragmentSubscriptions.remove(subscription?..cancel());
+
+            // If currently used fragment is the one disposed, then switch to
+            // the [RxChat.messages] for the [elements].
+            if (_fragment == fragment) {
+              switchToMessages();
+            }
+          },
+        );
+
+        _fragments.add(fragment);
+        _fragment = fragment;
+      }
+
+      await _fragment!.ensureInitialized();
+
+      elements.clear();
+      _fragment!.items.values.forEach(_add);
+      _subscribeFor(fragment: _fragment);
+    }
+  }
+
+  /// Adds the provided [ChatItem] to the [elements].
+  void _add(Rx<ChatItem> e) {
+    final ChatItem item = e.value;
+
+    // Put a [DateTimeElement] with [ChatItem.at] day, if not already.
+    final PreciseDateTime day = item.at.toDay();
+    final DateTimeElement dateElement = DateTimeElement(day);
+    elements.putIfAbsent(dateElement.id, () => dateElement);
+
+    if (item is ChatMessage) {
+      final ChatMessageElement element = ChatMessageElement(e);
+
+      final ListElement? previous =
+          elements[elements.firstKeyAfter(element.id)];
+      final ListElement? next = elements[elements.lastKeyBefore(element.id)];
+
+      bool insert = true;
+
+      // Combine this [ChatMessage] with previous and next [ChatForward]s, if it
+      // was posted less than [groupForwardThreshold] ago.
+      if (previous is ChatForwardElement &&
+          previous.authorId == item.author.id &&
+          item.at.val.difference(previous.forwards.last.value.at.val).abs() <
+              groupForwardThreshold &&
+          previous.note.value == null) {
+        insert = false;
+        previous.note.value = e;
+      } else if (next is ChatForwardElement &&
+          next.authorId == item.author.id &&
+          next.forwards.last.value.at.val.difference(item.at.val).abs() <
+              groupForwardThreshold &&
+          next.note.value == null) {
+        insert = false;
+        next.note.value = e;
+      }
+
+      if (insert) {
+        elements[element.id] = element;
+      }
+    } else if (item is ChatCall) {
+      final ChatCallElement element = ChatCallElement(e);
+      elements[element.id] = element;
+    } else if (item is ChatInfo) {
+      final ChatInfoElement element = ChatInfoElement(e);
+      elements[element.id] = element;
+    } else if (item is ChatForward) {
+      final ChatForwardElement element =
+          ChatForwardElement(forwards: [e], e.value.at);
+
+      final ListElementId? previousKey = elements.firstKeyAfter(element.id);
+      final ListElement? previous = elements[previousKey];
+
+      final ListElementId? nextKey = elements.lastKeyBefore(element.id);
+      final ListElement? next = elements[nextKey];
+
+      bool insert = true;
+
+      if (previous is ChatForwardElement &&
+          previous.authorId == item.author.id &&
+          item.at.val.difference(previous.forwards.last.value.at.val).abs() <
+              groupForwardThreshold) {
+        // Add this [ChatForward] to previous [ChatForwardElement], if it was
+        // posted less than [groupForwardThreshold] ago.
+        previous.forwards.add(e);
+        previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
+        insert = false;
+      } else if (previous is ChatMessageElement &&
+          previous.item.value.author.id == item.author.id &&
+          item.at.val.difference(previous.item.value.at.val).abs() <
+              groupForwardThreshold) {
+        // Add the previous [ChatMessage] to this [ChatForwardElement.note], if
+        // it was posted less than [groupForwardThreshold] ago.
+        element.note.value = previous.item;
+        elements.remove(previousKey);
+      } else if (next is ChatForwardElement &&
+          next.authorId == item.author.id &&
+          next.forwards.first.value.at.val.difference(item.at.val).abs() <
+              groupForwardThreshold) {
+        // Add this [ChatForward] to next [ChatForwardElement], if it was posted
+        // less than [groupForwardThreshold] ago.
+        next.forwards.add(e);
+        next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
+        insert = false;
+      } else if (next is ChatMessageElement &&
+          next.item.value.author.id == item.author.id &&
+          next.item.value.at.val.difference(item.at.val).abs() <
+              groupForwardThreshold) {
+        // Add the next [ChatMessage] to this [ChatForwardElement.note], if it
+        // was posted less than [groupForwardThreshold] ago.
+        element.note.value = next.item;
+        elements.remove(nextKey);
+      }
+
+      if (insert) {
+        elements[element.id] = element;
+      }
+    }
+  }
+
+  /// Removes the provided [ChatItem] from the [elements].
+  void _remove(ChatItem item) {
+    final ListElementId key = ListElementId(item.at, item.id);
+    final ListElement? element = elements[key];
+
+    final ListElementId? before = elements.firstKeyAfter(key);
+    final ListElement? beforeElement = elements[before];
+
+    final ListElementId? after = elements.lastKeyBefore(key);
+    final ListElement? afterElement = elements[after];
+
+    // Remove the [DateTimeElement] before, if this [ChatItem] is the last in
+    // this [DateTime] period.
+    if (beforeElement is DateTimeElement &&
+        (afterElement == null || afterElement is DateTimeElement) &&
+        (element is! ChatForwardElement ||
+            (element.forwards.length == 1 && element.note.value == null))) {
+      elements.remove(before);
+    }
+
+    // When removing [ChatMessage] or [ChatForward], the [before] and [after]
+    // elements must be considered as well, since they may be grouped in the
+    // same [ChatForwardElement].
+    if (item is ChatMessage) {
+      if (element is ChatMessageElement && item.id == element.item.value.id) {
+        elements.remove(key);
+      } else if (beforeElement is ChatForwardElement &&
+          beforeElement.note.value?.value.id == item.id) {
+        beforeElement.note.value = null;
+      } else if (afterElement is ChatForwardElement &&
+          afterElement.note.value?.value.id == item.id) {
+        afterElement.note.value = null;
+      } else if (element is ChatForwardElement &&
+          element.note.value?.value.id == item.id) {
+        element.note.value = null;
+      }
+    } else if (item is ChatCall && element is ChatCallElement) {
+      if (item.id == element.item.value.id) {
+        elements.remove(key);
+      }
+    } else if (item is ChatInfo && element is ChatInfoElement) {
+      if (item.id == element.item.value.id) {
+        elements.remove(key);
+      }
+    } else if (item is ChatForward) {
+      ChatForwardElement? forward;
+
+      if (beforeElement is ChatForwardElement &&
+          beforeElement.forwards.any((e) => e.value.id == item.id)) {
+        forward = beforeElement;
+      } else if (afterElement is ChatForwardElement &&
+          afterElement.forwards.any((e) => e.value.id == item.id)) {
+        forward = afterElement;
+      } else if (element is ChatForwardElement &&
+          element.forwards.any((e) => e.value.id == item.id)) {
+        forward = element;
+      }
+
+      if (forward != null) {
+        if (forward.forwards.length == 1 &&
+            forward.forwards.first.value.id == item.id) {
+          elements.remove(forward.id);
+
+          if (forward.note.value != null) {
+            final ChatMessageElement message =
+                ChatMessageElement(forward.note.value!);
+            elements[message.id] = message;
+          }
+        } else {
+          forward.forwards.removeWhere((e) => e.value.id == item.id);
+        }
+      }
+    }
+  }
+
+  /// Subscribes to the provided [chat] or [fragment] changes [_add]ing and
+  /// [_remove]ing the [elements].
+  void _subscribeFor({
+    RxChat? chat,
+    Paginated<ChatItemKey, Rx<ChatItem>>? fragment,
+  }) {
+    _messagesSubscription?.cancel();
+
+    if (chat != null) {
+      _messagesSubscription = chat.messages.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            _add(e.element);
+            break;
+
+          case OperationKind.removed:
+            _remove(e.element.value);
+            break;
+        }
+      });
+    } else if (fragment != null) {
+      _messagesSubscription = fragment.items.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            _add(e.value!);
+            break;
+
+          case OperationKind.removed:
+            _remove(e.value!.value);
+            break;
+        }
+      });
+    }
+  }
+
   /// Highlights the item with the provided [index].
-  Future<void> _highlight(int index) async {
-    highlightIndex.value = index;
+  Future<void> _highlight(ListElementId id) async {
+    highlighted.value = id;
 
     _highlightTimer?.cancel();
     _highlightTimer = Timer(_highlightTimeout, () {
-      highlightIndex.value = null;
+      highlighted.value = null;
     });
   }
 
@@ -1535,8 +1793,15 @@ class ChatController extends GetxController {
   /// [FlutterListViewController.position] value.
   void _updateFabStates() {
     if (listController.hasClients && !_ignorePositionChanges) {
-      if (listController.position.pixels >
-          MediaQuery.of(router.context!).size.height * 2 + 200) {
+      // If we've reached the end of [elements], and there's no more down there,
+      // then clear the history.
+      if (listController.position.pixels == 0 && hasNext.isFalse) {
+        _history.clear();
+      }
+
+      if (_history.isNotEmpty ||
+          listController.position.pixels >
+              MediaQuery.of(router.context!).size.height * 2 + 200) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;
@@ -1624,7 +1889,7 @@ class ChatController extends GetxController {
 
   /// Loads next page of the [RxChat.messages], if [_atBottom].
   Future<void> _loadNextPage() async {
-    if (hasNext.isTrue && chat!.nextLoading.isFalse && _atBottom) {
+    if (hasNext.isTrue && nextLoading.isFalse && _atBottom) {
       keepPositionOffset.value = 0;
 
       if (_bottomLoader != null) {
@@ -1634,7 +1899,7 @@ class ChatController extends GetxController {
           LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
       elements[_bottomLoader!.id] = _bottomLoader!;
 
-      await chat!.next();
+      await (_fragment?.next ?? chat!.next).call();
 
       double? offset;
       if (listController.hasClients) {
@@ -1657,7 +1922,7 @@ class ChatController extends GetxController {
 
   /// Loads previous page of the [RxChat.messages], if [_atTop].
   Future<void> _loadPreviousPage() async {
-    if (hasPrevious.isTrue && chat!.previousLoading.isFalse && _atTop) {
+    if (hasPrevious.isTrue && previousLoading.isFalse && _atTop) {
       Log.info('Fetch previous page', 'ChatController');
 
       if (_topLoader == null) {
@@ -1665,9 +1930,7 @@ class ChatController extends GetxController {
         elements[_topLoader!.id] = _topLoader!;
       }
 
-      elements[_topLoader!.id] = _topLoader!;
-
-      await chat!.previous();
+      await (_fragment?.previous ?? chat!.previous).call();
 
       if (hasPrevious.isFalse) {
         elements.remove(_topLoader?.id);
@@ -1705,9 +1968,9 @@ class ChatController extends GetxController {
     if (itemId != null) {
       int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
       if (i != -1) {
-        _highlight(i);
         index = i;
-        offset = (MediaQuery.of(router.context!).size.height) / 3;
+        offset = 50;
+        _highlight(elements.values.elementAt(index).id);
       }
     } else {
       if (chat?.messages.isEmpty == false) {
@@ -2046,6 +2309,34 @@ extension IsChatItemEditable on ChatItem {
     }
 
     return false;
+  }
+}
+
+/// Extension adding conversion on [ListElement]s to [ChatItem]s.
+extension SelectedToItemsExtension on RxList<ListElement> {
+  /// Returns the [ChatItem]s this list of [ListElement] represents.
+  List<ChatItem> get asItems {
+    final List<ChatItem> items = [];
+
+    for (var e in this) {
+      if (e is ChatMessageElement) {
+        items.add(e.item.value);
+      } else if (e is ChatCallElement) {
+        items.add(e.item.value);
+      } else if (e is ChatInfoElement) {
+        items.add(e.item.value);
+      } else if (e is ChatForwardElement) {
+        if (e.note.value != null) {
+          items.add(e.note.value!.value);
+        }
+
+        for (var f in e.forwards) {
+          items.add(f.value);
+        }
+      }
+    }
+
+    return items;
   }
 }
 

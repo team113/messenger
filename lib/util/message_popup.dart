@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -96,12 +96,12 @@ class MessagePopup {
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_proceed'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),

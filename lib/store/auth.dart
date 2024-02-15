@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -88,7 +88,7 @@ class AuthRepository implements AbstractAuthRepository {
     );
 
     final response =
-        await _graphQlProvider.signIn(password, login, num, email, phone, true);
+        await _graphQlProvider.signIn(password, login, num, email, phone);
     return response.toModel();
   }
 

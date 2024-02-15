@@ -173,14 +173,27 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make flutter.build platform=${{ matrix.platform }}
-                  dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}'
+      # TODO: Remove `profile=yes`, when self-hosted Sentry supports source
+      #       maps reading.
+      - run: make flutter.build platform=${{ matrix.platform }} profile=yes
+                  dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
+                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}'
         if: ${{ matrix.platform == 'web' }}
+
+      # TODO: Add the following `split-debug-info`, when self-hosted Sentry
+      #       supports debug symbols:
+      #       split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
+      # TODO: Use `split-debug-info` for Windows once Sentry supports it:
+      #       https://github.com/getsentry/sentry-dart/issues/433
+      #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
@@ -230,12 +243,38 @@ jobs:
               ||     'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
           path: artifacts/
           if-no-files-found: error
           retention-days: 1
+
+      # TODO: Uncomment when self-hosted Sentry supports debug symbols:
+      # Globstar is supported in Bash 4.0+, `macos-latest` runner uses Bash 3.2.
+      # - name: Prepare `*.dSYM` debug symbols
+      #   run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
+      #   if: ${{ contains('ios macos', matrix.platform) }}
+      # - name: Prepare debug web source maps
+      #   run: |
+      #     shopt -s globstar
+
+      #     mkdir -p debug/
+      #     mv build/web/**/*.map debug/
+      #     cd build/web && cp --parents **/*.js ../../debug/
+      #   if: ${{ matrix.platform == 'web' }}
+      # - uses: thedoctor0/zip-release@0.7.6
+      #   with:
+      #     filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
+      #     directory: debug
+      #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
+      # - uses: actions/upload-artifact@v4
+      #   with:
+      #     name: debug-${{ matrix.platform }}-${{ github.run_number }}
+      #     path: debug-${{ matrix.platform }}.zip
+      #     if-no-files-found: error
+      #     retention-days: 1
+      #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
 
   build-linux:
     name: build (linux)
@@ -285,11 +324,15 @@ jobs:
 
       - run: make flutter.pub
 
+      # TODO: Use `split-debug-info` when Sentry supports Linux debug symbols.
+      #       https://github.com/getsentry/sentry-dart/issues/433
       - run: make flutter.build platform=linux
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
 
       - name: Parse application name from Git repository name
@@ -312,7 +355,7 @@ jobs:
         run: ${{ 'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
@@ -333,10 +376,10 @@ jobs:
 
       - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dartdoc-${{ github.run_number }}
-          path: doc/api
+          path: doc/api/
           if-no-files-found: error
         if: ${{ github.ref == 'refs/heads/main'
              || startsWith(github.ref, 'refs/tags/v') }}
@@ -348,34 +391,34 @@ jobs:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-web-${{ github.run_number }}
       - run: mkdir -p build/web/
       - run: unzip *.zip -d build/web/
 
       - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-apk-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-ios-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
@@ -385,7 +428,7 @@ jobs:
 
       - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: docker-${{ github.run_number }}
           path: .cache/image.tar
@@ -530,7 +573,7 @@ jobs:
       - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: docker-${{ github.run_number }}
           path: .cache/
@@ -755,36 +798,36 @@ jobs:
         run: echo ::set-output
                   name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-apk-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-ios-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-macos-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-web-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: build-windows-${{ github.run_number }}
           path: artifacts/
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
@@ -836,7 +879,7 @@ jobs:
 
       - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
@@ -850,3 +893,63 @@ jobs:
           keep_files: true
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
+
+  # TODO: Uncomment, when self-hosted Sentry supports debug symbols.
+  # deploy-sentry:
+  #   name: deploy (symbols, Sentry)
+  #   if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+  #   needs: ["release-github"]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-apk-${{ github.run_number }}
+  #         path: debug/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-appbundle-${{ github.run_number }}
+  #         path: debug/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-ios-${{ github.run_number }}
+  #         path: debug/
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-macos-${{ github.run_number }}
+  #         path: debug/
+  #     - name: Unzip debug symbols
+  #       run: |
+  #         set -e
+  #         for f in debug/debug-*.zip
+  #           do unzip "$f" -d "${f%.zip}/"
+  #         done
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: debug-web-${{ github.run_number }}
+  #     # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
+  #     - run: mkdir -p build/web/
+  #     - name: Unzip web source maps
+  #       run: unzip debug-*.zip -d build/web/
+
+  #     - name: Parse semver versions from Git tag
+  #       id: semver
+  #       uses: actions-ecosystem/action-regex-match@v2
+  #       with:
+  #         text: ${{ github.ref }}
+  #         regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+  #       if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         flutter-version: ${{ env.FLUTTER_VER }}
+  #         channel: stable
+  #         cache: true
+
+  #     - run: make sentry.upload
+  #                 project=${{ secrets.SENTRY_PROJECT }}
+  #                 org=${{ secrets.SENTRY_ORG }}
+  #                 token=${{ secrets.SENTRY_TOKEN }}
+  #                 release=${{ steps.semver.outputs.group1 }}
+  #                 url=${{ secrets.SENTRY_URL }}

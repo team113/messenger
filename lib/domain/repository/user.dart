@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import 'chat.dart';
-import 'search.dart';
+import 'paginated.dart';
 
 /// [User]s repository interface.
 abstract class AbstractUserRepository {
@@ -37,7 +37,7 @@ abstract class AbstractUserRepository {
   Future<void> clearCache();
 
   /// Searches [User]s by the given criteria.
-  SearchResult<UserId, RxUser> search({
+  Paginated<UserId, RxUser> search({
     UserNum? num,
     UserName? name,
     UserLogin? login,
@@ -45,7 +45,7 @@ abstract class AbstractUserRepository {
   });
 
   /// Returns an [User] by the provided [id].
-  Future<RxUser?> get(UserId id);
+  FutureOr<RxUser?> get(UserId id);
 
   /// Blocks the specified [User] for the authenticated [MyUser].
   Future<void> blockUser(UserId id, BlocklistReason? reason);
