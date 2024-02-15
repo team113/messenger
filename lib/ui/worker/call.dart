@@ -241,7 +241,7 @@ class CallWorker extends DisposableService {
             stop();
           }
 
-          if(_callService.calls.isEmpty) {
+          if (_callService.calls.isEmpty) {
             await AudioUtils.setDefaultSpeaker();
           }
           break;
