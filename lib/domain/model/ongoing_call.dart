@@ -1555,23 +1555,23 @@ class OngoingCall {
       if (PlatformUtils.isMobile && outputDevice.value == null) {
         final Iterable<DeviceDetails> output = devices.output();
         var device = output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.headphones,
+          (e) => e.speaker == AudioSpeakerKind.headphones,
         );
 
         if (device == null) {
           final bool speaker = PlatformUtils.isWeb
               ? true
               : videoState.value == LocalTrackState.enabling ||
-              videoState.value == LocalTrackState.enabled;
+                  videoState.value == LocalTrackState.enabled;
 
           if (speaker) {
             device = output.firstWhereOrNull(
-                  (e) => e.speaker == AudioSpeakerKind.speaker,
+              (e) => e.speaker == AudioSpeakerKind.speaker,
             );
           }
 
           device ??= output.firstWhereOrNull(
-                (e) => e.speaker == AudioSpeakerKind.earpiece,
+            (e) => e.speaker == AudioSpeakerKind.earpiece,
           );
         }
 
@@ -1580,8 +1580,8 @@ class OngoingCall {
         }
       } else {
         outputDevice.value = devices
-            .output()
-            .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+                .output()
+                .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
             devices.output().firstOrNull;
       }
 
