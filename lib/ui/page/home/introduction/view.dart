@@ -112,7 +112,6 @@ class IntroductionView extends StatelessWidget {
               final signInButton = Center(
                 child: OutlinedRoundedButton(
                   key: const Key('SignInButton'),
-                  child: Text('btn_sign_in'.l10n),
                   maxWidth: 290,
                   height: 46,
                   leading: Transform.translate(
@@ -121,12 +120,12 @@ class IntroductionView extends StatelessWidget {
                   ),
                   onPressed: () =>
                       LoginView.show(context, initial: LoginViewStage.signIn),
+                  child: Text('btn_sign_in'.l10n),
                 ),
               );
 
               final applicationButton = Center(
                 child: OutlinedRoundedButton(
-                  child: Text('label_application'.l10n),
                   maxWidth: 290,
                   height: 46,
                   leading: const Padding(
@@ -139,6 +138,7 @@ class IntroductionView extends StatelessWidget {
                       await _download(context);
                     }
                   },
+                  child: Text('label_application'.l10n),
                 ),
               );
 
@@ -215,12 +215,12 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('OkButton'),
                   maxWidth: double.infinity,
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
                   child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 ),
                 const SizedBox(height: 16),
               ];
@@ -264,12 +264,12 @@ class IntroductionView extends StatelessWidget {
                 OutlinedRoundedButton(
                   key: const Key('SetPasswordButton'),
                   maxWidth: double.infinity,
+                  onPressed: Navigator.of(context).pop,
+                  color: style.colors.primary,
                   child: Text(
                     'btn_ok'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
                 ),
                 const SizedBox(height: 16),
               ];

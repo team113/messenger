@@ -338,6 +338,12 @@
       return locks.held;
     }
   </script>
+  <!-- Indicate whether Web Locks API is available. -->
+  <script>
+    function locksAvailable() {
+      return navigator.locks !== undefined;
+    }
+  </script>
 </body>
 
 </html>
