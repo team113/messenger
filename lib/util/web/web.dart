@@ -606,13 +606,11 @@ class WebUtils {
 
   /// Requests the permission to use a camera.
   static Future<void> cameraPermission() async {
-    bool granted = false;
+    bool granted = _hasCameraPermission;
 
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
-    if (isFirefox) {
-      granted = _hasCameraPermission;
-    } else {
+    if (!isFirefox) {
       final permission =
           await html.window.navigator.permissions?.query({'name': 'camera'});
       granted = permission?.state == 'granted';
@@ -638,13 +636,11 @@ class WebUtils {
 
   /// Requests the permission to use a microphone.
   static Future<void> microphonePermission() async {
-    bool granted = false;
+    bool granted = _hasMicrophonePermission;
 
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
-    if (isFirefox) {
-      granted = _hasMicrophonePermission;
-    } else {
+    if (!isFirefox) {
       final permission = await html.window.navigator.permissions
           ?.query({'name': 'microphone'});
       granted = permission?.state == 'granted';
