@@ -455,10 +455,6 @@ class ChatController extends GetxController {
             chat?.setDraft();
 
             _stopTyping();
-
-            if (!PlatformUtils.isMobile) {
-              Future.delayed(Duration.zero, send.field.focus.requestFocus);
-            }
           }
         }
       },
@@ -624,6 +620,8 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
+          _stopTyping();
+
           if (edit.value!.field.text.trim().isNotEmpty ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
@@ -653,8 +651,6 @@ class ChatController extends GetxController {
           } else {
             MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
           }
-
-          _stopTyping();
         },
         onChanged: () {
           if (edit.value?.edited.value == null) {
