@@ -758,6 +758,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             return deps;
           },
           signedUp: router.arguments?['signedUp'] as bool? ?? false,
+          link: router.arguments?['link'] as ChatDirectLinkSlug?,
         ),
       ));
     } else if (_state.route.startsWith(Routes.work)) {
@@ -880,13 +881,18 @@ extension RouteLinks on RouterState {
     ChatId id, {
     bool push = false,
     ChatItemId? itemId,
+    ChatDirectLinkSlug? link,
 
     // TODO: Remove when backend supports welcome messages.
     ChatMessageText? welcome,
   }) {
     (push ? this.push : go)('${Routes.chats}/$id');
 
-    arguments = {'itemId': itemId, 'welcome': welcome};
+    arguments = {
+      'itemId': itemId,
+      'welcome': welcome,
+      'link': link,
+    };
   }
 
   /// Changes router location to the [Routes.chatInfo] page.

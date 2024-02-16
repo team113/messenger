@@ -194,7 +194,7 @@ btn_fullscreen_exit = Exit fullscreen
 btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Gift
-btn_guest = Guest account
+btn_guest = Guest
 btn_guest_desc =
     Guest
     account
@@ -689,8 +689,8 @@ label_files_saved_to_gallery = Files are saved to the gallery
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
-    [1] Пересланное сообщение
-   *[other] Пересланные сообщения
+    [1] Forwarded message
+   *[other] Forwarded messages
 }
 label_gb_occupied = {$count} GB occupied
 label_gb_of_gb_occupied = {$a} of {$b} GB occupied
@@ -698,6 +698,7 @@ label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}created the group
+label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
@@ -723,7 +724,7 @@ label_introduction_description1 =
 
          • you click the button "Sign out".
 
-     To save access to your account, please set a password, e-mail or phone number in the{" "}
+    To save access to your account, please set a password, e-mail or phone number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
 label_kb = {$amount} KB
@@ -796,7 +797,6 @@ label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
-label_one_time_account_created = Guest account created
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
