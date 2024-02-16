@@ -74,16 +74,15 @@ final StepDefinitionGeneric seeUserInSearchResults =
   },
 );
 
-/// Waits until the provided [Chat] is found and displayed in the ongoing search
-/// results.
+/// Waits until a group [Chat] with the provided [name] is found and displayed
+/// in the ongoing search results.
 ///
 /// Examples:
 /// - Then I see chat "Example" in search results
 /// - Then I see recent "Example" in search results
-final StepDefinitionGeneric seeChatInSearchResults =
-    then2<SearchCategory, String, CustomWorld>(
-  'I see {search_category} {string} in search results',
-  (SearchCategory category, String name, context) async {
+final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
+  'I see chat {string} in search results',
+  (String name, context) async {
     await context.world.appDriver.waitUntil(
       () async {
         await context.world.appDriver.waitForAppToSettle();
@@ -95,6 +94,36 @@ final StepDefinitionGeneric seeChatInSearchResults =
             FindType.key,
           ),
         );
+      },
+      timeout: const Duration(seconds: 30),
+    );
+  },
+);
+
+/// Waits until a [Chat]-dialog with provided [User] is found and displayed in
+/// the ongoing search results.
+///
+/// Examples:
+/// - Then I see chat with Bob in search results
+final StepDefinitionGeneric seeChatWithUserInSearchResults =
+    then1<TestUser, CustomWorld>(
+  'I see chat with {user} in search results',
+  (TestUser user, context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
+
+        final ChatId? chatId = context.world.sessions[user.name]?.dialog;
+        if (chatId != null) {
+          return context.world.appDriver.isPresent(
+            context.world.appDriver.findBy(
+              'SearchChat_$chatId',
+              FindType.key,
+            ),
+          );
+        }
+
+        return false;
       },
       timeout: const Duration(seconds: 30),
     );
