@@ -26,6 +26,8 @@ import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 import 'package:messenger/ui/widget/animated_switcher.dart';
+import 'package:messenger/ui/widget/context_menu/menu.dart';
+import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -258,36 +260,60 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   _info(context, Text(DateTime.now().yMd)),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
-                    child: WidgetButton(
-                      onPressed: () async {
-                        final share = '${Config.link}/${_state.text}';
-                        await launchUrlString(share);
+                    child: ContextMenuRegion(
+                      actions: [
+                        ContextMenuButton(
+                          label: 'btn_copy'.l10n,
+                          trailing: const SvgIcon(SvgIcons.copy19),
+                          inverted: const SvgIcon(SvgIcons.copy19White),
+                          onPressed: () {
+                            final share = '${Config.link}/${_state.text}';
+                            PlatformUtils.copy(text: share);
+                            MessagePopup.success('label_copied'.l10n);
+                          },
+                        ),
+                        if (PlatformUtils.isMobile)
+                          ContextMenuButton(
+                            label: 'btn_share'.l10n,
+                            trailing: const SvgIcon(SvgIcons.share19),
+                            inverted: const SvgIcon(SvgIcons.share19White),
+                            onPressed: () {
+                              final share = '${Config.link}/${_state.text}';
+                              Share.share(share);
+                            },
+                          ),
+                      ],
+                      child: WidgetButton(
+                        onPressed: () async {
+                          final share = '${Config.link}/${_state.text}';
+                          await launchUrlString(share);
 
-                        // if (PlatformUtils.isMobile) {
-                        //   Share.share(share);
-                        // } else {
-                        //   PlatformUtils.copy(text: share);
-                        //   MessagePopup.success(
-                        //     'label_copied'.l10n,
-                        //   );
-                        // }
-                      },
-                      child: MessagePreviewWidget(
-                        fromMe: true,
-                        style: style.fonts.medium.regular.primary,
-                        child: Stack(
-                          children: [
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: '${Config.link}/${_state.text}',
-                                    style: style.fonts.medium.regular.primary,
-                                  ),
-                                ],
+                          // if (PlatformUtils.isMobile) {
+                          //   Share.share(share);
+                          // } else {
+                          //   PlatformUtils.copy(text: share);
+                          //   MessagePopup.success(
+                          //     'label_copied'.l10n,
+                          //   );
+                          // }
+                        },
+                        child: MessagePreviewWidget(
+                          fromMe: true,
+                          style: style.fonts.medium.regular.primary,
+                          child: Stack(
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '${Config.link}/${_state.text}',
+                                      style: style.fonts.medium.regular.primary,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

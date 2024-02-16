@@ -471,14 +471,20 @@ class _GalleryPopupState extends State<GalleryPopup>
         actions: [
           ContextMenuButton(
             label: 'btn_save_to_gallery'.l10n,
+            trailing: const SvgIcon(SvgIcons.download19),
+            inverted: const SvgIcon(SvgIcons.download19White),
             onPressed: () => _saveToGallery(widget.children[_page]),
           ),
           ContextMenuButton(
             label: 'btn_share'.l10n,
+            trailing: const SvgIcon(SvgIcons.share19),
+            inverted: const SvgIcon(SvgIcons.share19White),
             onPressed: () => _share(widget.children[_page]),
           ),
           ContextMenuButton(
             label: 'btn_info'.l10n,
+            trailing: const SvgIcon(SvgIcons.info),
+            inverted: const SvgIcon(SvgIcons.infoWhite),
             onPressed: () {},
           ),
         ],

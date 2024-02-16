@@ -474,6 +474,8 @@ class ReactiveTextField extends StatelessWidget {
                           actions: [
                             ContextMenuButton(
                               label: 'btn_copy'.l10n,
+                              trailing: const SvgIcon(SvgIcons.copy19),
+                              inverted: const SvgIcon(SvgIcons.copy19White),
                               onPressed: () {
                                 if (field.copyEnabled) {
                                   field.copySelection(
@@ -492,6 +494,8 @@ class ReactiveTextField extends StatelessWidget {
                             if (field.pasteEnabled)
                               ContextMenuButton(
                                 label: 'btn_paste'.l10n,
+                                trailing: const SvgIcon(SvgIcons.copy19),
+                                inverted: const SvgIcon(SvgIcons.copy19White),
                                 onPressed: () => field
                                     .pasteText(SelectionChangedCause.toolbar),
                               ),
