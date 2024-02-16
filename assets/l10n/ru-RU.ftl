@@ -194,7 +194,7 @@ btn_fullscreen_exit = Выйти из полного экрана
 btn_gallery = Галерея
 btn_generate_direct_chat_link = Сгенерировать
 btn_gift = Подарок
-btn_guest = Гостевой аккаунт
+btn_guest = Гость
 btn_guest_desc =
     Гостевой
     аккаунт

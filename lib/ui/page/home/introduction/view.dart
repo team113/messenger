@@ -99,6 +99,7 @@ class IntroductionView extends StatelessWidget {
                     style: style.fonts.normal.regular.onPrimary,
                   ),
                 ),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -147,8 +148,10 @@ class IntroductionView extends StatelessWidget {
                     style: style.fonts.normal.regular.onPrimary,
                   ),
                 ),
+                const SizedBox(height: 16),
               ];
               break;
+
             case IntroductionViewStage.link:
               final guestButton = Center(
                 child: OutlinedRoundedButton(
@@ -259,9 +262,12 @@ class IntroductionView extends StatelessWidget {
                 physics: const ClampingScrollPhysics(),
                 children: [
                   header,
-                  ...children.map((e) =>
-                      Padding(padding: ModalPopup.padding(context), child: e)),
-                  const SizedBox(height: 16),
+                  ...children.map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: e,
+                    ),
+                  ),
                 ],
               ),
             ),
