@@ -20,6 +20,7 @@ Feature: Searching deleted monolog
   Scenario: User searches deleted monolog and sees it
     Given I am Alice
     And I have my login set up
+    And I have my direct link set up
     And I wait until `ChatMonolog` is present
 
     When I long press monolog
@@ -38,4 +39,7 @@ Feature: Searching deleted monolog
     Then I see monolog in search results
 
     When I fill `SearchField` field with my login
+    Then I see monolog in search results
+
+    When I fill `SearchField` field with my direct link
     Then I see monolog in search results
