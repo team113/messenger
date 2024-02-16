@@ -47,7 +47,7 @@ final StepDefinitionGeneric haveGroupNamed = given1<String, CustomWorld>(
 /// - Given Alice has "Name" group.
 final StepDefinitionGeneric hasGroupNamed =
     given2<TestUser, String, CustomWorld>(
-  '{user} has {string} group',
+  '{user} has {string} group\$',
   (TestUser user, String name, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
@@ -162,7 +162,7 @@ final StepDefinitionGeneric hasFavoriteGroups =
 /// - Given Alice has "Name" group with 30 members.
 final StepDefinitionGeneric hasGroupWithMembers =
     given3<TestUser, String, int, CustomWorld>(
-  '{user} has {string} group with {int} members',
+  '{user} has {string} group with {int} members\$',
   (TestUser user, String name, int count, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
