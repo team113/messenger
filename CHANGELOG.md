@@ -27,6 +27,11 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
 
+### Fixed
+
+- Web:
+    - Inability to view camera, microphone and output devices in Firefox. ([#855])
+
 [#464]: /../../issues/464
 [#465]: /../../pull/465
 [#812]: /../../issues/812
@@ -35,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
 [#832]: /../../pull/832
 [#843]: /../../pull/843
 [#848]: /../../pull/848
+[#855]: /../../pull/855
 
 
 
