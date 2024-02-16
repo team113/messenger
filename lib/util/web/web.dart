@@ -134,9 +134,13 @@ class WebUtils {
   static final Mutex _guard = Mutex();
 
   /// Indicator whether [cameraPermission] has finished successfully.
+  ///
+  /// Only populated and used, if [isFirefox] is `true`.
   static bool _hasCameraPermission = false;
 
   /// Indicator whether [microphonePermission] has finished successfully.
+  ///
+  /// Only populated and used, if [isFirefox] is `true`.
   static bool _hasMicrophonePermission = false;
 
   /// Indicates whether device's OS is macOS or iOS.
