@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -43,13 +44,21 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+  const HomeView(
+    this._depsFactory, {
+    super.key,
+    this.signedUp = false,
+    this.link,
+  });
 
   /// Indicator whether the [IntroductionView] should be displayed with
   /// [IntroductionViewStage.signUp] initial stage.
   ///
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
+
+  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
+  final ChatDirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -121,6 +130,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         signedUp: widget.signedUp,
+        link: widget.link,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.

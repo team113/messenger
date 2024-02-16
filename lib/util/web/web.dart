@@ -124,6 +124,9 @@ external Future<dynamic> _requestLock(
 @JS('getLocks')
 external Future<dynamic> _queryLock();
 
+@JS('locksAvailable')
+external bool _locksAvailable();
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
@@ -133,12 +136,25 @@ class WebUtils {
   /// [Mutex] guarding the [protect] method.
   static final Mutex _guard = Mutex();
 
+  /// Indicator whether [cameraPermission] has finished successfully.
+  ///
+  /// Only populated and used, if [isFirefox] is `true`.
+  static bool _hasCameraPermission = false;
+
+  /// Indicator whether [microphonePermission] has finished successfully.
+  ///
+  /// Only populated and used, if [isFirefox] is `true`.
+  static bool _hasMicrophonePermission = false;
+
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
       _navigator.appVersion.contains('Mac') && !PlatformUtils.isIOS;
 
   /// Indicates whether device's browser is Safari or not.
   static bool get isSafari => browser.isSafari;
+
+  /// Indicates whether device's browser is Firefox or not.
+  static bool get isFirefox => browser.isFirefox;
 
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen {
@@ -296,6 +312,11 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked async {
+    // Web Locks API is unavailable for some reason, so proceed without it.
+    if (!_locksAvailable()) {
+      return false;
+    }
+
     bool held = false;
 
     try {
@@ -312,6 +333,11 @@ class WebUtils {
   /// code block at the same time.
   static Future<void> protect(Future<void> Function() callback) async {
     await _guard.protect(() async {
+      // Web Locks API is unavailable for some reason, so proceed without it.
+      if (!_locksAvailable()) {
+        return await callback();
+      }
+
       final Completer completer = Completer();
 
       try {
@@ -580,15 +606,26 @@ class WebUtils {
 
   /// Requests the permission to use a camera.
   static Future<void> cameraPermission() async {
-    final status =
-        await html.window.navigator.permissions?.query({'name': 'camera'});
+    bool granted = _hasCameraPermission;
 
-    if (status?.state != 'granted') {
+    // Firefox doesn't allow to check whether app has camera permission:
+    // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+    if (!isFirefox) {
+      final permission =
+          await html.window.navigator.permissions?.query({'name': 'camera'});
+      granted = permission?.state == 'granted';
+    }
+
+    if (!granted) {
       final html.MediaStream? stream = await html.window.navigator.mediaDevices
           ?.getUserMedia({'video': true});
 
       if (stream == null) {
         throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
+
+      if (isFirefox) {
+        _hasCameraPermission = true;
       }
 
       for (var e in stream.getTracks()) {
@@ -599,15 +636,26 @@ class WebUtils {
 
   /// Requests the permission to use a microphone.
   static Future<void> microphonePermission() async {
-    final status =
-        await html.window.navigator.permissions?.query({'name': 'microphone'});
+    bool granted = _hasMicrophonePermission;
 
-    if (status?.state != 'granted') {
+    // Firefox doesn't allow to check whether app has microphone permission:
+    // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
+    if (!isFirefox) {
+      final permission = await html.window.navigator.permissions
+          ?.query({'name': 'microphone'});
+      granted = permission?.state == 'granted';
+    }
+
+    if (!granted) {
       final html.MediaStream? stream = await html.window.navigator.mediaDevices
           ?.getUserMedia({'audio': true});
 
       if (stream == null) {
         throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
+      }
+
+      if (isFirefox) {
+        _hasMicrophonePermission = true;
       }
 
       for (var e in stream.getTracks()) {

@@ -50,7 +50,6 @@ import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
-import 'steps/has_blocked_users.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_hidden.dart';
@@ -65,6 +64,7 @@ import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
+import 'steps/has_blocked_users.dart';
 import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
@@ -108,7 +108,7 @@ import 'steps/sees_muted_chat.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
-import 'steps/set_login.dart';
+import 'steps/set_credential.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
@@ -215,6 +215,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatMessage,
         seeChatMessages,
         seeChatSelection,
+        seeChatWithUserInSearchResults,
         seeContactAsDismissed,
         seeContactAsFavorite,
         seeContactPosition,
@@ -238,8 +239,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         sendsMessageToGroup,
         sendsMessageToMe,
         sendsMessageWithException,
-        setLogin,
-        setMyLogin,
+        setCredential,
+        setMyCredential,
         signInAs,
         tapChat,
         tapContact,
