@@ -26,6 +26,8 @@ All user visible changes to this project will be documented in this file. This p
         - Direct link searching. ([#843], [#831])
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
+    - Chat page:
+        - Removed keyboard hiding after sending a message on mobile. ([#856], [#828])
 
 ### Fixed
 
@@ -36,11 +38,13 @@ All user visible changes to this project will be documented in this file. This p
 [#465]: /../../pull/465
 [#812]: /../../issues/812
 [#820]: /../../issues/820
+[#828]: /../../issues/828
 [#831]: /../../issues/831
 [#832]: /../../pull/832
 [#843]: /../../pull/843
 [#848]: /../../pull/848
 [#855]: /../../pull/855
+[#856]: /../../pull/856
 
 
 
