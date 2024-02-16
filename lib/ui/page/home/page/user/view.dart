@@ -196,13 +196,13 @@ class UserView extends StatelessWidget {
                     child: const SvgIcon(SvgIcons.makeVideoCallWhite),
                   ),
                 ),
-                if (c.inContacts.value)
-                  ContextMenuButton(
-                    label: 'btn_edit'.l10n,
-                    onPressed: c.editing.toggle,
-                    trailing: const SvgIcon(SvgIcons.edit),
-                    inverted: const SvgIcon(SvgIcons.editWhite),
-                  ),
+                // if (c.inContacts.value)
+                //   ContextMenuButton(
+                //     label: 'btn_edit'.l10n,
+                //     onPressed: c.editing.toggle,
+                //     trailing: const SvgIcon(SvgIcons.edit),
+                //     inverted: const SvgIcon(SvgIcons.editWhite),
+                //   ),
                 ContextMenuButton(
                   label: contact
                       ? 'btn_delete_from_contacts'.l10n
@@ -251,7 +251,8 @@ class UserView extends StatelessWidget {
             title = Row(
               // key: const Key('Profile'),
               children: [
-                const StyledBackButton(enlarge: true),
+                const StyledBackButton(),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
@@ -398,26 +399,23 @@ class UserView extends StatelessWidget {
                   Block(
                     overlay: [
                       Positioned(
-                        // right: 8,
-                        // bottom: 8,
-                        // left: 0,
                         right: 0,
-                        top: 4,
+                        top: 0,
                         child: Center(
                           child: SelectionContainer.disabled(
                             child: AnimatedButton(
                               onPressed: c.profileEditing.toggle,
-                              // child: const SvgIcon(SvgIcons.edit),
-                              child: c.profileEditing.value
-                                  ? const Padding(
-                                      padding: EdgeInsets.fromLTRB(0, 2, 2, 0),
-                                      child: SvgIcon(SvgIcons.closePrimary),
-                                    )
-                                  : const SvgIcon(SvgIcons.edit),
-                              // Text(
-                              //     'Изменить',
-                              //     style: style.fonts.small.regular.primary,
-                              //   ),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                                child: c.profileEditing.value
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(2),
+                                        child: SvgIcon(
+                                          SvgIcons.closeSmallPrimary,
+                                        ),
+                                      )
+                                    : const SvgIcon(SvgIcons.editSmall),
+                              ),
                             ),
                           ),
                         ),
@@ -425,16 +423,8 @@ class UserView extends StatelessWidget {
                     ],
                     children: [
                       SelectionContainer.disabled(
-                        child: BigAvatarWidget.user(
-                          c.user,
-                          // onUpload: c.profileEditing.value ? () {} : null,
-                          // onDelete: c.profileEditing.value &&
-                          //         c.user?.user.value.avatar != null
-                          //     ? () {}
-                          //     : null,
-                        ),
+                        child: BigAvatarWidget.user(c.user),
                       ),
-
                       Obx(() {
                         final List<Widget> children;
 
@@ -506,36 +496,6 @@ class UserView extends StatelessWidget {
                           ),
                         );
                       }),
-                      // Padding(
-                      //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                      //   child: Text(
-                      //     c.name.text,
-                      //     style: style.fonts.large.regular.onBackground,
-                      //   ),
-                      // ),
-                      // Obx(() {
-                      //   if (c.profileEditing.value) {
-                      //     return SelectionContainer.disabled(
-                      //       child: ReactiveTextField(
-                      //         state: c.name,
-                      //         label: 'Name',
-                      //         hint: c.user!.user.value.name?.val ??
-                      //             c.user!.user.value.num.toString(),
-                      //       ),
-                      //     );
-                      //   }
-
-                      //   return Padding(
-                      //     padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                      //     child: Text(
-                      //       c.name.text,
-                      //       style: style.fonts.large.regular.onBackground,
-                      //     ),
-                      //   );
-                      // }),
-                      // if (!c.profileEditing.value) ...[
-
-                      // ],
                     ],
                   ),
                   _quick(c, context),
@@ -577,17 +537,49 @@ class UserView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Block(
-                    title: 'label_direct_chat_link'.l10n,
-                    children: [
-                      DirectLinkField(
-                        ChatDirectLink(
-                          slug: ChatDirectLinkSlug('dqwdqwdqwd'),
+                  SelectionContainer.disabled(
+                    child: Block(
+                      title: 'label_direct_chat_link'.l10n,
+                      // overlay: [
+                      //   Positioned(
+                      //     right: 0,
+                      //     top: 0,
+                      //     child: Center(
+                      //       child: SelectionContainer.disabled(
+                      //         child: AnimatedButton(
+                      //           onPressed: c.linkEditing.toggle,
+                      //           child: Padding(
+                      //             padding:
+                      //                 const EdgeInsets.fromLTRB(6, 4, 0, 6),
+                      //             child: c.linkEditing.value
+                      //                 ? const Padding(
+                      //                     padding:
+                      //                         EdgeInsets.fromLTRB(2, 2, 2, 2),
+                      //                     child: SvgIcon(
+                      //                       SvgIcons.closeSmallPrimary,
+                      //                     ),
+                      //                   )
+                      //                 : const SvgIcon(SvgIcons.editSmall),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ],
+                      children: [
+                        DirectLinkField(
+                          ChatDirectLink(
+                            slug: ChatDirectLinkSlug('dqwdqwdqwd'),
+                          ),
+                          // onSubmit: (_) {
+                          //   c.linkEditing.value = false;
+                          // },
+                          transitions: false,
+                          background: c.background.value,
+                          // editing: c.linkEditing.value,
                         ),
-                        transitions: false,
-                        background: c.background.value,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   _money(c, context),
                   SelectionContainer.disabled(

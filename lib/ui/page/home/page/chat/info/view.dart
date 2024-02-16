@@ -90,30 +90,95 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
-          final Widget editButton = AnimatedButton(
-            key: const Key('EditButton'),
-            decorator: (child) => Padding(
-              padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
-              child: child,
-            ),
-            onPressed: c.editing.toggle,
-            child: Obx(() {
-              return IndexedStack(
-                alignment: Alignment.centerRight,
-                index: c.editing.value ? 0 : 1,
-                children: [
-                  Text(
-                    'Готово',
-                    style: style.fonts.normal.regular.primary,
+          // final Widget editButton = AnimatedButton(
+          //   key: const Key('EditButton'),
+          //   decorator: (child) => Padding(
+          //     padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
+          //     child: child,
+          //   ),
+          //   onPressed: c.editing.toggle,
+          //   child: Obx(() {
+          //     return IndexedStack(
+          //       alignment: Alignment.centerRight,
+          //       index: c.editing.value ? 0 : 1,
+          //       children: [
+          //         Text(
+          //           'Готово',
+          //           style: style.fonts.normal.regular.primary,
+          //         ),
+          //         Text(
+          //           'Изменить',
+          //           style: style.fonts.normal.regular.primary,
+          //         ),
+          //       ],
+          //     );
+          //   }),
+          // );
+
+          final Widget editButton = Obx(() {
+            final bool favorite = c.chat?.chat.value.favoritePosition != null;
+            final bool hasCall = c.chat?.chat.value.ongoingCall != null;
+
+            return ContextMenuRegion(
+              key: c.moreKey,
+              selector: c.moreKey,
+              alignment: Alignment.topRight,
+              enablePrimaryTap: true,
+              margin: const EdgeInsets.only(bottom: 4, left: 20),
+              actions: [
+                ContextMenuButton(
+                  label: 'btn_audio_call'.l10n,
+                  onPressed: hasCall ? null : () => c.call(false),
+                  trailing: hasCall
+                      ? const SvgIcon(SvgIcons.makeAudioCallDisabled)
+                      : const SvgIcon(SvgIcons.makeAudioCall),
+                  inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
+                ),
+                ContextMenuButton(
+                  label: 'btn_video_call'.l10n,
+                  onPressed: hasCall ? null : () => c.call(true),
+                  trailing: Transform.translate(
+                    offset: const Offset(2, 0),
+                    child: hasCall
+                        ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+                        : const SvgIcon(SvgIcons.makeVideoCall),
                   ),
-                  Text(
-                    'Изменить',
-                    style: style.fonts.normal.regular.primary,
+                  inverted: Transform.translate(
+                    offset: const Offset(2, 0),
+                    child: const SvgIcon(SvgIcons.makeVideoCallWhite),
                   ),
-                ],
-              );
-            }),
-          );
+                ),
+                // ContextMenuButton(
+                //   key: const Key('EditButton'),
+                //   label: 'btn_edit'.l10n,
+                //   onPressed: c.editing.toggle,
+                //   trailing: const SvgIcon(SvgIcons.edit),
+                //   inverted: const SvgIcon(SvgIcons.editWhite),
+                // ),
+                ContextMenuButton(
+                  label: favorite
+                      ? 'btn_delete_from_favorites'.l10n
+                      : 'btn_add_to_favorites'.l10n,
+                  onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+                  trailing: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmall
+                        : SvgIcons.unfavoriteSmall,
+                  ),
+                  inverted: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmallWhite
+                        : SvgIcons.unfavoriteSmallWhite,
+                  ),
+                ),
+              ],
+              child: Container(
+                padding: const EdgeInsets.only(left: 31, right: 25),
+                height: double.infinity,
+                child: const SvgIcon(SvgIcons.more),
+              ),
+            );
+          });
 
           final Widget title;
 
@@ -121,7 +186,8 @@ class ChatInfoView extends StatelessWidget {
             title = Row(
               key: const Key('Profile'),
               children: [
-                const StyledBackButton(enlarge: true),
+                const StyledBackButton(),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
@@ -272,7 +338,7 @@ class ChatInfoView extends StatelessWidget {
                               ? c.deleteChatDirectLink()
                               : c.createChatDirectLink(s),
                           background: c.background.value,
-                          editOnly: true,
+                          editing: true,
                         ),
                       ],
                     ),
@@ -289,33 +355,123 @@ class ChatInfoView extends StatelessWidget {
                       children: [
                         const SizedBox(height: 8),
                         Block(
-                          children: [
-                            SelectionContainer.disabled(
-                              child: Padding(
-                                padding:
-                                    Insets.basic.copyWith(top: 0, bottom: 0),
-                                child: BigAvatarWidget.chat(
-                                  c.chat,
-                                  key: Key('ChatAvatar_${c.chat!.id}'),
-                                  loading: c.avatar.value.isLoading,
-                                  error: c.avatar.value.errorMessage,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: Center(
-                                  child: Text(
-                                    c.chat?.title.value ?? '...',
-                                    style:
-                                        style.fonts.large.regular.onBackground,
+                          overlay: [
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Center(
+                                child: SelectionContainer.disabled(
+                                  child: AnimatedButton(
+                                    onPressed: c.profileEditing.toggle,
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                                      child: c.profileEditing.value
+                                          ? const Padding(
+                                              padding: EdgeInsets.all(2),
+                                              child: SvgIcon(
+                                                SvgIcons.closeSmallPrimary,
+                                              ),
+                                            )
+                                          : const SvgIcon(SvgIcons.editSmall),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
+                          ],
+                          children: [
+                            SelectionContainer.disabled(
+                              child: BigAvatarWidget.chat(
+                                c.chat,
+                                key: Key('ChatAvatar_${c.chat!.id}'),
+                                loading: c.avatar.value.isLoading,
+                                error: c.avatar.value.errorMessage,
+                              ),
+                            ),
+                            Obx(() {
+                              final List<Widget> children;
+
+                              if (c.profileEditing.value) {
+                                children = [
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      WidgetButton(
+                                        key: const Key('UploadAvatar'),
+                                        onPressed: c.pickAvatar,
+                                        child: Text(
+                                          'btn_upload'.l10n,
+                                          style:
+                                              style.fonts.small.regular.primary,
+                                        ),
+                                      ),
+                                      Text(
+                                        'space_or_space'.l10n,
+                                        style: style
+                                            .fonts.small.regular.onBackground,
+                                      ),
+                                      WidgetButton(
+                                        key: const Key('DeleteAvatar'),
+                                        onPressed: c.deleteAvatar,
+                                        child: Text(
+                                          'btn_delete'.l10n.toLowerCase(),
+                                          style:
+                                              style.fonts.small.regular.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                  SelectionContainer.disabled(
+                                    child: ReactiveTextField(
+                                      state: c.name,
+                                      label: 'Name',
+                                      hint: c.chat?.title.value,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ];
+                              } else {
+                                children = [
+                                  const SizedBox(height: 18),
+                                  Container(width: double.infinity),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                    child: Text(
+                                      c.chat?.title.value ?? c.name.text,
+                                      style: style
+                                          .fonts.large.regular.onBackground,
+                                    ),
+                                  ),
+                                ];
+                              }
+
+                              return AnimatedSizeAndFade(
+                                fadeDuration: 250.milliseconds,
+                                sizeDuration: 250.milliseconds,
+                                child: Column(
+                                  key: Key(c.profileEditing.value.toString()),
+                                  children: children,
+                                ),
+                              );
+                            }),
+                            // const SizedBox(height: 12),
+                            // Padding(
+                            //   padding: const EdgeInsets.only(top: 6),
+                            //   child: SizedBox(
+                            //     width: double.infinity,
+                            //     child: Center(
+                            //       child: Text(
+                            //         c.chat?.title.value ?? '...',
+                            //         style:
+                            //             style.fonts.large.regular.onBackground,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                         _quick(c, context),
@@ -365,6 +521,37 @@ class ChatInfoView extends StatelessWidget {
                               title: 'label_direct_chat_link'.l10n,
                               padding:
                                   Block.defaultPadding.copyWith(bottom: 10),
+                              overlay: [
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Center(
+                                    child: SelectionContainer.disabled(
+                                      child: AnimatedButton(
+                                        onPressed: c.linkEditing.toggle,
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            6,
+                                            6,
+                                            0,
+                                            6,
+                                          ),
+                                          child: c.linkEditing.value
+                                              ? const Padding(
+                                                  padding: EdgeInsets.all(2),
+                                                  child: SvgIcon(
+                                                    SvgIcons.closeSmallPrimary,
+                                                  ),
+                                                )
+                                              : const SvgIcon(
+                                                  SvgIcons.editSmall,
+                                                ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                               children: [_link(context, c)],
                             ),
                           ),
@@ -608,12 +795,19 @@ class ChatInfoView extends StatelessWidget {
           ),
           DirectLinkField(
             c.chat?.chat.value.directLink,
-            generated: id.val,
-            onSubmit: (s) => s == null
-                ? c.deleteChatDirectLink()
-                : c.createChatDirectLink(s),
+            // generated: id.val, TODO: ALWAYS CREATE LINK WITH ID!!!
+            onSubmit: (s) async {
+              if (s == null) {
+                await c.deleteChatDirectLink();
+              } else {
+                await c.createChatDirectLink(s);
+              }
+              c.linkEditing.value = false;
+            },
             background: c.background.value,
             canDelete: false,
+            editing: c.linkEditing.value,
+            onEditing: (b) => c.linkEditing.value = b,
           ),
         ],
       );

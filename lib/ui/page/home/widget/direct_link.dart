@@ -56,8 +56,9 @@ class DirectLinkField extends StatefulWidget {
     this.transitions = true,
     this.background,
     this.generated,
-    this.editOnly = false,
+    this.editing,
     this.canDelete = true,
+    this.onEditing,
   });
 
   /// Reactive state of the [ReactiveTextField].
@@ -69,10 +70,12 @@ class DirectLinkField extends StatefulWidget {
   final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
 
   final bool transitions;
-  final bool editOnly;
+  final bool? editing;
   final bool canDelete;
 
   final Uint8List? background;
+
+  final void Function(bool)? onEditing;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -97,32 +100,37 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     }
 
     _state = TextFieldState(
-      text: widget.link?.slug.val ?? _generated,
+      text: widget.link?.slug.val,
       approvable: true,
       submitted: widget.link != null,
       onChanged: (s) {
         s.error.value = null;
 
-        try {
-          ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
+        if (s.text.isNotEmpty) {
+          try {
+            ChatDirectLinkSlug(s.text);
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          }
         }
       },
       onSubmitted: (s) async {
         ChatDirectLinkSlug? slug;
-        try {
-          slug = ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
 
-        if (!widget.editOnly) {
-          setState(() => _editing = false);
-        }
+        if (s.text.isNotEmpty) {
+          try {
+            slug = ChatDirectLinkSlug(s.text);
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          }
 
-        if (slug == null || slug == widget.link?.slug) {
-          return;
+          if (widget.editing != true) {
+            setState(() => _editing = false);
+          }
+
+          if (slug == null || slug == widget.link?.slug) {
+            return;
+          }
         }
 
         if (s.error.value == null) {
@@ -149,7 +157,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       },
     );
 
-    if (widget.editOnly) {
+    if (widget.editing != false) {
       _editing = true;
     }
 
@@ -163,10 +171,20 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
 
-      if (oldWidget.link != widget.link && !widget.editOnly) {
+      if (oldWidget.link != widget.link && widget.editing != true) {
         _editing = widget.link == null;
       }
     }
+
+    if (widget.editing == true) {
+      if (widget.link != null) {
+        _state.unchecked = widget.link?.slug.val ?? '';
+      } else {
+        _state.text = _generated ?? '';
+      }
+    }
+
+    _editing = widget.editing ?? _editing;
 
     super.didUpdateWidget(oldWidget);
   }
@@ -179,29 +197,37 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
     if (_editing) {
       child = Padding(
+        key: const Key('Editing'),
         padding: const EdgeInsets.only(top: 8.0),
         child: ReactiveTextField(
           key: const Key('LinkField'),
           state: _state,
-          onSuffixPressed: _state.isEmpty.value || !widget.transitions
-              ? null
-              : () {
-                  _state.submit();
+          onSuffixPressed: () async {
+            await widget.onSubmit?.call(null);
+            setState(() => _editing = false);
+          },
+          // onSuffixPressed: _state.isEmpty.value || !widget.transitions
+          //     ? null
+          //     : () {
+          //         _state.submit();
 
-                  final share = '${Config.link}/${_state.text}';
+          //         final share = '${Config.link}/${_state.text}';
 
-                  if (PlatformUtils.isMobile) {
-                    Share.share(share);
-                  } else {
-                    PlatformUtils.copy(text: share);
-                    MessagePopup.success('label_copied'.l10n);
-                  }
-                },
-          trailing: _state.isEmpty.value || !widget.transitions
-              ? null
-              : PlatformUtils.isMobile
-                  ? const SvgIcon(SvgIcons.share)
-                  : const SvgIcon(SvgIcons.copy),
+          //         if (PlatformUtils.isMobile) {
+          //           Share.share(share);
+          //         } else {
+          //           PlatformUtils.copy(text: share);
+          //           MessagePopup.success('label_copied'.l10n);
+          //         }
+          //       },
+
+          trailing:
+              _state.isEmpty.value ? null : const SvgIcon(SvgIcons.delete),
+          // trailing: _state.isEmpty.value || !widget.transitions
+          //     ? null
+          //     : PlatformUtils.isMobile
+          //         ? const SvgIcon(SvgIcons.share)
+          //         : const SvgIcon(SvgIcons.copy),
           label: '${Config.link}/',
           // subtitle: false && widget.transitions
           //     ? RichText(
@@ -226,6 +252,58 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           //       )
           //     : null,
         ),
+      );
+    } else if (widget.link == null) {
+      child = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: style.primaryBorder,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: widget.background == null
+                        ? const SvgImage.asset(
+                            'assets/images/background_light.svg',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.memory(widget.background!, fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 14),
+                  WidgetButton(
+                    onPressed: () {
+                      _state.text = _generated ?? '';
+                      setState(() => _editing = true);
+                      widget.onEditing?.call(_editing);
+                    },
+                    child: _info(
+                      context,
+                      Text(
+                        'Создать',
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+        ],
       );
     } else {
       child = Column(
@@ -287,15 +365,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         onPressed: () async {
                           final share = '${Config.link}/${_state.text}';
                           await launchUrlString(share);
-
-                          // if (PlatformUtils.isMobile) {
-                          //   Share.share(share);
-                          // } else {
-                          //   PlatformUtils.copy(text: share);
-                          //   MessagePopup.success(
-                          //     'label_copied'.l10n,
-                          //   );
-                          // }
                         },
                         child: MessagePreviewWidget(
                           fromMe: true,
@@ -352,123 +421,39 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: WidgetButton(
-                  onUp: (d) {
-                    final share = '${Config.link}/${_state.text}';
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: WidgetButton(
+              onUp: (d) {
+                final share = '${Config.link}/${_state.text}';
 
-                    if (PlatformUtils.isMobile) {
-                      Share.share(share);
-                    } else {
-                      PlatformUtils.copy(text: share);
-                      MessagePopup.success(
-                        'label_copied'.l10n,
-                        at: d.globalPosition,
-                      );
-                    }
-                  },
-                  child: Text(
-                    PlatformUtils.isMobile ? 'Поделиться' : 'Копировать',
-                    style: style.fonts.small.regular.primary,
-                    textAlign: widget.onSubmit == null || !widget.canDelete
-                        ? TextAlign.center
-                        : TextAlign.left,
-                  ),
-                ),
+                if (PlatformUtils.isMobile) {
+                  Share.share(share);
+                } else {
+                  PlatformUtils.copy(text: share);
+                  MessagePopup.success(
+                    'label_copied'.l10n,
+                    at: d.globalPosition,
+                  );
+                }
+              },
+              child: Text(
+                PlatformUtils.isMobile ? 'Поделиться' : 'Копировать',
+                style: style.fonts.small.regular.primary,
+                textAlign: widget.onSubmit == null // || !widget.canDelete
+                    ? TextAlign.center
+                    : TextAlign.left,
               ),
-              if (widget.onSubmit != null && widget.canDelete) ...[
-                const Spacer(),
-                const SizedBox(width: 8),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Удалить',
-                        style: widget.onSubmit == null
-                            ? style.fonts.small.regular.secondary
-                            : style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            setState(() {
-                              widget.onSubmit?.call(null);
-                              _state.unsubmit();
-                              _state.changed.value = true;
-                              _editing = true;
-                            });
-                          },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
+            ),
           ),
         ],
       );
     }
 
-    final animated = AnimatedSizeAndFade(
+    return AnimatedSizeAndFade(
       sizeDuration: const Duration(milliseconds: 300),
       fadeDuration: const Duration(milliseconds: 300),
       child: child,
-    );
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        animated,
-        // Stack(
-        //   children: [
-        //     Positioned.fill(
-        //       child: widget.background == null
-        //           ? const SvgImage.asset(
-        //               'assets/images/background_light.svg',
-        //               width: double.infinity,
-        //               height: double.infinity,
-        //               fit: BoxFit.cover,
-        //             )
-        //           : Image.memory(
-        //               widget.background!,
-        //               fit: BoxFit.cover,
-        //             ),
-        //     ),
-        //     animated,
-        //   ],
-        // ),
-
-        // const SizedBox(height: 16),
-        // WidgetButton(
-        //   onPressed: () => setState(() => _expanded = !_expanded),
-        //   child: Row(
-        //     children: [
-        //       Expanded(
-        //         child: Container(
-        //           width: double.infinity,
-        //           height: 0.5,
-        //           color: style.colors.primary,
-        //         ),
-        //       ),
-        //       const SizedBox(width: 8),
-        //       Text(
-        //         _expanded ? 'Скрыть' : 'Ещё',
-        //         style: style.fonts.small.regular.primary,
-        //       ),
-        //       const SizedBox(width: 8),
-        //       Expanded(
-        //         child: Container(
-        //           width: double.infinity,
-        //           height: 0.5,
-        //           color: style.colors.primary,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-      ],
     );
   }
 

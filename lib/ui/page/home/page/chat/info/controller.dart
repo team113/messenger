@@ -77,6 +77,9 @@ class ChatInfoController extends GetxController {
   /// Indicator whether the editing mode is enabled.
   final RxBool editing = RxBool(false);
 
+  final RxBool linkEditing = RxBool(false);
+  final RxBool profileEditing = RxBool(false);
+
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
 
