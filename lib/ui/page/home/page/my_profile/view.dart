@@ -835,35 +835,17 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     const Column(
       children: [
-        DownloadButton(
-          asset: SvgIcons.windows,
-          title: 'Windows',
-          link: 'messenger-windows.zip',
-        ),
+        DownloadButton.windows(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'macOS',
-          link: 'messenger-macos.zip',
-        ),
+        DownloadButton.macos(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.linux,
-          title: 'Linux',
-          link: 'messenger-linux.zip',
-        ),
+        DownloadButton.linux(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'iOS',
-          link: 'messenger-ios.zip',
-        ),
+        DownloadButton.appStore(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.googlePlay,
-          title: 'Android',
-          link: 'messenger-android.apk',
-        ),
+        DownloadButton.googlePlay(),
+        SizedBox(height: 8),
+        DownloadButton.android(),
       ],
     ),
   );
