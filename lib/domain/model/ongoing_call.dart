@@ -427,12 +427,6 @@ class OngoingCall {
         _pickScreenDevice(removed);
       });
 
-      _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
-        final DeviceDetails? device =
-            devices.output().firstWhereOrNull((e) => e.deviceId() == id);
-        outputDevice.value = device ?? outputDevice.value;
-      });
-
       _initRoom();
 
       // Puts the members of the provided [chat] to the [members] through
@@ -1552,31 +1546,39 @@ class OngoingCall {
         // No-op.
       }
 
-      if (PlatformUtils.isMobile && outputDevice.value == null) {
-        final Iterable<DeviceDetails> output = devices.output();
-        var device = output.firstWhereOrNull(
-          (e) => e.speaker == AudioSpeakerKind.headphones,
-        );
+      if (PlatformUtils.isMobile) {
+        _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
+          final DeviceDetails? device =
+              devices.output().firstWhereOrNull((e) => e.deviceId() == id);
+          outputDevice.value = device ?? outputDevice.value;
+        });
 
-        if (device == null) {
-          final bool speaker = PlatformUtils.isWeb
-              ? true
-              : videoState.value == LocalTrackState.enabling ||
-                  videoState.value == LocalTrackState.enabled;
+        if (outputDevice.value == null) {
+          final Iterable<DeviceDetails> output = devices.output();
+          var device = output.firstWhereOrNull(
+            (e) => e.speaker == AudioSpeakerKind.headphones,
+          );
 
-          if (speaker) {
-            device = output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.speaker,
+          if (device == null) {
+            final bool speaker = PlatformUtils.isWeb
+                ? true
+                : videoState.value == LocalTrackState.enabling ||
+                    videoState.value == LocalTrackState.enabled;
+
+            if (speaker) {
+              device = output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.speaker,
+              );
+            }
+
+            device ??= output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.earpiece,
             );
           }
 
-          device ??= output.firstWhereOrNull(
-            (e) => e.speaker == AudioSpeakerKind.earpiece,
-          );
-        }
-
-        if (device != null) {
-          _setOutputDevice(device);
+          if (device != null) {
+            _setOutputDevice(device);
+          }
         }
       } else {
         outputDevice.value = devices

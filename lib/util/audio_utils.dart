@@ -182,27 +182,31 @@ class AudioUtilsImpl {
 
   /// Sets the [speaker] to use for audio output.
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
-    _speaker = speaker;
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      _speaker = speaker;
 
-    await _setSpeaker();
+      await _setSpeaker();
+    }
   }
 
   /// Sets the default audio output device as used.
   Future<void> setDefaultSpeaker() async {
-    final List<AndroidAudioDeviceInfo> devices =
-        await AndroidAudioManager().getAvailableCommunicationDevices();
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      final List<AndroidAudioDeviceInfo> devices =
+          await AndroidAudioManager().getAvailableCommunicationDevices();
 
-    if (devices.any((e) =>
-        e.type == AndroidAudioDeviceType.bluetoothSco ||
-        e.type == AndroidAudioDeviceType.wiredHeadphones ||
-        e.type == AndroidAudioDeviceType.wiredHeadset ||
-        e.type == AndroidAudioDeviceType.usbHeadset)) {
-      await setSpeaker(AudioSpeakerKind.headphones);
-    } else {
-      await setSpeaker(AudioSpeakerKind.speaker);
+      if (devices.any((e) =>
+          e.type == AndroidAudioDeviceType.bluetoothSco ||
+          e.type == AndroidAudioDeviceType.wiredHeadphones ||
+          e.type == AndroidAudioDeviceType.wiredHeadset ||
+          e.type == AndroidAudioDeviceType.usbHeadset)) {
+        await setSpeaker(AudioSpeakerKind.headphones);
+      } else {
+        await setSpeaker(AudioSpeakerKind.speaker);
+      }
+
+      await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
     }
-
-    await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
   }
 
   /// Sets the [_speaker] to use for audio output.

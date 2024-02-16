@@ -515,30 +515,32 @@ class SpeakerButton extends CallButton {
     bool expanded = false,
     bool opaque = false,
   }) {
-    return Obx(() {
-      final SvgData asset;
-      if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
-        asset = SvgIcons.callIncomingAudioOn;
-      } else {
-        asset = switch (c.outputKind) {
+    Widget button(SvgData asset, void Function()? onPressed) =>
+        CallButtonWidget(
+          hint: hint,
+          asset: asset,
+          hinted: hinted,
+          expanded: expanded,
+          withBlur: blur,
+          big: big,
+          constrained: c.isMobile,
+          opaque: opaque,
+          onPressed: onPressed,
+        );
+
+    if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
+      return button(SvgIcons.callIncomingAudioOn, null);
+    } else {
+      return Obx(() {
+        final SvgData asset = switch (c.outputKind) {
           AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
           AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
           AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
         };
-      }
 
-      return CallButtonWidget(
-        hint: hint,
-        asset: asset,
-        hinted: hinted,
-        expanded: expanded,
-        withBlur: blur,
-        big: big,
-        constrained: c.isMobile,
-        opaque: opaque,
-        onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
-      );
-    });
+        return button(asset, c.toggleSpeaker);
+      });
+    }
   }
 }
 
