@@ -125,7 +125,7 @@ class ParticipantView extends StatelessWidget {
                     ModalPopupHeader(
                       text: 'label_participants_of'.l10nfmt({
                         'a': ids.length,
-                        'b': c.chat.value?.members.length ?? 1,
+                        'b': c.chat.value?.chat.value.membersCount ?? 1,
                       }),
                     ),
                     const SizedBox(height: 6),

@@ -55,6 +55,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
     this.totalCount = 0,
     this.ongoingCall,
     this.favoritePosition,
+    this.membersCount = 0,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
         lastDelivery = lastDelivery ?? PreciseDateTime.now();
@@ -162,6 +163,10 @@ class Chat extends HiveObject implements Comparable<Chat> {
   /// [MyUser].
   @HiveField(18)
   ChatFavoritePosition? favoritePosition;
+
+  /// Total count of [members] in this [Chat].
+  @HiveField(19)
+  int membersCount;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;

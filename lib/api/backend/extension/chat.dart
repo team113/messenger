@@ -70,6 +70,7 @@ extension ChatConversion on ChatMixin {
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),
         favoritePosition: favoritePosition,
+        membersCount: members.totalCount,
       );
 
   /// Constructs a new [HiveChat] from this [ChatMixin].

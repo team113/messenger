@@ -231,7 +231,8 @@ class ChatInfoView extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'label_participants'.l10nfmt({'count': c.chat!.members.length}),
+              'label_participants'
+                  .l10nfmt({'count': c.chat!.chat.value.membersCount}),
               style: style.fonts.big.regular.onBackground,
             ),
           ),
@@ -252,7 +253,7 @@ class ChatInfoView extends StatelessWidget {
       final List<RxUser> members = [];
 
       for (var u in c.chat!.members.entries) {
-        if (u.key != c.me) {
+        if (u.key != c.me && !c.membersOnRemoval.contains(u.key)) {
           members.add(u.value);
         }
       }
@@ -283,22 +284,25 @@ class ChatInfoView extends StatelessWidget {
                           .any((u) => u.user.id == member.id) ==
                       true;
 
-                  Widget child = MemberTile(
-                    user: member,
-                    me: member.id == c.me,
-                    inCall: c.chat?.chat.value.ongoingCall == null
-                        ? null
-                        : member.id == c.me
-                            ? c.chat?.inCall.value == true
-                            : inCall,
-                    onTap: () =>
-                        router.chat(member.user.value.dialog, push: true),
-                    onCall: inCall
-                        ? () => c.removeChatCallMember(member.id)
-                        : member.id == c.me
-                            ? c.joinCall
-                            : () => c.redialChatCallMember(member.id),
-                    onKick: () => c.removeChatMember(member.id),
+                  Widget child = Padding(
+                    padding: const EdgeInsets.only(right: 10, left: 10),
+                    child: MemberTile(
+                      user: member,
+                      me: member.id == c.me,
+                      inCall: c.chat?.chat.value.ongoingCall == null
+                          ? null
+                          : member.id == c.me
+                              ? c.chat?.inCall.value == true
+                              : inCall,
+                      onTap: () =>
+                          router.chat(member.user.value.dialog, push: true),
+                      onCall: inCall
+                          ? () => c.removeChatCallMember(member.id)
+                          : member.id == c.me
+                              ? c.joinCall
+                              : () => c.redialChatCallMember(member.id),
+                      onKick: () => c.removeChatMember(member.id),
+                    ),
                   );
 
                   if (i == members.length - 1 && c.haveNext.isTrue) {

@@ -26,6 +26,7 @@ fragment Chat on Chat {
         nodes {
             ...ChatMember
         }
+        totalCount
     }
     kind
     isHidden

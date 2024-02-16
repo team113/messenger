@@ -1809,6 +1809,8 @@ class HiveRxChat extends RxChat {
                     case ChatInfoActionKind.memberAdded:
                       final action = msg.action as ChatInfoActionMemberAdded;
 
+                      chatEntity.value.membersCount++;
+
                       if (chatEntity.value.members.length < 3) {
                         chatEntity.value.members.add(
                           ChatMember(action.user, msg.at),
@@ -1827,6 +1829,7 @@ class HiveRxChat extends RxChat {
 
                       chatEntity.value.members
                           .removeWhere((e) => e.user.id == action.user.id);
+                      chatEntity.value.membersCount--;
 
                       if (chatEntity.value.members.length < 3) {
                         if (_membersPagination.items.length < 3) {

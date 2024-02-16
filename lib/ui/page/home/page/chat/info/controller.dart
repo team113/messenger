@@ -41,6 +41,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
@@ -113,6 +114,9 @@ class ChatInfoController extends GetxController {
 
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
+
+  /// Subscription for the [RxChat.members] changes.
+  StreamSubscription? _membersSubscription;
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -254,6 +258,7 @@ class ChatInfoController extends GetxController {
   onClose() {
     _worker?.dispose();
     _chatSubscription?.cancel();
+    _membersSubscription?.cancel();
     super.onClose();
   }
 
@@ -458,6 +463,19 @@ class ChatInfoController extends GetxController {
       );
 
       chat!.membersAround();
+
+      _membersSubscription = chat!.members.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            // No-op.
+            break;
+
+          case OperationKind.removed:
+            _scrollListener();
+            break;
+        }
+      });
 
       status.value = RxStatus.success();
     }

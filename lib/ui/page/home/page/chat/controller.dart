@@ -2210,7 +2210,7 @@ extension ChatViewExt on Chat {
               .take(3)
               .map((u) => u.name?.val ?? u.num.toString())
               .join('comma_space'.l10n);
-          if (members.length > 3) {
+          if (membersCount > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);
           }
         } else {
@@ -2230,17 +2230,14 @@ extension ChatViewExt on Chat {
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
   /// presence of the provided [partner], if any.
-  String? getSubtitle({RxUser? partner, Iterable<RxUser>? members}) {
+  String? getSubtitle({RxUser? partner}) {
     switch (kind) {
       case ChatKind.dialog:
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
-      // TODO: `Chat.membersCount` should be used, when implemented.
       case ChatKind.group:
         return 'label_subtitle_participants'.l10nfmt({
-          'count': members?.isNotEmpty == true
-              ? members?.length
-              : this.members.length,
+          'count': membersCount,
         });
 
       case ChatKind.monolog:

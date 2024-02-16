@@ -834,7 +834,7 @@ class ChatView extends StatelessWidget {
                   item: e,
                   me: c.me!,
                   avatar: !previousSame,
-                  reads: c.chat!.members.length > 10
+                  reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where((m) =>
                           m.at == e.value.at &&
@@ -913,7 +913,7 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
-                  reads: c.chat!.members.length > 10
+                  reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where((m) =>
                           m.at == element.forwards.last.value.at &&
