@@ -124,6 +124,9 @@ external Future<dynamic> _requestLock(
 @JS('getLocks')
 external Future<dynamic> _queryLock();
 
+@JS('locksAvailable')
+external bool _locksAvailable();
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
@@ -309,6 +312,11 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked async {
+    // Web Locks API is unavailable for some reason, so proceed without it.
+    if (!_locksAvailable()) {
+      return false;
+    }
+
     bool held = false;
 
     try {
@@ -325,6 +333,11 @@ class WebUtils {
   /// code block at the same time.
   static Future<void> protect(Future<void> Function() callback) async {
     await _guard.protect(() async {
+      // Web Locks API is unavailable for some reason, so proceed without it.
+      if (!_locksAvailable()) {
+        return await callback();
+      }
+
       final Completer completer = Completer();
 
       try {

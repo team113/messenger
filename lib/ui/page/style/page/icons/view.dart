@@ -341,10 +341,9 @@ class IconsView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               SignButton(
-                icon: const SvgIcon(SvgIcons.oneTime),
+                icon: const SvgIcon(SvgIcons.guest),
                 title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails.svg(SvgIcons.oneTime),
+                onPressed: () => c.icon.value = IconDetails.svg(SvgIcons.guest),
               ),
 
               //
