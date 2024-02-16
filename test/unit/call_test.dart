@@ -73,7 +73,7 @@ var chatData = {
   'id': 'chatId',
   'name': null,
   'avatar': null,
-  'members': {'nodes': []},
+  'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
   'muted': null,

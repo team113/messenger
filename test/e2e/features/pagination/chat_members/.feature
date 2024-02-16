@@ -16,7 +16,7 @@ Feature: Chat members pagination
     Given user Alice
     And Alice has "Members pagination" group with 16 members
     And I sign in as Alice
-    And I am in "Members pagination" chat
+    And I am in "Members pagination" group
 
     When I tap `CloseButton` button
     And I open chat's info
