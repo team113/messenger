@@ -411,7 +411,11 @@ class NotificationService extends DisposableService {
     // Display a local notification, if there's any push notifications received
     // while application is in foreground.
     _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
-      Log.debug('_foregroundSubscription($message)', '$runtimeType');
+      Log.debug(
+        '_foregroundSubscription(title: ${message.notification?.title}, content: ${message.notification?.body})',
+        '$runtimeType',
+      );
+
       if (message.notification?.title != null) {
         show(
           message.notification!.title!,

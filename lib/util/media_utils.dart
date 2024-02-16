@@ -314,6 +314,8 @@ class DeviceDetails extends MediaDeviceDetails {
   @override
   String label() {
     final String description = _device.label();
+
+    // Firefox in its private mode, for example, leaves the labels empty.
     if (description.isEmpty) {
       return deviceId();
     }
