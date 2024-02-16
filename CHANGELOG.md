@@ -16,14 +16,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Default device on desktop platforms. ([#465], [#464])
-    - Home page:
-        - Introduction modal `link` stage. ([#848], [#820])
 
 ### Changed
 
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
+    - Home page:
+        - Redesigned introduction after following direct link. ([#848], [#820])
 
 [#464]: /../../issues/464
 [#465]: /../../pull/465

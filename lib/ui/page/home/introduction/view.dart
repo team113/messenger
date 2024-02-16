@@ -46,16 +46,10 @@ class IntroductionView extends StatelessWidget {
   const IntroductionView({
     super.key,
     this.initial = IntroductionViewStage.oneTime,
-    this.link,
   });
 
   /// Initial [IntroductionViewStage] to display.
   final IntroductionViewStage initial;
-
-  /// Slug of the joined chat direct link, if any.
-  ///
-  /// Required if [initial] stage is [IntroductionViewStage.link].
-  final ChatDirectLinkSlug? link;
 
   /// Displays an [IntroductionView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -194,7 +188,7 @@ class IntroductionView extends StatelessWidget {
                     padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
                     child: SvgIcon(SvgIcons.logo),
                   ),
-                  onPressed: () => _showDownloadModal(context),
+                  onPressed: () => _download(context),
                   child: Text('label_application'.l10n),
                 ),
               );
@@ -313,7 +307,7 @@ class IntroductionView extends StatelessWidget {
   }
 
   /// Opens a [ModalPopup] listing the buttons for downloading the application.
-  Future<void> _showDownloadModal(BuildContext context) async {
+  Future<void> _download(BuildContext context) async {
     await ModalPopup.show(
       context: context,
       child: Column(

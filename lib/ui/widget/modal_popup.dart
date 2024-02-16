@@ -166,8 +166,8 @@ class ModalPopupHeader extends StatelessWidget {
   /// Indicator whether a close button should be displayed.
   final bool close;
 
-  /// Indicator whether indicators within this [ModalPopupHeader] should be
-  /// dense.
+  /// Indicator whether this [ModalPopupHeader] should be dense, meaning it's
+  /// height will be as little as possible with no paddings.
   final bool dense;
 
   @override

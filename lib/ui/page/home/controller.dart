@@ -77,7 +77,7 @@ class HomeController extends GetxController {
   /// [GlobalKey] of a [Chat]s button in the navigation bar.
   final GlobalKey chatsKey = GlobalKey();
 
-  /// Slug of the joined chat direct link, if any.
+  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
   final ChatDirectLinkSlug? link;
 
   /// Authentication service to determine auth status.

@@ -40,6 +40,13 @@ class L10n {
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
 
+  /// Phrases to pass to the [_bundle], that shouldn't be localized.
+  static const Map<String, String> _phrases = {
+    'label_by_gapopa': 'by Gapopa',
+    'label_messenger_by_gapopa': 'Messenger by Gapopa',
+    'label_messenger': 'Messenger',
+  };
+
   /// Initializes this [L10n] with the default [Locale] of the device, or
   /// optionally with the provided [Language].
   static Future<void> init([Language? lang]) async {
@@ -74,17 +81,11 @@ class L10n {
     if (languages.contains(lang)) {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
-
-      // Localized assets loaded from the disk in `.ftl` format.
-      final String source =
-          await rootBundle.loadString('assets/l10n/$lang.ftl');
-      // Non-localized in-memory assets in `.ftl` format.
-      final String inMemory =
-          _nonLocalized.entries.map((e) => '${e.key} = ${e.value}').join('\n');
-
       _bundle = FluentBundle(lang.toString())
-        ..addMessages(source)
-        ..addMessages(inMemory);
+        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
+        ..addMessages(
+          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
+        );
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -283,12 +284,3 @@ extension L10nDurationExtension on Duration {
     return result;
   }
 }
-
-/// String assets that should not be localized.
-///
-/// These assets will be used in `.ftl` format, thus formatting is supported.
-const Map<String, String> _nonLocalized = {
-  'label_by_gapopa': 'by Gapopa',
-  'label_messenger_by_gapopa': 'Messenger by Gapopa',
-  'label_messenger': 'Messenger',
-};
