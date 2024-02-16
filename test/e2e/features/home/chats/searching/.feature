@@ -45,3 +45,13 @@ Feature: Chats searching
     Given I have Internet with delay of 2 seconds
     When I scroll `SearchScrollable` until `SearchLoading` is present
     Then I wait until `SearchLoading` is absent
+
+  Scenario: Dialog can be found by direct link
+    Given I am Alice
+    And user Bob
+    And Bob has dialog with me
+    And Bob has his direct link set up
+
+    When I tap `SearchButton` button
+    And I fill `SearchField` field with Bob's direct link
+    Then I see chat with Bob in search results

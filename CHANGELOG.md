@@ -22,6 +22,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
+    - Chats tab:
+        - Direct link searching. ([#843], [#831])
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
 
@@ -29,7 +31,9 @@ All user visible changes to this project will be documented in this file. This p
 [#465]: /../../pull/465
 [#812]: /../../issues/812
 [#820]: /../../issues/820
+[#831]: /../../issues/831
 [#832]: /../../pull/832
+[#843]: /../../pull/843
 [#848]: /../../pull/848
 
 

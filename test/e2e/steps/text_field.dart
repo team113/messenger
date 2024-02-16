@@ -48,6 +48,7 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 /// Examples:
 /// - When I fill `SearchField` field with Bob's num
 /// - When I fill `LoginField` field with Alice's login
+/// - When I fill `SearchField` field with Bob's direct link
 StepDefinitionGeneric fillFieldWithUserCredential =
     when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
   'I fill {key} field with {user}\'s {credential}',
@@ -209,5 +210,8 @@ String _getCredential(CustomUser customUser, TestCredential credential) {
     //       becomes available.
     case TestCredential.login:
       return 'lgn_${customUser.userNum.val}';
+
+    case TestCredential.directLink:
+      return 'direct_link_${customUser.userNum.val}';
   }
 }
