@@ -309,11 +309,11 @@ class MessageFieldController extends GetxController {
   }
 
   /// Resets the [replied], [attachments] and [field].
-  void clear() {
+  void clear({bool unfocus = true}) {
     replied.clear();
     attachments.clear();
     forwarding.value = false;
-    field.clear();
+    field.clear(unfocus: unfocus);
     field.unsubmit();
     onChanged?.call();
   }

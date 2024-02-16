@@ -450,7 +450,7 @@ class ChatController extends GetxController {
                     (e, _) => MessagePopup.error(e))
                 .onError<ConnectionException>((e, _) {});
 
-            send.clear();
+            send.clear(unfocus: false);
 
             chat?.setDraft();
 
@@ -643,9 +643,7 @@ class ChatController extends GetxController {
 
               closeEditing();
 
-              if (send.field.isEmpty.isFalse) {
-                send.field.focus.requestFocus();
-              }
+              send.field.focus.requestFocus();
             } on EditChatMessageException catch (e) {
               MessagePopup.error(e);
             } catch (e) {
@@ -1200,6 +1198,7 @@ class ChatController extends GetxController {
   /// typing in this [chat].
   void keepTyping() {
     _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
+
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingTimeout, _stopTyping);
   }
