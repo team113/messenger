@@ -152,6 +152,9 @@ class HiveRxChat extends RxChat {
   /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
 
+  /// [ChatItemHiveProvider.boxEvents] subscription.
+  StreamIterator<BoxEvent>? _localSubscription;
+
   /// [ChatRepository.chatEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
@@ -260,19 +263,6 @@ class HiveRxChat extends RxChat {
     }
 
     return null;
-  }
-
-  @override
-  ChatItem? get lastItem {
-    ChatItem? item = chat.value.lastItem;
-    if (messages.isNotEmpty) {
-      final ChatItem last = messages.last.value;
-      if (item?.at.isBefore(last.at) == true) {
-        item = last;
-      }
-    }
-
-    return item;
   }
 
   @override
@@ -399,6 +389,8 @@ class HiveRxChat extends RxChat {
 
     await _local.init(userId: me);
 
+    _initLocalSubscription();
+
     HiveChatItem? item;
     if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
@@ -421,6 +413,7 @@ class HiveRxChat extends RxChat {
     _aroundToken.cancel();
     _muteTimer?.cancel();
     _readTimer?.cancel();
+    _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
@@ -1285,6 +1278,46 @@ class HiveRxChat extends RxChat {
 
       stored.value = item;
       put(stored);
+    }
+  }
+
+  /// Initializes [ChatItemHiveProvider.boxEvents] subscription.
+  Future<void> _initLocalSubscription() async {
+    _localSubscription = StreamIterator(_local.boxEvents);
+    while (await _localSubscription!.moveNext()) {
+      final BoxEvent event = _localSubscription!.current;
+      final ChatItemKey key = ChatItemKey.fromString(event.key);
+
+      if (event.deleted) {
+        if (chat.value.lastItem?.key == key) {
+          final HiveChat? chatEntity = await _chatLocal.get(id);
+
+          if (chatEntity != null) {
+            if (_local.keys.isNotEmpty) {
+              final HiveChatItem? item = await _local.get(_local.keys.last);
+              if (item != null) {
+                chatEntity.value.lastItem = item.value;
+                chatEntity.value.updatedAt = item.value.at;
+              }
+            } else {
+              chatEntity.value.lastItem = null;
+            }
+
+            await _chatRepository.put(chatEntity, ignoreVersion: true);
+          }
+        }
+      } else {
+        final HiveChatItem item = event.value;
+        if (item.value.at.isAfter(chat.value.updatedAt)) {
+          final HiveChat? chatEntity = await _chatLocal.get(id);
+
+          if (chatEntity != null) {
+            chatEntity.value.updatedAt = item.value.at;
+            chatEntity.value.lastItem = item.value;
+            await _chatRepository.put(chatEntity, ignoreVersion: true);
+          }
+        }
+      }
     }
   }
 

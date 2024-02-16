@@ -428,6 +428,7 @@ class ChatRepository extends DisposableInterface
         rxChat = await ensureRemoteDialog(chatId);
       } catch (_) {
         local?.status.value = SendingStatus.error;
+        return;
       }
     }
 
@@ -1484,6 +1485,14 @@ class ChatRepository extends DisposableInterface
 
     // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
     chat.value.firstItem ??= saved?.chat.value.firstItem;
+
+    // [Chat.lastItem] and [Chat.updatedAt] are manipulated in [HiveRxChat] by
+    // its items local state, to account local [ChatItem]s being posted.
+    if (saved != null &&
+        saved.chat.value.updatedAt.isAfter(chat.value.updatedAt)) {
+      chat.value.updatedAt = saved.chat.value.updatedAt;
+      chat.value.lastItem = saved.chat.value.lastItem;
+    }
 
     // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null && !ignoreVersion) {

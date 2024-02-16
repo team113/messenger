@@ -332,7 +332,7 @@ class RecentChatTile extends StatelessWidget {
       final List<Widget> subtitle;
 
       final Chat chat = rxChat.chat.value;
-      final ChatItem? item = rxChat.lastItem;
+      final ChatItem? item = rxChat.chat.value.lastItem;
       final ChatMessage? draft = rxChat.draft.value;
 
       final Iterable<String> typings = rxChat.typingUsers
@@ -840,7 +840,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      final ChatItem? item = rxChat.lastItem;
+      final ChatItem? item = rxChat.chat.value.lastItem;
 
       if (item != null && item.author.id == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;
