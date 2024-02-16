@@ -17,16 +17,18 @@
 
 import 'dart:async';
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
+import '/ui/page/home/widget/info_tile.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
+import '/ui/widget/widget_button.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [UserLogin].
 class UserLoginField extends StatefulWidget {
@@ -36,14 +38,17 @@ class UserLoginField extends StatefulWidget {
   final UserLogin? login;
 
   /// Callback, called when [UserLogin] is submitted.
-  final Future<void> Function(UserLogin login)? onSubmit;
+  final Future<void> Function(UserLogin? login)? onSubmit;
 
   @override
   State<UserLoginField> createState() => _UserLoginFieldState();
 }
 
-/// State of a [UserLoginField] maintaining the [_state].
+/// State of a [UserLoginField] maintaining the [_state] and [_editing].
 class _UserLoginFieldState extends State<UserLoginField> {
+  /// Indicates whether this [UserLoginField] is in editing mode.
+  late bool _editing = widget.login == null;
+
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
@@ -52,8 +57,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
       s.error.value = null;
 
       if (s.text.isEmpty) {
-        s.unchecked = widget.login?.val ?? '';
-        s.status.value = RxStatus.empty();
         return;
       }
 
@@ -67,8 +70,18 @@ class _UserLoginFieldState extends State<UserLoginField> {
       if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
+
         try {
-          await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
+          if (s.text.isEmpty) {
+            await widget.onSubmit?.call(null);
+          } else {
+            await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
+          }
+
+          if (mounted) {
+            setState(() => _editing = false);
+          }
+
           s.status.value = RxStatus.empty();
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
@@ -88,7 +101,8 @@ class _UserLoginFieldState extends State<UserLoginField> {
   void didUpdateWidget(UserLoginField oldWidget) {
     if (!_state.focus.hasFocus &&
         !_state.changed.value &&
-        _state.editable.value) {
+        _state.editable.value &&
+        _state.error.value == null) {
       _state.unchecked = widget.login?.val;
     }
 
@@ -97,24 +111,46 @@ class _UserLoginFieldState extends State<UserLoginField> {
 
   @override
   Widget build(BuildContext context) {
-    return ReactiveTextField(
-      key: const Key('LoginField'),
-      state: _state,
-      onSuffixPressed: _state.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: _state.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: _state.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.copy),
-            ),
-      label: 'label_login'.l10n,
-      hint: widget.login == null ? 'label_login_hint'.l10n : widget.login!.val,
-      clearable: false,
+    final Widget child;
+
+    if (_editing) {
+      child = Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: ReactiveTextField(
+          key: const Key('LoginField'),
+          state: _state,
+          onChanged: () => _state.error.value = null,
+          onCanceled: widget.login == null
+              ? null
+              : () {
+                  _state.unchecked = widget.login?.val;
+                  if (mounted) {
+                    setState(() => _editing = false);
+                  }
+                },
+          label: 'label_login'.l10n,
+          hint: widget.login == null
+              ? 'label_login_hint'.l10n
+              : widget.login!.val,
+        ),
+      );
+    } else {
+      child = Paddings.basic(
+        InfoTile(
+          title: 'label_login'.l10n,
+          content: _state.text,
+          trailing: WidgetButton(
+            onPressed: () => setState(() => _editing = true),
+            child: const SvgIcon(SvgIcons.editField),
+          ),
+        ),
+      );
+    }
+
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 200),
+      sizeDuration: const Duration(milliseconds: 200),
+      child: child,
     );
   }
 }

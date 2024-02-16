@@ -32,6 +32,7 @@ import '/util/message_popup.dart';
 enum IntroductionViewStage {
   oneTime,
   signUp,
+  link,
 }
 
 /// Controller of an [IntroductionView].

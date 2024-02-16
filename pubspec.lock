@@ -456,6 +456,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_animate:
+    dependency: "direct main"
+    description:
+      name: flutter_animate
+      sha256: "7c8a6594a9252dad30cc2ef16e33270b6248c4dedc3b3d06c86c4f3f4dc05ae5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.0"
   flutter_app_badger:
     dependency: "direct main"
     description:
@@ -591,6 +599,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.82.4"
+  flutter_shaders:
+    dependency: transitive
+    description:
+      name: flutter_shaders
+      sha256: "02750b545c01ff4d8e9bbe8f27a7731aa3778402506c67daa1de7f5fc3f4befe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -1034,18 +1050,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: da71374fe1c6cb457703d2f43f7572054187c26ef366511ccd5b0cb302de211e
+      sha256: "37372d571a71468ec393ad69618eed95b5ba5d6d121e59d6231d5cc894492385"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.1-dev+rev.2822045851cec744a6c52fd7462d8de86bf9513d"
+    version: "0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "32ccf31e6ff68d6ee8a0d0713cff216b2f20ef6d247bd23b1287d4b0a8804040"
+      sha256: "30acacf5c9a5c4b6cde4a1720133a60406b47d5416ffc2806554a1a1bdc64e68"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.1-dev+rev.9aac4059ecdf75afa741a11a9d21e1648012eba6"
+    version: "0.4.1-dev+rev.bdc39e03f2c129d82538a8b96741b93eac1cef38"
   media_kit:
     dependency: "direct main"
     description:

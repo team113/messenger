@@ -21,7 +21,7 @@ Feature: Chat avatar
     Given I am Alice
     And user Bob
     And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" chat
+    And I am in "Alice and Bob" group
     And I open chat's info
 
   Scenario: User uploads and deletes chat avatar

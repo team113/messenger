@@ -63,9 +63,9 @@ import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'widget/background_preview.dart';
+import 'widget/bio.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
-import 'widget/status.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -136,9 +136,9 @@ class MyProfileView extends StatelessWidget {
                           ),
                           Paddings.basic(
                             Obx(() {
-                              return UserTextStatusField(
-                                c.myUser.value?.status,
-                                onSubmit: c.updateUserStatus,
+                              return UserBioField(
+                                c.myUser.value?.bio,
+                                onSubmit: c.updateUserBio,
                               );
                             }),
                           )
@@ -165,19 +165,19 @@ class MyProfileView extends StatelessWidget {
                               return const SizedBox();
                             }
 
-                            return Paddings.basic(
-                              Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: InfoTile(
-                                  title: 'label_login'.l10n,
-                                  content: c.myUser.value!.login.toString(),
-                                  trailing: WidgetButton(
-                                    onPressed: () {
-                                      // TODO: Implement [UserLogin] deleting.
-                                    },
-                                    child: const SvgIcon(SvgIcons.delete),
-                                  ),
-                                ),
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: UserLoginField(
+                                c.myUser.value?.login,
+                                onSubmit: (s) async {
+                                  if (s == null) {
+                                    // TODO: Implement [UserLogin] deleting.
+                                    c.myUser.value?.login = null;
+                                    c.myUser.refresh();
+                                  } else {
+                                    await c.updateUserLogin(s);
+                                  }
+                                },
                               ),
                             );
                           }),
@@ -501,7 +501,11 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           padding: const EdgeInsets.only(top: 8, bottom: 12),
           child: UserLoginField(
             c.myUser.value?.login,
-            onSubmit: c.updateUserLogin,
+            onSubmit: (s) async {
+              if (s != null) {
+                await c.updateUserLogin(s);
+              }
+            },
           ),
         );
       }),
@@ -687,13 +691,13 @@ Widget _media(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
+          final selected = c.devices.video().firstWhereOrNull(
+                    (e) => e.deviceId() == c.media.value?.videoDevice,
+                  ) ??
+              c.devices.video().firstOrNull;
+
           return FieldButton(
-            text: (c.devices.video().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.videoDevice) ??
-                        c.devices.video().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
-            hint: 'label_media_camera'.l10n,
+            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
             headline: Text('label_media_camera'.l10n),
             onPressed: () async {
               await CameraSwitchView.show(
@@ -712,13 +716,13 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       Paddings.dense(
         Obx(() {
+          final selected = c.devices.audio().firstWhereOrNull(
+                    (e) => e.id() == c.media.value?.audioDevice,
+                  ) ??
+              c.devices.audio().firstOrNull;
+
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.audioDevice) ??
-                        c.devices.audio().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
-            hint: 'label_media_microphone'.l10n,
+            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
             headline: Text('label_media_microphone'.l10n),
             onPressed: () async {
               await MicrophoneSwitchView.show(
@@ -742,13 +746,13 @@ Widget _media(BuildContext context, MyProfileController c) {
         const SizedBox(height: 16),
         Paddings.dense(
           Obx(() {
+            final selected = c.devices.output().firstWhereOrNull(
+                      (e) => e.id() == c.media.value?.outputDevice,
+                    ) ??
+                c.devices.output().firstOrNull;
+
             return FieldButton(
-              text: (c.devices.output().firstWhereOrNull((e) =>
-                              e.deviceId() == c.media.value?.outputDevice) ??
-                          c.devices.output().firstOrNull)
-                      ?.label() ??
-                  'label_media_no_device_available'.l10n,
-              hint: 'label_media_output'.l10n,
+              text: selected?.label() ?? 'label_media_no_device_available'.l10n,
               headline: Text('label_media_output'.l10n),
               onPressed: () async {
                 await OutputSwitchView.show(
@@ -831,35 +835,17 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     const Column(
       children: [
-        DownloadButton(
-          asset: SvgIcons.windows,
-          title: 'Windows',
-          link: 'messenger-windows.zip',
-        ),
+        DownloadButton.windows(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'macOS',
-          link: 'messenger-macos.zip',
-        ),
+        DownloadButton.macos(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.linux,
-          title: 'Linux',
-          link: 'messenger-linux.zip',
-        ),
+        DownloadButton.linux(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'iOS',
-          link: 'messenger-ios.zip',
-        ),
+        DownloadButton.appStore(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.googlePlay,
-          title: 'Android',
-          link: 'messenger-android.apk',
-        ),
+        DownloadButton.googlePlay(),
+        SizedBox(height: 8),
+        DownloadButton.android(),
       ],
     ),
   );

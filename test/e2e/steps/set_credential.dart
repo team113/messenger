@@ -19,17 +19,20 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../parameters/credentials.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Sets the [UserLogin] of the provided [TestUser] to the uniquely generated
-/// one.
+/// Sets the specified [TestCredential] of the provided [TestUser] to the
+/// uniquely generated one.
 ///
 /// Examples:
 /// - And Alice has her login set up
-final StepDefinitionGeneric setLogin = then1<TestUser, CustomWorld>(
-  RegExp(r'{user} has (?:his|her) login set up'),
-  (TestUser user, context) async {
+/// - And Bob has his direct link set up
+final StepDefinitionGeneric setCredential =
+    then2<TestUser, TestCredential, CustomWorld>(
+  RegExp(r'{user} has (?:his|her) {credential} set up'),
+  (TestUser user, TestCredential credential, context) async {
     final CustomUser? customUser = context.world.sessions[user.name];
 
     if (customUser == null) {
@@ -38,19 +41,22 @@ final StepDefinitionGeneric setLogin = then1<TestUser, CustomWorld>(
       );
     }
 
-    await _setLoginTo(customUser);
+    await _setCredentialTo(customUser, credential);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Sets the [UserLogin] of [CustomWorld.me] to the uniquely generated one.
+/// Sets the specified [TestCredential] of [CustomWorld.me] to the uniquely
+/// generated one.
 ///
 /// Examples:
 /// - And I have my login set up
-final StepDefinitionGeneric setMyLogin = then<CustomWorld>(
-  'I have my login set up',
-  (context) async {
+/// - And I have my direct link set up
+final StepDefinitionGeneric setMyCredential =
+    then1<TestCredential, CustomWorld>(
+  'I have my {credential} set up',
+  (TestCredential credential, context) async {
     final CustomUser? me = context.world.sessions.values
         .where((user) => user.userId == context.world.me)
         .firstOrNull;
@@ -59,20 +65,35 @@ final StepDefinitionGeneric setMyLogin = then<CustomWorld>(
       throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');
     }
 
-    await _setLoginTo(me);
+    await _setCredentialTo(me, credential);
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Generates and sets an [UserLogin] of the provided [TestUser].
-Future<void> _setLoginTo(CustomUser user) async {
+/// Generates and sets the specified [TestCredential] of the provided
+/// [TestUser].
+Future<void> _setCredentialTo(
+  CustomUser user,
+  TestCredential credential,
+) async {
   final provider = GraphQlProvider();
-
   provider.token = user.token;
 
-  final String newLogin = 'lgn_${user.userNum.val}';
-  await provider.updateUserLogin(UserLogin(newLogin));
+  switch (credential) {
+    case TestCredential.login:
+      final String newLogin = 'lgn_${user.userNum.val}';
+      await provider.updateUserLogin(UserLogin(newLogin));
+      break;
+
+    case TestCredential.directLink:
+      final slug = ChatDirectLinkSlug('direct_link_${user.userNum.val}');
+      await provider.createUserDirectLink(slug);
+      break;
+
+    case TestCredential.num:
+      throw ArgumentError('`UserNum` cannot be set up.');
+  }
 
   provider.disconnect();
 }

@@ -27,7 +27,6 @@ class FieldButton extends StatefulWidget {
     super.key,
     this.text,
     this.textAlign = TextAlign.start,
-    this.hint,
     this.maxLines = 1,
     this.onPressed,
     this.onTrailingPressed,
@@ -44,9 +43,6 @@ class FieldButton extends StatefulWidget {
 
   /// [TextAlign] of the [text].
   final TextAlign textAlign;
-
-  /// Optional hint of this [FieldButton].
-  final String? hint;
 
   /// Maximum number of lines to show at one time, wrapping if necessary.
   final int? maxLines;
@@ -90,7 +86,6 @@ class _FieldButtonState extends State<FieldButton> {
     return Column(
       children: [
         OutlinedRoundedButton(
-          title: Text(widget.text ?? '', maxLines: widget.maxLines),
           maxWidth: double.infinity,
           color: widget.warning ? style.colors.primary : style.colors.onPrimary,
           disabled: style.colors.onPrimary,
@@ -114,6 +109,7 @@ class _FieldButtonState extends State<FieldButton> {
           headline: widget.headline,
           maxHeight: double.infinity,
           border: BorderSide(width: 0.5, color: style.colors.secondary),
+          child: Text(widget.text ?? '', maxLines: widget.maxLines),
         ),
         if (widget.subtitle != null)
           Align(

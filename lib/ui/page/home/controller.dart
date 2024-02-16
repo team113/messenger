@@ -26,6 +26,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
@@ -43,6 +44,7 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings, {
     this.signedUp = false,
+    this.link,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -67,12 +69,6 @@ class HomeController extends GetxController {
   /// Reactive [MyUser.unreadChatsCount] value.
   final RxInt unreadChats = RxInt(0);
 
-  /// [Timer] for discarding any horizontal movement in a [PageView] when
-  /// non-`null`.
-  ///
-  /// Indicates currently ongoing vertical scroll of a view.
-  final Rx<Timer?> verticalScrollTimer = Rx(null);
-
   /// [GlobalKey] of an [AvatarWidget] in the navigation bar.
   ///
   /// Used to position a status changing [Selector] properly.
@@ -80,6 +76,9 @@ class HomeController extends GetxController {
 
   /// [GlobalKey] of a [Chat]s button in the navigation bar.
   final GlobalKey chatsKey = GlobalKey();
+
+  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
+  final ChatDirectLinkSlug? link;
 
   /// Authentication service to determine auth status.
   final AuthService _auth;
@@ -220,7 +219,9 @@ class HomeController extends GetxController {
   void _displayIntroduction(MyUser myUser) {
     IntroductionViewStage? stage;
 
-    if (!myUser.hasPassword &&
+    if (link != null) {
+      stage = IntroductionViewStage.link;
+    } else if (!myUser.hasPassword &&
         myUser.emails.confirmed.isEmpty &&
         myUser.phones.confirmed.isEmpty) {
       stage = IntroductionViewStage.oneTime;

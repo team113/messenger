@@ -52,6 +52,9 @@ class WebUtils {
   /// Indicates whether device's browser is Safari or not.
   static bool get isSafari => false;
 
+  /// Indicates whether device's browser is Firefox or not.
+  static bool get isFirefox => false;
+
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen => false;
 

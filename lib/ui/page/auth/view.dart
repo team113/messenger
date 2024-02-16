@@ -69,7 +69,7 @@ class AuthView extends StatelessWidget {
         // flickering.
         List<Widget> header = [
           Text(
-            'Messenger',
+            'label_messenger'.l10n,
             style: style.fonts.largest.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
@@ -77,7 +77,7 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'by Gapopa',
+            'label_by_gapopa'.l10n,
             style: style.fonts.large.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
@@ -91,7 +91,6 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 25),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
-            title: Text('btn_sign_up'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -99,11 +98,11 @@ class AuthView extends StatelessWidget {
               child: const SvgIcon(SvgIcons.register),
             ),
             onPressed: () => LoginView.show(context),
+            child: Text('btn_sign_up'.l10n),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('SignInButton'),
-            title: Text('btn_sign_in'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -112,16 +111,17 @@ class AuthView extends StatelessWidget {
             ),
             onPressed: () =>
                 LoginView.show(context, initial: LoginViewStage.signIn),
+            child: Text('btn_sign_in'.l10n),
           ),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('btn_one_time_account_desc'.l10n),
+            subtitle: Text('btn_guest_desc'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
               offset: const Offset(4, 0),
-              child: const SvgIcon(SvgIcons.oneTime),
+              child: const SvgIcon(SvgIcons.guest),
             ),
             onPressed: c.register,
           ),

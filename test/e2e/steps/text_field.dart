@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
@@ -47,6 +48,7 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 /// Examples:
 /// - When I fill `SearchField` field with Bob's num
 /// - When I fill `LoginField` field with Alice's login
+/// - When I fill `SearchField` field with Bob's direct link
 StepDefinitionGeneric fillFieldWithUserCredential =
     when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
   'I fill {key} field with {user}\'s {credential}',
@@ -177,7 +179,16 @@ Future<void> _fillField(
       await context.world.appDriver.waitForAppToSettle();
 
       final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
-      await context.world.appDriver.enterText(finder2, text);
+
+      await context.world.appDriver.enterText(
+        finder2,
+
+        // TODO: Implement more strict way to localize some phrases.
+        switch (text) {
+          'Notes' => 'label_chat_monolog'.l10n,
+          (_) => text,
+        },
+      );
 
       await context.world.appDriver.waitForAppToSettle();
 
@@ -199,5 +210,8 @@ String _getCredential(CustomUser customUser, TestCredential credential) {
     //       becomes available.
     case TestCredential.login:
       return 'lgn_${customUser.userNum.val}';
+
+    case TestCredential.directLink:
+      return 'direct_link_${customUser.userNum.val}';
   }
 }

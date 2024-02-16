@@ -50,7 +50,6 @@ import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
 import 'steps/attach_file.dart';
-import 'steps/has_blocked_users.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_hidden.dart';
@@ -65,10 +64,11 @@ import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/go_to.dart';
+import 'steps/has_blocked_users.dart';
 import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
 import 'steps/has_group.dart';
-import 'steps/in_chat_with.dart';
+import 'steps/in_chat.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
 import 'steps/long_press_chat.dart';
@@ -79,6 +79,7 @@ import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
+import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
@@ -106,12 +107,13 @@ import 'steps/sees_muted_chat.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
-import 'steps/set_login.dart';
+import 'steps/set_credential.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
 import 'steps/tap_message.dart';
+import 'steps/tap_reply.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
@@ -166,6 +168,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasDialogWithMe,
         hasFavoriteContacts,
         hasFavoriteGroups,
+        hasGroupNamed,
         hasGroups,
 
         // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
@@ -193,7 +196,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         openChatInfo,
         pasteToField,
         popupWindows,
+        readsAllMessages,
         readsMessage,
+        repliesToMessage,
         restartApp,
         returnToPreviousPage,
         rightClickMessage,
@@ -208,8 +213,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
+        seeChatMessage,
         seeChatMessages,
         seeChatSelection,
+        seeChatWithUserInSearchResults,
         seeContactAsDismissed,
         seeContactAsFavorite,
         seeContactPosition,
@@ -223,20 +230,26 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeMonologInSearchResults,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
+        seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
-        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
+        sendsCountMessages,
+        sendsMessageToGroup,
         sendsMessageToMe,
         sendsMessageWithException,
-        setLogin,
-        setMyLogin,
+        setCredential,
+        setMyCredential,
         signInAs,
         tapChat,
         tapContact,
         tapDropdownItem,
+
+        // TODO: Fix `gherkin` matching `tapMessage` instead.
+        tapReply,
+
         tapMessage,
         tapText,
         tapUserInSearchResults,
@@ -326,14 +339,8 @@ Future<CustomUser> createUser({
     if (password != null) {
       await provider.updateUserPassword(null, password);
 
-      final result = await provider.signIn(
-        password,
-        null,
-        customUser.userNum,
-        null,
-        null,
-        true,
-      );
+      final result =
+          await provider.signIn(password, null, customUser.userNum, null, null);
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }

@@ -96,12 +96,12 @@ class MessagePopup {
                 child: OutlinedRoundedButton(
                   key: const Key('Proceed'),
                   maxWidth: double.infinity,
-                  title: Text(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  color: style.colors.primary,
+                  child: Text(
                     'btn_proceed'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                  color: style.colors.primary,
                 ),
               ),
               const SizedBox(height: 16),

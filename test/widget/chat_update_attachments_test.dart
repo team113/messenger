@@ -76,17 +76,19 @@ import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mock/overflow_error.dart';
+import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_update_attachments_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
   PlatformUtils = PlatformUtilsMock(cache: null);
+  AudioUtils = AudioUtilsMock();
 
   final dio = Dio(BaseOptions());
   final dioAdapter = DioAdapter(dio: dio);
@@ -308,6 +310,10 @@ void main() async {
     })),
   );
 
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
+
   when(graphQlProvider.favoriteChatContacts(
     first: anyNamed('first'),
     before: null,
@@ -472,7 +478,6 @@ void main() async {
   await chatCredentialsProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
-    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
       theme: Themes.light(),
       home: Builder(
@@ -613,5 +618,8 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await Get.deleteAll(force: true);
+
+    await tester.runAsync(() => Future.delayed(1.milliseconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

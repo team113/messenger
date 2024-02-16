@@ -21,7 +21,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart'
@@ -87,8 +86,8 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [ProfileTab.signing] section is expanded.
   final RxBool expanded = RxBool(false);
 
-  /// List of [MediaDeviceDetails] of all the available devices.
-  final RxList<MediaDeviceDetails> devices = RxList<MediaDeviceDetails>([]);
+  /// List of [DeviceDetails] of all the available devices.
+  final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
 
   /// Index of an item from [ProfileTab] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
@@ -102,8 +101,8 @@ class MyProfileController extends GetxController {
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
-  /// [StreamSubscription] for the [MediaUtils.onDeviceChange] stream updating
-  /// the [devices].
+  /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
+  /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
   /// [Duration] of the highlighting.
@@ -398,10 +397,6 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Sets the [ApplicationSettings.loadImages] value.
-  Future<void> setLoadImages(bool enabled) =>
-      _settingsRepo.setLoadImages(enabled);
-
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
   /// (if any).
@@ -421,10 +416,9 @@ class MyProfileController extends GetxController {
     await _myUserService.updateUserName(name);
   }
 
-  /// Updates or resets the [MyUser.status] field of the authenticated
-  /// [MyUser].
-  Future<void> updateUserStatus(UserTextStatus? status) async {
-    await _myUserService.updateUserStatus(status);
+  /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
+  Future<void> updateUserBio(UserBio? bio) async {
+    await _myUserService.updateUserBio(bio);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].

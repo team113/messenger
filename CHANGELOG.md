@@ -6,7 +6,61 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.12] · 2024-??-??
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Default device on desktop platforms. ([#465], [#464])
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Redesigned incoming/outgoing call. ([#832], [#812])
+    - Chats tab:
+        - Direct link searching. ([#843], [#831])
+    - Home page:
+        - Redesigned introduction after following direct link. ([#848], [#820])
+
+### Fixed
+
+- Web:
+    - Inability to view camera, microphone and output devices in Firefox. ([#855])
+
+[#464]: /../../issues/464
+[#465]: /../../pull/465
+[#812]: /../../issues/812
+[#820]: /../../issues/820
+[#831]: /../../issues/831
+[#832]: /../../pull/832
+[#843]: /../../pull/843
+[#848]: /../../pull/848
+[#855]: /../../pull/855
+
+
+
+
+## [0.1.0-alpha.12.1] · 2024-02-08
+[0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
+
+[Diff](/../../compare/v0.1.0-alpha.12...v0.1.0-alpha.12.1) | [Milestone](/../../milestone/16)
+
+### Fixed
+
+- Web:
+    - Authentication token not being refreshed. ([#844])
+
+[#844]: /../../pull/844
+
+
+
+
+## [0.1.0-alpha.12] · 2024-02-08
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
@@ -19,6 +73,7 @@ All user visible changes to this project will be documented in this file. This p
         - Cache maximum size slider. ([#794], [#789])
     - Media panel:
         - Screen dimming when close to ear on mobile. ([#823], [#808])
+        - Secondary panel mode switches. ([#837], [#811])
 
 ### Changed
 
@@ -36,7 +91,8 @@ All user visible changes to this project will be documented in this file. This p
     - Tuned up page transition animation. ([#775], [#573])
     - Profile page:
         - Redesigned direct chat link. ([#796], [#787])
-        - Redesigned sign in section. ([#794], [#789])
+        - Redesigned sign in section. ([#827], [#794], [#789])
+    - Redesigned search modal. ([#805], [#790])
     - Media panel:
         - Grab cursor over participants. ([#816], [#810])
 
@@ -44,11 +100,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats tab:
-        - Restore button displaying under mobile navigation bar. ([#763, #758])
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
     - Contacts tab:
-        - Restore button displaying under mobile navigation bar. ([#763, #758])
+        - Restore button displaying under mobile navigation bar. ([#763], [#758])
     - User page:
-        - Downloaded avatar missing its extension on desktop. ([#756, #726])
+        - Downloaded avatar missing its extension on desktop. ([#756], [#726])
     - Chat page:
         - Read partially message status missing in forwards. ([#776])
     - Media panel:
@@ -82,14 +138,19 @@ All user visible changes to this project will be documented in this file. This p
 [#787]: /../../issues/787
 [#788]: /../../issues/788
 [#789]: /../../issues/789
+[#790]: /../../issues/790
 [#791]: /../../pull/791
 [#794]: /../../pull/794
 [#796]: /../../pull/796
 [#797]: /../../pull/797
+[#805]: /../../pull/805
 [#808]: /../../issues/808
 [#810]: /../../issues/810
+[#811]: /../../issues/811
 [#816]: /../../pull/816
 [#823]: /../../pull/823
+[#827]: /../../pull/827
+[#837]: /../../pull/837
 
 
 

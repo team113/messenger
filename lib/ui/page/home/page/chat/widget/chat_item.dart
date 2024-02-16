@@ -75,7 +75,6 @@ class ChatItemWidget extends StatefulWidget {
     this.user,
     this.avatar = true,
     this.reads = const [],
-    this.loadImages = true,
     this.getUser,
     this.onHide,
     this.onDelete,
@@ -110,10 +109,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
-
-  /// Indicator whether the [ImageAttachment]s of this [ChatItem] should be
-  /// fetched as soon as they are displayed, if any.
-  final bool loadImages;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -177,7 +172,6 @@ class ChatItemWidget extends StatefulWidget {
     Iterable<GalleryAttachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
-    bool autoLoad = true,
   }) {
     final style = Theme.of(context).style;
 
@@ -200,7 +194,6 @@ class ChatItemWidget extends StatefulWidget {
             key: key,
             attachment: e,
             height: 300,
-            autoLoad: autoLoad,
             onError: onError,
           ),
           Center(
@@ -225,7 +218,6 @@ class ChatItemWidget extends StatefulWidget {
         key: key,
         attachment: e,
         width: filled ? double.infinity : null,
-        autoLoad: autoLoad,
         onError: onError,
         fit: !filled ? BoxFit.contain : null,
       );
@@ -883,7 +875,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
                         onGallery: widget.onGallery,
-                        autoLoad: widget.loadImages,
                       )
                     : SizedBox(
                         width: media.length * 120,
@@ -899,7 +890,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: widget.onGallery,
-                                  autoLoad: widget.loadImages,
                                 ),
                               )
                               .toList(),
@@ -1194,7 +1184,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     height: double.infinity,
                     borderRadius: BorderRadius.circular(10.0),
                     cancelable: true,
-                    autoLoad: widget.loadImages,
                   ),
           );
         }).take(take));
@@ -1266,6 +1255,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style.colors.userColors.length];
 
         return ClipRRect(
+          key: Key('Reply_${item.original?.id}'),
           borderRadius: style.cardRadius,
           child: Container(
             decoration: BoxDecoration(

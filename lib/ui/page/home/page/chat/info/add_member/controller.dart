@@ -27,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+
 export 'view.dart';
 
 /// Controller of an [AddChatMemberView].

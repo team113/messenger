@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
 import 'interactive_logo.dart';
@@ -32,7 +33,7 @@ class ProjectBlock extends StatelessWidget {
     return Block(
       children: [
         Text(
-          'Messenger',
+          'label_messenger'.l10n,
           style: style.fonts.larger.regular.secondary,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
@@ -40,7 +41,7 @@ class ProjectBlock extends StatelessWidget {
         ),
         const SizedBox(height: 1.6),
         Text(
-          'by Gapopa',
+          'label_by_gapopa'.l10n,
           style: style.fonts.medium.regular.secondary,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,

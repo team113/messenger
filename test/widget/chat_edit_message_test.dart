@@ -71,11 +71,12 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import '../mock/overflow_error.dart';
+import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_edit_message_test.mocks.dart';
 import 'extension/rich_text.dart';
@@ -83,6 +84,7 @@ import 'extension/rich_text.dart';
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
+  AudioUtils = AudioUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Hive.init('./test/.temp_hive/chat_edit_message_text_widget');
 
@@ -268,6 +270,10 @@ void main() async {
         }
       })));
 
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
+
   when(graphQlProvider.recentChats(
     first: anyNamed('first'),
     after: null,
@@ -409,7 +415,6 @@ void main() async {
   await messagesProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
-    FlutterError.onError = ignoreOverflowErrors;
     return MaterialApp(
         theme: Themes.light(),
         home: Builder(
@@ -536,5 +541,8 @@ void main() async {
     expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
+
+    await tester.runAsync(() => Future.delayed(1.milliseconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

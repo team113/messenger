@@ -40,6 +40,27 @@ final StepDefinitionGeneric haveGroupNamed = given1<String, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
+/// Creates a [Chat]-group with the the provided [TestUser].
+///
+/// Examples:
+/// - Given Alice has "Name" group.
+final StepDefinitionGeneric hasGroupNamed =
+    given2<TestUser, String, CustomWorld>(
+  '{user} has {string} group',
+  (TestUser user, String name, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    final ChatMixin chat =
+        await provider.createGroupChat([], name: ChatName(name));
+
+    context.world.groups[name] = chat.id;
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
 /// Creates a [Chat]-group with the provided [User] and the authenticated
 /// [MyUser].
 ///
