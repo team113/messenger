@@ -658,7 +658,9 @@ class WebUtils {
         throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
       }
 
-      _hasMicrophonePermission = true;
+      if (isFirefox) {
+        _hasMicrophonePermission = true;
+      }
 
       for (var e in stream.getTracks()) {
         e.stop();
