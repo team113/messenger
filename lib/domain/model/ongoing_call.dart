@@ -423,8 +423,6 @@ class OngoingCall {
         _pickScreenDevice(removed);
       });
 
-      _initRoom();
-
       // Puts the members of the provided [chat] to the [members] through
       // [_addDialing].
       void addDialingsFrom(RxChat chat) {
@@ -451,30 +449,8 @@ class OngoingCall {
         });
       }
 
-      try {
-        // Set all the constraints to ensure no disabled track is sent while
-        // initializing the local media.
-        await _room?.setLocalMediaSettings(
-          _mediaStreamSettings(
-            audio: audioState.value == LocalTrackState.enabling,
-            video: videoState.value == LocalTrackState.enabling,
-            screen: false,
-          ),
-          false,
-          true,
-        );
-      } on StateError catch (e) {
-        // [_room] is allowed to be in a detached state there as the call might
-        // has already ended.
-        if (!e.toString().contains('detached')) {
-          addError('setLocalMediaSettings() failed: $e');
-          rethrow;
-        }
-      } catch (e) {
-        addError('setLocalMediaSettings() failed: $e');
-        rethrow;
-      }
-
+      _initRoom();
+      await _setInitialMediaSettings();
       await _initLocalMedia();
 
       if (state.value == OngoingCallState.active &&
@@ -1465,7 +1441,14 @@ class OngoingCall {
         }
       });
 
-      conn.onQualityScoreUpdate((p) => members[id]?.quality.value = p);
+      conn.onQualityScoreUpdate((p) {
+        Log.debug(
+          'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p',
+          '$runtimeType',
+        );
+
+        members[id]?.quality.value = p;
+      });
     });
   }
 
@@ -1694,6 +1677,36 @@ class OngoingCall {
     members[_me]?.tracks.clear();
   }
 
+  /// Sets the [_mediaStreamSettings] with track statuses based on [audioState],
+  /// [videoState], [screenShareState].
+  Future<void> _setInitialMediaSettings() async {
+    Log.debug('_setInitialMediaSettings()', '$runtimeType');
+
+    try {
+      // Set all the constraints to ensure no disabled track is sent while
+      // initializing the local media.
+      await _room?.setLocalMediaSettings(
+        _mediaStreamSettings(
+          audio: audioState.value.isEnabled,
+          video: videoState.value.isEnabled,
+          screen: screenShareState.value.isEnabled,
+        ),
+        false,
+        true,
+      );
+    } on StateError catch (e) {
+      // [_room] is allowed to be in a detached state there as the call might
+      // has already ended.
+      if (!e.toString().contains('detached')) {
+        addError('setLocalMediaSettings() failed: $e');
+        rethrow;
+      }
+    } catch (e) {
+      addError('setLocalMediaSettings() failed: $e');
+      rethrow;
+    }
+  }
+
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].
   ///
   /// Re-initializes the [_room], if this [link] is different from the currently
@@ -1709,6 +1722,8 @@ class OngoingCall {
       );
       _closeRoom();
       _initRoom();
+      await _setInitialMediaSettings();
+      await _initLocalMedia();
     }
 
     try {
@@ -2279,7 +2294,7 @@ class Track {
 
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer() async {
-    Log.debug('createRenderer()', '$runtimeType');
+    Log.debug('createRenderer() for $kind-$source', '$runtimeType');
 
     await _rendererGuard.protect(() async {
       if (renderer.value != null) {
@@ -2302,7 +2317,7 @@ class Track {
 
   /// Disposes the [renderer] of this [Track].
   Future<void> removeRenderer() async {
-    Log.debug('removeRenderer()', '$runtimeType');
+    Log.debug('removeRenderer() for $kind-$source', '$runtimeType');
 
     await _rendererGuard.protect(() async {
       renderer.value?.dispose();
