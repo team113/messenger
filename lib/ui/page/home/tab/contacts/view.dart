@@ -296,6 +296,7 @@ class ContactsTabView extends StatelessWidget {
           ),
           extendBodyBehindAppBar: true,
           body: Obx(() {
+            final RxStatus? searchStatus = c.search.value?.searchStatus.value;
             if (c.status.value.isLoading) {
               return const Center(child: CustomProgressIndicator.primary());
             }
@@ -369,7 +370,8 @@ class ContactsTabView extends StatelessWidget {
                         }
 
                         if (i == c.elements.length - 1) {
-                          if (c.search.value?.hasNext.value == true) {
+                          if ((searchStatus?.isLoadingMore ?? false) ||
+                              (searchStatus?.isLoading ?? false)) {
                             child = Column(
                               children: [
                                 child,

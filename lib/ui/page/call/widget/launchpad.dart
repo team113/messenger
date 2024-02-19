@@ -67,8 +67,8 @@ class Launchpad extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 30),
         child: DragTarget<CallButton>(
-          onAccept: onAccept,
-          onWillAccept: onWillAccept,
+          onAcceptWithDetails: (e) => onAccept?.call(e.data),
+          onWillAcceptWithDetails: (e) => onWillAccept?.call(e.data) ?? true,
           builder: (context, candidate, _) {
             return MouseRegion(
               onEnter: onEnter,

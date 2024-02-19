@@ -392,8 +392,8 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.recent.isEmpty == true &&
                         c.search.value?.contacts.isEmpty == true &&
                         c.search.value?.users.isEmpty == true) {
-                      if ((searchStatus?.isSuccess ?? false) ||
-                          (searchStatus?.isEmpty ?? false)) {
+                      if ((searchStatus?.isSuccess ?? false) &&
+                          !(searchStatus?.isLoadingMore ?? false)) {
                         center = Center(
                           key: UniqueKey(),
                           child: Text(
@@ -551,7 +551,8 @@ class ChatsTabView extends StatelessWidget {
                     }
                   } else if (c.searching.value &&
                       c.search.value?.search.isEmpty.value == false) {
-                    if (c.search.value!.searchStatus.value.isLoading &&
+                    if (((searchStatus?.isLoading ?? false) ||
+                            (searchStatus?.isLoadingMore ?? false)) &&
                         c.elements.isEmpty) {
                       child = Center(
                         key: UniqueKey(),
