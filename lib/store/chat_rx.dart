@@ -1336,15 +1336,6 @@ class HiveRxChat extends RxChat {
         }
 
         _lastReadItemCursor = node.chat.lastReadItemCursor;
-
-        // TODO: Remove, when all events are surely delivered by subscribing to
-        //       `chatEvents` with version.
-        if (hasNext.isFalse &&
-            node.chat.value.lastItem != null &&
-            messages.none((e) => e.value.id == node.chat.value.lastItem!.id)) {
-          _pagination.hasNext.value = true;
-          await _pagination.next();
-        }
         break;
 
       case ChatEventsKind.event:
@@ -1353,7 +1344,7 @@ class HiveRxChat extends RxChat {
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
-              versioned.ver <= chatEntity.ver ||
+              versioned.ver < chatEntity.ver ||
               !subscribed) {
             Log.debug(
               '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',

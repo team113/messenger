@@ -1487,7 +1487,7 @@ class ChatRepository extends DisposableInterface
 
     // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null && !ignoreVersion) {
-      if (saved.ver != null && saved.ver! >= chat.ver) {
+      if (saved.ver != null && saved.ver! > chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
@@ -1603,7 +1603,7 @@ class ChatRepository extends DisposableInterface
         _favoriteLocal.remove(chatId);
       } else {
         final HiveRxChat? chat = chats[chatId];
-        if (chat == null || (chat.ver != null && chat.ver! < event.value.ver)) {
+        if (chat == null || (chat.ver != null && chat.ver! <= event.value.ver)) {
           _add(event.value);
         }
 
