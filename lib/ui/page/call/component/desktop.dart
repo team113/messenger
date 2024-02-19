@@ -1112,12 +1112,7 @@ Widget _primaryView(CallController c) {
           onAdded: (d, i) => c.focus(d.participant),
           onWillAccept: (d) {
             if (d?.chatId == c.chatId.value) {
-              if (d?.participant.member.id.userId != c.me.id.userId ||
-                  d?.participant.video.value?.source !=
-                      MediaSourceKind.display) {
-                c.primaryTargets.value = 1;
-              }
-
+              c.primaryTargets.value = 1;
               return true;
             }
 
