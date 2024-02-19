@@ -402,6 +402,7 @@ class ContactsTabController extends GetxController {
       RxUser? rxUser = c.user.value;
 
       if (rxUser != null) {
+        _userSubscriptions.remove(rxUser.id)?.cancel();
         _userSubscriptions[rxUser.id] = rxUser.updates.listen((_) {});
       }
 

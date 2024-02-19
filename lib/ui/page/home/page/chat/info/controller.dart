@@ -462,8 +462,6 @@ class ChatInfoController extends GetxController {
         },
       );
 
-      chat!.membersAround();
-
       _membersSubscription = chat!.members.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
@@ -478,6 +476,8 @@ class ChatInfoController extends GetxController {
       });
 
       status.value = RxStatus.success();
+
+      await chat!.membersAround();
     }
   }
 

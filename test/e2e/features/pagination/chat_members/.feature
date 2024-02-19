@@ -14,9 +14,9 @@ Feature: Chat members pagination
 
   Scenario: Chat members pagination works correctly
     Given user Alice
-    And Alice has "Members pagination" group with 16 members
+    And Alice has "Members" group with 16 members
     And I sign in as Alice
-    And I am in "Members pagination" group
+    And I am in "Members" group
 
     When I tap `CloseButton` button
     And I open chat's info

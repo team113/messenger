@@ -2197,7 +2197,7 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        User? partner = users.firstWhereOrNull((u) => u.id != me);
+        final User? partner = users.firstWhereOrNull((u) => u.id != me);
         final partnerName = partner?.name?.val ?? partner?.num.toString();
         if (partnerName != null) {
           title = partnerName;
@@ -2206,6 +2206,10 @@ extension ChatViewExt on Chat {
 
       case ChatKind.group:
         if (name == null) {
+          if (users.isEmpty) {
+            users = members.map((e) => e.user);
+          }
+
           title = users
               .take(3)
               .map((u) => u.name?.val ?? u.num.toString())
@@ -2236,9 +2240,7 @@ extension ChatViewExt on Chat {
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
-        return 'label_subtitle_participants'.l10nfmt({
-          'count': membersCount,
-        });
+        return 'label_subtitle_participants'.l10nfmt({'count': membersCount});
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:

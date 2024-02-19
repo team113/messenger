@@ -202,6 +202,7 @@ class ChatsTabController extends GetxController {
             chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
+          _userSubscriptions.remove(userId)?.cancel();
           _userSubscriptions[userId] = rxUser.updates.listen((_) {});
         }
       }

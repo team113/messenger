@@ -1022,23 +1022,20 @@ class HiveRxChat extends RxChat {
 
   /// Initializes the [_membersPagination].
   Future<void> _initMembersPagination() async {
-    var provider =
-        GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
-      fetch: ({after, before, first, last}) {
-        return _chatRepository.members(
-          chat.value.id,
-          after: after,
-          first: first,
-          before: before,
-          last: last,
-        );
-      },
-    );
-
     _membersPagination = Pagination(
       onKey: (e) => e.value.user.id,
       perPage: 15,
-      provider: provider,
+      provider: GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
+        fetch: ({after, before, first, last}) {
+          return _chatRepository.members(
+            chat.value.id,
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          );
+        },
+      ),
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
@@ -1053,7 +1050,6 @@ class HiveRxChat extends RxChat {
         case OperationKind.added:
         case OperationKind.updated:
           final RxUser? user = await _chatRepository.getUser(event.key!);
-
           if (user != null) {
             members[event.key!] = user;
           }
@@ -1218,26 +1214,29 @@ class HiveRxChat extends RxChat {
       );
     }
 
-    await _initTitle();
-
+    // Sync the [unreadCount], if [chat] has less, or is different and there's
+    // no [ChatRepository.readUntil] being executed ([_readTimer] is `null`).
     if (chat.value.unreadCount < unreadCount.value ||
         (chat.value.unreadCount != previous?.unreadCount &&
             _readTimer == null)) {
       unreadCount.value = chat.value.unreadCount;
     }
+
+    await _ensureTitle();
   }
 
   /// Initializes the [_userWorkers] updating the [title].
-  Future<void> _initTitle() async {
-    Log.debug('_initTitle()', '$runtimeType($id)');
+  Future<void> _ensureTitle() async {
+    Log.debug('_ensureTitle()', '$runtimeType($id)');
 
     if (chat.value.name == null) {
       final List<RxUser> users;
+
       if (members.length < 3) {
         users = [];
 
         for (var m in chat.value.members.take(3)) {
-          var user = await _chatRepository.getUser(m.user.id);
+          final RxUser? user = await _chatRepository.getUser(m.user.id);
           if (user != null) {
             users.add(user);
           }
@@ -1249,7 +1248,7 @@ class HiveRxChat extends RxChat {
       _userWorkers.removeWhere((k, v) {
         if (users.none((u) => u.id == k)) {
           v.dispose();
-          _userSubscriptions[k]?.cancel();
+          _userSubscriptions.remove(k)?.cancel();
           return true;
         }
 
@@ -1261,6 +1260,9 @@ class HiveRxChat extends RxChat {
           // TODO: Title should be updated only if [User.name] had actually
           // changed.
           _userWorkers[u.id] = ever(u.user, (_) => _updateTitle());
+
+          // TODO: Perhaps [RxUser.updates] should behave like a [ever].
+          _userSubscriptions.remove(u.id)?.cancel();
           _userSubscriptions[u.id] = u.updates.listen((_) {});
         }
       }
@@ -1269,7 +1271,7 @@ class HiveRxChat extends RxChat {
     _updateTitle();
   }
 
-  /// Updates the [title].
+  /// Updates the [title] according to the [Chat.name] and [Chat.members].
   Future<void> _updateTitle() async {
     Log.debug('_updateTitle()', '$runtimeType($id)');
 

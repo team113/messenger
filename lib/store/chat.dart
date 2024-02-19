@@ -1056,7 +1056,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    var query = await _graphQlProvider.chatMembers(
+    final query = await _graphQlProvider.chatMembers(
       id,
       first: first,
       after: after,
@@ -1065,9 +1065,9 @@ class ChatRepository extends DisposableInterface
     );
 
     return Page(
-      RxList(query.chat!.members.edges
-          .map((e) => e.node.toHive(e.cursor))
-          .toList()),
+      RxList(
+        query.chat!.members.edges.map((e) => e.node.toHive(e.cursor)).toList(),
+      ),
       query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
     );
   }

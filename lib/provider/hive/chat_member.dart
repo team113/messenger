@@ -84,10 +84,7 @@ class ChatMemberHiveProvider extends HiveBaseProvider<HiveChatMember> {
 /// Persisted in [Hive] storage [ChatMember]'s [value].
 @HiveType(typeId: ModelTypeId.hiveChatMember)
 class HiveChatMember extends HiveObject {
-  HiveChatMember(
-    this.value,
-    this.cursor,
-  );
+  HiveChatMember(this.value, this.cursor);
 
   /// Persisted [ChatMember] model.
   @HiveField(0)
