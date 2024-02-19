@@ -86,8 +86,13 @@ class _WebImageState extends State<WebImage> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      return ConstrainedBox(
-        constraints: constraints,
+      return SizedBox(
+        width: constraints.biggest.width.isFinite
+            ? constraints.biggest.width
+            : MediaQuery.of(context).size.width,
+        height: constraints.biggest.height.isFinite
+            ? constraints.biggest.height
+            : MediaQuery.of(context).size.height,
         child: Stack(
           children: [
             if (_loading)

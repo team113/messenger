@@ -74,7 +74,7 @@ class HiveRxChat extends RxChat {
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
         // TODO: Don't ignore version, when all events are surely delivered by
-        //       subscribing to `chatEvents` with that version.
+        //       subscribing to `chatEvents` with INCREASING version.
         ver = hiveChat.value.favoritePosition == null ? hiveChat.ver : null;
 
   @override
@@ -821,7 +821,11 @@ class HiveRxChat extends RxChat {
           ChatItemId.local(),
           id,
           chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user ??
-              User(const UserId('0'), UserNum('1234123412341234')),
+              chat.value.members.firstOrNull?.user ??
+              User(
+                const UserId('a0960769-d44a-46e9-ba43-cb41e045318a'),
+                UserNum('1234123412341234'),
+              ),
           PreciseDateTime.now(),
           text: text,
         ),
