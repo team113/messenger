@@ -26,13 +26,14 @@ All user visible changes to this project will be documented in this file. This p
         - Direct link searching. ([#843], [#831])
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
-    - Chat page:
-        - Removed keyboard hiding after sending a message on mobile. ([#856], [#828])
 
 ### Fixed
 
 - Web:
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
+- UI:
+    - Chat page:
+        - Keyboard hiding after sending a message on mobile. ([#856], [#828])
 
 [#464]: /../../issues/464
 [#465]: /../../pull/465

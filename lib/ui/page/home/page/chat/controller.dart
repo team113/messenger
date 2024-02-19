@@ -1192,7 +1192,7 @@ class ChatController extends GetxController {
     return attachments;
   }
 
-  /// Callback, called when [send] or [edit] message fields change.
+  /// Callback, called when the message field changes.
   void onChanged() {
     final bool sendIsEmpty = send.field.text.isEmpty;
     final bool? editIsEmpty = edit.value?.field.text.isEmpty;
