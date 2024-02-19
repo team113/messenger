@@ -1343,6 +1343,9 @@ class HiveRxChat extends RxChat {
           final HiveChat? chatEntity = await txn.get(id.val);
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
+          // TODO: Ignore [versioned] event if the [versioned.ver] is the same
+          //       or lower than the [chatEntity.ver] when all [versioned] will
+          //       have different versions.
           if (chatEntity == null ||
               versioned.ver < chatEntity.ver ||
               !subscribed) {
