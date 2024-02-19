@@ -1487,9 +1487,6 @@ class ChatRepository extends DisposableInterface
 
     // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null && !ignoreVersion) {
-      // TODO: Use [saved] chat if the [saved.ver] is the same or higher than
-      //       the [chat.ver] when all [ChatEventsVersioned] will have different
-      //       versions.
       if (saved.ver != null && saved.ver! > chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
@@ -1523,7 +1520,7 @@ class ChatRepository extends DisposableInterface
         chat.value.firstItem ??=
             saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-        if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
+        if (saved == null || (saved.ver <= chat.ver || ignoreVersion)) {
           _recentLocal.put(chat.value.updatedAt, chatId);
 
           if (chat.value.favoritePosition != null) {
@@ -1606,9 +1603,6 @@ class ChatRepository extends DisposableInterface
         _favoriteLocal.remove(chatId);
       } else {
         final HiveRxChat? chat = chats[chatId];
-        // TODO: Update [chat] if the [event.value.ver] is higher than the
-        //       [chat.ver] when all [ChatEventsVersioned] will have different
-        //       versions.
         if (chat == null ||
             (chat.ver != null && chat.ver! <= event.value.ver)) {
           _add(event.value);
@@ -2182,7 +2176,7 @@ class ChatRepository extends DisposableInterface
 
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
-        if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
+        if (versioned.ver >= _sessionLocal.getFavoriteChatsListVersion()) {
           _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
 
           Log.debug(
