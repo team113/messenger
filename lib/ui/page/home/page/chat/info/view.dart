@@ -52,6 +52,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_member/view.dart';
 import 'controller.dart';
+import 'widget/chat_bio.dart';
 
 /// View of the [Routes.chatInfo] page.
 class ChatInfoView extends StatelessWidget {
@@ -90,31 +91,6 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
-          // final Widget editButton = AnimatedButton(
-          //   key: const Key('EditButton'),
-          //   decorator: (child) => Padding(
-          //     padding: const EdgeInsets.fromLTRB(19, 8, 19, 8),
-          //     child: child,
-          //   ),
-          //   onPressed: c.editing.toggle,
-          //   child: Obx(() {
-          //     return IndexedStack(
-          //       alignment: Alignment.centerRight,
-          //       index: c.editing.value ? 0 : 1,
-          //       children: [
-          //         Text(
-          //           'Готово',
-          //           style: style.fonts.normal.regular.primary,
-          //         ),
-          //         Text(
-          //           'Изменить',
-          //           style: style.fonts.normal.regular.primary,
-          //         ),
-          //       ],
-          //     );
-          //   }),
-          // );
-
           final Widget editButton = Obx(() {
             final bool favorite = c.chat?.chat.value.favoritePosition != null;
             final bool hasCall = c.chat?.chat.value.ongoingCall != null;
@@ -148,13 +124,6 @@ class ChatInfoView extends StatelessWidget {
                     child: const SvgIcon(SvgIcons.makeVideoCallWhite),
                   ),
                 ),
-                // ContextMenuButton(
-                //   key: const Key('EditButton'),
-                //   label: 'btn_edit'.l10n,
-                //   onPressed: c.editing.toggle,
-                //   trailing: const SvgIcon(SvgIcons.edit),
-                //   inverted: const SvgIcon(SvgIcons.editWhite),
-                // ),
                 ContextMenuButton(
                   label: favorite
                       ? 'btn_delete_from_favorites'.l10n
@@ -458,20 +427,6 @@ class ChatInfoView extends StatelessWidget {
                                 ),
                               );
                             }),
-                            // const SizedBox(height: 12),
-                            // Padding(
-                            //   padding: const EdgeInsets.only(top: 6),
-                            //   child: SizedBox(
-                            //     width: double.infinity,
-                            //     child: Center(
-                            //       child: Text(
-                            //         c.chat?.title.value ?? '...',
-                            //         style:
-                            //             style.fonts.large.regular.onBackground,
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
                         _quick(c, context),
@@ -480,8 +435,6 @@ class ChatInfoView extends StatelessWidget {
                           SelectionContainer.disabled(
                             child: Block(
                               padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                              // background:
-                              //     const Color.fromARGB(255, 240, 242, 244),
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.fromLTRB(
@@ -628,27 +581,89 @@ class ChatInfoView extends StatelessWidget {
   Widget _status(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
+    // return Obx(() {
     final Widget child;
 
-    if (c.textStatus.text.isEmpty) {
-      child = const SizedBox();
-    } else {
-      child = Padding(
-        key: const Key('Key'),
-        padding: const EdgeInsets.only(top: 0),
-        child: SizedBox(
-          width: double.infinity,
+    // if (c.bioEditing.value) {
+    //   child = Padding(
+    //     key: const Key('1'),
+    //     padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+    //     child: SizedBox(
+    //       width: double.infinity,
+    //       child: Center(
+    //         child: ReactiveTextField(
+    //           state: c.textStatus,
+    //           label: 'О группе',
+    //           clearable: true,
+    //         ),
+    //       ),
+    //     ),
+    //   );
+    // } else if (c.textStatus.text.isEmpty) {
+    //   child = const Text(
+    //     key: Key('2'),
+    //     'Информация отсутствует',
+    //   );
+    // } else {
+    //   child = SizedBox(
+    //     key: const Key('3'),
+    //     width: double.infinity,
+    //     child: Center(
+    //       child: Text(
+    //         c.textStatus.text,
+    //         style: style.fonts.normal.regular.secondary,
+    //       ),
+    //     ),
+    //   );
+    // }
+
+    return Block(
+      overlay: [
+        Positioned(
+          right: 0,
+          top: 0,
           child: Center(
-            child: Text(
-              c.textStatus.text,
-              style: style.fonts.normal.regular.secondary,
+            child: SelectionContainer.disabled(
+              child: AnimatedButton(
+                onPressed: () {
+                  c.bioEditing.toggle();
+                  c.textStatus.unsubmit();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                  child: c.bioEditing.value
+                      ? const Padding(
+                          padding: EdgeInsets.all(2),
+                          child: SvgIcon(SvgIcons.closeSmallPrimary),
+                        )
+                      : const SvgIcon(SvgIcons.editSmall),
+                ),
+              ),
             ),
           ),
         ),
-      );
-    }
-
-    return Block(children: [child]);
+      ],
+      // title: 'О группе',
+      children: [
+        Obx(() {
+          return ChatBioField(
+            c.bio.value,
+            editing: c.bioEditing.value,
+            onEditing: (b) => c.bioEditing.value = b,
+            onSubmit: (s) async {
+              c.bio.value = s?.isNotEmpty == true ? s : null;
+              c.bioEditing.value = false;
+            },
+          );
+        }),
+        // AnimatedSizeAndFade(
+        //   fadeDuration: 250.milliseconds,
+        //   sizeDuration: 250.milliseconds,
+        //   child: child,
+        // ),
+      ],
+    );
+    // });
   }
 
   /// Returns a list of [Chat.members].
@@ -712,28 +727,6 @@ class ChatInfoView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        ActionButton(
-          onPressed: hasCall ? null : () => c.call(false),
-          text: 'btn_audio_call'.l10n,
-          trailing: SvgIcon(
-            hasCall ? SvgIcons.audioCall16Disabled : SvgIcons.audioCall16,
-          ),
-        ),
-        ActionButton(
-          onPressed: hasCall ? null : () => c.call(true),
-          text: 'btn_video_call'.l10n,
-          trailing: Transform.translate(
-            offset: const Offset(-2, 0),
-            child: SvgIcon(
-              hasCall ? SvgIcons.videoCall16Disabled : SvgIcons.videoCall16,
-            ),
-          ),
-        ),
-        ActionButton(
-          text: 'label_chat'.l10n,
-          onPressed: () => router.chat(id),
-          trailing: const SvgIcon(SvgIcons.chat16),
-        ),
         ActionButton(
           onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
           text: favorite

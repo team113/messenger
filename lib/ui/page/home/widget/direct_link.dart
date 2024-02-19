@@ -29,6 +29,7 @@ import 'package:messenger/ui/widget/animated_switcher.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
+import 'package:messenger/util/web/web_utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -94,11 +95,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
   @override
   void initState() {
-    if (widget.link == null) {
-      _generated = widget.generated ?? ChatDirectLinkSlug.generate(10).val;
-      _editing = widget.generated == null;
-    }
-
     _state = TextFieldState(
       text: widget.link?.slug.val,
       approvable: true,
@@ -157,6 +153,13 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       },
     );
 
+    _generated = widget.generated ?? ChatDirectLinkSlug.generate(10).val;
+
+    if (widget.link == null) {
+      _state.text = _generated ?? '';
+      _editing = widget.editing ?? false;
+    }
+
     if (widget.editing != false) {
       _editing = true;
     }
@@ -180,6 +183,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       if (widget.link != null) {
         _state.unchecked = widget.link?.slug.val ?? '';
       } else {
+        _state.unsubmit();
         _state.text = _generated ?? '';
       }
     }
@@ -199,59 +203,23 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       child = Padding(
         key: const Key('Editing'),
         padding: const EdgeInsets.only(top: 8.0),
-        child: ReactiveTextField(
-          key: const Key('LinkField'),
-          state: _state,
-          onSuffixPressed: () async {
-            await widget.onSubmit?.call(null);
-            setState(() => _editing = false);
-          },
-          // onSuffixPressed: _state.isEmpty.value || !widget.transitions
-          //     ? null
-          //     : () {
-          //         _state.submit();
-
-          //         final share = '${Config.link}/${_state.text}';
-
-          //         if (PlatformUtils.isMobile) {
-          //           Share.share(share);
-          //         } else {
-          //           PlatformUtils.copy(text: share);
-          //           MessagePopup.success('label_copied'.l10n);
-          //         }
-          //       },
-
-          trailing:
-              _state.isEmpty.value ? null : const SvgIcon(SvgIcons.delete),
-          // trailing: _state.isEmpty.value || !widget.transitions
-          //     ? null
-          //     : PlatformUtils.isMobile
-          //         ? const SvgIcon(SvgIcons.share)
-          //         : const SvgIcon(SvgIcons.copy),
-          label: '${Config.link}/',
-          // subtitle: false && widget.transitions
-          //     ? RichText(
-          //         text: TextSpan(
-          //           style: style.fonts.small.regular.onBackground,
-          //           children: [
-          //             TextSpan(
-          //               text: 'label_transition_count'.l10nfmt({
-          //                     'count': widget.link?.usageCount ?? 0,
-          //                   }) +
-          //                   'dot_space'.l10n,
-          //               style: style.fonts.small.regular.secondary,
-          //             ),
-          //             // TextSpan(
-          //             //   text: 'label_details'.l10n,
-          //             //   style: style.fonts.small.regular.primary,
-          //             //   recognizer: TapGestureRecognizer()
-          //             //     ..onTap = () => LinkDetailsView.show(context),
-          //             // ),
-          //           ],
-          //         ),
-          //       )
-          //     : null,
-        ),
+        child: Obx(() {
+          return ReactiveTextField(
+            key: const Key('LinkField'),
+            state: _state,
+            clearable: true,
+            onSuffixPressed: _state.isEmpty.value || _state.text.isEmpty
+                ? null
+                : () async {
+                    await widget.onSubmit?.call(null);
+                    setState(() => _editing = false);
+                  },
+            trailing: _state.isEmpty.value || _state.text.isEmpty
+                ? null
+                : const SvgIcon(SvgIcons.delete),
+            label: '${Config.link}/',
+          );
+        }),
       );
     } else if (widget.link == null) {
       child = Column(
@@ -268,12 +236,19 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: widget.background == null
-                        ? const SvgImage.asset(
-                            'assets/images/background_light.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          )
+                        // TODO: Safari lags.
+                        ? WebUtils.isSafari
+                            ? Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                color: style.colors.background,
+                              )
+                            : const SvgImage.asset(
+                                'assets/images/background_light.svg',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
                         : Image.memory(widget.background!, fit: BoxFit.cover),
                   ),
                 ),
@@ -320,12 +295,19 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: widget.background == null
-                        ? const SvgImage.asset(
-                            'assets/images/background_light.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          )
+                        ? // TODO: Safari lags.
+                        WebUtils.isSafari
+                            ? Container(
+                                width: double.infinity,
+                                height: double.infinity,
+                                color: style.colors.background,
+                              )
+                            : const SvgImage.asset(
+                                'assets/images/background_light.svg',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
                         : Image.memory(widget.background!, fit: BoxFit.cover),
                   ),
                 ),

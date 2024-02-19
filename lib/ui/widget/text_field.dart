@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -266,8 +268,8 @@ class ReactiveTextField extends StatelessWidget {
                               ? onCanceled == null
                                   ? const SizedBox(
                                       key: ValueKey('Error'),
-                                      width: 24,
-                                      child: SvgIcon(SvgIcons.errorBig),
+                                      // width: 24,
+                                      // child: SvgIcon(SvgIcons.errorBig),
                                     )
                                   : AllowOverflow(
                                       key: const ValueKey('Cancel'),
@@ -287,7 +289,7 @@ class ReactiveTextField extends StatelessWidget {
                                         child: Text(
                                           'btn_save'.l10n,
                                           style:
-                                              style.fonts.small.regular.danger,
+                                              style.fonts.small.regular.primary,
                                         ),
                                       ),
                                     )
@@ -389,6 +391,7 @@ class ReactiveTextField extends StatelessWidget {
               textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
+              textAlignVertical: const TextAlignVertical(y: 0.15),
               readOnly: (state.allowable && !state.hasAllowance.value) ||
                   readOnly ||
                   (!enabled || !state.editable.value),
@@ -636,6 +639,11 @@ class TextFieldState extends ReactiveFieldState {
       changed.value = controller.text != _previousSubmit;
 
       if (controller.text != prev) {
+        _debounce?.cancel();
+        _debounce = Timer(1.seconds, () {
+          onChanged?.call(this);
+        });
+
         prev = controller.text;
         if (revalidateOnUnfocus) {
           this.error.value = null;
@@ -656,6 +664,7 @@ class TextFieldState extends ReactiveFieldState {
             (_previousText != null || controller.text.isNotEmpty)) {
           isEmpty.value = controller.text.isEmpty;
           if (!this.focus.hasFocus) {
+            _debounce?.cancel();
             onChanged?.call(this);
             _previousText = controller.text;
           }
@@ -708,6 +717,8 @@ class TextFieldState extends ReactiveFieldState {
   /// was modified since the last [submit] action.
   String? _previousSubmit;
 
+  Timer? _debounce;
+
   /// Returns the text of the [TextEditingController].
   String get text => controller.text;
 
@@ -745,6 +756,7 @@ class TextFieldState extends ReactiveFieldState {
       if (controller.text != _previousSubmit) {
         if (_previousText != controller.text) {
           _previousText = controller.text;
+          _debounce?.cancel();
           onChanged?.call(this);
         }
         _previousSubmit = controller.text;
@@ -770,6 +782,7 @@ class TextFieldState extends ReactiveFieldState {
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
+    _debounce?.cancel();
     focus.unfocus();
   }
 }

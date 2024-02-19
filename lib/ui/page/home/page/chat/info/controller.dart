@@ -79,6 +79,7 @@ class ChatInfoController extends GetxController {
 
   final RxBool linkEditing = RxBool(false);
   final RxBool profileEditing = RxBool(false);
+  final RxBool bioEditing = RxBool(false);
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
@@ -110,6 +111,7 @@ class ChatInfoController extends GetxController {
   final AbstractSettingsRepository _settingsRepo;
 
   late final TextFieldState textStatus;
+  final RxnString bio = RxnString('Ретроспектива: 00:00 UTC');
 
   final RxBool displayName = RxBool(false);
 
@@ -198,6 +200,9 @@ class ChatInfoController extends GetxController {
     textStatus = TextFieldState(
       approvable: true,
       text: 'Ретроспектива: 00:00 UTC',
+      onSubmitted: (s) {
+        bioEditing.value = false;
+      },
     );
 
     link = TextFieldState(
