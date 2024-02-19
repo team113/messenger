@@ -957,13 +957,12 @@ jobs:
   deploy-staging:
     name: deploy (staging)
     if: ${{ github.ref == 'refs/heads/main' }}
-    needs: ["docker-push"]
+    needs: ["docker-push", "helm-lint"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: azure/setup-kubectl@v3
-
       - name: Login to Kubernetes cluster
         run: |
           set -ex
@@ -972,8 +971,16 @@ jobs:
           kubectl config set-credentials ${{ secrets.K8S_USER }} --token ${{ secrets.K8S_TOKEN }}
           kubectl config set-context ${{ secrets.K8S_CONTEXT }} --namespace=${{ secrets.K8S_NAMESPACE }} --cluster=${{ secrets.K8S_CLUSTER }} --user=${{ secrets.K8S_USER }}
 
-      - name: Prepare Helm values
-        run: echo "${{ secrets.K8S_VALUES }}" >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+      - name: Prepare secret Helm values
+        run: echo "${{ secrets.K8S_VALUES }}"
+             >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
 
-      - name: Deploy Helm release to Kubernetes cluster
-        run: make helm.up cluster=${{ secrets.K8S_CLUSTER }}
+      - run: make helm.up cluster=${{ secrets.K8S_CLUSTER }}
+
+      - name: Cleanup secret Helm values
+        run: rm -rf my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+        if: ${{ always() }}
+
+      - name: Logout from Kubernetes cluster
+        run: rm -rf ~/.kube/config
+        if: ${{ always() }}
