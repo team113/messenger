@@ -679,7 +679,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     if (versioned.events.none((e) =>
         e.kind == MyUserEventKind.directLinkUpdated ||
         e.kind == MyUserEventKind.directLinkDeleted ||
-            e.kind == MyUserEventKind.unreadChatsCountUpdated)) {
+        e.kind == MyUserEventKind.unreadChatsCountUpdated)) {
       userEntity.ver = versioned.ver;
     }
 
