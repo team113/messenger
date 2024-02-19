@@ -95,7 +95,7 @@ dependencies:
   toml: ^0.15.0
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
-  uuid: ^3.0.7
+  uuid: ^4.3.3
   vibration: ^1.8.1
   wakelock_plus: ^1.1.4
   web_socket_channel: ^2.4.0
@@ -148,8 +148,8 @@ dependency_overrides:
   http: ^1.1.0
   # TODO: Remove when `medea_jason` updates.
   medea_flutter_webrtc: 0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f
-  # TODO: Remove when `graphql` updates.
-  uuid: ^3.0.7
+  # TODO: Remove when `medea_jason` updates.
+  uuid: ^4.3.3
 
 flutter:
   uses-material-design: true
