@@ -134,15 +134,15 @@ Future<void> main() async {
   }
 
   await SentryFlutter.init(
-    (options) => {
-      options.dsn = Config.sentryDsn,
-      options.tracesSampleRate = 1.0,
+    (options) {
+      options.dsn = Config.sentryDsn;
+      options.tracesSampleRate = 1.0;
       options.release =
-          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}',
-      options.debug = true,
-      options.diagnosticLevel = SentryLevel.info,
-      options.enablePrintBreadcrumbs = true,
-      options.maxBreadcrumbs = 512,
+          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
+      options.debug = true;
+      options.diagnosticLevel = SentryLevel.info;
+      options.enablePrintBreadcrumbs = true;
+      options.maxBreadcrumbs = 512;
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 
@@ -165,7 +165,7 @@ Future<void> main() async {
         }
 
         return event;
-      },
+      };
       options.logger = (
         SentryLevel level,
         String message, {
@@ -191,7 +191,7 @@ Future<void> main() async {
             ].join('\n'),
           );
         }
-      },
+      };
     },
     appRunner: appRunner,
   );

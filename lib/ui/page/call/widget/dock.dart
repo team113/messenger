@@ -338,8 +338,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           _expanded = -1;
         }
       },
-      onWillAccept: (e) =>
-          (widget.onWillAccept?.call(e) ?? true) && _entry == null,
+      onWillAcceptWithDetails: (e) =>
+          (widget.onWillAccept?.call(e.data) ?? true) && _entry == null,
       builder: builder,
     );
   }
