@@ -249,7 +249,7 @@ class UserView extends StatelessWidget {
 
           if (!c.displayName.value) {
             title = Row(
-              // key: const Key('Profile'),
+              key: const Key('Profile'),
               children: [
                 const StyledBackButton(),
                 const SizedBox(width: 8),
