@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -656,7 +655,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     final bool blocklist = user.value.blocklistCount != null &&
         user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
 
-    if (user.ver >= _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
+    if (user.ver > _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
       user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
       _myUserLocal.set(user);
     }
@@ -666,22 +665,14 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
     final HiveMyUser? userEntity = _myUserLocal.myUser;
 
-    if (userEntity == null || versioned.ver < userEntity.ver) {
+    if (userEntity == null || versioned.ver <= userEntity.ver) {
       Log.debug(
         '_myUserRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
         '$runtimeType',
       );
       return;
     }
-
-    // TODO: Always update the [user.ver] when [MyUserEventsVersioned] will fire
-    //       in the correct order.
-    if (versioned.events.none((e) =>
-        e.kind == MyUserEventKind.directLinkUpdated ||
-        e.kind == MyUserEventKind.directLinkDeleted ||
-        e.kind == MyUserEventKind.unreadChatsCountUpdated)) {
-      userEntity.ver = versioned.ver;
-    }
+    userEntity.ver = versioned.ver;
 
     Log.debug(
       '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',

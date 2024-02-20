@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat_item.dart';
 import '../domain/repository/paginated.dart';
-import '/provider/hive/chat_item.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -172,30 +171,32 @@ class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
 }
 
 /// Implementation of a [Paginated] for [ChatItem]s.
-class MessagesPaginated extends PaginatedImpl<ChatItemKey, Rx<ChatItem>,
-    HiveChatItem, ChatItemsCursor> {
-  MessagesPaginated({
+class RxPaginatedImpl<K extends Comparable, R, H, C>
+    extends PaginatedImpl<K, R, H, C> {
+  RxPaginatedImpl({
+    required this.transform,
     required super.pagination,
     super.initialKey,
     super.initialCursor,
     super.onDispose,
   });
 
+  /// Callback, called to transform the [H] to [R].
+  final FutureOr<R> Function({R? previous, required H data}) transform;
+
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty) {
-      _paginationSubscription = pagination!.changes.listen((event) {
+      _paginationSubscription = pagination!.changes.listen((event) async {
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
-            if (items.containsKey(event.key!)) {
-              items[event.key!]!.value = event.value!.value;
-              items[event.key!]!.refresh();
-            } else {
-              items[event.key!] = Rx(event.value!.value);
-            }
+            items[event.key!] = await transform(
+              previous: items[event.key!],
+              data: event.value as H,
+            );
             break;
 
           case OperationKind.removed:

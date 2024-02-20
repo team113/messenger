@@ -1487,7 +1487,7 @@ class ChatRepository extends DisposableInterface
 
     // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null && !ignoreVersion) {
-      if (saved.ver != null && saved.ver! > chat.ver) {
+      if (saved.ver != null && saved.ver! >= chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
@@ -1520,7 +1520,7 @@ class ChatRepository extends DisposableInterface
         chat.value.firstItem ??=
             saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-        if (saved == null || (saved.ver <= chat.ver || ignoreVersion)) {
+        if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
           _recentLocal.put(chat.value.updatedAt, chatId);
 
           if (chat.value.favoritePosition != null) {
@@ -1603,8 +1603,7 @@ class ChatRepository extends DisposableInterface
         _favoriteLocal.remove(chatId);
       } else {
         final HiveRxChat? chat = chats[chatId];
-        if (chat == null ||
-            (chat.ver != null && chat.ver! <= event.value.ver)) {
+        if (chat == null || (chat.ver != null && chat.ver! < event.value.ver)) {
           _add(event.value);
         }
 
@@ -2174,16 +2173,9 @@ class ChatRepository extends DisposableInterface
         Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
         break;
 
-      case FavoriteChatsEventsKind.chatsList:
-        Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
-
-        var node = event as FavoriteChatsEventsChatsList;
-        _sessionLocal.setFavoriteChatsListVersion(node.ver);
-        break;
-
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
-        if (versioned.ver >= _sessionLocal.getFavoriteChatsListVersion()) {
+        if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
           _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
 
           Log.debug(
@@ -2194,23 +2186,8 @@ class ChatRepository extends DisposableInterface
           for (var event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
-                event as EventChatFavorited;
-                ChatData? data;
-
-                final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
-                if (hiveChat != null) {
-                  data = ChatData(hiveChat, null, null);
-                } else {
-                  final ChatMixin? query =
-                      (await _graphQlProvider.getChat(event.chatId)).chat;
-                  if (query != null) {
-                    data = _chat(query);
-                  }
-                }
-
-                if (data != null) {
-                  data.chat.value.favoritePosition = event.position;
-                  _putEntry(data);
+                if (chats[event.chatId] == null) {
+                  get(event.chatId);
                 }
                 break;
 
@@ -2246,9 +2223,7 @@ class ChatRepository extends DisposableInterface
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
         yield const FavoriteChatsEventsInitialized();
       } else if (events.$$typename == 'FavoriteChatsList') {
-        var chatsList = events
-            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
-        yield FavoriteChatsEventsChatsList(chatsList.chats.ver);
+        // No-op, as favorite chats are fetched through [Pagination].
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
         var mixin = events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;

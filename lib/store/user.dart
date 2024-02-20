@@ -357,8 +357,8 @@ class UserRepository extends DisposableInterface
     var saved = _userLocal.get(user.value.id);
 
     if (saved == null ||
-        saved.ver <= user.ver ||
-        saved.blockedVer <= user.blockedVer ||
+        saved.ver < user.ver ||
+        saved.blockedVer < user.blockedVer ||
         ignoreVersion) {
       await _userLocal.put(user);
     }

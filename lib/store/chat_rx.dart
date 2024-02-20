@@ -130,7 +130,9 @@ class HiveRxChat extends RxChat {
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [MessagesPaginated]s created by this [HiveRxChat].
-  final List<MessagesPaginated> _fragments = [];
+  final List<
+      RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem,
+          ChatItemsCursor>> _fragments = [];
 
   /// Subscriptions to the [MessagesPaginated.items] changes updating the
   /// [reads].
@@ -950,7 +952,9 @@ class HiveRxChat extends RxChat {
 
   /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
   /// [forward].
-  Future<MessagesPaginated> _paginateAround(
+  Future<
+      RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem,
+          ChatItemsCursor>> _paginateAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
@@ -1000,7 +1004,8 @@ class HiveRxChat extends RxChat {
     }
 
     // Try to find any [MessagesPaginated] already containing the item requested.
-    MessagesPaginated? fragment = _fragments.firstWhereOrNull(
+    RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>?
+        fragment = _fragments.firstWhereOrNull(
       (e) => e.items[key] != null,
     );
 
@@ -1017,9 +1022,19 @@ class HiveRxChat extends RxChat {
     Timer? debounce;
 
     _fragments.add(
-      fragment = MessagesPaginated(
+      fragment = RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem,
+          ChatItemsCursor>(
         initialKey: key,
         initialCursor: cursor,
+        transform: ({required HiveChatItem data, Rx<ChatItem>? previous}) {
+          if (previous != null) {
+            return previous
+              ..value = data.value
+              ..refresh();
+          }
+
+          return Rx(data.value);
+        },
         pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
           onKey: (e) => e.value.key,
           provider: HiveGraphQlPageProvider(
@@ -1344,7 +1359,7 @@ class HiveRxChat extends RxChat {
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
-              versioned.ver < chatEntity.ver ||
+              versioned.ver <= chatEntity.ver ||
               !subscribed) {
             Log.debug(
               '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
