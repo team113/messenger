@@ -156,15 +156,15 @@ class HiveRxUser extends RxUser {
         Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
 
         events as UserEventsUser;
-        var saved = _userLocal.get(id);
+        final saved = _userLocal.get(id);
         if (saved == null || saved.ver < events.user.ver) {
           await _userLocal.put(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsEvent).event;
+        final userEntity = _userLocal.get(id);
+        final versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver <= userEntity.ver) {
           Log.debug(
             '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
@@ -251,8 +251,8 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.blocklistEvent:
-        var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsBlocklistEventsEvent).event;
+        final userEntity = _userLocal.get(id);
+        final versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
         if (userEntity != null && userEntity.blockedVer > versioned.ver) {
@@ -265,8 +265,8 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.isBlocked:
-        var versioned = events as UserEventsIsBlocked;
-        var userEntity = _userLocal.get(id);
+        final versioned = events as UserEventsIsBlocked;
+        final userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
