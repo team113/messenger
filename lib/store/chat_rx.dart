@@ -63,6 +63,9 @@ import 'event/chat.dart';
 import 'paginated.dart';
 import 'pagination/graphql.dart';
 
+typedef MessagesPaginated
+    = RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
+
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
   HiveRxChat(
@@ -130,9 +133,7 @@ class HiveRxChat extends RxChat {
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
   /// [MessagesPaginated]s created by this [HiveRxChat].
-  final List<
-      RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem,
-          ChatItemsCursor>> _fragments = [];
+  final List<MessagesPaginated> _fragments = [];
 
   /// Subscriptions to the [MessagesPaginated.items] changes updating the
   /// [reads].
@@ -952,9 +953,7 @@ class HiveRxChat extends RxChat {
 
   /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
   /// [forward].
-  Future<
-      RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem,
-          ChatItemsCursor>> _paginateAround(
+  Future<MessagesPaginated> _paginateAround(
     ChatItem item, {
     ChatItemId? reply,
     ChatItemId? forward,
@@ -1004,8 +1003,7 @@ class HiveRxChat extends RxChat {
     }
 
     // Try to find any [MessagesPaginated] already containing the item requested.
-    RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>?
-        fragment = _fragments.firstWhereOrNull(
+    MessagesPaginated? fragment = _fragments.firstWhereOrNull(
       (e) => e.items[key] != null,
     );
 
@@ -1022,8 +1020,7 @@ class HiveRxChat extends RxChat {
     Timer? debounce;
 
     _fragments.add(
-      fragment = RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem,
-          ChatItemsCursor>(
+      fragment = MessagesPaginated(
         initialKey: key,
         initialCursor: cursor,
         transform: ({required HiveChatItem data, Rx<ChatItem>? previous}) {
