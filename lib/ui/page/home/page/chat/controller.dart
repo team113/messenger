@@ -475,8 +475,8 @@ class ChatController extends GetxController {
       }
     });
 
-    // Stop the [_typingSubscription] when the send field loses focus.
-    send.field.focus.addListener(_focusListener);
+    // Stop the [_typingSubscription] when the send field loses its focus.
+    send.field.focus.addListener(_stopTypingOnUnfocus);
 
     super.onInit();
   }
@@ -509,8 +509,8 @@ class ChatController extends GetxController {
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
 
-    edit.value?.field.focus.removeListener(_focusListener);
-    send.field.focus.removeListener(_focusListener);
+    edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
+    send.field.focus.removeListener(_stopTypingOnUnfocus);
 
     send.onClose();
     edit.value?.onClose();
@@ -639,19 +639,17 @@ class ChatController extends GetxController {
                 ),
               );
 
+              closeEditing();
+
               send.field.focus.requestFocus();
             } on EditChatMessageException catch (e) {
               MessagePopup.error(e);
             } catch (e) {
               MessagePopup.error(e);
               rethrow;
-            } finally {
-              closeEditing();
             }
           } else {
             MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
-
-            closeEditing();
           }
         },
         onChanged: () {
@@ -664,14 +662,14 @@ class ChatController extends GetxController {
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
 
-      // Stop the [_typingSubscription] when the edit field loses focus.
-      edit.value?.field.focus.addListener(_focusListener);
+      // Stop the [_typingSubscription] when the edit field loses its focus.
+      edit.value?.field.focus.addListener(_stopTypingOnUnfocus);
     }
   }
 
   /// Closes the [edit]ing if any.
   void closeEditing() {
-    edit.value?.field.focus.removeListener(_focusListener);
+    edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
     edit.value?.onClose();
     edit.value = null;
   }
@@ -1192,8 +1190,9 @@ class ChatController extends GetxController {
     return attachments;
   }
 
-  /// Callback, called when the message field changes.
-  void onChanged() {
+  /// Keeps [ChatService.keepTyping] subscription if message field is not empty
+  /// and cancels it otherwise.
+  void updateTypingStatus() {
     final bool sendIsEmpty = send.field.text.isEmpty;
     final bool? editIsEmpty = edit.value?.field.text.isEmpty;
 
@@ -1510,24 +1509,23 @@ class ChatController extends GetxController {
     _typingTimer = Timer(_typingTimeout, _stopTyping);
   }
 
+  /// Stops the [ChatService.keepTyping] subscription indicating the typing has
+  /// been stopped in this [chat].
+  void _stopTyping() {
+    _typingTimer?.cancel();
+    _typingSubscription?.cancel();
+    _typingSubscription = null;
+  }
+
   /// Stops the [ChatService.keepTyping] subscription when message field loses
   /// its focus.
-  void _focusListener() {
+  void _stopTypingOnUnfocus() {
     final bool sendHasFocus = send.field.focus.hasFocus;
     final bool editHasFocus = edit.value?.field.focus.hasFocus ?? false;
 
     if (!sendHasFocus && !editHasFocus) {
       _stopTyping();
     }
-  }
-
-  /// Stops the [ChatService.keepTyping] subscription indicating the typing has
-  /// been stopped in this [chat].
-  void _stopTyping() {
-    _typingTimer?.cancel();
-
-    _typingSubscription?.cancel();
-    _typingSubscription = null;
   }
 
   /// Fetches the [ChatItem]s around the provided [item] or its [reply] or
