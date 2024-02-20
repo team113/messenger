@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.16"
+  FLUTTER_VER: "3.19"
 
 jobs:
 
@@ -953,3 +953,34 @@ jobs:
   #                 token=${{ secrets.SENTRY_TOKEN }}
   #                 release=${{ steps.semver.outputs.group1 }}
   #                 url=${{ secrets.SENTRY_URL }}
+
+  deploy-staging:
+    name: deploy (staging)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: ["docker-push", "helm-lint"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-kubectl@v3
+      - name: Login to Kubernetes cluster
+        run: |
+          set -ex
+
+          kubectl config set-cluster ${{ secrets.K8S_CLUSTER }} --server=${{ secrets.K8S_API }} --insecure-skip-tls-verify=true
+          kubectl config set-credentials ${{ secrets.K8S_USER }} --token ${{ secrets.K8S_TOKEN }}
+          kubectl config set-context ${{ secrets.K8S_CONTEXT }} --namespace=${{ secrets.K8S_NAMESPACE }} --cluster=${{ secrets.K8S_CLUSTER }} --user=${{ secrets.K8S_USER }}
+
+      - name: Prepare secret Helm values
+        run: echo "${{ secrets.K8S_VALUES }}"
+             >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+
+      - run: make helm.up cluster=${{ secrets.K8S_CLUSTER }}
+
+      - name: Cleanup secret Helm values
+        run: rm -rf my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+        if: ${{ always() }}
+
+      - name: Logout from Kubernetes cluster
+        run: rm -rf ~/.kube/config
+        if: ${{ always() }}

@@ -224,8 +224,8 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
     if (children.isEmpty) {
       if (allowEmptyTarget) {
         return DragTarget<T>(
-          onAccept: (o) => onAdded?.call(o, 0),
-          onWillAccept: (b) => onWillAccept?.call(b) ?? true,
+          onAcceptWithDetails: (o) => onAdded?.call(o.data, 0),
+          onWillAcceptWithDetails: (b) => onWillAccept?.call(b.data) ?? true,
           onLeave: onLeave,
           builder: ((_, __, ___) {
             return SizedBox(
@@ -662,9 +662,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       }
                     }
                   },
-                  onWillAccept: (b) {
+                  onWillAcceptWithDetails: (b) {
                     if (b != item.item &&
-                        (widget.onWillAccept?.call(b) ?? true)) {
+                        (widget.onWillAccept?.call(b.data) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         // If this item is not the [_doughDragged], then ignore
@@ -673,7 +673,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                           return false;
                         }
 
-                        _onWillAccept(b!, index, i);
+                        _onWillAccept(b.data, index, i);
                       }
 
                       return true;
@@ -681,7 +681,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
                     return false;
                   },
-                  onAccept: (o) => _onAccept(o, index, index),
+                  onAcceptWithDetails: (o) => _onAccept(o.data, index, index),
                 ),
               ),
               Expanded(
@@ -707,9 +707,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                       }
                     }
                   },
-                  onWillAccept: (b) {
+                  onWillAcceptWithDetails: (b) {
                     if (b != item.item &&
-                        (widget.onWillAccept?.call(b) ?? true)) {
+                        (widget.onWillAccept?.call(b.data) ?? true)) {
                       int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         // If this item is not the [_doughDragged], then ignore
@@ -718,7 +718,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                           return false;
                         }
 
-                        _onWillAccept(b!, index, i);
+                        _onWillAccept(b.data, index, i);
                       }
 
                       return true;
@@ -726,7 +726,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
                     return false;
                   },
-                  onAccept: (o) => _onAccept(o, index, index + 1),
+                  onAcceptWithDetails: (o) =>
+                      _onAccept(o.data, index, index + 1),
                 ),
               ),
             ],
@@ -800,11 +801,12 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               right: widget.right,
               bottom: widget.bottom,
               child: DragTarget<T>(
-                onAccept: (o) => _onAccept(o, _items.length, _items.length),
+                onAcceptWithDetails: (o) =>
+                    _onAccept(o.data, _items.length, _items.length),
                 onLeave: widget.onLeave,
-                onWillAccept: (o) =>
-                    !_items.contains(o) &&
-                    (widget.onWillAccept?.call(o) ?? true),
+                onWillAcceptWithDetails: (o) =>
+                    !_items.contains(o.data) &&
+                    (widget.onWillAccept?.call(o.data) ?? true),
                 builder: (context, candidates, rejected) {
                   return IgnorePointer(
                     ignoring: candidates.isNotEmpty && rejected.isEmpty,
