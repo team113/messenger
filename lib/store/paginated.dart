@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat_item.dart';
 import '../domain/repository/paginated.dart';
-import '/provider/hive/chat_item.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -171,31 +170,43 @@ class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
   }
 }
 
-/// Implementation of a [Paginated] for [ChatItem]s.
-class MessagesPaginated extends PaginatedImpl<ChatItemKey, Rx<ChatItem>,
-    HiveChatItem, ChatItemsCursor> {
-  MessagesPaginated({
+/// Implementation of a [Paginated] transforming [V] from [Pagination] to [T]
+/// value.
+class RxPaginatedImpl<K extends Comparable, T, V, C>
+    extends PaginatedImpl<K, T, V, C> {
+  RxPaginatedImpl({
+    required this.transform,
     required super.pagination,
     super.initialKey,
     super.initialCursor,
     super.onDispose,
   });
 
+  /// Callback, called to transform the [V] to [T].
+  final FutureOr<T> Function({T? previous, required V data}) transform;
+
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty) {
-      _paginationSubscription = pagination!.changes.listen((event) {
+      _paginationSubscription = pagination!.changes.listen((event) async {
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
-            if (items.containsKey(event.key!)) {
-              items[event.key!]!.value = event.value!.value;
-              items[event.key!]!.refresh();
+            FutureOr<T> itemOrFuture = transform(
+              previous: items[event.key!],
+              data: event.value as V,
+            );
+            final T item;
+
+            if (itemOrFuture is T) {
+              item = itemOrFuture;
             } else {
-              items[event.key!] = Rx(event.value!.value);
+              item = await itemOrFuture;
             }
+
+            items[event.key!] = item;
             break;
 
           case OperationKind.removed:
