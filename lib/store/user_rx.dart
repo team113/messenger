@@ -190,6 +190,15 @@ class HiveRxUser extends RxUser {
               userEntity.value.avatar = event.avatar;
               break;
 
+            case UserEventKind.bioDeleted:
+              userEntity.value.bio = null;
+              break;
+
+            case UserEventKind.bioUpdated:
+              event as EventUserBioUpdated;
+              userEntity.value.bio = event.bio;
+              break;
+
             case UserEventKind.cameOffline:
               event as EventUserCameOffline;
               userEntity.value.online = false;

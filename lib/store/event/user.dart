@@ -18,8 +18,8 @@
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/provider/hive/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
@@ -29,6 +29,8 @@ import 'my_user.dart' show BlocklistEvent;
 enum UserEventKind {
   avatarDeleted,
   avatarUpdated,
+  bioDeleted,
+  bioUpdated,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
@@ -185,6 +187,30 @@ class EventUserAvatarUpdated extends UserEvent {
 
   @override
   UserEventKind get kind => UserEventKind.avatarUpdated;
+}
+
+/// Event of an [UserBio] being deleted.
+class EventUserBioDeleted extends UserEvent {
+  const EventUserBioDeleted(super.userId, this.at);
+
+  final PreciseDateTime at;
+
+  @override
+  UserEventKind get kind => UserEventKind.bioDeleted;
+}
+
+/// Event of an [UserBio] being updated.
+class EventUserBioUpdated extends UserEvent {
+  const EventUserBioUpdated(super.userId, this.bio, this.at);
+
+  /// New [UserBio].
+  final UserBio bio;
+
+  /// [PreciseDateTime] when the [UserBio] was updated.
+  final PreciseDateTime at;
+
+  @override
+  UserEventKind get kind => UserEventKind.bioUpdated;
 }
 
 /// Event of an [UserCallCover] being deleted.

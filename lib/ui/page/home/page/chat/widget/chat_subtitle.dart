@@ -177,12 +177,14 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
       if (chat.isGroup) {
         final String? subtitle = chat.getSubtitle();
+
         if (subtitle != null) {
           return Text(
             subtitle,
             style: style.fonts.small.regular.secondary,
           );
         }
+
         return const SizedBox();
       } else if (chat.isDialog) {
         final RxUser? member = widget.chat.members.values
@@ -190,15 +192,19 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         if (member != null) {
           return Obx(() {
-            final String? subtitle = chat.getSubtitle(partner: member);
+            final String? presence = chat.getSubtitle(partner: member);
             final UserBio? bio = member.user.value.bio;
 
-            if (bio == null && subtitle == null) {
+            if (bio == null && presence == null) {
               return const SizedBox();
             }
 
+            final String subtitle = [presence, bio]
+                .whereNotNull()
+                .join('space_vertical_space'.l10n);
+
             return Text(
-              [subtitle, bio].whereNotNull().join('space_vertical_space'.l10n),
+              subtitle,
               style: style.fonts.small.regular.secondary,
             );
           });

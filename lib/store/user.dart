@@ -492,6 +492,12 @@ class UserRepository extends DisposableInterface
     } else if (e.$$typename == 'EventUserStatusUpdated') {
       var node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status, node.at);
+    } else if (e.$$typename == 'EventUserBioDeleted') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
+      return EventUserBioDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserBioUpdated') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
+      return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }
