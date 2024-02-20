@@ -125,6 +125,7 @@ class UserController extends GetxController {
 
   final RxBool editing = RxBool(false);
   final RxBool profileEditing = RxBool(false);
+    final RxBool moneyEditing = RxBool(false);
   final RxBool linkEditing = RxBool(false);
 
   final TextFieldState name = TextFieldState(

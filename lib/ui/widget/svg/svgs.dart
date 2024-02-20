@@ -70,6 +70,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData chat16White = SvgData(
+    'assets/icons/chat16_white.svg',
+    // width: 15,
+    height: 18,
+  );
+
   static const SvgData chatAudioCall = SvgData(
     'assets/icons/chat_audio_call.svg',
     width: 21,
@@ -1834,6 +1840,12 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData report16White = SvgData(
+    'assets/icons/complaint16_white.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData unfavorite16 = SvgData(
     'assets/icons/unfavorite16.svg',
     // width: 16.82,
@@ -1866,8 +1878,14 @@ class SvgIcons {
 
   static const SvgData report = SvgData(
     'assets/icons/report.svg',
-    width: 19,
-    height: 19,
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData reportWhite = SvgData(
+    'assets/icons/report_white.svg',
+    width: 18,
+    height: 18,
   );
 
   static const SvgData delete19 = SvgData(
@@ -2018,6 +2036,12 @@ class SvgIcons {
     'assets/icons/add_member.svg',
     width: 17,
     height: 17,
+  );
+
+  static const SvgData addMemberSmall = SvgData(
+    'assets/icons/add_member_small.svg',
+    width: 14.85,
+    height: 14.85,
   );
 
   static const SvgData download19 = SvgData(

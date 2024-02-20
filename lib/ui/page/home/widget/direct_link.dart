@@ -99,6 +99,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       text: widget.link?.slug.val,
       approvable: true,
       submitted: widget.link != null,
+      debounce: true,
       onChanged: (s) {
         s.error.value = null;
 
@@ -106,7 +107,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           try {
             ChatDirectLinkSlug(s.text);
           } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
+            s.error.value = 'err_invalid_symbols_in_link'.l10n;
           }
         }
       },
@@ -117,7 +118,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           try {
             slug = ChatDirectLinkSlug(s.text);
           } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
+            s.error.value = 'err_invalid_symbols_in_link'.l10n;
           }
 
           if (widget.editing != true) {
@@ -143,7 +144,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             s.error.value = e.toMessage();
           } catch (e) {
             s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
+            s.error.value = 'err_data_transfer'.l10n;
             s.unsubmit();
             rethrow;
           } finally {

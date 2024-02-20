@@ -150,7 +150,7 @@ class _ChatBioFieldState extends State<ChatBioField> {
             //     ? null
             //     : const SvgIcon(SvgIcons.delete),
             maxLines: null,
-            label: 'О группе',
+            label: 'Описание',
           ),
         ),
       );
@@ -167,7 +167,7 @@ class _ChatBioFieldState extends State<ChatBioField> {
                   widget.onEditing?.call(_editing);
                 },
                 child: Text(
-                  'Написать о группе',
+                  'Добавить описание',
                   style: style.fonts.normal.regular.primary,
                   textAlign: TextAlign.center,
                 ),

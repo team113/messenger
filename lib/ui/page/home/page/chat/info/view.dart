@@ -103,6 +103,12 @@ class ChatInfoView extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 4, left: 20),
               actions: [
                 ContextMenuButton(
+                  label: 'Открыть чат'.l10n,
+                  onPressed: () => router.chat(id),
+                  trailing: const SvgIcon(SvgIcons.chat16),
+                  inverted: const SvgIcon(SvgIcons.chat16White),
+                ),
+                ContextMenuButton(
                   label: 'btn_audio_call'.l10n,
                   onPressed: hasCall ? null : () => c.call(false),
                   trailing: hasCall
@@ -140,6 +146,33 @@ class ChatInfoView extends StatelessWidget {
                         : SvgIcons.unfavoriteSmallWhite,
                   ),
                 ),
+                if (!c.isMonolog)
+                  ContextMenuButton(
+                    onPressed: c.report,
+                    label: 'btn_report'.l10n,
+                    trailing: const SvgIcon(SvgIcons.report),
+                    inverted: const SvgIcon(SvgIcons.reportWhite),
+                  ),
+                ContextMenuButton(
+                  onPressed: () => _clearChat(c, context),
+                  label: 'btn_clear_history'.l10n,
+                  trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
+                ),
+                ContextMenuButton(
+                  key: const Key('HideChatButton'),
+                  onPressed: () => _hideChat(c, context),
+                  label: 'btn_delete_chat'.l10n,
+                  trailing: const SvgIcon(SvgIcons.delete19),
+                  inverted: const SvgIcon(SvgIcons.delete19White),
+                ),
+                if (!c.isMonolog)
+                  ContextMenuButton(
+                    onPressed: () => _leaveGroup(c, context),
+                    label: 'btn_leave_group'.l10n,
+                    trailing: const SvgIcon(SvgIcons.leaveGroup),
+                    inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
+                  ),
               ],
               child: Container(
                 padding: const EdgeInsets.only(left: 31, right: 25),
@@ -364,39 +397,41 @@ class ChatInfoView extends StatelessWidget {
                               if (c.profileEditing.value) {
                                 children = [
                                   const SizedBox(height: 4),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      WidgetButton(
-                                        key: const Key('UploadAvatar'),
-                                        onPressed: c.pickAvatar,
-                                        child: Text(
-                                          'btn_upload'.l10n,
-                                          style:
-                                              style.fonts.small.regular.primary,
+                                  SelectionContainer.disabled(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        WidgetButton(
+                                          key: const Key('UploadAvatar'),
+                                          onPressed: c.pickAvatar,
+                                          child: Text(
+                                            'btn_upload'.l10n,
+                                            style: style
+                                                .fonts.small.regular.primary,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'space_or_space'.l10n,
-                                        style: style
-                                            .fonts.small.regular.onBackground,
-                                      ),
-                                      WidgetButton(
-                                        key: const Key('DeleteAvatar'),
-                                        onPressed: c.deleteAvatar,
-                                        child: Text(
-                                          'btn_delete'.l10n.toLowerCase(),
-                                          style:
-                                              style.fonts.small.regular.primary,
+                                        Text(
+                                          'space_or_space'.l10n,
+                                          style: style
+                                              .fonts.small.regular.onBackground,
                                         ),
-                                      ),
-                                    ],
+                                        WidgetButton(
+                                          key: const Key('DeleteAvatar'),
+                                          onPressed: c.deleteAvatar,
+                                          child: Text(
+                                            'btn_delete'.l10n.toLowerCase(),
+                                            style: style
+                                                .fonts.small.regular.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   const SizedBox(height: 18),
                                   SelectionContainer.disabled(
                                     child: ReactiveTextField(
                                       state: c.name,
-                                      label: 'Name',
+                                      label: 'label_name'.l10n,
                                       hint: c.chat?.title.value,
                                     ),
                                   ),
@@ -434,37 +469,66 @@ class ChatInfoView extends StatelessWidget {
                         if (!c.isMonolog) ...[
                           SelectionContainer.disabled(
                             child: Block(
-                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    8 + 8,
-                                    8,
-                                    8 + 8,
-                                    8 + 5,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          'label_participants'.l10nfmt(
-                                            {'count': c.chat!.members.length},
-                                          ),
-                                          style: style
-                                              .fonts.big.regular.onBackground,
-                                        ),
+                              padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+                              overlay: [
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: AnimatedButton(
+                                    decorator: (child) => Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        2,
+                                        4,
+                                        2,
+                                        2,
                                       ),
-                                      AnimatedButton(
-                                        onPressed: () => AddChatMemberView.show(
-                                          context,
-                                          chatId: id,
-                                        ),
-                                        child:
-                                            const SvgIcon(SvgIcons.addMember),
-                                      )
-                                    ],
+                                      child: child,
+                                    ),
+                                    onPressed: () => AddChatMemberView.show(
+                                      context,
+                                      chatId: id,
+                                    ),
+                                    child: const SvgIcon(
+                                      SvgIcons.addMemberSmall,
+                                    ),
                                   ),
                                 ),
+                              ],
+                              title: 'label_participants'.l10nfmt(
+                                {'count': c.chat!.members.length},
+                              ),
+                              children: [
+                                // Padding(
+                                //   padding: const EdgeInsets.fromLTRB(
+                                //     8 + 0,
+                                //     4,
+                                //     0 + 0,
+                                //     8 + 5,
+                                //   ),
+                                //   child: Row(
+                                //     crossAxisAlignment:
+                                //         CrossAxisAlignment.start,
+                                //     children: [
+                                //       Expanded(
+                                //         child: Padding(
+                                //           padding: const EdgeInsets.fromLTRB(
+                                //             0,
+                                //             8,
+                                //             0,
+                                //             0,
+                                //           ),
+                                //           child: Text(
+                                //             'label_participants'.l10nfmt(
+                                //               {'count': c.chat!.members.length},
+                                //             ),
+                                //             style: style
+                                //                 .fonts.big.regular.onBackground,
+                                //           ),
+                                //         ),
+                                //       ),
+                                //     ],
+                                //   ),
+                                // ),
                                 _members(c, context),
                               ],
                             ),
@@ -643,7 +707,7 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
       ],
-      // title: 'О группе',
+      title: 'О группе',
       children: [
         Obx(() {
           return ChatBioField(

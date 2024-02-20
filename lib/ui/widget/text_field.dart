@@ -614,6 +614,7 @@ class TextFieldState extends ReactiveFieldState {
     bool editable = true,
     bool submitted = true,
     bool revalidateOnUnfocus = false,
+    bool debounce = false,
     String? error,
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
@@ -640,9 +641,10 @@ class TextFieldState extends ReactiveFieldState {
 
       if (controller.text != prev) {
         _debounce?.cancel();
-        _debounce = Timer(1.seconds, () {
-          onChanged?.call(this);
-        });
+
+        if (debounce) {
+          _debounce = Timer(1.seconds, () => onChanged?.call(this));
+        }
 
         prev = controller.text;
         if (revalidateOnUnfocus) {

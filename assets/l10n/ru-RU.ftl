@@ -289,7 +289,7 @@ err_call_popup_was_blocked =
     Разрешите всплывающие окна, чтобы отображать в них звонки
 err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
-err_chat_direct_link_occupied = Ссылка занята
+err_chat_direct_link_occupied = Ссылка занята.
 err_code_limit_exceed =
     Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
@@ -313,6 +313,7 @@ err_input_empty = Поле не должно быть пустым.
 err_invalid_crop_coordinates = Неверные координаты обрезки
 err_invalid_crop_points = Неверные точки обрезки
 err_invalid_registration_token = Некорректный регистрационный токен
+err_invalid_symbols_in_link = Недопустимые символы. Допускается использование символов: A-z, -, _ и 0-9
 err_unknown_registration_token = Неизвестный регистрационный токен
 err_login_occupied = Данный логин уже занят.
 err_media_devices_are_null = Невозможно получить `MediaStream` с `video`, т.к. `window.navigator.mediaDevices` является `null`. Вероятно, конфигурация Вашего браузера не позволяет получить медиа устройства. Подкорректируйте настройки и убедитесь в доступности медиа устройств.

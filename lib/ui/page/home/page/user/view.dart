@@ -236,6 +236,20 @@ class UserView extends StatelessWidget {
                         : SvgIcons.unfavoriteSmallWhite,
                   ),
                 ),
+                ContextMenuButton(
+                  label: 'btn_report'.l10n,
+                  onPressed: c.report,
+                  trailing: const SvgIcon(SvgIcons.report),
+                  inverted: const SvgIcon(SvgIcons.reportWhite),
+                ),
+                ContextMenuButton(
+                  label: blocked ? 'btn_unblock'.l10n : 'btn_block'.l10n,
+                  onPressed: blocked
+                      ? c.unblacklist
+                      : () => _blacklistUser(c, context),
+                  trailing: const SvgIcon(SvgIcons.block),
+                  inverted: const SvgIcon(SvgIcons.blockWhite),
+                )
               ],
               child: Container(
                 padding: const EdgeInsets.only(left: 21 + 10, right: 4 + 21),
@@ -356,7 +370,7 @@ class UserView extends StatelessWidget {
                         SelectionContainer.disabled(
                           child: ReactiveTextField(
                             state: c.name,
-                            label: 'Name',
+                            label: 'label_name'.l10n,
                             hint: c.user!.user.value.name?.val ??
                                 c.user!.user.value.num.toString(),
                           ),
@@ -364,8 +378,7 @@ class UserView extends StatelessWidget {
                       ],
                     ),
                     Block(
-                      title:
-                          'Принимать оплату за входящие сообщения и входящие звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
+                      // title: 'Get Paid',
                       children: [_paid(c, context)],
                     ),
                     // _money(c, context),
@@ -431,30 +444,33 @@ class UserView extends StatelessWidget {
                         if (c.profileEditing.value) {
                           children = [
                             const SizedBox(height: 4),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                WidgetButton(
-                                  key: const Key('UploadAvatar'),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'btn_upload'.l10n,
-                                    style: style.fonts.small.regular.primary,
+                            SelectionContainer.disabled(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  WidgetButton(
+                                    key: const Key('UploadAvatar'),
+                                    onPressed: () {},
+                                    child: Text(
+                                      'btn_upload'.l10n,
+                                      style: style.fonts.small.regular.primary,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'space_or_space'.l10n,
-                                  style: style.fonts.small.regular.onBackground,
-                                ),
-                                WidgetButton(
-                                  key: const Key('DeleteAvatar'),
-                                  onPressed: () {},
-                                  child: Text(
-                                    'btn_delete'.l10n.toLowerCase(),
-                                    style: style.fonts.small.regular.primary,
+                                  Text(
+                                    'space_or_space'.l10n,
+                                    style:
+                                        style.fonts.small.regular.onBackground,
                                   ),
-                                ),
-                              ],
+                                  WidgetButton(
+                                    key: const Key('DeleteAvatar'),
+                                    onPressed: () {},
+                                    child: Text(
+                                      'btn_delete'.l10n.toLowerCase(),
+                                      style: style.fonts.small.regular.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 18),
                             SelectionContainer.disabled(
@@ -574,6 +590,7 @@ class UserView extends StatelessWidget {
                           // onSubmit: (_) {
                           //   c.linkEditing.value = false;
                           // },
+                          editing: false,
                           transitions: false,
                           background: c.background.value,
                           // editing: c.linkEditing.value,
@@ -1195,8 +1212,33 @@ class UserView extends StatelessWidget {
       child: Stack(
         children: [
           Block(
-            title:
-                'Установить цену за сообщения и звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
+            // title:
+            //     'Установить цену за сообщения и звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
+            title: 'Монетизация',
+            overlay: [
+              Positioned(
+                right: 0,
+                top: 0,
+                child: Center(
+                  child: SelectionContainer.disabled(
+                    child: AnimatedButton(
+                      onPressed: c.moneyEditing.toggle,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                        child: c.moneyEditing.value
+                            ? const Padding(
+                                padding: EdgeInsets.all(2),
+                                child: SvgIcon(
+                                  SvgIcons.closeSmallPrimary,
+                                ),
+                              )
+                            : const SvgIcon(SvgIcons.editSmall),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             children: [_paid(c, context)],
           ),
           Positioned.fill(
@@ -1268,69 +1310,138 @@ class UserView extends StatelessWidget {
   Widget _paid(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Входящее сообщение: ',
-                  style: style.fonts.normal.regular.secondary,
-                ),
-                TextSpan(
-                  text: '¤0',
-                  style: style.fonts.normal.regular.onBackground,
-                ),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Входящий звонок: ',
-                  style: style.fonts.normal.regular.secondary,
-                ),
-                TextSpan(
-                  text: '¤0/мин',
-                  style: style.fonts.normal.regular.onBackground,
-                ),
-              ],
-            ),
-          ),
-          // Paddings.dense(
-          //   Stack(
-          //     children: [
-          //       Padding(
-          //         padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //         child: InfoTile(
-          //           title: 'Цена входящего сообщения',
-          //           content: '¤${c.messageCost.text}',
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // Paddings.dense(
-          //   Stack(
-          //     children: [
-          //       Paddings.basic(
-          //         InfoTile(
-          //           title: 'Цена входящего звонка (за 1 минуту)',
-          //           content: '¤${c.callsCost.text}',
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+    return Obx(() {
+      final Widget child;
 
-          // Opacity(opacity: 0, child: _verification(context, c)),
-        ],
-      ),
-    );
+      if (c.moneyEditing.value) {
+        child = Paddings.basic(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // const SizedBox(height: 8),
+              ReactiveTextField(
+                state: c.messageCost,
+                style: style.fonts.medium.regular.onBackground,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                hint: '0',
+                prefix: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                  child: Transform.translate(
+                    offset: PlatformUtils.isWeb
+                        ? const Offset(0, -0)
+                        : const Offset(0, -0.5),
+                    child: Text(
+                      '¤',
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
+                  ),
+                ),
+                label: 'Входящие сообщения, за 1 сообщение',
+              ),
+              const SizedBox(height: 16),
+              ReactiveTextField(
+                state: c.callsCost,
+                style: style.fonts.medium.regular.onBackground,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                hint: '0',
+                prefix: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                  child: Transform.translate(
+                    offset: PlatformUtils.isWeb
+                        ? const Offset(0, -0)
+                        : const Offset(0, -0.5),
+                    child: Text(
+                      '¤',
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
+                  ),
+                ),
+                label: 'Входящие звонки, за 1 минуту',
+              ),
+            ],
+          ),
+        );
+      } else {
+        child = Column(
+          key: const Key('1'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(width: double.infinity),
+
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Входящее сообщение: ',
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                  TextSpan(
+                    text: '¤0',
+                    style: style.fonts.normal.regular.onBackground,
+                  ),
+                ],
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Входящий звонок: ',
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                  TextSpan(
+                    text: '¤0/мин',
+                    style: style.fonts.normal.regular.onBackground,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            // 'saber может платить Вам за отправку своих сообщений и звонки Вам. Эта настройка индивидуальна для saber.',
+            Text(
+              '${c.user?.user.value.name ?? c.user?.user.value.num} может платить Вам за отправку своих сообщений и звонки Вам. Эта настройка индивидуальна для ${c.user?.user.value.name ?? c.user?.user.value.num}.',
+              style: style.fonts.small.regular.secondary,
+            ),
+
+            // Paddings.dense(
+            //   Stack(
+            //     children: [
+            //       Padding(
+            //         padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            //         child: InfoTile(
+            //           title: 'Цена входящего сообщения',
+            //           content: '¤${c.messageCost.text}',
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // Paddings.dense(
+            //   Stack(
+            //     children: [
+            //       Paddings.basic(
+            //         InfoTile(
+            //           title: 'Цена входящего звонка (за 1 минуту)',
+            //           content: '¤${c.callsCost.text}',
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+
+            // Opacity(opacity: 0, child: _verification(context, c)),
+          ],
+        );
+      }
+
+      return AnimatedSizeAndFade(
+        sizeDuration: const Duration(milliseconds: 300),
+        fadeDuration: const Duration(milliseconds: 300),
+        child: child,
+      );
+    });
   }
 
   /// Opens a confirmation popup deleting the [User] from address book.
