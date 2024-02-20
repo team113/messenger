@@ -312,7 +312,10 @@ class HiveRxChat extends RxChat {
       chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
     );
 
-    _updateTitle();
+    // Provide [List] of chat members to the [_updateTitle] to synchronously
+    // initialize the [title].
+    // Important for notifications to show correct title when a new chat added.
+    _updateTitle(chat.value.members.map((e) => e.user).toList());
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
 
     Chat previous = chat.value;
@@ -510,6 +513,8 @@ class HiveRxChat extends RxChat {
       return;
     }
 
+    // [chat] always contains first 3 members, so no need to fetch them if it is
+    // not a [ChatKind.group].
     if (!chat.value.isGroup && chat.value.members.isNotEmpty) {
       for (ChatMember member in chat.value.members) {
         _putMember(HiveChatMember(member, null), pagination: true);
@@ -517,9 +522,9 @@ class HiveRxChat extends RxChat {
 
       _membersPagination.hasNext.value = false;
       _membersPagination.hasPrevious.value = false;
+    } else {
+      await _membersPagination.around();
     }
-
-    await _membersPagination.around();
   }
 
   @override
@@ -922,8 +927,18 @@ class HiveRxChat extends RxChat {
     HiveChatMember member, {
     bool pagination = false,
   }) async {
+    // [pagination] is `true`, if the [member] is received from [Pagination],
+    // thus otherwise we should try putting it to it.
     if (pagination) {
-      final RxUser? user = await _chatRepository.getUser(member.value.user.id);
+      final FutureOr<RxUser?> userOrFuture =
+          _chatRepository.getUser(member.value.user.id);
+      final RxUser? user;
+
+      if (userOrFuture is RxUser?) {
+        user = userOrFuture;
+      } else {
+        user = await userOrFuture;
+      }
 
       if (user != null) {
         members[member.value.user.id] = user;
@@ -1060,8 +1075,6 @@ class HiveRxChat extends RxChat {
           break;
       }
     });
-
-    await membersAround();
   }
 
   /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
@@ -1196,6 +1209,10 @@ class HiveRxChat extends RxChat {
   Future<void> _updateFields({Chat? previous}) async {
     Log.debug('_updateFields($previous)', '$runtimeType($id)');
 
+    if (chat.value.name != null) {
+      _updateTitle();
+    }
+
     if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
     }
@@ -1272,12 +1289,12 @@ class HiveRxChat extends RxChat {
   }
 
   /// Updates the [title] according to the [Chat.name] and [Chat.members].
-  Future<void> _updateTitle() async {
+  Future<void> _updateTitle([List<User>? users]) async {
     Log.debug('_updateTitle()', '$runtimeType($id)');
 
-    final List<User> users = [];
+    users ??= [];
 
-    if (chat.value.name == null) {
+    if (chat.value.name == null && users.isEmpty) {
       if (members.isNotEmpty) {
         users.addAll(members.values.take(3).map((e) => e.user.value));
       } else {

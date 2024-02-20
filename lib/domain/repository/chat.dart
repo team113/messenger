@@ -236,7 +236,7 @@ abstract class RxChat implements Comparable<RxChat> {
   /// List of [User]s currently typing in this [chat].
   RxList<User> get typingUsers;
 
-  /// Reactive list of [User]s being members of this [chat].
+  /// Reactive map of [User]s being members of this [chat].
   RxObsMap<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
