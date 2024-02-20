@@ -21,6 +21,11 @@ subscription FavoriteChatsEvents($ver: FavoriteChatsListVersion) {
         ... on SubscriptionInitialized {
             ok
         }
+        ... on FavoriteChatsList {
+            chats {
+                ver
+            }
+        }
         ... on FavoriteChatsEventsVersioned {
             ...FavoriteChatsEventsVersioned
         }

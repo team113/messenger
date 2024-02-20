@@ -2174,6 +2174,13 @@ class ChatRepository extends DisposableInterface
         Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
         break;
 
+      case FavoriteChatsEventsKind.chatsList:
+        Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
+
+        var node = event as FavoriteChatsEventsChatsList;
+        _sessionLocal.setFavoriteChatsListVersion(node.ver);
+        break;
+
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
         if (versioned.ver >= _sessionLocal.getFavoriteChatsListVersion()) {
@@ -2187,8 +2194,23 @@ class ChatRepository extends DisposableInterface
           for (var event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
-                if (chats[event.chatId] == null) {
-                  get(event.chatId);
+                event as EventChatFavorited;
+                ChatData? data;
+
+                final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
+                if (hiveChat != null) {
+                  data = ChatData(hiveChat, null, null);
+                } else {
+                  final ChatMixin? query =
+                      (await _graphQlProvider.getChat(event.chatId)).chat;
+                  if (query != null) {
+                    data = _chat(query);
+                  }
+                }
+
+                if (data != null) {
+                  data.chat.value.favoritePosition = event.position;
+                  _putEntry(data);
                 }
                 break;
 
@@ -2224,7 +2246,9 @@ class ChatRepository extends DisposableInterface
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
         yield const FavoriteChatsEventsInitialized();
       } else if (events.$$typename == 'FavoriteChatsList') {
-        // No-op, as favorite chats are fetched through [Pagination].
+        var chatsList = events
+            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
+        yield FavoriteChatsEventsChatsList(chatsList.chats.ver);
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
         var mixin = events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;

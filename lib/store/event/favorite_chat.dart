@@ -22,6 +22,7 @@ import '/store/model/chat.dart';
 /// Tag representing a [FavoriteChatsEvents] kind.
 enum FavoriteChatsEventsKind {
   initialized,
+  chatsList,
   event,
 }
 
@@ -40,6 +41,17 @@ class FavoriteChatsEventsInitialized extends FavoriteChatsEvents {
 
   @override
   FavoriteChatsEventsKind get kind => FavoriteChatsEventsKind.initialized;
+}
+
+/// Initial state of the favorite [Chat]s list.
+class FavoriteChatsEventsChatsList extends FavoriteChatsEvents {
+  const FavoriteChatsEventsChatsList(this.ver);
+
+  /// Version of the initial favorite [Chat]s list.
+  final FavoriteChatsListVersion ver;
+
+  @override
+  FavoriteChatsEventsKind get kind => FavoriteChatsEventsKind.chatsList;
 }
 
 /// [FavoriteChatsEventsVersioned] happening in the favorite [Chat]s list.
