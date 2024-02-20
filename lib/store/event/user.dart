@@ -193,6 +193,7 @@ class EventUserAvatarUpdated extends UserEvent {
 class EventUserBioDeleted extends UserEvent {
   const EventUserBioDeleted(super.userId, this.at);
 
+  /// [PreciseDateTime] when the [UserBio] was deleted.
   final PreciseDateTime at;
 
   @override
