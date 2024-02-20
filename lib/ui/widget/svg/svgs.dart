@@ -304,7 +304,7 @@ class SvgIcons {
     height: 25,
   );
 
-  static const SvgData oneTime = SvgData(
+  static const SvgData guest = SvgData(
     'assets/icons/one_time.svg',
     width: 19.88,
     height: 26,
@@ -1771,5 +1771,11 @@ class SvgIcons {
     'assets/icons/menu_nav.svg',
     width: 32,
     height: 32,
+  );
+
+  static const SvgData logo = SvgData(
+    'assets/icons/logo.svg',
+    width: 21.78,
+    height: 25,
   );
 }

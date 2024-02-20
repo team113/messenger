@@ -63,8 +63,8 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
         width: axis == Axis.horizontal ? size / 1.6 : double.infinity,
         height: axis == Axis.horizontal ? double.infinity : size / 1.6,
         child: DragTarget<T>(
-          onWillAccept: onWillAccept,
-          onAccept: onAccept,
+          onAcceptWithDetails: (e) => onAccept?.call(e.data),
+          onWillAcceptWithDetails: (e) => onWillAccept?.call(e.data) ?? true,
           builder: (context, candidate, rejected) {
             return IgnorePointer(
               child: AnimatedOpacity(

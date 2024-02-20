@@ -25,15 +25,25 @@ All user visible changes to this project will be documented in this file. This p
         - Improve speaker switching on mobile. ([#840], [#817])
     - Chats tab:
         - Direct link searching. ([#843], [#831])
+    - Home page:
+        - Redesigned introduction after following direct link. ([#848], [#820])
+
+### Fixed
+
+- Web:
+    - Inability to view camera, microphone and output devices in Firefox. ([#855])
 
 [#464]: /../../issues/464
 [#465]: /../../pull/465
 [#812]: /../../issues/812
 [#817]: /../../issues/817
+[#820]: /../../issues/820
 [#831]: /../../issues/831
 [#832]: /../../pull/832
 [#840]: /../../pull/840
 [#843]: /../../pull/843
+[#848]: /../../pull/848
+[#855]: /../../pull/855
 
 
 

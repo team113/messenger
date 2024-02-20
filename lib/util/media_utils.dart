@@ -365,7 +365,16 @@ class DeviceDetails extends MediaDeviceDetails {
   MediaDeviceKind kind() => _device.kind();
 
   @override
-  String label() => _device.label();
+  String label() {
+    final String description = _device.label();
+
+    // Firefox in its private mode, for example, leaves the labels empty.
+    if (description.isEmpty) {
+      return deviceId();
+    }
+
+    return description;
+  }
 
   @override
   String toString() => id();

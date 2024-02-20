@@ -73,23 +73,39 @@ class MessageFieldController extends GetxController {
         onSubmit?.call();
       },
       focus: FocusNode(
-        onKey: (FocusNode node, RawKeyEvent e) {
+        onKeyEvent: (FocusNode node, KeyEvent e) {
           if ((e.logicalKey == LogicalKeyboardKey.enter ||
                   e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-              e is RawKeyDownEvent) {
-            bool handled = e.isShiftPressed;
+              e is KeyDownEvent) {
+            final Set<PhysicalKeyboardKey> pressed =
+                HardwareKeyboard.instance.physicalKeysPressed;
+
+            final bool isShiftPressed = pressed.any((key) =>
+                key == PhysicalKeyboardKey.shiftLeft ||
+                key == PhysicalKeyboardKey.shiftRight);
+            final bool isAltPressed = pressed.any((key) =>
+                key == PhysicalKeyboardKey.altLeft ||
+                key == PhysicalKeyboardKey.altRight);
+            final bool isControlPressed = pressed.any((key) =>
+                key == PhysicalKeyboardKey.controlLeft ||
+                key == PhysicalKeyboardKey.controlRight);
+            final bool isMetaPressed = pressed.any((key) =>
+                key == PhysicalKeyboardKey.metaLeft ||
+                key == PhysicalKeyboardKey.metaRight);
+
+            bool handled = isShiftPressed;
 
             if (!PlatformUtils.isWeb) {
               if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
-                handled = handled || e.isAltPressed || e.isControlPressed;
+                handled = handled || isAltPressed || isControlPressed;
               }
             }
 
             if (!handled) {
-              if (e.isAltPressed ||
-                  e.isControlPressed ||
-                  e.isMetaPressed ||
-                  e.isShiftPressed) {
+              if (isAltPressed ||
+                  isControlPressed ||
+                  isMetaPressed ||
+                  isShiftPressed) {
                 int cursor;
 
                 if (field.controller.selection.isCollapsed) {
@@ -428,7 +444,7 @@ class MessageFieldController extends GetxController {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService!.uploadAttachment(attachment);
+        Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {

@@ -128,7 +128,7 @@ class _BackgroundService {
   /// Initializes this [_BackgroundService].
   Future<void> init() async {
     if (_service is AndroidServiceInstance) {
-      (_service as AndroidServiceInstance).setAsForegroundService();
+      _service.setAsForegroundService();
     }
 
     await Config.init();
@@ -447,8 +447,10 @@ class _BackgroundService {
     required String content,
   }) {
     if (_service is AndroidServiceInstance) {
-      return (_service as AndroidServiceInstance)
-          .setForegroundNotificationInfo(title: title, content: content);
+      return _service.setForegroundNotificationInfo(
+        title: title,
+        content: content,
+      );
     }
 
     return Future.value();
