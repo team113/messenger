@@ -321,19 +321,18 @@ class ScreenPreferences extends TrackPreferences {
 
 /// Extension adding conversion on [MediaDeviceDetails] to [AudioSpeakerKind].
 extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
-  /// Returns the [AudioSpeakerKind] of this [MediaDeviceDetails].
-  AudioSpeakerKind get speaker {
-    if (deviceId() == 'ear-speaker' || deviceId() == 'ear-piece') {
-      return AudioSpeakerKind.earpiece;
-    } else if (deviceId() == 'speakerphone' || deviceId() == 'speaker') {
-      return AudioSpeakerKind.speaker;
-    } else {
-      return AudioSpeakerKind.headphones;
-    }
-  }
+  /// Returns the [AudioSpeakerKind] of these [MediaDeviceDetails].
+  ///
+  /// Only meaningful, if these [MediaDeviceDetails] are of
+  /// [MediaDeviceKind.audioOutput].
+  AudioSpeakerKind get speaker => switch (deviceId()) {
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      };
 }
 
-/// Possible kind of an audio device.
+/// Possible kind of an audio output device.
 enum AudioSpeakerKind {
   headphones,
   earpiece,

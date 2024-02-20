@@ -515,19 +515,21 @@ class SpeakerButton extends CallButton {
     bool expanded = false,
     bool opaque = false,
   }) {
-    Widget button(SvgData asset, void Function()? onPressed) =>
-        CallButtonWidget(
-          hint: hint,
-          asset: asset,
-          hinted: hinted,
-          expanded: expanded,
-          withBlur: blur,
-          big: big,
-          constrained: c.isMobile,
-          opaque: opaque,
-          onPressed: onPressed,
-        );
+    Widget button(SvgData asset, void Function()? onPressed) {
+      return CallButtonWidget(
+        hint: hint,
+        asset: asset,
+        hinted: hinted,
+        expanded: expanded,
+        withBlur: blur,
+        big: big,
+        constrained: c.isMobile,
+        opaque: opaque,
+        onPressed: onPressed,
+      );
+    }
 
+    // Web seems to decide for itself the output device source on mobile.
     if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
       return button(SvgIcons.callIncomingAudioOn, null);
     } else {

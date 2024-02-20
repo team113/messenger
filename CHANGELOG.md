@@ -22,7 +22,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
-        - Improve speaker switching on mobile. ([#840], [#817])
     - Chats tab:
         - Direct link searching. ([#843], [#831])
     - Home page:
@@ -30,6 +29,9 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- UI:
+    - Media panel:
+        - Ringtone not switching speaker on mobile. ([#840], [#817])
 - Web:
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
 

@@ -184,7 +184,6 @@ class AudioUtilsImpl {
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       _speaker = speaker;
-
       await _setSpeaker();
     }
   }
@@ -230,10 +229,6 @@ class AudioUtilsImpl {
 
           switch (speaker) {
             case AudioSpeakerKind.headphones:
-              await AVAudioSession()
-                  .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
-              break;
-
             case AudioSpeakerKind.earpiece:
               await AVAudioSession()
                   .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
@@ -244,6 +239,7 @@ class AudioUtilsImpl {
                   .overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
               break;
           }
+
           return;
         }
 
