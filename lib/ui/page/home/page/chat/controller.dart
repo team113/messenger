@@ -1505,7 +1505,6 @@ class ChatController extends GetxController {
   /// typing in this [chat].
   void _keepTyping() {
     _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
-
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingTimeout, _stopTyping);
   }
@@ -1525,7 +1524,6 @@ class ChatController extends GetxController {
   /// been stopped in this [chat].
   void _stopTyping() {
     _typingTimer?.cancel();
-
     _typingSubscription?.cancel();
     _typingSubscription = null;
   }

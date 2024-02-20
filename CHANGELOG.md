@@ -29,11 +29,11 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Web:
-    - Inability to view camera, microphone and output devices in Firefox. ([#855])
 - UI:
     - Chat page:
         - Keyboard hiding after sending a message on mobile. ([#856], [#828])
+- Web:
+    - Inability to view camera, microphone and output devices in Firefox. ([#855])
 
 [#464]: /../../issues/464
 [#465]: /../../pull/465
