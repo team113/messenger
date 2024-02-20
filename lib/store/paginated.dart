@@ -170,9 +170,10 @@ class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
   }
 }
 
-/// Implementation of a [Paginated] for [ChatItem]s.
-class RxPaginatedImpl<K extends Comparable, R, H, C>
-    extends PaginatedImpl<K, R, H, C> {
+/// Implementation of a [Paginated] transforming [V] from [Pagination] to [T]
+/// value.
+class RxPaginatedImpl<K extends Comparable, T, V, C>
+    extends PaginatedImpl<K, T, V, C> {
   RxPaginatedImpl({
     required this.transform,
     required super.pagination,
@@ -181,8 +182,8 @@ class RxPaginatedImpl<K extends Comparable, R, H, C>
     super.onDispose,
   });
 
-  /// Callback, called to transform the [H] to [R].
-  final FutureOr<R> Function({R? previous, required H data}) transform;
+  /// Callback, called to transform the [V] to [T].
+  final FutureOr<T> Function({T? previous, required V data}) transform;
 
   @override
   Future<void> ensureInitialized() async {
@@ -193,10 +194,19 @@ class RxPaginatedImpl<K extends Comparable, R, H, C>
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
-            items[event.key!] = await transform(
+            FutureOr<T> itemOrFuture = transform(
               previous: items[event.key!],
-              data: event.value as H,
+              data: event.value as V,
             );
+            final T item;
+
+            if (itemOrFuture is T) {
+              item = itemOrFuture;
+            } else {
+              item = await itemOrFuture;
+            }
+
+            items[event.key!] = item;
             break;
 
           case OperationKind.removed:

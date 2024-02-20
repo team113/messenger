@@ -1028,9 +1028,7 @@ class HiveRxChat extends RxChat {
         initialCursor: cursor,
         transform: ({required HiveChatItem data, Rx<ChatItem>? previous}) {
           if (previous != null) {
-            return previous
-              ..value = data.value
-              ..refresh();
+            return previous..value = data.value;
           }
 
           return Rx(data.value);
