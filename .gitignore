@@ -11,6 +11,7 @@
 # Development related
 /my.*.vals.yaml
 .env
+devtools_options.yaml
 
 # Flutter/Dart/Pub related
 **/doc/api/
