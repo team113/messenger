@@ -64,6 +64,9 @@ import 'event/chat.dart';
 import 'paginated.dart';
 import 'pagination/graphql.dart';
 
+typedef MessagesPaginated
+    = RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
+
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
   HiveRxChat(
@@ -1149,6 +1152,13 @@ class HiveRxChat extends RxChat {
       fragment = MessagesPaginated(
         initialKey: key,
         initialCursor: cursor,
+        transform: ({required HiveChatItem data, Rx<ChatItem>? previous}) {
+          if (previous != null) {
+            return previous..value = data.value;
+          }
+
+          return Rx(data.value);
+        },
         pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
           onKey: (e) => e.value.key,
           provider: HiveGraphQlPageProvider(

@@ -176,35 +176,31 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       }
 
       if (chat.isGroup) {
-        return Text(
-          chat.getSubtitle()!,
-          style: style.fonts.small.regular.secondary,
-        );
+        final String? subtitle = chat.getSubtitle();
+
+        if (subtitle != null) {
+          return Text(subtitle, style: style.fonts.small.regular.secondary);
+        }
+
+        return const SizedBox();
       } else if (chat.isDialog) {
         final RxUser? member = widget.chat.members.values
             .firstWhereOrNull((u) => u.user.value.id != widget.me);
 
         if (member != null) {
           return Obx(() {
-            final String? subtitle = chat.getSubtitle(partner: member);
-            final UserTextStatus? status = member.user.value.status;
+            final String? presence = chat.getSubtitle(partner: member);
+            final UserBio? bio = member.user.value.bio;
 
-            if (status == null && subtitle == null) {
+            if (bio == null && presence == null) {
               return const SizedBox();
             }
 
-            final StringBuffer buffer = StringBuffer(status ?? '');
+            final String subtitle = [presence, bio]
+                .whereNotNull()
+                .join('space_vertical_space'.l10n);
 
-            if (status != null && subtitle != null) {
-              buffer.write('space_vertical_space'.l10n);
-            }
-
-            buffer.write(subtitle ?? '');
-
-            return Text(
-              buffer.toString(),
-              style: style.fonts.small.regular.secondary,
-            );
+            return Text(subtitle, style: style.fonts.small.regular.secondary);
           });
         }
       }
