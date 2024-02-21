@@ -119,13 +119,16 @@ class UserController extends GetxController {
   late final TextFieldState messageCost;
   late final TextFieldState callsCost;
 
+  final RxInt messagePrice = RxInt(0);
+  final RxInt callPrice = RxInt(0);
+
   final RxBool verified = RxBool(false);
   // final RxBool verified = RxBool(true);
   final RxBool hintVerified = RxBool(false);
 
   final RxBool editing = RxBool(false);
   final RxBool profileEditing = RxBool(false);
-    final RxBool moneyEditing = RxBool(false);
+  final RxBool moneyEditing = RxBool(false);
   final RxBool linkEditing = RxBool(false);
 
   final TextFieldState name = TextFieldState(
@@ -462,7 +465,7 @@ class UserController extends GetxController {
       if (user != null) {
         messageCost = TextFieldState(
           approvable: true,
-          allowable: true,
+          // allowable: true,
           // text: user!.user.value.messageCost == 0
           //     ? '0.00'
           //     : '${user!.user.value.messageCost.toString()}.00',
@@ -472,6 +475,8 @@ class UserController extends GetxController {
             user?.dialog.value?.chat.refresh();
           },
           onSubmitted: (s) {
+            messagePrice.value =
+                int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
             // if (!s.text.contains('.')) {
             //   s.unchecked = '${s.text}.00';
             // }
@@ -512,7 +517,7 @@ class UserController extends GetxController {
 
         callsCost = TextFieldState(
           approvable: true,
-          allowable: true,
+          // allowable: true,
           text: user!.user.value.callCost.toString(),
           // text: user!.user.value.callCost == 0
           //     ? '0.00'
@@ -522,6 +527,8 @@ class UserController extends GetxController {
             user?.dialog.value?.chat.refresh();
           },
           onSubmitted: (s) {
+            callPrice.value =
+                int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
             // if (!s.text.contains('.')) {
             //   s.unchecked = '${s.text}.00';
             // }

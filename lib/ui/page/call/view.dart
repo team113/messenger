@@ -55,20 +55,16 @@ class CallView extends StatelessWidget {
           );
         }
 
-        final bool isMobile = (PlatformUtils.isIOS || PlatformUtils.isAndroid)
-            ? true
-            : context.isMobile;
-
-        if (c.isMobile != isMobile) {
-          c.isMobile = isMobile;
-          if (isMobile) {
+        if (c.isMobile != PlatformUtils.isMobile) {
+          c.isMobile = PlatformUtils.isMobile;
+          if (PlatformUtils.isMobile) {
             c.minimized.value = false;
           } else {
             c.minimized.value = true;
           }
         }
 
-        if (isMobile) {
+        if (c.isMobile) {
           return mobileCall(c, context);
         } else {
           return desktopCall(c, context);

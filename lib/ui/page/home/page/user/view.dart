@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
@@ -515,7 +516,12 @@ class UserView extends StatelessWidget {
                     ],
                   ),
                   _quick(c, context),
-                  if (subtitle != null) Block(children: [subtitle]),
+                  if (subtitle != null)
+                    Block(
+                      children: [
+                        Align(alignment: Alignment.centerLeft, child: subtitle)
+                      ],
+                    ),
                   Block(
                     children: [
                       Paddings.basic(
@@ -1323,7 +1329,19 @@ class UserView extends StatelessWidget {
                 state: c.messageCost,
                 style: style.fonts.medium.regular.onBackground,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [FilteringTextInputFormatter.digitsOnly],
+                formatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(18),
+                ],
+                onChanged: () {
+                  final String string = NumberFormat.decimalPattern()
+                      .format(int.parse(c.messageCost.text));
+
+                  c.messageCost.controller.value = TextEditingValue(
+                    text: string,
+                    selection: TextSelection.collapsed(offset: string.length),
+                  );
+                },
                 hint: '0',
                 prefix: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
@@ -1339,12 +1357,24 @@ class UserView extends StatelessWidget {
                 ),
                 label: 'Входящие сообщения, за 1 сообщение',
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ReactiveTextField(
                 state: c.callsCost,
                 style: style.fonts.medium.regular.onBackground,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [FilteringTextInputFormatter.digitsOnly],
+                formatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(18),
+                ],
+                onChanged: () {
+                  final String string = NumberFormat.decimalPattern()
+                      .format(int.parse(c.callsCost.text));
+
+                  c.callsCost.controller.value = TextEditingValue(
+                    text: string,
+                    selection: TextSelection.collapsed(offset: string.length),
+                  );
+                },
                 hint: '0',
                 prefix: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
@@ -1369,39 +1399,118 @@ class UserView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(width: double.infinity),
+            Center(
+              child: Table(
+                defaultVerticalAlignment: TableCellVerticalAlignment.bottom,
+                columnWidths: const {
+                  0: FlexColumnWidth(),
+                  1: IntrinsicColumnWidth(),
+                },
+                children: [
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          'Входящее сообщение:',
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '¤ ${c.messagePrice.value.withSpaces()}',
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          'за 1 сообщение',
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                      ),
+                      const SizedBox(),
+                    ],
+                  ),
+                  const TableRow(
+                    children: [
+                      SizedBox(height: 8),
+                      SizedBox(height: 8),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          'Входящий звонок:',
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          '¤ ${c.callPrice.value.withSpaces()}',
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          'за 1 минуту',
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                      ),
+                      const SizedBox(),
+                      // const SizedBox(),
+                    ],
+                  ),
+                ],
+              ),
+            ),
 
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Входящее сообщение: ',
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                  TextSpan(
-                    text: '¤0',
-                    style: style.fonts.normal.regular.onBackground,
-                  ),
-                ],
-              ),
-            ),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Входящий звонок: ',
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                  TextSpan(
-                    text: '¤0/мин',
-                    style: style.fonts.normal.regular.onBackground,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            // 'saber может платить Вам за отправку своих сообщений и звонки Вам. Эта настройка индивидуальна для saber.',
+            // RichText(
+            //   text: TextSpan(
+            //     children: [
+            //       TextSpan(
+            //         text: '  Входящее сообщение: ',
+            //         style: style.fonts.normal.regular.onBackground,
+            //       ),
+            //       TextSpan(
+            //         text: '¤0',
+            //         style: style.fonts.normal.regular.onBackground,
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // RichText(
+            //   text: TextSpan(
+            //     children: [
+            //       TextSpan(
+            //         text: '  Входящий звонок: ',
+            //         style: style.fonts.normal.regular.onBackground,
+            //       ),
+            //       TextSpan(
+            //         text: '¤0/мин',
+            //         style: style.fonts.normal.regular.onBackground,
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            const SizedBox(height: 16),
+            // 'alex2 платит Вам за отправку Вам сообщений и совершение звонков.',
+            // 'alex2 оплачивает Вам отправку своих сообщений и совершение звонков.'
             Text(
-              '${c.user?.user.value.name ?? c.user?.user.value.num} может платить Вам за отправку своих сообщений и звонки Вам. Эта настройка индивидуальна для ${c.user?.user.value.name ?? c.user?.user.value.num}.',
+              '${c.user?.user.value.name ?? c.user?.user.value.num} платит Вам за отправку Вам сообщений и совершение звонков.',
               style: style.fonts.small.regular.secondary,
             ),
 
@@ -1537,5 +1646,16 @@ class UserView extends StatelessWidget {
     if (result == true) {
       await c.blacklist();
     }
+  }
+}
+
+extension on int {
+  String withSpaces() {
+    // final parsed = int.tryParse(this);
+    // if (parsed != null) {
+    return NumberFormat('#,##0').format(this);
+    // }
+
+    // return replaceAllMapped(RegExp(r'.{3}'), (match) => '${match.group(0)} ');
   }
 }
