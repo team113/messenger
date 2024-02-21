@@ -348,6 +348,13 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> remove(ChatId id) async {
     Log.debug('remove($id)', '$runtimeType');
+
+    chats.remove(id)?.dispose();
+    paginated.remove(id);
+    _pagination?.remove(id);
+    _recentLocal.remove(id);
+    _favoriteLocal.remove(id);
+
     await _chatLocal.remove(id);
   }
 
@@ -396,7 +403,7 @@ class ChatRepository extends DisposableInterface
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
 
-    var chat =
+    final ChatData chat =
         _chat(await _graphQlProvider.createGroupChat(memberIds, name: name));
     return _putEntry(chat);
   }
@@ -1602,21 +1609,32 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        final HiveRxChat? chat = chats[chatId];
-        if (chat == null || (chat.ver != null && chat.ver! < event.value.ver)) {
+        final HiveRxChat? oldChat = chats[chatId];
+        final Chat chat = event.value.value;
+
+        if (oldChat == null ||
+            (oldChat.ver != null && oldChat.ver! < event.value.ver)) {
           _add(event.value);
         }
 
-        if (event.value.value.favoritePosition != null) {
-          _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
+        if (chat.favoritePosition != null) {
+          _favoriteLocal.put(chat.favoritePosition!, chatId);
           _recentLocal.remove(chatId);
         } else {
-          _recentLocal.put(event.value.value.updatedAt, chatId);
+          _recentLocal.put(chat.updatedAt, chatId);
           _favoriteLocal.remove(chatId);
         }
 
-        if (event.value.value.isHidden) {
+        if (chat.isHidden) {
           paginated.remove(chatId);
+        }
+
+        if (!chat.members.map((e) => e.user.id).contains(me)) {
+          chats.remove(chatId)?.dispose();
+          paginated.remove(chatId);
+          _pagination?.remove(chatId);
+          _recentLocal.remove(chatId);
+          _favoriteLocal.remove(chatId);
         }
       }
     }
