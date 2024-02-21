@@ -1387,9 +1387,8 @@ class ChatView extends StatelessWidget {
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
-          onChanged: c.chat?.chat.value.isMonolog == true
-              ? null
-              : c.updateTypingStatus,
+          onChanged:
+              c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
           onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         );
       }
@@ -1397,8 +1396,7 @@ class ChatView extends StatelessWidget {
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged:
-            c.chat?.chat.value.isMonolog == true ? null : c.updateTypingStatus,
+        onChanged: c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
         onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         canForward: true,
       );

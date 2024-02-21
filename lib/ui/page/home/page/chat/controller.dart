@@ -1190,13 +1190,12 @@ class ChatController extends GetxController {
     return attachments;
   }
 
-  /// Keeps [ChatService.keepTyping] subscription if message field is not empty
-  /// and cancels it otherwise.
-  void updateTypingStatus() {
+  /// Keeps [ChatService.keepTyping] subscription, if message field is not
+  /// empty, or cancels it otherwise.
+  void updateTyping() {
     final bool sendIsEmpty = send.field.text.isEmpty;
     final bool? editIsEmpty = edit.value?.field.text.isEmpty;
 
-    // Check [edit.text] if editing and [send.text] otherwise.
     if (editIsEmpty ?? sendIsEmpty) {
       _stopTyping();
     } else {
@@ -1516,12 +1515,10 @@ class ChatController extends GetxController {
     _typingSubscription = null;
   }
 
-  /// Stops the [ChatService.keepTyping] subscription when message field loses
-  /// its focus.
+  /// Invokes the [_stopTyping], if [send] or [edit] fields lose its focus.
   void _stopTypingOnUnfocus() {
     final bool sendHasFocus = send.field.focus.hasFocus;
     final bool editHasFocus = edit.value?.field.focus.hasFocus ?? false;
-
     if (!sendHasFocus && !editHasFocus) {
       _stopTyping();
     }
