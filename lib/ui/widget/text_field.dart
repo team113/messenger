@@ -660,13 +660,15 @@ class TextFieldState extends ReactiveFieldState {
   }
 
   /// Clears the [TextEditingController]'s text without calling [onChanged].
-  void clear() {
+  void clear({bool unfocus = true}) {
     isEmpty.value = true;
     controller.text = '';
     error.value = null;
     _previousText = null;
     _previousSubmit = null;
     changed.value = false;
-    focus.unfocus();
+    if (unfocus) {
+      focus.unfocus();
+    }
   }
 }

@@ -55,7 +55,7 @@ class ChatForwardController extends GetxController {
   });
 
   /// Selected items in [SearchView] popup.
-  final Rx<SearchViewResults?> searchResults = Rx(null);
+  final Rx<SearchViewResults?> selected = Rx(null);
 
   /// ID of the [Chat] the [quotes] are forwarded from.
   final ChatId from;
@@ -107,7 +107,7 @@ class ChatForwardController extends GetxController {
       quotes: quotes,
       attachments: attachments,
       onSubmit: () async {
-        if (searchResults.value?.isEmpty != false) {
+        if (selected.value?.isEmpty != false) {
           send.field.unsubmit();
           return;
         }
@@ -144,7 +144,7 @@ class ChatForwardController extends GetxController {
           final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
 
           final List<Future<void>> futures = [
-            ...searchResults.value!.chats.map((e) {
+            ...selected.value!.chats.map((e) {
               return _chatService.forwardChatItems(
                 from,
                 e.chat.value.id,
@@ -153,7 +153,7 @@ class ChatForwardController extends GetxController {
                 attachments: attachments,
               );
             }),
-            ...searchResults.value!.users.map((e) async {
+            ...selected.value!.users.map((e) async {
               ChatId dialog = e.user.value.dialog;
 
               return _chatService.forwardChatItems(
@@ -164,7 +164,7 @@ class ChatForwardController extends GetxController {
                 attachments: attachments,
               );
             }),
-            ...searchResults.value!.contacts.map((e) async {
+            ...selected.value!.contacts.map((e) async {
               ChatId dialog = e.user.value!.user.value.dialog;
 
               return _chatService.forwardChatItems(
