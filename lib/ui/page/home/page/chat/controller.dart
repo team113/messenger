@@ -444,11 +444,8 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then(
-                  (_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3'),
-                  ),
-                )
+                .then((_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3')))
                 .onError<PostChatMessageException>(
                     (e, _) => MessagePopup.error(e))
                 .onError<UploadAttachmentException>(
@@ -599,9 +596,8 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then(
-            (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
-          )
+          .then((_) =>
+              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
           .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});

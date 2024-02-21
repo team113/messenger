@@ -1549,9 +1549,9 @@ class OngoingCall {
 
       if (PlatformUtils.isMobile) {
         _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
-          final DeviceDetails? device =
-              devices.output().firstWhereOrNull((e) => e.deviceId() == id);
-          outputDevice.value = device ?? outputDevice.value;
+          outputDevice.value =
+              devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
+                  outputDevice.value;
         });
 
         if (outputDevice.value == null) {

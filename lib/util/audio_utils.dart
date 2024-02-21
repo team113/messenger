@@ -53,7 +53,7 @@ class AudioUtilsImpl {
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
 
-  /// Indicates whether the mobile player should be used.
+  /// Indicates whether the [_jaPlayer] should be used.
   bool get _mobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
   /// Ensures the underlying resources are initialized to reduce possible delays
@@ -78,22 +78,14 @@ class AudioUtilsImpl {
   }
 
   /// Plays the provided [sound] once.
-  Future<void> once(AudioSource sound, {double? volume}) async {
+  Future<void> once(AudioSource sound) async {
     ensureInitialized();
 
     if (_mobile) {
       await _jaPlayer?.setAudioSource(sound.source);
-      if (volume != null) {
-        await _jaPlayer?.setVolume(volume);
-      }
-
       await _jaPlayer?.play();
     } else {
       await _player?.open(sound.media);
-
-      if (volume != null) {
-        await _player?.setVolume(volume);
-      }
     }
   }
 
