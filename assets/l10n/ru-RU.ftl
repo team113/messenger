@@ -720,6 +720,7 @@ label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}создал(а) группу
+label_group_name = Название группы
 label_guest_account_created = Гостевой аккаунт создан
 label_hello = Привет!
 label_hello_reply = Оу, привет :)

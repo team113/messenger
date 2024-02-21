@@ -1671,6 +1671,12 @@ class SvgIcons {
     height: 23.8,
   );
 
+  static const SvgData activeCallStartBlue = SvgData(
+    'assets/icons/active_call_start_blue.svg',
+    width: 8,
+    height: 8,
+  );
+
   static const SvgData activeCallStart = SvgData(
     'assets/icons/active_call_start.svg',
     width: 8,

@@ -559,7 +559,7 @@ class CallController extends GetxController {
 
     fullscreen = RxBool(false);
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
-    isMobile = router.context!.isMobile;
+    isMobile = PlatformUtils.isMobile;
 
     final Rect? prefs =
         _settingsRepository.getCallRect(_currentCall.value.chatId.value);

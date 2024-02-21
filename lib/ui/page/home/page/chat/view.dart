@@ -600,6 +600,8 @@ class ChatView extends StatelessWidget {
                               c.chat!.messages.isEmpty) {
                             return Center(
                               child: Container(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 300),
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                 ),
