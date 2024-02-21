@@ -37,8 +37,11 @@ class AudioUtilsImpl {
   /// [Player] lazily initialized to play sounds [once].
   Player? _player;
 
-  /// [AudioPlayer] lazily initialized to play sounds [once] on mobile
+  /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
+  ///
+  /// [ja.AudioPlayer] used on mobile platforms in order to [Player] is not
+  /// depends on the `audio_session`.
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
@@ -155,8 +158,8 @@ class AudioUtilsImpl {
                 if (timer.tick > 9) {
                   timer.cancel();
                 } else {
-                  await (jaPlayer?.setVolume ?? player?.setVolume)
-                      ?.call(100 * (timer.tick + 1) / 10);
+                  await jaPlayer?.setVolume((timer.tick + 1) / 10);
+                  await player?.setVolume(100 * (timer.tick + 1) / 10);
                 }
               },
             );
@@ -181,16 +184,22 @@ class AudioUtilsImpl {
   }
 
   /// Sets the [speaker] to use for audio output.
+  ///
+  /// Only meaningful on mobile device.
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      _speaker = speaker;
-      await _setSpeaker();
+      if (_speaker != speaker) {
+        _speaker = speaker;
+        await _setSpeaker();
+      }
     }
   }
 
   /// Sets the default audio output device as used.
+  ///
+  /// Only meaningful on mobile device.
   Future<void> setDefaultSpeaker() async {
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       final List<AndroidAudioDeviceInfo> devices =
           await AndroidAudioManager().getAvailableCommunicationDevices();
 
@@ -210,14 +219,14 @@ class AudioUtilsImpl {
 
   /// Sets the [_speaker] to use for audio output.
   Future<void> _setSpeaker() async {
+    // If the [_mutex] is locked, the output device is already being set.
     if (_mutex.isLocked) {
       return;
     }
 
+    final AudioSpeakerKind speaker = _speaker!;
     await _mutex.protect(() async {
       await MediaUtils.outputGuard.protect(() async {
-        final AudioSpeakerKind speaker = _speaker!;
-
         if (PlatformUtils.isIOS) {
           await AVAudioSession().setCategory(
             AVAudioSessionCategory.playAndRecord,
@@ -288,12 +297,14 @@ class AudioUtilsImpl {
             await AndroidAudioManager().setSpeakerphoneOn(false);
             break;
         }
-
-        if (speaker != _speaker) {
-          _setSpeaker();
-        }
       });
     });
+
+    // If the [_speaker] was changed while setting the output device then
+    // call [_setSpeaker] again.
+    if (speaker != _speaker) {
+      _setSpeaker();
+    }
   }
 }
 

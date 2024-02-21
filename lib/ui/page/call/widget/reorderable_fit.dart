@@ -633,9 +633,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
-                      AudioUtils.once(
-                        AudioSource.asset('audio/pop.mp3'),
-                      );
+                      AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
                     },
                   ),
           ),

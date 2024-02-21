@@ -643,7 +643,7 @@ class CallController extends GetxController {
             );
 
             keepUi();
-            _ensureSpeakerphone();
+            _ensureNotEarpiece();
           }
           break;
 
@@ -931,7 +931,7 @@ class CallController extends GetxController {
     }
 
     await _currentCall.value.toggleVideo();
-    await _ensureSpeakerphone();
+    await _ensureNotEarpiece();
   }
 
   /// Changes the local video device to the next one from the
@@ -962,8 +962,10 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    final List<DeviceDetails> outputs =
-        _currentCall.value.devices.output().toList();
+    final List<DeviceDetails> outputs = _currentCall.value.devices
+        .output()
+        .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+        .toList();
 
     if (outputs.length > 1) {
       int index = outputs.indexWhere(
@@ -992,13 +994,7 @@ class CallController extends GetxController {
         }
       }
 
-      final DeviceDetails output = outputs[index];
-
-      if (members.values.where((e) => e.isConnected.isTrue).length < 2) {
-        AudioUtils.setSpeaker(output.speaker);
-      }
-
-      await _currentCall.value.setOutputDevice(output);
+      await _currentCall.value.setOutputDevice(outputs[index]);
     }
   }
 
@@ -2052,29 +2048,27 @@ class CallController extends GetxController {
     return false;
   }
 
-  /// Ensures [OngoingCall.outputDevice] is a speakerphone, if video is enabled.
-  Future<void> _ensureSpeakerphone() async {
+  /// Ensures [OngoingCall.outputDevice] is not a earpiece, if video is enabled.
+  Future<void> _ensureNotEarpiece() async {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
           _currentCall.value.videoState.value == LocalTrackState.enabling) {
-        final bool ear;
+        DeviceDetails? output = _currentCall.value.outputDevice.value ??
+            _currentCall.value.devices.output().firstOrNull;
 
-        final DeviceDetails? outputDevice =
-            _currentCall.value.outputDevice.value;
-        if (PlatformUtils.isIOS) {
-          ear = outputDevice?.deviceId() == 'ear-piece' ||
-              (outputDevice == null &&
-                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
-                      'ear-piece');
-        } else {
-          ear = outputDevice?.deviceId() == 'ear-speaker' ||
-              (outputDevice == null &&
-                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
-                      'ear-speaker');
-        }
+        if (output?.speaker == AudioSpeakerKind.earpiece) {
+          final List<DeviceDetails> outputs = _currentCall.value.devices
+              .output()
+              .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+              .toList();
 
-        if (ear) {
-          await toggleSpeaker();
+          final DeviceDetails? speakerphone = outputs.firstWhereOrNull(
+            (e) => e.speaker == AudioSpeakerKind.speaker,
+          );
+
+          if (speakerphone != null) {
+            await _currentCall.value.setOutputDevice(speakerphone);
+          }
         }
       }
     }

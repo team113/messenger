@@ -31,6 +31,7 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
+import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
@@ -1555,29 +1556,23 @@ class OngoingCall {
 
         if (outputDevice.value == null) {
           final Iterable<DeviceDetails> output = devices.output();
-          var device = output.firstWhereOrNull(
+          outputDevice.value = output.firstWhereOrNull(
             (e) => e.speaker == AudioSpeakerKind.headphones,
           );
 
-          if (device == null) {
-            final bool speaker = PlatformUtils.isWeb
-                ? true
-                : videoState.value == LocalTrackState.enabling ||
-                    videoState.value == LocalTrackState.enabled;
+          if (outputDevice.value == null) {
+            final bool speaker =
+                PlatformUtils.isWeb ? true : videoState.value.isEnabled;
 
             if (speaker) {
-              device = output.firstWhereOrNull(
+              outputDevice.value = output.firstWhereOrNull(
                 (e) => e.speaker == AudioSpeakerKind.speaker,
               );
             }
 
-            device ??= output.firstWhereOrNull(
+            outputDevice.value ??= output.firstWhereOrNull(
               (e) => e.speaker == AudioSpeakerKind.earpiece,
             );
-          }
-
-          if (device != null) {
-            _setOutputDevice(device);
           }
         }
       } else {
@@ -1585,10 +1580,6 @@ class OngoingCall {
                 .output()
                 .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
             devices.output().firstOrNull;
-      }
-
-      if (outputDevice.value != null) {
-        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
       }
 
       audioDevice.value = devices
@@ -1603,10 +1594,8 @@ class OngoingCall {
       screenDevice.value = displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
-      final String? setOutputDevice = outputDevice.value?.deviceId() ??
-          devices.output().firstOrNull?.deviceId();
-      if (setOutputDevice != null) {
-        MediaUtils.mediaManager?.setOutputAudioId(setOutputDevice);
+      if (outputDevice.value != null) {
+        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
       }
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -2068,6 +2057,12 @@ class OngoingCall {
       outputDevice.value = device;
 
       try {
+        // If there is an connected member except [MyUser], speaker will be
+        // changed through the [MediaUtils.setOutputDevice] method.
+        if (members.values.where((e) => e.isConnected.isTrue).length < 2) {
+          AudioUtils.setSpeaker(device.speaker);
+        }
+
         await MediaUtils.setOutputDevice(device.deviceId());
       } catch (e) {
         addError(e.toString());
