@@ -26,6 +26,7 @@ All user visible changes to this project will be documented in this file. This p
         - Direct link searching. ([#843], [#831])
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
+        - Redesigned context menu in navigation. ([#863])
 
 ### Fixed
 
@@ -41,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
 [#843]: /../../pull/843
 [#848]: /../../pull/848
 [#855]: /../../pull/855
+[#863]: /../../pull/863
 
 
 

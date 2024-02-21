@@ -817,6 +817,18 @@ class SvgIcons {
     height: 17,
   );
 
+  static const SvgData muted22 = SvgData(
+    'assets/icons/muted22.svg',
+    width: 21.65,
+    height: 22,
+  );
+
+  static const SvgData unmuted22 = SvgData(
+    'assets/icons/unmuted22.svg',
+    width: 21.65,
+    height: 22,
+  );
+
   static const SvgData more = SvgData(
     'assets/icons/more.svg',
     width: 4,

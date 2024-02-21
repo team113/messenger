@@ -48,6 +48,7 @@ class ContextMenuRegion extends StatefulWidget {
     this.alignment = Alignment.bottomCenter,
     this.actions = const [],
     this.selector,
+    this.selectorClosable = true,
     this.width = 260,
     this.margin = EdgeInsets.zero,
     this.indicateOpenedMenu = false,
@@ -97,6 +98,11 @@ class ContextMenuRegion extends StatefulWidget {
   /// If specified, then this [ContextMenuRegion] will display a [Selector]
   /// instead of a [ContextMenu].
   final GlobalKey? selector;
+
+  /// Indicator whether [Selector.onPointerUp] should pop the [Navigator].
+  ///
+  /// If `false`, then [ContextMenuItem]s pressed should pop it themselves.
+  final bool selectorClosable;
 
   /// Width of a [Selector].
   ///
@@ -281,6 +287,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         onSelected: (b) => b is ContextMenuButton ? b.onPressed?.call() : {},
         buttonKey: widget.selector,
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
+        onPointerUp: widget.selectorClosable
+            ? (context) => Navigator.of(context).pop()
+            : null,
       );
 
       _displayed = false;

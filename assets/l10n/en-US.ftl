@@ -195,9 +195,6 @@ btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Gift
 btn_guest = Guest
-btn_guest_desc =
-    Guest
-    account
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info

@@ -77,6 +77,9 @@ class HomeController extends GetxController {
   /// [GlobalKey] of a [Chat]s button in the navigation bar.
   final GlobalKey chatsKey = GlobalKey();
 
+  /// [GlobalKey] of a [CustomNavigationBar] displayed.
+  final GlobalKey panelKey = GlobalKey();
+
   /// [ChatDirectLinkSlug] to display [IntroductionView] with.
   final ChatDirectLinkSlug? link;
 
@@ -202,6 +205,10 @@ class HomeController extends GetxController {
   Future<void> updateAvatar() async {
     await _myUserService.refresh();
   }
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
+      _settings.setWorkWithUsTabEnabled(enabled);
 
   /// Refreshes the controller on [router] change.
   ///

@@ -195,9 +195,6 @@ btn_gallery = Галерея
 btn_generate_direct_chat_link = Сгенерировать
 btn_gift = Подарок
 btn_guest = Гость
-btn_guest_desc =
-    Гостевой
-    аккаунт
 btn_hide = Скрыть
 btn_hide_chat = Скрыть чат
 btn_info = Информация
