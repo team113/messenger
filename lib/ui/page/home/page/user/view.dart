@@ -168,9 +168,12 @@ class UserView extends StatelessWidget {
       return Block(
         padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
         children: [
-          Text(
-            bio.toString(),
-            style: style.fonts.normal.regular.secondary,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              bio.toString(),
+              style: style.fonts.normal.regular.secondary,
+            ),
           ),
         ],
       );

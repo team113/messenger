@@ -179,10 +179,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         final String? subtitle = chat.getSubtitle();
 
         if (subtitle != null) {
-          return Text(
-            subtitle,
-            style: style.fonts.small.regular.secondary,
-          );
+          return Text(subtitle, style: style.fonts.small.regular.secondary);
         }
 
         return const SizedBox();
@@ -203,10 +200,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
                 .whereNotNull()
                 .join('space_vertical_space'.l10n);
 
-            return Text(
-              subtitle,
-              style: style.fonts.small.regular.secondary,
-            );
+            return Text(subtitle, style: style.fonts.small.regular.secondary);
           });
         }
       }
