@@ -1547,6 +1547,10 @@ class OngoingCall {
         // No-op.
       }
 
+      // On mobile platforms, output device is picked in the following priority:
+      // - headphones;
+      // - earpiece (if [videoState] is disabled);
+      // - speaker (if [videoState] is enabled).
       if (PlatformUtils.isMobile) {
         _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
           outputDevice.value =
@@ -1576,6 +1580,7 @@ class OngoingCall {
           }
         }
       } else {
+        // On any other platform the output device is the preferred one.
         outputDevice.value = devices
                 .output()
                 .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
@@ -2057,7 +2062,7 @@ class OngoingCall {
       outputDevice.value = device;
 
       try {
-        // If there is an connected member except [MyUser], speaker will be
+        // If there is a connected member except [MyUser], speaker will be
         // changed through the [MediaUtils.setOutputDevice] method.
         if (members.values.where((e) => e.isConnected.isTrue).length < 2) {
           AudioUtils.setSpeaker(device.speaker);
