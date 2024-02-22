@@ -237,7 +237,7 @@ abstract class RxChat implements Comparable<RxChat> {
   RxList<User> get typingUsers;
 
   /// Reactive map of [User]s being members of this [chat].
-  RxObsMap<UserId, RxUser> get members;
+  Paginated<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
   RxString get title;
@@ -260,12 +260,6 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether a next page of the [messages] is loading.
   RxBool get nextLoading;
 
-  /// Indicates whether the [members] have next page.
-  RxBool get membersHaveNext;
-
-  /// Indicates whether a next page of the [members] is loading.
-  RxBool get membersNextLoading;
-
   /// Indicates whether the [messages] have previous page.
   RxBool get hasPrevious;
 
@@ -282,7 +276,7 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [RxChat] is blocked or not.
   bool get blocked =>
       chat.value.isDialog &&
-      members.values
+      members.items.values
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value
@@ -322,9 +316,6 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// Fetches the initial [members] page;
   Future<void> membersAround();
-
-  /// Fetches the next [members] page.
-  Future<void> membersNext();
 
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///

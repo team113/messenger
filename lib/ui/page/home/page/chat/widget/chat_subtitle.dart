@@ -184,7 +184,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         return const SizedBox();
       } else if (chat.isDialog) {
-        final RxUser? member = widget.chat.members.values
+        final RxUser? member = widget.chat.members.items.values
             .firstWhereOrNull((u) => u.user.value.id != widget.me);
 
         if (member != null) {

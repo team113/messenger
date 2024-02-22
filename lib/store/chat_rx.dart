@@ -67,6 +67,9 @@ import 'pagination/graphql.dart';
 typedef MessagesPaginated
     = RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
 
+typedef MembersPaginated
+    = RxPaginatedImpl<UserId, RxUser, HiveChatMember, ChatMembersCursor>;
+
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
   HiveRxChat(
@@ -94,7 +97,7 @@ class HiveRxChat extends RxChat {
   final RxList<User> typingUsers = RxList<User>([]);
 
   @override
-  final RxObsMap<UserId, RxUser> members = RxObsMap<UserId, RxUser>();
+  late final MembersPaginated members;
 
   @override
   final RxString title = RxString('');
@@ -133,10 +136,6 @@ class HiveRxChat extends RxChat {
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
 
-  /// [Pagination] loading [members] with pagination.
-  late final Pagination<HiveChatMember, ChatMembersCursor, UserId>
-      _membersPagination;
-
   /// [MessagesPaginated]s created by this [HiveRxChat].
   final List<MessagesPaginated> _fragments = [];
 
@@ -156,9 +155,6 @@ class HiveRxChat extends RxChat {
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
-
-  /// Subscription to the [_membersPagination] changes.
-  StreamSubscription? _membersPaginationSubscription;
 
   /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
@@ -229,12 +225,6 @@ class HiveRxChat extends RxChat {
   RxBool get previousLoading => _pagination.previousLoading;
 
   @override
-  RxBool get membersHaveNext => _membersPagination.hasNext;
-
-  @override
-  RxBool get membersNextLoading => _membersPagination.nextLoading;
-
-  @override
   UserCallCover? get callCover {
     Log.debug('get callCover', '$runtimeType($id)');
 
@@ -242,11 +232,11 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
-        callCover = members.values.firstOrNull?.user.value.callCover;
+        callCover = members.items.values.firstOrNull?.user.value.callCover;
         break;
 
       case ChatKind.dialog:
-        callCover = members.values
+        callCover = members.items.values
             .firstWhereOrNull((e) => e.id != me)
             ?.user
             .value
@@ -315,6 +305,9 @@ class HiveRxChat extends RxChat {
       chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
     );
 
+    _initMessagesPagination();
+    _initMembersPagination();
+
     // Provide [List] of chat members to the [_updateTitle] to synchronously
     // initialize the [title].
     // Important for notifications to show correct title when a new chat added.
@@ -347,9 +340,6 @@ class HiveRxChat extends RxChat {
       inCall.value =
           _chatRepository.calls[id] != null || WebUtils.containsCall(id);
     });
-
-    _initMessagesPagination();
-    _initMembersPagination();
   }
 
   /// Disposes this [HiveRxChat].
@@ -360,15 +350,14 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.loading();
     messages.clear();
     reads.clear();
+    members.dispose();
     _aroundToken.cancel();
     _muteTimer?.cancel();
     _readTimer?.cancel();
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = null;
     _paginationSubscription?.cancel();
-    _membersPaginationSubscription?.cancel();
     _pagination.dispose();
-    _membersPagination.dispose();
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     await _local.close();
@@ -512,7 +501,7 @@ class HiveRxChat extends RxChat {
   Future<void> membersAround() async {
     Log.debug('membersAround()', '$runtimeType($id)');
 
-    if (id.isLocal || membersHaveNext.isFalse) {
+    if (id.isLocal || members.hasNext.isFalse) {
       return;
     }
 
@@ -523,17 +512,11 @@ class HiveRxChat extends RxChat {
         _putMember(HiveChatMember(member, null), pagination: true);
       }
 
-      _membersPagination.hasNext.value = false;
-      _membersPagination.hasPrevious.value = false;
+      members.pagination?.hasNext.value = false;
+      members.pagination?.hasPrevious.value = false;
     } else {
-      await _membersPagination.around();
+      await members.ensureInitialized();
     }
-  }
-
-  @override
-  Future<void> membersNext() async {
-    Log.debug('membersNext()', '$runtimeType($id)');
-    await _membersPagination.next();
   }
 
   @override
@@ -875,7 +858,7 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
-    await _membersPagination.clear();
+    await members.clear();
   }
 
   // TODO: Remove when backend supports welcome messages.
@@ -944,10 +927,10 @@ class HiveRxChat extends RxChat {
       }
 
       if (user != null) {
-        members[member.value.user.id] = user;
+        members.items[member.value.user.id] = user;
       }
     } else {
-      _membersPagination.put(member);
+      members.put(member);
     }
   }
 
@@ -1040,44 +1023,33 @@ class HiveRxChat extends RxChat {
 
   /// Initializes the [_membersPagination].
   Future<void> _initMembersPagination() async {
-    _membersPagination = Pagination(
-      onKey: (e) => e.value.user.id,
-      perPage: 15,
-      provider: GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
-        fetch: ({after, before, first, last}) {
-          return _chatRepository.members(
-            chat.value.id,
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          );
-        },
+    members = MembersPaginated(
+      transform: ({required HiveChatMember data, RxUser? previous}) {
+        return _chatRepository.getUser(data.value.user.id);
+      },
+      pagination: Pagination(
+        onKey: (e) => e.value.user.id,
+        perPage: 15,
+        provider:
+            GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
+          fetch: ({after, before, first, last}) {
+            return _chatRepository.members(
+              chat.value.id,
+              after: after,
+              first: first,
+              before: before,
+              last: last,
+            );
+          },
+        ),
+        compare: (a, b) => a.value.compareTo(b.value),
       ),
-      compare: (a, b) => a.value.compareTo(b.value),
     );
 
     if (id.isLocal) {
-      _membersPagination.hasNext.value = false;
-      _membersPagination.hasPrevious.value = false;
+      members.pagination?.hasNext.value = false;
+      members.pagination?.hasPrevious.value = false;
     }
-
-    _membersPaginationSubscription =
-        _membersPagination.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          final RxUser? user = await _chatRepository.getUser(event.key!);
-          if (user != null) {
-            members[event.key!] = user;
-          }
-          break;
-
-        case OperationKind.removed:
-          members.remove(event.key!);
-          break;
-      }
-    });
   }
 
   /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
@@ -1259,7 +1231,7 @@ class HiveRxChat extends RxChat {
     if (chat.value.name == null) {
       final List<RxUser> users;
 
-      if (members.length < 3) {
+      if (members.items.length < 3) {
         users = [];
 
         for (var m in chat.value.members.take(3)) {
@@ -1269,7 +1241,7 @@ class HiveRxChat extends RxChat {
           }
         }
       } else {
-        users = members.values.take(3).toList();
+        users = members.items.values.take(3).toList();
       }
 
       _userWorkers.removeWhere((k, v) {
@@ -1305,8 +1277,8 @@ class HiveRxChat extends RxChat {
     users ??= [];
 
     if (chat.value.name == null && users.isEmpty) {
-      if (members.isNotEmpty) {
-        users.addAll(members.values.take(3).map((e) => e.user.value));
+      if (members.items.isNotEmpty == true) {
+        users.addAll(members.items.values.take(3).map((e) => e.user.value));
       } else {
         for (var u in chat.value.members.take(3)) {
           final user = (await _chatRepository.getUser(u.user.id))?.user.value;
@@ -1328,7 +1300,7 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.dialog:
-        member = members.values.firstWhereOrNull((e) => e.id != me);
+        member = members.items.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:
@@ -1475,7 +1447,7 @@ class HiveRxChat extends RxChat {
           if (e is StaleVersionException) {
             await clear();
             await _pagination.around(cursor: _lastReadItemCursor);
-            await _membersPagination.around();
+            await members.ensureInitialized();
           }
         },
       );
@@ -1854,19 +1826,20 @@ class HiveRxChat extends RxChat {
                     case ChatInfoActionKind.memberRemoved:
                       final action = msg.action as ChatInfoActionMemberRemoved;
 
-                      await _membersPagination.remove(action.user.id);
+                      await members.remove(action.user.id);
 
                       chatEntity.value.members
                           .removeWhere((e) => e.user.id == action.user.id);
                       chatEntity.value.membersCount--;
 
                       if (chatEntity.value.members.length < 3) {
-                        if (_membersPagination.items.length < 3) {
-                          await membersNext();
+                        if (members.items.length < 3) {
+                          await members.next();
                         }
 
                         chatEntity.value.members.clear();
-                        for (var m in _membersPagination.items.values.take(3)) {
+                        for (var m
+                            in members.pagination!.items.values.take(3)) {
                           chatEntity.value.members.add(m.value);
                         }
                       }

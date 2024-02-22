@@ -249,10 +249,10 @@ class ChatInfoView extends StatelessWidget {
   /// Returns a list of [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
     return Obx(() {
-      final RxUser? me = c.chat!.members[c.me];
+      final RxUser? me = c.chat!.members.items[c.me];
       final List<RxUser> members = [];
 
-      for (var u in c.chat!.members.entries) {
+      for (var u in c.chat!.members.items.entries) {
         if (u.key != c.me && !c.membersOnRemoval.contains(u.key)) {
           members.add(u.value);
         }

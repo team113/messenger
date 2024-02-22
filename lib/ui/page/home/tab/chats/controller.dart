@@ -479,7 +479,7 @@ class ChatsTabController extends GetxController {
     }
 
     final UserId? userId =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.id;
+        chat.members.items.values.firstWhereOrNull((e) => e.id != me)?.id;
     if (userId == null) {
       return false;
     }
@@ -498,8 +498,10 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    final User? user = chat.members.items.values
+        .firstWhereOrNull((e) => e.id != me)
+        ?.user
+        .value;
     if (user == null) {
       return;
     }
@@ -521,8 +523,10 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    final User? user = chat.members.items.values
+        .firstWhereOrNull((e) => e.id != me)
+        ?.user
+        .value;
     if (user == null) {
       return;
     }
@@ -916,7 +920,7 @@ class ChatEntry implements Comparable<ChatEntry> {
   RxObsList<Rx<ChatItem>> get messages => _chat.messages;
 
   /// Reactive list of [User]s being members of this [chat].
-  RxObsMap<UserId, RxUser> get members => _chat.members;
+  RxObsMap<UserId, RxUser> get members => _chat.members.items;
 
   /// Disposes this [ChatEntry].
   void dispose() => _worker.dispose();

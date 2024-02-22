@@ -136,7 +136,8 @@ class ParticipantView extends StatelessWidget {
                           shrinkWrap: true,
                           controller: c.scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
-                          children: c.chat.value!.members.values.map((user) {
+                          children:
+                              c.chat.value!.members.items.values.map((user) {
                             bool inCall = false;
                             bool isRedialed = false;
 

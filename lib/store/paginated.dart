@@ -183,30 +183,32 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   });
 
   /// Callback, called to transform the [V] to [T].
-  final FutureOr<T> Function({T? previous, required V data}) transform;
+  final FutureOr<T?> Function({T? previous, required V data}) transform;
 
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
 
-    if (_futures.isEmpty) {
+    if (_futures.isEmpty && !status.value.isSuccess) {
       _paginationSubscription = pagination!.changes.listen((event) async {
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
-            FutureOr<T> itemOrFuture = transform(
+            FutureOr<T?> itemOrFuture = transform(
               previous: items[event.key!],
               data: event.value as V,
             );
-            final T item;
+            final T? item;
 
-            if (itemOrFuture is T) {
+            if (itemOrFuture is T?) {
               item = itemOrFuture;
             } else {
               item = await itemOrFuture;
             }
 
-            items[event.key!] = item;
+            if (item != null) {
+              items[event.key!] = item;
+            }
             break;
 
           case OperationKind.removed:
@@ -219,6 +221,7 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
 
       await Future.wait(_futures);
       status.value = RxStatus.success();
+      _futures.clear();
     } else {
       await Future.wait(_futures);
     }
@@ -240,5 +243,21 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
     if (previousLoading.isFalse) {
       await pagination?.previous();
     }
+  }
+
+  /// Puts the provided [item] to the [pagination].
+  Future<void> put(V item) {
+    return pagination!.put(item);
+  }
+
+  /// Removes the item with the provided [key] from the [pagination].
+  Future<void> remove(K key) {
+    return pagination!.remove(key);
+  }
+
+  /// Clears the [pagination].
+  Future<void> clear() async {
+    await pagination!.clear();
+    status.value = RxStatus.empty();
   }
 }

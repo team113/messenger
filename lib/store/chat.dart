@@ -541,7 +541,7 @@ class ChatRepository extends DisposableInterface
 
     await _graphQlProvider.removeChatMember(chatId, userId);
     await onMemberRemoved.call(chatId, userId);
-    chat?.members.remove(userId);
+    chat?.members.items.remove(userId);
   }
 
   @override
@@ -1063,6 +1063,10 @@ class ChatRepository extends DisposableInterface
       last: last,
       before: before,
     );
+
+    for (var e in query.chat!.members.edges) {
+      _userRepo.put(e.node.user.toHive());
+    }
 
     return Page(
       RxList(

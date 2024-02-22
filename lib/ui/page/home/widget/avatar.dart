@@ -279,7 +279,7 @@ class AvatarWidget extends StatelessWidget {
       }
 
       final RxUser? user =
-          chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
+          chat.members.items.values.firstWhereOrNull((e) => e.id != chat.me);
       return AvatarWidget(
         key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,

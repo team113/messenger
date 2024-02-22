@@ -129,14 +129,14 @@ class ChatInfoController extends GetxController {
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
 
   /// Indicates whether the [Chat.members] have a next page.
-  RxBool get haveNext => chat?.membersHaveNext ?? RxBool(false);
+  RxBool get haveNext => chat?.members.hasNext ?? RxBool(false);
 
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
   @override
   void onInit() {
-    scrollController.addListener(_scrollListener);
+    membersScrollController.addListener(_scrollListener);
 
     name = TextFieldState(
       approvable: true,
@@ -259,6 +259,7 @@ class ChatInfoController extends GetxController {
     _worker?.dispose();
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();
+    membersScrollController.removeListener(_scrollListener);
     super.onClose();
   }
 
@@ -462,7 +463,7 @@ class ChatInfoController extends GetxController {
         },
       );
 
-      _membersSubscription = chat!.members.changes.listen((event) {
+      _membersSubscription = chat!.members.items.changes.listen((event) {
         switch (event.op) {
           case OperationKind.added:
           case OperationKind.updated:
@@ -487,15 +488,15 @@ class ChatInfoController extends GetxController {
     if (!_scrollIsInvoked) {
       _scrollIsInvoked = true;
 
-      SchedulerBinding.instance.addPostFrameCallback((_) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
         _scrollIsInvoked = false;
 
         if (membersScrollController.hasClients &&
             haveNext.isTrue &&
-            chat?.membersNextLoading.value == false &&
+            chat?.members.nextLoading.value == false &&
             membersScrollController.position.pixels >
                 membersScrollController.position.maxScrollExtent - 500) {
-          chat?.membersNext();
+          await chat?.members.next();
         }
       });
     }

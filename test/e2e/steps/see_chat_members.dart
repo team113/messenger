@@ -38,7 +38,7 @@ final StepDefinitionGeneric seeChatMembers = then1<int, CustomWorld>(
         final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-        return chat?.members.length == count;
+        return chat?.members.items.length == count;
       },
     );
   },

@@ -27,6 +27,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
@@ -430,7 +431,8 @@ class OngoingCall {
       void addDialingsFrom(RxChat chat) {
         if ((outgoing && conversationStartedAt == null) ||
             chat.chat.value.isDialog) {
-          for (UserId e in chat.members.keys.where((e) => e != me.id.userId)) {
+          for (UserId e
+              in chat.members.items.keys.where((e) => e != me.id.userId)) {
             _addDialing(e);
           }
         }
@@ -575,11 +577,11 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll) {
-                  final Iterable<ChatMember> dialings = v?.chat.value.members
+                  final Iterable<RxUser> dialings = v?.members.items.values
                           .where((e) =>
-                              e.user.id != me.id.userId &&
+                              e.id != me.id.userId &&
                               dialed.answeredMembers
-                                  .none((a) => a.user.id == e.user.id)) ??
+                                  .none((a) => a.user.id == e.id)) ??
                       [];
 
                   // Remove the members, who are not connected and still
@@ -588,26 +590,23 @@ class OngoingCall {
                     (_, v) =>
                         v.isConnected.isFalse &&
                         v.isDialing.isTrue &&
-                        dialings.none((e) => e.user.id == v.id.userId) &&
+                        dialings.none((e) => e.id == v.id.userId) &&
                         node.call.members.none((e) => e.user.id == v.id.userId),
                   );
 
-                  for (final ChatMember m in dialings) {
-                    _addDialing(m.user.id);
+                  for (final RxUser e in dialings) {
+                    _addDialing(e.id);
                   }
                 }
 
                 _membersSubscription?.cancel();
-                _membersSubscription = v?.members.changes.listen((event) {
+                _membersSubscription = v?.members.items.changes.listen((event) {
                   switch (event.op) {
-                    case OperationKind.added:
-                      _addDialing(event.key!);
-                      break;
-
                     case OperationKind.removed:
                       members.remove(CallMemberId(event.key!, null))?.dispose();
                       break;
 
+                    case OperationKind.added:
                     case OperationKind.updated:
                       // No-op.
                       break;
