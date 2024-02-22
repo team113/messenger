@@ -35,6 +35,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Keyboard hiding after sending a message on mobile. ([#856], [#828])
+    - Chats tab:
+        - Group chat not disappearing after being removed from it. ([#864], [#851])
 - Web:
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
 
@@ -47,9 +49,11 @@ All user visible changes to this project will be documented in this file. This p
 [#832]: /../../pull/832
 [#843]: /../../pull/843
 [#848]: /../../pull/848
+[#851]: /../../issues/851
 [#855]: /../../pull/855
 [#856]: /../../pull/856
 [#863]: /../../pull/863
+[#864]: /../../pull/864
 
 
 
