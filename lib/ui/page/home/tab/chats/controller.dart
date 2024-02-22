@@ -60,6 +60,7 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -113,6 +114,9 @@ class ChatsTabController extends GetxController {
   ///
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
+
+  /// [TextFieldState] for [ChatName] inputting while [groupCreating].
+  final TextFieldState groupName = TextFieldState();
 
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
@@ -579,6 +583,7 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
+    groupName.clear();
     closeSearch(true);
     router.navigation.value = true;
   }
@@ -589,14 +594,14 @@ class ChatsTabController extends GetxController {
     creatingStatus.value = RxStatus.loading();
 
     try {
-      RxChat chat = await _chatService.createGroupChat(
+      final RxChat chat = await _chatService.createGroupChat(
         {
           ...search.value!.selectedRecent.map((e) => e.id),
           ...search.value!.selectedContacts
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: null,
+        name: groupName.text.isEmpty ? null : ChatName(groupName.text),
       );
 
       router.chat(chat.chat.value.id);

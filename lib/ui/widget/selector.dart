@@ -41,6 +41,7 @@ class Selector<T> extends StatefulWidget {
     this.width = 260,
     this.margin = EdgeInsets.zero,
     required this.isMobile,
+    this.onPointerUp = _popNavigator,
   });
 
   /// [List] of items to select from.
@@ -78,6 +79,9 @@ class Selector<T> extends StatefulWidget {
   /// Indicator whether a mobile design with [CupertinoPicker] should be used.
   final bool isMobile;
 
+  /// Callback, called when [Listener.onPointerUp] is called.
+  final void Function(BuildContext)? onPointerUp;
+
   /// Displays a [Selector] wrapped in a modal popup.
   static Future<T?> show<T extends Object>({
     required BuildContext context,
@@ -91,6 +95,7 @@ class Selector<T> extends StatefulWidget {
     double width = 260,
     EdgeInsets margin = EdgeInsets.zero,
     T? initial,
+    void Function(BuildContext)? onPointerUp = _popNavigator,
   }) {
     final bool isMobile = context.isMobile;
 
@@ -107,6 +112,7 @@ class Selector<T> extends StatefulWidget {
         width: width,
         margin: margin,
         isMobile: isMobile,
+        onPointerUp: onPointerUp,
       );
     }
 
@@ -122,6 +128,10 @@ class Selector<T> extends StatefulWidget {
 
   @override
   State<Selector<T>> createState() => _SelectorState<T>();
+
+  /// Invokes the [NavigatorState.pop] of [Navigator] from [context].
+  static void _popNavigator(BuildContext context) =>
+      Navigator.of(context).pop();
 }
 
 /// State of a [Selector] maintaining the [_debounce].
@@ -312,7 +322,9 @@ class _SelectorState<T> extends State<Selector<T>> {
             top: top,
             bottom: bottom,
             child: Listener(
-              onPointerUp: (d) => Navigator.of(context).pop(),
+              onPointerUp: widget.onPointerUp == null
+                  ? null
+                  : (d) => widget.onPointerUp?.call(context),
               child: Container(
                 decoration: BoxDecoration(
                   color: style.contextMenuBackgroundColor,

@@ -22,10 +22,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
+        - Mobile interface on tablets. ([#863])
     - Chats tab:
         - Direct link searching. ([#843], [#831])
+        - Name specifying of group being created in app bar. ([#863])
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
+        - Redesigned context menu in navigation. ([#863])
 
 ### Fixed
 
@@ -46,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
 [#848]: /../../pull/848
 [#855]: /../../pull/855
 [#856]: /../../pull/856
+[#863]: /../../pull/863
 
 
 

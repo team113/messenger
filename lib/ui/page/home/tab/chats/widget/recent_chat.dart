@@ -24,10 +24,10 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -36,6 +36,7 @@ import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
@@ -191,7 +192,7 @@ class RecentChatTile extends StatelessWidget {
           status: [
             const SizedBox(height: 28),
             if (trailing == null) ...[
-              _ongoingCall(context),
+              _ongoingCall(context, inverted: inverted),
               if (blocked) ...[
                 const SizedBox(width: 8),
                 SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
@@ -489,7 +490,8 @@ class RecentChatTile extends StatelessWidget {
                       ? 'label_outgoing_call'.l10n
                       : 'label_incoming_call'.l10n,
                 ),
-              )
+              ),
+              if (item.author.id == me) const AnimatedDots(),
             ];
           }
         } else if (item is ChatMessage) {
@@ -824,11 +826,7 @@ class RecentChatTile extends StatelessWidget {
     if (content != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(5),
-        child: SizedBox(
-          width: 30,
-          height: 30,
-          child: content,
-        ),
+        child: SizedBox(width: 30, height: 30, child: content),
       );
     }
 
@@ -884,7 +882,7 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Returns a visual representation of the [Chat.ongoingCall], if any.
-  Widget _ongoingCall(BuildContext context) {
+  Widget _ongoingCall(BuildContext context, {bool inverted = false}) {
     final style = Theme.of(context).style;
 
     return Obx(() {
@@ -902,17 +900,18 @@ class RecentChatTile extends StatelessWidget {
               ? const Key('JoinCallButton')
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
-          decoration: BoxDecoration(
-            border: Border.all(color: style.colors.onPrimary, width: 0.5),
-            borderRadius: BorderRadius.circular(6),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
           child: Material(
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(6),
-            color: displayed ? style.colors.danger : style.colors.primary,
+            color: displayed
+                ? style.colors.danger
+                : inverted
+                    ? style.colors.onPrimary
+                    : style.colors.primary,
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(6),
               onTap: displayed ? onDrop : onJoin,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(10, 4, 10, 4),
@@ -930,7 +929,9 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style: style.fonts.smaller.regular.onPrimary,
+                          style: !displayed && inverted
+                              ? style.fonts.smaller.regular.primary
+                              : style.fonts.smaller.regular.onPrimary,
                         ).fixedDigits();
                       },
                     ),
@@ -942,7 +943,9 @@ class RecentChatTile extends StatelessWidget {
                       child: SvgIcon(
                         displayed
                             ? SvgIcons.activeCallEnd
-                            : SvgIcons.activeCallStart,
+                            : inverted
+                                ? SvgIcons.activeCallStartBlue
+                                : SvgIcons.activeCallStart,
                       ),
                     ),
                   ],
