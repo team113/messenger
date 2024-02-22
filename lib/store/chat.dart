@@ -349,12 +349,6 @@ class ChatRepository extends DisposableInterface
   Future<void> remove(ChatId id) async {
     Log.debug('remove($id)', '$runtimeType');
 
-    chats.remove(id)?.dispose();
-    paginated.remove(id);
-    _pagination?.remove(id);
-    _recentLocal.remove(id);
-    _favoriteLocal.remove(id);
-
     await _chatLocal.remove(id);
   }
 
@@ -1610,7 +1604,7 @@ class ChatRepository extends DisposableInterface
         _favoriteLocal.remove(chatId);
       } else {
         final HiveRxChat? oldChat = chats[chatId];
-        final Chat chat = event.value.value;
+        final chat = event.value.value as Chat;
 
         if (oldChat == null ||
             (oldChat.ver != null && oldChat.ver! < event.value.ver)) {
@@ -1627,14 +1621,6 @@ class ChatRepository extends DisposableInterface
 
         if (chat.isHidden) {
           paginated.remove(chatId);
-        }
-
-        if (!chat.members.map((e) => e.user.id).contains(me)) {
-          chats.remove(chatId)?.dispose();
-          paginated.remove(chatId);
-          _pagination?.remove(chatId);
-          _recentLocal.remove(chatId);
-          _favoriteLocal.remove(chatId);
         }
       }
     }
