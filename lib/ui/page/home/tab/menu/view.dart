@@ -175,7 +175,7 @@ class MenuTabView extends StatelessWidget {
                       router.route == Routes.me;
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 1.5),
                     child: MenuButton.tab(
                       tab,
                       key: key,
