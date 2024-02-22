@@ -36,7 +36,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Keyboard hiding after sending a message on mobile. ([#856], [#828])
     - Media panel:
-        - Ringtone not switching speaker on mobile. ([#840], [#817])
+        - Ringtone not switching its output device on mobile. ([#840], [#817])
 - Web:
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
 

@@ -492,8 +492,8 @@ class CallController extends GetxController {
   /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
 
-  /// Returns [AudioSpeakerKind] of the used output device.
-  AudioSpeakerKind get outputKind =>
+  /// Returns the [AudioSpeakerKind] of the used output device.
+  AudioSpeakerKind get speaker =>
       _currentCall.value.outputDevice.value?.speaker ??
       _currentCall.value.devices.output().firstOrNull?.speaker ??
       AudioSpeakerKind.earpiece;
@@ -2048,27 +2048,24 @@ class CallController extends GetxController {
     return false;
   }
 
-  /// Ensures [OngoingCall.outputDevice] is not a earpiece, if video is enabled.
+  /// Ensures [OngoingCall.outputDevice] is not an earpiece, if [videoState] is
+  /// enabled.
+  ///
+  /// Only meaningful on mobile devices.
   Future<void> _ensureNotEarpiece() async {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
-          _currentCall.value.videoState.value == LocalTrackState.enabling) {
-        DeviceDetails? output = _currentCall.value.outputDevice.value ??
-            _currentCall.value.devices.output().firstOrNull;
+      if (videoState.value.isEnabled && speaker == AudioSpeakerKind.earpiece) {
+        final List<DeviceDetails> outputs = _currentCall.value.devices
+            .output()
+            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+            .toList();
 
-        if (output?.speaker == AudioSpeakerKind.earpiece) {
-          final List<DeviceDetails> outputs = _currentCall.value.devices
-              .output()
-              .where((e) => e.id() != 'default' && e.deviceId() != 'default')
-              .toList();
+        final DeviceDetails? speakerphone = outputs.firstWhereOrNull(
+          (e) => e.speaker == AudioSpeakerKind.speaker,
+        );
 
-          final DeviceDetails? speakerphone = outputs.firstWhereOrNull(
-            (e) => e.speaker == AudioSpeakerKind.speaker,
-          );
-
-          if (speakerphone != null) {
-            await _currentCall.value.setOutputDevice(speakerphone);
-          }
+        if (speakerphone != null) {
+          await _currentCall.value.setOutputDevice(speakerphone);
         }
       }
     }

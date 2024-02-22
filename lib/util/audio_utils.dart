@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:media_kit/media_kit.dart';
+import 'package:media_kit/media_kit.dart' hide AudioDevice;
 import 'package:mutex/mutex.dart';
 
 import '/util/media_utils.dart';
@@ -40,8 +40,9 @@ class AudioUtilsImpl {
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ///
-  /// [ja.AudioPlayer] used on mobile platforms in order to [Player] is not
-  /// depends on the `audio_session`.
+  /// [ja.AudioPlayer] is used on mobile platforms due to it accounting
+  /// [AudioSession] preferences (e.g. switching audio output for mobiles),
+  /// which [Player] doesn't do.
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
@@ -54,13 +55,13 @@ class AudioUtilsImpl {
   final Mutex _mutex = Mutex();
 
   /// Indicates whether the [_jaPlayer] should be used.
-  bool get _mobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
+  bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
     try {
-      if (_mobile) {
+      if (_isMobile) {
         _jaPlayer ??= ja.AudioPlayer();
       } else {
         _player ??= Player();
@@ -81,7 +82,7 @@ class AudioUtilsImpl {
   Future<void> once(AudioSource sound) async {
     ensureInitialized();
 
-    if (_mobile) {
+    if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
       await _jaPlayer?.play();
     } else {
@@ -107,7 +108,7 @@ class AudioUtilsImpl {
       controller = StreamController.broadcast(
         onListen: () async {
           try {
-            if (_mobile) {
+            if (_isMobile) {
               jaPlayer = ja.AudioPlayer();
             } else {
               player = Player();
@@ -123,7 +124,7 @@ class AudioUtilsImpl {
             }
           }
 
-          if (_mobile) {
+          if (_isMobile) {
             await jaPlayer?.setAudioSource(music.source);
             await jaPlayer?.setLoopMode(ja.LoopMode.all);
             await jaPlayer?.play();
@@ -177,9 +178,9 @@ class AudioUtilsImpl {
 
   /// Sets the [speaker] to use for audio output.
   ///
-  /// Only meaningful on mobile device.
+  /// Only meaningful on mobile devices.
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    if (_isMobile) {
       if (_speaker != speaker) {
         _speaker = speaker;
         await _setSpeaker();
@@ -187,44 +188,60 @@ class AudioUtilsImpl {
     }
   }
 
-  /// Sets the default audio output device as used.
+  /// Sets the default audio output device as the used one.
   ///
-  /// Only meaningful on mobile device.
+  /// Only meaningful on mobile devices.
   Future<void> setDefaultSpeaker() async {
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      final List<AndroidAudioDeviceInfo> devices =
-          await AndroidAudioManager().getAvailableCommunicationDevices();
+    if (_isMobile) {
+      final AudioSession session = await AudioSession.instance;
+      final Set<AudioDevice> devices =
+          await session.getDevices(includeInputs: false);
+      final bool hasHeadphones = devices.any(
+        (e) =>
+            e.type == AudioDeviceType.wiredHeadset ||
+            e.type == AudioDeviceType.wiredHeadphones ||
+            e.type == AudioDeviceType.bluetoothA2dp ||
+            e.type == AudioDeviceType.bluetoothLe ||
+            e.type == AudioDeviceType.bluetoothSco ||
+            e.type == AudioDeviceType.usbAudio,
+      );
 
-      if (devices.any((e) =>
-          e.type == AndroidAudioDeviceType.bluetoothSco ||
-          e.type == AndroidAudioDeviceType.wiredHeadphones ||
-          e.type == AndroidAudioDeviceType.wiredHeadset ||
-          e.type == AndroidAudioDeviceType.usbHeadset)) {
+      if (hasHeadphones) {
         await setSpeaker(AudioSpeakerKind.headphones);
       } else {
         await setSpeaker(AudioSpeakerKind.speaker);
       }
 
-      await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
+      if (PlatformUtils.isAndroid) {
+        await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
+      } else if (PlatformUtils.isIOS) {
+        await AVAudioSession().setCategory(
+          AVAudioSessionCategory.playAndRecord,
+          AVAudioSessionCategoryOptions.allowBluetooth,
+          AVAudioSessionMode.defaultMode,
+        );
+      }
     }
   }
 
   /// Sets the [_speaker] to use for audio output.
+  ///
+  /// Should only be called via [setSpeaker].
   Future<void> _setSpeaker() async {
     // If the [_mutex] is locked, the output device is already being set.
     if (_mutex.isLocked) {
       return;
     }
 
+    // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
     final AudioSpeakerKind speaker = _speaker!;
+
     await _mutex.protect(() async {
       await MediaUtils.outputGuard.protect(() async {
         if (PlatformUtils.isIOS) {
           await AVAudioSession().setCategory(
             AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth |
-                AVAudioSessionCategoryOptions.allowBluetoothA2dp |
-                AVAudioSessionCategoryOptions.allowAirPlay,
+            AVAudioSessionCategoryOptions.allowBluetooth,
             AVAudioSessionMode.voiceChat,
           );
 

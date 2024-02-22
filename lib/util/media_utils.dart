@@ -274,9 +274,10 @@ class MediaUtilsImpl {
     if (video != null) {
       final DeviceVideoTrackConstraints constraints =
           DeviceVideoTrackConstraints();
-      if (video.device != null) constraints.deviceId(video.device!);
       if (video.facingMode != null) {
         constraints.idealFacingMode(video.facingMode!);
+      } else if (video.device != null) {
+        constraints.deviceId(video.device!);
       }
       settings.deviceVideo(constraints);
     }

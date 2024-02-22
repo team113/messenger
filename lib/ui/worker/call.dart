@@ -240,6 +240,7 @@ class CallWorker extends DisposableService {
             stop();
           }
 
+          // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
             await AudioUtils.setDefaultSpeaker();
           }

@@ -1552,11 +1552,14 @@ class OngoingCall {
       // - earpiece (if [videoState] is disabled);
       // - speaker (if [videoState] is enabled).
       if (PlatformUtils.isMobile) {
-        _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
-          outputDevice.value =
-              devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
-                  outputDevice.value;
-        });
+        _outputWorker = ever(
+          MediaUtils.outputDeviceId,
+          (id) {
+            outputDevice.value =
+                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
+                    outputDevice.value;
+          },
+        );
 
         if (outputDevice.value == null) {
           final Iterable<DeviceDetails> output = devices.output();
@@ -2062,13 +2065,12 @@ class OngoingCall {
       outputDevice.value = device;
 
       try {
-        // If there is a connected member except [MyUser], speaker will be
-        // changed through the [MediaUtils.setOutputDevice] method.
-        if (members.values.where((e) => e.isConnected.isTrue).length < 2) {
-          AudioUtils.setSpeaker(device.speaker);
-        }
-
-        await MediaUtils.setOutputDevice(device.deviceId());
+        // [MediaUtils.setOutputDevice] seems to switch the speaker in
+        // [AudioUtils] as well, when [hasRemote] is `true`.
+        await Future.wait([
+          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
+          MediaUtils.setOutputDevice(device.deviceId()),
+        ]);
       } catch (e) {
         addError(e.toString());
         outputDevice.value = previous;

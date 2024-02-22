@@ -534,7 +534,7 @@ class SpeakerButton extends CallButton {
       return button(SvgIcons.callIncomingAudioOn, null);
     } else {
       return Obx(() {
-        final SvgData asset = switch (c.outputKind) {
+        final SvgData asset = switch (c.speaker) {
           AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
           AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
           AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
