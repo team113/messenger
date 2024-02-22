@@ -82,7 +82,7 @@ class WorkTabView extends StatelessWidget {
                 final WorkTab e = WorkTab.values[i];
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
                   child: VacancyWorkButton(e),
                 );
               },
