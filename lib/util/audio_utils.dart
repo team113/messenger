@@ -180,11 +180,9 @@ class AudioUtilsImpl {
   ///
   /// Only meaningful on mobile devices.
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
-    if (_isMobile) {
-      if (_speaker != speaker) {
-        _speaker = speaker;
-        await _setSpeaker();
-      }
+    if (_isMobile && _speaker != speaker) {
+      _speaker = speaker;
+      await _setSpeaker();
     }
   }
 
