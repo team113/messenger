@@ -79,6 +79,7 @@ import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
+import 'steps/remove_chat_member.dart';
 import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_message.dart';
@@ -198,6 +199,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         popupWindows,
         readsAllMessages,
         readsMessage,
+        removeGroupMember,
         repliesToMessage,
         restartApp,
         returnToPreviousPage,

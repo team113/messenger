@@ -65,6 +65,9 @@ abstract class ChatItem {
   ///
   /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
   ChatItemKey get key => ChatItemKey(at, id);
+
+  @override
+  String toString() => '$runtimeType($id)';
 }
 
 /// Message in a [Chat].
