@@ -22,11 +22,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -203,6 +206,7 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: Obx(() {
                             return CustomNavigationBar(
+                              key: c.panelKey,
                               items: c.tabs.map((e) {
                                 switch (e) {
                                   case HomeTab.work:
@@ -230,8 +234,29 @@ class _HomeViewState extends State<HomeView> {
                                         warning: style.colors.warning,
                                         onPresence: c.setPresence,
                                         onAvatar: c.updateAvatar,
-                                        selector: c.profileKey,
+                                        selector: c.panelKey,
                                         myUser: c.myUser.value,
+                                        actions: [
+                                          ContextMenuBuilder(
+                                            (_) => Obx(() {
+                                              final hasWork = c.settings.value
+                                                      ?.workWithUsTabEnabled ==
+                                                  true;
+
+                                              return ContextMenuTile(
+                                                asset: SvgIcons.partner,
+                                                label:
+                                                    'label_work_with_us'.l10n,
+                                                pinned: hasWork,
+                                                onPinned: () =>
+                                                    c.setWorkWithUsTabEnabled(
+                                                  !hasWork,
+                                                ),
+                                              );
+                                            }),
+                                          ),
+                                          const ContextMenuDivider(),
+                                        ],
                                       );
                                     });
                                 }
