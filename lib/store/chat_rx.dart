@@ -516,6 +516,13 @@ class HiveRxChat extends RxChat {
       members.pagination?.hasPrevious.value = false;
     } else {
       await members.ensureInitialized();
+
+      if (me != null && members.items.values.none((e) => e.id == me)) {
+        final RxUser? myUser = await _chatRepository.getUser(me!);
+        if (myUser != null) {
+          members.items[me!] = myUser;
+        }
+      }
     }
   }
 
@@ -1447,7 +1454,7 @@ class HiveRxChat extends RxChat {
           if (e is StaleVersionException) {
             await clear();
             await _pagination.around(cursor: _lastReadItemCursor);
-            await members.ensureInitialized();
+            await membersAround();
           }
         },
       );
@@ -1818,6 +1825,13 @@ class HiveRxChat extends RxChat {
                         );
                       }
 
+                      if (chatEntity.value.ongoingCall != null) {
+                        await _chatRepository.redialChatCallMember(
+                          id,
+                          action.user.id,
+                        );
+                      }
+
                       _putMember(
                         HiveChatMember(ChatMember(action.user, msg.at), null),
                       );
@@ -1848,6 +1862,7 @@ class HiveRxChat extends RxChat {
                       chatEntity.value.lastReads
                           .removeWhere((e) => e.memberId == action.user.id);
                       reads.removeWhere((e) => e.memberId == action.user.id);
+                      _chatRepository.removeUserFromCall(id, action.user.id);
                       await _chatRepository.onMemberRemoved(id, action.user.id);
                       break;
 

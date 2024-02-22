@@ -20,6 +20,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -129,6 +130,10 @@ class ParticipantView extends StatelessWidget {
                       }),
                     ),
                     const SizedBox(height: 6),
+                    if (c.chat.value!.members.items.isEmpty)
+                      CustomProgressIndicator(
+                        value: Config.disableInfiniteAnimations ? 0 : null,
+                      ),
                     Flexible(
                       child: Scrollbar(
                         controller: c.scrollController,

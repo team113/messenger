@@ -62,6 +62,7 @@ import '/provider/hive/favorite_chat.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/recent_chat.dart';
 import '/provider/hive/session_data.dart';
+import '/store/call.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
@@ -127,7 +128,7 @@ class ChatRepository extends DisposableInterface
   final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
-  final AbstractCallRepository _callRepo;
+  final CallRepository _callRepo;
 
   /// [RxChat.draft] local [Hive] storage.
   final DraftHiveProvider _draftLocal;
@@ -1116,6 +1117,20 @@ class ChatRepository extends DisposableInterface
   void endCall(ChatId chatId) {
     Log.debug('endCall($chatId)', '$runtimeType');
     _callRepo.remove(chatId);
+  }
+
+  /// Redials the [User] with the provided [userId] in call in the [Chat] with
+  /// the provided [chatId].
+  Future<void> redialChatCallMember(ChatId chatId, UserId userId) async {
+    Log.debug('redialChatCallMember($chatId, $userId)', '$runtimeType');
+    await _callRepo.redialChatCallMember(chatId, userId);
+  }
+
+  /// Removes the [CallMember] with the provided [userId] from call in the
+  /// [Chat] with the provided [chatId].
+  void removeUserFromCall(ChatId chatId, UserId userId) {
+    Log.debug('removeUserFromCall($chatId, $userId)', '$runtimeType');
+    _callRepo.removeUserFromCall(chatId, userId);
   }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
