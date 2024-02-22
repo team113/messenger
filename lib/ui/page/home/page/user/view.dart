@@ -1331,11 +1331,15 @@ class UserView extends StatelessWidget {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 formatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(18),
+                  LengthLimitingTextInputFormatter(9),
                 ],
                 onChanged: () {
-                  final String string = NumberFormat.decimalPattern()
-                      .format(int.parse(c.messageCost.text));
+                  String string = NumberFormat.decimalPattern()
+                      .format(int.tryParse(c.messageCost.text) ?? 0);
+
+                  if (string == '0') {
+                    string = '';
+                  }
 
                   c.messageCost.controller.value = TextEditingValue(
                     text: string,
@@ -1343,18 +1347,30 @@ class UserView extends StatelessWidget {
                   );
                 },
                 hint: '0',
-                prefix: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                  child: Transform.translate(
-                    offset: PlatformUtils.isWeb
-                        ? const Offset(0, -0)
-                        : const Offset(0, -0.5),
-                    child: Text(
-                      '¤',
-                      style: style.fonts.medium.regular.onBackground,
+                prefixIcon: SizedBox(
+                  child: Center(
+                    widthFactor: 0.0,
+                    child: Transform.translate(
+                      offset: const Offset(12, 0),
+                      child: Text(
+                        '¤',
+                        style: style.fonts.medium.regular.onBackground,
+                      ),
                     ),
                   ),
                 ),
+                // prefix: Padding(
+                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                //   child: Transform.translate(
+                //     offset: PlatformUtils.isWeb
+                //         ? const Offset(0, -0)
+                //         : const Offset(0, -0.5),
+                //     child: Text(
+                //       '¤',
+                //       style: style.fonts.medium.regular.onBackground,
+                //     ),
+                //   ),
+                // ),
                 label: 'Входящие сообщения, за 1 сообщение',
               ),
               const SizedBox(height: 24),
@@ -1364,11 +1380,15 @@ class UserView extends StatelessWidget {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 formatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(18),
+                  LengthLimitingTextInputFormatter(9),
                 ],
                 onChanged: () {
-                  final String string = NumberFormat.decimalPattern()
-                      .format(int.parse(c.callsCost.text));
+                  String string = NumberFormat.decimalPattern()
+                      .format(int.tryParse(c.callsCost.text) ?? 0);
+
+                  if (string == '0') {
+                    string = '';
+                  }
 
                   c.callsCost.controller.value = TextEditingValue(
                     text: string,
@@ -1376,18 +1396,30 @@ class UserView extends StatelessWidget {
                   );
                 },
                 hint: '0',
-                prefix: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                  child: Transform.translate(
-                    offset: PlatformUtils.isWeb
-                        ? const Offset(0, -0)
-                        : const Offset(0, -0.5),
-                    child: Text(
-                      '¤',
-                      style: style.fonts.medium.regular.onBackground,
+                prefixIcon: SizedBox(
+                  child: Center(
+                    widthFactor: 0.0,
+                    child: Transform.translate(
+                      offset: const Offset(12, 0),
+                      child: Text(
+                        '¤',
+                        style: style.fonts.medium.regular.onBackground,
+                      ),
                     ),
                   ),
                 ),
+                // prefix: Padding(
+                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
+                //   child: Transform.translate(
+                //     offset: PlatformUtils.isWeb
+                //         ? const Offset(0, -0)
+                //         : const Offset(0, -0.5),
+                //     child: Text(
+                //       '¤',
+                //       style: style.fonts.medium.regular.onBackground,
+                //     ),
+                //   ),
+                // ),
                 label: 'Входящие звонки, за 1 минуту',
               ),
             ],
@@ -1401,10 +1433,10 @@ class UserView extends StatelessWidget {
             const SizedBox(width: double.infinity),
             Center(
               child: Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.bottom,
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 columnWidths: const {
                   0: FlexColumnWidth(),
-                  1: IntrinsicColumnWidth(),
+                  1: IntrinsicColumnWidth()
                 },
                 children: [
                   TableRow(
@@ -1418,10 +1450,49 @@ class UserView extends StatelessWidget {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          '¤ ${c.messagePrice.value.withSpaces()}',
-                          style: style.fonts.medium.regular.onBackground,
-                        ),
+                        child: c.messagePrice.value == 0
+                            ? WidgetButton(
+                                onPressed: () {
+                                  c.moneyEditing.value = true;
+                                  c.messageCost.focus.requestFocus();
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '¤',
+                                      style: style.fonts.medium.regular.primary,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '0',
+                                      style: style.fonts.medium.regular.primary,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '¤',
+                                    style: style
+                                        .fonts.medium.regular.onBackground
+                                        .copyWith(
+                                      color: style.colors.acceptPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    c.messagePrice.value.withSpaces(),
+                                    style: style
+                                        .fonts.medium.regular.onBackground
+                                        .copyWith(
+                                      color: style.colors.acceptPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ],
                   ),
@@ -1438,10 +1509,7 @@ class UserView extends StatelessWidget {
                     ],
                   ),
                   const TableRow(
-                    children: [
-                      SizedBox(height: 8),
-                      SizedBox(height: 8),
-                    ],
+                    children: [SizedBox(height: 8), SizedBox(height: 8)],
                   ),
                   TableRow(
                     children: [
@@ -1454,10 +1522,49 @@ class UserView extends StatelessWidget {
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          '¤ ${c.callPrice.value.withSpaces()}',
-                          style: style.fonts.medium.regular.onBackground,
-                        ),
+                        child: c.callPrice.value == 0
+                            ? WidgetButton(
+                                onPressed: () {
+                                  c.moneyEditing.value = true;
+                                  c.callsCost.focus.requestFocus();
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '¤',
+                                      style: style.fonts.medium.regular.primary,
+                                    ),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '0',
+                                      style: style.fonts.medium.regular.primary,
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '¤',
+                                    style: style
+                                        .fonts.medium.regular.onBackground
+                                        .copyWith(
+                                      color: style.colors.acceptPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    c.callPrice.value.withSpaces(),
+                                    style: style
+                                        .fonts.medium.regular.onBackground
+                                        .copyWith(
+                                      color: style.colors.acceptPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ],
                   ),

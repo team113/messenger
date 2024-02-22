@@ -466,10 +466,11 @@ class UserController extends GetxController {
         messageCost = TextFieldState(
           approvable: true,
           // allowable: true,
+          text: '',
           // text: user!.user.value.messageCost == 0
           //     ? '0.00'
           //     : '${user!.user.value.messageCost.toString()}.00',
-          text: user!.user.value.messageCost.toString(),
+          // text: user!.user.value.messageCost.toString(),
           onChanged: (s) {
             user?.user.value.messageCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
@@ -477,6 +478,7 @@ class UserController extends GetxController {
           onSubmitted: (s) {
             messagePrice.value =
                 int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
+
             // if (!s.text.contains('.')) {
             //   s.unchecked = '${s.text}.00';
             // }
@@ -485,7 +487,7 @@ class UserController extends GetxController {
 
         messageCost.isFocused.listen((b) {
           if (!b && messageCost.text.isEmpty) {
-            messageCost.unchecked = '0';
+            // messageCost.unchecked = '0';
           }
         });
 
@@ -518,7 +520,8 @@ class UserController extends GetxController {
         callsCost = TextFieldState(
           approvable: true,
           // allowable: true,
-          text: user!.user.value.callCost.toString(),
+          text: '',
+          // text: user!.user.value.callCost.toString(),
           // text: user!.user.value.callCost == 0
           //     ? '0.00'
           //     : '${user!.user.value.callCost.toString()}.00',
@@ -537,7 +540,7 @@ class UserController extends GetxController {
 
         callsCost.isFocused.listen((b) {
           if (!b && callsCost.text.isEmpty) {
-            callsCost.unchecked = '0';
+            // callsCost.unchecked = '0';
           }
         });
 

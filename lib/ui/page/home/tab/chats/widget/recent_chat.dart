@@ -234,7 +234,9 @@ class RecentChatTile extends StatelessWidget {
                             text: '¤123/мин',
                             style: inverted
                                 ? style.fonts.small.regular.onPrimary
-                                : style.fonts.small.regular.primary,
+                                : style.fonts.small.regular.primary.copyWith(
+                                    color: style.colors.acceptPrimary,
+                                  ),
                           ),
                         ],
                       ),
@@ -254,7 +256,9 @@ class RecentChatTile extends StatelessWidget {
                             text: '¤123',
                             style: inverted
                                 ? style.fonts.small.regular.onPrimary
-                                : style.fonts.small.regular.primary,
+                                : style.fonts.small.regular.primary.copyWith(
+                                    color: style.colors.acceptPrimary,
+                                  ),
                           ),
                         ],
                       ),

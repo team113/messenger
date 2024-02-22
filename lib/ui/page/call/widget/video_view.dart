@@ -200,7 +200,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           return Stack(
             children: [
               video,
-              // Offstage(child: video),
               if (widget.framelessBuilder != null) widget.framelessBuilder!(),
               Center(
                 child: Container(
