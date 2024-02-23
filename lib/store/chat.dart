@@ -532,6 +532,10 @@ class ChatRepository extends DisposableInterface
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
     await _graphQlProvider.addChatMember(chatId, userId);
+
+    if (chats[chatId]?.chat.value.ongoingCall != null) {
+      await _callRepo.redialChatCallMember(chatId, userId);
+    }
   }
 
   @override
@@ -1117,13 +1121,6 @@ class ChatRepository extends DisposableInterface
   void endCall(ChatId chatId) {
     Log.debug('endCall($chatId)', '$runtimeType');
     _callRepo.remove(chatId);
-  }
-
-  /// Redials the [User] with the provided [userId] in call in the [Chat] with
-  /// the provided [chatId].
-  Future<void> redialChatCallMember(ChatId chatId, UserId userId) async {
-    Log.debug('redialChatCallMember($chatId, $userId)', '$runtimeType');
-    await _callRepo.redialChatCallMember(chatId, userId);
   }
 
   /// Removes the [CallMember] with the provided [userId] from call in the

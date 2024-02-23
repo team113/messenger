@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
@@ -112,91 +113,118 @@ class ParticipantView extends StatelessWidget {
               break;
 
             case ParticipantsFlowStage.participants:
-              final Set<UserId> ids = call.value.members.keys
-                  .where((e) => e.deviceId != null)
-                  .map((k) => k.userId)
-                  .toSet();
+              child = Obx(() {
+                final RxUser? me = c.chat.value!.members.items[c.me];
+                final List<RxUser> members = [];
 
-              child = Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                constraints: const BoxConstraints(maxHeight: 650),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ModalPopupHeader(
-                      text: 'label_participants_of'.l10nfmt({
-                        'a': ids.length,
-                        'b': c.chat.value?.chat.value.membersCount ?? 1,
-                      }),
-                    ),
-                    const SizedBox(height: 6),
-                    if (c.chat.value!.members.items.isEmpty)
-                      CustomProgressIndicator(
-                        value: Config.disableInfiniteAnimations ? 0 : null,
+                for (var u in c.chat.value!.members.items.entries) {
+                  if (u.key != c.me) {
+                    members.add(u.value);
+                  }
+                }
+
+                if (me != null) {
+                  members.insert(0, me);
+                }
+
+                final Set<UserId> ids = call.value.members.keys
+                    .where((e) => e.deviceId != null)
+                    .map((k) => k.userId)
+                    .toSet();
+
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  constraints: const BoxConstraints(maxHeight: 650),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ModalPopupHeader(
+                        text: 'label_participants_of'.l10nfmt({
+                          'a': ids.length,
+                          'b': c.chat.value?.chat.value.membersCount ?? 1,
+                        }),
                       ),
-                    Flexible(
-                      child: Scrollbar(
-                        controller: c.scrollController,
-                        child: ListView(
-                          shrinkWrap: true,
+                      const SizedBox(height: 6),
+                      if (c.chat.value!.members.items.isEmpty)
+                        CustomProgressIndicator(
+                          value: Config.disableInfiniteAnimations ? 0 : null,
+                        ),
+                      Flexible(
+                        child: Scrollbar(
                           controller: c.scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          children:
-                              c.chat.value!.members.items.values.map((user) {
-                            bool inCall = false;
-                            bool isRedialed = false;
+                          child: ListView(
+                            shrinkWrap: true,
+                            controller: c.scrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            children: members.map((user) {
+                              bool inCall = false;
+                              bool isRedialed = false;
 
-                            CallMember? member =
-                                call.value.members.values.firstWhereOrNull(
-                              (e) => e.id.userId == user.id,
-                            );
+                              CallMember? member =
+                                  call.value.members.values.firstWhereOrNull(
+                                (e) => e.id.userId == user.id,
+                              );
 
-                            if (member != null) {
-                              inCall = true;
-                              isRedialed = member.isDialing.isTrue;
-                            }
+                              if (member != null) {
+                                inCall = true;
+                                isRedialed = member.isDialing.isTrue;
+                              }
 
-                            return MemberTile(
-                              user: user,
-                              me: user.id == c.me,
-                              inCall: user.id == c.me ? null : inCall,
-                              onTap: () {
-                                // TODO: Open the [Routes.user] page.
-                              },
-                              // TODO: Wait for backend to support removing
-                              //       active call notification.
-                              onCall: inCall
-                                  ? isRedialed
-                                      ? null
-                                      : () => c.removeChatCallMember(user.id)
-                                  : () => c.redialChatCallMember(user.id),
-                              onKick: () => c.removeChatMember(user.id),
-                            );
-                          }).toList(),
+                              Widget child = MemberTile(
+                                user: user,
+                                me: user.id == c.me,
+                                inCall: user.id == c.me ? null : inCall,
+                                onTap: () {
+                                  // TODO: Open the [Routes.user] page.
+                                },
+                                // TODO: Wait for backend to support removing
+                                //       active call notification.
+                                onCall: inCall
+                                    ? isRedialed
+                                        ? null
+                                        : () => c.removeChatCallMember(user.id)
+                                    : () => c.redialChatCallMember(user.id),
+                                onKick: () => c.removeChatMember(user.id),
+                              );
+
+                              if (user == members.last &&
+                                  c.chat.value!.members.hasNext.isTrue) {
+                                child = Column(
+                                  children: [
+                                    child,
+                                    const CustomProgressIndicator()
+                                  ],
+                                );
+                              }
+
+                              return child;
+                            }).toList(),
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 18),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                      child: OutlinedRoundedButton(
-                        maxWidth: double.infinity,
-                        onPressed: () {
-                          c.status.value = RxStatus.empty();
-                          c.stage.value = ParticipantsFlowStage.search;
-                        },
-                        color: style.colors.primary,
-                        child: Text(
-                          'btn_add_participants'.l10n,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: style.fonts.medium.regular.onPrimary,
+                      const SizedBox(height: 18),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                        child: OutlinedRoundedButton(
+                          maxWidth: double.infinity,
+                          onPressed: () {
+                            c.status.value = RxStatus.empty();
+                            c.stage.value = ParticipantsFlowStage.search;
+                          },
+                          color: style.colors.primary,
+                          child: Text(
+                            'btn_add_participants'.l10n,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: style.fonts.medium.regular.onPrimary,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
+                    ],
+                  ),
+                );
+              });
+
               break;
           }
 

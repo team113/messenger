@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -174,21 +175,29 @@ class ContactTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          contact?.contact.value.name.val ??
-                              user?.user.value.name?.val ??
-                              user?.user.value.num.toString() ??
-                              myUser?.name?.val ??
-                              myUser?.num.toString() ??
-                              (myUser == null
-                                  ? 'dot'.l10n * 3
-                                  : 'btn_your_profile'.l10n),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: selected
-                              ? style.fonts.big.regular.onPrimary
-                              : style.fonts.big.regular.onBackground,
-                        ),
+                        Builder(builder: (context) {
+                          Widget name() => Text(
+                                contact?.contact.value.name.val ??
+                                    user?.user.value.name?.val ??
+                                    user?.user.value.num.toString() ??
+                                    myUser?.name?.val ??
+                                    myUser?.num.toString() ??
+                                    (myUser == null
+                                        ? 'dot'.l10n * 3
+                                        : 'btn_your_profile'.l10n),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: selected
+                                    ? style.fonts.big.regular.onPrimary
+                                    : style.fonts.big.regular.onBackground,
+                              );
+
+                          if (contact != null || user != null) {
+                            return Obx(() => name());
+                          } else {
+                            return name();
+                          }
+                        }),
                         ...subtitle,
                       ],
                     ),

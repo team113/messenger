@@ -505,16 +505,7 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    // [chat] always contains first 3 members, so no need to fetch them if it is
-    // not a [ChatKind.group].
-    if (!chat.value.isGroup && chat.value.members.isNotEmpty) {
-      for (ChatMember member in chat.value.members) {
-        _putMember(HiveChatMember(member, null), pagination: true);
-      }
-
-      members.pagination?.hasNext.value = false;
-      members.pagination?.hasPrevious.value = false;
-    } else {
+    {
       await members.ensureInitialized();
 
       if (me != null && members.items.values.none((e) => e.id == me)) {
@@ -937,11 +928,11 @@ class HiveRxChat extends RxChat {
         members.items[member.value.user.id] = user;
       }
     } else {
-      members.put(member);
+      await members.put(member);
     }
   }
 
-  /// Initializes the [_pagination].
+  /// Initializes the messages [_pagination].
   Future<void> _initMessagesPagination() async {
     _provider = HiveGraphQlPageProvider(
       graphQlProvider: GraphQlPageProvider(
@@ -1028,7 +1019,7 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Initializes the [_membersPagination].
+  /// Initializes the [members] pagination.
   Future<void> _initMembersPagination() async {
     members = MembersPaginated(
       transform: ({required HiveChatMember data, RxUser? previous}) {
@@ -1053,7 +1044,13 @@ class HiveRxChat extends RxChat {
       ),
     );
 
-    if (id.isLocal) {
+    // [chat] always contains first 3 members, so we can immediately put them if
+    // [chat] not a [ChatKind.group].
+    if ((!chat.value.isGroup && chat.value.members.isNotEmpty) || id.isLocal) {
+      for (ChatMember member in chat.value.members) {
+        _putMember(HiveChatMember(member, null), pagination: true);
+      }
+
       members.pagination?.hasNext.value = false;
       members.pagination?.hasPrevious.value = false;
     }
@@ -1822,13 +1819,6 @@ class HiveRxChat extends RxChat {
                       if (chatEntity.value.members.length < 3) {
                         chatEntity.value.members.add(
                           ChatMember(action.user, msg.at),
-                        );
-                      }
-
-                      if (chatEntity.value.ongoingCall != null) {
-                        await _chatRepository.redialChatCallMember(
-                          id,
-                          action.user.id,
                         );
                       }
 
