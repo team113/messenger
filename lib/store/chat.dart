@@ -868,22 +868,8 @@ class ChatRepository extends DisposableInterface
     ChatId chatId,
     ChatDirectLinkSlug slug,
   ) async {
-    Log.debug(
-      'createChatDirectLink($chatId, $slug)',
-      '$runtimeType',
-    );
-
-    final HiveRxChat? chat = chats[chatId];
-    final ChatDirectLink? link = chat?.chat.value.directLink;
-
-    chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
-
-    try {
-      _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
-    } catch (_) {
-      chat?.chat.update((c) => c?.directLink = link);
-      rethrow;
-    }
+    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
+    await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
   }
 
   @override
@@ -896,7 +882,7 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.directLink = null);
 
     try {
-      _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+      await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
     } catch (_) {
       chat?.chat.update((c) => c?.directLink = link);
       rethrow;

@@ -99,12 +99,16 @@ class MyProfileView extends StatelessWidget {
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
                     required String title,
+                    void Function()? onEdit,
+                    bool editing = false,
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
                         title: title,
                         highlight: c.highlightIndex.value == i,
+                        onEdit: onEdit,
+                        editing: editing,
                         children: children,
                       );
                     });
@@ -189,20 +193,32 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      return block(
-                        title: 'label_your_direct_link'.l10n,
-                        children: [
-                          Obx(() {
-                            return DirectLinkField(
-                              c.myUser.value?.chatDirectLink,
-                              onSubmit: (s) => s == null
-                                  ? c.deleteChatDirectLink()
-                                  : c.createChatDirectLink(s),
-                              background: c.background.value,
-                            );
-                          }),
-                        ],
-                      );
+                      return Obx(() {
+                        return block(
+                          title: 'label_your_direct_link'.l10n,
+                          onEdit: c.linkEditing.toggle,
+                          editing: c.linkEditing.value,
+                          children: [
+                            Obx(() {
+                              return DirectLinkField(
+                                c.myUser.value?.chatDirectLink,
+                                onSubmit: (s) async {
+                                  if (s == null) {
+                                    await c.deleteChatDirectLink();
+                                  } else {
+                                    await c.createChatDirectLink(s);
+                                  }
+
+                                  c.linkEditing.value = false;
+                                },
+                                background: c.background.value,
+                                onEditing: (b) => c.linkEditing.value = b,
+                                editing: c.linkEditing.value,
+                              );
+                            }),
+                          ],
+                        );
+                      });
 
                     case ProfileTab.background:
                       return block(

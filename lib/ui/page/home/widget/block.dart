@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
@@ -35,6 +37,9 @@ class Block extends StatelessWidget {
     this.background,
     this.headline,
     this.maxWidth = 400,
+    this.onEdit,
+    this.editing = false,
+    this.overlay = const [],
   });
 
   /// Optional header of this [Block].
@@ -69,6 +74,22 @@ class Block extends StatelessWidget {
 
   /// Maximum width this [Block] should occupy.
   final double maxWidth;
+
+  /// Callback, called when an [SvgIcons.editSmall] icon within this [Block] is
+  /// pressed.
+  ///
+  /// If `null`, then no such icon is displayed at all.
+  final void Function()? onEdit;
+
+  /// Indicator whether, when [onEdit] is specified, an
+  /// [SvgIcons.closeSmallPrimary] should be displayed instead.
+  final bool editing;
+
+  /// [Widget]s to display above this [Block].
+  ///
+  /// It's allowed to use [Positioned], as these [Widget]s are placed inside a
+  /// [Stack].
+  final List<Widget> overlay;
 
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
@@ -143,6 +164,26 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(headline!, style: _headlineStyle(context)),
                   ),
+                if (onEdit != null)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Center(
+                      child: AnimatedButton(
+                        onPressed: onEdit,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                          child: editing
+                              ? const Padding(
+                                  padding: EdgeInsets.all(2),
+                                  child: SvgIcon(SvgIcons.closeSmallPrimary),
+                                )
+                              : const SvgIcon(SvgIcons.editSmall),
+                        ),
+                      ),
+                    ),
+                  ),
+                ...overlay,
               ],
             ),
           ),

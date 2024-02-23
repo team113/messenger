@@ -167,6 +167,7 @@ btn_close = Close
 btn_confirm = Confirm
 btn_copy = Copy
 btn_copy_text = Copy text
+btn_create = Create
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
@@ -282,7 +283,7 @@ err_call_popup_was_blocked =
     Allow the popup windows to display call as a popup
 err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
-err_chat_direct_link_occupied = Link is occupied
+err_chat_direct_link_occupied = Link is occupied.
 err_code_limit_exceed =
     Exceeded limit of sending recovery code. Try again in 1 hour.
 err_contact_not_group = Chat with the provided ID is not a group
@@ -305,6 +306,7 @@ err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
 err_invalid_registration_token = Invalid registration token
+err_invalid_symbols_in_link = Unacceptable symbols. The following symbols are allowed: A-z, -, _ and 0-9
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
 err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
