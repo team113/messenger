@@ -17,6 +17,7 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -163,6 +164,7 @@ class ChatInfoView extends StatelessWidget {
                   state: c.name,
                   label: 'label_name'.l10n,
                   hint: c.chat?.title.value,
+                  formatters: [LengthLimitingTextInputFormatter(100)],
                 ),
               ),
               const SizedBox(height: 4),
