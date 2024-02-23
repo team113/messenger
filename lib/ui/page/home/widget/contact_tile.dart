@@ -152,8 +152,9 @@ class ContactTile extends StatelessWidget {
           unselectedHoverColor: style.cardHoveredColor,
           selectedHoverColor: chosen,
           folded: contact?.contact.value.favoritePosition != null,
-          child: SizedBox(
-            height: height,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: height),
+            // height: height,
             child: Padding(
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')

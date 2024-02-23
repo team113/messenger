@@ -39,6 +39,7 @@ class MemberTile extends StatelessWidget {
     this.me = false,
     this.onKick,
     this.onCall,
+    this.subtitle = const [],
   });
 
   /// [RxUser] this [MemberTile] is about.
@@ -61,6 +62,8 @@ class MemberTile extends StatelessWidget {
 
   /// Callback, called when the kick button is pressed.
   final Future<void> Function()? onKick;
+
+  final List<Widget> subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -159,6 +162,7 @@ class MemberTile extends StatelessWidget {
               const SvgIcon(SvgIcons.muted),
             ],
           ],
+          subtitle: subtitle,
         );
       });
     }
@@ -169,6 +173,7 @@ class MemberTile extends StatelessWidget {
       height: 58,
       avatarBuilder: (a) => Padding(padding: const EdgeInsets.all(4), child: a),
       trailing: trailing,
+      subtitle: subtitle,
     );
   }
 }

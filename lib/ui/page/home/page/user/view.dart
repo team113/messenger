@@ -61,6 +61,7 @@ import 'controller.dart';
 import 'widget/blocklist_record.dart';
 import 'widget/contact_info.dart';
 import 'widget/copy_or_share.dart';
+import 'widget/prices.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -178,6 +179,13 @@ class UserView extends StatelessWidget {
                 //   trailing: const SvgIcon(SvgIcons.gapopaCoin),
                 //   inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),
                 // ),
+
+                ContextMenuButton(
+                  label: 'Открыть чат'.l10n,
+                  onPressed: () => router.chat(c.user!.user.value.dialog),
+                  trailing: const SvgIcon(SvgIcons.chat18),
+                  inverted: const SvgIcon(SvgIcons.chat18White),
+                ),
 
                 ContextMenuButton(
                   label: 'btn_audio_call'.l10n,
@@ -378,10 +386,7 @@ class UserView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Block(
-                      // title: 'Get Paid',
-                      children: [_paid(c, context)],
-                    ),
+                    Block(children: [_paid(c, context)]),
                     // _money(c, context),
                     const SizedBox(height: 8),
                   ],
@@ -523,25 +528,30 @@ class UserView extends StatelessWidget {
                       ],
                     ),
                   Block(
+                    title: 'Информация',
                     children: [
                       Paddings.basic(
                         const InfoTile(
                           title: 'Login',
-                          content: 'alice',
+                          content: '@alice',
                           trailing: CopyOrShareButton('alice'),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      // const SizedBox(height: 8),
                       Paddings.basic(
                         InfoTile(
                           title: 'Gapopa ID',
                           content: c.user!.user.value.num.toString(),
+                          // leading: Padding(
+                          //   padding: EdgeInsets.fromLTRB(0, 0, 4, 2),
+                          //   child: const SvgIcon(SvgIcons.gapopaId),
+                          // ),
                           trailing: CopyOrShareButton(
                             c.user!.user.value.num.toString(),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      // const SizedBox(height: 8),
                       Paddings.basic(
                         const InfoTile(
                           title: 'E-mail',
@@ -549,7 +559,7 @@ class UserView extends StatelessWidget {
                           trailing: CopyOrShareButton('hello@example.com'),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      // const SizedBox(height: 8),
                       Paddings.basic(
                         const InfoTile(
                           title: 'Phone',
@@ -1279,23 +1289,11 @@ class UserView extends StatelessWidget {
                       : Container(
                           key: const Key('123'),
                           alignment: Alignment.bottomCenter,
-                          padding: const EdgeInsets.fromLTRB(
-                            32,
-                            16,
-                            32,
-                            16,
-                          ),
-                          margin: const EdgeInsets.fromLTRB(
-                            8,
-                            4,
-                            8,
-                            4,
-                          ),
+                          padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                          margin: const EdgeInsets.fromLTRB(8, 4, 8, 4),
                           constraints: context.isNarrow
                               ? null
-                              : const BoxConstraints(
-                                  maxWidth: 400,
-                                ),
+                              : const BoxConstraints(maxWidth: 400),
                           child: Column(
                             children: [
                               const Spacer(),
@@ -1432,158 +1430,172 @@ class UserView extends StatelessWidget {
           children: [
             const SizedBox(width: double.infinity),
             Center(
-              child: Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: const {
-                  0: FlexColumnWidth(),
-                  1: IntrinsicColumnWidth()
+              child: Prices(
+                calls: c.callPrice.value,
+                messages: c.messagePrice.value,
+                onMessagesPressed: () {
+                  c.moneyEditing.value = true;
+                  c.messageCost.focus.requestFocus();
                 },
-                children: [
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Text(
-                          'Входящее сообщение:',
-                          style: style.fonts.medium.regular.onBackground,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: c.messagePrice.value == 0
-                            ? WidgetButton(
-                                onPressed: () {
-                                  c.moneyEditing.value = true;
-                                  c.messageCost.focus.requestFocus();
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      '¤',
-                                      style: style.fonts.medium.regular.primary,
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      '0',
-                                      style: style.fonts.medium.regular.primary,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '¤',
-                                    style: style
-                                        .fonts.medium.regular.onBackground
-                                        .copyWith(
-                                      color: style.colors.acceptPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    c.messagePrice.value.withSpaces(),
-                                    style: style
-                                        .fonts.medium.regular.onBackground
-                                        .copyWith(
-                                      color: style.colors.acceptPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Text(
-                          'за 1 сообщение',
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                      ),
-                      const SizedBox(),
-                    ],
-                  ),
-                  const TableRow(
-                    children: [SizedBox(height: 8), SizedBox(height: 8)],
-                  ),
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Text(
-                          'Входящий звонок:',
-                          style: style.fonts.medium.regular.onBackground,
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: c.callPrice.value == 0
-                            ? WidgetButton(
-                                onPressed: () {
-                                  c.moneyEditing.value = true;
-                                  c.callsCost.focus.requestFocus();
-                                },
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      '¤',
-                                      style: style.fonts.medium.regular.primary,
-                                    ),
-                                    const SizedBox(width: 2),
-                                    Text(
-                                      '0',
-                                      style: style.fonts.medium.regular.primary,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '¤',
-                                    style: style
-                                        .fonts.medium.regular.onBackground
-                                        .copyWith(
-                                      color: style.colors.acceptPrimary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    c.callPrice.value.withSpaces(),
-                                    style: style
-                                        .fonts.medium.regular.onBackground
-                                        .copyWith(
-                                      color: style.colors.acceptPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ],
-                  ),
-                  TableRow(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Text(
-                          'за 1 минуту',
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                      ),
-                      const SizedBox(),
-                      // const SizedBox(),
-                    ],
-                  ),
-                ],
+                onCallsPressed: () {
+                  c.moneyEditing.value = true;
+                  c.callsCost.focus.requestFocus();
+                },
               ),
             ),
+            // Center(
+            //   child: Table(
+            //     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            //     columnWidths: const {
+            //       0: FlexColumnWidth(),
+            //       1: IntrinsicColumnWidth()
+            //     },
+            //     children: [
+            //       TableRow(
+            //         children: [
+            //           Padding(
+            //             padding: const EdgeInsets.only(right: 8),
+            //             child: Text(
+            //               'Входящее сообщение:',
+            //               style: style.fonts.medium.regular.onBackground,
+            //             ),
+            //           ),
+            //           Align(
+            //             alignment: Alignment.centerRight,
+            //             child: c.messagePrice.value == 0
+            //                 ? WidgetButton(
+            //                     onPressed: () {
+            //                       c.moneyEditing.value = true;
+            //                       c.messageCost.focus.requestFocus();
+            //                     },
+            //                     child: Row(
+            //                       mainAxisSize: MainAxisSize.min,
+            //                       children: [
+            //                         Text(
+            //                           '¤',
+            //                           style: style.fonts.medium.regular.primary,
+            //                         ),
+            //                         const SizedBox(width: 2),
+            //                         Text(
+            //                           '0',
+            //                           style: style.fonts.medium.regular.primary,
+            //                         ),
+            //                       ],
+            //                     ),
+            //                   )
+            //                 : Row(
+            //                     mainAxisSize: MainAxisSize.min,
+            //                     children: [
+            //                       Text(
+            //                         '¤',
+            //                         style: style
+            //                             .fonts.medium.regular.onBackground
+            //                             .copyWith(
+            //                           color: style.colors.acceptPrimary,
+            //                         ),
+            //                       ),
+            //                       const SizedBox(width: 2),
+            //                       Text(
+            //                         c.messagePrice.value.withSpaces(),
+            //                         style: style
+            //                             .fonts.medium.regular.onBackground
+            //                             .copyWith(
+            //                           color: style.colors.acceptPrimary,
+            //                         ),
+            //                       ),
+            //                     ],
+            //                   ),
+            //           ),
+            //         ],
+            //       ),
+            //       TableRow(
+            //         children: [
+            //           Padding(
+            //             padding: const EdgeInsets.only(right: 8),
+            //             child: Text(
+            //               'за 1 сообщение',
+            //               style: style.fonts.small.regular.secondary,
+            //             ),
+            //           ),
+            //           const SizedBox(),
+            //         ],
+            //       ),
+            //       const TableRow(
+            //         children: [SizedBox(height: 8), SizedBox(height: 8)],
+            //       ),
+            //       TableRow(
+            //         children: [
+            //           Padding(
+            //             padding: const EdgeInsets.only(right: 8),
+            //             child: Text(
+            //               'Входящий звонок:',
+            //               style: style.fonts.medium.regular.onBackground,
+            //             ),
+            //           ),
+            //           Align(
+            //             alignment: Alignment.centerRight,
+            //             child: c.callPrice.value == 0
+            //                 ? WidgetButton(
+            //                     onPressed: () {
+            //                       c.moneyEditing.value = true;
+            //                       c.callsCost.focus.requestFocus();
+            //                     },
+            //                     child: Row(
+            //                       mainAxisSize: MainAxisSize.min,
+            //                       children: [
+            //                         Text(
+            //                           '¤',
+            //                           style: style.fonts.medium.regular.primary,
+            //                         ),
+            //                         const SizedBox(width: 2),
+            //                         Text(
+            //                           '0',
+            //                           style: style.fonts.medium.regular.primary,
+            //                         ),
+            //                       ],
+            //                     ),
+            //                   )
+            //                 : Row(
+            //                     mainAxisSize: MainAxisSize.min,
+            //                     children: [
+            //                       Text(
+            //                         '¤',
+            //                         style: style
+            //                             .fonts.medium.regular.onBackground
+            //                             .copyWith(
+            //                           color: style.colors.acceptPrimary,
+            //                         ),
+            //                       ),
+            //                       const SizedBox(width: 2),
+            //                       Text(
+            //                         c.callPrice.value.withSpaces(),
+            //                         style: style
+            //                             .fonts.medium.regular.onBackground
+            //                             .copyWith(
+            //                           color: style.colors.acceptPrimary,
+            //                         ),
+            //                       ),
+            //                     ],
+            //                   ),
+            //           ),
+            //         ],
+            //       ),
+            //       TableRow(
+            //         children: [
+            //           Padding(
+            //             padding: const EdgeInsets.only(right: 8),
+            //             child: Text(
+            //               'за 1 минуту',
+            //               style: style.fonts.small.regular.secondary,
+            //             ),
+            //           ),
+            //           const SizedBox(),
+            //           // const SizedBox(),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             // RichText(
             //   text: TextSpan(

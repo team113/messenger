@@ -184,6 +184,10 @@ class _RtcVideoViewState extends State<RtcVideoView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    if (widget.renderer.height.value == 0) {
+      _waitTilSizeDetermined();
+    }
+
     final Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,

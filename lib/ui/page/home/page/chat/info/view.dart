@@ -105,8 +105,8 @@ class ChatInfoView extends StatelessWidget {
                 ContextMenuButton(
                   label: 'Открыть чат'.l10n,
                   onPressed: () => router.chat(id),
-                  trailing: const SvgIcon(SvgIcons.chat16),
-                  inverted: const SvgIcon(SvgIcons.chat16White),
+                  trailing: const SvgIcon(SvgIcons.chat18),
+                  inverted: const SvgIcon(SvgIcons.chat18White),
                 ),
                 ContextMenuButton(
                   label: 'btn_audio_call'.l10n,

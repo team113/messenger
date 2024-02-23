@@ -64,15 +64,15 @@ class SvgIcons {
     height: 22.63,
   );
 
-  static const SvgData chat16 = SvgData(
-    'assets/icons/chat16.svg',
-    // width: 15,
+  static const SvgData chat18 = SvgData(
+    'assets/icons/chat18.svg',
+    width: 16.87,
     height: 18,
   );
 
-  static const SvgData chat16White = SvgData(
-    'assets/icons/chat16_white.svg',
-    // width: 15,
+  static const SvgData chat18White = SvgData(
+    'assets/icons/chat18_white.svg',
+    width: 16.87,
     height: 18,
   );
 
@@ -2216,5 +2216,11 @@ class SvgIcons {
     'assets/icons/quick_audio.svg',
     width: 26.94,
     height: 27,
+  );
+
+  static const SvgData gapopaId = SvgData(
+    'assets/icons/gapopa_id.svg',
+    width: 21.25 * 0.9,
+    height: 21.25 * 0.9,
   );
 }

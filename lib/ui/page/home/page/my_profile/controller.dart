@@ -26,10 +26,12 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/service/blocklist.dart';
 import 'package:messenger/ui/page/home/page/my_profile/add_email/controller.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/util/log.dart';
+import 'package:messenger/util/obs/obs.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -66,6 +68,7 @@ class MyProfileController extends GetxController {
     this._myUserService,
     this._settingsRepo,
     this._chatService,
+    this._blocklistService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -211,6 +214,8 @@ class MyProfileController extends GetxController {
 
   final RxSet<(OAuthProvider, UserCredential)> providers = RxSet();
 
+  final RxBool linkEditing = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -218,6 +223,18 @@ class MyProfileController extends GetxController {
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// [BlocklistService] maintaining the blocked [User]s.
+  final BlocklistService _blocklistService;
+
+  /// Reactive list of sorted blocked [RxUser]s.
+  final RxList<RxUser> blocklist = RxList();
+
+  /// [StreamSubscription] to react on the [BlocklistService.blocklist] updates.
+  late final StreamSubscription _blocklistSubscription;
+
+  /// Returns the [RxStatus] of the [blocklist] fetching and initialization.
+  Rx<RxStatus> get blocklistStatus => _blocklistService.status;
 
   /// [Timer] to set the `RxStatus.empty` status of the [name] field.
   Timer? _nameTimer;
@@ -601,7 +618,33 @@ class MyProfileController extends GetxController {
       },
     );
 
+    blocklist.value = _blocklistService.blocklist.values.toList();
+    _sortBlocklist();
+
+    _blocklistSubscription = _blocklistService.blocklist.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          blocklist.add(e.value!);
+          _sortBlocklist();
+          break;
+
+        case OperationKind.removed:
+          blocklist.removeWhere((c) => c.id == e.key);
+          break;
+
+        case OperationKind.updated:
+          // No-op, as [blocklist] is never updated.
+          break;
+      }
+    });
+
     super.onInit();
+  }
+
+  @override
+  Future<void> onReady() async {
+    await _blocklistService.around();
+    super.onReady();
   }
 
   @override
@@ -883,6 +926,19 @@ class MyProfileController extends GetxController {
     } catch (e) {
       Log.error(e.toString());
     }
+  }
+
+  /// Sorts the [blocklist] by the [User.isBlocked] value.
+  void _sortBlocklist() {
+    blocklist.sort(
+      (a, b) {
+        if (a.user.value.isBlocked == null || b.user.value.isBlocked == null) {
+          return 0;
+        }
+
+        return b.user.value.isBlocked!.at.compareTo(a.user.value.isBlocked!.at);
+      },
+    );
   }
 }
 

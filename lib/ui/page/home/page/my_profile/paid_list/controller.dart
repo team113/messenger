@@ -18,64 +18,172 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/blocklist.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
+import '/util/obs/obs.dart';
+import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of a [BlacklistView].
+/// Controller of a [BlocklistView].
 class PaidListController extends GetxController {
-  PaidListController(this._myUserService, this._userService, {this.pop});
+  PaidListController(
+    this._myUserService,
+    this._userService,
+    this._blocklistService, {
+    this.pop,
+  });
 
-  /// Callback, called when a [BlacklistView] this controller is bound to should
+  /// Reactive list of sorted blocked [RxUser]s.
+  final RxList<RxUser> blocklist = RxList();
+
+  /// Callback, called when a [BlocklistView] this controller is bound to should
   /// be popped from the [Navigator].
   final void Function()? pop;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [MyUserService] maintaining the blacklisted [User]s.
+  /// [MyUserService] used to getting [MyUser] value.
   final MyUserService _myUserService;
 
-  /// [UserService] un-blacklisting the [User]s.
+  /// [UserService] un-blocking the [User]s.
   final UserService _userService;
 
-  /// [Worker] to react on the [blacklist] updates.
-  late final Worker _worker;
+  /// [BlocklistService] maintaining the blocked [User]s.
+  final BlocklistService _blocklistService;
 
-  /// Returns [User]s blacklisted by the authenticated [MyUser].
-  RxList<RxUser> get blacklist => RxList();
+  /// [StreamSubscription] to react on the [BlocklistService.blocklist] updates.
+  late final StreamSubscription _blocklistSubscription;
+
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Returns the [RxStatus] of the [blocklist] fetching and initialization.
+  Rx<RxStatus> get status => _blocklistService.status;
+
+  /// Indicates whether the [blocklist] have a next page.
+  RxBool get hasNext => _blocklistService.hasNext;
 
   @override
   void onInit() {
-    // _worker = ever(
-    //   _myUserService.blocklist,
-    //   (List<RxUser> users) {
-    //     if (users.isEmpty) {
-    //       pop?.call();
-    //     }
-    //   },
-    // );
+    scrollController.addListener(_scrollListener);
+
+    blocklist.value = _blocklistService.blocklist.values.toList();
+    _sort();
+
+    _blocklistSubscription = _blocklistService.blocklist.changes.listen((e) {
+      switch (e.op) {
+        case OperationKind.added:
+          blocklist.add(e.value!);
+          _sort();
+          break;
+
+        case OperationKind.removed:
+          blocklist.removeWhere((c) => c.id == e.key);
+          _ensureScrollable();
+          break;
+
+        case OperationKind.updated:
+          // No-op, as [blocklist] is never updated.
+          break;
+      }
+    });
 
     super.onInit();
   }
 
   @override
+  Future<void> onReady() async {
+    await _blocklistService.around();
+
+    _ensureScrollable();
+    super.onReady();
+  }
+
+  @override
   void onClose() {
-    _worker.dispose();
+    _blocklistSubscription.cancel();
     super.onClose();
   }
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist(RxUser user) async {
-    if (blacklist.length == 1) {
+  /// Removes the [user] from the blocklist of the authenticated [MyUser].
+  Future<void> unblock(RxUser user) async {
+    if (blocklist.length == 1) {
       pop?.call();
     }
 
     await _userService.unblockUser(user.id);
+  }
+
+  /// Sorts the [blocklist] by the [User.isBlocked] value.
+  void _sort() {
+    blocklist.sort(
+      (a, b) {
+        if (a.user.value.isBlocked == null || b.user.value.isBlocked == null) {
+          return 0;
+        }
+
+        return b.user.value.isBlocked!.at.compareTo(a.user.value.isBlocked!.at);
+      },
+    );
+  }
+
+  /// Requests the next page of [blocklist] based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (scrollController.hasClients &&
+            hasNext.isTrue &&
+            _blocklistService.nextLoading.isFalse &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 500) {
+          _blocklistService.next();
+        }
+      });
+    }
+  }
+
+  /// Ensures the [BlocklistView] is scrollable.
+  Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
+    if (hasNext.isTrue) {
+      await Future.delayed(1.milliseconds, () async {
+        if (isClosed) {
+          return;
+        }
+
+        if (!scrollController.hasClients) {
+          return await _ensureScrollable();
+        }
+
+        // If the fetched initial page contains less elements than required to
+        // fill the view and there's more pages available, then fetch those pages.
+        if (scrollController.position.maxScrollExtent < 50 &&
+            _blocklistService.nextLoading.isFalse) {
+          await _blocklistService.next();
+          _ensureScrollable();
+        }
+      });
+    }
   }
 }

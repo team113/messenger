@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
@@ -192,10 +193,12 @@ class _ChatTileState extends State<ChatTile> {
               widget.basement != null ? style.colors.acceptPrimary : null,
           child: Column(
             children: [
-              SizedBox(
-                height: widget.basement == null
-                    ? widget.height
-                    : widget.height - 14,
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: widget.basement == null
+                      ? widget.height
+                      : widget.height - 14,
+                ),
                 child: Padding(
                   key: widget.chat?.chat.value.favoritePosition != null
                       ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')

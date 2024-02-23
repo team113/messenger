@@ -18,105 +18,139 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View displaying the blacklisted [User]s.
+/// View displaying the blocked [User]s.
 ///
 /// Intended to be displayed with the [show] method.
 class PaidListView extends StatelessWidget {
   const PaidListView({super.key});
 
-  /// Displays a [PaidListView] wrapped in a [ModalPopup].
+  /// Displays a [BlocklistView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(context: context, child: const PaidListView());
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? thin =
-        Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
+      key: const Key('PaidListView'),
       init: PaidListController(
         Get.find(),
         Get.find(),
-        pop: Navigator.of(context).pop,
+        Get.find(),
+        pop: context.popModal,
       ),
       builder: (PaidListController c) {
-        return Obx(() {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 4),
-              ModalPopupHeader(
-                header: Center(
-                  child: Text(
-                    'label_users_count'.l10nfmt({'count': c.blacklist.length}),
-                    style: thin?.copyWith(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              if (c.blacklist.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text('label_no_users'.l10n),
-                )
-              else
-                Flexible(
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: ListView.builder(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            Obx(() {
+              return ModalPopupHeader(
+                text: 'label_users_count'
+                    .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
+              );
+            }),
+            const SizedBox(height: 4),
+            Flexible(
+              child: SafeAnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Obx(() {
+                  // Show only users with [User.isBlocked] for optimistic
+                  // deletion from blocklist.
+                  final Iterable<RxUser> blocklist =
+                      c.blocklist.where((e) => e.user.value.isBlocked != null);
+
+                  if (c.status.value.isLoading) {
+                    return SizedBox(
+                      height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+                      child: const Center(
+                        child: CustomProgressIndicator.primary(),
+                      ),
+                    );
+                  } else if (blocklist.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('label_no_users'.l10n),
+                    );
+                  } else {
+                    return Scrollbar(
                       controller: c.scrollController,
-                      shrinkWrap: true,
-                      padding: ModalPopup.padding(context),
-                      itemBuilder: (context, i) {
-                        RxUser? user = c.blacklist[i];
+                      child: ListView.builder(
+                        controller: c.scrollController,
+                        shrinkWrap: true,
+                        padding: ModalPopup.padding(context),
+                        itemBuilder: (context, i) {
+                          final RxUser user = blocklist.elementAt(i);
 
-                        final textStyle = Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontSize: 13,
-                            );
-
-                        return ContactTile(
-                          user: user,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            router.user(user.id, push: true);
-                          },
-                          darken: 0.03,
-                          subtitle: [
-                            if (true) ...[
+                          Widget child = ContactTile(
+                            user: user,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              router.user(user.id, push: true);
+                            },
+                            darken: 0.03,
+                            subtitle: [
+                              const SizedBox(height: 5),
                               Text(
-                                ' ¤50 per message',
-                                style: textStyle?.copyWith(fontSize: 13),
+                                user.user.value.isBlocked?.at.val.yMd ?? '',
+                                style: style.fonts.small.regular.secondary,
                               ),
-                              Text(
-                                ' ¤120 per call minute',
-                                style: textStyle?.copyWith(fontSize: 13),
-                              )
                             ],
-                          ],
-                          trailing: const [],
-                        );
-                      },
-                      itemCount: c.blacklist.length,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 8),
-            ],
-          );
-        });
+                            trailing: [
+                              WidgetButton(
+                                onPressed: () => c.unblock(user),
+                                child: Text(
+                                  'btn_unblock_short'.l10n,
+                                  style: style.fonts.small.regular.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                          );
+
+                          if (i == c.blocklist.length - 1) {
+                            if (c.hasNext.isTrue) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  CustomProgressIndicator(
+                                    key: const Key('BlocklistLoading'),
+                                    value: Config.disableInfiniteAnimations
+                                        ? 0
+                                        : null,
+                                  ),
+                                ],
+                              );
+                            }
+                          }
+
+                          return child;
+                        },
+                        itemCount: blocklist.length,
+                      ),
+                    );
+                  }
+                }),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        );
       },
     );
   }

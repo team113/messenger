@@ -58,7 +58,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.calls => 'label_calls'.l10n,
           ProfileTab.media => 'label_media'.l10n,
           ProfileTab.welcome => 'label_welcome_message'.l10n,
-          ProfileTab.getPaid => 'label_get_paid_for_incoming_title'.l10n,
+          ProfileTab.getPaid => 'Монетизация'.l10n,
           ProfileTab.donates => 'label_donates'.l10n,
           ProfileTab.notifications => 'label_notifications'.l10n,
           ProfileTab.storage => 'label_storage'.l10n,
