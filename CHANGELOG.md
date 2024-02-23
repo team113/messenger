@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.2...v0.1.0-alpha.13) | [Milestone](/../../milestone/17)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Ringtone not switching its output device on mobile. ([#840], [#817])
+
+[#817]: /../../issues/817
+[#840]: /../../pull/840
+
+
+
+
 ## [0.1.0-alpha.12.2] · 2024-02-22
 [0.1.0-alpha.12.2]: /../../tree/v0.1.0-alpha.12.2
 
@@ -35,20 +52,16 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Keyboard hiding after sending a message on mobile. ([#856], [#828])
-    - Media panel:
-        - Ringtone not switching its output device on mobile. ([#840], [#817])
 - Web:
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
 
 [#464]: /../../issues/464
 [#465]: /../../pull/465
 [#812]: /../../issues/812
-[#817]: /../../issues/817
 [#820]: /../../issues/820
 [#828]: /../../issues/828
 [#831]: /../../issues/831
 [#832]: /../../pull/832
-[#840]: /../../pull/840
 [#843]: /../../pull/843
 [#848]: /../../pull/848
 [#855]: /../../pull/855
