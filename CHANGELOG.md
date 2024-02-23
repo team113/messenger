@@ -6,6 +6,27 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.2...v0.1.0-alpha.13) | [Milestone](/../../milestone/17)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Ringtone not switching its output device on mobile. ([#840], [#817])
+    - Chat page:
+        - Blank previews of video attachments. ([#840])
+- Web:
+    - Video in calls being loaded indefinitely. ([#840])
+
+[#817]: /../../issues/817
+[#840]: /../../pull/840
+
+
+
+
 ## [0.1.0-alpha.12.2] · 2024-02-22
 [0.1.0-alpha.12.2]: /../../tree/v0.1.0-alpha.12.2
 
