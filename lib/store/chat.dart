@@ -2014,6 +2014,8 @@ class ChatRepository extends DisposableInterface
     ))
             .favoriteChats;
 
+    _sessionLocal.setFavoriteChatsListVersion(query.ver);
+
     return Page(
       RxList(
         query.edges
@@ -2174,13 +2176,6 @@ class ChatRepository extends DisposableInterface
         Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
         break;
 
-      case FavoriteChatsEventsKind.chatsList:
-        Log.debug('_favoriteChatsEvent(${event.kind})', '$runtimeType');
-
-        var node = event as FavoriteChatsEventsChatsList;
-        _sessionLocal.setFavoriteChatsListVersion(node.ver);
-        break;
-
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
         if (versioned.ver >= _sessionLocal.getFavoriteChatsListVersion()) {
@@ -2195,22 +2190,15 @@ class ChatRepository extends DisposableInterface
             switch (event.kind) {
               case ChatEventKind.favorited:
                 event as EventChatFavorited;
-                ChatData? data;
 
                 final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
                 if (hiveChat != null) {
-                  data = ChatData(hiveChat, null, null);
+                  hiveChat.value.favoritePosition = event.position;
+                  _putEntry(ChatData(hiveChat, null, null));
                 } else {
-                  final ChatMixin? query =
-                      (await _graphQlProvider.getChat(event.chatId)).chat;
-                  if (query != null) {
-                    data = _chat(query);
-                  }
-                }
-
-                if (data != null) {
-                  data.chat.value.favoritePosition = event.position;
-                  _putEntry(data);
+                  // If there is no chat in local storage, [get] will fetch it
+                  // from the remote and put to the local storage.
+                  get(event.chatId);
                 }
                 break;
 
@@ -2246,9 +2234,7 @@ class ChatRepository extends DisposableInterface
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
         yield const FavoriteChatsEventsInitialized();
       } else if (events.$$typename == 'FavoriteChatsList') {
-        var chatsList = events
-            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsList;
-        yield FavoriteChatsEventsChatsList(chatsList.chats.ver);
+        // No-op, as favorite chats are fetched through [Pagination].
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
         var mixin = events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;

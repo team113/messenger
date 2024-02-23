@@ -67,7 +67,7 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     try {
       await Get.find<AuthService>()
-          .signInWith(context.world.sessions[user.name]!.credentials);
+          .signInWith(context.world.sessions[user.name]!.credentials!);
     } catch (_) {
       var password = UserPassword('123');
 
@@ -76,6 +76,24 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
     }
 
     router.home();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Logouts the currently authenticated [MyUser].
+///
+/// Examples:
+/// - `I logout`
+final StepDefinitionGeneric logout = then<CustomWorld>(
+  'I logout',
+  (context) async {
+    final CustomUser me = context.world.sessions.values
+        .firstWhere((e) => e.userId == context.world.me);
+
+    router.go(await Get.find<AuthService>().logout());
+
+    me.credentials = null;
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

@@ -710,6 +710,7 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         controller: c.scrollController,
+                        bottom: c.selecting.isFalse,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
@@ -950,8 +951,10 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                 ),
                                 SliverPadding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height,
+                                  padding: EdgeInsets.only(
+                                    bottom: c.selecting.isTrue
+                                        ? 0
+                                        : CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),
