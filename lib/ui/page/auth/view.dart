@@ -116,7 +116,6 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('StartButton'),
-            subtitle: Text('btn_guest_desc'.l10n),
             maxWidth: 210,
             height: 46,
             leading: Transform.translate(
@@ -124,6 +123,7 @@ class AuthView extends StatelessWidget {
               child: const SvgIcon(SvgIcons.guest),
             ),
             onPressed: c.register,
+            child: Text('btn_guest'.l10n),
           ),
           const SizedBox(height: 15),
         ];

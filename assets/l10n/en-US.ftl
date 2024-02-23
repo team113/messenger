@@ -195,9 +195,6 @@ btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Gift
 btn_guest = Guest
-btn_guest_desc =
-    Guest
-    account
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -698,6 +695,7 @@ label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}created the group
+label_group_name = Group name
 label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)

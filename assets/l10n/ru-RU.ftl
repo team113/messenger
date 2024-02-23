@@ -195,9 +195,6 @@ btn_gallery = Галерея
 btn_generate_direct_chat_link = Сгенерировать
 btn_gift = Подарок
 btn_guest = Гость
-btn_guest_desc =
-    Гостевой
-    аккаунт
 btn_hide = Скрыть
 btn_hide_chat = Скрыть чат
 btn_info = Информация
@@ -723,6 +720,7 @@ label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}создал(а) группу
+label_group_name = Название группы
 label_guest_account_created = Гостевой аккаунт создан
 label_hello = Привет!
 label_hello_reply = Оу, привет :)

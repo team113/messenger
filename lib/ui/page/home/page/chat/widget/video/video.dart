@@ -233,24 +233,29 @@ class _VideoViewState extends State<VideoView> {
     _cancelToken = CancelToken();
 
     bool shouldReload = false;
-    Backoff.run(
-      () async {
-        try {
-          await (await PlatformUtils.dio).head(widget.url);
-          if (shouldReload) {
-            // Reinitialize the [_controller] if an unexpected error was thrown.
-            await _controller.player.open(Media(widget.url));
+
+    try {
+      await Backoff.run(
+        () async {
+          try {
+            await (await PlatformUtils.dio).head(widget.url);
+            if (shouldReload) {
+              // Reinitialize the [_controller] if an unexpected error was thrown.
+              await _controller.player.open(Media(widget.url));
+            }
+          } catch (e) {
+            if (e is DioException && e.response?.statusCode == 403) {
+              widget.onError?.call();
+            } else {
+              shouldReload = true;
+              rethrow;
+            }
           }
-        } catch (e) {
-          if (e is DioException && e.response?.statusCode == 403) {
-            widget.onError?.call();
-          } else {
-            shouldReload = true;
-            rethrow;
-          }
-        }
-      },
-      _cancelToken,
-    );
+        },
+        _cancelToken,
+      );
+    } on OperationCanceledException {
+      // No-op.
+    }
   }
 }

@@ -30,6 +30,7 @@ import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'avatar.dart';
@@ -123,25 +124,24 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
               ),
               height: CustomNavigationBar.height,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 9),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: widget.items.mapIndexed((i, b) {
                     final bool selected = widget.currentIndex == i;
 
-                    return Expanded(
+                    return AnimatedScale(
                       key: _keys[i],
-                      child: AnimatedScale(
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.bounceInOut,
+                      scale: selected ? 1.1 : 1,
+                      child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 150),
-                        curve: Curves.bounceInOut,
-                        scale: selected ? 1.1 : 1,
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 150),
-                          opacity: selected ? 1 : 0.7,
-                          child: AnimatedButton(
-                            onPressed: () => widget.onTap?.call(i),
-                            child: b,
-                          ),
+                        opacity: selected ? 1 : 0.7,
+                        child: AnimatedButton(
+                          onPressed: () => widget.onTap?.call(i),
+                          child: b,
                         ),
                       ),
                     );
@@ -198,19 +198,21 @@ class CustomNavigationBarItem extends StatelessWidget {
             key: const Key('ChatsButton'),
             selector: selector,
             alignment: Alignment.bottomCenter,
-            margin: const EdgeInsets.only(bottom: 4),
+            margin: const EdgeInsets.only(bottom: 16),
             actions: [
               if (danger)
-                ContextMenuButton(
+                ContextMenuTile(
                   key: const Key('MuteChatsButton'),
+                  asset: SvgIcons.unmuted22,
                   label: 'btn_mute_chats'.l10n,
-                  onPressed: () => onMute?.call(false),
+                  onPressed: (_) => onMute?.call(false),
                 )
               else
-                ContextMenuButton(
+                ContextMenuTile(
                   key: const Key('UnmuteChatsButton'),
+                  asset: SvgIcons.muted22,
                   label: 'btn_unmute_chats'.l10n,
-                  onPressed: () => onMute?.call(true),
+                  onPressed: (_) => onMute?.call(true),
                 ),
             ],
             child: SafeAnimatedSwitcher(
@@ -230,6 +232,7 @@ class CustomNavigationBarItem extends StatelessWidget {
     Color? warning,
     GlobalKey? selector,
     MyUser? myUser,
+    List<ContextMenuItem> actions = const [],
     void Function(Presence)? onPresence,
     void Function()? onAvatar,
   }) : this._(
@@ -237,13 +240,18 @@ class CustomNavigationBarItem extends StatelessWidget {
           tab: HomeTab.menu,
           child: ContextMenuRegion(
             selector: selector,
+            selectorClosable: false,
             key: const Key('MenuButton'),
             alignment: Alignment.bottomRight,
-            margin: const EdgeInsets.only(right: 12, bottom: 4),
+            margin: const EdgeInsets.only(bottom: 8, left: 8),
             actions: [
-              ContextMenuButton(
+              ...actions,
+              ContextMenuTile(
                 label: 'label_presence_present'.l10n,
-                onPressed: () => onPresence?.call(Presence.present),
+                onPressed: (context) {
+                  onPresence?.call(Presence.present);
+                  Navigator.of(context).pop();
+                },
                 trailing: Container(
                   width: 10,
                   height: 10,
@@ -253,9 +261,12 @@ class CustomNavigationBarItem extends StatelessWidget {
                   ),
                 ),
               ),
-              ContextMenuButton(
+              ContextMenuTile(
                 label: 'label_presence_away'.l10n,
-                onPressed: () => onPresence?.call(Presence.away),
+                onPressed: (context) {
+                  onPresence?.call(Presence.away);
+                  Navigator.of(context).pop();
+                },
                 trailing: Container(
                   width: 10,
                   height: 10,
@@ -267,7 +278,6 @@ class CustomNavigationBarItem extends StatelessWidget {
               ),
             ],
             child: Padding(
-              key: selector,
               padding: const EdgeInsets.only(bottom: 2),
               child: AvatarWidget.fromMyUser(
                 myUser,
@@ -295,7 +305,6 @@ class CustomNavigationBarItem extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      width: 80,
       color: style.colors.transparent,
       child: Center(
         child: Badge(

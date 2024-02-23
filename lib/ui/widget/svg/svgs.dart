@@ -817,6 +817,18 @@ class SvgIcons {
     height: 17,
   );
 
+  static const SvgData muted22 = SvgData(
+    'assets/icons/muted22.svg',
+    width: 21.65,
+    height: 22,
+  );
+
+  static const SvgData unmuted22 = SvgData(
+    'assets/icons/unmuted22.svg',
+    width: 21.65,
+    height: 22,
+  );
+
   static const SvgData more = SvgData(
     'assets/icons/more.svg',
     width: 4,
@@ -1002,6 +1014,12 @@ class SvgIcons {
     'assets/icons/speaker_off.svg',
     width: 27.89,
     height: 25,
+  );
+
+  static const SvgData callHeadphones = SvgData(
+    'assets/icons/call_headphones.svg',
+    width: 28.93,
+    height: 25.5,
   );
 
   static const SvgData addBig = SvgData(
@@ -1657,6 +1675,12 @@ class SvgIcons {
     'assets/icons/camera_back.svg',
     width: 27.57,
     height: 23.8,
+  );
+
+  static const SvgData activeCallStartBlue = SvgData(
+    'assets/icons/active_call_start_blue.svg',
+    width: 8,
+    height: 8,
   );
 
   static const SvgData activeCallStart = SvgData(
