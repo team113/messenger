@@ -40,6 +40,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
+import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -287,6 +288,11 @@ class CallWorker extends DisposableService {
             if (c.members.keys.any((e) => e.userId == _myUser.value?.id)) {
               AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
             }
+          }
+
+          // Set the default speaker, when all the [OngoingCall]s are ended.
+          if (_callService.calls.isEmpty) {
+            await AudioUtils.setDefaultSpeaker();
           }
           break;
 

@@ -29,9 +29,6 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/ui/worker/call.dart';
-import 'package:messenger/util/log.dart';
-import 'package:messenger/util/media_utils.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -50,15 +47,16 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
+import '/ui/page/call/participant/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
-import 'participant/controller.dart';
-import 'participant/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
 import 'widget/dock.dart';
@@ -74,7 +72,6 @@ class CallController extends GetxController {
     this._userService,
     this._myUserService,
     this._settingsRepository,
-    this._callWorker,
   );
 
   /// Duration of the current ongoing call.
@@ -232,12 +229,6 @@ class CallController extends GetxController {
   /// Maximum size a single [CallButton] is allowed to occupy in the [Dock].
   static const double buttonSize = 48.0;
 
-  /// Color of a call buttons that accept the call.
-  static const Color acceptColor = Color(0x7F34B139);
-
-  /// Color of a call buttons that end the call.
-  static const Color endColor = Color(0x7FFF0000);
-
   /// Secondary view current left position.
   final RxnDouble secondaryLeft = RxnDouble(0);
 
@@ -345,19 +336,10 @@ class CallController extends GetxController {
   final UserService _userService;
 
   final MyUserService _myUserService;
-  final CallWorker? _callWorker;
 
   bool get income =>
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'kirey' ||
       _myUserService.myUser.value?.name?.val.toLowerCase() == 'alex2';
-
-  DeviceDetails? get outputDevice => _currentCall.value.outputDevice.value;
-  AudioSpeakerKind get output =>
-      _currentCall.value.devices
-          .output()
-          .firstWhereOrNull((e) => e.deviceId() == outputDevice?.deviceId())
-          ?.speaker ??
-      AudioSpeakerKind.earpiece;
 
   /// [Timer] for updating [duration] of the call.
   ///
@@ -437,9 +419,7 @@ class CallController extends GetxController {
   CallMember get me => _currentCall.value.me;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
-  bool get outgoing =>
-      _calls.me == _currentCall.value.caller?.id ||
-      _currentCall.value.caller == null;
+  bool get outgoing => _currentCall.value.outgoing;
 
   /// Indicates whether the current [OngoingCall] has started or not.
   bool get started => _currentCall.value.conversationStartedAt != null;
@@ -528,6 +508,12 @@ class CallController extends GetxController {
   /// Indicator whether the inbound audio in the current [OngoingCall] is
   /// enabled.
   RxBool get isRemoteAudioEnabled => _currentCall.value.isRemoteAudioEnabled;
+
+  /// Returns the [AudioSpeakerKind] of the used output device.
+  AudioSpeakerKind get speaker =>
+      _currentCall.value.outputDevice.value?.speaker ??
+      _currentCall.value.devices.output().firstOrNull?.speaker ??
+      AudioSpeakerKind.earpiece;
 
   PreciseDateTime get startedAt =>
       _currentCall.value.call.value?.conversationStartedAt ??
@@ -679,7 +665,7 @@ class CallController extends GetxController {
               );
 
               keepUi();
-              _ensureSpeakerphone();
+              _ensureNotEarpiece();
             }
             break;
 
@@ -844,35 +830,23 @@ class CallController extends GetxController {
       rethrow;
     }
 
-    try {
-      final MediaDeviceDetails? device = _determineOutput();
-      if (device != null) {
-        // speaker = Rx(device.speaker);
-        _currentCall.value.setOutputDevice(DeviceDetails(device));
-      } else {
-        // speaker = Rx(
-        //   PlatformUtils.isWeb ||
-        //           (_currentCall.value.videoState.value ==
-        //                   LocalTrackState.enabling ||
-        //               _currentCall.value.videoState.value ==
-        //                   LocalTrackState.enabled)
-        //       ? AudioSpeakerKind.speaker
-        //       : AudioSpeakerKind.earpiece,
-        // );
-
-        _currentCall.value.enumerateDevices().then((_) {
-          final MediaDeviceDetails? device = _determineOutput();
-          if (device != null) {
-            // speaker.value = device.speaker;
-            _currentCall.value.setOutputDevice(DeviceDetails(device));
-          }
-        });
-      }
-    } catch (e) {
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => MessagePopup.error(e));
-      rethrow;
-    }
+    // try {
+    //   final MediaDeviceDetails? device = _determineOutput();
+    //   if (device != null) {
+    //     _currentCall.value.setOutputDevice(DeviceDetails(device));
+    //   } else {
+    //     _currentCall.value.enumerateDevices().then((_) {
+    //       final MediaDeviceDetails? device = _determineOutput();
+    //       if (device != null) {
+    //         _currentCall.value.setOutputDevice(DeviceDetails(device));
+    //       }
+    //     });
+    //   }
+    // } catch (e) {
+    //   SchedulerBinding.instance
+    //       .addPostFrameCallback((_) => MessagePopup.error(e));
+    //   rethrow;
+    // }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       try {
@@ -888,6 +862,12 @@ class CallController extends GetxController {
     }
 
     super.onInit();
+  }
+
+  @override
+  Future<void> onReady() async {
+    await CustomMouseCursors.ensureInitialized();
+    super.onReady();
   }
 
   @override
@@ -934,13 +914,6 @@ class CallController extends GetxController {
     _notificationTimers.clear();
     _chatSubscription?.cancel();
     _proximitySubscription?.cancel();
-
-    // if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-    //   ProximityScreenLock.isProximityLockSupported()
-    //       .then((v) => v ? ProximityScreenLock.setActive(false) : null);
-    // }
-
-    // AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
   }
 
   /// Drops the call.
@@ -1008,7 +981,7 @@ class CallController extends GetxController {
     }
 
     await _currentCall.value.toggleVideo();
-    await _ensureSpeakerphone();
+    await _ensureNotEarpiece();
   }
 
   /// Changes the local video device to the next one from the
@@ -1018,85 +991,60 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    List<MediaDeviceDetails> cameras =
+    final List<DeviceDetails> cameras =
         _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
-      int selected = _currentCall.value.videoDevice.value == null
+      final DeviceDetails? videoDevice = _currentCall.value.videoDevice.value;
+      int selected = videoDevice == null
           ? 0
-          : cameras.indexWhere(
-              (e) => e.deviceId() == _currentCall.value.videoDevice.value!);
+          : cameras.indexWhere((e) => e.deviceId() == videoDevice.deviceId());
       selected += 1;
       cameraSwitched.toggle();
       await _currentCall.value.setVideoDevice(
-        DeviceDetails(cameras[(selected) % cameras.length]),
+        cameras[selected % cameras.length],
       );
     }
   }
 
-  /// Toggles between the speakerphone and earpiece output.
-  ///
-  /// Does nothing, if output device is a bluetooth headset.
+  /// Toggles between the speakerphone, earpiece and headphones output.
   Future<void> toggleSpeaker() async {
-    keepUi();
+    if (PlatformUtils.isMobile) {
+      keepUi();
+    }
 
-    try {
-      // await _outputGuard.protect(() async {
-      final List<MediaDeviceDetails> outputs =
-          _currentCall.value.devices.output().toList();
+    final List<DeviceDetails> outputs = _currentCall.value.devices
+        .output()
+        .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+        .toList();
 
-      if (outputs.length > 1) {
-        int index = outputs.indexWhere(
-          (e) => e.deviceId() == outputDevice?.deviceId(),
-        );
+    if (outputs.length > 1) {
+      int index = outputs.indexWhere(
+        (e) => e == _currentCall.value.outputDevice.value,
+      );
 
-        if (index == -1) {
-          index = 0;
-        }
+      if (index == -1) {
+        index = 0;
+      }
 
-        ++index;
-        if (index >= outputs.length) {
-          index = 0;
-        }
+      ++index;
+      if (index >= outputs.length) {
+        index = 0;
+      }
 
-        // iOS doesn't allow to use ear-piece, when there're any Bluetooth
-        // devices connected.
-        if (PlatformUtils.isIOS) {
-          if (outputs.any((e) => e.speaker == AudioSpeakerKind.headphones)) {
-            if (outputs[index].speaker == AudioSpeakerKind.earpiece) {
-              ++index;
-              if (index >= outputs.length) {
-                index = 0;
-              }
+      // iOS doesn't allow to use ear-piece, when there're any Bluetooth
+      // devices connected.
+      if (PlatformUtils.isIOS) {
+        if (outputs.any((e) => e.speaker == AudioSpeakerKind.headphones)) {
+          if (outputs[index].speaker == AudioSpeakerKind.earpiece) {
+            ++index;
+            if (index >= outputs.length) {
+              index = 0;
             }
           }
         }
-
-        final MediaDeviceDetails output = outputs[index];
-
-        Log.debug(
-          'Switching output to `${output.deviceId()}` (${output.label()}, isFailed: ${output.isFailed()}), the whole list of `output` devices is: ${outputs.map((e) => 'id: ${e.deviceId()}, name: ${e.label()}, isFailed: ${e.isFailed()}')}',
-        );
-
-        if (state.value != OngoingCallState.joining &&
-            state.value != OngoingCallState.active) {
-          await _callWorker?.outgoingAudio?.setSpeaker(output.speaker);
-        }
-
-        MessagePopup.success(
-          '${output.deviceId()}, ${output.label()}, ${index + 1}/${outputs.length}',
-        );
-
-        await _currentCall.value.setOutputDevice(DeviceDetails(output));
-
-        Log.debug('Switching is done!');
       }
-      // });
-    } on InvalidOutputAudioDeviceIdException catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
+
+      await _currentCall.value.setOutputDevice(outputs[index]);
     }
   }
 
@@ -2159,27 +2107,24 @@ class CallController extends GetxController {
     return false;
   }
 
-  /// Ensures [OngoingCall.outputDevice] is a speakerphone, if video is enabled.
-  Future<void> _ensureSpeakerphone() async {
+  /// Ensures [OngoingCall.outputDevice] is not an earpiece, if [videoState] is
+  /// enabled.
+  ///
+  /// Only meaningful on mobile devices.
+  Future<void> _ensureNotEarpiece() async {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      if (_currentCall.value.videoState.value == LocalTrackState.enabled ||
-          _currentCall.value.videoState.value == LocalTrackState.enabling) {
-        final bool ear;
+      if (videoState.value.isEnabled && speaker == AudioSpeakerKind.earpiece) {
+        final List<DeviceDetails> outputs = _currentCall.value.devices
+            .output()
+            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+            .toList();
 
-        if (PlatformUtils.isIOS) {
-          ear = _currentCall.value.outputDevice.value == 'ear-piece' ||
-              (_currentCall.value.outputDevice.value == null &&
-                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
-                      'ear-piece');
-        } else {
-          ear = _currentCall.value.outputDevice.value == 'ear-speaker' ||
-              (_currentCall.value.outputDevice.value == null &&
-                  _currentCall.value.devices.output().firstOrNull?.deviceId() ==
-                      'ear-speaker');
-        }
+        final DeviceDetails? speakerphone = outputs.firstWhereOrNull(
+          (e) => e.speaker == AudioSpeakerKind.speaker,
+        );
 
-        if (ear) {
-          await toggleSpeaker();
+        if (speakerphone != null) {
+          await _currentCall.value.setOutputDevice(speakerphone);
         }
       }
     }

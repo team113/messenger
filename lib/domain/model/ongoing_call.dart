@@ -21,15 +21,16 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/service/chat.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
+import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
@@ -309,6 +310,10 @@ class OngoingCall {
   /// [StreamSubscription] for the [MediaUtilsImpl.onDisplayChange] stream
   /// updating the [displays].
   StreamSubscription? _displaysSubscription;
+
+  /// [Worker] reacting on the [MediaUtilsImpl.outputDeviceId] changes updating
+  /// the [outputDevice].
+  Worker? _outputWorker;
 
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
@@ -818,6 +823,7 @@ class OngoingCall {
       _displaysSubscription?.cancel();
       _heartbeat?.cancel();
       _membersSubscription?.cancel();
+      _outputWorker?.dispose();
       connected = false;
     });
   }
@@ -1099,11 +1105,6 @@ class OngoingCall {
   /// Does nothing if [device] is already the [outputDevice].
   Future<void> setOutputDevice(DeviceDetails device) async {
     Log.debug('setOutputDevice($device)', '$runtimeType');
-
-    // final deviceId = devices.output().first.deviceId();
-    // print('Setting $deviceId...');
-    // await MediaUtils.setOutputAudioId(deviceId);
-    // print('Setting $deviceId... done');
 
     _preferredOutputDevice = device.id();
     await _setOutputDevice(device);
@@ -1536,10 +1537,48 @@ class OngoingCall {
         // No-op.
       }
 
-      outputDevice.value = devices
-              .output()
-              .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-          devices.output().firstOrNull;
+      // On mobile platforms, output device is picked in the following priority:
+      // - headphones;
+      // - earpiece (if [videoState] is disabled);
+      // - speaker (if [videoState] is enabled).
+      if (PlatformUtils.isMobile) {
+        _outputWorker = ever(
+          MediaUtils.outputDeviceId,
+          (id) {
+            outputDevice.value =
+                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
+                    outputDevice.value;
+          },
+        );
+
+        if (outputDevice.value == null) {
+          final Iterable<DeviceDetails> output = devices.output();
+          outputDevice.value = output.firstWhereOrNull(
+            (e) => e.speaker == AudioSpeakerKind.headphones,
+          );
+
+          if (outputDevice.value == null) {
+            final bool speaker =
+                PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+
+            if (speaker) {
+              outputDevice.value = output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.speaker,
+              );
+            }
+
+            outputDevice.value ??= output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.earpiece,
+            );
+          }
+        }
+      } else {
+        // On any other platform the output device is the preferred one.
+        outputDevice.value = devices
+                .output()
+                .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+            devices.output().firstOrNull;
+      }
 
       audioDevice.value = devices
               .audio()
@@ -1553,10 +1592,8 @@ class OngoingCall {
       screenDevice.value = displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
-      final String? setOutputDevice = outputDevice.value?.deviceId() ??
-          devices.output().firstOrNull?.deviceId();
-      if (setOutputDevice != null) {
-        MediaUtils.mediaManager?.setOutputAudioId(setOutputDevice);
+      if (outputDevice.value != null) {
+        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
       }
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -1939,9 +1976,9 @@ class OngoingCall {
       }
     });
 
-    if (track.kind() == MediaKind.video) {
+    if (kind == MediaKind.video) {
       LocalTrackState state;
-      switch (track.mediaSourceKind()) {
+      switch (source) {
         case MediaSourceKind.device:
           state = videoState.value;
           break;
@@ -2087,8 +2124,22 @@ class OngoingCall {
     Log.debug('_setOutputDevice($device)', '$runtimeType');
 
     if (device != outputDevice.value) {
-      await MediaUtils.setOutputAudioId(device.deviceId());
+      final DeviceDetails? previous = outputDevice.value;
+
       outputDevice.value = device;
+
+      try {
+        // [MediaUtils.setOutputDevice] seems to switch the speaker in
+        // [AudioUtils] as well, when [hasRemote] is `true`.
+        await Future.wait([
+          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
+          MediaUtils.setOutputDevice(device.deviceId()),
+        ]);
+      } catch (e) {
+        addError(e.toString());
+        outputDevice.value = previous;
+        rethrow;
+      }
     }
   }
 }

@@ -18,8 +18,6 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter_to_airplay/flutter_to_airplay.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/audio_utils.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '../controller.dart';
 import '../widget/call_button.dart';
@@ -31,6 +29,8 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/media_utils.dart';
+import '/util/platform_utils.dart';
 
 /// Button in a [CallView].
 ///
@@ -433,7 +433,7 @@ class DeclineButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       asset: SvgIcons.callEndBig,
-      color: style.colors.decline,
+      color: style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       withBlur: expanded,
@@ -464,7 +464,9 @@ class CancelButton extends CallButton {
     return CallButtonWidget(
       hint: opaque ? null : hint,
       asset: SvgIcons.callEndBig,
-      color: style.colors.decline,
+      color: opaque
+          ? style.colors.declineOpacity88
+          : style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       withBlur: blur,
@@ -494,7 +496,7 @@ class EndCallButton extends CallButton {
     return CallButtonWidget(
       asset: SvgIcons.callEndBig,
       hint: hint,
-      color: style.colors.decline,
+      color: style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       big: big,
@@ -521,31 +523,34 @@ class SpeakerButton extends CallButton {
     bool expanded = false,
     bool opaque = false,
   }) {
-    return Obx(() {
-      final SvgData asset = switch (c.output) {
-        AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
-        AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
-        AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
-      };
-
+    Widget button(SvgData asset, void Function()? onPressed) {
       return CallButtonWidget(
-        hint: opaque
-            ? null
-            : hinted
-                ? hint
-                : null,
-        asset: PlatformUtils.isMobile && PlatformUtils.isWeb
-            ? SvgIcons.callIncomingAudioOn
-            : asset,
+        hint: hint,
+        asset: asset,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,
-        onPressed: PlatformUtils.isWeb ? null : c.toggleSpeaker,
+        onPressed: onPressed,
       );
-    });
+    }
+
+    // Web seems to decide for itself the output device source on mobile.
+    if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
+      return button(SvgIcons.callIncomingAudioOn, null);
+    } else {
+      return Obx(() {
+        final SvgData asset = switch (c.speaker) {
+          AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
+          AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
+          AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
+        };
+
+        return button(asset, c.toggleSpeaker);
+      });
+    }
   }
 }
 
@@ -616,8 +621,8 @@ class SwitchButton extends CallButton {
         expanded: expanded,
         withBlur: blur,
         big: big,
-        opaque: opaque,
         constrained: c.isMobile,
+        opaque: opaque,
         onPressed: c.switchCamera,
       );
     });

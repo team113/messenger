@@ -264,7 +264,7 @@ class NotificationService extends DisposableService {
 
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
-      await _plugin!.show(
+      await _plugin?.show(
         // On Android notifications are replaced when ID and tag are the same,
         // and FCM notifications always have ID of zero, so in order for push
         // notifications to replace local, we set its ID as zero as well.
@@ -454,7 +454,8 @@ class NotificationService extends DisposableService {
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
     // [AndroidUtils.createNotificationChannel], so try again on failure.
-    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+    if (PlatformUtils.isAndroid &&
+        settings.authorizationStatus != AuthorizationStatus.authorized) {
       settings = await FirebaseMessaging.instance.requestPermission();
     }
 

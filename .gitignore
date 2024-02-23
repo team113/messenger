@@ -30,14 +30,15 @@
 
 # Symbolication and obfuscation related
 /debug/
+/debug-*
 app.*.map.json
 app.*.symbols
 
 # Android Studio will place build artifacts here
+/android/app/build
 /android/app/debug
 /android/app/profile
 /android/app/release
-/android/app/build
 
 # Yarn/NPM dependencies
 /node_modules/

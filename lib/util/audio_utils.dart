@@ -19,10 +19,10 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:medea_jason/medea_jason.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:messenger/util/media_utils.dart';
+import 'package:media_kit/media_kit.dart' hide AudioDevice;
+import 'package:mutex/mutex.dart';
 
+import '/util/media_utils.dart';
 import 'log.dart';
 import 'platform_utils.dart';
 
@@ -37,14 +37,35 @@ class AudioUtilsImpl {
   /// [Player] lazily initialized to play sounds [once].
   Player? _player;
 
+  /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
+  /// platforms.
+  ///
+  /// [ja.AudioPlayer] is used on mobile platforms due to it accounting
+  /// [AudioSession] preferences (e.g. switching audio output for mobiles),
+  /// which [Player] doesn't do.
+  ja.AudioPlayer? _jaPlayer;
+
   /// [StreamController]s of [AudioSource]s added in [play].
   final Map<AudioSource, AudioPlayback> _players = {};
+
+  /// [AudioSpeakerKind] currently used for audio output.
+  AudioSpeakerKind? _speaker;
+
+  /// [Mutex] guarding synchronized access to the [_setSpeaker].
+  final Mutex _mutex = Mutex();
+
+  /// Indicates whether the [_jaPlayer] should be used.
+  bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
   /// Ensures the underlying resources are initialized to reduce possible delays
   /// when playing [once].
   void ensureInitialized() {
     try {
-      _player ??= Player();
+      if (_isMobile) {
+        _jaPlayer ??= ja.AudioPlayer();
+      } else {
+        _player ??= Player();
+      }
     } catch (e) {
       // If [Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
@@ -55,33 +76,18 @@ class AudioUtilsImpl {
         );
       }
     }
-
-    if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
-      Future(() async {
-        final AudioSession session = await AudioSession.instance;
-        final bool hasBluetooth =
-            (await session.getDevices(includeInputs: false)).any(
-          (e) =>
-              e.type == AudioDeviceType.wiredHeadset ||
-              e.type == AudioDeviceType.wiredHeadphones ||
-              e.type == AudioDeviceType.bluetoothA2dp ||
-              e.type == AudioDeviceType.bluetoothLe ||
-              e.type == AudioDeviceType.bluetoothSco ||
-              e.type == AudioDeviceType.airPlay,
-        );
-
-        if (hasBluetooth) {
-          await AudioPlayback().setSpeaker(AudioSpeakerKind.headphones);
-        }
-      });
-    }
   }
 
   /// Plays the provided [sound] once.
   Future<void> once(AudioSource sound, {double? volume}) async {
     ensureInitialized();
 
-    await _player?.open(sound.media);
+    if (_isMobile) {
+      await _jaPlayer?.setAudioSource(sound.source);
+      await _jaPlayer?.play();
+    } else {
+      await _player?.open(sound.media);
+    }
 
     if (volume != null) {
       await _player?.setVolume(volume);
@@ -99,12 +105,8 @@ class AudioUtilsImpl {
   }) {
     Log.debug('play($music)', '$runtimeType');
 
-    // return AudioPlayback();
-
     AudioPlayback? playback = _players[music];
     StreamSubscription? position;
-
-    // return AudioPlayback();
 
     if (playback == null) {
       playback = AudioPlayback();
@@ -138,12 +140,7 @@ class AudioUtilsImpl {
                   e.type == AudioDeviceType.airPlay,
             );
 
-            print(
-              '!!!!!! hasBluetooth: $hasBluetooth, ${(await session.getDevices(includeInputs: false)).map((e) => e.name)}',
-            );
-
             await playback?.setSpeaker(
-              // AudioSpeakerKind.speaker,
               hasBluetooth ? AudioSpeakerKind.headphones : speaker,
             );
 
@@ -250,9 +247,145 @@ class AudioUtilsImpl {
 
     return _players[music]!..listen();
   }
-}
 
-enum AudioSpeakerKind { headphones, earpiece, speaker }
+  /// Sets the [speaker] to use for audio output.
+  ///
+  /// Only meaningful on mobile devices.
+  Future<void> setSpeaker(AudioSpeakerKind speaker) async {
+    if (_isMobile && _speaker != speaker) {
+      _speaker = speaker;
+      await _setSpeaker();
+    }
+  }
+
+  /// Sets the default audio output device as the used one.
+  ///
+  /// Only meaningful on mobile devices.
+  Future<void> setDefaultSpeaker() async {
+    if (_isMobile) {
+      final AudioSession session = await AudioSession.instance;
+      final Set<AudioDevice> devices =
+          await session.getDevices(includeInputs: false);
+      final bool hasHeadphones = devices.any(
+        (e) =>
+            e.type == AudioDeviceType.wiredHeadset ||
+            e.type == AudioDeviceType.wiredHeadphones ||
+            e.type == AudioDeviceType.bluetoothA2dp ||
+            e.type == AudioDeviceType.bluetoothLe ||
+            e.type == AudioDeviceType.bluetoothSco ||
+            e.type == AudioDeviceType.usbAudio,
+      );
+
+      if (hasHeadphones) {
+        await setSpeaker(AudioSpeakerKind.headphones);
+      } else {
+        await setSpeaker(AudioSpeakerKind.speaker);
+      }
+
+      if (PlatformUtils.isAndroid) {
+        await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
+      } else if (PlatformUtils.isIOS) {
+        await AVAudioSession().setCategory(
+          AVAudioSessionCategory.playAndRecord,
+          AVAudioSessionCategoryOptions.allowBluetooth,
+          AVAudioSessionMode.defaultMode,
+        );
+      }
+    }
+  }
+
+  /// Sets the [_speaker] to use for audio output.
+  ///
+  /// Should only be called via [setSpeaker].
+  Future<void> _setSpeaker() async {
+    // If the [_mutex] is locked, the output device is already being set.
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
+    final AudioSpeakerKind speaker = _speaker!;
+
+    await _mutex.protect(() async {
+      await MediaUtils.outputGuard.protect(() async {
+        if (PlatformUtils.isIOS) {
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.allowBluetooth,
+            AVAudioSessionMode.voiceChat,
+          );
+
+          switch (speaker) {
+            case AudioSpeakerKind.headphones:
+            case AudioSpeakerKind.earpiece:
+              await AVAudioSession()
+                  .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
+              break;
+
+            case AudioSpeakerKind.speaker:
+              await AVAudioSession()
+                  .overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
+              break;
+          }
+
+          return;
+        }
+
+        final session = await AudioSession.instance;
+
+        await session.configure(
+          const AudioSessionConfiguration(
+            androidAudioAttributes: AndroidAudioAttributes(
+              usage: AndroidAudioUsage.voiceCommunication,
+              flags: AndroidAudioFlags.none,
+              contentType: AndroidAudioContentType.speech,
+            ),
+          ),
+        );
+
+        switch (speaker) {
+          case AudioSpeakerKind.headphones:
+            await AndroidAudioManager()
+                .setMode(AndroidAudioHardwareMode.inCommunication);
+            await AndroidAudioManager().startBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(true);
+            break;
+
+          case AudioSpeakerKind.speaker:
+            await AndroidAudioManager().requestAudioFocus(
+              const AndroidAudioFocusRequest(
+                gainType: AndroidAudioFocusGainType.gain,
+                audioAttributes: AndroidAudioAttributes(
+                  contentType: AndroidAudioContentType.music,
+                  usage: AndroidAudioUsage.media,
+                ),
+              ),
+            );
+            await AndroidAudioManager()
+                .setMode(AndroidAudioHardwareMode.inCall);
+            await AndroidAudioManager().stopBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(false);
+            await AndroidAudioManager().setSpeakerphoneOn(true);
+            break;
+
+          case AudioSpeakerKind.earpiece:
+            await AndroidAudioManager()
+                .setMode(AndroidAudioHardwareMode.inCommunication);
+            await AndroidAudioManager().stopBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(false);
+            await AndroidAudioManager().setSpeakerphoneOn(false);
+            break;
+        }
+      });
+    });
+
+    // If the [_speaker] was changed while setting the output device then
+    // call [_setSpeaker] again.
+    if (speaker != _speaker) {
+      _setSpeaker();
+    }
+  }
+}
 
 class AudioPlayback {
   AudioPlayback();
@@ -264,105 +397,7 @@ class AudioPlayback {
   StreamSubscription? _subscription;
 
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
-    Log.debug(
-      'setSpeaker($speaker) Stack: ${StackTrace.current}',
-      '$runtimeType',
-    );
-
-    if (PlatformUtils.isIOS) {
-      // await AVAudioSession().setCategory(AVAudioSessionCategory.playAndRecord);
-
-      // final devices = await MediaUtils.enumerateDevices();
-      // print(
-      //   '`medea_jason` enumerateDevices: ${devices.output().map((e) => e.label())}',
-      // );
-
-      // final outputs =
-      //     await (await AudioSession.instance).getDevices(includeInputs: false);
-      // print(
-      //   '`AudioSession` outputs: ${outputs.map((e) => e.name)}',
-      // );
-
-      // final device = devices.firstWhereOrNull((e) => e.speaker == speaker);
-      // if (device != null) {
-      //   await MediaUtils.setOutputDevice(device.deviceId());
-      // }
-
-      // final session = await AudioSession.instance;
-
-      await AVAudioSession().setCategory(
-        AVAudioSessionCategory.playAndRecord,
-        AVAudioSessionCategoryOptions.allowBluetooth |
-            AVAudioSessionCategoryOptions.allowBluetoothA2dp |
-            AVAudioSessionCategoryOptions.allowAirPlay,
-        AVAudioSessionMode.voiceChat,
-      );
-
-      switch (speaker) {
-        case AudioSpeakerKind.headphones:
-          await AVAudioSession()
-              .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
-          break;
-
-        case AudioSpeakerKind.earpiece:
-          await AVAudioSession()
-              .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
-          break;
-
-        case AudioSpeakerKind.speaker:
-          await AVAudioSession()
-              .overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
-          break;
-      }
-      return;
-    }
-
-    await MediaUtils.guard.protect(() async {
-      final session = await AudioSession.instance;
-
-      await session.configure(
-        const AudioSessionConfiguration(
-          androidAudioAttributes: AndroidAudioAttributes(
-            usage: AndroidAudioUsage.voiceCommunication,
-            flags: AndroidAudioFlags.none,
-            contentType: AndroidAudioContentType.speech,
-          ),
-        ),
-      );
-
-      switch (speaker) {
-        case AudioSpeakerKind.headphones:
-          await AndroidAudioManager()
-              .setMode(AndroidAudioHardwareMode.inCommunication);
-          await AndroidAudioManager().startBluetoothSco();
-          await AndroidAudioManager().setBluetoothScoOn(true);
-          break;
-
-        case AudioSpeakerKind.speaker:
-          await AndroidAudioManager().requestAudioFocus(
-            const AndroidAudioFocusRequest(
-              gainType: AndroidAudioFocusGainType.gain,
-              audioAttributes: AndroidAudioAttributes(
-                contentType: AndroidAudioContentType.music,
-                usage: AndroidAudioUsage.media,
-              ),
-            ),
-          );
-          await AndroidAudioManager().setMode(AndroidAudioHardwareMode.inCall);
-          await AndroidAudioManager().stopBluetoothSco();
-          await AndroidAudioManager().setBluetoothScoOn(false);
-          await AndroidAudioManager().setSpeakerphoneOn(true);
-          break;
-
-        case AudioSpeakerKind.earpiece:
-          await AndroidAudioManager()
-              .setMode(AndroidAudioHardwareMode.inCommunication);
-          await AndroidAudioManager().stopBluetoothSco();
-          await AndroidAudioManager().setBluetoothScoOn(false);
-          await AndroidAudioManager().setSpeakerphoneOn(false);
-          break;
-      }
-    });
+    await AudioUtils.setSpeaker(speaker);
   }
 
   void listen() {
@@ -448,7 +483,8 @@ class UrlAudioSource extends AudioSource {
   bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
 }
 
-/// Extension adding conversion from an [AudioSource] to a [Media].
+/// Extension adding conversion from an [AudioSource] to a [Media] or
+/// [ja.AudioSource].
 extension on AudioSource {
   /// Returns a [Media] corresponding to this [AudioSource].
   Media get media => switch (kind) {
@@ -460,6 +496,7 @@ extension on AudioSource {
         AudioSourceKind.url => Media((this as UrlAudioSource).url),
       };
 
+  /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
         AudioSourceKind.asset =>
           ja.AudioSource.asset('assets/${(this as AssetAudioSource).asset}'),
@@ -468,16 +505,4 @@ extension on AudioSource {
         AudioSourceKind.url =>
           ja.AudioSource.uri(Uri.parse((this as UrlAudioSource).url)),
       };
-}
-
-extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
-  AudioSpeakerKind get speaker {
-    if (deviceId() == 'ear-speaker' || deviceId() == 'ear-piece') {
-      return AudioSpeakerKind.earpiece;
-    } else if (deviceId() == 'speakerphone' || deviceId() == 'speaker') {
-      return AudioSpeakerKind.speaker;
-    } else {
-      return AudioSpeakerKind.headphones;
-    }
-  }
 }

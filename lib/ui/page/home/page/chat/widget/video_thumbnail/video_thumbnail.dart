@@ -137,8 +137,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       child: StreamBuilder(
         stream: _player.stream.width,
         builder: (_, __) {
-          double width = 0;
-          double height = 0;
+          double width = 300;
+          double height = 300;
 
           if (widget.width != null && widget.height != null) {
             width = widget.width!;
@@ -153,44 +153,35 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             }
           }
 
-          if (_player.state.width != null) {
-            return SizedBox(
-              width: width,
-              height: height,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRect(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: _player.state.width?.toDouble() ?? 1920,
-                        height: _player.state.height?.toDouble() ?? 1080,
-                        child: IgnorePointer(
-                          child: Video(
-                            controller: _controller,
-                            fit: BoxFit.cover,
-                            controls: (_) => const SizedBox(),
-                          ),
-                        ),
+          return SizedBox(
+            width: width,
+            height: height,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipRect(
+                  child: SizedBox(
+                    width: _player.state.width?.toDouble() ?? width,
+                    height: _player.state.height?.toDouble() ?? height,
+                    child: IgnorePointer(
+                      child: Video(
+                        controller: _controller,
+                        fit: BoxFit.cover,
+                        controls: (_) => const SizedBox(),
                       ),
                     ),
                   ),
-                  ContextMenuInterceptor(child: const SizedBox()),
+                ),
 
-                  // [Container] for receiving pointer events over this
-                  // [VideoThumbnail], since the [ContextMenuInterceptor] above
-                  // intercepts them.
-                  Container(color: style.colors.transparent),
-                ],
-              ),
-            );
-          } else {
-            return SizedBox(
-              width: widget.width ?? 250,
-              height: widget.height ?? 250,
-            );
-          }
+                ContextMenuInterceptor(child: const SizedBox()),
+
+                // [Container] for receiving pointer events over this
+                // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                // intercepts them.
+                Container(color: style.colors.transparent),
+              ],
+            ),
+          );
         },
       ),
     );

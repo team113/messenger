@@ -17,8 +17,8 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 
@@ -36,23 +36,27 @@ MediaUtilsImpl MediaUtils = MediaUtilsImpl();
 /// Helper providing direct access to media related resources like media
 /// devices, media tracks, etc.
 class MediaUtilsImpl {
+  /// ID of the currently used output device.
+  final RxnString outputDeviceId = RxnString();
+
+  /// [Mutex] guarding synchronized output device updating.
+  final Mutex outputGuard = Mutex();
+
   /// [Jason] communicating with the media resources.
   Jason? _jason;
 
   /// [MediaManagerHandle] maintaining the media devices.
-  MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? __mediaManager;
 
-  /// [StreamController] piping the [MediaDeviceDetails] changes in the
+  /// [StreamController] piping the [DeviceDetails] changes in the
   /// [MediaManagerHandle.onDeviceChange] callback.
   StreamController<List<DeviceDetails>>? _devicesController;
 
   /// [StreamController] piping the [MediaDisplayDetails] changes.
   StreamController<List<MediaDisplayDetails>>? _displaysController;
 
-  List<DeviceDetails>? _devices;
-
-  /// [Mutex] guarding synchronous access to the [setOutputAudioId].
-  final Mutex _outputGuard = Mutex();
+  /// [Mutex] guarding synchronized access to the [_setOutputDevice].
+  final Mutex _mutex = Mutex();
 
   /// Returns the [Jason] instance of these [MediaUtils].
   Jason? get jason {
@@ -68,7 +72,7 @@ class MediaUtilsImpl {
       WebUtils.onPanic((e) {
         Log.error('Panic: ${e.toString()}', 'Jason');
         _jason = null;
-        _mediaManager = null;
+        __mediaManager = null;
       });
     }
 
@@ -76,16 +80,16 @@ class MediaUtilsImpl {
   }
 
   /// Returns the [MediaManagerHandle] instance of these [MediaUtils].
-  MediaManagerHandle? get mediaManager {
-    _mediaManager ??= jason?.mediaManager();
-    return _mediaManager;
+  MediaManagerHandle? get _mediaManager {
+    __mediaManager ??= jason?.mediaManager();
+    return __mediaManager;
   }
 
   /// Returns a [Stream] of the [DeviceDetails] changes.
   Stream<List<DeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
-      mediaManager?.onDeviceChange(() async {
+      _mediaManager?.onDeviceChange(() async {
         _devicesController?.add(
           (await enumerateDevices())
               .where((e) => e.deviceId().isNotEmpty)
@@ -105,7 +109,7 @@ class MediaUtilsImpl {
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
         Future(() async {
           _displaysController?.add(
-            (await mediaManager?.enumerateDisplays() ?? [])
+            (await _mediaManager?.enumerateDisplays() ?? [])
                 .where((e) => e.deviceId().isNotEmpty)
                 .toList(),
           );
@@ -122,14 +126,14 @@ class MediaUtilsImpl {
     VideoPreferences? video,
     ScreenPreferences? screen,
   }) async {
-    if (mediaManager == null) {
+    if (_mediaManager == null) {
       return [];
     }
 
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack> local = await mediaManager!.initLocalTracks(
+      final List<LocalMediaTrack> local = await _mediaManager!.initLocalTracks(
         _mediaStreamSettings(audio: audio, video: video, screen: screen),
       );
 
@@ -145,7 +149,7 @@ class MediaUtilsImpl {
     MediaDeviceKind? kind,
   ]) async {
     final List<DeviceDetails> devices =
-        (await mediaManager?.enumerateDevices() ?? [])
+        (await _mediaManager?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
@@ -191,34 +195,52 @@ class MediaUtilsImpl {
     return devices;
   }
 
+  /// Sets device with [deviceId] as a currently used output device.
+  Future<void> setOutputDevice(String deviceId) async {
+    if (outputDeviceId.value != deviceId) {
+      outputDeviceId.value = deviceId;
+      await _setOutputDevice();
+    }
+  }
+
+  /// Invokes a [MediaManagerHandle.setOutputAudioId] method.
+  Future<void> _setOutputDevice() async {
+    // If the [_mutex] is locked, the output device is already being set.
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    final String deviceId = outputDeviceId.value!;
+    await outputGuard.protect(() async {
+      await _mutex.protect(() async {
+        if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.allowBluetooth,
+            AVAudioSessionMode.voiceChat,
+          );
+        }
+
+        await _mediaManager?.setOutputAudioId(deviceId);
+      });
+    });
+
+    // If the [outputDeviceId] was changed while setting the output device
+    // then call [_setOutputDevice] again.
+    if (deviceId != outputDeviceId.value) {
+      _setOutputDevice();
+    }
+  }
+
   /// Returns the currently available [MediaDisplayDetails].
   Future<List<MediaDisplayDetails>> enumerateDisplays() async {
     if (!PlatformUtils.isDesktop || PlatformUtils.isWeb) {
       return [];
     }
 
-    return (await mediaManager?.enumerateDisplays() ?? [])
+    return (await _mediaManager?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();
-  }
-
-  final Mutex guard = Mutex();
-
-  /// Switches output audio device to the device with the provided [deviceId].
-  Future<void> setOutputAudioId(String deviceId) async {
-    await guard.protect(() async {
-      if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-        await AVAudioSession().setCategory(
-          AVAudioSessionCategory.playAndRecord,
-          AVAudioSessionCategoryOptions.allowBluetooth |
-              AVAudioSessionCategoryOptions.allowBluetoothA2dp |
-              AVAudioSessionCategoryOptions.allowAirPlay,
-          AVAudioSessionMode.voiceChat,
-        );
-      }
-
-      await mediaManager?.setOutputAudioId(deviceId);
-    });
   }
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
@@ -286,6 +308,26 @@ class ScreenPreferences extends TrackPreferences {
 
   /// Preferred framerate of the screen track.
   final int? framerate;
+}
+
+/// Extension adding conversion on [MediaDeviceDetails] to [AudioSpeakerKind].
+extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
+  /// Returns the [AudioSpeakerKind] of these [MediaDeviceDetails].
+  ///
+  /// Only meaningful, if these [MediaDeviceDetails] are of
+  /// [MediaDeviceKind.audioOutput].
+  AudioSpeakerKind get speaker => switch (deviceId()) {
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      };
+}
+
+/// Possible kind of an audio output device.
+enum AudioSpeakerKind {
+  headphones,
+  earpiece,
+  speaker,
 }
 
 /// Wrapper around a [MediaDeviceDetails] with [id] method.
