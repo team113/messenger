@@ -573,7 +573,7 @@ class OngoingCall {
               // Additionally handles the case, when [dialed] are
               // [ChatMembersDialedAll], since we need to have a [RxChat] to
               // retrieve the whole list of users this way.
-              void redialAndResubscribe(RxChat? v) async {
+              Future<void> redialAndResubscribe(RxChat? v) async {
                 if (!connected || v == null) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
