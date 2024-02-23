@@ -32,6 +32,7 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
+import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
@@ -307,6 +308,10 @@ class OngoingCall {
   /// [StreamSubscription] for the [MediaUtilsImpl.onDisplayChange] stream
   /// updating the [displays].
   StreamSubscription? _displaysSubscription;
+
+  /// [Worker] reacting on the [MediaUtilsImpl.outputDeviceId] changes updating
+  /// the [outputDevice].
+  Worker? _outputWorker;
 
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
@@ -833,6 +838,7 @@ class OngoingCall {
       _devicesSubscription?.cancel();
       _displaysSubscription?.cancel();
       _heartbeat?.cancel();
+      _outputWorker?.dispose();
       connected = false;
     });
   }
@@ -1536,10 +1542,48 @@ class OngoingCall {
         // No-op.
       }
 
-      outputDevice.value = devices
-              .output()
-              .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-          devices.output().firstOrNull;
+      // On mobile platforms, output device is picked in the following priority:
+      // - headphones;
+      // - earpiece (if [videoState] is disabled);
+      // - speaker (if [videoState] is enabled).
+      if (PlatformUtils.isMobile) {
+        _outputWorker = ever(
+          MediaUtils.outputDeviceId,
+          (id) {
+            outputDevice.value =
+                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
+                    outputDevice.value;
+          },
+        );
+
+        if (outputDevice.value == null) {
+          final Iterable<DeviceDetails> output = devices.output();
+          outputDevice.value = output.firstWhereOrNull(
+            (e) => e.speaker == AudioSpeakerKind.headphones,
+          );
+
+          if (outputDevice.value == null) {
+            final bool speaker =
+                PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+
+            if (speaker) {
+              outputDevice.value = output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.speaker,
+              );
+            }
+
+            outputDevice.value ??= output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.earpiece,
+            );
+          }
+        }
+      } else {
+        // On any other platform the output device is the preferred one.
+        outputDevice.value = devices
+                .output()
+                .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+            devices.output().firstOrNull;
+      }
 
       audioDevice.value = devices
               .audio()
@@ -1553,10 +1597,8 @@ class OngoingCall {
       screenDevice.value = displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
-      final String? setOutputDevice = outputDevice.value?.deviceId() ??
-          devices.output().firstOrNull?.deviceId();
-      if (setOutputDevice != null) {
-        MediaUtils.mediaManager?.setOutputAudioId(setOutputDevice);
+      if (outputDevice.value != null) {
+        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
       }
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -2013,8 +2055,22 @@ class OngoingCall {
     Log.debug('_setOutputDevice($device)', '$runtimeType');
 
     if (device != outputDevice.value) {
-      await MediaUtils.setOutputAudioId(device.deviceId());
+      final DeviceDetails? previous = outputDevice.value;
+
       outputDevice.value = device;
+
+      try {
+        // [MediaUtils.setOutputDevice] seems to switch the speaker in
+        // [AudioUtils] as well, when [hasRemote] is `true`.
+        await Future.wait([
+          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
+          MediaUtils.setOutputDevice(device.deviceId()),
+        ]);
+      } catch (e) {
+        addError(e.toString());
+        outputDevice.value = previous;
+        rethrow;
+      }
     }
   }
 }
