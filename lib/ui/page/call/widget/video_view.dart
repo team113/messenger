@@ -201,7 +201,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       if (widget.renderer.height.value == 0) {
         return Stack(
           children: [
-            Opacity(opacity: 0.01, child: video),
+            video,
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
             const Center(child: CustomProgressIndicator.big())
           ],
@@ -221,7 +221,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
             return Stack(
               children: [
-                Opacity(opacity: 0.01, child: video),
+                video,
                 const Center(child: CustomProgressIndicator.big())
               ],
             );
