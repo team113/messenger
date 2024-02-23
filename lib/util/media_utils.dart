@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:async/async.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -217,24 +216,12 @@ class MediaUtilsImpl {
         if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
           await AVAudioSession().setCategory(
             AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth |
-                AVAudioSessionCategoryOptions.allowBluetoothA2dp |
-                AVAudioSessionCategoryOptions.allowAirPlay,
+            AVAudioSessionCategoryOptions.allowBluetooth,
             AVAudioSessionMode.voiceChat,
           );
         }
 
-        if (_mediaManager != null) {
-          final CancelableOperation operation = CancelableOperation.fromFuture(
-            _mediaManager!.setOutputAudioId(deviceId),
-          );
-
-          // Cancel the operation if it takes too long.
-          Timer timer = Timer(2.seconds, operation.cancel);
-
-          await operation.valueOrCancellation();
-          timer.cancel();
-        }
+        await _mediaManager?.setOutputAudioId(deviceId);
       });
     });
 
