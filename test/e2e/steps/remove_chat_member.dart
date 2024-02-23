@@ -22,7 +22,8 @@ import 'package:messenger/provider/gql/graphql.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Removes the specified [TestUser] from the provided [Chat]-group.
+/// Removes the specified [TestUser] from the provided [Chat]-group on other
+/// user's behalf.
 ///
 /// Examples:
 /// - And Bob removes Alice from "Alice and Bob" group

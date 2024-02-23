@@ -1601,6 +1601,8 @@ class ChatRepository extends DisposableInterface
         _pagination?.remove(chatId);
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
+
+        await clearChat(chatId);
       } else {
         final HiveRxChat? oldChat = chats[chatId];
         final chat = event.value.value as Chat;
