@@ -502,10 +502,8 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user = chat.members.items.values
-        .firstWhereOrNull((e) => e.id != me)
-        ?.user
-        .value;
+    final User? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
     if (user == null) {
       return;
     }
@@ -527,10 +525,8 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user = chat.members.items.values
-        .firstWhereOrNull((e) => e.id != me)
-        ?.user
-        .value;
+    final User? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
     if (user == null) {
       return;
     }

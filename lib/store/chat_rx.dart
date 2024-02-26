@@ -186,7 +186,9 @@ class HiveRxChat extends RxChat {
   /// [StreamSubscription] to [messages] recalculating the [reads] on removals.
   StreamSubscription? _messagesSubscription;
 
-  /// Subscription for the [RxUser]s changes.
+  /// Subscription for the [RxUser]s being the top 3 [members] changes.
+  ///
+  /// Used to keep [title] up-to-date.
   final Map<UserId, StreamSubscription> _userSubscriptions = {};
 
   /// [StreamSubscription] to [AbstractCallRepository.calls] and
@@ -505,14 +507,12 @@ class HiveRxChat extends RxChat {
       return;
     }
 
-    {
-      await members.ensureInitialized();
+    await members.ensureInitialized();
 
-      if (me != null && members.items.values.none((e) => e.id == me)) {
-        final RxUser? myUser = await _chatRepository.getUser(me!);
-        if (myUser != null) {
-          members.items[me!] = myUser;
-        }
+    if (me != null && members.items.values.none((e) => e.id == me)) {
+      final RxUser? myUser = await _chatRepository.getUser(me!);
+      if (myUser != null) {
+        members.items[me!] = myUser;
       }
     }
   }

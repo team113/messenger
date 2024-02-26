@@ -533,6 +533,7 @@ class ChatRepository extends DisposableInterface
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
     await _graphQlProvider.addChatMember(chatId, userId);
 
+    // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
     if (chats[chatId]?.chat.value.ongoingCall != null) {
       await _callRepo.redialChatCallMember(chatId, userId);
     }

@@ -556,7 +556,7 @@ class SearchController extends GetxController {
       bool matchesQuery(RxChat c) => _matchesQuery(
             title: c.title.value,
             user: c.chat.value.isDialog
-                ? c.members.items.values
+                ? c.members.values
                     .firstWhereOrNull((u) => u.id != me)
                     ?.user
                     .value
@@ -588,7 +588,7 @@ class SearchController extends GetxController {
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
-          c.members.items.values.firstWhereOrNull((u) => u.id != me);
+          c.members.values.firstWhereOrNull((u) => u.id != me);
       bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
 
@@ -670,11 +670,12 @@ class SearchController extends GetxController {
       bool inRecent(RxUser u) => recent.containsKey(u.id);
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
       bool inChats(RxUser u) => chats.values.any(
-          (c) => c.chat.value.isDialog && c.members.items.containsKey(u.id));
+            (c) => c.chat.value.isDialog && c.members.items.containsKey(u.id),
+          );
       bool hasRemoteDialog(RxUser u) => !u.user.value.dialog.isLocal;
 
       RxUser? toUser(RxChat c) =>
-          c.members.items.values.firstWhereOrNull((u) => u.id != me);
+          c.members.values.firstWhereOrNull((u) => u.id != me);
       RxChat? toChat(RxUser u) => u.dialog.value;
 
       // [Chat]s-dialogs with [User]s found in the global search and not

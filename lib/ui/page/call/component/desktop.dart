@@ -150,18 +150,17 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child = _primaryView(c);
                           } else {
                             if (c.isDialog) {
-                              final User? user =
-                                  c.chat.value?.members.items.values
-                                          .firstWhereOrNull(
-                                            (e) => e.id != c.me.id.userId,
-                                          )
-                                          ?.user
-                                          .value ??
-                                      c.chat.value?.chat.value.members
-                                          .firstWhereOrNull(
-                                            (e) => e.user.id != c.me.id.userId,
-                                          )
-                                          ?.user;
+                              final User? user = c.chat.value?.members.values
+                                      .firstWhereOrNull(
+                                        (e) => e.id != c.me.id.userId,
+                                      )
+                                      ?.user
+                                      .value ??
+                                  c.chat.value?.chat.value.members
+                                      .firstWhereOrNull(
+                                        (e) => e.user.id != c.me.id.userId,
+                                      )
+                                      ?.user;
 
                               child = CallCoverWidget(
                                 c.chat.value?.callCover,

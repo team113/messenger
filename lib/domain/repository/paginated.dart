@@ -68,6 +68,9 @@ abstract class Paginated<K extends Comparable, T> {
   /// disposes when canceled.
   Stream<void> get updates => _controller.stream;
 
+  /// Returns the [Iterable] of [T] items kept in [items].
+  Iterable<T> get values => items.values;
+
   /// Ensures this [Paginated] is initialized.
   Future<void> ensureInitialized();
 

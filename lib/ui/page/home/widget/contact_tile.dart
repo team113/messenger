@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -175,29 +176,16 @@ class ContactTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Builder(builder: (context) {
-                          Widget name() => Text(
-                                contact?.contact.value.name.val ??
-                                    user?.user.value.name?.val ??
-                                    user?.user.value.num.toString() ??
-                                    myUser?.name?.val ??
-                                    myUser?.num.toString() ??
-                                    (myUser == null
-                                        ? 'dot'.l10n * 3
-                                        : 'btn_your_profile'.l10n),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: selected
-                                    ? style.fonts.big.regular.onPrimary
-                                    : style.fonts.big.regular.onBackground,
-                              );
-
-                          if (contact != null || user != null) {
-                            return Obx(() => name());
-                          } else {
-                            return name();
-                          }
-                        }),
+                        if (contact != null || user != null)
+                          Obx(() {
+                            return _name(
+                              context,
+                              contact: contact?.contact.value,
+                              user: user?.user.value,
+                            );
+                          })
+                        else
+                          _name(context),
                         ...subtitle,
                       ],
                     ),
@@ -209,6 +197,28 @@ class ContactTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _name(
+    BuildContext context, {
+    ChatContact? contact,
+    User? user,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Text(
+      contact?.name.val ??
+          user?.name?.val ??
+          user?.num.toString() ??
+          myUser?.name?.val ??
+          myUser?.num.toString() ??
+          (myUser == null ? 'dot'.l10n * 3 : 'btn_your_profile'.l10n),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      style: selected
+          ? style.fonts.big.regular.onPrimary
+          : style.fonts.big.regular.onBackground,
     );
   }
 

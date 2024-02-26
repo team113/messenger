@@ -117,10 +117,9 @@ class ParticipantView extends StatelessWidget {
                 final RxUser? me = c.chat.value!.members.items[c.me];
                 final List<RxUser> members = [];
 
-                for (var u in c.chat.value!.members.items.entries) {
-                  if (u.key != c.me) {
-                    members.add(u.value);
-                  }
+                for (var u in c.chat.value!.members.items.entries
+                    .where((e) => e.key != c.me)) {
+                  members.add(u.value);
                 }
 
                 if (me != null) {
@@ -156,7 +155,7 @@ class ParticipantView extends StatelessWidget {
                             shrinkWrap: true,
                             controller: c.scrollController,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            children: members.map((user) {
+                            children: members.mapIndexed((i, user) {
                               bool inCall = false;
                               bool isRedialed = false;
 
@@ -187,12 +186,12 @@ class ParticipantView extends StatelessWidget {
                                 onKick: () => c.removeChatMember(user.id),
                               );
 
-                              if (user == members.last &&
+                              if (i == members.length - 1 &&
                                   c.chat.value!.members.hasNext.isTrue) {
                                 child = Column(
                                   children: [
                                     child,
-                                    const CustomProgressIndicator()
+                                    const CustomProgressIndicator(),
                                   ],
                                 );
                               }
@@ -224,7 +223,6 @@ class ParticipantView extends StatelessWidget {
                   ),
                 );
               });
-
               break;
           }
 
