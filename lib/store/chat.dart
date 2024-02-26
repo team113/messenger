@@ -2199,7 +2199,7 @@ class ChatRepository extends DisposableInterface
                   } else {
                     // If there is no chat in local storage, [get] will fetch it
                     // from the remote and put to the local storage.
-                    //await get(event.chatId);
+                    await get(event.chatId);
                   }
                 }
                 break;
