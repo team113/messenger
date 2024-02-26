@@ -27,6 +27,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/service/blocklist.dart';
+import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/add_email/controller.dart';
 import 'package:messenger/ui/page/login/controller.dart';
 import 'package:messenger/ui/widget/phone_field.dart';
@@ -69,6 +70,7 @@ class MyProfileController extends GetxController {
     this._settingsRepo,
     this._chatService,
     this._blocklistService,
+    this._userService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -87,6 +89,8 @@ class MyProfileController extends GetxController {
   /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
   final ItemPositionsListener positionsListener =
       ItemPositionsListener.create();
+
+  final ScrollController blocklistScrollController = ScrollController();
 
   /// Index of the initial profile page section to show in a
   /// [ScrollablePositionedList].
@@ -215,6 +219,7 @@ class MyProfileController extends GetxController {
   final RxSet<(OAuthProvider, UserCredential)> providers = RxSet();
 
   final RxBool linkEditing = RxBool(false);
+  final RxBool moneyEditing = RxBool(false);
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -226,6 +231,8 @@ class MyProfileController extends GetxController {
 
   /// [BlocklistService] maintaining the blocked [User]s.
   final BlocklistService _blocklistService;
+
+  final UserService _userService;
 
   /// Reactive list of sorted blocked [RxUser]s.
   final RxList<RxUser> blocklist = RxList();
@@ -289,6 +296,11 @@ class MyProfileController extends GetxController {
       ];
 
   final RxBool expanded = RxBool(false);
+
+  final RxInt allMessagePrice = RxInt(0);
+  final RxInt allCallPrice = RxInt(0);
+  final RxInt contactMessagePrice = RxInt(0);
+  final RxInt contactCallPrice = RxInt(0);
 
   @override
   void onInit() {
@@ -557,36 +569,61 @@ class MyProfileController extends GetxController {
       },
     );
 
-    allMessageCost =
-        TextFieldState(approvable: true, allowable: true, text: '0');
-    allMessageCost.isFocused.listen((b) {
-      if (!b && allMessageCost.text.isEmpty) {
-        allMessageCost.unchecked = '0';
-      }
-    });
+    allMessageCost = TextFieldState(
+      approvable: true,
+      text: '',
+      onSubmitted: (s) {
+        allMessagePrice.value =
+            int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
+      },
+    );
+    // allMessageCost.isFocused.listen((b) {
+    //   if (!b && allMessageCost.text.isEmpty) {
+    //     allMessageCost.unchecked = '0';
+    //   }
+    // });
 
-    allCallCost = TextFieldState(approvable: true, allowable: true, text: '0');
-    allCallCost.isFocused.listen((b) {
-      if (!b && allCallCost.text.isEmpty) {
-        allCallCost.unchecked = '0';
-      }
-    });
+    allCallCost = TextFieldState(
+      approvable: true,
+      text: '',
+      onSubmitted: (s) {
+        allCallPrice.value =
+            int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
+      },
+    );
+    // allCallCost.isFocused.listen((b) {
+    //   if (!b && allCallCost.text.isEmpty) {
+    //     allCallCost.unchecked = '0';
+    //   }
+    // });
 
-    contactMessageCost =
-        TextFieldState(approvable: true, allowable: true, text: '0');
-    contactMessageCost.isFocused.listen((b) {
-      if (!b && contactMessageCost.text.isEmpty) {
-        contactMessageCost.unchecked = '0';
-      }
-    });
+    contactMessageCost = TextFieldState(
+      approvable: true,
+      text: '',
+      onSubmitted: (s) {
+        contactMessagePrice.value =
+            int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
+      },
+    );
+    // contactMessageCost.isFocused.listen((b) {
+    //   if (!b && contactMessageCost.text.isEmpty) {
+    //     contactMessageCost.unchecked = '0';
+    //   }
+    // });
 
-    contactCallCost =
-        TextFieldState(approvable: true, allowable: true, text: '0');
-    contactCallCost.isFocused.listen((b) {
-      if (!b && contactCallCost.text.isEmpty) {
-        contactCallCost.unchecked = '0';
-      }
-    });
+    contactCallCost = TextFieldState(
+      approvable: true,
+      text: '',
+      onSubmitted: (s) {
+        contactCallPrice.value =
+            int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
+      },
+    );
+    // contactCallCost.isFocused.listen((b) {
+    //   if (!b && contactCallCost.text.isEmpty) {
+    //     contactCallCost.unchecked = '0';
+    //   }
+    // });
 
     donateCost = TextFieldState(approvable: true, allowable: true, text: '0');
     donateCost.isFocused.listen((b) {
@@ -807,6 +844,11 @@ class MyProfileController extends GetxController {
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled) =>
       _settingsRepo.setWorkWithUsTabEnabled(enabled);
+
+  /// Removes the [user] from the blocklist of the authenticated [MyUser].
+  Future<void> unblock(RxUser user) async {
+    await _userService.unblockUser(user.id);
+  }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -55,6 +56,7 @@ class ContactTile extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.title,
+    this.basement,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [MyUser] to display.
@@ -121,11 +123,21 @@ class ContactTile extends StatelessWidget {
 
   final String? title;
 
+  final Widget? basement;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     final Color chosen = active ? style.activeColor : style.selectedColor;
+
+    final newGreenColor = Color.alphaBlend(
+      style.colors.acceptPrimary.withOpacity(0.1),
+      style.colors.onPrimary,
+    );
+
+    final Border paidBorder =
+        Border.all(color: style.colors.acceptPrimary, width: 0.5);
 
     return ContextMenuRegion(
       key: contact != null || user != null
@@ -139,86 +151,129 @@ class ContactTile extends StatelessWidget {
         padding: margin,
         child: InkWellWithHover(
           // selectedColor: style.colors.primary,
-          selectedColor: chosen,
+          selectedColor: basement != null ? style.colors.acceptPrimary : chosen,
           // selectedColor: style.colors.onSecondaryOpacity50,
           unselectedColor: style.cardColor.darken(darken),
           selected: selected,
           hoveredBorder:
               selected ? style.cardSelectedBorder : style.cardHoveredBorder,
-          border: selected ? style.cardSelectedBorder : style.cardBorder,
+          border: basement == null
+              ? paidBorder
+              : selected
+                  ? style.cardSelectedBorder
+                  : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
           // unselectedHoverColor: style.cardColor.darken(darken + 0.03),
-          unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor: chosen,
+          unselectedHoverColor:
+              basement != null ? newGreenColor : style.cardHoveredColor,
+          selectedHoverColor:
+              basement != null ? style.colors.acceptPrimary : chosen,
           folded: contact?.contact.value.favoritePosition != null,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: height),
-            // height: height,
-            child: Padding(
-              key: contact?.contact.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                  : null,
-              // padding: EdgeInsets.symmetric(
-              //   horizontal: 12,
-              //   vertical: dense ? 11 : 14,
-              // ),
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-              child: Row(
-                children: [
-                  ...leading,
-                  avatarBuilder(
-                    contact != null
-                        ? AvatarWidget.fromRxContact(
-                            contact,
-                            radius: dense ? AvatarRadius.medium : radius,
-                          )
-                        : user != null
-                            ? AvatarWidget.fromRxUser(
-                                user,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: height,
+                child: Padding(
+                  key: contact?.contact.value.favoritePosition != null
+                      ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                      : null,
+                  padding: EdgeInsets.fromLTRB(
+                    12,
+                    basement == null ? 4 : 8,
+                    12,
+                    basement == null ? 4 : 0,
+                  ),
+                  child: Row(
+                    children: [
+                      ...leading,
+                      avatarBuilder(
+                        contact != null
+                            ? AvatarWidget.fromRxContact(
+                                contact,
                                 radius: dense ? AvatarRadius.medium : radius,
                               )
-                            : AvatarWidget.fromMyUser(
-                                myUser,
-                                radius: dense ? AvatarRadius.medium : radius,
-                              ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
+                            : user != null
+                                ? AvatarWidget.fromRxUser(
+                                    user,
+                                    radius:
+                                        dense ? AvatarRadius.medium : radius,
+                                  )
+                                : AvatarWidget.fromMyUser(
+                                    myUser,
+                                    radius:
+                                        dense ? AvatarRadius.medium : radius,
+                                  ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Expanded(
-                              child: Text(
-                                title ??
-                                    contact?.contact.value.name.val ??
-                                    user?.user.value.name?.val ??
-                                    user?.user.value.num.toString() ??
-                                    myUser?.name?.val ??
-                                    myUser?.num.toString() ??
-                                    (myUser == null
-                                        ? '...'
-                                        : 'btn_your_profile'.l10n),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: selected
-                                    ? style.fonts.big.regular.onPrimary
-                                    : style.fonts.big.regular.onBackground,
-                              ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    title ??
+                                        contact?.contact.value.name.val ??
+                                        user?.user.value.name?.val ??
+                                        user?.user.value.num.toString() ??
+                                        myUser?.name?.val ??
+                                        myUser?.num.toString() ??
+                                        (myUser == null
+                                            ? '...'
+                                            : 'btn_your_profile'.l10n),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: selected
+                                        ? style.fonts.big.regular.onPrimary
+                                        : style.fonts.big.regular.onBackground,
+                                  ),
+                                ),
+                              ],
                             ),
+                            ...subtitle,
                           ],
                         ),
-                        ...subtitle,
-                      ],
+                      ),
+                      ...trailing,
+                    ],
+                  ),
+                ),
+              ),
+              if (basement != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: WidgetButton(
+                    // onPressed: widget.onBasementPressed,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // color: style.colors.onBackgroundOpacity7,
+                        color: selected
+                            ? style.colors.onBackgroundOpacity7
+                            : style.colors.acceptPrimary.withOpacity(0.1),
+
+                        borderRadius: style.cardRadius.copyWith(
+                          topLeft: Radius.zero,
+                          topRight: Radius.zero,
+                        ),
+                      ),
+                      margin: const EdgeInsets.fromLTRB(2, 0, 2, 2),
+                      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+                      child: DefaultTextStyle(
+                        style: style.fonts.small.regular.onPrimary.copyWith(
+                          color: selected
+                              ? style.colors.onPrimary
+                              : style.colors.primary,
+                        ),
+                        child: basement!,
+                      ),
                     ),
                   ),
-                  ...trailing,
-                ],
-              ),
-            ),
+                ),
+            ],
           ),
         ),
       ),

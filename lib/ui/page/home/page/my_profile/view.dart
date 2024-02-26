@@ -38,6 +38,7 @@ import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
+import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/page/user/widget/prices.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
@@ -109,11 +110,15 @@ class MyProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -356,7 +361,46 @@ class MyProfileView extends StatelessWidget {
                       return Stack(
                         children: [
                           block(
-                            title: 'Монетизация'.l10n,
+                            title: 'Монетизация (входящие)'.l10n,
+                            padding: const EdgeInsets.fromLTRB(
+                              32, // - 8,
+                              16,
+                              32, // - 8,
+                              16,
+                            ),
+                            overlay: [
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Center(
+                                  child: SelectionContainer.disabled(
+                                    child: AnimatedButton(
+                                      onPressed: c.moneyEditing.toggle,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          6,
+                                          6,
+                                          0,
+                                          6,
+                                        ),
+                                        child: Obx(() {
+                                          return c.moneyEditing.value
+                                              ? const Padding(
+                                                  padding: EdgeInsets.all(2),
+                                                  child: SvgIcon(
+                                                    SvgIcons.closeSmallPrimary,
+                                                  ),
+                                                )
+                                              : const SvgIcon(
+                                                  SvgIcons.editSmall,
+                                                );
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                             children: [_getPaid(context, c)],
                           ),
                           Positioned.fill(
@@ -422,7 +466,7 @@ class MyProfileView extends StatelessWidget {
                       return Stack(
                         children: [
                           block(
-                            title: 'label_donates'.l10n,
+                            title: 'Монетизация (донаты)'.l10n,
                             children: [_donates(context, c)],
                           ),
                           Positioned.fill(
@@ -1508,94 +1552,136 @@ Widget _sections(BuildContext context, MyProfileController c) {
 Widget _getPaid(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  Widget title(String label) {
+  return Obx(() {
+    final List<Widget> children;
+
+    if (c.moneyEditing.value) {
+      children = [
+        // Text(
+        //   'Пользователи платят Вам за отправку Вам сообщений и совершение звонков.',
+        //   style: style.fonts.small.regular.secondary,
+        // ),
+        // const SizedBox(height: 24),
+        const LineDivider('От всех пользователей'),
+        const SizedBox(height: 8 + 8 + 8),
+        MoneyField(
+          state: c.allMessageCost,
+          label: 'Входящие сообщения, за 1 сообщение',
+        ),
+        const SizedBox(height: 24),
+        MoneyField(
+          state: c.allCallCost,
+          label: 'Входящие звонки, за 1 минуту',
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Кроме Ваших контактов и индивидуальных пользователей.',
+          style: style.fonts.small.regular.secondary,
+        ),
+        const SizedBox(height: 24),
+        const LineDivider('От Ваших контактов'),
+        const SizedBox(height: 8 + 8 + 8),
+        MoneyField(
+          state: c.contactMessageCost,
+          label: 'Входящие сообщения, за 1 сообщение',
+        ),
+        const SizedBox(height: 24),
+        MoneyField(
+          state: c.contactCallCost,
+          label: 'Входящие звонки, за 1 минуту',
+        ),
+      ];
+    } else {
+      children = [
+        Text(
+          'Пользователи платят Вам за отправку Вам сообщений и совершение звонков.',
+          style: style.fonts.small.regular.secondary,
+        ),
+        const SizedBox(height: 24),
+        const LineDivider('От всех пользователей'),
+        const SizedBox(height: 8),
+        Prices(
+          calls: c.allCallPrice.value,
+          messages: c.allMessagePrice.value,
+          onMessagesPressed: () {
+            c.moneyEditing.value = true;
+            c.allMessageCost.focus.requestFocus();
+          },
+          onCallsPressed: () {
+            c.moneyEditing.value = true;
+            c.allCallCost.focus.requestFocus();
+          },
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Кроме Ваших контактов и индивидуальных пользователей.',
+          style: style.fonts.small.regular.secondary,
+        ),
+        const SizedBox(height: 24),
+        const LineDivider('От Ваших контактов'),
+        const SizedBox(height: 8),
+        Prices(
+          calls: c.contactCallPrice.value,
+          messages: c.contactMessagePrice.value,
+          onMessagesPressed: () {
+            c.moneyEditing.value = true;
+            c.contactMessageCost.focus.requestFocus();
+          },
+          onCallsPressed: () {
+            c.moneyEditing.value = true;
+            c.contactCallCost.focus.requestFocus();
+          },
+        ),
+        const SizedBox(height: 24),
+        const LineDivider('От индивидуальных пользователей'),
+        const SizedBox(height: 8),
+        _blocklist(context, c),
+      ];
+    }
+
+    return AnimatedSizeAndFade(
+      sizeDuration: const Duration(milliseconds: 300),
+      fadeDuration: const Duration(milliseconds: 300),
+      child: Column(
+        key: Key(c.moneyEditing.value.toString()),
+        children: children,
+      ),
+    );
+  });
+}
+
+Widget _blocklist(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  Widget info(BuildContext context, Widget child) {
     final style = Theme.of(context).style;
 
-    return Paddings.dense(
-      Align(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 0.0),
-          child: Text(
-            label,
-            style: style.systemMessageStyle.copyWith(
-              color: style.colors.secondary,
-              fontSize: 15,
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.center,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: DefaultTextStyle(
+            style: style.systemMessageStyle,
+            child: child,
           ),
         ),
       ),
     );
   }
 
-  return Column(
-    children: [
-      Text(
-        'Пользователи платят Вам за отправку Вам сообщений и совершение звонков.',
-        style: style.fonts.small.regular.secondary,
-      ),
-      const SizedBox(height: 24),
-      const LineDivider(
-        'От всех пользователей',
-      ),
-      const SizedBox(height: 8),
-      Prices(
-        calls: int.tryParse(c.allCallCost.text) ?? 0,
-        messages: int.tryParse(c.allMessageCost.text) ?? 0,
-      ),
-      const SizedBox(height: 8),
-      Text(
-        'Кроме Ваших контактов и индивидуальных пользователей.',
-        style: style.fonts.small.regular.secondary,
-      ),
-      const SizedBox(height: 24),
-      const LineDivider('От Ваших контактов'),
-      const SizedBox(height: 8),
-      Prices(
-        calls: int.tryParse(c.contactCallCost.text) ?? 0,
-        messages: int.tryParse(c.contactMessageCost.text) ?? 0,
-      ),
-      const SizedBox(height: 24),
-      const LineDivider('От индивидуальных пользователей'),
-      const SizedBox(height: 8),
-      _blocklist(context, c),
-      // Paddings.dense(
-      //   FieldButton(
-      //     text: 'label_users_of'.l10n,
-      //     onPressed:
-      //         !c.verified.value ? null : () => PaidListView.show(context),
-      //     trailing: Text(
-      //       '0',
-      //       style: style.fonts.medium.regular.onBackground.copyWith(
-      //         fontSize: 15,
-      //         color: !c.verified.value
-      //             ? style.colors.secondary
-      //             : style.colors.onBackground,
-      //       ),
-      //     ),
-      //     style: TextStyle(
-      //       color: !c.verified.value
-      //           ? style.colors.secondary
-      //           : style.colors.onBackground,
-      //     ),
-      //   ),
-      // ),
-      // const SizedBox(height: 16),
-      Opacity(opacity: 0, child: _verification(context, c)),
-    ],
-  );
-}
-
-Widget _blocklist(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Obx(() {
     // Show only users with [User.isBlocked] for optimistic
     // deletion from blocklist.
-    final Iterable<RxUser> blocklist =
-        c.blocklist.where((e) => e.user.value.isBlocked != null);
+    final Iterable<RxUser> blocklist = c.blocklist
+        .where((e) => e.user.value.isBlocked != null)
+        .map((e) => [e, e, e, e, e, e, e, e, e, e, e])
+        .expand((e) => e);
 
     if (c.blocklistStatus.value.isLoading) {
       return SizedBox(
@@ -1607,55 +1693,116 @@ Widget _blocklist(BuildContext context, MyProfileController c) {
     } else if (blocklist.isEmpty) {
       return Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 8),
-        child: Text('label_no_users'.l10n),
+        child: info(
+          context,
+          Text(
+            'Не установлено'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ),
       );
     } else {
       return Scrollbar(
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemBuilder: (context, i) {
-            final RxUser e = blocklist.elementAt(i);
+        controller: c.blocklistScrollController,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 400),
+          child: ListView.builder(
+            // padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            controller: c.blocklistScrollController,
+            shrinkWrap: true,
+            itemBuilder: (context, i) {
+              final RxUser e = blocklist.elementAt(i);
 
-            return MemberTile(
-              user: e,
-              onTap: () => router.user(e.id, push: true),
-              subtitle: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Сообщение: ',
-                        style: style.fonts.small.regular.secondary,
+              return ContactTile(
+                user: e,
+                onTap: () => router.user(e.id, push: true, scrollToPaid: true),
+                basement: Row(
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Сообщение: ',
+                            style: style.fonts.small.regular.secondary,
+                          ),
+                          TextSpan(
+                            text: '¤123',
+                            style: style.fonts.small.regular.primary.copyWith(
+                              color: style.colors.acceptPrimary,
+                            ),
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: '¤123',
-                        style: style.fonts.small.regular.primary.copyWith(
-                          color: style.colors.acceptPrimary,
-                        ),
+                    ),
+                    const Spacer(),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Звонок: ',
+                            style: style.fonts.small.regular.secondary,
+                          ),
+                          TextSpan(
+                            text: '¤123/мин',
+                            style: style.fonts.small.regular.primary.copyWith(
+                              color: style.colors.acceptPrimary,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Звонок: ',
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                      TextSpan(
-                        text: '¤123/мин',
-                        style: style.fonts.small.regular.primary.copyWith(
-                          color: style.colors.acceptPrimary,
-                        ),
-                      ),
-                    ],
+                height: 36,
+                trailing: [
+                  AnimatedButton(
+                    onPressed: () async {
+                      final bool inContacts = false;
+
+                      final name = TextSpan(
+                        text: e.user.value.name?.val ??
+                            e.user.value.num.toString(),
+                        style: style.fonts.normal.regular.onBackground,
+                      );
+
+                      final bool? result = await MessagePopup.alert(
+                        'Изменение тарификации',
+                        description: [
+                          const TextSpan(
+                            text:
+                                'Индивидуальные настройки оплаты входящих сообщений и звонков от ',
+                          ),
+                          name,
+                          const TextSpan(
+                              text: ' будут удалены.\n\nК пользователю '),
+                          name,
+                          const TextSpan(
+                            text:
+                                ' будут применены общие настройки тарификации входящих сообщений и звонков.',
+                          ),
+                        ],
+                        additional: [
+                          const SizedBox(height: 16),
+                          const LineDivider('От Ваших контактов'),
+                          const SizedBox(height: 8),
+                          const Prices(messages: 0, calls: 0),
+                        ],
+                      );
+
+                      if (result == true) {
+                        await c.unblock(e);
+                      }
+                    },
+                    child: const SvgIcon(
+                      SvgIcons.delete,
+                      key: Key('DeleteMemberButton'),
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
-          itemCount: blocklist.length,
+                ],
+              );
+            },
+            itemCount: blocklist.length,
+          ),
         ),
       );
     }

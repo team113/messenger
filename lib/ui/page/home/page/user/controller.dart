@@ -20,6 +20,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
@@ -234,7 +235,19 @@ class UserController extends GetxController {
     });
 
     if (scrollToPaid) {
-      initialScrollIndex = isBlocked == null ? 2 : 3;
+      initialScrollIndex = isBlocked == null ? 6 : 7;
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (scrollController.hasClients) {
+            if (scrollController.position.pixels >
+                scrollController.position.maxScrollExtent) {
+              scrollController
+                  .jumpTo(scrollController.position.maxScrollExtent);
+            }
+          }
+          // itemScrollController.jumpTo(index: initialScrollIndex);
+        });
+      });
     } else {
       initialScrollIndex = 0;
     }
@@ -465,12 +478,7 @@ class UserController extends GetxController {
       if (user != null) {
         messageCost = TextFieldState(
           approvable: true,
-          // allowable: true,
           text: '',
-          // text: user!.user.value.messageCost == 0
-          //     ? '0.00'
-          //     : '${user!.user.value.messageCost.toString()}.00',
-          // text: user!.user.value.messageCost.toString(),
           onChanged: (s) {
             user?.user.value.messageCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
@@ -478,10 +486,6 @@ class UserController extends GetxController {
           onSubmitted: (s) {
             messagePrice.value =
                 int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
-
-            // if (!s.text.contains('.')) {
-            //   s.unchecked = '${s.text}.00';
-            // }
           },
         );
 

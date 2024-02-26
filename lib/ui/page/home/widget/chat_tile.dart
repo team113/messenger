@@ -177,8 +177,6 @@ class _ChatTileState extends State<ChatTile> {
               : widget.highlight
                   ? paid.darken(0.03)
                   : style.cardHoveredColor,
-          // unselectedHoverColor:
-          //     (widget.highlight ? paid : normal).darken(0.03),
           border: widget.selected
               ? widget.basement == null
                   ? chosenBorder
@@ -193,12 +191,10 @@ class _ChatTileState extends State<ChatTile> {
               widget.basement != null ? style.colors.acceptPrimary : null,
           child: Column(
             children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: widget.basement == null
-                      ? widget.height
-                      : widget.height - 14,
-                ),
+              SizedBox(
+                height: widget.basement == null
+                    ? widget.height
+                    : widget.height - 14,
                 child: Padding(
                   key: widget.chat?.chat.value.favoritePosition != null
                       ? Key('FavoriteIndicator_${widget.chat?.chat.value.id}')

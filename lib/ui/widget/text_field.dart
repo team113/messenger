@@ -42,18 +42,19 @@ class ReactiveTextField extends StatelessWidget {
     this.enabled = true,
     this.fillColor,
     this.filled,
-    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.focusNode,
     this.formatters,
     this.hint,
     this.icon,
     this.label,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.maxLength,
     this.maxLines = 1,
     this.minLines,
     this.obscure = false,
     this.onChanged,
     this.onSuffixPressed,
+    this.onCanceled,
     this.padding,
     this.prefix,
     this.prefixIcon,
@@ -76,7 +77,6 @@ class ReactiveTextField extends StatelessWidget {
     this.subtitle,
     this.clearable = true,
     this.selectable,
-    this.onCanceled,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -120,6 +120,9 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional label of this [ReactiveTextField].
   final String? label;
 
+  /// [FloatingLabelBehavior] of this [ReactiveTextField].
+  final FloatingLabelBehavior floatingLabelBehavior;
+
   /// Optional hint of this [ReactiveTextField].
   final String? hint;
 
@@ -153,7 +156,12 @@ class ReactiveTextField extends StatelessWidget {
   /// Callback, called when user presses the [suffix].
   ///
   /// Only meaningful if [suffix] is non-`null`.
-  final VoidCallback? onSuffixPressed;
+  final void Function()? onSuffixPressed;
+
+  /// Callback, called when user presses the cancel button.
+  ///
+  /// If `null`, then no cancel button will be displayed.
+  final void Function()? onCanceled;
 
   /// Optional text prefix to display before the input.
   final String? prefixText;
@@ -183,8 +191,6 @@ class ReactiveTextField extends StatelessWidget {
 
   final bool readOnly;
 
-  final FloatingLabelBehavior floatingLabelBehavior;
-
   /// Indicator whether this [ReactiveTextField] should display a save button,
   /// when being empty, if [state] is approvable.
   final bool clearable;
@@ -192,8 +198,6 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether text within this [ReactiveTextField] should be
   /// selectable.
   final bool? selectable;
-
-  final void Function()? onCanceled;
 
   @override
   Widget build(BuildContext context) {
@@ -226,105 +230,189 @@ class ReactiveTextField extends StatelessWidget {
       final style = Theme.of(context).style;
 
       return Obx(() {
+        final RxStatus status = state.status.value;
+        final bool hasError =
+            status.isError || (state.error.value != null && treatErrorAsStatus);
         final bool hasSuffix = state.approvable ||
             suffix != null ||
             trailing != null ||
-            !state.status.value.isEmpty;
+            !status.isEmpty ||
+            hasError ||
+            onCanceled != null;
 
-        return AnimatedButton(
-          onPressed: state.approvable &&
-                  (state.changed.value || state.hasAllowance.value)
-              ? state.isEmpty.value && !clearable
-                  ? null
-                  : state.submit
-              : (state.allowable && !state.hasAllowance.value)
-                  ? () {
-                      state.hasAllowance.value = true;
-                      state.focus.requestFocus();
-                    }
-                  : state.error.value != null ||
-                          state.status.value == RxStatus.error()
-                      ? onCanceled
-                      : onSuffixPressed,
-          decorator: (child) {
-            if (!hasSuffix) {
-              return child;
-            }
+        final Widget cancelButton = AllowOverflow(
+          key: const ValueKey('Cancel'),
+          child: Text(
+            'btn_cancel'.l10n,
+            style: style.fonts.small.regular.primary,
+          ),
+        );
 
-            return Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: child,
-            );
-          },
-          child: ElasticAnimatedSwitcher(
-            child: hasSuffix
-                ? SizedBox(
-                    height: 24,
-                    child: ElasticAnimatedSwitcher(
-                      child: state.status.value.isLoading
-                          ? const SvgIcon(SvgIcons.timer)
-                          : (state.error.value != null && treatErrorAsStatus) ||
-                                  state.status.value.isError
-                              ? onCanceled == null
-                                  ? const SizedBox(
-                                      key: ValueKey('Error'),
-                                      // width: 24,
-                                      // child: SvgIcon(SvgIcons.errorBig),
-                                    )
-                                  : AllowOverflow(
-                                      key: const ValueKey('Cancel'),
-                                      child: Text(
-                                        'btn_cancel'.l10n,
-                                        style:
-                                            style.fonts.small.regular.primary,
-                                      ),
-                                    )
-                              : (state.approvable &&
-                                      (state.changed.value ||
-                                          state.hasAllowance.value))
-                                  ? AllowOverflow(
-                                      key: const ValueKey('Approve'),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 8),
+        Widget? child;
+
+        if (hasSuffix) {
+          child = SizedBox(
+            height: 48,
+            child: AnimatedButton(
+              onPressed: state.approvable &&
+                      (state.changed.value || state.resubmitOnError.isTrue)
+                  ? state.isEmpty.value && !clearable
+                      ? null
+                      : state.submit
+                  : onCanceled ?? onSuffixPressed,
+              decorator: (child) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 16),
+                  child: child,
+                );
+              },
+              child: ElasticAnimatedSwitcher(
+                child: status.isLoading
+                    ? const SvgIcon(key: Key('Loading'), SvgIcons.timer)
+                    : status.isSuccess
+                        ? SizedBox(
+                            key: const ValueKey('Success'),
+                            width: 24,
+                            child: Icon(
+                              Icons.check,
+                              size: 18,
+                              color: style.colors.acceptAuxiliary,
+                            ),
+                          )
+                        : hasError
+                            ? onCanceled != null
+                                ? cancelButton
+                                : SizedBox(
+                                    key: const ValueKey('Error'),
+                                    width: 24,
+                                    child: Icon(
+                                      Icons.error,
+                                      size: 18,
+                                      color: style.colors.danger,
+                                    ),
+                                  )
+                            : (state.approvable &&
+                                    (state.changed.value ||
+                                        state.resubmitOnError.isTrue))
+                                ? state.isEmpty.value && !clearable
+                                    ? null
+                                    : AllowOverflow(
+                                        key: const ValueKey('Approve'),
                                         child: Text(
                                           'btn_save'.l10n,
                                           style:
                                               style.fonts.small.regular.primary,
                                         ),
+                                      )
+                                : onCanceled != null
+                                    ? cancelButton
+                                    : SizedBox(
+                                        key: const ValueKey('Icon'),
+                                        width: 24,
+                                        child: suffix != null
+                                            ? Icon(suffix)
+                                            : trailing,
                                       ),
-                                    )
-                                  : (state.allowable &&
-                                          !state.hasAllowance.value)
-                                      ? AllowOverflow(
-                                          key: const ValueKey('Allow'),
-                                          child: Text(
-                                            'Изменить'.l10n,
-                                            style: style
-                                                .fonts.small.regular.primary,
-                                          ),
-                                        )
-                                      : SizedBox(
-                                          key: const ValueKey('Icon'),
-                                          width: trailingWidth == null
-                                              ? null
-                                              : (trailingWidth! +
-                                                  (PlatformUtils.isWeb
-                                                      ? 6
-                                                      : 0)),
-                                          child: Transform.translate(
-                                            offset: const Offset(5, 0),
-                                            child: suffix != null
-                                                ? Icon(suffix)
-                                                : trailing == null
-                                                    ? Container()
-                                                    : trailing!,
-                                          ),
-                                        ),
-                    ),
-                  )
-                : const SizedBox(width: 1, height: 0),
-          ),
-        );
+              ),
+            ),
+          );
+        }
+
+        return ElasticAnimatedSwitcher(child: child);
+
+        // return AnimatedButton(
+        //   onPressed: state.approvable &&
+        //           (state.changed.value || state.hasAllowance.value)
+        //       ? state.isEmpty.value && !clearable
+        //           ? null
+        //           : state.submit
+        //       : (state.allowable && !state.hasAllowance.value)
+        //           ? () {
+        //               state.hasAllowance.value = true;
+        //               state.focus.requestFocus();
+        //             }
+        //           : state.error.value != null || status == RxStatus.error()
+        //               ? onCanceled
+        //               : onSuffixPressed,
+        //   decorator: (child) {
+        //     if (!hasSuffix) {
+        //       return child;
+        //     }
+
+        //     return Padding(
+        //       padding: const EdgeInsets.only(right: 20),
+        //       child: child,
+        //     );
+        //   },
+        //   child: ElasticAnimatedSwitcher(
+        //     child: hasSuffix
+        //         ? SizedBox(
+        //             height: 24,
+        //             child: ElasticAnimatedSwitcher(
+        //               child: status.isLoading
+        //                   ? const SvgIcon(SvgIcons.timer)
+        //                   : (state.error.value != null && treatErrorAsStatus) ||
+        //                           status.isError
+        //                       ? onCanceled == null
+        //                           ? const SizedBox(
+        //                               key: ValueKey('Error'),
+        //                               // width: 24,
+        //                               // child: SvgIcon(SvgIcons.errorBig),
+        //                             )
+        //                           : AllowOverflow(
+        //                               key: const ValueKey('Cancel'),
+        //                               child: Text(
+        //                                 'btn_cancel'.l10n,
+        //                                 style:
+        //                                     style.fonts.small.regular.primary,
+        //                               ),
+        //                             )
+        //                       : (state.approvable &&
+        //                               (state.changed.value ||
+        //                                   state.hasAllowance.value))
+        //                           ? AllowOverflow(
+        //                               key: const ValueKey('Approve'),
+        //                               child: Padding(
+        //                                 padding: const EdgeInsets.only(left: 8),
+        //                                 child: Text(
+        //                                   'btn_save'.l10n,
+        //                                   style:
+        //                                       style.fonts.small.regular.primary,
+        //                                 ),
+        //                               ),
+        //                             )
+        //                           : (state.allowable &&
+        //                                   !state.hasAllowance.value)
+        //                               ? AllowOverflow(
+        //                                   key: const ValueKey('Allow'),
+        //                                   child: Text(
+        //                                     'Изменить'.l10n,
+        //                                     style: style
+        //                                         .fonts.small.regular.primary,
+        //                                   ),
+        //                                 )
+        //                               : SizedBox(
+        //                                   key: const ValueKey('Icon'),
+        //                                   width: trailingWidth == null
+        //                                       ? null
+        //                                       : (trailingWidth! +
+        //                                           (PlatformUtils.isWeb
+        //                                               ? 6
+        //                                               : 0)),
+        //                                   child: Transform.translate(
+        //                                     offset: const Offset(5, 0),
+        //                                     child: suffix != null
+        //                                         ? Icon(suffix)
+        //                                         : trailing == null
+        //                                             ? Container()
+        //                                             : trailing!,
+        //                                   ),
+        //                                 ),
+        //             ),
+        //           )
+        //         : const SizedBox(width: 1, height: 0),
+        //   ),
+        // );
       });
     }
 
@@ -343,8 +431,6 @@ class ReactiveTextField extends StatelessWidget {
                   : decoration.border
               : null;
 
-      // final floatingLabel = style.fonts.big.regular.onBackground
-      //     .copyWith(color: style.colors.primary);
       final floatingLabel = state.error.value?.isNotEmpty == true
           ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
           : state.allowable && state.hasAllowance.value
@@ -397,11 +483,11 @@ class ReactiveTextField extends StatelessWidget {
                   (!enabled || !state.editable.value),
               enabled: enabled,
               decoration: InputDecoration(
+                alignLabelWithHint: false,
                 labelStyle:
                     floatingLabelBehavior == FloatingLabelBehavior.always
                         ? floatingLabel
                         : null,
-                alignLabelWithHint: false,
                 floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
                 focusedBorder: state.editable.value
@@ -421,13 +507,14 @@ class ReactiveTextField extends StatelessWidget {
                 prefix: prefix,
                 prefixIcon: prefixIcon,
                 prefixIconColor: prefixIconColor,
-                fillColor: readOnly
-                    ? style.colors.onBackgroundOpacity7.withOpacity(0.03)
-                    : fillColor ?? style.colors.onPrimary,
+                fillColor: // readOnly
+                    // ? style.colors.onBackgroundOpacity7.withOpacity(0.03)
+                    // :
+                    fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,
                 contentPadding: contentPadding,
-                suffixIcon:
-                    dense == true || !withTrailing ? null : buildSuffix(),
+                suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIconConstraints: const BoxConstraints(minWidth: 16),
                 icon: icon == null
                     ? null
                     : Padding(
@@ -435,14 +522,14 @@ class ReactiveTextField extends StatelessWidget {
                         child: Icon(icon),
                       ),
                 labelText: label,
+                hintText: hint,
+                hintMaxLines: 1,
                 hintStyle: this.style?.copyWith(
                       color: Theme.of(context)
                           .inputDecorationTheme
                           .hintStyle
                           ?.color,
                     ),
-                hintText: hint,
-                hintMaxLines: 1,
 
                 // Hide the error's text as the [AnimatedSize] below this
                 // [TextField] displays it better.
@@ -593,6 +680,12 @@ abstract class ReactiveFieldState {
 
   /// Reactive error message.
   final RxnString error = RxnString();
+
+  /// Indicator whether this [ReactiveFieldState] can still be [submit]ted, when
+  /// it has an [error], or is not [changed].
+  ///
+  /// Only meaningful, if [approvable] is `true`.
+  final RxBool resubmitOnError = RxBool(false);
 
   /// Submits this [ReactiveFieldState].
   void submit() {
@@ -777,7 +870,7 @@ class TextFieldState extends ReactiveFieldState {
   }
 
   /// Clears the [TextEditingController]'s text without calling [onChanged].
-  void clear() {
+  void clear({bool unfocus = true}) {
     isEmpty.value = true;
     controller.text = '';
     error.value = null;
@@ -785,6 +878,8 @@ class TextFieldState extends ReactiveFieldState {
     _previousSubmit = null;
     changed.value = false;
     _debounce?.cancel();
-    focus.unfocus();
+    if (unfocus) {
+      focus.unfocus();
+    }
   }
 }

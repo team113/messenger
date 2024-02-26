@@ -20,13 +20,13 @@ import 'package:flutter/material.dart';
 
 /// [AnimatedSwitcher] with an elastic [ScaleTransition] of its [child].
 class ElasticAnimatedSwitcher extends StatelessWidget {
-  const ElasticAnimatedSwitcher({super.key, required this.child});
+  const ElasticAnimatedSwitcher({super.key,  this.child});
 
   /// Current child widget to display.
   ///
   /// If there was a previous child, then it will be elastically faded out,
   /// while the new one is faded in.
-  final Widget child;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

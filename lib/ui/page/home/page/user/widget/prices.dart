@@ -22,6 +22,11 @@ class Prices extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final TextStyle acceptStyle =
+        style.fonts.medium.regular.onBackground.copyWith(
+      color: style.colors.acceptPrimary,
+    );
+
     return Table(
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       columnWidths: const {0: FlexColumnWidth(), 1: IntrinsicColumnWidth()},
@@ -45,12 +50,16 @@ class Prices extends StatelessWidget {
                         children: [
                           Text(
                             '¤',
-                            style: style.fonts.medium.regular.primary,
+                            style: onMessagesPressed == null
+                                ? acceptStyle
+                                : style.fonts.medium.regular.primary,
                           ),
                           const SizedBox(width: 2),
                           Text(
                             '0',
-                            style: style.fonts.medium.regular.primary,
+                            style: onMessagesPressed == null
+                                ? acceptStyle
+                                : style.fonts.medium.regular.primary,
                           ),
                         ],
                       ),
@@ -58,21 +67,9 @@ class Prices extends StatelessWidget {
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '¤',
-                          style:
-                              style.fonts.medium.regular.onBackground.copyWith(
-                            color: style.colors.acceptPrimary,
-                          ),
-                        ),
+                        Text('¤', style: acceptStyle),
                         const SizedBox(width: 2),
-                        Text(
-                          messages.withSpaces(),
-                          style:
-                              style.fonts.medium.regular.onBackground.copyWith(
-                            color: style.colors.acceptPrimary,
-                          ),
-                        ),
+                        Text(messages.withSpaces(), style: acceptStyle),
                       ],
                     ),
             ),
@@ -112,12 +109,16 @@ class Prices extends StatelessWidget {
                         children: [
                           Text(
                             '¤',
-                            style: style.fonts.medium.regular.primary,
+                            style: onCallsPressed == null
+                                ? acceptStyle
+                                : style.fonts.medium.regular.primary,
                           ),
                           const SizedBox(width: 2),
                           Text(
                             '0',
-                            style: style.fonts.medium.regular.primary,
+                            style: onCallsPressed == null
+                                ? acceptStyle
+                                : style.fonts.medium.regular.primary,
                           ),
                         ],
                       ),
@@ -125,21 +126,9 @@ class Prices extends StatelessWidget {
                   : Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          '¤',
-                          style:
-                              style.fonts.medium.regular.onBackground.copyWith(
-                            color: style.colors.acceptPrimary,
-                          ),
-                        ),
+                        Text('¤', style: acceptStyle),
                         const SizedBox(width: 2),
-                        Text(
-                          calls.withSpaces(),
-                          style:
-                              style.fonts.medium.regular.onBackground.copyWith(
-                            color: style.colors.acceptPrimary,
-                          ),
-                        ),
+                        Text(calls.withSpaces(), style: acceptStyle),
                       ],
                     ),
             ),

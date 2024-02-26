@@ -58,7 +58,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
-    // approvable: true,
     submitted: false,
     onChanged: (s) async {
       s.error.value = null;
@@ -103,37 +102,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
         }
       }
     },
-    // onSubmitted: (s) async {
-    //   if (s.error.value == null) {
-    //     s.editable.value = false;
-    //     s.status.value = RxStatus.loading();
-
-    //     try {
-    //       if (s.text.isEmpty) {
-    //         await widget.onSubmit?.call(null);
-    //       } else {
-    //         await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
-    //       }
-
-    //       if (widget.editable) {
-    //         setState(() => _editing = false);
-    //       }
-
-    //       s.status.value = RxStatus.empty();
-    //     } on UpdateUserLoginException catch (e) {
-    //       s.error.value = e.toMessage();
-    //       s.status.value = RxStatus.empty();
-    //       s.unsubmit();
-    //     } catch (e) {
-    //       s.error.value = 'err_data_transfer'.l10n;
-    //       s.status.value = RxStatus.empty();
-    //       s.unsubmit();
-    //       rethrow;
-    //     } finally {
-    //       s.editable.value = true;
-    //     }
-    //   }
-    // },
   );
 
   @override
@@ -164,10 +132,13 @@ class _UserLoginFieldState extends State<UserLoginField> {
           onCanceled: widget.login == null
               ? null
               : () {
-                  _state.unsubmit();
-                  _state.text = widget.login!.val;
+                  _state.unchecked = widget.login?.val;
+                  if (mounted) {
+                    setState(() => _editing = false);
+                  }
                 },
           label: 'label_login'.l10n,
+          prefixText: '@',
           hint: widget.login == null
               ? 'label_login_hint'.l10n
               : widget.login!.val,
@@ -177,7 +148,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
       child = Paddings.basic(
         InfoTile(
           title: 'label_login'.l10n,
-          content: _state.text,
+          content: '@${_state.text}',
           trailing: WidgetButton(
             onPressed: () => setState(() {
               _editing = true;

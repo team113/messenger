@@ -61,6 +61,7 @@ import 'controller.dart';
 import 'widget/blocklist_record.dart';
 import 'widget/contact_info.dart';
 import 'widget/copy_or_share.dart';
+import 'widget/money_field.dart';
 import 'widget/prices.dart';
 
 /// View of the [Routes.user] page.
@@ -357,291 +358,244 @@ class UserView extends StatelessWidget {
               ),
             ),
             body: Obx(() {
-              final Widget child;
+              // final String? status = c.user?.user.value.getStatus();
+              final UserBio? status = c.user?.user.value.bio;
+              Widget? subtitle;
 
-              if (c.editing.value) {
-                child = ListView(
-                  children: [
-                    const SizedBox(height: 8),
-                    Block(
-                      children: [
-                        SelectionContainer.disabled(
-                          child: BigAvatarWidget.user(
-                            c.user,
-                            onUpload: c.editing.value ? () {} : null,
-                            onDelete: c.editing.value &&
-                                    c.user?.user.value.avatar != null
-                                ? () {}
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        SelectionContainer.disabled(
-                          child: ReactiveTextField(
-                            state: c.name,
-                            label: 'label_name'.l10n,
-                            hint: c.user!.user.value.name?.val ??
-                                c.user!.user.value.num.toString(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Block(children: [_paid(c, context)]),
-                    // _money(c, context),
-                    const SizedBox(height: 8),
-                  ],
-                );
-              } else {
-                // final String? status = c.user?.user.value.getStatus();
-                final UserBio? status = c.user?.user.value.bio;
-                Widget? subtitle;
-
-                if (status != null) {
-                  subtitle = Text(
-                    status.toString(),
-                    style: style.fonts.normal.regular.secondary,
-                  );
-                }
-
-                final List<Widget> blocks = [
-                  const SizedBox(height: 8),
-                  if (c.isBlocked != null)
-                    Block(
-                      title: 'label_user_is_blocked'.l10n,
-                      children: [
-                        BlocklistRecordWidget(
-                          c.isBlocked!,
-                          onUnblock: c.unblacklist,
-                        )
-                      ],
-                    ),
-                  Block(
-                    overlay: [
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Center(
-                          child: SelectionContainer.disabled(
-                            child: AnimatedButton(
-                              onPressed: c.profileEditing.toggle,
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-                                child: c.profileEditing.value
-                                    ? const Padding(
-                                        padding: EdgeInsets.all(2),
-                                        child: SvgIcon(
-                                          SvgIcons.closeSmallPrimary,
-                                        ),
-                                      )
-                                    : const SvgIcon(SvgIcons.editSmall),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                    children: [
-                      SelectionContainer.disabled(
-                        child: BigAvatarWidget.user(c.user),
-                      ),
-                      Obx(() {
-                        final List<Widget> children;
-
-                        if (c.profileEditing.value) {
-                          children = [
-                            const SizedBox(height: 4),
-                            SelectionContainer.disabled(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  WidgetButton(
-                                    key: const Key('UploadAvatar'),
-                                    onPressed: () {},
-                                    child: Text(
-                                      'btn_upload'.l10n,
-                                      style: style.fonts.small.regular.primary,
-                                    ),
-                                  ),
-                                  Text(
-                                    'space_or_space'.l10n,
-                                    style:
-                                        style.fonts.small.regular.onBackground,
-                                  ),
-                                  WidgetButton(
-                                    key: const Key('DeleteAvatar'),
-                                    onPressed: () {},
-                                    child: Text(
-                                      'btn_delete'.l10n.toLowerCase(),
-                                      style: style.fonts.small.regular.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-                            SelectionContainer.disabled(
-                              child: ReactiveTextField(
-                                state: c.name,
-                                label: 'Name',
-                                hint: c.user!.user.value.name?.val ??
-                                    c.user!.user.value.num.toString(),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                          ];
-                        } else {
-                          children = [
-                            const SizedBox(height: 18),
-                            // const SizedBox(height: 5),
-                            Container(width: double.infinity),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                              child: Text(
-                                c.name.text,
-                                style: style.fonts.large.regular.onBackground,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              c.user!.user.value.getStatus2()!,
-                              style: style.fonts.small.regular.secondary,
-                            ),
-                          ];
-                        }
-
-                        return AnimatedSizeAndFade(
-                          fadeDuration: 250.milliseconds,
-                          sizeDuration: 250.milliseconds,
-                          child: Column(
-                            key: Key(c.profileEditing.value.toString()),
-                            children: children,
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                  _quick(c, context),
-                  if (subtitle != null)
-                    Block(
-                      children: [
-                        Align(alignment: Alignment.centerLeft, child: subtitle)
-                      ],
-                    ),
-                  Block(
-                    title: 'Информация',
-                    children: [
-                      Paddings.basic(
-                        const InfoTile(
-                          title: 'Login',
-                          content: '@alice',
-                          trailing: CopyOrShareButton('alice'),
-                        ),
-                      ),
-                      // const SizedBox(height: 8),
-                      Paddings.basic(
-                        InfoTile(
-                          title: 'Gapopa ID',
-                          content: c.user!.user.value.num.toString(),
-                          // leading: Padding(
-                          //   padding: EdgeInsets.fromLTRB(0, 0, 4, 2),
-                          //   child: const SvgIcon(SvgIcons.gapopaId),
-                          // ),
-                          trailing: CopyOrShareButton(
-                            c.user!.user.value.num.toString(),
-                          ),
-                        ),
-                      ),
-                      // const SizedBox(height: 8),
-                      Paddings.basic(
-                        const InfoTile(
-                          title: 'E-mail',
-                          content: 'hello@example.com',
-                          trailing: CopyOrShareButton('hello@example.com'),
-                        ),
-                      ),
-                      // const SizedBox(height: 8),
-                      Paddings.basic(
-                        const InfoTile(
-                          title: 'Phone',
-                          content: '+1 234 5678 90',
-                          trailing: CopyOrShareButton('+1 234 5678 90'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SelectionContainer.disabled(
-                    child: Block(
-                      title: 'label_direct_chat_link'.l10n,
-                      // overlay: [
-                      //   Positioned(
-                      //     right: 0,
-                      //     top: 0,
-                      //     child: Center(
-                      //       child: SelectionContainer.disabled(
-                      //         child: AnimatedButton(
-                      //           onPressed: c.linkEditing.toggle,
-                      //           child: Padding(
-                      //             padding:
-                      //                 const EdgeInsets.fromLTRB(6, 4, 0, 6),
-                      //             child: c.linkEditing.value
-                      //                 ? const Padding(
-                      //                     padding:
-                      //                         EdgeInsets.fromLTRB(2, 2, 2, 2),
-                      //                     child: SvgIcon(
-                      //                       SvgIcons.closeSmallPrimary,
-                      //                     ),
-                      //                   )
-                      //                 : const SvgIcon(SvgIcons.editSmall),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ],
-                      children: [
-                        DirectLinkField(
-                          ChatDirectLink(
-                            slug: ChatDirectLinkSlug('dqwdqwdqwd'),
-                          ),
-                          // onSubmit: (_) {
-                          //   c.linkEditing.value = false;
-                          // },
-                          editing: false,
-                          transitions: false,
-                          background: c.background.value,
-                          // editing: c.linkEditing.value,
-                        ),
-                      ],
-                    ),
-                  ),
-                  _money(c, context),
-                  SelectionContainer.disabled(
-                    child: Block(children: [_actions(c, context)]),
-                  ),
-                ];
-
-                child = SelectionArea(
-                  key: const Key('SelectionArea'),
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: ScrollablePositionedList.builder(
-                      key: const Key('UserScrollable'),
-                      itemCount: blocks.length,
-                      itemBuilder: (_, i) => blocks[i],
-                      scrollController: c.scrollController,
-                      itemScrollController: c.itemScrollController,
-                      itemPositionsListener: c.positionsListener,
-                      initialScrollIndex: c.initialScrollIndex,
-                    ),
-                  ),
+              if (status != null) {
+                subtitle = Text(
+                  status.toString(),
+                  style: style.fonts.normal.regular.secondary,
                 );
               }
 
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                switchInCurve: Curves.ease,
-                switchOutCurve: Curves.ease,
-                child: child,
+              final List<Widget> blocks = [
+                const SizedBox(height: 8),
+                if (c.isBlocked != null)
+                  Block(
+                    title: 'label_user_is_blocked'.l10n,
+                    children: [
+                      BlocklistRecordWidget(
+                        c.isBlocked!,
+                        onUnblock: c.unblacklist,
+                      )
+                    ],
+                  ),
+                Block(
+                  overlay: [
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Center(
+                        child: SelectionContainer.disabled(
+                          child: AnimatedButton(
+                            onPressed: c.profileEditing.toggle,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                              child: c.profileEditing.value
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(2),
+                                      child: SvgIcon(
+                                        SvgIcons.closeSmallPrimary,
+                                      ),
+                                    )
+                                  : const SvgIcon(SvgIcons.editSmall),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  children: [
+                    SelectionContainer.disabled(
+                      child: BigAvatarWidget.user(c.user),
+                    ),
+                    Obx(() {
+                      final List<Widget> children;
+
+                      if (c.profileEditing.value) {
+                        children = [
+                          const SizedBox(height: 4),
+                          SelectionContainer.disabled(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                WidgetButton(
+                                  key: const Key('UploadAvatar'),
+                                  onPressed: () {},
+                                  child: Text(
+                                    'btn_upload'.l10n,
+                                    style: style.fonts.small.regular.primary,
+                                  ),
+                                ),
+                                Text(
+                                  'space_or_space'.l10n,
+                                  style: style.fonts.small.regular.onBackground,
+                                ),
+                                WidgetButton(
+                                  key: const Key('DeleteAvatar'),
+                                  onPressed: () {},
+                                  child: Text(
+                                    'btn_delete'.l10n.toLowerCase(),
+                                    style: style.fonts.small.regular.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          SelectionContainer.disabled(
+                            child: ReactiveTextField(
+                              state: c.name,
+                              label: 'Name',
+                              hint: c.user!.user.value.name?.val ??
+                                  c.user!.user.value.num.toString(),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                        ];
+                      } else {
+                        children = [
+                          const SizedBox(height: 18),
+                          // const SizedBox(height: 5),
+                          Container(width: double.infinity),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Text(
+                              c.name.text,
+                              style: style.fonts.large.regular.onBackground,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            c.user!.user.value.getStatus2()!,
+                            style: style.fonts.small.regular.secondary,
+                          ),
+                        ];
+                      }
+
+                      return AnimatedSizeAndFade(
+                        fadeDuration: 250.milliseconds,
+                        sizeDuration: 250.milliseconds,
+                        child: Column(
+                          key: Key(c.profileEditing.value.toString()),
+                          children: children,
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+                _quick(c, context),
+                if (subtitle != null)
+                  Block(
+                    children: [
+                      Align(alignment: Alignment.centerLeft, child: subtitle)
+                    ],
+                  ),
+                Block(
+                  title: 'Информация',
+                  children: [
+                    Paddings.basic(
+                      const InfoTile(
+                        title: 'Login',
+                        content: '@alice',
+                        trailing: CopyOrShareButton('alice'),
+                      ),
+                    ),
+                    // const SizedBox(height: 8),
+                    Paddings.basic(
+                      InfoTile(
+                        title: 'Gapopa ID',
+                        content: c.user!.user.value.num.toString(),
+                        // leading: Padding(
+                        //   padding: EdgeInsets.fromLTRB(0, 0, 4, 2),
+                        //   child: const SvgIcon(SvgIcons.gapopaId),
+                        // ),
+                        trailing: CopyOrShareButton(
+                          c.user!.user.value.num.toString(),
+                        ),
+                      ),
+                    ),
+                    // const SizedBox(height: 8),
+                    Paddings.basic(
+                      const InfoTile(
+                        title: 'E-mail',
+                        content: 'hello@example.com',
+                        trailing: CopyOrShareButton('hello@example.com'),
+                      ),
+                    ),
+                    // const SizedBox(height: 8),
+                    Paddings.basic(
+                      const InfoTile(
+                        title: 'Phone',
+                        content: '+1 234 5678 90',
+                        trailing: CopyOrShareButton('+1 234 5678 90'),
+                      ),
+                    ),
+                  ],
+                ),
+                SelectionContainer.disabled(
+                  child: Block(
+                    title: 'label_direct_chat_link'.l10n,
+                    // overlay: [
+                    //   Positioned(
+                    //     right: 0,
+                    //     top: 0,
+                    //     child: Center(
+                    //       child: SelectionContainer.disabled(
+                    //         child: AnimatedButton(
+                    //           onPressed: c.linkEditing.toggle,
+                    //           child: Padding(
+                    //             padding:
+                    //                 const EdgeInsets.fromLTRB(6, 4, 0, 6),
+                    //             child: c.linkEditing.value
+                    //                 ? const Padding(
+                    //                     padding:
+                    //                         EdgeInsets.fromLTRB(2, 2, 2, 2),
+                    //                     child: SvgIcon(
+                    //                       SvgIcons.closeSmallPrimary,
+                    //                     ),
+                    //                   )
+                    //                 : const SvgIcon(SvgIcons.editSmall),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ],
+                    children: [
+                      DirectLinkField(
+                        ChatDirectLink(
+                          slug: ChatDirectLinkSlug('dqwdqwdqwd'),
+                        ),
+                        // onSubmit: (_) {
+                        //   c.linkEditing.value = false;
+                        // },
+                        editing: false,
+                        transitions: false,
+                        background: c.background.value,
+                        // editing: c.linkEditing.value,
+                      ),
+                    ],
+                  ),
+                ),
+                _money(c, context),
+                SelectionContainer.disabled(
+                  child: Block(children: [_actions(c, context)]),
+                ),
+              ];
+
+              return SelectionArea(
+                key: const Key('SelectionArea'),
+                child: ScrollablePositionedList.builder(
+                  key: const Key('UserScrollable'),
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  initialScrollIndex: c.initialScrollIndex,
+                ),
               );
             }),
           );
@@ -1230,7 +1184,7 @@ class UserView extends StatelessWidget {
           Block(
             // title:
             //     'Установить цену за сообщения и звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
-            title: 'Монетизация',
+            title: 'Монетизация (входящие)',
             overlay: [
               Positioned(
                 right: 0,
@@ -1322,102 +1276,14 @@ class UserView extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 8),
-              ReactiveTextField(
+              // TODO: Here should be displayed what user really pays, not just their individual.
+              MoneyField(
                 state: c.messageCost,
-                style: style.fonts.medium.regular.onBackground,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(9),
-                ],
-                onChanged: () {
-                  String string = NumberFormat.decimalPattern()
-                      .format(int.tryParse(c.messageCost.text) ?? 0);
-
-                  if (string == '0') {
-                    string = '';
-                  }
-
-                  c.messageCost.controller.value = TextEditingValue(
-                    text: string,
-                    selection: TextSelection.collapsed(offset: string.length),
-                  );
-                },
-                hint: '0',
-                prefixIcon: SizedBox(
-                  child: Center(
-                    widthFactor: 0.0,
-                    child: Transform.translate(
-                      offset: const Offset(12, 0),
-                      child: Text(
-                        '¤',
-                        style: style.fonts.medium.regular.onBackground,
-                      ),
-                    ),
-                  ),
-                ),
-                // prefix: Padding(
-                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                //   child: Transform.translate(
-                //     offset: PlatformUtils.isWeb
-                //         ? const Offset(0, -0)
-                //         : const Offset(0, -0.5),
-                //     child: Text(
-                //       '¤',
-                //       style: style.fonts.medium.regular.onBackground,
-                //     ),
-                //   ),
-                // ),
                 label: 'Входящие сообщения, за 1 сообщение',
               ),
               const SizedBox(height: 24),
-              ReactiveTextField(
+              MoneyField(
                 state: c.callsCost,
-                style: style.fonts.medium.regular.onBackground,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                formatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(9),
-                ],
-                onChanged: () {
-                  String string = NumberFormat.decimalPattern()
-                      .format(int.tryParse(c.callsCost.text) ?? 0);
-
-                  if (string == '0') {
-                    string = '';
-                  }
-
-                  c.callsCost.controller.value = TextEditingValue(
-                    text: string,
-                    selection: TextSelection.collapsed(offset: string.length),
-                  );
-                },
-                hint: '0',
-                prefixIcon: SizedBox(
-                  child: Center(
-                    widthFactor: 0.0,
-                    child: Transform.translate(
-                      offset: const Offset(12, 0),
-                      child: Text(
-                        '¤',
-                        style: style.fonts.medium.regular.onBackground,
-                      ),
-                    ),
-                  ),
-                ),
-                // prefix: Padding(
-                //   padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-                //   child: Transform.translate(
-                //     offset: PlatformUtils.isWeb
-                //         ? const Offset(0, -0)
-                //         : const Offset(0, -0.5),
-                //     child: Text(
-                //       '¤',
-                //       style: style.fonts.medium.regular.onBackground,
-                //     ),
-                //   ),
-                // ),
                 label: 'Входящие звонки, за 1 минуту',
               ),
             ],
@@ -1443,188 +1309,7 @@ class UserView extends StatelessWidget {
                 },
               ),
             ),
-            // Center(
-            //   child: Table(
-            //     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            //     columnWidths: const {
-            //       0: FlexColumnWidth(),
-            //       1: IntrinsicColumnWidth()
-            //     },
-            //     children: [
-            //       TableRow(
-            //         children: [
-            //           Padding(
-            //             padding: const EdgeInsets.only(right: 8),
-            //             child: Text(
-            //               'Входящее сообщение:',
-            //               style: style.fonts.medium.regular.onBackground,
-            //             ),
-            //           ),
-            //           Align(
-            //             alignment: Alignment.centerRight,
-            //             child: c.messagePrice.value == 0
-            //                 ? WidgetButton(
-            //                     onPressed: () {
-            //                       c.moneyEditing.value = true;
-            //                       c.messageCost.focus.requestFocus();
-            //                     },
-            //                     child: Row(
-            //                       mainAxisSize: MainAxisSize.min,
-            //                       children: [
-            //                         Text(
-            //                           '¤',
-            //                           style: style.fonts.medium.regular.primary,
-            //                         ),
-            //                         const SizedBox(width: 2),
-            //                         Text(
-            //                           '0',
-            //                           style: style.fonts.medium.regular.primary,
-            //                         ),
-            //                       ],
-            //                     ),
-            //                   )
-            //                 : Row(
-            //                     mainAxisSize: MainAxisSize.min,
-            //                     children: [
-            //                       Text(
-            //                         '¤',
-            //                         style: style
-            //                             .fonts.medium.regular.onBackground
-            //                             .copyWith(
-            //                           color: style.colors.acceptPrimary,
-            //                         ),
-            //                       ),
-            //                       const SizedBox(width: 2),
-            //                       Text(
-            //                         c.messagePrice.value.withSpaces(),
-            //                         style: style
-            //                             .fonts.medium.regular.onBackground
-            //                             .copyWith(
-            //                           color: style.colors.acceptPrimary,
-            //                         ),
-            //                       ),
-            //                     ],
-            //                   ),
-            //           ),
-            //         ],
-            //       ),
-            //       TableRow(
-            //         children: [
-            //           Padding(
-            //             padding: const EdgeInsets.only(right: 8),
-            //             child: Text(
-            //               'за 1 сообщение',
-            //               style: style.fonts.small.regular.secondary,
-            //             ),
-            //           ),
-            //           const SizedBox(),
-            //         ],
-            //       ),
-            //       const TableRow(
-            //         children: [SizedBox(height: 8), SizedBox(height: 8)],
-            //       ),
-            //       TableRow(
-            //         children: [
-            //           Padding(
-            //             padding: const EdgeInsets.only(right: 8),
-            //             child: Text(
-            //               'Входящий звонок:',
-            //               style: style.fonts.medium.regular.onBackground,
-            //             ),
-            //           ),
-            //           Align(
-            //             alignment: Alignment.centerRight,
-            //             child: c.callPrice.value == 0
-            //                 ? WidgetButton(
-            //                     onPressed: () {
-            //                       c.moneyEditing.value = true;
-            //                       c.callsCost.focus.requestFocus();
-            //                     },
-            //                     child: Row(
-            //                       mainAxisSize: MainAxisSize.min,
-            //                       children: [
-            //                         Text(
-            //                           '¤',
-            //                           style: style.fonts.medium.regular.primary,
-            //                         ),
-            //                         const SizedBox(width: 2),
-            //                         Text(
-            //                           '0',
-            //                           style: style.fonts.medium.regular.primary,
-            //                         ),
-            //                       ],
-            //                     ),
-            //                   )
-            //                 : Row(
-            //                     mainAxisSize: MainAxisSize.min,
-            //                     children: [
-            //                       Text(
-            //                         '¤',
-            //                         style: style
-            //                             .fonts.medium.regular.onBackground
-            //                             .copyWith(
-            //                           color: style.colors.acceptPrimary,
-            //                         ),
-            //                       ),
-            //                       const SizedBox(width: 2),
-            //                       Text(
-            //                         c.callPrice.value.withSpaces(),
-            //                         style: style
-            //                             .fonts.medium.regular.onBackground
-            //                             .copyWith(
-            //                           color: style.colors.acceptPrimary,
-            //                         ),
-            //                       ),
-            //                     ],
-            //                   ),
-            //           ),
-            //         ],
-            //       ),
-            //       TableRow(
-            //         children: [
-            //           Padding(
-            //             padding: const EdgeInsets.only(right: 8),
-            //             child: Text(
-            //               'за 1 минуту',
-            //               style: style.fonts.small.regular.secondary,
-            //             ),
-            //           ),
-            //           const SizedBox(),
-            //           // const SizedBox(),
-            //         ],
-            //       ),
-            //     ],
-            //   ),
-            // ),
 
-            // RichText(
-            //   text: TextSpan(
-            //     children: [
-            //       TextSpan(
-            //         text: '  Входящее сообщение: ',
-            //         style: style.fonts.normal.regular.onBackground,
-            //       ),
-            //       TextSpan(
-            //         text: '¤0',
-            //         style: style.fonts.normal.regular.onBackground,
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            // RichText(
-            //   text: TextSpan(
-            //     children: [
-            //       TextSpan(
-            //         text: '  Входящий звонок: ',
-            //         style: style.fonts.normal.regular.onBackground,
-            //       ),
-            //       TextSpan(
-            //         text: '¤0/мин',
-            //         style: style.fonts.normal.regular.onBackground,
-            //       ),
-            //     ],
-            //   ),
-            // ),
             const SizedBox(height: 16),
             // 'alex2 платит Вам за отправку Вам сообщений и совершение звонков.',
             // 'alex2 оплачивает Вам отправку своих сообщений и совершение звонков.'
@@ -1632,34 +1317,6 @@ class UserView extends StatelessWidget {
               '${c.user?.user.value.name ?? c.user?.user.value.num} платит Вам за отправку Вам сообщений и совершение звонков.',
               style: style.fonts.small.regular.secondary,
             ),
-
-            // Paddings.dense(
-            //   Stack(
-            //     children: [
-            //       Padding(
-            //         padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            //         child: InfoTile(
-            //           title: 'Цена входящего сообщения',
-            //           content: '¤${c.messageCost.text}',
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            // Paddings.dense(
-            //   Stack(
-            //     children: [
-            //       Paddings.basic(
-            //         InfoTile(
-            //           title: 'Цена входящего звонка (за 1 минуту)',
-            //           content: '¤${c.callsCost.text}',
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-
-            // Opacity(opacity: 0, child: _verification(context, c)),
           ],
         );
       }
