@@ -2189,16 +2189,18 @@ class ChatRepository extends DisposableInterface
           for (var event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
-                event as EventChatFavorited;
+                if (paginated[event.chatId] == null) {
+                  event as EventChatFavorited;
 
-                final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
-                if (hiveChat != null) {
-                  hiveChat.value.favoritePosition = event.position;
-                  _putEntry(ChatData(hiveChat, null, null));
-                } else {
-                  // If there is no chat in local storage, [get] will fetch it
-                  // from the remote and put to the local storage.
-                  get(event.chatId);
+                  final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
+                  if (hiveChat != null) {
+                    hiveChat.value.favoritePosition = event.position;
+                    await _putEntry(ChatData(hiveChat, null, null));
+                  } else {
+                    // If there is no chat in local storage, [get] will fetch it
+                    // from the remote and put to the local storage.
+                    //await get(event.chatId);
+                  }
                 }
                 break;
 
