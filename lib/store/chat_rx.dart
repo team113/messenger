@@ -902,6 +902,7 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
+    await _local.clear();
   }
 
   // TODO: Remove when backend supports welcome messages.
