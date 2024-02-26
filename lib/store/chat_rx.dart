@@ -902,7 +902,12 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
+  }
+
+  /// Clears and closes the current [ChatItemHiveProvider],
+  Future<void> clearLocal() async {
     await _local.clear();
+    await _local.close();
   }
 
   // TODO: Remove when backend supports welcome messages.
@@ -1394,6 +1399,7 @@ class HiveRxChat extends RxChat {
                 chatEntity.lastReadItemCursor = null;
                 _lastReadItemCursor = null;
                 await clear();
+                await clearLocal();
                 break;
 
               case ChatEventKind.itemHidden:
