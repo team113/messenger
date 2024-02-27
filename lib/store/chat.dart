@@ -2192,7 +2192,7 @@ class ChatRepository extends DisposableInterface
                 // If we got an event about [Chat] that we don't have in
                 // [paginated], then fetch it and store appropriately with its
                 // favorite position.
-                if (paginated[event.chatId] == null) {
+                if (paginated[event.chatId] == null || !isRemote) {
                   event as EventChatFavorited;
 
                   final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
