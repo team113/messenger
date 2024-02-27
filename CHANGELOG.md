@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.12.2...v0.1.0-alpha.12.3) | [Milestone](/../../milestone/17)
 
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned context menu in navigation. ([#875], [#838])
+
 ### Fixed
 
 - UI:
@@ -22,7 +28,9 @@ All user visible changes to this project will be documented in this file. This p
     - Video in calls being loaded indefinitely. ([#840])
 
 [#817]: /../../issues/817
+[#838]: /../../issues/838
 [#840]: /../../pull/840
+[#875]: /../../pull/875
 
 
 
