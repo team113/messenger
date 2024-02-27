@@ -869,6 +869,7 @@ class HiveRxChat extends RxChat {
 
       // Clear and close the current [ChatItemHiveProvider].
       await clearLocal();
+      _local.close();
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
@@ -904,12 +905,10 @@ class HiveRxChat extends RxChat {
     await _pagination.clear();
   }
 
-  /// Clears and closes the current [ChatItemHiveProvider].
+  /// Clears the current [ChatItemHiveProvider].
   Future<void> clearLocal() async {
     Log.debug('clearLocal()', '$runtimeType($id)');
-
     await _local.clear();
-    await _local.close();
   }
 
   // TODO: Remove when backend supports welcome messages.
