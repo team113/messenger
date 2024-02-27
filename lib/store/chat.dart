@@ -1591,7 +1591,11 @@ class ChatRepository extends DisposableInterface
   /// Removes the [Chat] with the provided [ChatId] from [paginated], [chats]
   /// and local storages, clearing all of its [ChatItem]s.
   Future<void> _removeAndClearChat(ChatId chatId) async {
-    final HiveRxChat? chat = chats.remove(chatId) ?? await get(chatId);
+    HiveRxChat? chat = chats.remove(chatId);
+    if (chat == null && !chatId.isLocal) {
+      // This [Chat] might have been deleted from [chats] earlier.
+      chat = await get(chatId);
+    }
     await chat?.clearLocal();
     chat?.dispose();
 
