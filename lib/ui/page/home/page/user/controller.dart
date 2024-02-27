@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -53,6 +54,7 @@ import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -84,6 +86,9 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
+  /// Status of the [Chat.avatar] upload or removal.
+  final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
@@ -97,7 +102,7 @@ class UserController extends GetxController {
   late final TextFieldState name;
 
   /// Indicator whether the editing mode is enabled.
-  final RxBool editing = RxBool(false);
+  final RxBool profileEditing = RxBool(false);
 
   /// Status of a [block] progression.
   ///
@@ -208,7 +213,7 @@ class UserController extends GetxController {
         case OperationKind.removed:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
             contact.value = null;
-            editing.value = false;
+            profileEditing.value = false;
             _updateWorker();
           }
           break;
@@ -405,6 +410,41 @@ class UserController extends GetxController {
         MessagePopup.error(e);
         rethrow;
       }
+    }
+  }
+
+  /// Opens a file choose popup and updates the `ChatContact.avatar` with the
+  /// selected image, if any.
+  Future<void> pickAvatar() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withReadStream: !PlatformUtils.isWeb,
+      withData: PlatformUtils.isWeb,
+      lockParentWindow: true,
+    );
+
+    if (result != null) {
+      updateAvatar(result.files.first);
+    }
+  }
+
+  /// Resets the `ChatContact.avatar` to `null`.
+  Future<void> deleteAvatar() => updateAvatar(null);
+
+  /// Updates the `ChatContact.avatar` with the provided [image], or resets it
+  /// to `null`.
+  Future<void> updateAvatar(PlatformFile? image) async {
+    avatar.value = RxStatus.loading();
+
+    try {
+      throw UnimplementedError();
+    } on UnimplementedError catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+    } catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

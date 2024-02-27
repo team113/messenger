@@ -34,6 +34,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/quick_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -43,6 +44,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -90,6 +92,7 @@ class ChatInfoView extends StatelessWidget {
                   children: [
                     const SizedBox(height: 8),
                     _profile(c, context),
+                    _quick(c, context),
                     if (!c.isMonolog) ...[
                       SelectionContainer.disabled(child: _link(c, context)),
                       SelectionContainer.disabled(child: _members(c, context)),
@@ -108,6 +111,7 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
+  /// Builds the [Block] displaying a [ChatAvatar], if any, and [ChatName].
   Widget _profile(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -221,12 +225,12 @@ class ChatInfoView extends StatelessWidget {
                 c.chat?.chat.value.directLink,
                 onSubmit: (s) async {
                   if (s == null) {
+                    c.linkEditing.value = false;
                     await c.deleteChatDirectLink();
                   } else {
                     await c.createChatDirectLink(s);
+                    c.linkEditing.value = false;
                   }
-
-                  c.linkEditing.value = false;
                 },
                 background: c.background.value,
                 editing: c.linkEditing.value,
@@ -239,34 +243,11 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Returns the [Chat.members] count label.
-  Widget _participants(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 13),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'label_participants'.l10nfmt({'count': c.chat!.members.length}),
-              style: style.fonts.big.regular.onBackground,
-            ),
-          ),
-          AnimatedButton(
-            key: const Key('AddMemberButton'),
-            onPressed: () => AddChatMemberView.show(context, chatId: id),
-            child: const SvgIcon(SvgIcons.addMember),
-          )
-        ],
-      ),
-    );
-  }
-
-  /// Returns a list of [Chat.members].
+  /// Returns the [Block] displaying the [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
     return Block(
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      title: 'label_participants'.l10nfmt({'count': c.chat!.members.length}),
       overlay: [
         Positioned(
           top: 0,
@@ -281,7 +262,6 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
       ],
-      title: 'label_participants'.l10nfmt({'count': c.chat!.members.length}),
       children: [
         Obx(() {
           final RxUser? me = c.chat!.members[c.me];
@@ -371,6 +351,7 @@ class ChatInfoView extends StatelessWidget {
   Widget _bar(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
+    // [SvgIcons.more] buttons with its [ContextMenuRegion].
     final Widget editButton = Obx(() {
       final bool favorite = c.chat?.chat.value.favoritePosition != null;
       final bool hasCall = c.chat?.chat.value.ongoingCall != null;
@@ -383,7 +364,7 @@ class ChatInfoView extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 4, left: 20),
         actions: [
           ContextMenuButton(
-            label: 'Открыть чат'.l10n,
+            label: 'label_open_chat'.l10n,
             onPressed: () => router.chat(id),
             trailing: const SvgIcon(SvgIcons.chat18),
             inverted: const SvgIcon(SvgIcons.chat18White),
@@ -544,6 +525,48 @@ class ChatInfoView extends StatelessWidget {
         ),
         editButton,
       ],
+    );
+  }
+
+  /// Returns the [QuickButton] for quick actions to do with this [Chat].
+  Widget _quick(ChatInfoController c, BuildContext context) {
+    return SelectionContainer.disabled(
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+          constraints:
+              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                child: QuickButton(
+                  label: 'label_chat'.l10n,
+                  icon: SvgIcons.chat,
+                  onPressed: () => router.chat(id),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: QuickButton(
+                  label: 'btn_audio'.l10n,
+                  icon: SvgIcons.chatAudioCall,
+                  onPressed: () => c.call(false),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: QuickButton(
+                  label: 'btn_video'.l10n,
+                  icon: SvgIcons.chatVideoCall,
+                  onPressed: () => c.call(true),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

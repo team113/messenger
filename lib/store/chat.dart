@@ -869,7 +869,11 @@ class ChatRepository extends DisposableInterface
     ChatDirectLinkSlug slug,
   ) async {
     Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
+
     await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+
+    final HiveRxChat? chat = chats[chatId];
+    chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
   }
 
   @override

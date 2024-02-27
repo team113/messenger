@@ -204,12 +204,12 @@ class MyProfileView extends StatelessWidget {
                                 c.myUser.value?.chatDirectLink,
                                 onSubmit: (s) async {
                                   if (s == null) {
+                                    c.linkEditing.value = false;
                                     await c.deleteChatDirectLink();
                                   } else {
                                     await c.createChatDirectLink(s);
+                                    c.linkEditing.value = false;
                                   }
-
-                                  c.linkEditing.value = false;
                                 },
                                 background: c.background.value,
                                 onEditing: (b) => c.linkEditing.value = b,

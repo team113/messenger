@@ -21,9 +21,6 @@ import 'dart:typed_data';
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/context_menu/menu.dart';
-import 'package:messenger/ui/widget/context_menu/region.dart';
-import 'package:messenger/util/web/web_utils.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -34,11 +31,14 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/background_preview.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// [ReactiveTextField] displaying the provided [link].
 ///
@@ -64,7 +64,7 @@ class DirectLinkField extends StatefulWidget {
 
   /// Indicator whether editing mode should be enabled or disabled.
   ///
-  /// If `null`, then this is determined by this field.
+  /// If `null`, then this is determined dynamically.
   final bool? editing;
 
   /// Callback, called when editing mode changes.
@@ -76,8 +76,8 @@ class DirectLinkField extends StatefulWidget {
 
 /// State of an [DirectLinkField] maintaining the [_state].
 class _DirectLinkFieldState extends State<DirectLinkField> {
-  /// Generated [ChatDirectLinkSlug], used in the [_state], if any.
-  String? _generated;
+  /// Generated [ChatDirectLinkSlug], used in the [_state].
+  final String _generated = ChatDirectLinkSlug.generate(10).val;
 
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
@@ -114,11 +114,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             s.error.value = 'err_invalid_symbols_in_link'.l10n;
           }
 
-          // if (widget.editing != true) {
-          //   setState(() => _editing = false);
-          // }
-
           if (slug == null || slug == widget.link?.slug) {
+            setState(() => _editing = false);
+            widget.onEditing?.call(_editing);
             return;
           }
         }
@@ -147,10 +145,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       },
     );
 
-    _generated = ChatDirectLinkSlug.generate(10).val;
-
     if (widget.link == null) {
-      _state.text = _generated ?? '';
+      _state.text = _generated;
       _editing = widget.editing ?? false;
     }
 
@@ -167,8 +163,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     }
 
     if (widget.editing == true && widget.editing != oldWidget.editing) {
-      _state.unsubmit();
-      _state.text = _generated ?? '';
+      if (_state.text.isEmpty) {
+        _state.unsubmit();
+        _state.text = _generated;
+      }
     }
 
     _editing = widget.editing ?? _editing;
@@ -245,7 +243,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   const SizedBox(height: 14),
                   WidgetButton(
                     onPressed: () {
-                      _state.text = _generated ?? '';
+                      _state.text = _generated;
                       setState(() => _editing = true);
                       widget.onEditing?.call(_editing);
                     },
