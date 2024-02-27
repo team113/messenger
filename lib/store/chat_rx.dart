@@ -868,8 +868,7 @@ class HiveRxChat extends RxChat {
       final Iterable<HiveChatItem> saved = await _local.values;
 
       // Clear and close the current [ChatItemHiveProvider].
-      await _local.clear();
-      _local.close();
+      await clearLocal();
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
@@ -896,6 +895,7 @@ class HiveRxChat extends RxChat {
   /// Clears the [_pagination] and [_fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
+
     for (var e in _fragments) {
       e.dispose();
     }
@@ -906,6 +906,8 @@ class HiveRxChat extends RxChat {
 
   /// Clears and closes the current [ChatItemHiveProvider].
   Future<void> clearLocal() async {
+    Log.debug('clearLocal()', '$runtimeType($id)');
+
     await _local.clear();
     await _local.close();
   }
