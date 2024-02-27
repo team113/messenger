@@ -349,7 +349,7 @@ class ChatRepository extends DisposableInterface
   Future<void> remove(ChatId id) async {
     Log.debug('remove($id)', '$runtimeType');
 
-    await _hideAndClearChat(id);
+    await _removeAndClearChat(id);
     await _chatLocal.remove(id);
   }
 
@@ -1590,8 +1590,8 @@ class ChatRepository extends DisposableInterface
 
   /// Removes the [Chat] with the provided [ChatId] from [paginated], [chats]
   /// and local storages, clearing all of its [ChatItem]s.
-  Future<void> _hideAndClearChat(ChatId chatId) async {
-    final HiveRxChat? chat = chats.remove(chatId);
+  Future<void> _removeAndClearChat(ChatId chatId) async {
+    final HiveRxChat? chat = chats.remove(chatId) ?? await get(chatId);
     await chat?.clearLocal();
     chat?.dispose();
 
@@ -1612,7 +1612,7 @@ class ChatRepository extends DisposableInterface
       final ChatId chatId = ChatId(event.key);
 
       if (event.deleted) {
-        await _hideAndClearChat(chatId);
+        await _removeAndClearChat(chatId);
       } else {
         final HiveRxChat? oldChat = chats[chatId];
         final chat = event.value.value as Chat;

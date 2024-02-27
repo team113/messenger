@@ -20,8 +20,8 @@ import 'package:hive/hive.dart';
 import '../model_type_id.dart';
 import '/api/backend/schema.dart';
 import '/util/new_type.dart';
-import 'chat_item.dart';
 import 'chat.dart';
+import 'chat_item.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
