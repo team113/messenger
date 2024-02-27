@@ -86,7 +86,7 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// Status of the [Chat.avatar] upload or removal.
+  /// Status of the `ChatContact.avatar` upload or removal.
   final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
 
   /// [ScrollController] to pass to a [Scrollbar].
