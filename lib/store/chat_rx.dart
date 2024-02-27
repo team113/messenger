@@ -904,7 +904,7 @@ class HiveRxChat extends RxChat {
     await _pagination.clear();
   }
 
-  /// Clears and closes the current [ChatItemHiveProvider],
+  /// Clears and closes the current [ChatItemHiveProvider].
   Future<void> clearLocal() async {
     await _local.clear();
     await _local.close();
