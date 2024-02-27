@@ -67,7 +67,7 @@ abstract class ChatItem {
   ChatItemKey get key => ChatItemKey(at, id);
 
   @override
-  String toString() => '$runtimeType($id)';
+  String toString() => '$runtimeType($id, $chatId)';
 }
 
 /// Message in a [Chat].

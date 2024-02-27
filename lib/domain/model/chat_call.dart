@@ -88,9 +88,6 @@ class ChatCall extends ChatItem {
   set finishReason(ChatCallFinishReason? reason) {
     finishReasonIndex = reason?.index;
   }
-
-  @override
-  String toString() => 'ChatCall($id)';
 }
 
 /// Member of a [ChatCall].
