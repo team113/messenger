@@ -181,7 +181,34 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
     super.initialKey,
     super.initialCursor,
     super.onDispose,
-  });
+  }) {
+    _paginationSubscription = pagination!.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          FutureOr<T?> itemOrFuture = transform(
+            previous: items[event.key!],
+            data: event.value as V,
+          );
+          final T? item;
+
+          if (itemOrFuture is T?) {
+            item = itemOrFuture;
+          } else {
+            item = await itemOrFuture;
+          }
+
+          if (item != null) {
+            items[event.key!] = item;
+          }
+          break;
+
+        case OperationKind.removed:
+          items.remove(event.key);
+          break;
+      }
+    });
+  }
 
   /// Callback, called to transform the [V] to [T].
   final FutureOr<T?> Function({T? previous, required V data}) transform;
@@ -198,33 +225,6 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
           items.addAll(f);
         }
       }
-
-      _paginationSubscription = pagination!.changes.listen((event) async {
-        switch (event.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            FutureOr<T?> itemOrFuture = transform(
-              previous: items[event.key!],
-              data: event.value as V,
-            );
-            final T? item;
-
-            if (itemOrFuture is T?) {
-              item = itemOrFuture;
-            } else {
-              item = await itemOrFuture;
-            }
-
-            if (item != null) {
-              items[event.key!] = item;
-            }
-            break;
-
-          case OperationKind.removed:
-            items.remove(event.key);
-            break;
-        }
-      });
 
       _futures.add(pagination!.around(key: initialKey, cursor: initialCursor));
 
@@ -255,8 +255,8 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   }
 
   /// Puts the provided [item] to the [pagination].
-  Future<void> put(V item) {
-    return pagination!.put(item);
+  Future<void> put(V item, {bool ignoreBounds = false}) {
+    return pagination!.put(item, ignoreBounds: ignoreBounds);
   }
 
   /// Removes the item with the provided [key] from the [pagination].

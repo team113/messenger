@@ -200,7 +200,7 @@ class ContactTile extends StatelessWidget {
     );
   }
 
-  /// Returns [Text] with the [contact], [user] or [myUser] name.
+  /// Returns [Text] representing the [contact], [user] or [myUser] name.
   Widget _name(
     BuildContext context, {
     ChatContact? contact,

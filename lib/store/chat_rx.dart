@@ -234,11 +234,11 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
-        callCover = members.items.values.firstOrNull?.user.value.callCover;
+        callCover = members.values.firstOrNull?.user.value.callCover;
         break;
 
       case ChatKind.dialog:
-        callCover = members.items.values
+        callCover = members.values
             .firstWhereOrNull((e) => e.id != me)
             ?.user
             .value
@@ -888,31 +888,12 @@ class HiveRxChat extends RxChat {
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
-  /// Puts the provided [member] to [Pagination] and [members].
+  /// Puts the provided [member] the [members].
   Future<void> _putMember(
     HiveChatMember member, {
-    bool pagination = false,
-  }) async {
-    // [pagination] is `true`, if the [member] is received from [Pagination],
-    // thus otherwise we should try putting it to it.
-    if (pagination) {
-      final FutureOr<RxUser?> userOrFuture =
-          _chatRepository.getUser(member.value.user.id);
-      final RxUser? user;
-
-      if (userOrFuture is RxUser?) {
-        user = userOrFuture;
-      } else {
-        user = await userOrFuture;
-      }
-
-      if (user != null) {
-        members.items[member.value.user.id] = user;
-      }
-    } else {
-      await members.put(member);
-    }
-  }
+    bool ignoreBounds = false,
+  }) =>
+      members.put(member, ignoreBounds: ignoreBounds);
 
   /// Initializes the messages [_pagination].
   Future<void> _initMessagesPagination() async {
@@ -1042,7 +1023,7 @@ class HiveRxChat extends RxChat {
     // [chat] not a [ChatKind.group].
     if ((!chat.value.isGroup && chat.value.members.isNotEmpty) || id.isLocal) {
       for (ChatMember member in chat.value.members) {
-        _putMember(HiveChatMember(member, null), pagination: true);
+        _putMember(HiveChatMember(member, null), ignoreBounds: true);
       }
 
       members.pagination?.hasNext.value = false;
@@ -1239,7 +1220,7 @@ class HiveRxChat extends RxChat {
           }
         }
       } else {
-        users = members.items.values.take(3).toList();
+        users = members.values.take(3).toList();
       }
 
       _userWorkers.removeWhere((k, v) {
@@ -1275,8 +1256,8 @@ class HiveRxChat extends RxChat {
     users ??= [];
 
     if (chat.value.name == null && users.isEmpty) {
-      if (members.items.isNotEmpty == true) {
-        users.addAll(members.items.values.take(3).map((e) => e.user.value));
+      if (members.values.isNotEmpty == true) {
+        users.addAll(members.values.take(3).map((e) => e.user.value));
       } else {
         for (var u in chat.value.members.take(3)) {
           final user = (await _chatRepository.getUser(u.user.id))?.user.value;
@@ -1298,7 +1279,7 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.dialog:
-        member = members.items.values.firstWhereOrNull((e) => e.id != me);
+        member = members.values.firstWhereOrNull((e) => e.id != me);
         break;
 
       case ChatKind.group:

@@ -594,8 +594,7 @@ class OngoingCall {
 
                   // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
                   if (call.value?.dialed is ChatMembersDialedAll) {
-                    final Iterable<RxUser> dialings =
-                        v.members.items.values.where(
+                    final Iterable<RxUser> dialings = v.members.values.where(
                       (e) =>
                           e.id != me.id.userId &&
                           dialed.answeredMembers.none((a) => a.user.id == e.id),

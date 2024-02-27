@@ -234,11 +234,11 @@ class EventChatCallMemberRedialed extends ChatCallEvent {
 /// Event of a [User] being undialed in a [ChatCall].
 class EventChatCallMemberUndialed extends ChatCallEvent {
   const EventChatCallMemberUndialed(
-      super.callId,
-      super.chatId,
-      super.at,
-      this.user,
-      );
+    super.callId,
+    super.chatId,
+    super.at,
+    this.user,
+  );
 
   /// [User] representing the [ChatMember] who was undialed in the [ChatCall].
   final User user;

@@ -88,7 +88,7 @@ class ChatWorker extends DisposableService {
   @override
   void onReady() {
     _chatService.chats.forEach((_, value) => _onChatAdded(value));
-    _subscription = _chatService.chats.changes.listen((event) async {
+    _subscription = _chatService.chats.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           _onChatAdded(event.value!, true);

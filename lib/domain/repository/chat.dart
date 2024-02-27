@@ -236,7 +236,7 @@ abstract class RxChat implements Comparable<RxChat> {
   /// List of [User]s currently typing in this [chat].
   RxList<User> get typingUsers;
 
-  /// Reactive map of [User]s being members of this [chat].
+  /// [Paginated] of [User]s being members of this [chat].
   Paginated<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
@@ -276,7 +276,7 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [RxChat] is blocked or not.
   bool get blocked =>
       chat.value.isDialog &&
-      members.items.values
+      members.values
               .firstWhereOrNull((e) => e.id != me)
               ?.user
               .value

@@ -483,7 +483,7 @@ class ChatsTabController extends GetxController {
     }
 
     final UserId? userId =
-        chat.members.items.values.firstWhereOrNull((e) => e.id != me)?.id;
+        chat.members.values.firstWhereOrNull((e) => e.id != me)?.id;
     if (userId == null) {
       return false;
     }
@@ -920,7 +920,7 @@ class ChatEntry implements Comparable<ChatEntry> {
   /// Returns observable list of [ChatItem]s of the [chat].
   RxObsList<Rx<ChatItem>> get messages => _chat.messages;
 
-  /// Reactive list of [User]s being members of this [chat].
+  /// Reactive map of [User]s being members of this [chat].
   RxObsMap<UserId, RxUser> get members => _chat.members.items;
 
   /// Disposes this [ChatEntry].
