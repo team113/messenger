@@ -763,12 +763,6 @@ class SvgIcons {
     height: 17,
   );
 
-  static const SvgData pinDisabled = SvgData(
-    'assets/icons/pin_disabled.svg',
-    width: 9.65,
-    height: 17,
-  );
-
   static const SvgData unpin = SvgData(
     'assets/icons/unpin.svg',
     width: 15.5,
