@@ -2189,6 +2189,9 @@ class ChatRepository extends DisposableInterface
           for (var event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
+                // If we got an event about [Chat] that we don't have in
+                // [paginated], then fetch it and store appropriately with its
+                // favorite position.
                 if (paginated[event.chatId] == null) {
                   event as EventChatFavorited;
 
@@ -2197,8 +2200,8 @@ class ChatRepository extends DisposableInterface
                     hiveChat.value.favoritePosition = event.position;
                     await _putEntry(ChatData(hiveChat, null, null));
                   } else {
-                    // If there is no chat in local storage, [get] will fetch it
-                    // from the remote and put to the local storage.
+                    // If there is no [Chat] in [Hive], [get] will fetch it from
+                    // the remote already up-to-date and store it.
                     await get(event.chatId);
                   }
                 }

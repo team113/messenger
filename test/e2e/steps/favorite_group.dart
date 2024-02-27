@@ -17,9 +17,7 @@
 
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
-import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
 import '../parameters/users.dart';
@@ -36,17 +34,9 @@ final StepDefinitionGeneric favoriteGroup =
     final provider = GraphQlProvider();
 
     final CustomUser customUser = context.world.sessions[user.name]!;
-    customUser.credentials ??= (await provider.signIn(
-      UserPassword('123'),
-      null,
-      customUser.userNum,
-      null,
-      null,
-    ))
-        .toModel();
-    provider.token = customUser.token;
+    provider.token = (await customUser.credentials).session.token;
 
-    Chat chat = (await provider.recentChats(first: 10))
+    final Chat chat = (await provider.recentChats(first: 10))
         .recentChats
         .edges
         .map((e) => e.node.toModel())

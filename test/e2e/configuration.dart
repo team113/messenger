@@ -341,6 +341,7 @@ Future<CustomUser> createUser({
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
       await provider.updateUserPassword(null, password);
+      world.sessions[user.name]?.password = password;
 
       final result =
           await provider.signIn(password, null, customUser.userNum, null, null);

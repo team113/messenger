@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -673,15 +672,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
       return;
     }
-
-    // TODO: Always update the [user.ver] when [MyUserEventsVersioned] will fire
-    //       in the correct order.
-    if (versioned.events.none((e) =>
-        e.kind == MyUserEventKind.directLinkUpdated ||
-        e.kind == MyUserEventKind.directLinkDeleted ||
-        e.kind == MyUserEventKind.unreadChatsCountUpdated)) {
-      userEntity.ver = versioned.ver;
-    }
+    userEntity.ver = versioned.ver;
 
     Log.debug(
       '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
