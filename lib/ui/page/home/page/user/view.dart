@@ -19,7 +19,6 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -42,6 +41,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -116,6 +116,7 @@ class UserView extends StatelessWidget {
     );
   }
 
+  /// Builds a [Block] displaying a [User.avatar] and [User.name].
   Widget _profile(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 

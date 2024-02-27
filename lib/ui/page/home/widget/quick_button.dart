@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
+/// [WidgetButton] of squared [Container] with an [icon] and a [label].
 class QuickButton extends StatelessWidget {
   const QuickButton({
     super.key,
@@ -12,8 +13,13 @@ class QuickButton extends StatelessWidget {
     this.onPressed,
   });
 
+  /// [SvgData] to display as an icon.
   final SvgData icon;
+
+  /// Label to display.
   final String label;
+
+  /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
   @override
