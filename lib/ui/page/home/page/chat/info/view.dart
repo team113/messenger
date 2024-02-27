@@ -352,7 +352,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     // [SvgIcons.more] buttons with its [ContextMenuRegion].
-    final Widget editButton = Obx(() {
+    final Widget editButton = Obx(key: const Key('MoreButton'), () {
       final bool favorite = c.chat?.chat.value.favoritePosition != null;
       final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
