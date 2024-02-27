@@ -82,6 +82,11 @@ abstract class Paginated<K extends Comparable, T> {
     onDispose?.call();
   }
 
+  /// Fetches the initial page of the [items].
+  Future<void> around() async {
+    await ensureInitialized();
+  }
+
   /// Fetches next page of the [items].
   Future<void> next();
 

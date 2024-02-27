@@ -115,9 +115,6 @@ class DummyRxChat extends RxChat {
   Future<void> previous() async {}
 
   @override
-  Future<void> membersAround() async {}
-
-  @override
   Future<void> remove(ChatItemId itemId) async {}
 
   @override

@@ -500,24 +500,6 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<void> membersAround() async {
-    Log.debug('membersAround()', '$runtimeType($id)');
-
-    if (id.isLocal || members.hasNext.isFalse) {
-      return;
-    }
-
-    await members.ensureInitialized();
-
-    if (me != null && members.items.values.none((e) => e.id == me)) {
-      final RxUser? myUser = await _chatRepository.getUser(me!);
-      if (myUser != null) {
-        members.items[me!] = myUser;
-      }
-    }
-  }
-
-  @override
   Future<void> updateAttachments(ChatItem item) async {
     Log.debug('updateAttachments($item)', '$runtimeType($id)');
 
@@ -1042,6 +1024,18 @@ class HiveRxChat extends RxChat {
         ),
         compare: (a, b) => a.value.compareTo(b.value),
       ),
+      initial: [
+        Future(() async {
+          final Map<UserId, RxUser> initial = {};
+
+          final RxUser? myUser = await _chatRepository.getUser(me!);
+          if (myUser != null) {
+            initial[me!] = myUser;
+          }
+
+          return initial;
+        })
+      ],
     );
 
     // [chat] always contains first 3 members, so we can immediately put them if
@@ -1451,7 +1445,7 @@ class HiveRxChat extends RxChat {
           if (e is StaleVersionException) {
             await clear();
             await _pagination.around(cursor: _lastReadItemCursor);
-            await membersAround();
+            await members.around();
           }
         },
       );
@@ -1852,7 +1846,13 @@ class HiveRxChat extends RxChat {
                       chatEntity.value.lastReads
                           .removeWhere((e) => e.memberId == action.user.id);
                       reads.removeWhere((e) => e.memberId == action.user.id);
-                      _chatRepository.removeUserFromCall(id, action.user.id);
+                      // Removes a dialed member when he removed from chat.
+                      if (chat.value.ongoingCall != null) {
+                        _chatRepository.removeDialedUserFromCall(
+                          id,
+                          action.user.id,
+                        );
+                      }
                       await _chatRepository.onMemberRemoved(id, action.user.id);
                       break;
 

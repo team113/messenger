@@ -177,6 +177,7 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   RxPaginatedImpl({
     required this.transform,
     required super.pagination,
+    super.initial,
     super.initialKey,
     super.initialCursor,
     super.onDispose,
@@ -190,6 +191,14 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty && !status.value.isSuccess) {
+      for (var f in initial) {
+        if (f is Future<Map<K, T>>) {
+          _futures.add(f..then(items.addAll));
+        } else {
+          items.addAll(f);
+        }
+      }
+
       _paginationSubscription = pagination!.changes.listen((event) async {
         switch (event.op) {
           case OperationKind.added:

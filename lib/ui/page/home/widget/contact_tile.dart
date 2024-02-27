@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -200,6 +200,7 @@ class ContactTile extends StatelessWidget {
     );
   }
 
+  /// Returns [Text] with the [contact], [user] or [myUser] name.
   Widget _name(
     BuildContext context, {
     ChatContact? contact,

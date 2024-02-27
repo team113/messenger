@@ -259,7 +259,7 @@ class ParticipantController extends GetxController {
         }
       });
 
-      await chat.value!.membersAround();
+      await chat.value!.members.around();
     }
   }
 

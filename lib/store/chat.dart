@@ -1124,11 +1124,11 @@ class ChatRepository extends DisposableInterface
     _callRepo.remove(chatId);
   }
 
-  /// Removes the [CallMember] with the provided [userId] from call in the
+  /// Removes a dialed [CallMember] with the provided [userId] from call in the
   /// [Chat] with the provided [chatId].
-  void removeUserFromCall(ChatId chatId, UserId userId) {
-    Log.debug('removeUserFromCall($chatId, $userId)', '$runtimeType');
-    _callRepo.removeUserFromCall(chatId, userId);
+  void removeDialedUserFromCall(ChatId chatId, UserId userId) {
+    Log.debug('removeDialedUserFromCall($chatId, $userId)', '$runtimeType');
+    _callRepo.removeDialedUserFromCall(chatId, userId);
   }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
@@ -1565,6 +1565,10 @@ class ChatRepository extends DisposableInterface
           // Set the version to the [saved] one, if not [updateVersion].
           if (saved != null && !updateVersion) {
             chat.ver = saved.ver;
+            // [Chat.membersCount] should not be updated, if not [updateVersion]
+            // as [Chat.membersCount] updating in [ChatEventKind.itemPosted]
+            // events processing.
+            chat.value.membersCount = saved.value.membersCount;
           }
 
           await txn.put(chat.value.id.val, chat);
@@ -1590,10 +1594,8 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat);
+      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat)..init();
       chats[chatId] = entry;
-
-      entry.init();
     } else {
       if (entry.chat.value.isMonolog) {
         if (_localMonologFavoritePosition != null) {

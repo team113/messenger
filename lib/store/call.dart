@@ -515,11 +515,14 @@ class CallRepository extends DisposableInterface
     });
   }
 
-  /// Removes the [CallMember] with the provided [userId] from call in the
+  /// Removes a dialed [CallMember] with the provided [userId] from call in the
   /// [Chat] with the provided [chatId] if any.
-  void removeUserFromCall(ChatId chatId, UserId userId) {
-    Log.debug('removeUserFromCall($chatId, $userId)', '$runtimeType');
-    calls[chatId]?.value.members.removeWhere((_, e) => e.id.userId == userId);
+  void removeDialedUserFromCall(ChatId chatId, UserId userId) {
+    Log.debug('removeDialedUserFromCall($chatId, $userId)', '$runtimeType');
+    calls[chatId]
+        ?.value
+        .members
+        .removeWhere((_, e) => e.id.userId == userId && e.id.deviceId == null);
   }
 
   /// Returns a [Stream] of [IncomingChatCallsTopEvent]s.
@@ -629,6 +632,15 @@ class CallRepository extends DisposableInterface
         node.call.toModel(),
         node.user.toModel(),
         node.byUser.toModel(),
+      );
+    } else if (e.$$typename == 'EventChatCallMemberUndialed') {
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberUndialed;
+      return EventChatCallMemberUndialed(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
       final node = e

@@ -439,7 +439,7 @@ class OngoingCall {
         if ((outgoing && conversationStartedAt == null && membersCount < 16) ||
             chat.chat.value.isDialog) {
           if (chat.members.items.length != membersCount) {
-            await chat.membersAround();
+            await chat.members.around();
           }
 
           if (!connected) {
@@ -589,7 +589,7 @@ class OngoingCall {
                 if (dialed is ChatMembersDialedAll &&
                     v.chat.value.membersCount < 16) {
                   if (v.members.items.length != v.chat.value.membersCount) {
-                    await v.membersAround();
+                    await v.members.around();
                   }
 
                   // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
@@ -810,6 +810,15 @@ class OngoingCall {
 
                 case ChatCallEventKind.conversationStarted:
                   // TODO: Implement [EventChatCallConversationStarted].
+                  break;
+
+                case ChatCallEventKind.undialed:
+                  final node = event as EventChatCallMemberUndialed;
+
+                  final CallMemberId id = CallMemberId(node.user.id, null);
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id)?.dispose();
+                  }
                   break;
               }
             }

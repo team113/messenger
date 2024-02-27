@@ -314,9 +314,6 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Fetches the previous [messages] page.
   Future<void> previous();
 
-  /// Fetches the initial [members] page;
-  Future<void> membersAround();
-
   /// Updates the [Attachment]s of the specified [item] to be up-to-date.
   ///
   /// Intended to be used to update the [StorageFile.relativeRef] links.

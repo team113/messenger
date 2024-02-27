@@ -91,8 +91,6 @@ class ChatWorker extends DisposableService {
     _subscription = _chatService.chats.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
-          // Wait for [RxChat] to initialize.
-          await Future.delayed(Duration.zero);
           _onChatAdded(event.value!, true);
           break;
 
