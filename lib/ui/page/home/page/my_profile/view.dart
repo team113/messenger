@@ -362,12 +362,7 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           block(
                             title: 'Монетизация (входящие)'.l10n,
-                            padding: const EdgeInsets.fromLTRB(
-                              32, // - 8,
-                              16,
-                              32, // - 8,
-                              16,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
                             overlay: [
                               Positioned(
                                 right: 0,
@@ -467,6 +462,39 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           block(
                             title: 'Монетизация (донаты)'.l10n,
+                            overlay: [
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Center(
+                                  child: SelectionContainer.disabled(
+                                    child: AnimatedButton(
+                                      onPressed: c.donateEditing.toggle,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          6,
+                                          6,
+                                          0,
+                                          6,
+                                        ),
+                                        child: Obx(() {
+                                          return c.donateEditing.value
+                                              ? const Padding(
+                                                  padding: EdgeInsets.all(2),
+                                                  child: SvgIcon(
+                                                    SvgIcons.closeSmallPrimary,
+                                                  ),
+                                                )
+                                              : const SvgIcon(
+                                                  SvgIcons.editSmall,
+                                                );
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                             children: [_donates(context, c)],
                           ),
                           Positioned.fill(
@@ -1557,11 +1585,6 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
 
     if (c.moneyEditing.value) {
       children = [
-        // Text(
-        //   'Пользователи платят Вам за отправку Вам сообщений и совершение звонков.',
-        //   style: style.fonts.small.regular.secondary,
-        // ),
-        // const SizedBox(height: 24),
         const LineDivider('От всех пользователей'),
         const SizedBox(height: 8 + 8 + 8),
         MoneyField(
@@ -1813,46 +1836,40 @@ Widget _donates(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
-    return Column(
-      children: [
-        Paddings.basic(
-          ReactiveTextField(
-            state: c.donateCost,
-            style: style.fonts.medium.regular.onBackground,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-            hint: '0',
-            prefix: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 1, 0),
-              child: Transform.translate(
-                offset: PlatformUtils.isWeb
-                    ? const Offset(0, -0)
-                    : const Offset(0, -0.5),
-                child: Text(
-                  '¤',
-                  style: style.fonts.medium.regular.onBackground,
-                ),
-              ),
-            ),
-            label: 'Минимальная сумма подарка',
-          ),
+    final List<Widget> children;
+
+    if (c.donateEditing.value) {
+      children = [
+        const SizedBox(height: 8),
+        MoneyField(state: c.donateCost, label: 'Минимальная сумма'),
+        const SizedBox(height: 8),
+      ];
+    } else {
+      children = [
+        PriceEntry(
+          amount: c.donatePrice.value,
+          label: 'Минимальная сумма',
+          // subtitle: 'Доната',
+          onPressed: () {
+            c.donateEditing.value = true;
+            c.donateCost.focus.requestFocus();
+          },
         ),
-        Paddings.basic(
-          ReactiveTextField(
-            key: const Key('StatusField'),
-            state: TextFieldState(text: '0'),
-            formatters: [FilteringTextInputFormatter.digitsOnly],
-            label: 'Максимальная длина сообщения'.l10n,
-            filled: true,
-            style: TextStyle(
-              color: c.verified.value
-                  ? style.colors.onBackground
-                  : style.colors.primary,
-            ),
-          ),
+        const SizedBox(height: 8),
+        Text(
+          'Пользователи не смогут отправить Вам донат на сумму менее указанной Вами.',
+          style: style.fonts.small.regular.secondary,
         ),
-        Opacity(opacity: 0, child: _verification(context, c)),
-      ],
+      ];
+    }
+
+    return AnimatedSizeAndFade(
+      sizeDuration: const Duration(milliseconds: 300),
+      fadeDuration: const Duration(milliseconds: 300),
+      child: Column(
+        key: Key(c.donateEditing.value.toString()),
+        children: children,
+      ),
     );
   });
 }

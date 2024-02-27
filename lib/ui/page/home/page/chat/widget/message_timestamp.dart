@@ -90,7 +90,7 @@ class MessageTimestamp extends StatelessWidget {
       children: [
         if (donation) ...[
           EmbossedText(
-            'GIFT',
+            'DONATE',
             style: style.systemMessageStyle.copyWith(
               fontSize: fontSize ?? 11,
               // color: DonateWidget.font,

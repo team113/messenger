@@ -37,7 +37,7 @@ class Prices extends StatelessWidget {
               padding: const EdgeInsets.only(right: 8),
               child: Text(
                 'Входящее сообщение:',
-                style: style.fonts.medium.regular.onBackground,
+                style: style.fonts.normal.regular.onBackground,
               ),
             ),
             Align(
@@ -96,7 +96,7 @@ class Prices extends StatelessWidget {
               padding: const EdgeInsets.only(right: 8),
               child: Text(
                 'Входящий звонок:',
-                style: style.fonts.medium.regular.onBackground,
+                style: style.fonts.normal.regular.onBackground,
               ),
             ),
             Align(
@@ -146,6 +146,95 @@ class Prices extends StatelessWidget {
             const SizedBox(),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class PriceEntry extends StatelessWidget {
+  const PriceEntry({
+    this.amount = 0,
+    this.onPressed,
+    required this.label,
+    this.subtitle,
+    super.key,
+  });
+
+  final int amount;
+  final void Function()? onPressed;
+  final String label;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final TextStyle acceptStyle =
+        style.fonts.medium.regular.onBackground.copyWith(
+      color: style.colors.acceptPrimary,
+    );
+
+    return Table(
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      columnWidths: const {0: FlexColumnWidth(), 1: IntrinsicColumnWidth()},
+      children: [
+        TableRow(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(
+                label,
+                style: style.fonts.normal.regular.onBackground,
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: amount == 0
+                  ? WidgetButton(
+                      onPressed: onPressed,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '¤',
+                            style: onPressed == null
+                                ? acceptStyle
+                                : style.fonts.medium.regular.primary,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '0',
+                            style: onPressed == null
+                                ? acceptStyle
+                                : style.fonts.medium.regular.primary,
+                          ),
+                        ],
+                      ),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('¤', style: acceptStyle),
+                        const SizedBox(width: 2),
+                        Text(amount.withSpaces(), style: acceptStyle),
+                      ],
+                    ),
+            ),
+          ],
+        ),
+        if (subtitle != null)
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text(
+                  subtitle!,
+                  style: style.fonts.small.regular.secondary,
+                ),
+              ),
+              const SizedBox(),
+            ],
+          ),
       ],
     );
   }

@@ -691,6 +691,32 @@ class ChatController extends GetxController {
     }
   }
 
+  Future<void> rejectChatItem(ChatItem item) async {
+    if (item.author.isDeleted) {
+      await MessagePopup.alert(
+        'Ошибка',
+        description: [
+          TextSpan(
+            text:
+                'К сожалению, возрат средств невозможен. Аккаунт пользователя ${item.author.name ?? item.author.num} удалён.',
+          ),
+        ],
+      );
+      return;
+    }
+
+    final sum = item is ChatMessage ? (item.donate ?? 123) : 123;
+
+    if (_balanceService.balance.value < sum.toDouble()) {
+      await InsufficientFundsView.show(
+        router.context!,
+        description: 'label_donate_cant_reject_donate'.l10n,
+      );
+    } else {
+      // TODO
+    }
+  }
+
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
   Future<void> deleteMessage(ChatItem item) async {
     try {

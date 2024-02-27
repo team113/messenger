@@ -25,6 +25,7 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/hovered_ink.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
@@ -92,6 +93,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDownloadAs,
     this.onSave,
     this.onSelect,
+    this.onReject,
     this.onPin,
     this.paid = false,
     this.pinned = false,
@@ -164,6 +166,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
+
+  final void Function()? onReject;
 
   final void Function()? onPin;
   final bool pinned;
@@ -786,6 +790,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool timeInBubble =
         media.isNotEmpty && files.isEmpty && _text == null;
 
+    final bool hasTimestamp = msg.donate == null ||
+        _text != null ||
+        msg.attachments.isNotEmpty ||
+        msg.repliesTo.isNotEmpty;
+
     return _rounded(
       context,
       (menu, constraints) {
@@ -843,6 +852,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             if ((msg.repliesTo.isEmpty && msg.attachments.isEmpty) &&
                 _text != null)
               const SizedBox(height: 6),
+            if (msg.repliesTo.isEmpty &&
+                msg.attachments.isEmpty &&
+                _text == null)
+              const SizedBox(width: 300),
           ],
           if (msg.repliesTo.isNotEmpty) ...[
             ...msg.repliesTo.expand((e) {
@@ -962,38 +975,39 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             const SizedBox(height: 6),
           ],
           if (_text != null || msg.attachments.isEmpty) ...[
-            Row(
-              children: [
-                Flexible(
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 500),
-                    opacity: _isRead || !_fromMe ? 1 : 0.7,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                      child: SelectionText.rich(
-                        TextSpan(
-                          children: [
-                            if (_text != null) _text!,
-                            if (!timeInBubble) ...[
-                              const WidgetSpan(child: SizedBox(width: 4)),
-                              WidgetSpan(
-                                child:
-                                    Opacity(opacity: 0, child: _timestamp(msg)),
-                              )
+            if (hasTimestamp)
+              Row(
+                children: [
+                  Flexible(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isRead || !_fromMe ? 1 : 0.7,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                        child: SelectionText.rich(
+                          TextSpan(
+                            children: [
+                              if (_text != null) _text!,
+                              if (!timeInBubble) ...[
+                                const WidgetSpan(child: SizedBox(width: 4)),
+                                WidgetSpan(
+                                  child: Opacity(
+                                      opacity: 0, child: _timestamp(msg)),
+                                )
+                              ],
                             ],
-                          ],
+                          ),
+                          key: Key('Text_${widget.item.value.id}'),
+                          selectable: (PlatformUtils.isDesktop || menu) &&
+                              _text != null,
+                          onChanged: (a) => _selection = a,
+                          style: style.fonts.medium.regular.onBackground,
                         ),
-                        key: Key('Text_${widget.item.value.id}'),
-                        selectable:
-                            (PlatformUtils.isDesktop || menu) && _text != null,
-                        onChanged: (a) => _selection = a,
-                        style: style.fonts.medium.regular.onBackground,
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             if (_text != null) const SizedBox(height: 6),
           ],
         ];
@@ -1027,20 +1041,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   ),
                 ),
               ),
-              Positioned(
-                right: timeInBubble ? 6 : 8,
-                bottom: 4,
-                child: timeInBubble
-                    ? Container(
-                        padding: const EdgeInsets.only(left: 4, right: 4),
-                        decoration: BoxDecoration(
-                          color: style.colors.onBackgroundOpacity50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: _timestamp(msg, true),
-                      )
-                    : _timestamp(msg),
-              )
+              if (hasTimestamp)
+                Positioned(
+                  right: timeInBubble ? 6 : 8,
+                  bottom: 4,
+                  child: timeInBubble
+                      ? Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: style.colors.onBackgroundOpacity50,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: _timestamp(msg, true),
+                        )
+                      : _timestamp(msg),
+                )
             ],
           ),
         );
@@ -1841,6 +1856,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               );
                             },
                           ),
+                          if (!_fromMe) ...[
+                            if (item is ChatMessage && item.donate != null)
+                              ContextMenuButton(
+                                label: 'Отклонить донат'.l10n,
+                                trailing: const SvgIcon(SvgIcons.reject),
+                                inverted: const SvgIcon(SvgIcons.rejectWhite),
+                                onPressed: _rejectPayment,
+                              ),
+                            if ((item is ChatMessage || item is ChatCall) &&
+                                widget.paid)
+                              ContextMenuButton(
+                                label: 'Отклонить платёж'.l10n,
+                                trailing: const SvgIcon(SvgIcons.reject),
+                                inverted: const SvgIcon(SvgIcons.rejectWhite),
+                                onPressed: _rejectPayment,
+                              )
+                          ],
                         ],
                         if (item.status.value == SendingStatus.error) ...[
                           ContextMenuButton(
@@ -1926,6 +1958,42 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
       );
     });
+  }
+
+  Future<void> _rejectPayment() async {
+    final bool isDonate = widget.item.value is ChatMessage &&
+        (widget.item.value as ChatMessage).donate != null;
+
+    if (isDonate) {
+      final donate = (widget.item.value as ChatMessage).donate;
+      final response = await MessagePopup.alert(
+        'Отклонить донат?',
+        description: [
+          TextSpan(
+            text:
+                '¤$donate будет возвращено ${widget.user?.user.value.name ?? widget.user?.user.value.num}.',
+          ),
+        ],
+      );
+
+      if (response == true) {
+        widget.onReject?.call();
+      }
+    } else {
+      final response = await MessagePopup.alert(
+        'Отклонить платёж?',
+        description: [
+          TextSpan(
+            text:
+                '¤123 будет возвращено ${widget.user?.user.value.name ?? widget.user?.user.value.num}.',
+          ),
+        ],
+      );
+
+      if (response == true) {
+        widget.onReject?.call();
+      }
+    }
   }
 
   /// Populates the [_worker] invoking the [_populateSpans] and

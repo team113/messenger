@@ -54,7 +54,7 @@ class BalanceService extends DisposableService {
       ),
       IncomingTransaction(
         id: '428ac09a-6a85-4121-9c24-974d922156a4',
-        amount: 100000,
+        amount: 300,
         at: DateTime.now().subtract(const Duration(days: 50)),
         status: TransactionStatus.completed,
       ),

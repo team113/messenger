@@ -119,6 +119,7 @@ class MyProfileController extends GetxController {
   late final TextFieldState contactCallCost; // = TextFieldState(text: '0.00');
 
   late final TextFieldState donateCost;
+  final RxInt donatePrice = RxInt(0);
 
   late final TextFieldState email = TextFieldState(
     approvable: true,
@@ -220,6 +221,7 @@ class MyProfileController extends GetxController {
 
   final RxBool linkEditing = RxBool(false);
   final RxBool moneyEditing = RxBool(false);
+  final RxBool donateEditing = RxBool(false);
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
@@ -625,12 +627,15 @@ class MyProfileController extends GetxController {
     //   }
     // });
 
-    donateCost = TextFieldState(approvable: true, allowable: true, text: '0');
-    donateCost.isFocused.listen((b) {
-      if (!b && donateCost.text.isEmpty) {
-        donateCost.unchecked = '0';
-      }
-    });
+    donateCost = TextFieldState(
+      approvable: true,
+      text: '',
+      onSubmitted: (s) {
+        donatePrice.value =
+            int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
+        donateEditing.value = false;
+      },
+    );
 
     send = MessageFieldController(
       _chatService,

@@ -1812,7 +1812,13 @@ class SvgIcons {
 
   static const SvgData favorite16 = SvgData(
     'assets/icons/favorite16.svg',
-    // width: 16.82,
+    width: 17.87,
+    height: 17,
+  );
+
+  static const SvgData unfavorite16 = SvgData(
+    'assets/icons/unfavorite16.svg',
+    width: 17.87,
     height: 17,
   );
 
@@ -1844,12 +1850,6 @@ class SvgIcons {
     'assets/icons/complaint16_white.svg',
     width: 16,
     height: 16,
-  );
-
-  static const SvgData unfavorite16 = SvgData(
-    'assets/icons/unfavorite16.svg',
-    // width: 16.82,
-    height: 17,
   );
 
   static const SvgData verifyEmail = SvgData(
@@ -1897,6 +1897,18 @@ class SvgIcons {
   static const SvgData delete19White = SvgData(
     'assets/icons/delete19_white.svg',
     width: 19.88,
+    height: 19,
+  );
+
+    static const SvgData reject = SvgData(
+    'assets/icons/reject.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData rejectWhite = SvgData(
+    'assets/icons/reject_white.svg',
+    width: 19,
     height: 19,
   );
 

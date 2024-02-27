@@ -144,7 +144,7 @@ class DonateWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4, bottom: 4),
                 child: timestamp ??
                     EmbossedText(
-                      'GIFT',
+                      'DONATE',
                       small: true,
                       style: style.systemMessageStyle.copyWith(
                         color: DonateWidget.font,

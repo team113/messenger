@@ -194,7 +194,7 @@ btn_fullscreen_enter = Полноэкранный режим
 btn_fullscreen_exit = Выйти из полного экрана
 btn_gallery = Галерея
 btn_generate_direct_chat_link = Сгенерировать
-btn_gift = Подарок
+btn_gift = Донат
 btn_hide = Скрыть
 btn_hide_chat = Скрыть чат
 btn_info = Информация
@@ -1057,8 +1057,9 @@ btn_accept = Принять
 label_insufficient_funds = Недостаточно средств
 label_not_enough_funds_on_your_account = На Вашем счету недостаточно средств.
 label_message_cant_send_message_funds = К сожалению, сообщение не может быть отправлено. Пожалуйста, пополните Ваш счёт.
-label_gift_cant_send_message_funds = К сожалению, подарок не может быть отправлен. Пожалуйста, пополните Ваш счёт.
+label_gift_cant_send_message_funds = К сожалению, донат не может быть отправлен. Пожалуйста, пополните Ваш счёт.
 label_message_cant_make_call_funds = К сожалению, звонок не может быть совершён. Пожалуйста, пополните Ваш счёт.
+label_donate_cant_reject_donate = К сожалению, указанная сумма не может быть отправлена. Пожалуйста, пополните Ваш счёт.
 btn_add_funds = Пополнить счёт
 label_balance_enabled = Включено
 label_balance_disabled = Отключено
@@ -1128,13 +1129,13 @@ label_donates = Донаты
 label_donates_preferences = Сумма и длина доната
 label_take_photo = Сделать фото
 label_take_video = Записать видео
-fcm_dialog_donate = {$donate} G подарок
+fcm_dialog_donate = {$donate} G донат
 fcm_group_donate =
     {$userName ->
         [x] {$userNum}
         *[other] {$userName}
-    }: {$donate}G подарок
-label_donate_count = {$donate} ¤ подарок
+    }: {$donate}G донат
+label_donate_count = {$donate} ¤ донат
 label_no_registration = No registration
 label_or_register = Or register
 label_one_time_account_created = Одноразовый аккаунт создан
@@ -1209,7 +1210,6 @@ label_partnership = Партнёрство
 label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
 btn_sticker = Стикер
-btn_gift = Подарок
 btn_video_message = Видео сообщение
 btn_audio = Аудио
 btn_audio_message = Аудио сообщение

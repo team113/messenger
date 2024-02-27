@@ -1229,6 +1229,7 @@ class ChatView extends StatelessWidget {
                         ? c.unpin(c.pinned.indexOf(e.value))
                         : c.pin(e.value);
                   },
+                  onReject: () => c.rejectChatItem(e.value),
                 ),
               ),
             );
