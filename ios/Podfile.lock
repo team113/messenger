@@ -1,6 +1,8 @@
 PODS:
   - all_sensors (0.0.1):
     - Flutter
+  - audio_session (0.0.1):
+    - Flutter
   - callkeep (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -109,6 +111,8 @@ PODS:
   - instrumentisto-libwebrtc-bin (118.0.5993.88)
   - integration_test (0.0.1):
     - Flutter
+  - just_audio (0.0.1):
+    - Flutter
   - libyuv-iOS (1.0.2)
   - medea_flutter_webrtc (0.10.0-dev):
     - Flutter
@@ -169,6 +173,7 @@ PODS:
 
 DEPENDENCIES:
   - all_sensors (from `.symlinks/plugins/all_sensors/ios`)
+  - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - callkeep (from `.symlinks/plugins/callkeep/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
@@ -183,6 +188,7 @@ DEPENDENCIES:
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - medea_flutter_webrtc (from `.symlinks/plugins/medea_flutter_webrtc/ios`)
   - medea_jason (from `.symlinks/plugins/medea_jason/ios`)
   - media_kit_libs_ios_video (from `.symlinks/plugins/media_kit_libs_ios_video/ios`)
@@ -226,6 +232,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   all_sensors:
     :path: ".symlinks/plugins/all_sensors/ios"
+  audio_session:
+    :path: ".symlinks/plugins/audio_session/ios"
   callkeep:
     :path: ".symlinks/plugins/callkeep/ios"
   connectivity_plus:
@@ -252,6 +260,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
+  just_audio:
+    :path: ".symlinks/plugins/just_audio/ios"
   medea_flutter_webrtc:
     :path: ".symlinks/plugins/medea_flutter_webrtc/ios"
   medea_jason:
@@ -291,6 +301,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   all_sensors: 13f46502204bebbd1e06b65ff3d7cdaa03d88b26
+  audio_session: 4f3e461722055d21515cf3261b64c973c062f345
   callkeep: 6b21abbd46786a36e482190816db99b391ada1e3
   connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
@@ -314,6 +325,7 @@ SPEC CHECKSUMS:
   image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
   instrumentisto-libwebrtc-bin: 295e1721ff9a8ccfc030c0de5f095c7d6b3e53ce
   integration_test: 13825b8a9334a850581300559b8839134b124670
+  just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
   medea_flutter_webrtc: ca2335744f08d45963f26f8db159c6dcd19a31a3
   medea_jason: 05d8174fd71ee885e68e40a50816d609d971f7b5
@@ -343,4 +355,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 138c677207479d912b992fe10e92106347aa5d39
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2
