@@ -157,7 +157,7 @@ class HiveRxUser extends RxUser {
 
         events as UserEventsUser;
         final saved = _userLocal.get(id);
-        if (saved == null || saved.ver < events.user.ver) {
+        if (saved == null || saved.ver <= events.user.ver) {
           await _userLocal.put(events.user);
         }
         break;
@@ -165,7 +165,7 @@ class HiveRxUser extends RxUser {
       case UserEventsKind.event:
         final userEntity = _userLocal.get(id);
         final versioned = (events as UserEventsEvent).event;
-        if (userEntity == null || versioned.ver <= userEntity.ver) {
+        if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
             '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
             '$runtimeType($id)',
