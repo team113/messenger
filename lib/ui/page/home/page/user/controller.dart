@@ -228,7 +228,6 @@ class UserController extends GetxController {
       try {
         if (contact.value != null) {
           await _contactService.deleteContact(contact.value!.contact.value.id);
-          _updateWorker();
         }
       } catch (e) {
         MessagePopup.error(e);

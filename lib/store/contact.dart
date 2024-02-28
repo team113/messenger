@@ -375,8 +375,8 @@ class ContactRepository extends DisposableInterface
   /// Removes a [ChatContact] identified by the provided [id].
   Future<void> remove(ChatContactId id) async {
     Log.debug('remove($id)', '$runtimeType');
-    ChatContact? contact = contacts[id]?.contact.value;
-    contact ??= (await _contactLocal.get(id))?.value;
+    ChatContact? contact =
+        contacts[id]?.contact.value ?? (await _contactLocal.get(id))?.value;
 
     if (contact != null) {
       for (User user in contact.users) {
@@ -560,7 +560,9 @@ class ContactRepository extends DisposableInterface
     await Future.delayed(Duration.zero);
 
     List<RxChatContact> contacts =
-        result.map((e) => this.contacts[e.value.id]).whereNotNull().toList();
+        (await Future.wait(result.map((e) async => await get(e.value.id))))
+            .whereNotNull()
+            .toList();
 
     return Page(
       RxList(contacts),
