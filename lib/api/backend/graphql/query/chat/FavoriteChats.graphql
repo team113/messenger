@@ -38,5 +38,6 @@ query FavoriteChats(
             __typename
             ...PageInfo
         }
+        ver
     }
 }

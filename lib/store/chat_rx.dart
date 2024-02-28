@@ -1354,7 +1354,7 @@ class HiveRxChat extends RxChat {
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
-              versioned.ver <= chatEntity.ver ||
+              versioned.ver < chatEntity.ver ||
               !subscribed) {
             Log.debug(
               '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',

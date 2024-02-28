@@ -40,6 +40,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onUpload,
     this.onDelete,
     this.loading = false,
+    this.error,
   })  : _mode = _BigAvatarMode.myUser,
         user = null,
         chat = null;
@@ -51,6 +52,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onUpload,
     this.onDelete,
     this.loading = false,
+    this.error,
   })  : _mode = _BigAvatarMode.chat,
         myUser = null,
         user = null;
@@ -62,6 +64,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onUpload,
     this.onDelete,
     this.loading = false,
+    this.error,
   })  : _mode = _BigAvatarMode.user,
         myUser = null,
         chat = null;
@@ -80,6 +83,9 @@ class BigAvatarWidget extends StatefulWidget {
 
   /// Indicator whether a [CustomProgressIndicator] should be displayed.
   final bool loading;
+
+  /// Text to display under the [Avatar], indicating an error.
+  final String? error;
 
   /// Callback, called when an upload of [Avatar] is required.
   final void Function()? onUpload;
@@ -154,6 +160,17 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                 ),
             ],
           ),
+          if (widget.error != null) ...[
+            const SizedBox(height: 4),
+            SizedBox(
+              width: AvatarRadius.largest.toDouble() * 2,
+              child: Text(
+                widget.error!,
+                style: style.fonts.small.regular.danger,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
         ],
       ],
     );
