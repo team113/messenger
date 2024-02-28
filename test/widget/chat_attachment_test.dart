@@ -287,6 +287,7 @@ void main() async {
                 'id': 'me',
                 'num': '1234567890123456',
                 'mutualContactsCount': 0,
+                'contacts': [],
                 'isDeleted': false,
                 'isBlocked': {'ver': '0'},
                 'presence': 'AWAY',

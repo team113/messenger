@@ -45,6 +45,18 @@ class HiveRxUser extends RxUser {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
+    final ChatContactId? contactId = user.value.contacts.firstOrNull;
+    if (contactId != null) {
+      FutureOr<RxChatContact?> contact =
+          _userRepository.getContact?.call(contactId);
+
+      if (contact is RxChatContact?) {
+        this.contact.value = contact;
+      } else {
+        contact.then((v) => this.contact.value = v);
+      }
+    }
+
     // Re-run [_runLastSeenTimer], if [User.lastSeenAt] has been changed.
     PreciseDateTime? at = user.value.lastSeenAt;
     _worker = ever(user, (User user) async {

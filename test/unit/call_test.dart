@@ -62,6 +62,7 @@ Map<String, dynamic> _caller([String? id]) => {
       'id': id ?? 'id',
       'num': '1234567890123456',
       'mutualContactsCount': 0,
+      'contacts': [],
       'isDeleted': false,
       'isBlocked': {'ver': '0'},
       'presence': 'AWAY',

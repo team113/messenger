@@ -290,6 +290,7 @@ void main() async {
               'presence': 'AWAY',
               'online': {'__typename': 'UserOnline'},
               'mutualContactsCount': 0,
+              'contacts': [],
               'isDeleted': false,
               'isBlocked': {'ver': '0'},
             },

@@ -189,15 +189,16 @@ class UserController extends GetxController {
       },
     );
 
-    _fetchUser();
-
     _updateWorker();
-    _contactWorker = ever(contact, (contact) {
-      if (contact == null) {
-        profileEditing.value = false;
-      }
 
-      _updateWorker();
+    _fetchUser().whenComplete(() {
+      _contactWorker = ever(contact, (contact) {
+        if (contact == null) {
+          profileEditing.value = false;
+        }
+
+        _updateWorker();
+      });
     });
 
     super.onInit();
