@@ -36,6 +36,8 @@ final StepDefinitionGeneric favoriteGroup =
     final CustomUser customUser = context.world.sessions[user.name]!;
     provider.token = (await customUser.credentials).session.token;
 
+    // TODO: Should use `searchChats` query or something, when backend
+    //       introduces such a query.
     final Chat chat = (await provider.recentChats(first: 10))
         .recentChats
         .edges
