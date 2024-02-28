@@ -24,7 +24,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/domain/model/precise_date_time/src/non_web.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -390,10 +390,15 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    await tester.tap(find.byKey(const Key('MoreButton'), skipOffstage: false));
-    await tester.pumpAndSettle();
+    final editLink = find.byKey(const Key('EditLinkButton'));
+    await tester.dragUntilVisible(
+      editLink,
+      find.byKey(const Key('ChatInfoScrollable')),
+      const Offset(0, 100),
+    );
 
-    await tester.tap(find.byKey(const Key('EditButton'), skipOffstage: false));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('EditLinkButton')));
     await tester.pumpAndSettle();
 
     final link = find.byKey(const Key('LinkField'), skipOffstage: false);

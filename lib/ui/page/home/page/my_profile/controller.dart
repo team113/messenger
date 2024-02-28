@@ -92,6 +92,9 @@ class MyProfileController extends GetxController {
   /// Index of an item from [ProfileTab] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
+  /// Indicator whether the [MyUser.chatDirectLink] editing mode is enabled.
+  final RxBool linkEditing = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
