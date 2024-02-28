@@ -104,6 +104,9 @@ class CallWorker extends DisposableService {
   /// Returns the name of an outgoing call sound asset.
   String get _outgoing => 'outgoing_call.mp3';
 
+  /// Returns the name of an end call sound asset.
+  String get _endCall => 'end_call.wav';
+
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
@@ -342,6 +345,8 @@ class CallWorker extends DisposableService {
         );
         previous?.cancel();
       }
+    } else if (asset == _endCall) {
+      AudioUtils.once(AudioSource.asset('audio/$_endCall'));
     }
   }
 
