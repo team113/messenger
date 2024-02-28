@@ -581,7 +581,7 @@ class ContactRepository extends DisposableInterface
     final HiveRxChatContact? saved = contacts[contactId];
 
     if (saved != null) {
-      if (saved.ver >= contact.ver) {
+      if (saved.ver > contact.ver) {
         if (pagination) {
           paginated[contactId] ??= saved;
         } else {
@@ -715,7 +715,7 @@ class ContactRepository extends DisposableInterface
 
       case ChatContactsEventsKind.event:
         final versioned = (event as ChatContactsEventsEvent).event;
-        if (versioned.listVer <= _sessionLocal.getChatContactsListVersion()) {
+        if (versioned.listVer < _sessionLocal.getChatContactsListVersion()) {
           Log.debug(
             '_contactRemoteEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
             '$runtimeType',
