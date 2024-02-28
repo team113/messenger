@@ -26,7 +26,7 @@ class MessageFieldDonate extends StatelessWidget {
       double left = 0, right = 0, bottom = 0;
 
       try {
-        rect = (globalKey ?? c.globalKey).globalPaintBounds;
+        rect = (globalKey ?? c.fieldKey).globalPaintBounds;
 
         if (globalKey != null) {
           left = (rect?.left ?? 0) - 80;
@@ -50,8 +50,10 @@ class MessageFieldDonate extends StatelessWidget {
       if (right < 10) right = 10;
 
       if (context.isNarrow) {
-        final Rect? global = c.globalKey.globalPaintBounds;
+        final Rect? global = c.fieldKey.globalPaintBounds;
 
+        // left = 0;
+        // right = 0;
         left = global?.left ?? 10;
         right = global == null ? 0 : (constraints.maxWidth - global.right);
       }
@@ -86,11 +88,16 @@ class MessageFieldDonate extends StatelessWidget {
                       ),
                     ],
                   ),
-                  width: 280,
+                  width: context.isNarrow ? double.infinity : 280,
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
                         ...[10000, 5000, 1000, 500, 300, 100, 0].map((e) {
+                          // TODO: Minimum is min(donate_min, paid_msg);
+                          if (e != 0 && e < 400) {
+                            return const SizedBox();
+                          }
+
                           return Obx(() {
                             return _MenuButton(
                               e,
@@ -184,8 +191,7 @@ class _MenuButtonState extends State<_MenuButton> {
                   child: AnimatedButton(
                     enabled: !_state!.isEmpty.value && sum != null,
                     child: SvgImage.asset(
-                      // 'assets/icons/donate_mini$prefix.svg',
-                      'assets/icons/donate_mini${sum == null /*&& !_state!.isEmpty.value*/ ? '_grey' : ''}.svg',
+                      'assets/icons/donate_mini${sum == null ? '_grey' : ''}.svg',
                       width: 22.84,
                       height: 22,
                     ),
@@ -198,19 +204,35 @@ class _MenuButtonState extends State<_MenuButton> {
               child: Theme(
                 data: MessageFieldView.theme(context),
                 child: Transform.translate(
-                  offset: const Offset(0, 2),
+                  offset: Offset(
+                    0,
+                    PlatformUtils.isWeb
+                        ? PlatformUtils.isMobile
+                            ? 3
+                            : -1
+                        : -3,
+                  ),
                   child: ReactiveTextField(
                     padding: EdgeInsets.zero,
-                    hint: '0.00 ¤ (мин: 400)',
-                    // maxLines: 3,
+                    hint: '0 (мин: ¤ 400)',
                     state: _state!,
+                    prefixConstraints: const BoxConstraints(minWidth: 16),
+                    prefixIcon: SizedBox(
+                      child: Center(
+                        widthFactor: 0.0,
+                        child: Transform.translate(
+                          offset: Offset(0, PlatformUtils.isWeb ? 3.5 : 4),
+                          child: Text(
+                            '¤ ',
+                            style: style.fonts.medium.regular.onBackground,
+                          ),
+                        ),
+                      ),
+                    ),
                     onChanged: () => setState(() {}),
                     formatters: [FilteringTextInputFormatter.digitsOnly],
-                    // prefixText: 'G',
                     style: style.fonts.medium.regular.onBackground,
-                    withTrailing: false,
-                    prefixStyle: style.fonts.medium.regular.onBackground
-                        .copyWith(color: style.colors.primary),
+                    prefixStyle: style.fonts.medium.regular.onBackground,
                   ),
                 ),
               ),
@@ -234,12 +256,15 @@ class _MenuButtonState extends State<_MenuButton> {
                   height: 40,
                   width: 50,
                   child: Center(
-                    child: AnimatedButton(
-                      enabled: sum != null && widget.canSend,
-                      child: SvgImage.asset(
-                        'assets/icons/${widget.canSend ? 'send_mini3' : 'attachment_mini'}${sum == null ? '_grey' : ''}.svg',
-                        width: widget.canSend ? 19.28 : 18.88 * 0.9,
-                        height: widget.canSend ? 16.6 : 21 * 0.9,
+                    child: Transform.translate(
+                      offset: const Offset(0, 1),
+                      child: AnimatedButton(
+                        enabled: sum != null && widget.canSend,
+                        child: SvgImage.asset(
+                          'assets/icons/${widget.canSend ? 'send_mini3' : 'attachment_mini'}${sum == null ? '_grey' : ''}.svg',
+                          width: widget.canSend ? 19.28 : 18.88 * 0.9,
+                          height: widget.canSend ? 16.6 : 21 * 0.9,
+                        ),
                       ),
                     ),
                   ),
@@ -251,86 +276,81 @@ class _MenuButtonState extends State<_MenuButton> {
       );
     }
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      opaque: false,
-      child: WidgetButton(
-        onDown: (_) => setState(() => _pressed = true),
-        onUp: (_) => setState(() => _pressed = false),
-        onPressed: () {
-          widget.onPressed?.call(null);
-        },
-        child: Container(
-          width: double.infinity,
-          color:
-              _hovered || _pressed ? style.colors.onBackgroundOpacity2 : null,
-          constraints: const BoxConstraints(minHeight: 48),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 16),
-              SizedBox(
-                width: 26,
-                child: AnimatedScale(
-                  key: _key,
-                  duration: const Duration(milliseconds: 100),
-                  scale: _hovered ? 1.05 : 1,
-                  child: const SvgImage.asset(
-                    // 'assets/icons/donate_mini$prefix.svg',
-                    'assets/icons/donate_mini.svg',
-                    width: 22.84,
-                    height: 22,
-                  ),
+    return Container(
+      width: double.infinity,
+      color: _hovered || _pressed ? style.colors.onBackgroundOpacity2 : null,
+      constraints: const BoxConstraints(minHeight: 48),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedButton(
+            decorator: (child) => Padding(
+              padding: const EdgeInsets.only(left: 16),
+              child: child,
+            ),
+            onPressed: () => widget.onPressed?.call(null),
+            child: SizedBox(
+              width: 26,
+              child: AnimatedScale(
+                key: _key,
+                duration: const Duration(milliseconds: 100),
+                scale: _hovered ? 1.05 : 1,
+                child: const SvgImage.asset(
+                  'assets/icons/donate_mini.svg',
+                  width: 22.84,
+                  height: 22,
                 ),
               ),
-              const SizedBox(width: 12),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child: Text(
-                  '${widget.button} ¤',
-                  style: style.fonts.medium.regular.onBackground.copyWith(
-                    color: style.colors.primary,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              const SizedBox(width: 16),
-              if (!widget.canSend)
-                const AnimatedButton(
-                  child: SizedBox(
-                    height: 40,
-                    width: 50,
-                    child: Center(
-                      child: SvgImage.asset(
-                        'assets/icons/attachment_mini.svg',
-                        width: 18.88 * 0.9,
-                        height: 21 * 0.9,
-                      ),
-                    ),
-                  ),
-                )
-              else
-                WidgetButton(
-                  onPressed: () => widget.onSend?.call(null),
-                  child: const SizedBox(
-                    // color: Colors.red,
-                    height: 40,
-                    width: 50,
-                    child: Center(
-                      child: AnimatedButton(
-                        child: SvgImage.asset(
-                          'assets/icons/send_mini3.svg',
-                          width: 19.28,
-                          height: 16.6,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(width: 12),
+          Transform.translate(
+            offset: const Offset(0, 2),
+            child: Text(
+              '¤ ${widget.button}',
+              style: style.fonts.medium.regular.onBackground.copyWith(
+                  // color: style.colors.primary,
+                  ),
+            ),
+          ),
+          const Spacer(),
+          const SizedBox(width: 16),
+          if (!widget.canSend)
+            const AnimatedButton(
+              child: SizedBox(
+                height: 40,
+                width: 50,
+                child: Center(
+                  child: SvgImage.asset(
+                    'assets/icons/attachment_mini.svg',
+                    width: 18.88 * 0.9,
+                    height: 21 * 0.9,
+                  ),
+                ),
+              ),
+            )
+          else
+            WidgetButton(
+              onPressed: () => widget.onSend?.call(null),
+              child: SizedBox(
+                // color: Colors.red,
+                height: 40,
+                width: 50,
+                child: Center(
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: const AnimatedButton(
+                      child: SvgImage.asset(
+                        'assets/icons/send_mini3.svg',
+                        width: 19.28,
+                        height: 16.6,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

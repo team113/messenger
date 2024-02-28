@@ -40,6 +40,7 @@ import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/page/user/widget/prices.dart';
+import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
@@ -124,17 +125,7 @@ class MyProfileView extends StatelessWidget {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
-            appBar: CustomAppBar(
-              title: Text('label_account'.l10n),
-              padding: const EdgeInsets.only(left: 4, right: 20),
-              leading: const [StyledBackButton()],
-              actions: [
-                AnimatedButton(
-                  onPressed: () {},
-                  child: const SvgIcon(SvgIcons.search),
-                ),
-              ],
-            ),
+            appBar: CustomAppBar(title: _bar(c, context)),
             body: Builder(builder: (context) {
               final Widget child = ScrollablePositionedList.builder(
                 key: const Key('MyProfileScrollable'),
@@ -1676,28 +1667,6 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
 Widget _blocklist(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  Widget info(BuildContext context, Widget child) {
-    final style = Theme.of(context).style;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            border: style.systemMessageBorder,
-            color: style.systemMessageColor,
-          ),
-          child: DefaultTextStyle(
-            style: style.systemMessageStyle,
-            child: child,
-          ),
-        ),
-      ),
-    );
-  }
-
   return Obx(() {
     // Show only users with [User.isBlocked] for optimistic
     // deletion from blocklist.
@@ -1714,15 +1683,10 @@ Widget _blocklist(BuildContext context, MyProfileController c) {
         ),
       );
     } else if (blocklist.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 8, bottom: 8),
-        child: info(
-          context,
-          Text(
-            'Не установлено'.l10n,
-            style: style.fonts.small.regular.secondary,
-          ),
-        ),
+      return Text(
+        'В профиле каждого пользователя Вы можете установить индивидуальные настройки оплаты входящих сообщений и звонков.'
+            .l10n,
+        style: style.fonts.small.regular.secondary,
       );
     } else {
       return Scrollbar(
@@ -2196,6 +2160,99 @@ Widget _devices(BuildContext context, MyProfileController c) {
       ],
     ),
   );
+}
+
+Widget _bar(MyProfileController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
+  final searchButton = AnimatedButton(
+    onPressed: () {},
+    decorator: (child) => Padding(
+      padding: const EdgeInsets.only(left: 31, right: 20),
+      child: child,
+    ),
+    child: const SvgIcon(SvgIcons.search),
+  );
+
+  return Obx(() {
+    final Widget title;
+
+    if (c.displayName.value && context.isNarrow) {
+      title = Row(
+        children: [
+          const SizedBox(width: 4),
+          const StyledBackButton(),
+          Material(
+            elevation: 6,
+            type: MaterialType.circle,
+            shadowColor: style.colors.onBackgroundOpacity27,
+            color: style.colors.onPrimary,
+            child: Center(
+              child: Obx(() {
+                return AvatarWidget.fromMyUser(
+                  c.myUser.value,
+                  radius: AvatarRadius.medium,
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: DefaultTextStyle.merge(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: Obx(() {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      c.myUser.value?.name?.val ??
+                          c.myUser.value?.num.toString() ??
+                          'dot'.l10n * 3,
+                      style: style.fonts.big.regular.onBackground,
+                    ),
+                    Text(
+                      'label_online'.l10n,
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 10),
+        ],
+      );
+    } else {
+      title = Row(
+        key: const Key('Profile'),
+        children: [
+          const SizedBox(width: 4),
+          const StyledBackButton(),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+              child: Center(child: Text('label_profile'.l10n)),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            child: title,
+          ),
+        ),
+        searchButton,
+      ],
+    );
+  });
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

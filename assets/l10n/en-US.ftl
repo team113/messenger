@@ -193,7 +193,7 @@ btn_fullscreen_enter = Fullscreen mode
 btn_fullscreen_exit = Exit fullscreen
 btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
-btn_gift = Donate
+btn_gift = Donation
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -1022,7 +1022,7 @@ label_paid_chat = Paid chat
 btn_accept = Accept
 label_insufficient_funds = Insufficient funds
 label_message_cant_send_message_funds = Unfortunately, the message cannot be sent. Please, add funds to your account.
-label_gift_cant_send_message_funds = Unfortunately, the donate can not be sent. Please, add funds to your account.
+label_gift_cant_send_message_funds = Unfortunately, the donation can not be sent. Please, add funds to your account.
 label_message_cant_make_call_funds = Unfortunately, the call can not be completed. Please, add funds to your account.
 label_donate_cant_reject_donate =  Unfortunately, the specified amount can not be sent. Please, add funds to your account.
 btn_add_funds = Add funds
@@ -1088,13 +1088,13 @@ label_donates = Donates
 label_donates_preferences = Sum and length of donates
 label_take_photo = Take photo
 label_take_video = Record video
-fcm_dialog_donate = {$donate} G gift
+fcm_dialog_donate = G {$donate} donation
 fcm_group_donate =
     {$userName ->
         [x] {$userNum}
         *[other] {$userName}
-    }: {$donate}G gift
-label_donate_count = {$donate} ¤ gift
+    }: G{$donate} donation
+label_donate_count = ¤ {$donate} donation
 label_one_time_account_created = One-time account created
 btn_terms_and_conditions = Terms and conditions
 btn_sign_up = Sign up

@@ -1129,13 +1129,13 @@ label_donates = Донаты
 label_donates_preferences = Сумма и длина доната
 label_take_photo = Сделать фото
 label_take_video = Записать видео
-fcm_dialog_donate = {$donate} G донат
+fcm_dialog_donate = G {$donate} донат
 fcm_group_donate =
     {$userName ->
         [x] {$userNum}
         *[other] {$userName}
-    }: {$donate}G донат
-label_donate_count = {$donate} ¤ донат
+    }: G{$donate} донат
+label_donate_count = ¤ {$donate} донат
 label_no_registration = No registration
 label_or_register = Or register
 label_one_time_account_created = Одноразовый аккаунт создан

@@ -24,7 +24,7 @@ import 'buttons.dart';
 /// [AnimatedButton] with an [icon].
 class ChatButtonWidget extends StatelessWidget {
   /// Constructs a [ChatButtonWidget] from the provided [ChatButton].
-  ChatButtonWidget(ChatButton button, {super.key})
+  ChatButtonWidget(ChatButton button, {Key? key})
       : onPressed = button.onPressed,
         onLongPress = null,
         icon = Transform.translate(
@@ -34,7 +34,8 @@ class ChatButtonWidget extends StatelessWidget {
         disabledIcon = Transform.translate(
           offset: button.offset,
           child: SvgIcon(button.disabled ?? button.asset),
-        );
+        ),
+        super(key: key ?? button.key);
 
   /// Constructs a send/forward [ChatButtonWidget].
   ChatButtonWidget.send({

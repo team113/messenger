@@ -769,7 +769,7 @@ class ChatView extends StatelessWidget {
                                             duration: const Duration(
                                               milliseconds: 250,
                                             ),
-                                            opacity: c.joinWall.value ? 1 : 0,
+                                            opacity: c.joinWall.value ? 0 : 1,
                                             child: Scrollbar(
                                               controller: c.listController,
                                               child: child,

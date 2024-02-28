@@ -480,7 +480,7 @@ class ChatController extends GetxController {
           return;
         }
 
-        if (paid) {
+        if (paid && send.donation.value == null) {
           if (_balanceService.balance.value < 100) {
             InsufficientFundsView.show(
               router.context!,

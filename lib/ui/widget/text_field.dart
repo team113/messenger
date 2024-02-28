@@ -77,6 +77,7 @@ class ReactiveTextField extends StatelessWidget {
     this.subtitle,
     this.clearable = true,
     this.selectable,
+    this.prefixConstraints,
   });
 
   /// Reactive state of this [ReactiveTextField].
@@ -199,13 +200,15 @@ class ReactiveTextField extends StatelessWidget {
   /// selectable.
   final bool? selectable;
 
+  final BoxConstraints? prefixConstraints;
+
   @override
   Widget build(BuildContext context) {
     EdgeInsets? contentPadding = padding;
 
+    bool isDense = dense ?? PlatformUtils.isMobile;
     if (prefix == null && dense != true && contentPadding == null) {
       bool isFilled = filled ?? Theme.of(context).inputDecorationTheme.filled;
-      bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
           contentPadding = isDense
@@ -507,6 +510,7 @@ class ReactiveTextField extends StatelessWidget {
                 prefix: prefix,
                 prefixIcon: prefixIcon,
                 prefixIconColor: prefixIconColor,
+                prefixIconConstraints: prefixConstraints,
                 fillColor: // readOnly
                     // ? style.colors.onBackgroundOpacity7.withOpacity(0.03)
                     // :

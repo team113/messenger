@@ -223,6 +223,8 @@ class MyProfileController extends GetxController {
   final RxBool moneyEditing = RxBool(false);
   final RxBool donateEditing = RxBool(false);
 
+  final RxBool displayName = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -680,6 +682,8 @@ class MyProfileController extends GetxController {
       }
     });
 
+    scrollController.addListener(_ensureNameIsDisplayed);
+
     super.onInit();
   }
 
@@ -689,11 +693,16 @@ class MyProfileController extends GetxController {
     super.onReady();
   }
 
+  void _ensureNameIsDisplayed() {
+    displayName.value = scrollController.position.pixels >= 250;
+  }
+
   @override
   void onClose() {
     _myUserWorker?.dispose();
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
+    scrollController.removeListener(_ensureNameIsDisplayed);
     super.onClose();
   }
 

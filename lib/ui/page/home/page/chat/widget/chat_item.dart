@@ -855,6 +855,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             if (msg.repliesTo.isEmpty &&
                 msg.attachments.isEmpty &&
                 _text == null)
+              const SizedBox(width: 300)
+            else
               const SizedBox(width: 300),
           ],
           if (msg.repliesTo.isNotEmpty) ...[
@@ -1863,8 +1865,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 trailing: const SvgIcon(SvgIcons.reject),
                                 inverted: const SvgIcon(SvgIcons.rejectWhite),
                                 onPressed: _rejectPayment,
-                              ),
-                            if ((item is ChatMessage || item is ChatCall) &&
+                              )
+                            else if ((item is ChatMessage ||
+                                    item is ChatCall) &&
                                 widget.paid)
                               ContextMenuButton(
                                 label: 'Отклонить платёж'.l10n,

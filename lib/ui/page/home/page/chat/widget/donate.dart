@@ -111,14 +111,6 @@ class DonateWidget extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ...'$donate'.embossedDigits(
-                            style: style.fonts.medium.regular.onBackground
-                                .copyWith(
-                              fontSize: 32 * (height / _defaultHeight),
-                              color: font,
-                            ),
-                          ),
-                          const SizedBox(width: 0),
                           Transform.translate(
                             // offset: const Offset(0, -3),
                             offset: const Offset(0, 0),
@@ -127,9 +119,15 @@ class DonateWidget extends StatelessWidget {
                               style: style.fonts.medium.regular.onBackground
                                   .copyWith(
                                 fontSize: 32 * (height / _defaultHeight),
-                                // fontFamily: 'Gapopa',
                                 color: font,
                               ),
+                            ),
+                          ),
+                          ...'$donate'.embossedDigits(
+                            style: style.fonts.medium.regular.onBackground
+                                .copyWith(
+                              fontSize: 32 * (height / _defaultHeight),
+                              color: font,
                             ),
                           ),
                         ],
@@ -144,7 +142,7 @@ class DonateWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4, bottom: 4),
                 child: timestamp ??
                     EmbossedText(
-                      'DONATE',
+                      'DONATION',
                       small: true,
                       style: style.systemMessageStyle.copyWith(
                         color: DonateWidget.font,

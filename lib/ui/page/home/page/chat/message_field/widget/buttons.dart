@@ -190,7 +190,7 @@ class DonateButton extends ChatButton {
         c.addEntry<MessageFieldDonate>(
           MessageFieldDonate(
             c,
-            // globalKey: !b || key.currentContext == null ? null : key,
+            globalKey: key.currentContext == null ? null : key,
           ),
         );
       };
