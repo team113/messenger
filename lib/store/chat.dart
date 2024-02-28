@@ -870,22 +870,12 @@ class ChatRepository extends DisposableInterface
     ChatId chatId,
     ChatDirectLinkSlug slug,
   ) async {
-    Log.debug(
-      'createChatDirectLink($chatId, $slug)',
-      '$runtimeType',
-    );
+    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
+
+    await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
 
     final HiveRxChat? chat = chats[chatId];
-    final ChatDirectLink? link = chat?.chat.value.directLink;
-
     chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
-
-    try {
-      _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
-    } catch (_) {
-      chat?.chat.update((c) => c?.directLink = link);
-      rethrow;
-    }
   }
 
   @override
@@ -898,7 +888,7 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.directLink = null);
 
     try {
-      _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+      await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
     } catch (_) {
       chat?.chat.update((c) => c?.directLink = link);
       rethrow;
@@ -1489,7 +1479,7 @@ class ChatRepository extends DisposableInterface
 
     // Check the versions first, if [ignoreVersion] is `false`.
     if (saved != null && !ignoreVersion) {
-      if (saved.ver != null && saved.ver! >= chat.ver) {
+      if (saved.ver != null && saved.ver! > chat.ver) {
         if (pagination) {
           paginated[chatId] ??= saved;
         } else {
@@ -1522,7 +1512,7 @@ class ChatRepository extends DisposableInterface
         chat.value.firstItem ??=
             saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-        if (saved == null || (saved.ver < chat.ver || ignoreVersion)) {
+        if (saved == null || (saved.ver <= chat.ver || ignoreVersion)) {
           _recentLocal.put(chat.value.updatedAt, chatId);
 
           if (chat.value.favoritePosition != null) {
@@ -1618,7 +1608,7 @@ class ChatRepository extends DisposableInterface
         final chat = event.value.value as Chat;
 
         if (oldChat == null ||
-            (oldChat.ver != null && oldChat.ver! < event.value.ver)) {
+            (oldChat.ver != null && oldChat.ver! <= event.value.ver)) {
           _add(event.value);
         }
 
@@ -2028,6 +2018,8 @@ class ChatRepository extends DisposableInterface
     ))
             .favoriteChats;
 
+    _sessionLocal.setFavoriteChatsListVersion(query.ver);
+
     return Page(
       RxList(
         query.edges
@@ -2190,7 +2182,7 @@ class ChatRepository extends DisposableInterface
 
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
-        if (versioned.ver > _sessionLocal.getFavoriteChatsListVersion()) {
+        if (versioned.ver >= _sessionLocal.getFavoriteChatsListVersion()) {
           _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
 
           Log.debug(
@@ -2201,8 +2193,21 @@ class ChatRepository extends DisposableInterface
           for (var event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
-                if (chats[event.chatId] == null) {
-                  get(event.chatId);
+                // If we got an event about [Chat] that we don't have in
+                // [paginated], then fetch it and store appropriately with its
+                // favorite position.
+                if (paginated[event.chatId] == null || !isRemote) {
+                  event as EventChatFavorited;
+
+                  final HiveChat? hiveChat = await _chatLocal.get(event.chatId);
+                  if (hiveChat != null) {
+                    hiveChat.value.favoritePosition = event.position;
+                    await _putEntry(ChatData(hiveChat, null, null));
+                  } else {
+                    // If there is no [Chat] in [Hive], [get] will fetch it from
+                    // the remote already up-to-date and store it.
+                    await get(event.chatId);
+                  }
                 }
                 break;
 

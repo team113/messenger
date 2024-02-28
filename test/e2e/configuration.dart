@@ -63,6 +63,7 @@ import 'steps/dismiss_contact.dart';
 import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
+import 'steps/favorite_group.dart';
 import 'steps/go_to.dart';
 import 'steps/has_blocked_users.dart';
 import 'steps/has_contact.dart';
@@ -160,6 +161,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         downloadFile,
         dragChatDown,
         dragContactDown,
+        favoriteGroup,
         fillField,
         fillFieldN,
         fillFieldWithMyCredential,
@@ -186,6 +188,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInMonolog,
         iTapChatGroup,
         iTapChatWith,
+        logout,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
@@ -340,6 +343,7 @@ Future<CustomUser> createUser({
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
       await provider.updateUserPassword(null, password);
+      world.sessions[user.name]?.password = password;
 
       final result =
           await provider.signIn(password, null, customUser.userNum, null, null);

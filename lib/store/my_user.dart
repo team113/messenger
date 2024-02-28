@@ -410,16 +410,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
 
-    final ChatDirectLink? link = myUser.value?.chatDirectLink;
+    await _graphQlProvider.createUserDirectLink(slug);
 
     myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
-
-    try {
-      await _graphQlProvider.createUserDirectLink(slug);
-    } catch (_) {
-      myUser.update((u) => u?.chatDirectLink = link);
-      rethrow;
-    }
   }
 
   @override
@@ -655,7 +648,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     final bool blocklist = user.value.blocklistCount != null &&
         user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
 
-    if (user.ver > _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
+    if (user.ver >= _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
       user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
       _myUserLocal.set(user);
     }
@@ -665,7 +658,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
     final HiveMyUser? userEntity = _myUserLocal.myUser;
 
-    if (userEntity == null || versioned.ver <= userEntity.ver) {
+    if (userEntity == null || versioned.ver < userEntity.ver) {
       Log.debug(
         '_myUserRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
         '$runtimeType',

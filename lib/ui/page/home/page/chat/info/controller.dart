@@ -74,8 +74,12 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Indicator whether the editing mode is enabled.
-  final RxBool editing = RxBool(false);
+  /// Indicator whether the [Chat.directLink] editing mode is enabled.
+  final RxBool linkEditing = RxBool(false);
+
+  /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
+  /// enabled.
+  final RxBool profileEditing = RxBool(false);
 
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
@@ -83,14 +87,14 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
-  /// [Chat.directLink] field state.
-  late final TextFieldState link;
-
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
+
+  /// Indicator whether [AppBar] should display the [ChatName] and [ChatAvatar].
+  final RxBool displayName = RxBool(false);
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -122,9 +126,8 @@ class ChatInfoController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      approvable: true,
       text: chat?.chat.value.name?.val,
-      onChanged: (s) {
+      onChanged: (s) async {
         try {
           if (s.text.isNotEmpty) {
             ChatName(s.text);
@@ -134,8 +137,7 @@ class ChatInfoController extends GetxController {
         } on FormatException {
           s.error.value = 'err_incorrect_input'.l10n;
         }
-      },
-      onSubmitted: (s) async {
+
         s.error.value = null;
         s.focus.unfocus();
 
@@ -177,56 +179,7 @@ class ChatInfoController extends GetxController {
       },
     );
 
-    link = TextFieldState(
-      approvable: true,
-      editable: true,
-      text: chat?.chat.value.directLink?.slug.val ??
-          ChatDirectLinkSlug.generate(10).val,
-      submitted: chat?.chat.value.directLink != null,
-      onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            ChatDirectLinkSlug(s.text);
-          }
-
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
-        try {
-          slug = ChatDirectLinkSlug(s.text);
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (slug == chat?.chat.value.directLink?.slug) {
-          return;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _chatService.createChatDirectLink(chatId, slug!);
-            s.status.value = RxStatus.empty();
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
-    );
+    scrollController.addListener(_ensureNameDisplayed);
 
     super.onInit();
   }
@@ -241,6 +194,7 @@ class ChatInfoController extends GetxController {
   onClose() {
     _worker?.dispose();
     _chatSubscription?.cancel();
+    scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
 
@@ -308,8 +262,7 @@ class ChatInfoController extends GetxController {
 
       avatar.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
-      avatar.value = RxStatus.empty();
-      MessagePopup.error(e);
+      avatar.value = RxStatus.error(e.toMessage());
     } catch (e) {
       avatar.value = RxStatus.empty();
       MessagePopup.error(e);
@@ -425,10 +378,6 @@ class ChatInfoController extends GetxController {
 
       name.unchecked = chat!.chat.value.name?.val;
 
-      if (chat!.chat.value.directLink?.slug.val != null) {
-        link.unchecked = chat!.chat.value.directLink?.slug.val;
-      }
-
       _worker = ever(
         chat!.chat,
         (Chat chat) {
@@ -437,14 +386,16 @@ class ChatInfoController extends GetxController {
               name.editable.value) {
             name.unchecked = chat.name?.val;
           }
-
-          if (!link.focus.hasFocus && !link.changed.value) {
-            link.unchecked = chat.directLink?.slug.val;
-          }
         },
       );
 
       status.value = RxStatus.success();
     }
+  }
+
+  /// Ensures the [displayName] is either `true` or `false` based on the
+  /// [scrollController].
+  void _ensureNameDisplayed() {
+    displayName.value = scrollController.position.pixels >= 250;
   }
 }
