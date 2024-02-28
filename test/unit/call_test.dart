@@ -115,7 +115,8 @@ var favoriteQuery = {
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
+    },
+    'ver': '0'
   }
 };
 
