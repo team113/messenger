@@ -122,8 +122,14 @@ class UserView extends StatelessWidget {
 
     return Obx(() {
       return Block(
-        onEdit: c.contact.value == null ? null : c.profileEditing.toggle,
-        editing: c.contact.value == null ? false : c.profileEditing.value,
+        overlay: [
+          if (c.contact.value != null)
+            EditBlockButton(
+              key: const Key('EditProfileButton'),
+              onPressed: c.profileEditing.toggle,
+              editing: c.profileEditing.value,
+            ),
+        ],
         children: [
           SelectionContainer.disabled(
             child: BigAvatarWidget.user(

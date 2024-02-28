@@ -99,16 +99,14 @@ class MyProfileView extends StatelessWidget {
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
                     required String title,
-                    void Function()? onEdit,
-                    bool editing = false,
+                    List<Widget> overlay = const [],
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
                         title: title,
                         highlight: c.highlightIndex.value == i,
-                        onEdit: onEdit,
-                        editing: editing,
+                        overlay: overlay,
                         children: children,
                       );
                     });
@@ -196,8 +194,13 @@ class MyProfileView extends StatelessWidget {
                       return Obx(() {
                         return block(
                           title: 'label_your_direct_link'.l10n,
-                          onEdit: c.linkEditing.toggle,
-                          editing: c.linkEditing.value,
+                          overlay: [
+                            EditBlockButton(
+                              key: const Key('EditLinkButton'),
+                              onPressed: c.linkEditing.toggle,
+                              editing: c.linkEditing.value,
+                            ),
+                          ],
                           children: [
                             Obx(() {
                               return DirectLinkField(

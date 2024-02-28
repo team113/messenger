@@ -37,8 +37,7 @@ Feature: Monolog
 
   Scenario: User renames local monolog
     When I open chat's info
-    And I tap `MoreButton` button
-    And I tap `EditButton` button
+    And I tap `EditProfileButton` button
     And I fill `RenameChatField` field with "My monolog"
     And I tap `Approve` button
     Then monolog is indeed remote

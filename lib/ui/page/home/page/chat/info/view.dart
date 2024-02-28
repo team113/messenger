@@ -116,8 +116,13 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Block(
-      onEdit: c.profileEditing.toggle,
-      editing: c.profileEditing.value,
+      overlay: [
+        EditBlockButton(
+          key: const Key('EditProfileButton'),
+          onPressed: c.profileEditing.toggle,
+          editing: c.profileEditing.value,
+        ),
+      ],
       children: [
         SelectionContainer.disabled(
           child: BigAvatarWidget.chat(
@@ -165,6 +170,7 @@ class ChatInfoView extends StatelessWidget {
               const SizedBox(height: 18),
               SelectionContainer.disabled(
                 child: ReactiveTextField(
+                  key: const Key('RenameChatField'),
                   state: c.name,
                   label: 'label_name'.l10n,
                   hint: c.chat?.title.value,
@@ -207,8 +213,13 @@ class ChatInfoView extends StatelessWidget {
     return Block(
       title: 'label_direct_chat_link'.l10n,
       padding: Block.defaultPadding.copyWith(bottom: 10),
-      onEdit: c.linkEditing.toggle,
-      editing: c.linkEditing.value,
+      overlay: [
+        EditBlockButton(
+          key: const Key('EditLinkButton'),
+          onPressed: c.linkEditing.toggle,
+          editing: c.linkEditing.value,
+        ),
+      ],
       children: [
         Obx(() {
           return Column(
