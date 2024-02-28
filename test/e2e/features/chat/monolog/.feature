@@ -40,6 +40,7 @@ Feature: Monolog
     And I tap `MoreButton` button
     And I tap `EditButton` button
     And I fill `RenameChatField` field with "My monolog"
+    And I tap `Approve` button
     Then monolog is indeed remote
 
   Scenario: User adds local chat monolog to favorites
