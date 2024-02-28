@@ -1576,20 +1576,6 @@ class ChatRepository extends DisposableInterface
     return entry;
   }
 
-  /// Removes the [Chat] with the provided [ChatId] from [paginated], [chats]
-  /// and local storages, clearing all of its [ChatItem]s.
-  Future<void> _removeAndClearChat(ChatId chatId) async {
-    final HiveRxChat? chat = chats.remove(chatId);
-    await chat?.clear();
-    chat?.dispose();
-
-    paginated.remove(chatId);
-    _pagination?.remove(chatId);
-
-    _recentLocal.remove(chatId);
-    _favoriteLocal.remove(chatId);
-  }
-
   /// Initializes [ChatHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
@@ -1600,7 +1586,15 @@ class ChatRepository extends DisposableInterface
       final ChatId chatId = ChatId(event.key);
 
       if (event.deleted) {
-        await _removeAndClearChat(chatId);
+        final HiveRxChat? chat = chats.remove(chatId);
+        await chat?.clear();
+        chat?.dispose();
+
+        paginated.remove(chatId);
+        _pagination?.remove(chatId);
+
+        _recentLocal.remove(chatId);
+        _favoriteLocal.remove(chatId);
       } else {
         final HiveRxChat? oldChat = chats[chatId];
         final chat = event.value.value as Chat;
