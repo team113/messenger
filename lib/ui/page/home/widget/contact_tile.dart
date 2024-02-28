@@ -145,9 +145,11 @@ class ContactTile extends StatelessWidget {
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                   : null,
-              padding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: dense ? 4 : 6,
+              padding: EdgeInsets.fromLTRB(
+                12,
+                dense ? 4 : 6,
+                0,
+                dense ? 4 : 6,
               ),
               child: Row(
                 children: [

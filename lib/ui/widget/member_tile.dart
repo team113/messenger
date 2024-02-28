@@ -99,6 +99,10 @@ class MemberTile extends StatelessWidget {
         ],
         AnimatedButton(
           enabled: !me,
+          decorator: (child) => Padding(
+            padding: const EdgeInsets.all(12),
+            child: child,
+          ),
           onPressed: me
               ? null
               : () async {
