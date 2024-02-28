@@ -2130,6 +2130,10 @@ class CallController extends GetxController {
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
             }
+
+            if (isGroup && _currentCall.value.members.length == 1) {
+              AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
+            }
             break;
 
           case OperationKind.updated:
