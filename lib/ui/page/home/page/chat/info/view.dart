@@ -264,6 +264,7 @@ class ChatInfoView extends StatelessWidget {
           top: 0,
           right: 0,
           child: AnimatedButton(
+            key: const Key('AddMemberButton'),
             decorator: (child) => Padding(
               padding: const EdgeInsets.fromLTRB(2, 4, 2, 2),
               child: child,
