@@ -6,6 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.13] · 2024-??-??
+[0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
+
+[Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned editing mode and actions. ([#868])
+    - User page:
+        - Redesigned editing mode and actions. ([#868])
+
+[#868]: /../../pull/868
+
+
+
+
 ## [0.1.0-alpha.12.3] · 2024-02-23
 [0.1.0-alpha.12.3]: /../../tree/v0.1.0-alpha.12.3
 

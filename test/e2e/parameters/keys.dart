@@ -77,7 +77,7 @@ enum WidgetKey {
   DeleteForAll,
   DeleteMemberButton,
   DeletePhone,
-  EditButton,
+  EditProfileButton,
   Email,
   EmailsExpandable,
   ExpandSigning,
