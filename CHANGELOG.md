@@ -19,6 +19,14 @@ All user visible changes to this project will be documented in this file. This p
     - User page:
         - Redesigned editing mode and actions. ([#868])
 
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Chat not disappearing after being kicked from it. ([#864], [#851])
+
+[#851]: /../../issues/851
+[#864]: /../../pull/864
 [#868]: /../../pull/868
 
 
@@ -36,16 +44,11 @@ All user visible changes to this project will be documented in this file. This p
         - Ringtone not switching its output device on mobile. ([#840], [#817])
     - Chat page:
         - Blank previews of video attachments. ([#840])
-        - Group chat history not clearing after leaving or being removed. ([#864], [#851])
-    - Chats tab:
-        - Group chat not disappearing after being removed from it. ([#864], [#851])
 - Web:
     - Video in calls being loaded indefinitely. ([#840])
 
 [#817]: /../../issues/817
 [#840]: /../../pull/840
-[#851]: /../../issues/851
-[#864]: /../../pull/864
 
 
 
