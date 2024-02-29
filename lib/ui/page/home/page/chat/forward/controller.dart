@@ -113,6 +113,28 @@ class ChatForwardController extends GetxController {
           return;
         }
 
+        for (var e in searchResults.value!.chats) {
+          if (e.chat.value.isDialog &&
+              e.chat.value.members.any((e) => e.user.messageCost != 0)) {
+            final member = e.chat.value.members
+                .firstWhere((e) => e.user.messageCost != 0)
+                .user;
+            final result = await MessagePopup.alert(
+              'Переслать сообщение?',
+              description: [
+                TextSpan(
+                  text:
+                      '${member.name ?? member.num} взымает плату за входящие сообщения и звонки.\n\nСтоимость данного сообщения ¤123.',
+                ),
+              ],
+            );
+
+            if (result != true) {
+              return;
+            }
+          }
+        }
+
         send.field.status.value = RxStatus.loading();
         send.field.editable.value = false;
 

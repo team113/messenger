@@ -51,7 +51,9 @@ class BalanceTabView extends StatelessWidget {
           // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
             // title: Text('Money'),
-            title: Text('Balance: ¤${c.balance.value.toInt().withSpaces()}'),
+            title: Obx(() {
+              return Text('Balance: ¤${c.balance.value.toInt().withSpaces()}');
+            }),
             leading: [
               Obx(() {
                 final Widget child;

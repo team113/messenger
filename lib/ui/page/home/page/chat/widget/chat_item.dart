@@ -382,6 +382,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [_text] and [_galleryKeys].
   Worker? _worker;
 
+  bool _rejected = false;
+
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -841,7 +843,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               transaction: _fromMe ? null : '5031855728915',
               timestamp: _text == null
                   ? _timestamp(widget.item.value, false, true)
-                  : null,
+                  : /* _fromMe ||*/ _rejected
+                      ? Text(
+                          'Возвращено',
+                          style: style.fonts.small.regular.danger,
+                        )
+                      : null,
               title: widget.user?.user.value.name?.val ??
                   widget.user?.user.value.num.val ??
                   'dot'.l10n * 3,
@@ -1858,10 +1865,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               );
                             },
                           ),
-                          if (!_fromMe) ...[
+                          if (!_fromMe && !_rejected) ...[
                             if (item is ChatMessage && item.donate != null)
                               ContextMenuButton(
-                                label: 'Отклонить донат'.l10n,
+                                label: 'Вернуть донат'.l10n,
                                 trailing: const SvgIcon(SvgIcons.reject),
                                 inverted: const SvgIcon(SvgIcons.rejectWhite),
                                 onPressed: _rejectPayment,
@@ -1870,7 +1877,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     item is ChatCall) &&
                                 widget.paid)
                               ContextMenuButton(
-                                label: 'Отклонить платёж'.l10n,
+                                label: 'Вернуть платёж'.l10n,
                                 trailing: const SvgIcon(SvgIcons.reject),
                                 inverted: const SvgIcon(SvgIcons.rejectWhite),
                                 onPressed: _rejectPayment,
@@ -1944,6 +1951,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   ]) {
     return Obx(() {
       final bool isMonolog = widget.chat.value?.isMonolog == true;
+      final bool hasDonate =
+          donation || (item is! ChatMessage || item.donate == null);
 
       return KeyedSubtree(
         key: Key('MessageStatus_${item.id}'),
@@ -1955,7 +1964,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           delivered:
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,
-          price: widget.paid && !_fromMe ? 123 : null,
+          price:
+              widget.paid && (!_fromMe || !_rejected) && hasDonate ? 123 : null,
+          rejected: hasDonate && (/*_fromMe || */ _rejected),
           donation: donation,
           inverted: inverted,
         ),
@@ -1970,7 +1981,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     if (isDonate) {
       final donate = (widget.item.value as ChatMessage).donate;
       final response = await MessagePopup.alert(
-        'Отклонить донат?',
+        'Вернуть донат?',
         description: [
           TextSpan(
             text:
@@ -1981,10 +1992,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (response == true) {
         widget.onReject?.call();
+        setState(() => _rejected = true);
       }
     } else {
       final response = await MessagePopup.alert(
-        'Отклонить платёж?',
+        'Вернуть платёж?',
         description: [
           TextSpan(
             text:
@@ -1995,6 +2007,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
       if (response == true) {
         widget.onReject?.call();
+        setState(() => _rejected = true);
       }
     }
   }

@@ -73,19 +73,13 @@ class BalanceProviderView extends StatelessWidget {
               actions: [
                 IconButton(
                   onPressed: () => c.add(
-                    OutgoingTransaction(
-                      amount: -100,
-                      at: DateTime.now(),
-                    ),
+                    OutgoingTransaction(amount: -1000, at: DateTime.now()),
                   ),
                   icon: const Icon(Icons.remove),
                 ),
                 IconButton(
                   onPressed: () => c.add(
-                    IncomingTransaction(
-                      amount: 100,
-                      at: DateTime.now(),
-                    ),
+                    IncomingTransaction(amount: 10000, at: DateTime.now()),
                   ),
                   icon: const Icon(Icons.add),
                 ),

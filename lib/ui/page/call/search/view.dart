@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/tab/chats/widget/recent_chat.dart';
 import 'package:messenger/ui/page/home/widget/shadowed_rounded_button.dart';
 import 'package:messenger/ui/widget/selected_dot.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/user.dart';
@@ -173,6 +174,11 @@ class SearchView extends StatelessWidget {
                                 selected: c.selectedUsers.contains(element),
                                 invertible: !selectable,
                                 trailing: [
+                                  const SizedBox(width: 8),
+                                  if (element.user.value.messageCost != 0) ...[
+                                    const SvgIcon(SvgIcons.faceSmile),
+                                    const SizedBox(width: 4),
+                                  ],
                                   SelectedDot(
                                     selected: c.selectedUsers.contains(element),
                                     size: 20,
@@ -204,6 +210,12 @@ class SearchView extends StatelessWidget {
                                 selected: c.selectedContacts.contains(element),
                                 invertible: !selectable,
                                 trailing: [
+                                  if (element
+                                          .user.value?.user.value.messageCost !=
+                                      0) ...[
+                                    const SvgIcon(SvgIcons.faceSmile),
+                                    const SizedBox(width: 4),
+                                  ],
                                   SelectedDot(
                                     selected:
                                         c.selectedContacts.contains(element),
@@ -235,6 +247,16 @@ class SearchView extends StatelessWidget {
                               selected: c.selectedChats.contains(element),
                               invertible: !selectable,
                               trailing: [
+                                if (element.chat.value.isDialog &&
+                                    element.chat.value.members.any(
+                                        (e) => e.user.messageCost != 0)) ...[
+                                  SvgIcon(
+                                    c.selectedChats.contains(element)
+                                        ? SvgIcons.faceSmileWhite
+                                        : SvgIcons.faceSmile,
+                                  ),
+                                  const SizedBox(width: 4),
+                                ],
                                 SelectedDot(
                                   selected: c.selectedChats.contains(element),
                                   size: 20,

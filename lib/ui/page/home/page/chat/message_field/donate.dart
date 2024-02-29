@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
@@ -175,7 +176,8 @@ class _MenuButtonState extends State<_MenuButton> {
           children: [
             const SizedBox(width: 16),
             Obx(() {
-              int? sum = int.tryParse(_state!.text);
+              int? sum =
+                  int.tryParse(_state!.text.replaceAll(RegExp(r'\s+'), ''));
               if ((sum ?? 0) < 400) {
                 sum = null;
               }
@@ -184,7 +186,11 @@ class _MenuButtonState extends State<_MenuButton> {
                 onPressed: _state!.isEmpty.value || sum == null
                     ? null
                     : () {
-                        widget.onPressed?.call(int.parse(_state!.text));
+                        widget.onPressed?.call(
+                          int.parse(
+                            _state!.text.replaceAll(RegExp(r'\s+'), ''),
+                          ),
+                        );
                       },
                 child: SizedBox(
                   width: 26,
@@ -229,8 +235,26 @@ class _MenuButtonState extends State<_MenuButton> {
                         ),
                       ),
                     ),
-                    onChanged: () => setState(() {}),
-                    formatters: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: () {
+                      String string = NumberFormat.decimalPattern()
+                          .format(int.tryParse(_state!.text) ?? 0);
+
+                      if (string == '0') {
+                        string = '';
+                      }
+
+                      _state!.controller.value = TextEditingValue(
+                        text: string,
+                        selection:
+                            TextSelection.collapsed(offset: string.length),
+                      );
+
+                      setState(() {});
+                    },
+                    formatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(9),
+                    ],
                     style: style.fonts.medium.regular.onBackground,
                     prefixStyle: style.fonts.medium.regular.onBackground,
                   ),
@@ -239,11 +263,8 @@ class _MenuButtonState extends State<_MenuButton> {
             ),
             const SizedBox(width: 16),
             Builder(builder: (_) {
-              // if (_state!.isEmpty.value) {
-              //   return const SizedBox();
-              // }
-
-              int? sum = int.tryParse(_state!.text);
+              int? sum =
+                  int.tryParse(_state!.text.replaceAll(RegExp(r'\s+'), ''));
               if ((sum ?? 0) < 400) {
                 sum = null;
               }
@@ -251,7 +272,11 @@ class _MenuButtonState extends State<_MenuButton> {
               return WidgetButton(
                 onPressed: sum == null || !widget.canSend
                     ? null
-                    : () => widget.onSend?.call(int.tryParse(_state!.text)),
+                    : () => widget.onSend?.call(
+                          int.tryParse(
+                            _state!.text.replaceAll(RegExp(r'\s+'), ''),
+                          ),
+                        ),
                 child: SizedBox(
                   height: 40,
                   width: 50,
@@ -307,10 +332,8 @@ class _MenuButtonState extends State<_MenuButton> {
           Transform.translate(
             offset: const Offset(0, 2),
             child: Text(
-              '¤ ${widget.button}',
-              style: style.fonts.medium.regular.onBackground.copyWith(
-                  // color: style.colors.primary,
-                  ),
+              '¤ ${widget.button.withSpaces()}',
+              style: style.fonts.medium.regular.onBackground,
             ),
           ),
           const Spacer(),
@@ -333,7 +356,6 @@ class _MenuButtonState extends State<_MenuButton> {
             WidgetButton(
               onPressed: () => widget.onSend?.call(null),
               child: SizedBox(
-                // color: Colors.red,
                 height: 40,
                 width: 50,
                 child: Center(
@@ -354,4 +376,8 @@ class _MenuButtonState extends State<_MenuButton> {
       ),
     );
   }
+}
+
+extension on int {
+  String withSpaces() => NumberFormat('#,##0').format(this);
 }

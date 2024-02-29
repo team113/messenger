@@ -52,12 +52,6 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart'
-    show
-        CallAlreadyExistsException,
-        CallAlreadyJoinedException,
-        CallDoesNotExistException,
-        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/settings.dart';
@@ -79,7 +73,6 @@ import '/provider/gql/exceptions.dart'
         FavoriteChatException,
         HideChatException,
         HideChatItemException,
-        JoinChatCallException,
         PostChatMessageException,
         ReadChatException,
         RemoveChatMemberException,
@@ -457,40 +450,42 @@ class ChatController extends GetxController {
       onChanged: updateDraft,
       onCall: call,
       onSubmit: ({bool onlyDonation = false}) async {
-        if (paidAccepted.value) {
-          paidDisclaimerDismissed.value = true;
-          paidDisclaimer.value = false;
-          paidBorder.value = false;
-        }
-
-        if (emailNotValidated.value) {
-          paidBorder.value = true;
-          paidAlignment.value = Alignment.bottomCenter;
-          return;
-        }
-
-        if (paid && !paidDisclaimerDismissed.value) {
-          if (paidDisclaimer.value) {
-            paidBorder.value = true;
-            paidAlignment.value = Alignment.bottomCenter;
+        if (send.donation.value == null) {
+          if (paidAccepted.value) {
+            paidDisclaimerDismissed.value = true;
+            paidDisclaimer.value = false;
+            paidBorder.value = false;
           }
 
-          paidDisclaimer.value = true;
-          confirmAction = ConfirmAction.sendMessage;
-          return;
-        }
-
-        if (paid && send.donation.value == null) {
-          if (_balanceService.balance.value < 100) {
-            InsufficientFundsView.show(
-              router.context!,
-              description: 'label_message_cant_send_message_funds'.l10n,
-            );
+          if (emailNotValidated.value) {
+            paidBorder.value = true;
+            paidAlignment.value = Alignment.bottomCenter;
             return;
-          } else {
-            _balanceService.add(
-              OutgoingTransaction(amount: -100, at: DateTime.now()),
-            );
+          }
+
+          if (paid && !paidDisclaimerDismissed.value) {
+            if (paidDisclaimer.value) {
+              paidBorder.value = true;
+              paidAlignment.value = Alignment.bottomCenter;
+            }
+
+            paidDisclaimer.value = true;
+            confirmAction = ConfirmAction.sendMessage;
+            return;
+          }
+
+          if (paid) {
+            if (_balanceService.balance.value < 100) {
+              InsufficientFundsView.show(
+                router.context!,
+                description: 'label_message_cant_send_message_funds'.l10n,
+              );
+              return;
+            } else {
+              _balanceService.add(
+                OutgoingTransaction(amount: -100, at: DateTime.now()),
+              );
+            }
           }
         }
 

@@ -1426,12 +1426,5 @@ class UserView extends StatelessWidget {
 }
 
 extension on int {
-  String withSpaces() {
-    // final parsed = int.tryParse(this);
-    // if (parsed != null) {
-    return NumberFormat('#,##0').format(this);
-    // }
-
-    // return replaceAllMapped(RegExp(r'.{3}'), (match) => '${match.group(0)} ');
-  }
+  String withSpaces() => NumberFormat('#,##0').format(this);
 }

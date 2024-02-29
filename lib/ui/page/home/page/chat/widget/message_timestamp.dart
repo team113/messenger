@@ -39,6 +39,7 @@ class MessageTimestamp extends StatelessWidget {
     this.fontSize,
     this.price,
     this.donation = false,
+    this.rejected = false,
   });
 
   /// [PreciseDateTime] to display in this [MessageTimestamp].
@@ -71,6 +72,7 @@ class MessageTimestamp extends StatelessWidget {
 
   final double? price;
   final bool donation;
+  final bool rejected;
 
   @override
   Widget build(BuildContext context) {
@@ -89,35 +91,52 @@ class MessageTimestamp extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (donation) ...[
-          EmbossedText(
-            'DONATION',
-            style: style.systemMessageStyle.copyWith(
-              fontSize: fontSize ?? 11,
-              color: const Color.fromRGBO(244, 213, 72, 1),
+          if (rejected)
+            Text(
+              'Возвращено', // Refunded
+              style: style.fonts.small.regular.danger,
+            )
+          else
+            EmbossedText(
+              'DONATION',
+              style: style.systemMessageStyle.copyWith(
+                fontSize: fontSize ?? 11,
+                color: const Color.fromRGBO(244, 213, 72, 1),
+              ),
+              small: true,
             ),
-            small: true,
-          ),
         ],
         if (donation && (at != null || status != null)) ...[
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
-            color: Theme.of(context).colorScheme.secondary,
+            color: Colors.transparent,
+            // color: rejected
+            //     ? Colors.transparent
+            //     : Theme.of(context).colorScheme.secondary,
             height: 10,
             width: 0.5,
           ),
         ],
         if (!donation) ...[
+          if (rejected)
+            SelectionContainer.disabled(
+              child: Text(
+                'Возвращено ', // Refunded
+                style: style.fonts.small.regular.danger,
+              ),
+            ),
           if (price != null) ...[
+            // Container(
+            //   margin: const EdgeInsets.symmetric(horizontal: 4),
+            //   color: Theme.of(context).colorScheme.secondary,
+            //   height: 10,
+            //   width: 0.5,
+            // ),
             SelectionContainer.disabled(
               child: Text(
                 '¤ ${price!.toStringAsFixed(0)}',
-                style: style.fonts.small.regular.secondary.copyWith(
-                  color: paidColor,
-                ),
-                // style: style.systemMessageStyle.copyWith(
-                //   fontSize: fontSize ?? 11,
-                //   color: paidColor,
-                // ),
+                style: style.fonts.small.regular.secondary
+                    .copyWith(color: rejected ? Colors.red : paidColor),
               ),
             ),
           ],

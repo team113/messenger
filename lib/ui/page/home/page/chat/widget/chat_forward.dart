@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
@@ -87,6 +88,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onSelect,
     this.pinned = false,
     this.paid = false,
+    this.onReject,
   });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -152,6 +154,8 @@ class ChatForwardWidget extends StatefulWidget {
 
   final bool paid;
 
+  final void Function()? onReject;
+
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
 }
@@ -199,6 +203,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [Worker]s updating the [_text] on the [ChatForwardWidget.forwards] and
   /// [ChatForwardWidget.note] changes.
   final List<Worker> _workers = [];
+
+  bool _rejected = false;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
@@ -354,6 +360,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               key: Key(
                                 'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
                               ),
+                              rejected: /*_fromMe ||*/ _rejected,
                               at: _at,
                               status: _fromMe ? SendingStatus.sent : null,
                               read: _isRead,
@@ -1205,6 +1212,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               );
                             },
                           ),
+                          if (widget.paid && !_rejected)
+                            ContextMenuButton(
+                              label: 'Вернуть платёж'.l10n,
+                              trailing: const SvgIcon(SvgIcons.reject),
+                              inverted: const SvgIcon(SvgIcons.rejectWhite),
+                              onPressed: _rejectPayment,
+                            ),
                           ContextMenuButton(
                             label: 'btn_select_messages'.l10n,
                             trailing: const SvgIcon(SvgIcons.select),
@@ -1345,6 +1359,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           Theme.of(router.context!).style.linkStyle,
         );
       }
+    }
+  }
+
+  Future<void> _rejectPayment() async {
+    final response = await MessagePopup.alert(
+      'Вернуть платёж?',
+      description: [
+        TextSpan(
+          text:
+              '¤123 будет возвращено ${widget.user?.user.value.name ?? widget.user?.user.value.num}.',
+        ),
+      ],
+    );
+
+    if (response == true) {
+      widget.onReject?.call();
+      setState(() => _rejected = true);
     }
   }
 }

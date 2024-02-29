@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -115,7 +116,7 @@ class DonateWidget extends StatelessWidget {
                             // offset: const Offset(0, -3),
                             offset: const Offset(0, 0),
                             child: EmbossedText(
-                              ' ¤',
+                              '¤ ',
                               style: style.fonts.medium.regular.onBackground
                                   .copyWith(
                                 fontSize: 32 * (height / _defaultHeight),
@@ -123,13 +124,13 @@ class DonateWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          ...'$donate'.embossedDigits(
-                            style: style.fonts.medium.regular.onBackground
-                                .copyWith(
-                              fontSize: 32 * (height / _defaultHeight),
-                              color: font,
-                            ),
-                          ),
+                          ...donate.withSpaces().embossedDigits(
+                                style: style.fonts.medium.regular.onBackground
+                                    .copyWith(
+                                  fontSize: 32 * (height / _defaultHeight),
+                                  color: font,
+                                ),
+                              ),
                         ],
                       ),
                     ),
@@ -217,4 +218,8 @@ extension EmbossedDigits on String {
 
     return list.reversed.toList();
   }
+}
+
+extension on int {
+  String withSpaces() => NumberFormat('#,##0').format(this);
 }
