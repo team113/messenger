@@ -132,7 +132,8 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
             'hasNextPage': false,
             'startCursor': 'startCursor',
             'hasPreviousPage': false,
-          }
+          },
+          'ver': '0'
         }
       });
 

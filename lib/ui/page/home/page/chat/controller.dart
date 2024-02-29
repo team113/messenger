@@ -273,6 +273,9 @@ class ChatController extends GetxController {
   /// [inContacts] indicator.
   StreamSubscription? _contactsSubscription;
 
+  /// Subscription for the [RxUser] changes.
+  StreamSubscription? _userSubscription;
+
   /// Indicator whether [_updateFabStates] should not be react on
   /// [FlutterListViewController.position] changes.
   bool _ignorePositionChanges = false;
@@ -499,6 +502,7 @@ class ChatController extends GetxController {
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _contactsSubscription?.cancel();
+    _userSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
@@ -514,10 +518,6 @@ class ChatController extends GetxController {
 
     send.onClose();
     edit.value?.onClose();
-
-    if (chat?.chat.value.isDialog == true) {
-      chat?.members.values.lastWhereOrNull((u) => u.id != me)?.stopUpdates();
-    }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -779,9 +779,10 @@ class ChatController extends GetxController {
       };
 
       if (chat?.chat.value.isDialog == true) {
-        chat?.members.values
+        _userSubscription = chat?.members.values
             .lastWhereOrNull((u) => u.id != me)
-            ?.listenUpdates();
+            ?.updates
+            .listen((_) {});
       }
 
       _readWorker ??= ever(_lastSeenItem, readChat);
@@ -2227,7 +2228,7 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        User? partner = users.firstWhereOrNull((u) => u.id != me);
+        final User? partner = users.firstWhereOrNull((u) => u.id != me);
         final partnerName = partner?.name?.val ?? partner?.num.toString();
         if (partnerName != null) {
           title = partnerName;
@@ -2236,11 +2237,15 @@ extension ChatViewExt on Chat {
 
       case ChatKind.group:
         if (name == null) {
+          if (users.isEmpty) {
+            users = members.map((e) => e.user);
+          }
+
           title = users
               .take(3)
               .map((u) => u.name?.val ?? u.num.toString())
               .join('comma_space'.l10n);
-          if (members.length > 3) {
+          if (membersCount > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);
           }
         } else {
@@ -2266,7 +2271,7 @@ extension ChatViewExt on Chat {
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
       case ChatKind.group:
-        return 'label_subtitle_participants'.l10nfmt({'count': members.length});
+        return 'label_subtitle_participants'.l10nfmt({'count': membersCount});
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:

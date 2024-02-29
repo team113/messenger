@@ -157,10 +157,8 @@ class ChatsTabController extends GetxController {
   /// Subscription for the [ChatService.status] changes.
   StreamSubscription? _statusSubscription;
 
-  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
-  ///
-  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
-  final List<RxUser> _recipients = [];
+  /// Subscription for the [RxUser]s changes.
+  final Map<UserId, StreamSubscription> _userSubscriptions = {};
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -208,7 +206,8 @@ class ChatsTabController extends GetxController {
             chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
-          _recipients.add(rxUser..listenUpdates());
+          _userSubscriptions.remove(userId)?.cancel();
+          _userSubscriptions[userId] = rxUser.updates.listen((_) {});
         }
       }
     }
@@ -242,14 +241,7 @@ class ChatsTabController extends GetxController {
                 ?.user
                 .id;
 
-            _recipients.removeWhere((e) {
-              if (e.id == userId) {
-                e.stopUpdates();
-                return true;
-              }
-
-              return false;
-            });
+            _userSubscriptions.remove(userId)?.cancel();
           }
 
           _scrollListener();
@@ -295,8 +287,8 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
-    for (RxUser v in _recipients) {
-      v.stopUpdates();
+    for (StreamSubscription s in _userSubscriptions.values) {
+      s.cancel();
     }
 
     for (var e in dismissed) {
@@ -928,8 +920,8 @@ class ChatEntry implements Comparable<ChatEntry> {
   /// Returns observable list of [ChatItem]s of the [chat].
   RxObsList<Rx<ChatItem>> get messages => _chat.messages;
 
-  /// Reactive list of [User]s being members of this [chat].
-  RxObsMap<UserId, RxUser> get members => _chat.members;
+  /// Reactive map of [User]s being members of this [chat].
+  RxObsMap<UserId, RxUser> get members => _chat.members.items;
 
   /// Disposes this [ChatEntry].
   void dispose() => _worker.dispose();

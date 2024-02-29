@@ -22,6 +22,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -46,7 +47,7 @@ final StepDefinitionGeneric haveGroupNamed = given1<String, CustomWorld>(
 /// - Given Alice has "Name" group.
 final StepDefinitionGeneric hasGroupNamed =
     given2<TestUser, String, CustomWorld>(
-  '{user} has {string} group',
+  '{user} has {string} group\$',
   (TestUser user, String name, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
@@ -68,7 +69,7 @@ final StepDefinitionGeneric hasGroupNamed =
 /// - Given I have "Name" group with Bob.
 final StepDefinitionGeneric haveGroup1Named =
     given2<String, TestUser, CustomWorld>(
-  'I have {string} group with {user}',
+  'I have {string} group with {user}\$',
   (String name, TestUser user, context) async {
     final ChatService chatService = Get.find();
 
@@ -87,10 +88,10 @@ final StepDefinitionGeneric haveGroup1Named =
 /// [MyUser].
 ///
 /// Examples:
-/// - Given I have "Name" group with several users: Bob and Charlie.
+/// - Given I have "Name" group with Bob and Charlie.
 final StepDefinitionGeneric haveGroup2Named =
     given3<String, TestUser, TestUser, CustomWorld>(
-  'I have {string} group with {user} and {user}',
+  'I have {string} group with {user} and {user}\$',
   (String name, TestUser bob, TestUser charlie, context) async {
     final ChatService chatService = Get.find();
 
@@ -149,6 +150,32 @@ final StepDefinitionGeneric hasFavoriteGroups =
     }
 
     provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates a [Chat]-group with the the authenticated [MyUser] and provided
+/// count of members.
+///
+/// Examples:
+/// - Given Alice has "Name" group with 30 members.
+final StepDefinitionGeneric hasGroupWithMembers =
+    given3<TestUser, String, int, CustomWorld>(
+  '{user} has {string} group with {int} members\$',
+  (TestUser user, String name, int count, context) async {
+    final provider = GraphQlProvider();
+    provider.token = context.world.sessions[user.name]?.token;
+
+    final List<CustomUser> users =
+        await Future.wait(List.generate(count - 1, (_) => createUser()));
+
+    final chat = await provider.createGroupChat(
+      users.map((e) => e.userId).toList(),
+      name: ChatName(name),
+    );
+
+    context.world.groups[name] = chat.id;
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

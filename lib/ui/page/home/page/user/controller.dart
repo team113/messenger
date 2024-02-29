@@ -130,6 +130,9 @@ class UserController extends GetxController {
   /// [Worker] reacting on the [contact] or [user] changes updating the [name].
   Worker? _worker;
 
+  /// Subscription for the [user] changes.
+  StreamSubscription? _userSubscription;
+
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
@@ -225,8 +228,8 @@ class UserController extends GetxController {
 
   @override
   void onClose() {
-    user?.stopUpdates();
     _contactsSubscription?.cancel();
+    _userSubscription?.cancel();
     _worker?.dispose();
     super.onClose();
   }
@@ -456,7 +459,7 @@ class UserController extends GetxController {
 
       _updateWorker();
 
-      user?.listenUpdates();
+      _userSubscription = user?.updates.listen((_) {});
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
     } catch (e) {
       await MessagePopup.error(e);
