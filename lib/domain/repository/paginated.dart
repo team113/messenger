@@ -68,6 +68,12 @@ abstract class Paginated<K extends Comparable, T> {
   /// disposes when canceled.
   Stream<void> get updates => _controller.stream;
 
+  /// Returns the [Iterable] of [T] items kept in [items].
+  Iterable<T> get values => items.values;
+
+  /// Returns count of [T] items fetched with each page.
+  int get perPage;
+
   /// Ensures this [Paginated] is initialized.
   Future<void> ensureInitialized();
 
@@ -77,6 +83,11 @@ abstract class Paginated<K extends Comparable, T> {
   void dispose() {
     _controller.close();
     onDispose?.call();
+  }
+
+  /// Fetches the initial page of the [items].
+  Future<void> around() async {
+    await ensureInitialized();
   }
 
   /// Fetches next page of the [items].

@@ -623,6 +623,15 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.byUser.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallMemberUndialed') {
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberUndialed;
+      return EventChatCallMemberUndialed(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.user.toModel(),
+      );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
       final node = e
           as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
