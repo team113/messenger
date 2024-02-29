@@ -1596,11 +1596,13 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        final HiveRxChat? oldChat = chats[chatId];
-        final chat = event.value.value as Chat;
+        final HiveRxChat? existing = chats[chatId];
+        final Chat chat = event.value.value as Chat;
 
-        if (oldChat == null ||
-            (oldChat.ver != null && oldChat.ver! <= event.value.ver)) {
+        // If this [BoxEvent] is about a [Chat] not contained in [chats], or the
+        // stored version is less or equal to the [chat], then add it.
+        if (existing == null ||
+            (existing.ver != null && existing.ver! <= event.value.ver)) {
           _add(event.value);
         }
 
