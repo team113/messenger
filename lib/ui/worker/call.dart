@@ -345,7 +345,7 @@ class CallWorker extends DisposableService {
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
-      } else {
+      } else if (asset == _endCall) {
         AudioUtils.once(AudioSource.asset('audio/$_endCall'));
       }
     }
