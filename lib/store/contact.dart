@@ -838,14 +838,12 @@ class ContactRepository extends DisposableInterface
     }
   }
 
-  // TODO: This currently fetches all the contacts. Should be reimplemented when
-  //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
     Log.debug('_fetchById($id)', '$runtimeType');
 
-    var contact =
-        (await _chatContacts()).edges.firstWhereOrNull((e) => e.value.id == id);
+    HiveChatContact? contact =
+        (await _graphQlProvider.chatContact(id)).chatContact?.toHive();
     if (contact != null) {
       _putChatContact(contact);
     }

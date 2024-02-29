@@ -47,13 +47,13 @@ class HiveRxUser extends RxUser {
 
     final ChatContactId? contactId = user.value.contacts.firstOrNull;
     if (contactId != null) {
-      FutureOr<RxChatContact?> contact =
+      final FutureOr<RxChatContact?> contactOrFuture =
           _userRepository.getContact?.call(contactId);
 
-      if (contact is RxChatContact?) {
-        this.contact.value = contact;
+      if (contactOrFuture is RxChatContact?) {
+        contact.value = contactOrFuture;
       } else {
-        contact.then((v) => this.contact.value = v);
+        contactOrFuture.then((v) => contact.value = v);
       }
     }
 
@@ -68,7 +68,14 @@ class HiveRxUser extends RxUser {
       final ChatContactId? contactId = user.contacts.firstOrNull;
       if (contact.value?.id != contactId) {
         if (contactId != null) {
-          contact.value = await _userRepository.getContact?.call(contactId);
+          final FutureOr<RxChatContact?> contactOrFuture =
+              _userRepository.getContact?.call(contactId);
+
+          if (contactOrFuture is RxChatContact?) {
+            contact.value = contactOrFuture;
+          } else {
+            contact.value = await contactOrFuture;
+          }
         } else {
           contact.value = null;
         }

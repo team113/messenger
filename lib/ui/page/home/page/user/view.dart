@@ -243,7 +243,7 @@ class UserView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final Widget editButton = Obx(key: const Key('MoreButton'), () {
-      final bool contact = c.contact.value != null;
+      final bool contact = c.contactId != null;
       final bool favorite =
           c.contact.value?.contact.value.favoritePosition != null;
       final RxChat? dialog = c.user?.dialog.value;

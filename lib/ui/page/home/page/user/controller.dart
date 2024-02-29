@@ -135,6 +135,12 @@ class UserController extends GetxController {
   /// Returns reactive [RxChatContact] linked to the [user].
   Rx<RxChatContact?> get contact => user?.contact ?? Rx(null);
 
+  /// Returns [ChatContactId] of the [contact].
+  ///
+  /// Should be used to determine whether the [user] is in the contacts list as
+  /// [contact] may fetched with delay.
+  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
+
   @override
   void onInit() {
     name = TextFieldState(
@@ -214,7 +220,7 @@ class UserController extends GetxController {
 
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
   Future<void> addToContacts() async {
-    if (contact.value == null) {
+    if (contactId == null) {
       status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(user!.user.value);
@@ -229,12 +235,10 @@ class UserController extends GetxController {
 
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
-    if (contact.value != null) {
+    if (contactId != null) {
       status.value = RxStatus.loadingMore();
       try {
-        if (contact.value != null) {
-          await _contactService.deleteContact(contact.value!.contact.value.id);
-        }
+        await _contactService.deleteContact(contactId!);
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -301,8 +305,8 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      if (contact.value != null) {
-        await _contactService.favoriteChatContact(contact.value!.id);
+      if (contactId != null) {
+        await _contactService.favoriteChatContact(contactId!);
       }
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -315,8 +319,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      if (contact.value != null) {
-        await _contactService.unfavoriteChatContact(contact.value!.id);
+      if (contactId != null) {
+        await _contactService.unfavoriteChatContact(contactId!);
       }
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);
