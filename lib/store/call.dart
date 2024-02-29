@@ -515,16 +515,6 @@ class CallRepository extends DisposableInterface
     });
   }
 
-  /// Removes a dialed [CallMember] with the provided [userId] from call in the
-  /// [Chat] with the provided [chatId] if any.
-  void removeDialedUserFromCall(ChatId chatId, UserId userId) {
-    Log.debug('removeDialedUserFromCall($chatId, $userId)', '$runtimeType');
-    calls[chatId]
-        ?.value
-        .members
-        .removeWhere((_, e) => e.id.userId == userId && e.id.deviceId == null);
-  }
-
   /// Returns a [Stream] of [IncomingChatCallsTopEvent]s.
   ///
   /// [count] determines the length of the list of incoming [ChatCall]s which

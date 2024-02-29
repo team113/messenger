@@ -310,9 +310,9 @@ class HiveRxChat extends RxChat {
     _initMessagesPagination();
     _initMembersPagination();
 
-    // Provide [List] of chat members to the [_updateTitle] to synchronously
-    // initialize the [title].
-    // Important for notifications to show correct title when a new chat added.
+    // Provide [List] of [ChatMember]s to the [_updateTitle] to synchronously
+    // initialize the [title]. It is required for notifications to show correct
+    // title when a new [Chat] is added, for example.
     _updateTitle(chat.value.members.map((e) => e.user).toList());
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
 
@@ -1019,8 +1019,9 @@ class HiveRxChat extends RxChat {
       ],
     );
 
-    // [chat] always contains first 3 members, so we can immediately put them if
-    // [chat] not a [ChatKind.group].
+    // [Chat] always contains first 3 members (due to GraphQL query specifying
+    // those in the fragment), so we can immediately put them, if [chat] isn't a
+    // [ChatKind.group].
     if ((!chat.value.isGroup && chat.value.members.isNotEmpty) || id.isLocal) {
       for (ChatMember member in chat.value.members) {
         _putMember(HiveChatMember(member, null), ignoreBounds: true);
@@ -1192,7 +1193,7 @@ class HiveRxChat extends RxChat {
       );
     }
 
-    // Sync the [unreadCount], if [chat] has less, or is different and there's
+    // Sync the [unreadCount], if [chat] has less, or is different, and there's
     // no [ChatRepository.readUntil] being executed ([_readTimer] is `null`).
     if (chat.value.unreadCount < unreadCount.value ||
         (chat.value.unreadCount != previous?.unreadCount &&
@@ -1827,13 +1828,6 @@ class HiveRxChat extends RxChat {
                       chatEntity.value.lastReads
                           .removeWhere((e) => e.memberId == action.user.id);
                       reads.removeWhere((e) => e.memberId == action.user.id);
-                      // Removes a dialed member when he removed from chat.
-                      if (chat.value.ongoingCall != null) {
-                        _chatRepository.removeDialedUserFromCall(
-                          id,
-                          action.user.id,
-                        );
-                      }
                       await _chatRepository.onMemberRemoved(id, action.user.id);
                       break;
 

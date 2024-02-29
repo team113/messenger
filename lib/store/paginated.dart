@@ -67,6 +67,9 @@ class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
   RxBool get previousLoading => pagination?.previousLoading ?? RxBool(false);
 
   @override
+  int get perPage => pagination?.perPage ?? 0;
+
+  @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
     if (_futures.isEmpty && !status.value.isSuccess) {
@@ -255,18 +258,18 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   }
 
   /// Puts the provided [item] to the [pagination].
-  Future<void> put(V item, {bool ignoreBounds = false}) {
-    return pagination!.put(item, ignoreBounds: ignoreBounds);
+  Future<void> put(V item, {bool ignoreBounds = false}) async {
+    await pagination?.put(item, ignoreBounds: ignoreBounds);
   }
 
   /// Removes the item with the provided [key] from the [pagination].
-  Future<void> remove(K key) {
-    return pagination!.remove(key);
+  Future<void> remove(K key) async {
+    await pagination?.remove(key);
   }
 
   /// Clears the [pagination].
   Future<void> clear() async {
-    await pagination!.clear();
+    await pagination?.clear();
     status.value = RxStatus.empty();
   }
 }

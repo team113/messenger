@@ -71,6 +71,9 @@ abstract class Paginated<K extends Comparable, T> {
   /// Returns the [Iterable] of [T] items kept in [items].
   Iterable<T> get values => items.values;
 
+  /// Returns the [T] items fetched with each page.
+  int get perPage;
+
   /// Ensures this [Paginated] is initialized.
   Future<void> ensureInitialized();
 

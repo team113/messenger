@@ -62,7 +62,6 @@ import '/provider/hive/favorite_chat.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/recent_chat.dart';
 import '/provider/hive/session_data.dart';
-import '/store/call.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
@@ -128,7 +127,7 @@ class ChatRepository extends DisposableInterface
   final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
-  final CallRepository _callRepo;
+  final AbstractCallRepository _callRepo;
 
   /// [RxChat.draft] local [Hive] storage.
   final DraftHiveProvider _draftLocal;
@@ -1114,13 +1113,6 @@ class ChatRepository extends DisposableInterface
     _callRepo.remove(chatId);
   }
 
-  /// Removes a dialed [CallMember] with the provided [userId] from call in the
-  /// [Chat] with the provided [chatId].
-  void removeDialedUserFromCall(ChatId chatId, UserId userId) {
-    Log.debug('removeDialedUserFromCall($chatId, $userId)', '$runtimeType');
-    _callRepo.removeDialedUserFromCall(chatId, userId);
-  }
-
   /// Subscribes to [ChatEvent]s of the specified [Chat].
   Stream<ChatEvents> chatEvents(
     ChatId chatId,
@@ -1555,9 +1547,10 @@ class ChatRepository extends DisposableInterface
           // Set the version to the [saved] one, if not [updateVersion].
           if (saved != null && !updateVersion) {
             chat.ver = saved.ver;
-            // [Chat.membersCount] should not be updated, if not [updateVersion]
-            // as [Chat.membersCount] updating in [ChatEventKind.itemPosted]
-            // events processing.
+
+            // [Chat.membersCount] shouldn't be updated, if [updateVersion] is
+            // `false`, as it gets updated during [ChatEventKind.itemPosted]
+            // event processing.
             chat.value.membersCount = saved.value.membersCount;
           }
 

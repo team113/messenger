@@ -435,13 +435,19 @@ class OngoingCall {
         }
 
         final int membersCount = chat.chat.value.membersCount;
+        final bool shouldAddDialed =
+            (outgoing && conversationStartedAt == null) ||
+                chat.chat.value.isDialog;
 
-        if ((outgoing && conversationStartedAt == null && membersCount < 16) ||
-            chat.chat.value.isDialog) {
-          if (chat.members.items.length != membersCount) {
+        // Dialed [User]s should be added, if [membersCount] is less than a page
+        // of [Chat.members].
+        if (membersCount < chat.members.perPage && shouldAddDialed) {
+          if (chat.members.items.length < membersCount) {
             await chat.members.around();
           }
 
+          // If [connected], then the dialed [User] will be added in [connect],
+          // when handling [ChatMembersDialedAll].
           if (!connected) {
             for (UserId e
                 in chat.members.items.keys.where((e) => e != me.id.userId)) {
@@ -587,8 +593,8 @@ class OngoingCall {
 
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll &&
-                    v.chat.value.membersCount < 16) {
-                  if (v.members.items.length != v.chat.value.membersCount) {
+                    v.chat.value.membersCount < v.members.perPage) {
+                  if (v.members.items.length < v.chat.value.membersCount) {
                     await v.members.around();
                   }
 
