@@ -105,9 +105,12 @@ class SelectedTile extends StatelessWidget {
                 ),
         child: c,
       ),
-      trailing: [
-        if (myUser == null) SelectedDot(selected: selected, darken: darken)
-      ],
+      trailing: myUser == null
+          ? [
+              SelectedDot(selected: selected, darken: darken),
+              const SizedBox(width: 12),
+            ]
+          : const [],
     );
   }
 
