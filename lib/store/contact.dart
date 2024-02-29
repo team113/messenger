@@ -842,12 +842,21 @@ class ContactRepository extends DisposableInterface
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
     Log.debug('_fetchById($id)', '$runtimeType');
 
-    HiveChatContact? contact =
-        (await _graphQlProvider.chatContact(id)).chatContact?.toHive();
-    if (contact != null) {
-      _putChatContact(contact);
+    Mutex? mutex = _getGuards[id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _getGuards[id] = mutex;
     }
-    return contact;
+
+    return mutex.protect(() async {
+      HiveChatContact? contact =
+          (await _graphQlProvider.chatContact(id)).chatContact?.toHive();
+      if (contact != null) {
+        _putChatContact(contact);
+      }
+
+      return contact;
+    });
   }
 
   /// Fetches [HiveChatContact]s ordered by their [ChatContact.name] with
@@ -1023,12 +1032,16 @@ class ContactRepository extends DisposableInterface
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
       _userRepo.put(e.user.toHive());
+      // Add the [node.contactId] to the [node.user] as [User] has no events
+      // when a [ChatContact] linked.
       _userRepo.addContact(node.contactId, node.user.id);
       return EventChatContactUserAdded(
           node.contactId, node.at, node.user.toModel());
     } else if (e.$$typename == 'EventChatContactUserRemoved') {
       var node = e
           as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
+      // Remove the [node.contactId] from the [node.user] as [User] has no
+      // events when a [ChatContact] removed.
       _userRepo.removeContact(node.contactId, node.userId);
       return EventChatContactUserRemoved(node.contactId, node.at, node.userId);
     } else {
