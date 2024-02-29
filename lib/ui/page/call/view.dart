@@ -41,6 +41,7 @@ class CallView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {

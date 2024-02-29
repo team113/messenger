@@ -32,6 +32,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
@@ -40,6 +41,7 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -68,6 +70,7 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
+    this._myUserService,
     this._settingsRepository,
   );
 
@@ -323,6 +326,9 @@ class CallController extends GetxController {
 
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
+
+  /// [MyUserService] used to grant access to [MyUser].
+  final MyUserService _myUserService;
 
   /// [Timer] for updating [duration] of the call.
   ///
@@ -2131,13 +2137,19 @@ class CallController extends GetxController {
               focusAll();
             }
 
-            // Play a sound when [myUser] is left alone in a call.
-            final bool wasConnected = e.value?.isConnected.value ?? false;
+            // Play a sound when the last connected [CallMember] except [MyUser]
+            // leaves the call.
+            final bool isMuted = _myUserService.myUser.value?.muted != null;
             final bool isActiveCall =
                 _currentCall.value.state.value == OngoingCallState.active;
-            final bool oneLeft =
-                members.values.where((m) => m.isConnected.isTrue).length <= 1;
-            if (isGroup && isActiveCall && wasConnected && oneLeft) {
+            final bool myUserIsAlone =
+                members.values.none((m) => m.id != me.id);
+            final bool wasConnected = e.value?.isConnected.value ?? false;
+            if (!isMuted &&
+                isGroup &&
+                isActiveCall &&
+                wasConnected &&
+                myUserIsAlone) {
               AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
             }
             break;
