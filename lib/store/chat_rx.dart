@@ -839,7 +839,7 @@ class HiveRxChat extends RxChat {
     await _pagination.clear();
 
     await _local.clear();
-    
+
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
       await members.clear();
