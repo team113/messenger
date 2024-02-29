@@ -131,8 +131,8 @@ class _WebImageState extends State<WebImage> {
     }
 
     Widget thumbhash = Image(
-      image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
       key: const Key('Thumbhash'),
+      image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
       height: widget.height,
       width: widget.width,
       fit: BoxFit.fill,
