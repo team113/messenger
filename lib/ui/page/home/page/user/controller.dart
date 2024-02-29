@@ -133,12 +133,14 @@ class UserController extends GetxController {
   UserId? get me => _chatService.me;
 
   /// Returns reactive [RxChatContact] linked to the [user].
-  Rx<RxChatContact?> get contact => user?.contact ?? Rx(null);
+  ///
+  /// Only meaningful, if [user] is non-`null`.
+  Rx<RxChatContact?> get contact => user!.contact;
 
   /// Returns [ChatContactId] of the [contact].
   ///
   /// Should be used to determine whether the [user] is in the contacts list as
-  /// [contact] may fetched with delay.
+  /// [contact] may be fetched with a delay.
   ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
 
   @override
@@ -198,13 +200,19 @@ class UserController extends GetxController {
     _updateWorker();
 
     _fetchUser().whenComplete(() {
-      _contactWorker = ever(contact, (contact) {
-        if (contact == null) {
-          profileEditing.value = false;
-        }
+      if (isClosed) {
+        return;
+      }
 
-        _updateWorker();
-      });
+      if (user != null) {
+        _contactWorker = ever(contact, (contact) {
+          if (contact == null) {
+            profileEditing.value = false;
+          }
+
+          _updateWorker();
+        });
+      }
     });
 
     super.onInit();
@@ -450,7 +458,7 @@ class UserController extends GetxController {
 
   /// Listens to the [contact] or [user] changes updating the [name].
   void _updateWorker() {
-    if (contact.value != null) {
+    if (user != null && contact.value != null) {
       name.unchecked = contact.value!.contact.value.name.val;
 
       _worker?.dispose();

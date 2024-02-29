@@ -357,7 +357,7 @@ class ContactRepository extends DisposableInterface
         }
 
         if (contact == null) {
-          var query = (await _graphQlProvider.chatContact(id)).chatContact;
+          final query = (await _graphQlProvider.chatContact(id)).chatContact;
           if (query != null) {
             contact = await _putChatContact(query.toHive());
           }
@@ -375,7 +375,8 @@ class ContactRepository extends DisposableInterface
   /// Removes a [ChatContact] identified by the provided [id].
   Future<void> remove(ChatContactId id) async {
     Log.debug('remove($id)', '$runtimeType');
-    ChatContact? contact =
+
+    final ChatContact? contact =
         contacts[id]?.contact.value ?? (await _contactLocal.get(id))?.value;
 
     if (contact != null) {
@@ -849,7 +850,7 @@ class ContactRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      HiveChatContact? contact =
+      final HiveChatContact? contact =
           (await _graphQlProvider.chatContact(id)).chatContact?.toHive();
       if (contact != null) {
         _putChatContact(contact);
@@ -1032,17 +1033,24 @@ class ContactRepository extends DisposableInterface
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
       _userRepo.put(e.user.toHive());
-      // Add the [node.contactId] to the [node.user] as [User] has no events
-      // when a [ChatContact] linked.
+
+      // Add the [node.contactId] to the [node.user], as [User] has no events
+      // about its [User.contacts] list changes.
       _userRepo.addContact(node.contactId, node.user.id);
+
       return EventChatContactUserAdded(
-          node.contactId, node.at, node.user.toModel());
+        node.contactId,
+        node.at,
+        node.user.toModel(),
+      );
     } else if (e.$$typename == 'EventChatContactUserRemoved') {
       var node = e
           as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
-      // Remove the [node.contactId] from the [node.user] as [User] has no
-      // events when a [ChatContact] removed.
+
+      // Remove the [node.contactId] from the [node.user], as [User] has no
+      // events about its [User.contacts] list changes.
       _userRepo.removeContact(node.contactId, node.userId);
+
       return EventChatContactUserRemoved(node.contactId, node.at, node.userId);
     } else {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');

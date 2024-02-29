@@ -66,7 +66,7 @@ class UserRepository extends DisposableInterface
   /// Callback, called when a [RxChatContact] with the provided [ChatContactId]
   /// is required by this [UserRepository].
   ///
-  /// Used to populate the [RxUser.contact] values.
+  /// Used to populate the [RxUser.contact] value.
   FutureOr<RxChatContact?> Function(ChatContactId id)? getContact;
 
   /// GraphQL API provider.
@@ -316,20 +316,26 @@ class UserRepository extends DisposableInterface
   }) =>
       _search(name: name, after: after, first: first);
 
-  /// Adds the provided [ChatContactId] to the [User] with the provided
-  /// [UserId].
+  /// Adds the provided [ChatContactId] to the [User.contacts] with the
+  /// specified [UserId].
+  ///
+  /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
+  /// of its [User.contacts] list changes.
   Future<void> addContact(ChatContactId contactId, UserId userId) async {
-    HiveUser? user = _userLocal.get(userId);
+    final HiveUser? user = _userLocal.get(userId);
     if (user != null && !user.value.contacts.contains(contactId)) {
       user.value.contacts.add(contactId);
       await _userLocal.put(user);
     }
   }
 
-  /// Removes the provided [ChatContactId] from the [User] with the provided
-  /// [UserId].
+  /// Removes the provided [ChatContactId] from the [User.contacts] with the
+  /// specified [UserId].
+  ///
+  /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
+  /// of its [User.contacts] list changes.
   Future<void> removeContact(ChatContactId contactId, UserId userId) async {
-    HiveUser? user = _userLocal.get(userId);
+    final HiveUser? user = _userLocal.get(userId);
     if (user != null && user.value.contacts.remove(contactId)) {
       await _userLocal.put(user);
     }

@@ -68,6 +68,9 @@ abstract class RxUser {
   Rx<PreciseDateTime?> get lastSeen;
 
   /// Returns reactive [RxChatContact] linked to this [RxUser].
+  ///
+  /// `null` means this [RxUser] is not in the address book of the authenticated
+  /// [MyUser].
   Rx<RxChatContact?> get contact;
 
   /// Returns the [User.id] of this [RxUser].

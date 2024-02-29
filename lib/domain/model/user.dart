@@ -140,7 +140,7 @@ class User extends HiveObject {
 
   /// List of [ChatContactId]s this [User] is linked to.
   @HiveField(14)
-  List<ChatContactId> contacts;
+  final List<ChatContactId> contacts;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
   ChatId get dialog => _dialog ?? ChatId.local(id);
