@@ -838,7 +838,11 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
-    await members.clear();
+
+    // [Chat.members] don't change in dialogs or monologs, no need to clear it.
+    if (chat.value.isGroup) {
+      await members.clear();
+    }
   }
 
   // TODO: Remove when backend supports welcome messages.
@@ -1020,15 +1024,17 @@ class HiveRxChat extends RxChat {
     );
 
     // [Chat] always contains first 3 members (due to GraphQL query specifying
-    // those in the fragment), so we can immediately put them, if [chat] isn't a
-    // [ChatKind.group].
-    if ((!chat.value.isGroup && chat.value.members.isNotEmpty) || id.isLocal) {
+    // those in the fragment), so we can immediately put them.
+    if (chat.value.members.isNotEmpty || id.isLocal) {
       for (ChatMember member in chat.value.members) {
         _putMember(HiveChatMember(member, null), ignoreBounds: true);
       }
 
-      members.pagination?.hasNext.value = false;
-      members.pagination?.hasPrevious.value = false;
+      if (members.items.length == chat.value.membersCount) {
+        members.pagination?.hasNext.value = false;
+        members.pagination?.hasPrevious.value = false;
+        members.status.value = RxStatus.success();
+      }
     }
   }
 
@@ -1427,7 +1433,6 @@ class HiveRxChat extends RxChat {
           if (e is StaleVersionException) {
             await clear();
             await _pagination.around(cursor: _lastReadItemCursor);
-            await members.around();
           }
         },
       );
