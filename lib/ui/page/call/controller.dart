@@ -2131,7 +2131,13 @@ class CallController extends GetxController {
               focusAll();
             }
 
-            if (isGroup && _currentCall.value.members.length == 1) {
+            // Play a sound when [myUser] is left alone in a call.
+            final bool wasConnected = e.value?.isConnected.value ?? false;
+            final bool isActiveCall =
+                _currentCall.value.state.value == OngoingCallState.active;
+            final bool oneLeft =
+                members.values.where((m) => m.isConnected.isTrue).length <= 1;
+            if (isGroup && isActiveCall && wasConnected && oneLeft) {
               AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
             }
             break;

@@ -243,10 +243,11 @@ class CallWorker extends DisposableService {
             stop();
           }
 
-          final OngoingCall? c = event.value?.value;
-          if (c != null) {
-            if (c.members.keys.any((e) => e.userId == _myUser.value?.id)) {
-              AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
+          // Play a sound when a call with [myUser] ends.
+          final OngoingCall? call = event.value?.value;
+          if (call != null) {
+            if (call.members.keys.any((e) => e.userId == _myUser.value?.id)) {
+              play(_endCall);
             }
           }
 
@@ -337,16 +338,16 @@ class CallWorker extends DisposableService {
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
-      } else {
+      } else if (asset == _outgoing) {
         final previous = _outgoingAudio;
         _outgoingAudio = AudioUtils.play(
           AudioSource.asset('audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
+      } else {
+        AudioUtils.once(AudioSource.asset('audio/$_endCall'));
       }
-    } else if (asset == _endCall) {
-      AudioUtils.once(AudioSource.asset('audio/$_endCall'));
     }
   }
 
