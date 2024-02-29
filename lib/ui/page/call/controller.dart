@@ -2142,8 +2142,9 @@ class CallController extends GetxController {
             final bool isMuted = _myUserService.myUser.value?.muted != null;
             final bool isActiveCall =
                 _currentCall.value.state.value == OngoingCallState.active;
-            final bool myUserIsAlone =
-                members.values.none((m) => m.id != me.id);
+            final bool myUserIsAlone = members.values
+                .where((m) => m.isConnected.value)
+                .none((m) => m.id != me.id);
             final bool wasConnected = e.value?.isConnected.value ?? false;
             if (!isMuted &&
                 isGroup &&
