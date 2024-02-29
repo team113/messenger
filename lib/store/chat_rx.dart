@@ -976,11 +976,14 @@ class HiveRxChat extends RxChat {
     await _local.init(userId: me);
 
     HiveChatItem? item;
-    if (chat.value.lastReadItem != null) {
+    // If [_local] storage is empty then no need to initialize the
+    // [_pagination] as it fetches items from [_local].
+    if (chat.value.lastReadItem != null && _local.keys.isNotEmpty) {
       item = await get(chat.value.lastReadItem!);
+
+      await _pagination.init(item?.value.key);
     }
 
-    await _pagination.init(item?.value.key);
     if (_pagination.items.isNotEmpty) {
       status.value = RxStatus.success();
     }
