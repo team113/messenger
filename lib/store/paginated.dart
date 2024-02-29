@@ -67,6 +67,9 @@ class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
   RxBool get previousLoading => pagination?.previousLoading ?? RxBool(false);
 
   @override
+  int get perPage => pagination?.perPage ?? 0;
+
+  @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
     if (_futures.isEmpty && !status.value.isSuccess) {
@@ -177,48 +180,60 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   RxPaginatedImpl({
     required this.transform,
     required super.pagination,
+    super.initial,
     super.initialKey,
     super.initialCursor,
     super.onDispose,
-  });
+  }) {
+    _paginationSubscription = pagination!.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          FutureOr<T?> itemOrFuture = transform(
+            previous: items[event.key!],
+            data: event.value as V,
+          );
+          final T? item;
+
+          if (itemOrFuture is T?) {
+            item = itemOrFuture;
+          } else {
+            item = await itemOrFuture;
+          }
+
+          if (item != null) {
+            items[event.key!] = item;
+          }
+          break;
+
+        case OperationKind.removed:
+          items.remove(event.key);
+          break;
+      }
+    });
+  }
 
   /// Callback, called to transform the [V] to [T].
-  final FutureOr<T> Function({T? previous, required V data}) transform;
+  final FutureOr<T?> Function({T? previous, required V data}) transform;
 
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
 
-    if (_futures.isEmpty) {
-      _paginationSubscription = pagination!.changes.listen((event) async {
-        switch (event.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            FutureOr<T> itemOrFuture = transform(
-              previous: items[event.key!],
-              data: event.value as V,
-            );
-            final T item;
-
-            if (itemOrFuture is T) {
-              item = itemOrFuture;
-            } else {
-              item = await itemOrFuture;
-            }
-
-            items[event.key!] = item;
-            break;
-
-          case OperationKind.removed:
-            items.remove(event.key);
-            break;
+    if (_futures.isEmpty && !status.value.isSuccess) {
+      for (var f in initial) {
+        if (f is Future<Map<K, T>>) {
+          _futures.add(f..then(items.addAll));
+        } else {
+          items.addAll(f);
         }
-      });
+      }
 
       _futures.add(pagination!.around(key: initialKey, cursor: initialCursor));
 
       await Future.wait(_futures);
       status.value = RxStatus.success();
+      _futures.clear();
     } else {
       await Future.wait(_futures);
     }
@@ -240,5 +255,21 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
     if (previousLoading.isFalse) {
       await pagination?.previous();
     }
+  }
+
+  /// Puts the provided [item] to the [pagination].
+  Future<void> put(V item, {bool ignoreBounds = false}) async {
+    await pagination?.put(item, ignoreBounds: ignoreBounds);
+  }
+
+  /// Removes the item with the provided [key] from the [pagination].
+  Future<void> remove(K key) async {
+    await pagination?.remove(key);
+  }
+
+  /// Clears the [pagination].
+  Future<void> clear() async {
+    await pagination?.clear();
+    status.value = RxStatus.empty();
   }
 }

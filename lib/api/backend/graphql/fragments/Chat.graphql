@@ -22,14 +22,11 @@ fragment Chat on Chat {
         ...ChatAvatar
     }
     name
-    members {
+    members(first: 3) {
         nodes {
-            user {
-                __typename
-                ...User
-            }
-            joinedAt
+            ...ChatMember
         }
+        totalCount
     }
     kind
     isHidden
