@@ -526,7 +526,7 @@ class CallController extends GetxController {
             .map((k) => k.userId)
             .toSet();
         args['members'] = '${actualMembers.length}';
-        args['allMembers'] = '${chat.value?.members.length ?? 1}';
+        args['allMembers'] = '${chat.value?.chat.value.membersCount ?? 1}';
 
         if (Config.disableInfiniteAnimations) {
           args['duration'] = Duration.zero.hhMmSs();

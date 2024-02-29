@@ -107,7 +107,7 @@ void main() async {
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'null',
-    'members': {'nodes': []},
+    'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
     'muted': null,
@@ -434,7 +434,7 @@ void main() async {
           'chat': {
             'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
             'name': 'null',
-            'members': {'nodes': []},
+            'members': {'nodes': [], 'totalCount': 0},
             'kind': 'GROUP',
             'isHidden': false,
             'muted': null,
