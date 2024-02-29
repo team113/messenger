@@ -110,7 +110,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             TextSpan(
               text: 'label_a_of_b'.l10nfmt({
                 'a': actualMembers?.length,
-                'b': widget.chat.members.length,
+                'b': widget.chat.chat.value.membersCount,
               }),
             ),
           );

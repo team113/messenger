@@ -35,6 +35,12 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
                 ...User
             }
         }
+        ... on EventChatCallMemberUndialed {
+            user {
+                __typename
+                ...User
+            }
+        }
         ... on EventChatCallAnswerTimeoutPassed {
             call {
                 __typename
