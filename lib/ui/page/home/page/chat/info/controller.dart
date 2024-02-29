@@ -20,6 +20,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -40,6 +41,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
@@ -73,6 +75,9 @@ class ChatInfoController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [ScrollController] to pass to a members [ListView].
+  final ScrollController membersScrollController = ScrollController();
 
   /// Indicator whether the [Chat.directLink] editing mode is enabled.
   final RxBool linkEditing = RxBool(false);
@@ -114,17 +119,29 @@ class ChatInfoController extends GetxController {
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
+  /// Subscription for the [RxChat.members] changes.
+  StreamSubscription? _membersSubscription;
+
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
 
+  /// Indicates whether the [Chat.members] have a next page.
+  RxBool get haveNext => chat?.members.hasNext ?? RxBool(false);
+
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
   @override
   void onInit() {
+    membersScrollController.addListener(_scrollListener);
+
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
       onChanged: (s) async {
@@ -194,6 +211,8 @@ class ChatInfoController extends GetxController {
   onClose() {
     _worker?.dispose();
     _chatSubscription?.cancel();
+    _membersSubscription?.cancel();
+    membersScrollController.removeListener(_scrollListener);
     scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
@@ -389,7 +408,42 @@ class ChatInfoController extends GetxController {
         },
       );
 
+      _membersSubscription = chat!.members.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            // No-op.
+            break;
+
+          case OperationKind.removed:
+            _scrollListener();
+            break;
+        }
+      });
+
       status.value = RxStatus.success();
+
+      await chat!.members.around();
+    }
+  }
+
+  /// Requests the next page of [ChatMember]s based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        _scrollIsInvoked = false;
+
+        if (membersScrollController.hasClients &&
+            haveNext.isTrue &&
+            chat?.members.nextLoading.value == false &&
+            membersScrollController.position.pixels >
+                membersScrollController.position.maxScrollExtent - 500) {
+          await chat?.members.next();
+        }
+      });
     }
   }
 

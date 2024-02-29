@@ -77,7 +77,7 @@ class ChatCall extends ChatItem {
   /// [ChatMembersDialedAll.answeredMembers] do not while the [dialed] is not
   /// `null`.
   @HiveField(11)
-  final ChatMembersDialed? dialed;
+  ChatMembersDialed? dialed;
 
   /// Returns the [ChatCallFinishReason] this [ChatCall] finished with, if any.
   ChatCallFinishReason? get finishReason => finishReasonIndex == null
