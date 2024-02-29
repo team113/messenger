@@ -861,7 +861,7 @@ class ContactsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 17, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: SvgIcon(
                   inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
                   key: Key('MuteIndicator_${contact.id}'),
@@ -874,7 +874,7 @@ class ContactsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 17, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
                   color: inverted
@@ -890,7 +890,7 @@ class ContactsTabView extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 17, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: SelectedDot(
                   selected: c.selectedContacts.contains(contact.id),
                   size: 22,

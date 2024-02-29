@@ -51,6 +51,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.dense = false,
     this.preventContextMenu = false,
+    this.padding,
     this.margin = const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -96,6 +97,9 @@ class ContactTile extends StatelessWidget {
 
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
+
+  /// Padding to apply to this [ContactTile].
+  final EdgeInsets? padding;
 
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
@@ -147,12 +151,11 @@ class ContactTile extends StatelessWidget {
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                   : null,
-              padding: EdgeInsets.fromLTRB(
-                12,
-                dense ? 4 : 6,
-                0,
-                dense ? 4 : 6,
-              ),
+              padding: padding ??
+                  EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: dense ? 4 : 6,
+                  ),
               child: Row(
                 children: [
                   ...leading,

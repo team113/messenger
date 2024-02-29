@@ -84,7 +84,7 @@ class SearchUserTile extends StatelessWidget {
             if (user?.user.value.isBlocked != null ||
                 contact?.user.value?.user.value.isBlocked != null)
               Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 17, 0),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
                   color: selected

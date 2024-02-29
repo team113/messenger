@@ -119,7 +119,7 @@ class BlocklistView extends StatelessWidget {
                                   style: style.fonts.small.regular.primary,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 4),
                             ],
                           );
 
