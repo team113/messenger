@@ -38,7 +38,7 @@ import '/util/platform_utils.dart';
 /// errors.
 ///
 /// Uses [Image.network] on non-web platforms.
-class WebImage extends StatefulWidget  {
+class WebImage extends StatefulWidget {
   const WebImage(
     this.src, {
     super.key,
