@@ -245,7 +245,7 @@ class CallWorker extends DisposableService {
 
           // Play a sound when a call with [myUser] ends.
           final OngoingCall? call = event.value?.value;
-          if (call != null) {
+          if (call != null && call.connected && call.isActive) {
             if (call.members.keys.any((e) => e.userId == _myUser.value?.id)) {
               play(_endCall);
             }
@@ -364,19 +364,28 @@ class CallWorker extends DisposableService {
 
   /// Initializes [WebUtils] related functionality.
   void _initWebUtils() {
-    _storageSubscription = WebUtils.onStorageChange.listen((s) {
-      if (s.key == null) {
+    _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      if (e.key == null) {
         stop();
-      } else if (s.key?.startsWith('call_') == true) {
-        ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
-        if (s.newValue == null) {
+      } else if (e.key?.startsWith('call_') == true) {
+        final ChatId chatId = ChatId(e.key!.replaceAll('call_', ''));
+        if (e.newValue == null) {
           _callService.remove(chatId);
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
             stop();
           }
+
+          // Play a sound when a call with [myUser] ends.
+          if (e.oldValue != null) {
+            final call = WebStoredCall.fromJson(json.decode(e.oldValue!));
+            if (call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
+                false) {
+              play(_endCall);
+            }
+          }
         } else {
-          var call = WebStoredCall.fromJson(json.decode(s.newValue!));
+          final call = WebStoredCall.fromJson(json.decode(e.newValue!));
           if (call.state != OngoingCallState.local &&
               call.state != OngoingCallState.pending) {
             _workers.remove(chatId)?.dispose();
