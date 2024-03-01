@@ -57,6 +57,7 @@ import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
+import 'store/audio_player.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/window.dart';
@@ -67,6 +68,9 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
+  // TODO: where should I put this?
+  Get.put(AudioStore());
+
   await Config.init();
 
   me.Log.options = me.LogOptions(

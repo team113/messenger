@@ -142,6 +142,19 @@ class NativeFile {
     return mime?.subtype == 'svg+xml';
   }
 
+  /// Indicates whether this file represents an audio or not.
+  bool get isAudio {
+    // Best effort if [mime] is `null`.
+    if (mime == null) {
+      return [
+        'mp3',
+        'wav',
+      ].contains(extension.toLowerCase());
+    }
+
+    return mime?.type == 'audio';
+  }
+
   /// Indicates whether this file represents a video or not.
   bool get isVideo {
     // Best effort if [mime] is `null`.

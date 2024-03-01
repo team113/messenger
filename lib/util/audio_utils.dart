@@ -32,6 +32,47 @@ import 'platform_utils.dart';
 // ignore: non_constant_identifier_names
 AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
+class PlayerController {
+  late StreamController<void> _stream_controller;
+  Player ?_player;
+  Timer ?_timer;
+
+  StreamSubscription<void> beginPlay({
+    void Function(void) ?onData = null,
+    dynamic Function() ?onDone = null
+  }) {
+    print('here check onData');
+    print(onData);
+    return _stream_controller.stream.listen(
+      // onData ?? (_) {},
+      (_) {
+        print('yoyoyoyoyoyo1111');
+        // _stream_controller.getDurationStream().listen((event) {
+        //   print('event');
+        //   print(event);
+        // });
+      },
+      onDone: onDone
+    );
+  }
+
+  Stream<Duration> getPositionStream() {
+    return _player!.stream.position;
+  }
+
+  Stream<Duration> getDurationStream() {
+    return _player!.stream.duration;
+  }
+
+  void close() {
+    _stream_controller.close();
+  }
+
+  void seek(double milliseconds) {
+    _player?.seek(Duration(milliseconds: milliseconds.floor()));
+  }
+}
+
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
   /// [Player] lazily initialized to play sounds [once].
@@ -46,7 +87,9 @@ class AudioUtilsImpl {
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
-  final Map<AudioSource, StreamController<void>> _players = {};
+  // QUEST
+  // final Map<AudioSource, StreamController<void>> _players = {};
+  final Map<AudioSource, PlayerController> _players = {};
 
   /// [AudioSpeakerKind] currently used for audio output.
   AudioSpeakerKind? _speaker;
@@ -90,29 +133,57 @@ class AudioUtilsImpl {
     }
   }
 
-  /// Plays the provided [music] looped with the specified [fade].
-  ///
-  /// Stopping the [music] means canceling the returned [StreamSubscription].
+  // TODO
   StreamSubscription<void> play(
     AudioSource music, {
+      Duration fade = Duration.zero,
+      bool loop = true,
+      bool stop_others = false,
+    }) {
+    var stream = createPlayStream(music, fade: fade, loop: loop, stop_others: stop_others);
+    return stream.beginPlay();
+  }
+
+  /// Plays the provided [music] looped with the specified [fade].
+  /// [loop] forces the [music] to loop. It is true by default.
+  /// [stop_others] if true, stops other played streams. It is false by default.
+  /// [onDone] optional onDone handler for returned StreamSubscription.
+  /// Stopping the [music] means canceling the returned [StreamSubscription].
+  PlayerController createPlayStream(
+    AudioSource music, {
     Duration fade = Duration.zero,
+    bool loop = true,
+    bool stop_others = false,
   }) {
-    StreamController? controller = _players[music];
+    PlayerController? controller = _players[music];
     StreamSubscription? position;
+    print('here creating');
 
-    if (controller == null) {
-      ja.AudioPlayer? jaPlayer;
-      Player? player;
-      Timer? timer;
+    // if (controller == null) {
+    //   ja.AudioPlayer? jaPlayer;
+    //   Player? player;
+    //   Timer? timer;
+    if (stop_others) {
+      _players.forEach((key, value) {
+        if (key != music) {
+          value.close();
+        }
+      });
+    }
 
-      controller = StreamController.broadcast(
+    if (controller == null || controller._player == null) {
+      controller = PlayerController();
+      // controller = StreamController.broadcast(
+      var stream_controller = StreamController.broadcast(
         onListen: () async {
           try {
-            if (_isMobile) {
-              jaPlayer = ja.AudioPlayer();
-            } else {
-              player = Player();
-            }
+            // TODO
+            controller?._player = Player();
+            // if (_isMobile) {
+            //   jaPlayer = ja.AudioPlayer();
+            // } else {
+            //   player = Player();
+            // }
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -125,55 +196,79 @@ class AudioUtilsImpl {
           }
 
           if (_isMobile) {
-            await jaPlayer?.setAudioSource(music.source);
-            await jaPlayer?.setLoopMode(ja.LoopMode.all);
-            await jaPlayer?.play();
+            // await jaPlayer?.setAudioSource(music.source);
+            // await jaPlayer?.setLoopMode(ja.LoopMode.all);
+            // await jaPlayer?.play();
           } else {
-            await player?.open(music.media);
+            // await player?.open(music.media);
+            await controller?._player?.open(music.media);
 
             // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-            if (PlatformUtils.isWeb) {
-              position = player?.stream.completed.listen((e) async {
-                await player?.seek(Duration.zero);
-                await player?.play();
-              });
+            // if (PlatformUtils.isWeb) {
+            //   position = player?.stream.completed.listen((e) async {
+            //     await player?.seek(Duration.zero);
+            //     await player?.play();
+            //   });
+            if (loop) {
+              if (PlatformUtils.isWeb) {
+                position = controller?._player?.stream.completed.listen((e) async {
+                  await controller?._player?.seek(Duration.zero);
+                  await controller?._player?.play();
+                });
+              } else {
+                await controller?._player?.setPlaylistMode(PlaylistMode.loop);
+              }
             } else {
-              await player?.setPlaylistMode(PlaylistMode.loop);
+              // await player?.setPlaylistMode(PlaylistMode.loop);
+              controller?._player?.stream.completed.listen((e) {
+                Future.delayed(const Duration(milliseconds: 500), ()
+                {
+                  if (controller?._player != null && controller!._player!.state.completed) {
+                    controller?.close();
+                  }
+                });
+              });
             }
           }
 
           if (fade != Duration.zero) {
-            await (jaPlayer?.setVolume ?? player?.setVolume)?.call(0);
+            // await (jaPlayer?.setVolume ?? player?.setVolume)?.call(0);
 
-            timer = Timer.periodic(
-              Duration(microseconds: fade.inMicroseconds ~/ 10),
-              (timer) async {
-                if (timer.tick > 9) {
-                  timer.cancel();
-                } else {
-                  await jaPlayer?.setVolume((timer.tick + 1) / 10);
-                  await player?.setVolume(100 * (timer.tick + 1) / 10);
-                }
-              },
-            );
+            // timer = Timer.periodic(
+            //   Duration(microseconds: fade.inMicroseconds ~/ 10),
+            //   (timer) async {
+            //     if (timer.tick > 9) {
+            //       timer.cancel();
+            //     } else {
+            //       await jaPlayer?.setVolume((timer.tick + 1) / 10);
+            //       await player?.setVolume(100 * (timer.tick + 1) / 10);
+            //     }
+            //   },
+            // );
           }
         },
         onCancel: () async {
           _players.remove(music);
           position?.cancel();
-          timer?.cancel();
+          // timer?.cancel();
+          controller?._timer?.cancel();
 
-          Future<void>? dispose = jaPlayer?.dispose() ?? player?.dispose();
-          jaPlayer = null;
-          player = null;
+          // Future<void>? dispose = jaPlayer?.dispose() ?? player?.dispose();
+          // jaPlayer = null;
+          // player = null;
+          Future<void>? dispose = controller?._player?.dispose();
+          controller?._player = null;
           await dispose;
         },
       );
 
+      controller._stream_controller = stream_controller;
       _players[music] = controller;
     }
 
-    return controller.stream.listen((_) {});
+    print('here before returning controller');
+    return controller!;
+    // return controller.stream.listen((_) {});
   }
 
   /// Sets the [speaker] to use for audio output.

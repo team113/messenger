@@ -61,6 +61,7 @@ import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
+import 'audio_attachment.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
@@ -85,6 +86,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onRepliedTap,
     this.onResend,
     this.onFileTap,
+    this.onAudioTap,
     this.onAttachmentError,
     this.onDownload,
     this.onDownloadAs,
@@ -143,6 +145,9 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final void Function(FileAttachment)? onFileTap;
 
+  /// Callback, called when a [AudioAttaudiont] of this [ChatItem] is tapped.
+  final void Function(FileAttachment)? onAudioTap;
+
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
 
@@ -181,7 +186,9 @@ class ChatItemWidget extends StatefulWidget {
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
-      isVideo = e is FileAttachment;
+      // QUEST
+      // isVideo = e is FileAttachment;
+      isVideo = (e is FileAttachment && e.isVideo);
     }
 
     Widget attachment;
@@ -242,9 +249,19 @@ class ChatItemWidget extends StatefulWidget {
                   final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
-                  int initial = attachments.indexed
+                  // QUEST
+                  // int initial = attachments.indexed
+                  var attachments_list = attachments.toList();
+                  int initial = attachments_list.isEmpty ? -2 : attachments_list.indexed
                       .firstWhere((a) => a.$2.attachment == e)
                       .$1;
+
+                  // If there are no video or image attachments to display,
+                  // do nothing.
+                  if (initial == -2) {
+                    return;
+                  }
+
                   if (initial == -1) {
                     initial = 0;
                   }
@@ -318,6 +335,22 @@ class ChatItemWidget extends StatefulWidget {
           onFileTap?.call(e);
         }
       },
+    );
+  }
+
+  /// Returns a visual representation of the provided audio-[Attachment].
+  static Widget audioAttachment(
+    Attachment e, {
+    // void Function(AudioAttachment)? onAudioTap,
+    void Function(FileAttachment)? onAudioTap,
+  }) {
+    return AudioAttachment(
+      e,
+      // onPressed: () {
+      //   if (e is FileAttachment) {
+      //     onAudioTap?.call(e);
+      //   }
+      // },
     );
   }
 }
@@ -759,9 +792,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Iterable<GalleryAttachment> galleries =
         media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
 
+    final List<Attachment> audio = msg.attachments.where((e) {
+      return (
+          (e is FileAttachment && e.isAudio) ||
+          (e is LocalAttachment && e.file.isAudio));
+    }).toList();
+
     final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+      // QUEST
+      // return ((e is FileAttachment && !e.isVideo) ||
+      //     (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+      return ((e is FileAttachment && !e.isVideo && !e.isAudio) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo && !e.file.isAudio));
     }).toList();
 
     final Color color = _fromMe
@@ -898,6 +940,30 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
             ),
             SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
+          ],
+          if (audio.isNotEmpty) ...[
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
+              child: SelectionContainer.disabled(
+                child: Column(
+                  children: [
+                    ...audio.expand(
+                      (e) => [
+                        ChatItemWidget.audioAttachment(
+                          e,
+                          onAudioTap: widget.onAudioTap,
+                        ),
+                        if (audio.last != e) const SizedBox(height: 6),
+                      ],
+                    ),
+                    if (_text == null)
+                      Opacity(opacity: 0, child: _timestamp(msg)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
           ],
           if (files.isNotEmpty) ...[
             AnimatedOpacity(
@@ -1400,6 +1466,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     if (item is ChatMessage) {
       copyable = item.text?.val;
       media.addAll(item.attachments.where(
+        // QUEST
+        // (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
         (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
       ));
     }
@@ -1867,8 +1935,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _galleryKeys = msg.attachments
           .where((e) =>
               e is ImageAttachment ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+              // QUEST
+              // (e is FileAttachment && e.isVideo) ||
+              // (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
+              (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo || e.file.isAudio)))
           .map((e) => GlobalKey())
           .toList();
     } else if (msg is ChatForward) {

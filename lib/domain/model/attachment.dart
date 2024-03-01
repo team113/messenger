@@ -104,6 +104,14 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
+
+  /// Indicates whether this [FileAttachment] represents a audio.
+  bool get isAudio {
+    final String file = filename.toLowerCase();
+    return file.endsWith('.mp3') ||
+        file.endsWith('.wav');
+  }
+
   /// Indicates whether this [FileAttachment] represents a video.
   bool get isVideo {
     final String file = filename.toLowerCase();
@@ -113,12 +121,6 @@ class FileAttachment extends Attachment {
         file.endsWith('.mkv') ||
         file.endsWith('.flv') ||
         file.endsWith('.3gp');
-  }
-
-  bool get isAudio {
-    final String file = filename.toLowerCase();
-    return file.endsWith('.mp3') ||
-        file.endsWith('.wav');
   }
 
   /// Initializes this [FileAttachment].
