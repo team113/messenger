@@ -368,7 +368,7 @@ class CallWorker extends DisposableService {
       if (e.key == null) {
         stop();
       } else if (e.key?.startsWith('call_') == true) {
-        final ChatId chatId = ChatId(e.key!.replaceAll('call_', ''));
+        final chatId = ChatId(e.key!.replaceAll('call_', ''));
         if (e.newValue == null) {
           _callService.remove(chatId);
           _workers.remove(chatId)?.dispose();
@@ -379,8 +379,14 @@ class CallWorker extends DisposableService {
           // Play a sound when a call with [myUser] ends.
           if (e.oldValue != null) {
             final call = WebStoredCall.fromJson(json.decode(e.oldValue!));
-            if (call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
-                false) {
+
+            final bool isActiveOrEnded =
+                call.state == OngoingCallState.active ||
+                    call.state == OngoingCallState.ended;
+            final bool myUserIsInCall =
+                call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
+                    false;
+            if (isActiveOrEnded && myUserIsInCall) {
               play(_endCall);
             }
           }
