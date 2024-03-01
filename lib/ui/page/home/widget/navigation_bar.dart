@@ -253,8 +253,8 @@ class CustomNavigationBarItem extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 trailing: Container(
-                  width: 10,
-                  height: 10,
+                  width: 16,
+                  height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: acceptAuxiliary,
@@ -268,8 +268,8 @@ class CustomNavigationBarItem extends StatelessWidget {
                   Navigator.of(context).pop();
                 },
                 trailing: Container(
-                  width: 10,
-                  height: 10,
+                  width: 16,
+                  height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: warning,
