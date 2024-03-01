@@ -554,6 +554,12 @@ class CallController extends GetxController {
   double get secondaryRatio =>
       size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33;
 
+  /// Returns the name of an end call sound asset.
+  String get _endCall => 'end_call.wav';
+
+  /// Returns the name of a reconnect sound asset.
+  String get _reconnect => 'reconnect.mp3';
+
   @override
   void onInit() {
     super.onInit();
@@ -801,7 +807,7 @@ class CallController extends GetxController {
     _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
       if (b) {
         _reconnectAudio =
-            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
+            AudioUtils.play(AudioSource.asset('audio/$_reconnect'));
       } else {
         _reconnectAudio?.cancel();
       }
@@ -2152,7 +2158,7 @@ class CallController extends GetxController {
                 isActiveCall &&
                 wasConnected &&
                 myUserIsAlone) {
-              AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
+              AudioUtils.once(AudioSource.asset('audio/$_endCall'));
             }
             break;
 
