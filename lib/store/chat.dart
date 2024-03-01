@@ -698,7 +698,7 @@ class ChatRepository extends DisposableInterface
     final HiveRxChat? chat = chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
-      chat?.remove(message.id, message.key);
+      chat?.remove(message.id);
     } else {
       Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
@@ -710,7 +710,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatMessage(message.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.key);
+          chat?.remove(item.value.id);
         }
       } catch (_) {
         if (item != null) {
@@ -745,7 +745,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatForward(forward.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.key);
+          chat?.remove(item.value.id);
         }
       } catch (_) {
         if (item != null) {
@@ -777,7 +777,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChatItem(id);
 
       if (item != null) {
-        chat?.remove(item.value.id, item.value.key);
+        chat?.remove(item.value.id);
       }
     } catch (_) {
       if (item != null) {
