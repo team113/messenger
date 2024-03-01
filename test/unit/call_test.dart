@@ -53,6 +53,7 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/model/chat.dart';
+import 'package:messenger/store/model/user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 
@@ -72,7 +73,7 @@ var chatData = {
   'id': 'chatId',
   'name': null,
   'avatar': null,
-  'members': {'nodes': []},
+  'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
   'muted': null,
@@ -114,7 +115,8 @@ var favoriteQuery = {
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
+    },
+    'ver': '0'
   }
 };
 
@@ -611,6 +613,18 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       );
 
   @override
+  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) =>
+      Stream.value(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'userEvents': {'__typename': 'SubscriptionInitialized', 'ok': true}
+          },
+          parserFn: (_) => null,
+        ),
+      );
+
+  @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
       ChatId chatId, ChatCallCredentials creds,
       [bool? withVideo]) async {
@@ -824,5 +838,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<GetUser$Query> getUser(UserId id) async {
     return GetUser$Query.fromJson({'user': null});
+  }
+
+  @override
+  Future<GetMessage$Query> chatItem(ChatItemId id) async {
+    return GetMessage$Query.fromJson({'chatItem': null});
   }
 }

@@ -18,15 +18,18 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -44,13 +47,21 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+  const HomeView(
+    this._depsFactory, {
+    super.key,
+    this.signedUp = false,
+    this.link,
+  });
 
   /// Indicator whether the [IntroductionView] should be displayed with
   /// [IntroductionViewStage.signUp] initial stage.
   ///
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
+
+  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
+  final ChatDirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -122,6 +133,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         signedUp: widget.signedUp,
+        link: widget.link,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
@@ -155,49 +167,34 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   child: Scaffold(
                     backgroundColor: style.sidebarColor,
-                    body: Listener(
-                      onPointerSignal: (s) {
-                        if (s is PointerScrollEvent) {
-                          if (s.scrollDelta.dx.abs() < 3 &&
-                              (s.scrollDelta.dy.abs() > 3 ||
-                                  c.verticalScrollTimer.value != null)) {
-                            c.verticalScrollTimer.value?.cancel();
-                            c.verticalScrollTimer.value = Timer(
-                              300.milliseconds,
-                              () => c.verticalScrollTimer.value = null,
-                            );
+                    body: PageView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      controller: c.pages,
+                      onPageChanged: (int i) {
+                        router.tab = HomeTab.values[i];
+                        c.page.value = router.tab;
+
+                        if (!context.isNarrow) {
+                          switch (router.tab) {
+                            case HomeTab.menu:
+                              router.me();
+                              break;
+
+                            default:
+                              if (router.route == Routes.me) {
+                                router.home();
+                              }
+                              break;
                           }
                         }
                       },
-                      child: PageView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        controller: c.pages,
-                        onPageChanged: (int i) {
-                          router.tab = HomeTab.values[i];
-                          c.page.value = router.tab;
-
-                          if (!context.isNarrow) {
-                            switch (router.tab) {
-                              case HomeTab.menu:
-                                router.me();
-                                break;
-
-                              default:
-                                if (router.route == Routes.me) {
-                                  router.home();
-                                }
-                                break;
-                            }
-                          }
-                        },
-                        // [KeepAlivePage] used to keep the tabs' states.
-                        children: const [
-                          KeepAlivePage(child: WorkTabView()),
-                          KeepAlivePage(child: ContactsTabView()),
-                          KeepAlivePage(child: ChatsTabView()),
-                          KeepAlivePage(child: MenuTabView()),
-                        ],
-                      ),
+                      // [KeepAlivePage] used to keep the tabs' states.
+                      children: const [
+                        KeepAlivePage(child: WorkTabView()),
+                        KeepAlivePage(child: ContactsTabView()),
+                        KeepAlivePage(child: ChatsTabView()),
+                        KeepAlivePage(child: MenuTabView()),
+                      ],
                     ),
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
@@ -209,6 +206,7 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: Obx(() {
                             return CustomNavigationBar(
+                              key: c.panelKey,
                               items: c.tabs.map((e) {
                                 switch (e) {
                                   case HomeTab.work:
@@ -236,8 +234,29 @@ class _HomeViewState extends State<HomeView> {
                                         warning: style.colors.warning,
                                         onPresence: c.setPresence,
                                         onAvatar: c.updateAvatar,
-                                        selector: c.profileKey,
+                                        selector: c.panelKey,
                                         myUser: c.myUser.value,
+                                        actions: [
+                                          ContextMenuBuilder(
+                                            (_) => Obx(() {
+                                              final hasWork = c.settings.value
+                                                      ?.workWithUsTabEnabled ==
+                                                  true;
+
+                                              return ContextMenuTile(
+                                                asset: SvgIcons.partner,
+                                                label:
+                                                    'label_work_with_us'.l10n,
+                                                pinned: hasWork,
+                                                onPinned: () =>
+                                                    c.setWorkWithUsTabEnabled(
+                                                  !hasWork,
+                                                ),
+                                              );
+                                            }),
+                                          ),
+                                          const ContextMenuDivider(),
+                                        ],
                                       );
                                     });
                                 }

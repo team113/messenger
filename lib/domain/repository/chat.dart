@@ -33,6 +33,7 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/user.dart';
 import '/util/obs/obs.dart';
+import 'paginated.dart';
 
 /// [Chat]s repository interface.
 abstract class AbstractChatRepository {
@@ -235,8 +236,8 @@ abstract class RxChat implements Comparable<RxChat> {
   /// List of [User]s currently typing in this [chat].
   RxList<User> get typingUsers;
 
-  /// Reactive list of [User]s being members of this [chat].
-  RxObsMap<UserId, RxUser> get members;
+  /// [Paginated] of [User]s being members of this [chat].
+  Paginated<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
   RxString get title;
@@ -296,8 +297,16 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
-  /// Fetches the initial [messages] page around the [firstUnread].
-  Future<void> around();
+  /// Fetches the [Paginated] page around the [item], if specified, or
+  /// [messages] around the [firstUnread] otherwise.
+  ///
+  /// If [reply] or [forward] is provided, then the [item] is considered as a
+  /// quote of the specified [reply] of [forward].
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  });
 
   /// Fetches the next [messages] page.
   Future<void> next();

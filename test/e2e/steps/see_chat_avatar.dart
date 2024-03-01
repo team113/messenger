@@ -32,6 +32,7 @@ import '../world/custom_world.dart';
 /// - Then I see chat avatar as "test.jpg"
 final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
   RegExp(r'I see chat avatar as {string}'),
+  // TODO: [filename] should be used.
   (String filename, context) async {
     await context.world.appDriver.waitUntil(
       () async {

@@ -97,7 +97,7 @@ void main() async {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': null,
     'avatar': null,
-    'members': {'nodes': []},
+    'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
     'muted': null,
@@ -139,7 +139,8 @@ void main() async {
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
+      },
+      'ver': '0'
     }
   };
 
@@ -163,6 +164,10 @@ void main() async {
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
+  );
+
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
   );
 
   AuthService authService = Get.put(

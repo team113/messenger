@@ -71,6 +71,7 @@ btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Add to favorites
 btn_allow = Allow
+btn_audio = Audio
 btn_audio_call = Audio call
 btn_audio_message = Audio message
 btn_back = Back
@@ -167,6 +168,7 @@ btn_close = Close
 btn_confirm = Confirm
 btn_copy = Copy
 btn_copy_text = Copy text
+btn_create = Create
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
@@ -194,10 +196,7 @@ btn_fullscreen_exit = Exit fullscreen
 btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Gift
-btn_guest = Guest account
-btn_guest_desc =
-    Guest
-    account
+btn_guest = Guest
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -254,6 +253,7 @@ btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
 btn_upload = Upload
+btn_video = Video
 btn_video_call = Video call
 btn_video_message = Video message
 btn_work_with_us = Work with us
@@ -285,7 +285,7 @@ err_call_popup_was_blocked =
     Allow the popup windows to display call as a popup
 err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
-err_chat_direct_link_occupied = Link is occupied
+err_chat_direct_link_occupied = Link is occupied.
 err_code_limit_exceed =
     Exceeded limit of sending recovery code. Try again in 1 hour.
 err_contact_not_group = Chat with the provided ID is not a group
@@ -308,6 +308,7 @@ err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
 err_invalid_crop_points = Invalid crop points
 err_invalid_registration_token = Invalid registration token
+err_invalid_symbols_in_link = Unacceptable symbols. The following symbols are allowed: A-z, -, _ and 0-9
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
 err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
@@ -642,6 +643,7 @@ label_delete_messages = Delete the messages?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_details = Details.
+label_device_by_default = By default - {$device}
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_did_not_receive_code = Didn't receive the code?
@@ -688,8 +690,8 @@ label_files_saved_to_gallery = Files are saved to the gallery
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
-    [1] Пересланное сообщение
-   *[other] Пересланные сообщения
+    [1] Forwarded message
+   *[other] Forwarded messages
 }
 label_gb_occupied = {$count} GB occupied
 label_gb_of_gb_occupied = {$a} of {$b} GB occupied
@@ -697,6 +699,8 @@ label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}created the group
+label_group_name = Group name
+label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
@@ -722,7 +726,7 @@ label_introduction_description1 =
 
          • you click the button "Sign out".
 
-     To save access to your account, please set a password, e-mail or phone number in the{" "}
+    To save access to your account, please set a password, e-mail or phone number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
 label_kb = {$amount} KB
@@ -795,10 +799,10 @@ label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
-label_one_time_account_created = Guest account created
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
+label_open_chat = Open chat
 label_or_register = or register
 label_outgoing_call = Calling
 label_participants = Participants: {$count}

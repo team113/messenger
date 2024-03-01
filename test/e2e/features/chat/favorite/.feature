@@ -55,3 +55,9 @@ Feature: Favorite chats
 
     When I drag "Alice and Charlie" chat 200 pixels down
     Then I see "Alice and Charlie" chat last in favorites list
+
+  Scenario: Favorite chats receive update events when user signs in
+    When I logout
+    And Alice favorites "Alice and Bob" group
+    And I sign in as Alice
+    Then I see "Alice and Bob" chat as favorite

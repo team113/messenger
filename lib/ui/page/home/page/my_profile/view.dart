@@ -99,12 +99,14 @@ class MyProfileView extends StatelessWidget {
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
                     required String title,
+                    List<Widget> overlay = const [],
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
                         title: title,
                         highlight: c.highlightIndex.value == i,
+                        overlay: overlay,
                         children: children,
                       );
                     });
@@ -189,20 +191,37 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      return block(
-                        title: 'label_your_direct_link'.l10n,
-                        children: [
-                          Obx(() {
-                            return DirectLinkField(
-                              c.myUser.value?.chatDirectLink,
-                              onSubmit: (s) => s == null
-                                  ? c.deleteChatDirectLink()
-                                  : c.createChatDirectLink(s),
-                              background: c.background.value,
-                            );
-                          }),
-                        ],
-                      );
+                      return Obx(() {
+                        return block(
+                          title: 'label_your_direct_link'.l10n,
+                          overlay: [
+                            EditBlockButton(
+                              key: const Key('EditLinkButton'),
+                              onPressed: c.linkEditing.toggle,
+                              editing: c.linkEditing.value,
+                            ),
+                          ],
+                          children: [
+                            Obx(() {
+                              return DirectLinkField(
+                                c.myUser.value?.chatDirectLink,
+                                onSubmit: (s) async {
+                                  if (s == null) {
+                                    c.linkEditing.value = false;
+                                    await c.deleteChatDirectLink();
+                                  } else {
+                                    await c.createChatDirectLink(s);
+                                    c.linkEditing.value = false;
+                                  }
+                                },
+                                background: c.background.value,
+                                onEditing: (b) => c.linkEditing.value = b,
+                                editing: c.linkEditing.value,
+                              );
+                            }),
+                          ],
+                        );
+                      });
 
                     case ProfileTab.background:
                       return block(
@@ -691,13 +710,13 @@ Widget _media(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
+          final selected = c.devices.video().firstWhereOrNull(
+                    (e) => e.deviceId() == c.media.value?.videoDevice,
+                  ) ??
+              c.devices.video().firstOrNull;
+
           return FieldButton(
-            text: (c.devices.video().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.videoDevice) ??
-                        c.devices.video().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
-            hint: 'label_media_camera'.l10n,
+            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
             headline: Text('label_media_camera'.l10n),
             onPressed: () async {
               await CameraSwitchView.show(
@@ -716,13 +735,13 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       Paddings.dense(
         Obx(() {
+          final selected = c.devices.audio().firstWhereOrNull(
+                    (e) => e.id() == c.media.value?.audioDevice,
+                  ) ??
+              c.devices.audio().firstOrNull;
+
           return FieldButton(
-            text: (c.devices.audio().firstWhereOrNull((e) =>
-                            e.deviceId() == c.media.value?.audioDevice) ??
-                        c.devices.audio().firstOrNull)
-                    ?.label() ??
-                'label_media_no_device_available'.l10n,
-            hint: 'label_media_microphone'.l10n,
+            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
             headline: Text('label_media_microphone'.l10n),
             onPressed: () async {
               await MicrophoneSwitchView.show(
@@ -746,13 +765,13 @@ Widget _media(BuildContext context, MyProfileController c) {
         const SizedBox(height: 16),
         Paddings.dense(
           Obx(() {
+            final selected = c.devices.output().firstWhereOrNull(
+                      (e) => e.id() == c.media.value?.outputDevice,
+                    ) ??
+                c.devices.output().firstOrNull;
+
             return FieldButton(
-              text: (c.devices.output().firstWhereOrNull((e) =>
-                              e.deviceId() == c.media.value?.outputDevice) ??
-                          c.devices.output().firstOrNull)
-                      ?.label() ??
-                  'label_media_no_device_available'.l10n,
-              hint: 'label_media_output'.l10n,
+              text: selected?.label() ?? 'label_media_no_device_available'.l10n,
               headline: Text('label_media_output'.l10n),
               onPressed: () async {
                 await OutputSwitchView.show(
@@ -835,35 +854,17 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     const Column(
       children: [
-        DownloadButton(
-          asset: SvgIcons.windows,
-          title: 'Windows',
-          link: 'messenger-windows.zip',
-        ),
+        DownloadButton.windows(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'macOS',
-          link: 'messenger-macos.zip',
-        ),
+        DownloadButton.macos(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.linux,
-          title: 'Linux',
-          link: 'messenger-linux.zip',
-        ),
+        DownloadButton.linux(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.apple,
-          title: 'iOS',
-          link: 'messenger-ios.zip',
-        ),
+        DownloadButton.appStore(),
         SizedBox(height: 8),
-        DownloadButton(
-          asset: SvgIcons.googlePlay,
-          title: 'Android',
-          link: 'messenger-android.apk',
-        ),
+        DownloadButton.googlePlay(),
+        SizedBox(height: 8),
+        DownloadButton.android(),
       ],
     ),
   );

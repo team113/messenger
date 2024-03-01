@@ -77,7 +77,7 @@ class ChatDirectLinkController extends GetxController {
   Future<void> _useChatDirectLink() async {
     try {
       ChatId chatId = await _auth.useChatDirectLink(slug.value!);
-      router.chat(chatId);
+      router.chat(chatId, link: slug.value);
     } on UseChatDirectLinkException catch (e) {
       if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {
         slug.value = null;

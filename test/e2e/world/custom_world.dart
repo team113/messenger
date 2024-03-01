@@ -15,12 +15,16 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/services.dart' show ClipboardData;
+import 'dart:async';
+
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter/services.dart' show ClipboardData;
+import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
 /// [FlutterWidgetTesterWorld] storing a custom state during a single test.
 class CustomWorld extends FlutterWidgetTesterWorld {
@@ -42,20 +46,56 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
 /// [Session] with some additional info about the [User] it represents.
 class CustomUser {
-  CustomUser(this.credentials, this.userNum);
+  CustomUser(Credentials this._credentials, this.userNum)
+      : userId = _credentials.userId;
 
   /// [Credentials] of this [CustomUser].
-  Credentials credentials;
+  ///
+  /// Might be `null`, if authorization of this [CustomUser] is lost.
+  Credentials? _credentials;
 
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
+  /// [UserId] of this [CustomUser].
+  final UserId userId;
+
+  /// [UserPassword] this [CustomUser] uses, if any.
+  UserPassword? password;
+
   /// ID of the [Chat]-dialog with the authenticated [MyUser].
   ChatId? dialog;
 
-  /// [UserId] of this [CustomUser].
-  UserId get userId => credentials.userId;
+  /// Sets the [Credentials] to the provided [creds].
+  set credentials(FutureOr<Credentials?> creds) {
+    if (creds is Credentials?) {
+      _credentials = creds;
+    } else {
+      creds.then((v) => _credentials = v);
+    }
+  }
+
+  /// Returns the [Credentials] of this [CustomUser].
+  FutureOr<Credentials> get credentials {
+    if (_credentials == null) {
+      return Future(() async {
+        final provider = GraphQlProvider();
+        final response = await provider.signIn(
+          password ?? UserPassword('123'),
+          null,
+          userNum,
+          null,
+          null,
+        );
+        _credentials = response.toModel();
+
+        return _credentials!;
+      });
+    }
+
+    return _credentials!;
+  }
 
   /// Returns the [AccessToken] of this [CustomUser].
-  AccessToken get token => credentials.session.token;
+  AccessToken? get token => _credentials?.session.token;
 }

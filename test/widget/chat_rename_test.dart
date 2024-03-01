@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
@@ -71,13 +72,14 @@ import 'chat_rename_test.mocks.dart';
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
+  Config.disableInfiniteAnimations = true;
   Hive.init('./test/.temp_hive/chat_rename_widget');
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'startname',
     'avatar': null,
-    'members': {'nodes': []},
+    'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
     'muted': null,
@@ -119,7 +121,8 @@ void main() async {
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
+      },
+      'ver': '0'
     }
   };
 
@@ -308,6 +311,23 @@ void main() async {
           .renameChat as RenameChat$Mutation$RenameChat$ChatEventsVersioned);
     });
 
+    when(graphQlProvider.chatMembers(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      first: anyNamed('first'),
+    )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
+          'chat': {
+            'members': {
+              'edges': [],
+              'pageInfo': {
+                'endCursor': 'endCursor',
+                'hasNextPage': false,
+                'startCursor': 'startCursor',
+                'hasPreviousPage': false,
+              }
+            }
+          }
+        })));
+
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
@@ -364,10 +384,8 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.byKey(const Key('MoreButton'), skipOffstage: false));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('EditButton'), skipOffstage: false));
+    await tester
+        .tap(find.byKey(const Key('EditProfileButton'), skipOffstage: false));
     await tester.pumpAndSettle();
 
     var field = find.byKey(const Key('RenameChatField'));

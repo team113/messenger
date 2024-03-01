@@ -71,10 +71,12 @@ import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/view.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
@@ -83,6 +85,7 @@ import 'extension/rich_text.dart';
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
+  AudioUtils = AudioUtilsMock();
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
 
   var userData = {
@@ -103,7 +106,7 @@ void main() async {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'startname',
     'avatar': null,
-    'members': {'nodes': []},
+    'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
     'muted': null,
@@ -147,7 +150,8 @@ void main() async {
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
+      },
+      'ver': '0'
     }
   };
 
@@ -300,6 +304,10 @@ void main() async {
         }
       })));
 
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
+
   when(graphQlProvider.recentChats(
     first: anyNamed('first'),
     after: null,
@@ -408,6 +416,23 @@ void main() async {
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
+
+  when(graphQlProvider.chatMembers(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    first: anyNamed('first'),
+  )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
+        'chat': {
+          'members': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            }
+          }
+        }
+      })));
 
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
@@ -619,5 +644,8 @@ void main() async {
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
+
+    await tester.runAsync(() => Future.delayed(1.milliseconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

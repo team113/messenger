@@ -17,8 +17,12 @@
 
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
+import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
+import 'package:mutex/mutex.dart';
 
+import '/l10n/l10n.dart';
 import 'log.dart';
 import 'platform_utils.dart';
 import 'web/web_utils.dart';
@@ -32,18 +36,27 @@ MediaUtilsImpl MediaUtils = MediaUtilsImpl();
 /// Helper providing direct access to media related resources like media
 /// devices, media tracks, etc.
 class MediaUtilsImpl {
+  /// ID of the currently used output device.
+  final RxnString outputDeviceId = RxnString();
+
+  /// [Mutex] guarding synchronized output device updating.
+  final Mutex outputGuard = Mutex();
+
   /// [Jason] communicating with the media resources.
   Jason? _jason;
 
   /// [MediaManagerHandle] maintaining the media devices.
-  MediaManagerHandle? _mediaManager;
+  MediaManagerHandle? __mediaManager;
 
-  /// [StreamController] piping the [MediaDeviceDetails] changes in the
+  /// [StreamController] piping the [DeviceDetails] changes in the
   /// [MediaManagerHandle.onDeviceChange] callback.
-  StreamController<List<MediaDeviceDetails>>? _devicesController;
+  StreamController<List<DeviceDetails>>? _devicesController;
 
   /// [StreamController] piping the [MediaDisplayDetails] changes.
   StreamController<List<MediaDisplayDetails>>? _displaysController;
+
+  /// [Mutex] guarding synchronized access to the [_setOutputDevice].
+  final Mutex _mutex = Mutex();
 
   /// Returns the [Jason] instance of these [MediaUtils].
   Jason? get jason {
@@ -59,7 +72,7 @@ class MediaUtilsImpl {
       WebUtils.onPanic((e) {
         Log.error('Panic: ${e.toString()}', 'Jason');
         _jason = null;
-        _mediaManager = null;
+        __mediaManager = null;
       });
     }
 
@@ -67,18 +80,18 @@ class MediaUtilsImpl {
   }
 
   /// Returns the [MediaManagerHandle] instance of these [MediaUtils].
-  MediaManagerHandle? get mediaManager {
-    _mediaManager ??= jason?.mediaManager();
-    return _mediaManager;
+  MediaManagerHandle? get _mediaManager {
+    __mediaManager ??= jason?.mediaManager();
+    return __mediaManager;
   }
 
-  /// Returns a [Stream] of the [MediaDeviceDetails] changes.
-  Stream<List<MediaDeviceDetails>> get onDeviceChange {
+  /// Returns a [Stream] of the [DeviceDetails] changes.
+  Stream<List<DeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
-      mediaManager?.onDeviceChange(() async {
+      _mediaManager?.onDeviceChange(() async {
         _devicesController?.add(
-          (await mediaManager?.enumerateDevices() ?? [])
+          (await enumerateDevices())
               .where((e) => e.deviceId().isNotEmpty)
               .toList(),
         );
@@ -96,7 +109,7 @@ class MediaUtilsImpl {
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
         Future(() async {
           _displaysController?.add(
-            (await mediaManager?.enumerateDisplays() ?? [])
+            (await _mediaManager?.enumerateDisplays() ?? [])
                 .where((e) => e.deviceId().isNotEmpty)
                 .toList(),
           );
@@ -113,14 +126,14 @@ class MediaUtilsImpl {
     VideoPreferences? video,
     ScreenPreferences? screen,
   }) async {
-    if (mediaManager == null) {
+    if (_mediaManager == null) {
       return [];
     }
 
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack> local = await mediaManager!.initLocalTracks(
+      final List<LocalMediaTrack> local = await _mediaManager!.initLocalTracks(
         _mediaStreamSettings(audio: audio, video: video, screen: screen),
       );
 
@@ -130,15 +143,93 @@ class MediaUtilsImpl {
     return tracks;
   }
 
-  /// Returns the [MediaDeviceDetails] currently available with the provided
+  /// Returns the [DeviceDetails] currently available with the provided
   /// [kind], if specified.
-  Future<List<MediaDeviceDetails>> enumerateDevices([
+  Future<List<DeviceDetails>> enumerateDevices([
     MediaDeviceKind? kind,
   ]) async {
-    return (await mediaManager?.enumerateDevices() ?? [])
-        .where((e) => e.deviceId().isNotEmpty)
-        .where((e) => kind == null || e.kind() == kind)
-        .toList();
+    final List<DeviceDetails> devices =
+        (await _mediaManager?.enumerateDevices() ?? [])
+            .where((e) => e.deviceId().isNotEmpty)
+            .where((e) => kind == null || e.kind() == kind)
+            .whereType<MediaDeviceDetails>()
+            .map((e) => DeviceDetails(e))
+            .toList();
+
+    // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
+    //
+    // Browsers and mobiles already may include their own default devices.
+    if (kind == null || kind == MediaDeviceKind.audioInput) {
+      final DeviceDetails? hasDefault = devices.firstWhereOrNull((d) =>
+          d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default');
+
+      if (hasDefault == null) {
+        final DeviceDetails? device = devices
+            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
+        if (device != null) {
+          devices.insert(0, DefaultDeviceDetails(device));
+        }
+      } else {
+        // Audio input on mobile devices is handled by `medea_jason`, and we
+        // should not interfere, as otherwise we may run into
+        // [MediaSettingsUpdateException].
+        if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+          devices.remove(hasDefault);
+        }
+      }
+    }
+
+    if (kind == null || kind == MediaDeviceKind.audioOutput) {
+      final bool hasDefault = devices.any((d) =>
+          d.kind() == MediaDeviceKind.audioOutput && d.deviceId() == 'default');
+
+      if (!hasDefault) {
+        final DeviceDetails? device = devices
+            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
+        if (device != null) {
+          devices.insert(0, DefaultDeviceDetails(device));
+        }
+      }
+    }
+
+    return devices;
+  }
+
+  /// Sets device with [deviceId] as a currently used output device.
+  Future<void> setOutputDevice(String deviceId) async {
+    if (outputDeviceId.value != deviceId) {
+      outputDeviceId.value = deviceId;
+      await _setOutputDevice();
+    }
+  }
+
+  /// Invokes a [MediaManagerHandle.setOutputAudioId] method.
+  Future<void> _setOutputDevice() async {
+    // If the [_mutex] is locked, the output device is already being set.
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    final String deviceId = outputDeviceId.value!;
+    await outputGuard.protect(() async {
+      await _mutex.protect(() async {
+        if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+          await AVAudioSession().setCategory(
+            AVAudioSessionCategory.playAndRecord,
+            AVAudioSessionCategoryOptions.allowBluetooth,
+            AVAudioSessionMode.voiceChat,
+          );
+        }
+
+        await _mediaManager?.setOutputAudioId(deviceId);
+      });
+    });
+
+    // If the [outputDeviceId] was changed while setting the output device
+    // then call [_setOutputDevice] again.
+    if (deviceId != outputDeviceId.value) {
+      _setOutputDevice();
+    }
   }
 
   /// Returns the currently available [MediaDisplayDetails].
@@ -147,7 +238,7 @@ class MediaUtilsImpl {
       return [];
     }
 
-    return (await mediaManager?.enumerateDisplays() ?? [])
+    return (await _mediaManager?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();
   }
@@ -170,9 +261,10 @@ class MediaUtilsImpl {
     if (video != null) {
       final DeviceVideoTrackConstraints constraints =
           DeviceVideoTrackConstraints();
-      if (video.device != null) constraints.deviceId(video.device!);
       if (video.facingMode != null) {
         constraints.idealFacingMode(video.facingMode!);
+      } else if (video.device != null) {
+        constraints.deviceId(video.device!);
       }
       settings.deviceVideo(constraints);
     }
@@ -216,4 +308,98 @@ class ScreenPreferences extends TrackPreferences {
 
   /// Preferred framerate of the screen track.
   final int? framerate;
+}
+
+/// Extension adding conversion on [MediaDeviceDetails] to [AudioSpeakerKind].
+extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
+  /// Returns the [AudioSpeakerKind] of these [MediaDeviceDetails].
+  ///
+  /// Only meaningful, if these [MediaDeviceDetails] are of
+  /// [MediaDeviceKind.audioOutput].
+  AudioSpeakerKind get speaker => switch (deviceId()) {
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      };
+}
+
+/// Possible kind of an audio output device.
+enum AudioSpeakerKind {
+  headphones,
+  earpiece,
+  speaker,
+}
+
+/// Wrapper around a [MediaDeviceDetails] with [id] method.
+///
+/// [id] may be overridden to represent a different device.
+class DeviceDetails extends MediaDeviceDetails {
+  DeviceDetails(this._device);
+
+  /// [MediaDeviceDetails] actually used by these [DeviceDetails].
+  final MediaDeviceDetails _device;
+
+  @override
+  String deviceId() => _device.deviceId();
+
+  @override
+  void free() => _device.free();
+
+  @override
+  String? groupId() => _device.groupId();
+
+  @override
+  bool isFailed() => _device.isFailed();
+
+  @override
+  MediaDeviceKind kind() => _device.kind();
+
+  @override
+  String label() {
+    final String description = _device.label();
+
+    // Firefox in its private mode, for example, leaves the labels empty.
+    if (description.isEmpty) {
+      return deviceId();
+    }
+
+    return description;
+  }
+
+  @override
+  String toString() => id();
+
+  @override
+  int get hashCode => (id() + deviceId()).hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is DeviceDetails &&
+        id() == other.id() &&
+        deviceId() == other.deviceId() &&
+        label() == other.label() &&
+
+        // On Web `default` devices aren't equal.
+        (!PlatformUtils.isWeb || deviceId() != 'default');
+  }
+
+  /// Returns a unique identifier of this [DeviceDetails].
+  String id() => _device.deviceId();
+}
+
+/// [DeviceDetails] representing a default device.
+class DefaultDeviceDetails extends DeviceDetails {
+  DefaultDeviceDetails(super._device);
+
+  @override
+  void free() {
+    // No-op.
+  }
+
+  @override
+  String label() =>
+      'label_device_by_default'.l10nfmt({'device': _device.label()});
+
+  @override
+  String id() => 'default';
 }

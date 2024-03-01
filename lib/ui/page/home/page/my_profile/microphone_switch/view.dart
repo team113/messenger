@@ -18,13 +18,13 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
+import '/util/media_utils.dart';
 import 'controller.dart';
 
 /// View for updating the [MediaSettings.audioDevice].
@@ -34,7 +34,7 @@ class MicrophoneSwitchView extends StatelessWidget {
   const MicrophoneSwitchView({super.key, this.onChanged, this.mic});
 
   /// Callback, called when the selected microphone device changes.
-  final void Function(String)? onChanged;
+  final void Function(DeviceDetails)? onChanged;
 
   /// ID of the initially selected microphone device.
   final String? mic;
@@ -42,7 +42,7 @@ class MicrophoneSwitchView extends StatelessWidget {
   /// Displays a [MicrophoneSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    void Function(String)? onChanged,
+    void Function(DeviceDetails)? onChanged,
     String? mic,
   }) {
     return ModalPopup.show(
@@ -92,20 +92,19 @@ class MicrophoneSwitchView extends StatelessWidget {
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final MediaDeviceDetails e = c.devices[i];
+                            final DeviceDetails e = c.devices[i];
 
                             final bool selected =
-                                (c.mic.value == null && i == 0) ||
-                                    c.mic.value == e.deviceId();
+                                (c.selected.value == null && i == 0) ||
+                                    c.selected.value?.id() == e.id();
 
                             return RectangleButton(
                               selected: selected,
                               onPressed: selected
                                   ? null
                                   : () {
-                                      c.mic.value = e.deviceId();
-                                      (onChanged ?? c.setAudioDevice)
-                                          .call(e.deviceId());
+                                      c.selected.value = e;
+                                      (onChanged ?? c.setAudioDevice).call(e);
                                     },
                               label: e.label(),
                             );

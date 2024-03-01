@@ -69,14 +69,20 @@ class HiveRxUser extends RxUser {
   Rx<RxChat?>? _dialog;
 
   /// [UserRepository.userEvents] subscription.
-  ///
-  /// May be uninitialized if [_listeners] counter is equal to zero.
   StreamQueue<UserEvents>? _remoteSubscription;
 
-  /// Reference counter for [_remoteSubscription]'s actuality.
+  /// [StreamController] for [updates] of this [HiveRxUser].
   ///
-  /// [_remoteSubscription] is up only if this counter is greater than zero.
-  int _listeners = 0;
+  /// Behaves like a reference counter: when [updates] are listened to, this
+  /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
+  /// cancels it.
+  late final StreamController<void> _controller = StreamController.broadcast(
+    onListen: _initRemoteSubscription,
+    onCancel: () {
+      _remoteSubscription?.close(immediate: true);
+      _remoteSubscription = null;
+    },
+  );
 
   /// [Timer] refreshing the [lastSeen] to synchronize its updates.
   Timer? _lastSeenTimer;
@@ -102,36 +108,15 @@ class HiveRxUser extends RxUser {
     return _dialog!;
   }
 
+  @override
+  Stream<void> get updates => _controller.stream;
+
   /// Disposes this [HiveRxUser].
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
 
     _lastSeenTimer?.cancel();
     _worker?.dispose();
-  }
-
-  @override
-  void listenUpdates() {
-    Log.debug('listenUpdates()', '$runtimeType($id)');
-
-    if (_listeners++ == 0) {
-      _initRemoteSubscription();
-    }
-  }
-
-  @override
-  void stopUpdates() {
-    Log.debug('stopUpdates()', '$runtimeType($id)');
-
-    if (--_listeners == 0) {
-      Log.debug(
-        '_remoteSubscription?.close(immediate: true)',
-        '$runtimeType($id)',
-      );
-
-      _remoteSubscription?.close(immediate: true);
-      _remoteSubscription = null;
-    }
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
@@ -156,16 +141,16 @@ class HiveRxUser extends RxUser {
         Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
 
         events as UserEventsUser;
-        var saved = _userLocal.get(id);
-        if (saved == null || saved.ver < events.user.ver) {
+        final saved = _userLocal.get(id);
+        if (saved == null || saved.ver <= events.user.ver) {
           await _userLocal.put(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsEvent).event;
-        if (userEntity == null || versioned.ver <= userEntity.ver) {
+        final userEntity = _userLocal.get(id);
+        final versioned = (events as UserEventsEvent).event;
+        if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
             '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
             '$runtimeType($id)',
@@ -188,6 +173,15 @@ class HiveRxUser extends RxUser {
             case UserEventKind.avatarUpdated:
               event as EventUserAvatarUpdated;
               userEntity.value.avatar = event.avatar;
+              break;
+
+            case UserEventKind.bioDeleted:
+              userEntity.value.bio = null;
+              break;
+
+            case UserEventKind.bioUpdated:
+              event as EventUserBioUpdated;
+              userEntity.value.bio = event.bio;
               break;
 
             case UserEventKind.cameOffline:
@@ -242,8 +236,8 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.blocklistEvent:
-        var userEntity = _userLocal.get(id);
-        var versioned = (events as UserEventsBlocklistEventsEvent).event;
+        final userEntity = _userLocal.get(id);
+        final versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
         if (userEntity != null && userEntity.blockedVer > versioned.ver) {
@@ -256,8 +250,8 @@ class HiveRxUser extends RxUser {
         break;
 
       case UserEventsKind.isBlocked:
-        var versioned = events as UserEventsIsBlocked;
-        var userEntity = _userLocal.get(id);
+        final versioned = events as UserEventsIsBlocked;
+        final userEntity = _userLocal.get(id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.

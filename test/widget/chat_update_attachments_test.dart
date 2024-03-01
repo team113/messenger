@@ -76,16 +76,19 @@ import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_update_attachments_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
 void main() async {
   PlatformUtils = PlatformUtilsMock(cache: null);
+  AudioUtils = AudioUtilsMock();
 
   final dio = Dio(BaseOptions());
   final dioAdapter = DioAdapter(dio: dio);
@@ -123,7 +126,7 @@ void main() async {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': 'startname',
     'avatar': null,
-    'members': {'nodes': []},
+    'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
     'muted': null,
@@ -167,7 +170,8 @@ void main() async {
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
+      },
+      'ver': '0'
     }
   };
 
@@ -307,6 +311,10 @@ void main() async {
     })),
   );
 
+  when(graphQlProvider.chatItem(any)).thenAnswer(
+    (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
+  );
+
   when(graphQlProvider.favoriteChatContacts(
     first: anyNamed('first'),
     before: null,
@@ -376,6 +384,23 @@ void main() async {
     before: null,
   )).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+
+  when(graphQlProvider.chatMembers(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    first: anyNamed('first'),
+  )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
+        'chat': {
+          'members': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            }
+          }
+        }
+      })));
 
   when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
@@ -611,5 +636,8 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await Get.deleteAll(force: true);
+
+    await tester.runAsync(() => Future.delayed(1.milliseconds));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

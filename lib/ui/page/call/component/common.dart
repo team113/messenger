@@ -28,6 +28,8 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/media_utils.dart';
+import '/util/platform_utils.dart';
 
 /// Button in a [CallView].
 ///
@@ -513,21 +515,34 @@ class SpeakerButton extends CallButton {
     bool expanded = false,
     bool opaque = false,
   }) {
-    return Obx(() {
+    Widget button(SvgData asset, void Function()? onPressed) {
       return CallButtonWidget(
         hint: hint,
-        asset: c.isRemoteAudioEnabled.value
-            ? SvgIcons.callIncomingAudioOn
-            : SvgIcons.callIncomingAudioOff,
+        asset: asset,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,
-        onPressed: c.toggleSpeaker,
+        onPressed: onPressed,
       );
-    });
+    }
+
+    // Web seems to decide for itself the output device source on mobile.
+    if (PlatformUtils.isMobile && PlatformUtils.isWeb) {
+      return button(SvgIcons.callIncomingAudioOn, null);
+    } else {
+      return Obx(() {
+        final SvgData asset = switch (c.speaker) {
+          AudioSpeakerKind.earpiece => SvgIcons.callIncomingAudioOff,
+          AudioSpeakerKind.speaker => SvgIcons.callIncomingAudioOn,
+          AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
+        };
+
+        return button(asset, c.toggleSpeaker);
+      });
+    }
   }
 }
 
@@ -580,13 +595,13 @@ Widget callTitle(CallController c) {
       args['by'] = c.callerName;
     }
 
-    final String? state = c.state.value == OngoingCallState.active
+    final String state = c.state.value == OngoingCallState.active
         ? c.duration.value.toString().split('.').first.padLeft(8, '0')
         : c.state.value == OngoingCallState.joining
             ? 'label_call_joining'.l10n
             : isOutgoing
                 ? isDialog
-                    ? null
+                    ? 'label_call_calling'.l10n
                     : 'label_call_connecting'.l10n
                 : c.withVideo == true
                     ? 'label_video_call'.l10nfmt(args)

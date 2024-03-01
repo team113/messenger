@@ -53,6 +53,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
+import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -63,6 +64,7 @@ import 'chat_split_message_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
+  CacheWorker(null, null);
   Hive.init('./test/.temp_hive/chat_split_message_unit');
   Config.files = 'test';
 
@@ -115,7 +117,7 @@ void main() async {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': null,
     'avatar': null,
-    'members': {'nodes': []},
+    'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
     'muted': null,
@@ -157,7 +159,8 @@ void main() async {
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
+      },
+      'ver': '0'
     }
   };
 
