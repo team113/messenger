@@ -290,7 +290,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           (menu) => Padding(
             padding: const EdgeInsets.fromLTRB(5, 6, 5, 6),
             child: ConditionalIntrinsicWidth(
-              condition: !_donates.values.any((e) => e != null),
+              // condition: !_donates.values.any((e) => e != null),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
@@ -435,6 +435,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           style.colors.userColors.length];
 
               return Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
@@ -464,10 +465,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: DonateWidget(
-                        height: 90,
+                        height: 100,
                         donate: donate,
-                        title: snapshot.data?.user.value.name?.val ??
-                            snapshot.data?.user.value.num.val ??
+                        title: data?.user.value.name?.val ??
+                            data?.user.value.num.val ??
                             'dot'.l10n * 3,
                         onTitlePressed: () =>
                             router.user(msg.author.id, push: true),
@@ -548,8 +549,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         children: [
-                          if (text != null) text,
-                          const WidgetSpan(child: SizedBox(width: 4)),
+                          if (text != null) WidgetSpan(child: Text.rich(text)),
+                          // if (text != null) text,
+                          const WidgetSpan(
+                            child: SizedBox(width: 4, height: 21),
+                          ),
                           WidgetSpan(
                             child: Opacity(
                               opacity: 0,
@@ -571,7 +575,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 ),
               ],
             ),
-            if (text != null) const SizedBox(height: 8),
+            if (text != null) const SizedBox(height: 8)
           ],
         ];
       } else if (quote is ChatCallQuote) {
@@ -664,23 +668,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             onPressed: menu ? null : () => widget.onForwardedTap?.call(msg),
             child: Stack(
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                        child: IntrinsicWidth(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: content,
-                          ),
-                        ),
-                      ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: IntrinsicWidth(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: content,
                     ),
-                  ],
+                  ),
                 ),
                 Positioned(
                   right: timeInBubble ? 6 : 8,
@@ -1211,13 +1207,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               );
                             },
                           ),
-                          if (widget.paid && !_rejected)
-                            ContextMenuButton(
-                              label: 'Вернуть платёж'.l10n,
-                              trailing: const SvgIcon(SvgIcons.reject),
-                              inverted: const SvgIcon(SvgIcons.rejectWhite),
-                              onPressed: _rejectPayment,
-                            ),
+                          if (!_fromMe)
+                            if (widget.paid && !_rejected)
+                              ContextMenuButton(
+                                label: 'Вернуть платёж'.l10n,
+                                trailing: const SvgIcon(SvgIcons.reject),
+                                inverted: const SvgIcon(SvgIcons.rejectWhite),
+                                onPressed: _rejectPayment,
+                              ),
                           ContextMenuButton(
                             label: 'btn_select_messages'.l10n,
                             trailing: const SvgIcon(SvgIcons.select),

@@ -391,6 +391,20 @@ class MessageFieldView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Container(
+                    //   padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                    //   width: double.infinity,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.brown.withOpacity(0.05),
+                    //   ),
+                    //   child: Text(
+                    //     'Общая стоимость: ¤123',
+                    //     style: style.fonts.small.regular.secondary.copyWith(
+                    //       color: const Color(0xFFd79e65),
+                    //     ),
+                    //     textAlign: TextAlign.right,
+                    //   ),
+                    // ),
                     if (c.edited.value != null)
                       Container(
                         padding: const EdgeInsets.all(0),
@@ -509,7 +523,7 @@ class MessageFieldView extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ]
+                    ],
                   ],
                 ),
               ),

@@ -133,6 +133,8 @@ class SearchController extends GetxController {
   /// [selectedUsers] and [selectedRecent] changes.
   final void Function(SearchViewResults? results)? onSelected;
 
+  final RxDouble total = RxDouble(0);
+
   /// Worker to react on the [usersSearch] status changes.
   Worker? _usersSearchWorker;
 

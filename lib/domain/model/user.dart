@@ -54,11 +54,11 @@ class User extends HiveObject {
   }) : _dialog = dialog {
     messageCost =
         name?.val.toLowerCase() == 'alex2' || name?.val.toLowerCase() == 'kirey'
-            ? 2
+            ? 123
             : 0;
     callCost =
         name?.val.toLowerCase() == 'alex2' || name?.val.toLowerCase() == 'kirey'
-            ? 1
+            ? 123
             : 0;
   }
 

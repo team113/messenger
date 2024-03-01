@@ -39,6 +39,7 @@ class DonateWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bar = Container(
+      constraints: const BoxConstraints(minWidth: 300),
       height: height,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(

@@ -846,7 +846,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   : /* _fromMe ||*/ _rejected
                       ? Text(
                           'Возвращено',
-                          style: style.fonts.small.regular.danger,
+                          style: style.fonts.small.regular.danger
+                              .copyWith(color: const Color(0xFFd79e65)),
                         )
                       : null,
               title: widget.user?.user.value.name?.val ??
@@ -1965,7 +1966,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,
           price:
-              widget.paid && (!_fromMe || !_rejected) && hasDonate ? 123 : null,
+              widget.paid && (!_fromMe || _rejected) && hasDonate ? 123 : null,
           rejected: hasDonate && (/*_fromMe || */ _rejected),
           donation: donation,
           inverted: inverted,

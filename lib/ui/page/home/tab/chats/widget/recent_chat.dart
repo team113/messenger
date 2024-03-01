@@ -91,6 +91,7 @@ class RecentChatTile extends StatelessWidget {
     this.monolog = true,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
+    this.subtitle = const [],
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -185,6 +186,8 @@ class RecentChatTile extends StatelessWidget {
   final bool enableContextMenu;
 
   final bool monolog;
+
+  final List<Widget> subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -312,27 +315,29 @@ class RecentChatTile extends StatelessWidget {
             ],
             if (trailing != null) ...trailing!,
           ],
-          subtitle: [
-            const SizedBox(height: 5),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 38),
-              child: Row(
-                children: [
-                  const SizedBox(height: 3),
-                  Expanded(child: _subtitle(context, selected, inverted)),
-                  const SizedBox(width: 3),
-                  _status(context, inverted),
-                  if (!chat.id.isLocalWith(me) && rxChat.lastItem != null)
-                    Text(
-                      chat.updatedAt.val.toLocal().short,
-                      style: inverted
-                          ? style.fonts.normal.regular.onPrimary
-                          : style.fonts.normal.regular.secondary,
+          subtitle: subtitle.isNotEmpty
+              ? subtitle
+              : [
+                  const SizedBox(height: 5),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 38),
+                    child: Row(
+                      children: [
+                        const SizedBox(height: 3),
+                        Expanded(child: _subtitle(context, selected, inverted)),
+                        const SizedBox(width: 3),
+                        _status(context, inverted),
+                        if (!chat.id.isLocalWith(me) && rxChat.lastItem != null)
+                          Text(
+                            chat.updatedAt.val.toLocal().short,
+                            style: inverted
+                                ? style.fonts.normal.regular.onPrimary
+                                : style.fonts.normal.regular.secondary,
+                          ),
+                      ],
                     ),
+                  ),
                 ],
-              ),
-            ),
-          ],
           actions: [
             if (chat.isDialog) ...[
               ContextMenuButton(
