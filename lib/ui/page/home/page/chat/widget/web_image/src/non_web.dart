@@ -19,6 +19,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+import '/domain/model/file.dart';
+
 /// Web [html.ImageElement] showing images natively.
 ///
 /// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
@@ -31,11 +33,23 @@ class WebImage extends StatelessWidget {
   const WebImage(
     this.src, {
     super.key,
+    this.width,
+    this.height,
+    this.thumbhash,
     this.onForbidden,
   });
 
   /// URL of the image to display.
   final String src;
+
+  /// Width of this [WebImage].
+  final double? width;
+
+  /// Height of this [WebImage].
+  final double? height;
+
+  /// [ThumbHash] of this [WebImage].
+  final ThumbHash? thumbhash;
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
