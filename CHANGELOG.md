@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Call ended sound and left alone in group call sound. ([#877], [#809])
+
 ### Changed
 
 - UI:
@@ -19,7 +25,15 @@ All user visible changes to this project will be documented in this file. This p
     - User page:
         - Redesigned editing mode and actions. ([#868])
 
+### Fixed
+
+- Web:
+    - Missing blurred image previews in gallery. ([#880])
+
+[#809]: /../../issues/809
 [#868]: /../../pull/868
+[#877]: /../../pull/877
+[#880]: /../../pull/880
 
 
 
