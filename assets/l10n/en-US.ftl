@@ -71,6 +71,7 @@ btn_add_participants = Add participants
 btn_add_to_contacts = Add to contacts
 btn_add_to_favorites = Add to favorites
 btn_allow = Allow
+btn_audio = Audio
 btn_audio_call = Audio call
 btn_audio_message = Audio message
 btn_back = Back
@@ -167,6 +168,7 @@ btn_close = Close
 btn_confirm = Confirm
 btn_copy = Copy
 btn_copy_text = Copy text
+btn_create = Create
 btn_create_group = Create group
 btn_delete = Delete
 btn_delete_account = Delete account
@@ -194,6 +196,7 @@ btn_fullscreen_exit = Exit fullscreen
 btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Donation
+btn_guest = Guest
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -277,7 +280,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
-err_blocked = You've been added to the blocklist of this user
+err_blocked = You've been added to the blocklist of this user.
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
@@ -299,7 +302,7 @@ err_could_not_download = An error occurred while downloading. Please, try again.
 err_data_transfer =
     Data transfer error. Please, check your network connection.
 err_dialog = Can't perfom this action in a dialog
-err_dimensions_too_big = Dimensions too big
+err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels.
 err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
@@ -357,9 +360,9 @@ err_unknown_forwarded_item = Unknown forwarded item
 err_unknown_gallery_item = Unknown gallery item
 err_unknown_replying_chat_item = Unknown replied message
 err_unknown_user = Unknown user
-err_unsupported_format = Unsupported format.
+err_unsupported_format = Unsupported format. Supported formats: JPG, PNG, BMP, TIFF, GIF, WEBP, SVG.
 err_unsupported_forwarded_item = Unsupported forwarded item
-err_uploaded_file_malformed = File is malformed.
+err_uploaded_file_malformed = File is malformed. Please, ensure uploaded file integrity.
 err_use_monolog = Can't create dialog with yourself
 err_wrong_attachments_items_count = Wrong attachments count
 err_wrong_items_count = Wrong items count
@@ -504,12 +507,12 @@ label_add_phone = Add phone
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
-label_ago = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
-                            [0] { $hours ->
-                                    [0] { $minutes ->
+label_ago = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
+                            [0] {$hours ->
+                                    [0] {$minutes ->
                                             [0] Just now
                                             [1] 1 minute ago
                                             *[other] {$minutes} minutes ago
@@ -529,10 +532,10 @@ label_ago = { $years ->
     [1] An year ago
     *[other] {$years} years ago
 }
-label_ago_date = { $years ->
-    [0] { $months ->
-            [0] { $weeks ->
-                    [0] { $days ->
+label_ago_date = {$years ->
+    [0] {$months ->
+            [0] {$weeks ->
+                    [0] {$days ->
                             [0] Today
                             [1] Yesterday
                             *[other] {$days} days ago
@@ -712,8 +715,8 @@ label_files_saved_to_gallery = Files are saved to the gallery
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
-    [1] Пересланное сообщение
-   *[other] Пересланные сообщения
+    [1] Forwarded message
+   *[other] Forwarded messages
 }
 label_gallery = Gallery
 label_gb_slash_gb = {$a} GB / {$b} GB
@@ -723,6 +726,8 @@ label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}created the group
+label_group_name = Group name
+label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
@@ -822,10 +827,11 @@ label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
-label_one_time_account_created = One-time account created
+label_guest_account_created = One-time account created
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
+label_open_chat = Open chat
 label_or_register = or register
 label_outgoing_call = Calling
 label_participants = Participants: {$count}
@@ -915,7 +921,7 @@ label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
 label_storage = Storage
 label_subtitle_participants = {$count} {$count ->
-    [one] participant
+    [1] participant
     *[other] participants
 }
 label_synchronization = Synchronization...
@@ -1095,7 +1101,7 @@ fcm_group_donate =
         *[other] {$userName}
     }: G{$donate} donation
 label_donate_count = ¤ {$donate} donation
-label_one_time_account_created = One-time account created
+label_guest_account_created = One-time account created
 btn_terms_and_conditions = Terms and conditions
 btn_sign_up = Sign up
 btn_sign_in = Sign in

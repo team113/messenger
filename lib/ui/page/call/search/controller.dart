@@ -26,13 +26,15 @@ import 'package:messenger/domain/service/my_user.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/ui/widget/text_field.dart';
 
@@ -85,11 +87,10 @@ class SearchController extends GetxController {
   final RxList<RxChat> selectedChats = RxList<RxChat>([]);
 
   /// [User]s search results.
-  final Rx<SearchResult<UserId, RxUser>?> usersSearch = Rx(null);
+  final Rx<Paginated<UserId, RxUser>?> usersSearch = Rx(null);
 
   /// [ChatContact]s search results.
-  final Rx<SearchResult<ChatContactId, RxChatContact>?> contactsSearch =
-      Rx(null);
+  final Rx<Paginated<ChatContactId, RxChatContact>?> contactsSearch = Rx(null);
 
   /// Status of a [_search] completion.
   ///
@@ -138,6 +139,12 @@ class SearchController extends GetxController {
   /// Worker to react on the [contactsSearch] status changes.
   Worker? _contactsSearchWorker;
 
+  /// Subscriptions to the [usersSearch] updates.
+  StreamSubscription? _usersSearchSubscription;
+
+  /// Subscriptions to the [contactsSearch] updates.
+  StreamSubscription? _contactsSearchSubscription;
+
   /// Worker to react on [query] changes.
   Worker? _searchWorker;
 
@@ -168,17 +175,17 @@ class SearchController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  MyUser? get _myUser => _myUserService.myUser.value;
+  /// Whether this [SearchController] has potentially more search results.
+  bool get hasNext {
+    final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
+        (contactsSearch.value?.hasNext.isTrue ??
+            _contactService.hasNext.isTrue);
+    final bool usersHaveMore = categories.contains(SearchCategory.user) &&
+        (usersSearch.value?.hasNext.isTrue ?? false);
+    final bool chatsHaveMore = _chatService.hasNext.isTrue;
 
-  /// Indicates whether the [usersSearch] or [contactsSearch] have
-  /// next page.
-  RxBool get hasNext => query.value.length < 2
-      ? categories.contains(SearchCategory.chat)
-          ? _chatService.hasNext
-          : RxBool(false)
-      : usersSearch.value?.hasNext ??
-          contactsSearch.value?.hasNext ??
-          RxBool(false);
+    return chatsHaveMore || usersHaveMore || contactsHaveMore;
+  }
 
   @override
   void onInit() {
@@ -198,9 +205,9 @@ class SearchController extends GetxController {
     _searchDebounce = debounce(query, (q) => _search(q.trim()));
     _searchWorker = ever(query, (String q) {
       if (q.length < 2) {
-        usersSearch.value?.dispose();
+        _usersSearchSubscription?.cancel();
         usersSearch.value = null;
-        contactsSearch.value?.dispose();
+        _contactsSearchSubscription?.cancel();
         contactsSearch.value = null;
         users.clear();
         contacts.clear();
@@ -223,8 +230,6 @@ class SearchController extends GetxController {
   void onClose() {
     scrollController.removeListener(_updateScrollPosition);
     _nextInterval?.dispose();
-    usersSearch.value?.dispose();
-    contactsSearch.value?.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();
     _usersSearchWorker?.dispose();
@@ -232,6 +237,8 @@ class SearchController extends GetxController {
     _ensureScrollableTimer?.cancel();
     _contactsSearchWorker?.dispose();
     _contactsSearchWorker = null;
+    _usersSearchSubscription?.cancel();
+    _contactsSearchSubscription?.cancel();
     super.onClose();
   }
 
@@ -319,15 +326,25 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
   Future<void> _search(String query) async {
+    // If any [contactsSearch] has been done, dispose it.
     if (contactsSearch.value != null) {
-      contactsSearch.value?.dispose();
+      _contactsSearchSubscription?.cancel();
       contactsSearch.value = null;
+
       _populateContacts();
     }
 
+    // If any [usersSearch] has been done, dispose it.
     if (usersSearch.value != null) {
-      usersSearch.value?.dispose();
+      if (!(usersSearch.value?.status.value.isEmpty ?? false)) {
+        // Prevent [chats] from containing results of the previous [usersSearch]
+        // as it will used during the [_populateUsers] call.
+        _populateChats();
+      }
+
+      _usersSearchSubscription?.cancel();
       usersSearch.value = null;
+
       _populateUsers();
     }
 
@@ -376,11 +393,13 @@ class SearchController extends GetxController {
             ? RxStatus.loadingMore()
             : RxStatus.loading();
 
-        final SearchResult<ChatContactId, RxChatContact> result =
+        final Paginated<ChatContactId, RxChatContact> result =
             _contactService.search(name: name, email: email, phone: phone);
 
-        contactsSearch.value?.dispose();
+        _contactsSearchSubscription?.cancel();
         contactsSearch.value = result;
+        _contactsSearchSubscription =
+            contactsSearch.value?.updates.listen((_) {});
         searchStatus.value = result.status.value;
 
         _contactsSearchWorker = ever(result.status, (RxStatus s) {
@@ -401,12 +420,13 @@ class SearchController extends GetxController {
           // [query] still can be validated in [_searchUsers].
           searchStatus.value = RxStatus.empty();
         }
-        contactsSearch.value?.dispose();
+
+        _contactsSearchSubscription?.cancel();
         contactsSearch.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      contactsSearch.value?.dispose();
+      _contactsSearchSubscription?.cancel();
       contactsSearch.value = null;
     }
   }
@@ -442,32 +462,24 @@ class SearchController extends GetxController {
         // No-op.
       }
 
-      try {
-        if (query.contains('${Config.link}/')) {
-          link = ChatDirectLinkSlug(query.replaceFirst('${Config.link}/', ''));
-        } else if (query.contains('https://public.surf/d/')) {
-          link = ChatDirectLinkSlug(
-            query.replaceFirst('https://public.surf/d/', ''),
-          );
-        }
-      } catch (e) {
-        // No-op.
-      }
+      link = ChatDirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {
         searchStatus.value = searchStatus.value.isSuccess
             ? RxStatus.loadingMore()
             : RxStatus.loading();
-
-        final SearchResult<UserId, RxUser> result =
+        final Paginated<UserId, RxUser> result =
             _userService.search(num: num, name: name, login: login, link: link);
 
-        usersSearch.value?.dispose();
+        _usersSearchSubscription?.cancel();
         usersSearch.value = result;
+        _usersSearchSubscription = usersSearch.value?.updates.listen((_) {});
         searchStatus.value = result.status.value;
 
         _usersSearchWorker = ever(result.status, (RxStatus s) {
-          searchStatus.value = s;
+          if (!_chatService.hasNext.value) {
+            searchStatus.value = s;
+          }
 
           if (s.isSuccess && !s.isLoadingMore) {
             _populateUsers();
@@ -478,20 +490,21 @@ class SearchController extends GetxController {
         _populateUsers();
       } else {
         searchStatus.value = RxStatus.empty();
-        usersSearch.value?.dispose();
+        _usersSearchSubscription?.cancel();
         usersSearch.value = null;
       }
     } else {
       searchStatus.value = RxStatus.empty();
-      usersSearch.value?.dispose();
+      _usersSearchSubscription?.cancel();
       usersSearch.value = null;
     }
   }
 
   /// Updates [chats] by adding the [Chat]-monolog, if it matches the [query].
   Future<void> _populateMonolog() async {
-    // Formatted string representation of the current [query].
-    final String queryString = query.value.toLowerCase().trim();
+    // Formatted string representations of the current [query].
+    final String trimmed = query.value.trim();
+    final String lowercase = trimmed.toLowerCase();
 
     final MyUser? myUser = _myUserService.myUser.value;
 
@@ -503,8 +516,15 @@ class SearchController extends GetxController {
           monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
 
       if (monolog != null) {
-        if (queryString.isEmpty) {
+        if (trimmed.isEmpty) {
           // Display [monolog] as the first item in [chats] by default.
+          chats.value = {monologId: monolog, ...chats};
+          return;
+        }
+
+        // Account searching via [MyUser.chatDirectLink].
+        final link = ChatDirectLinkSlug.tryParse(trimmed);
+        if (link != null && myUser.chatDirectLink?.slug == link) {
           chats.value = {monologId: monolog, ...chats};
           return;
         }
@@ -515,14 +535,14 @@ class SearchController extends GetxController {
         final String num = myUser.num.val;
 
         for (final param in [title, login, name].whereNotNull()) {
-          if (param.toLowerCase().contains(queryString)) {
+          if (param.toLowerCase().contains(lowercase)) {
             chats.value = {monologId: monolog, ...chats};
             return;
           }
         }
 
         // Account possible spaces in [UserNum].
-        if (num.contains(queryString.split(' ').join())) {
+        if (num.contains(trimmed.split(' ').join())) {
           chats.value = {monologId: monolog, ...chats};
         }
       }
@@ -572,7 +592,7 @@ class SearchController extends GetxController {
       bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
-      bool isMember(RxUser u) => chat?.members.containsKey(u.id) ?? false;
+      bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
 
       final Iterable<RxUser> filtered = allChats
@@ -604,11 +624,11 @@ class SearchController extends GetxController {
 
       // Predicates to filter the [allContacts] by.
       bool isMember(RxChatContact c) =>
-          chat?.members.containsKey(c.user.value!.id) ?? false;
+          chat?.members.items.containsKey(c.user.value!.id) ?? false;
       bool inRecent(RxChatContact c) => recent.containsKey(c.user.value!.id);
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
-          chat.members.containsKey(c.user.value!.id));
+          chat.members.items.containsKey(c.user.value!.id));
       bool matchesQuery(RxChatContact c) =>
           _matchesQuery(user: c.user.value?.user.value);
 
@@ -641,6 +661,7 @@ class SearchController extends GetxController {
     if (categories.contains(SearchCategory.user) &&
         _chatService.hasNext.isFalse) {
       final Iterable<RxChat> storedChats = _chatService.paginated.values;
+      final Iterable<RxUser> searched = usersSearch.value?.items.values ?? [];
 
       // Predicates to filter non-hidden [Chat]-dialogs.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
@@ -648,16 +669,42 @@ class SearchController extends GetxController {
 
       // Predicates to filter [User]s by.
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
-      bool isMember(RxUser u) => chat?.members.containsKey(u.id) ?? false;
+      bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool inRecent(RxUser u) => recent.containsKey(u.id);
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
-      bool inChats(RxUser u) => chats.values
-          .any((c) => c.chat.value.isDialog && c.members.containsKey(u.id));
+      bool inChats(RxUser u) => chats.values.any(
+            (c) => c.chat.value.isDialog && c.members.items.containsKey(u.id),
+          );
+      bool hasRemoteDialog(RxUser u) => !u.user.value.dialog.isLocal;
 
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
+      RxChat? toChat(RxUser u) => u.dialog.value;
 
-      final Iterable<RxUser>? searched = usersSearch.value?.items.values;
+      // [Chat]s-dialogs with [User]s found in the global search and not
+      // presented in [chats].
+      final Iterable<RxChat> globalDialogs = searched
+          .where(hasRemoteDialog)
+          .whereNot(inChats)
+          .map(toChat)
+          .whereNotNull()
+          .whereNot(hidden);
+
+      if (globalDialogs.isNotEmpty &&
+          categories.contains(SearchCategory.chat)) {
+        final List<RxChat> sorted =
+            [...chats.values, ...globalDialogs].sorted();
+
+        final RxChat? monolog = chats[_chatService.monolog];
+
+        // Display users found globally in [chats] as [_matchesQuery] cannot
+        // filter by [ChatDirectLink] and [UserLogin].
+        chats.value = {
+          if (monolog != null) _chatService.monolog: monolog,
+          for (final c in sorted) c.chat.value.id: c,
+        };
+      }
+
       final Iterable<RxUser> stored = storedChats
           .where(remoteDialog)
           .whereNot(hidden)
@@ -669,7 +716,8 @@ class SearchController extends GetxController {
       final Iterable<RxUser> selectedGlobals =
           selectedUsers.where(matchesQuery).whereNot(stored.contains);
 
-      final allUsers = {...selectedGlobals, ...stored, ...?searched};
+      final allUsers = {...selectedGlobals, ...stored, ...searched}
+        ..removeWhere((u) => u.id == me);
 
       final List<RxUser> filtered = allUsers
           .whereNot(isMember)
@@ -713,7 +761,9 @@ class SearchController extends GetxController {
           populate();
         }
 
-        searchStatus.value = RxStatus.success();
+        if (!hasNext) {
+          searchStatus.value = RxStatus.success();
+        }
       }
     } else if (query.value.length > 1) {
       await _nextContacts();
@@ -746,14 +796,7 @@ class SearchController extends GetxController {
 
   /// Ensures the [scrollController] is scrollable.
   Future<void> _ensureScrollable() async {
-    final bool contactsHaveMore = categories.contains(SearchCategory.contact) &&
-        (contactsSearch.value?.hasNext.isTrue ??
-            false || _contactService.hasNext.isTrue);
-    final bool usersHaveMore = categories.contains(SearchCategory.user) &&
-        (usersSearch.value?.hasNext.isTrue ??
-            false || _chatService.hasNext.isTrue);
-
-    if (contactsHaveMore || usersHaveMore) {
+    if (hasNext) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
           return;

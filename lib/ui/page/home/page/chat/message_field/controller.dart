@@ -24,11 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/domain/model/application_settings.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/routes.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
@@ -385,13 +381,13 @@ class MessageFieldController extends GetxController {
   }
 
   /// Resets the [replied], [attachments] and [field].
-  void clear() {
+  void clear({bool unfocus = true}) {
     donation.value = null;
     editing.value = false;
     replied.clear();
     attachments.clear();
     forwarding.value = false;
-    field.clear();
+    field.clear(unfocus: unfocus);
     field.unsubmit();
     onChanged?.call();
   }
@@ -511,7 +507,7 @@ class MessageFieldController extends GetxController {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService!.uploadAttachment(attachment);
+        Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {

@@ -599,7 +599,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     final bool blocklist = user.value.blocklistCount != null &&
         user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
 
-    if (user.ver > _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
+    if (user.ver >= _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
       user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
       _myUserLocal.set(user);
     }
@@ -609,7 +609,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
     final HiveMyUser? userEntity = _myUserLocal.myUser;
 
-    if (userEntity == null || versioned.ver <= userEntity.ver) {
+    if (userEntity == null || versioned.ver < userEntity.ver) {
       return;
     }
     userEntity.ver = versioned.ver;

@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:messenger/ui/widget/animated_size_and_fade.dart';
 
 import '/themes.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'highlighted_container.dart';
 
@@ -71,7 +73,9 @@ class Block extends StatelessWidget {
 
   final Widget? underline;
 
+  /// Optional background [Color] of this [Block].
   final Color? background;
+
   final Color? headlineColor;
 
   /// Maximum width this [Block] should occupy.
@@ -79,6 +83,10 @@ class Block extends StatelessWidget {
 
   final bool fade;
 
+  /// [Widget]s to display above this [Block].
+  ///
+  /// It's allowed to use [Positioned], as these [Widget]s are placed inside a
+  /// [Stack].
   final List<Widget> overlay;
 
   /// Default [Block.padding] of its contents.
@@ -105,13 +113,9 @@ class Block extends StatelessWidget {
       child: Center(
         child: Container(
           padding: margin,
-
           constraints: (expanded ?? context.isNarrow)
               ? null
               : const BoxConstraints(maxWidth: 400),
-          // constraints: (context.isNarrow || unconstrained)
-          //     ? const BoxConstraints.tightForFinite()
-          //     : const BoxConstraints(maxWidth: 400),
           child: InputDecorator(
             decoration: InputDecoration(
               filled: true,
@@ -148,12 +152,8 @@ class Block extends StatelessWidget {
                                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
                                 child: Center(
                                   child: Container(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      12,
-                                      0,
-                                      12,
-                                      6,
-                                    ),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(12, 0, 12, 6),
                                     child: Text(
                                       title!,
                                       textAlign: TextAlign.center,
@@ -195,18 +195,6 @@ class Block extends StatelessWidget {
                                 children: children,
                               );
                             },
-                            // child: Column(
-                            //   key: Key('${expanded.length}'),
-                            //   crossAxisAlignment: crossAxisAlignment,
-                            //   mainAxisSize: MainAxisSize.min,
-                            //   children: [
-                            //     Container(
-                            //       width: double.infinity,
-                            //       color: style.colors.transparent,
-                            //     ),
-                            //     ...expanded,
-                            //   ],
-                            // ),
                           ),
                         ),
                       ],
@@ -253,6 +241,65 @@ class Block extends StatelessWidget {
                 ...overlay,
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Returns the [TextStyle] to display [headline] with.
+  TextStyle _headlineStyle(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    if (background != null) {
+      final HSLColor hsl = HSLColor.fromColor(background!);
+      if (hsl.lightness < 0.5 && hsl.alpha > 0.2) {
+        return style.fonts.small.regular.onPrimary;
+      }
+    }
+
+    return style.fonts.small.regular.secondaryHighlightDarkest;
+  }
+}
+
+/// [SvgIcons.editSmall] button to put into [Block.overlay].
+///
+/// Returns [Positioned], meaning it must be placed inside a [Stack].
+class EditBlockButton extends StatelessWidget {
+  const EditBlockButton({
+    Key? key,
+    this.onPressed,
+    this.editing = false,
+  })  : _key = key,
+        super(key: null);
+
+  /// Callback, called when button is pressed.
+  final void Function()? onPressed;
+
+  /// Indicator whether an [SvgIcons.closeSmallPrimary] should be displayed
+  /// instead.
+  final bool editing;
+
+  /// [Key] to uniquely identify the [AnimatedButton].
+  final Key? _key;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 0,
+      top: 0,
+      child: Center(
+        child: AnimatedButton(
+          key: _key,
+          onPressed: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+            child: editing
+                ? const Padding(
+                    padding: EdgeInsets.all(2),
+                    child: SvgIcon(SvgIcons.closeSmallPrimary),
+                  )
+                : const SvgIcon(SvgIcons.editSmall),
           ),
         ),
       ),

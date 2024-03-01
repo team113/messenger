@@ -548,7 +548,7 @@ class CallController extends GetxController {
             .map((k) => k.userId)
             .toSet();
         args['members'] = '${actualMembers.length}';
-        args['allMembers'] = '${chat.value?.members.length ?? 1}';
+        args['allMembers'] = '${chat.value?.chat.value.membersCount ?? 1}';
 
         if (Config.disableInfiniteAnimations) {
           args['duration'] = Duration.zero.hhMmSs();
@@ -829,24 +829,6 @@ class CallController extends GetxController {
           .addPostFrameCallback((_) => MessagePopup.error(e));
       rethrow;
     }
-
-    // try {
-    //   final MediaDeviceDetails? device = _determineOutput();
-    //   if (device != null) {
-    //     _currentCall.value.setOutputDevice(DeviceDetails(device));
-    //   } else {
-    //     _currentCall.value.enumerateDevices().then((_) {
-    //       final MediaDeviceDetails? device = _determineOutput();
-    //       if (device != null) {
-    //         _currentCall.value.setOutputDevice(DeviceDetails(device));
-    //       }
-    //     });
-    //   }
-    // } catch (e) {
-    //   SchedulerBinding.instance
-    //       .addPostFrameCallback((_) => MessagePopup.error(e));
-    //   rethrow;
-    // }
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       try {

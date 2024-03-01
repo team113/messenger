@@ -444,7 +444,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                                 .map((k) => k.userId)
                                 .toSet()
                                 .length,
-                            'b': c.chat.value?.members.length ?? 1,
+                            'b': c.chat.value?.chat.value.membersCount ?? 1,
                           }),
                           style: style.fonts.small.regular.onPrimary,
                           overflow: TextOverflow.ellipsis,

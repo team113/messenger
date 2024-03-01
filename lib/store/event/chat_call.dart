@@ -36,6 +36,7 @@ enum ChatCallEventKind {
   memberLeft,
   redialed,
   roomReady,
+  undialed,
 }
 
 /// Tag representing a [ChatCallEvents] kind.
@@ -228,6 +229,22 @@ class EventChatCallMemberRedialed extends ChatCallEvent {
 
   @override
   ChatCallEventKind get kind => ChatCallEventKind.redialed;
+}
+
+/// Event of a [User] being undialed in a [ChatCall].
+class EventChatCallMemberUndialed extends ChatCallEvent {
+  const EventChatCallMemberUndialed(
+    super.callId,
+    super.chatId,
+    super.at,
+    this.user,
+  );
+
+  /// [User] representing the [ChatMember] who was undialed in the [ChatCall].
+  final User user;
+
+  @override
+  ChatCallEventKind get kind => ChatCallEventKind.undialed;
 }
 
 /// Event of a [ChatMember]'s hand being lowered in a [ChatCall].

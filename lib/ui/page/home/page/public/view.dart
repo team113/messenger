@@ -33,7 +33,6 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/call/widget/conditional_backdrop.dart';
 import 'package:messenger/ui/page/call/widget/round_button.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/media_attachment.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/my_dismissible.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/swipeable_status.dart';
@@ -143,7 +142,7 @@ class _PublicViewState extends State<PublicView>
                             Text(
                               c.chat?.chat.value.isDialog == true
                                   ? '1 follower'
-                                  : '${c.chat!.members.length} follower(s)',
+                                  : '${c.chat!.members.values.length} follower(s)',
                               style: Theme.of(context).textTheme.bodySmall,
                             )
                           ],

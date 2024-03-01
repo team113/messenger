@@ -48,6 +48,15 @@ class _DataAttachmentState extends State<DataAttachment> {
   bool _hovered = false;
 
   @override
+  void initState() {
+    if (widget.attachment is FileAttachment) {
+      (widget.attachment as FileAttachment).init();
+    }
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final Attachment e = widget.attachment;
 

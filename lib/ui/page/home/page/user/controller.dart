@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -33,7 +34,11 @@ import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart' show CallDoesNotExistException;
+import '/domain/repository/call.dart'
+    show
+        CallAlreadyExistsException,
+        CallAlreadyJoinedException,
+        CallIsInPopupException;
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
@@ -46,13 +51,16 @@ import '/provider/gql/exceptions.dart'
         ClearChatException,
         FavoriteChatContactException,
         HideChatException,
+        JoinChatCallException,
         ToggleChatMuteException,
         UnfavoriteChatContactException,
-        UnfavoriteChatException;
+        UnfavoriteChatException,
+        UpdateChatContactNameException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -75,6 +83,9 @@ class UserController extends GetxController {
   /// Reactive [User] itself.
   RxUser? user;
 
+  /// Reactive [ChatContact] linked to the [user].
+  Rx<RxChatContact?> contact = Rx<RxChatContact?>(null);
+
   /// Status of the [user] fetching.
   ///
   /// May be:
@@ -84,8 +95,14 @@ class UserController extends GetxController {
   /// - `status.isLoadingMore`, meaning a request is being made.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
+  /// Status of the `ChatContact.avatar` upload or removal.
+  final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [GlobalKey] of the more [ContextMenuRegion] button.
+  final GlobalKey moreKey = GlobalKey();
 
   /// [ItemScrollController] of the profile's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
@@ -103,17 +120,21 @@ class UserController extends GetxController {
   /// authenticated [MyUser].
   late final RxBool inContacts;
 
-  /// [TextFieldState] for blacklisting reason.
+  /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
-  final GlobalKey moreKey = GlobalKey();
+  /// [TextFieldState] for [ChatContact] name editing.
+  late final TextFieldState name;
 
-  /// Status of a [blacklist] progression.
+  /// Indicator whether the editing mode is enabled.
+  final RxBool profileEditing = RxBool(false);
+
+  /// Status of a [block] progression.
   ///
   /// May be:
-  /// - `status.isLoading`, meaning [blacklist] is executing.
-  /// - `status.isEmpty`, meaning no [blacklist] is executing.
-  final Rx<RxStatus> blacklistStatus = Rx(RxStatus.empty());
+  /// - `status.isLoading`, meaning [block] is executing.
+  /// - `status.isEmpty`, meaning no [block] is executing.
+  final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
 
   final RxBool displayName = RxBool(false);
 
@@ -128,25 +149,9 @@ class UserController extends GetxController {
   final RxBool hintVerified = RxBool(false);
 
   final RxBool editing = RxBool(false);
-  final RxBool profileEditing = RxBool(false);
+
   final RxBool moneyEditing = RxBool(false);
   final RxBool linkEditing = RxBool(false);
-
-  final TextFieldState name = TextFieldState(
-    // approvable: true,
-    onChanged: (s) {
-      if (s.text.isNotEmpty) {
-        try {
-          UserName(s.text);
-        } catch (e) {
-          s.error.value = e.toString();
-        }
-      }
-    },
-    onSubmitted: (s) {
-      // TODO
-    },
-  );
 
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
@@ -166,7 +171,7 @@ class UserController extends GetxController {
   final CallService _callService;
 
   /// [StreamSubscription] to [ContactService.contacts] determining the
-  /// [inContacts] indicator.
+  /// [inContacts] and [inFavorites] indicators.
   StreamSubscription? _contactsSubscription;
 
   /// [StreamSubscription] to [ContactService.favorites] determining the
@@ -179,9 +184,13 @@ class UserController extends GetxController {
   /// Worker to react on [myUser] changes.
   Worker? _myUserWorker;
 
+  /// [Worker] reacting on the [contact] or [user] changes updating the [name].
   Worker? _worker;
 
-  /// Indicates whether this [user] is blacklisted.
+  /// Subscription for the [user] changes.
+  StreamSubscription? _userSubscription;
+
+  /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
   /// Returns [MyUser]'s [UserId].
@@ -199,36 +208,83 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
+    name = TextFieldState(
+      approvable: true,
+      onChanged: (s) {
+        if (s.text.isNotEmpty) {
+          try {
+            UserName(s.text);
+          } catch (e) {
+            s.error.value = e.toString();
+          }
+        }
+      },
+      onSubmitted: (s) async {
+        s.error.value = null;
+        s.focus.unfocus();
+
+        if (s.text == contact.value!.contact.value.name.val) {
+          s.unsubmit();
+          return;
+        }
+
+        UserName? name;
+        try {
+          name = UserName(s.text);
+        } on FormatException catch (_) {
+          s.status.value = RxStatus.empty();
+          s.error.value = 'err_incorrect_input'.l10n;
+          s.unsubmit();
+          return;
+        }
+
+        if (s.error.value == null) {
+          s.status.value = RxStatus.loading();
+          s.editable.value = false;
+
+          try {
+            await _contactService.changeContactName(contact.value!.id, name);
+            s.status.value = RxStatus.empty();
+            s.unsubmit();
+          } on UpdateChatContactNameException catch (e) {
+            s.status.value = RxStatus.empty();
+            s.error.value = e.toString();
+          } catch (e) {
+            s.status.value = RxStatus.empty();
+            MessagePopup.error(e.toString());
+            rethrow;
+          } finally {
+            s.editable.value = true;
+          }
+        }
+      },
+    );
+
     _fetchUser();
 
     // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
-    final RxChatContact? contact =
-        _contactService.paginated.values.firstWhereOrNull(
+    contact.value = _contactService.contacts.values.firstWhereOrNull(
       (e) => e.contact.value.users.every((m) => m.id == id),
     );
 
-    inContacts = RxBool(contact != null);
-    inFavorites = RxBool(contact?.contact.value.favoritePosition != null);
+    _updateWorker();
 
-    _contactsSubscription = _contactService.paginated.changes.listen((e) {
+    _contactsSubscription = _contactService.contacts.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
         case OperationKind.updated:
           if (e.value!.contact.value.users.isNotEmpty &&
               e.value!.contact.value.users.every((e) => e.id == id)) {
-            inContacts.value = true;
-
-            if (e.value!.contact.value.favoritePosition != null) {
-              inFavorites.value = true;
-            } else {
-              inFavorites.value = false;
-            }
+            contact.value = e.value;
+            _updateWorker();
           }
           break;
 
         case OperationKind.removed:
           if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            inContacts.value = false;
+            contact.value = null;
+            profileEditing.value = false;
+            _updateWorker();
           }
           break;
       }
@@ -273,9 +329,9 @@ class UserController extends GetxController {
   @override
   void onClose() {
     _myUserWorker?.dispose();
-    user?.stopUpdates();
     _contactsSubscription?.cancel();
     _favoritesSubscription?.cancel();
+    _userSubscription?.cancel();
     _worker?.dispose();
     scrollController.removeListener(_scrollListener);
     super.onClose();
@@ -283,11 +339,10 @@ class UserController extends GetxController {
 
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
   Future<void> addToContacts() async {
-    if (!inContacts.value) {
+    if (contact.value == null) {
       status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(user!.user.value);
-        inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -299,17 +354,14 @@ class UserController extends GetxController {
 
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
-    if (inContacts.value) {
+    if (contact.value != null) {
       status.value = RxStatus.loadingMore();
       try {
-        final RxChatContact? contact =
-            _contactService.paginated.values.firstWhereOrNull(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-        if (contact != null) {
-          await _contactService.deleteContact(contact.contact.value.id);
+        if (contact.value != null) {
+          await _contactService.deleteContact(contact.value!.contact.value.id);
+          contact.value = null;
+          _updateWorker();
         }
-        inContacts.value = false;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -332,14 +384,26 @@ class UserController extends GetxController {
   Future<void> call(bool withVideo) async {
     try {
       await _callService.call(user!.user.value.dialog, withVideo: withVideo);
-    } on CallDoesNotExistException catch (e) {
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyJoinedException catch (e) {
+      MessagePopup.error(e);
+    } on CallAlreadyExistsException catch (e) {
+      MessagePopup.error(e);
+    } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     }
   }
 
-  /// Blacklists the [user] for the authenticated [MyUser].
-  Future<void> blacklist() async {
-    blacklistStatus.value = RxStatus.loading();
+  /// Joins an [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> joinCall() => _callService.join(user!.user.value.dialog);
+
+  /// Drops the [OngoingCall] happening in the [RxUser.dialog].
+  Future<void> dropCall() => _callService.leave(user!.user.value.dialog);
+
+  /// Blocks the [user] for the authenticated [MyUser].
+  Future<void> block() async {
+    blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.blockUser(
         id,
@@ -347,29 +411,25 @@ class UserController extends GetxController {
       );
       reason.clear();
     } finally {
-      blacklistStatus.value = RxStatus.empty();
+      blocklistStatus.value = RxStatus.empty();
     }
   }
 
-  /// Removes the [user] from the blacklist of the authenticated [MyUser].
-  Future<void> unblacklist() async {
-    blacklistStatus.value = RxStatus.loading();
+  /// Removes the [user] from the blocklist of the authenticated [MyUser].
+  Future<void> unblock() async {
+    blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.unblockUser(id);
     } finally {
-      blacklistStatus.value = RxStatus.empty();
+      blocklistStatus.value = RxStatus.empty();
     }
   }
 
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
-        (e) => e.contact.value.users.every((m) => m.id == user?.id),
-      );
-      if (contact != null) {
-        await _contactService.favoriteChatContact(contact.id);
+      if (contact.value != null) {
+        await _contactService.favoriteChatContact(contact.value!.id);
       }
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -382,12 +442,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
-        (e) => e.contact.value.users.every((m) => m.id == user?.id),
-      );
-      if (contact != null) {
-        await _contactService.unfavoriteChatContact(contact.id);
+      if (contact.value != null) {
+        await _contactService.unfavoriteChatContact(contact.value!.id);
       }
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -463,6 +519,41 @@ class UserController extends GetxController {
     }
   }
 
+  /// Opens a file choose popup and updates the `ChatContact.avatar` with the
+  /// selected image, if any.
+  Future<void> pickAvatar() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withReadStream: !PlatformUtils.isWeb,
+      withData: PlatformUtils.isWeb,
+      lockParentWindow: true,
+    );
+
+    if (result != null) {
+      updateAvatar(result.files.first);
+    }
+  }
+
+  /// Resets the `ChatContact.avatar` to `null`.
+  Future<void> deleteAvatar() => updateAvatar(null);
+
+  /// Updates the `ChatContact.avatar` with the provided [image], or resets it
+  /// to `null`.
+  Future<void> updateAvatar(PlatformFile? image) async {
+    avatar.value = RxStatus.loading();
+
+    try {
+      throw UnimplementedError();
+    } on UnimplementedError catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+    } catch (e) {
+      avatar.value = RxStatus.empty();
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   Future<void> report() async {
     const userId = UserId('18ff6b4f-1a81-47f9-a8ed-bf69a51bdae6');
     final user = await _userService.get(userId);
@@ -472,8 +563,12 @@ class UserController extends GetxController {
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
-      user = await _userService.get(id);
-      user?.listenUpdates();
+      final FutureOr<RxUser?> fetched = _userService.get(id);
+      user = fetched is RxUser? ? fetched : await fetched;
+
+      _updateWorker();
+
+      _userSubscription = user?.updates.listen((_) {});
 
       if (user != null) {
         messageCost = TextFieldState(
@@ -489,46 +584,9 @@ class UserController extends GetxController {
           },
         );
 
-        messageCost.isFocused.listen((b) {
-          if (!b && messageCost.text.isEmpty) {
-            // messageCost.unchecked = '0';
-          }
-        });
-
-        // messageCost.isFocused.listen((b) {
-        //   if (b) {
-        //     if (messageCost.hasAllowance.value) {
-        //       messageCost.unchecked = messageCost.text.replaceAll('.00', '');
-        //     }
-        //   } else if (messageCost.text.isNotEmpty) {
-        //     print('messageCost.text.isNotEmpty: `${messageCost.text}`');
-
-        //     if (!messageCost.text.contains('.')) {
-        //       messageCost.unchecked = '${messageCost.text}.00';
-        //     } else if (messageCost.text.startsWith('.')) {
-        //       messageCost.unchecked = '0${messageCost.text}';
-        //     }
-
-        //     int signs = messageCost.text.indexOf('.');
-        //     if (signs != -1) {
-        //       messageCost.unchecked = messageCost.text.substring(
-        //         0,
-        //         signs + max(2, messageCost.text.length - signs),
-        //       );
-        //     }
-        //   } else {
-        //     messageCost.unchecked = '0.00';
-        //   }
-        // });
-
         callsCost = TextFieldState(
           approvable: true,
-          // allowable: true,
           text: '',
-          // text: user!.user.value.callCost.toString(),
-          // text: user!.user.value.callCost == 0
-          //     ? '0.00'
-          //     : '${user!.user.value.callCost.toString()}.00',
           onChanged: (s) {
             user?.user.value.callCost = int.tryParse(s.text) ?? 0;
             user?.dialog.value?.chat.refresh();
@@ -536,31 +594,8 @@ class UserController extends GetxController {
           onSubmitted: (s) {
             callPrice.value =
                 int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
-            // if (!s.text.contains('.')) {
-            //   s.unchecked = '${s.text}.00';
-            // }
           },
         );
-
-        callsCost.isFocused.listen((b) {
-          if (!b && callsCost.text.isEmpty) {
-            // callsCost.unchecked = '0';
-          }
-        });
-
-        // callsCost.isFocused.listen((b) {
-        //   if (b) {
-        //     if (callsCost.hasAllowance.value) {
-        //       callsCost.unchecked = callsCost.text.replaceAll('.00', '');
-        //     }
-        //   } else if (callsCost.text.isNotEmpty) {
-        //     if (!callsCost.text.contains('.')) {
-        //       callsCost.unchecked = '${callsCost.text}.00';
-        //     }
-        //   } else {
-        //     callsCost.text = '0.00';
-        //   }
-        // });
 
         name.unchecked =
             user?.user.value.name?.val ?? user!.user.value.num.toString();
@@ -577,6 +612,30 @@ class UserController extends GetxController {
       await MessagePopup.error(e);
       router.pop();
       rethrow;
+    }
+  }
+
+  /// Listens to the [contact] or [user] changes updating the [name].
+  void _updateWorker() {
+    if (contact.value != null) {
+      name.unchecked = contact.value!.contact.value.name.val;
+
+      _worker?.dispose();
+      _worker = ever(contact.value!.contact, (contact) {
+        if (!name.isFocused.value && !name.changed.value) {
+          name.unchecked = contact.name.val;
+        }
+      });
+    } else if (user != null) {
+      name.unchecked =
+          user!.user.value.name?.val ?? user!.user.value.num.toString();
+
+      _worker?.dispose();
+      _worker = ever(user!.user, (user) {
+        if (!name.isFocused.value && !name.changed.value) {
+          name.unchecked = user.name?.val ?? user.num.toString();
+        }
+      });
     }
   }
 }

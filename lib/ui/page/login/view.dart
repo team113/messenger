@@ -130,7 +130,7 @@ class LoginView extends StatelessWidget {
                 SignButton(
                   title: 'btn_guest'.l10n,
                   dense: true,
-                  icon: const SvgIcon(SvgIcons.oneTime),
+                  icon: const SvgIcon(SvgIcons.guest),
                   onPressed: () {
                     router.noIntroduction = false;
                     c.oneTime();

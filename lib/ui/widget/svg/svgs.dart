@@ -305,8 +305,8 @@ class SvgIcons {
     height: 25,
   );
 
-  static const SvgData oneTime = SvgData(
-    'assets/icons/one_time.svg',
+  static const SvgData guest = SvgData(
+    'assets/icons/guest.svg',
     width: 19.88,
     height: 26,
   );
@@ -1900,7 +1900,7 @@ class SvgIcons {
     height: 19,
   );
 
-    static const SvgData reject = SvgData(
+  static const SvgData reject = SvgData(
     'assets/icons/reject.svg',
     width: 19,
     height: 19,

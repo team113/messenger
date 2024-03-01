@@ -30,7 +30,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
-import '/util/platform_utils.dart';
 
 /// Subtitle visual representation of a [RxChat].
 class ChatSubtitle extends StatefulWidget {
@@ -110,7 +109,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             TextSpan(
               text: 'label_a_of_b'.l10nfmt({
                 'a': actualMembers?.length,
-                'b': widget.chat.members.length,
+                'b': widget.chat.chat.value.membersCount,
               }),
             ),
           );
@@ -177,7 +176,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
       if (chat.isGroup) {
         final String? subtitle = chat.getSubtitle();
+
         const String status = 'Ретроспектива: 00:00 UTC';
+
         if (status != null || subtitle != null) {
           return Text(
             [
@@ -199,16 +200,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
             final UserTextStatus? status = member.user.value.status;
             final Widget child;
 
-            // if (status != null || subtitle != null) {
             if (status != null || subtitle != null) {
-              // final StringBuffer buffer = StringBuffer(status ?? '');
-
-              // if (status != null && subtitle != null) {
-              //   buffer.write('space_vertical_space'.l10n);
-              // }
-
-              // buffer.write(subtitle ?? '');
-
               child = Text(
                 [
                   if (subtitle != null) subtitle,

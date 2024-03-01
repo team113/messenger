@@ -40,9 +40,11 @@ import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/model/user_call_cover.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/paginated.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/store/paginated.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/controller.dart';
@@ -106,7 +108,6 @@ import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/obs/rxlist.dart';
-import 'package:messenger/util/obs/rxmap.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'widget/cat.dart';
@@ -604,7 +605,7 @@ class _WidgetsViewState extends State<WidgetsView> {
         ),
         child: ShadowedRoundedButton(
           onPressed: () {},
-          title: const Text('Label'),
+          child: const Text('Label'),
         ),
       ),
       _headline(
@@ -1716,12 +1717,6 @@ class DummyRxUser extends RxUser {
   Rx<RxChat?> get dialog => Rx(null);
 
   @override
-  void listenUpdates() {}
-
-  @override
-  void stopUpdates() {}
-
-  @override
   Rx<User> get user => Rx(
         User(
           const UserId('me'),
@@ -1732,6 +1727,10 @@ class DummyRxUser extends RxUser {
 
   @override
   Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());
+
+  @override
+  // TODO: implement updates
+  Stream<void> get updates => throw UnimplementedError();
 }
 
 class DummyRxChat extends RxChat {
@@ -1742,9 +1741,6 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<void> addMessage(ChatMessageText text) async {}
-
-  @override
-  Future<void> around() async {}
 
   @override
   Rx<Avatar?> get avatar => Rx(null);
@@ -1772,9 +1768,6 @@ class DummyRxChat extends RxChat {
 
   @override
   UserId? get me => null;
-
-  @override
-  RxObsMap<UserId, RxUser> get members => RxObsMap();
 
   @override
   RxObsList<Rx<ChatItem>> get messages => RxObsList();
@@ -1826,10 +1819,19 @@ class DummyRxChat extends RxChat {
   RxBool get inCall => RxBool(false);
 
   @override
-  Future<void> updateAvatar() {
-    // TODO: implement updateAvatar
-    throw UnimplementedError();
+  Future<void> updateAvatar() async {}
+
+  @override
+  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+    ChatItem? item,
+    ChatItemId? reply,
+    ChatItemId? forward,
+  }) async {
+    return null;
   }
+
+  @override
+  Paginated<UserId, RxUser> get members => PaginatedImpl();
 }
 
 class _HoveredBuilder extends StatefulWidget {

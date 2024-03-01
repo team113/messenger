@@ -25,7 +25,9 @@ import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/media_settings.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
@@ -285,10 +287,6 @@ class OngoingCall {
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
 
-  /// Subscription to the [RxChat.members] changes adding and removing the
-  /// redialed [members].
-  StreamSubscription? _membersSubscription;
-
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
 
@@ -431,11 +429,30 @@ class OngoingCall {
 
       // Puts the members of the provided [chat] to the [members] through
       // [_addDialing].
-      void addDialingsFrom(RxChat chat) {
-        if ((outgoing && conversationStartedAt == null) ||
-            chat.chat.value.isDialog) {
-          for (UserId e in chat.members.keys.where((e) => e != me.id.userId)) {
-            _addDialing(e);
+      Future<void> addDialingsFrom(RxChat? chat) async {
+        if (chat == null) {
+          return;
+        }
+
+        final int membersCount = chat.chat.value.membersCount;
+        final bool shouldAddDialed =
+            (outgoing && conversationStartedAt == null) ||
+                chat.chat.value.isDialog;
+
+        // Dialed [User]s should be added, if [membersCount] is less than a page
+        // of [Chat.members].
+        if (membersCount <= chat.members.perPage && shouldAddDialed) {
+          if (chat.members.items.length < membersCount) {
+            await chat.members.around();
+          }
+
+          // If [connected], then the dialed [User] will be added in [connect],
+          // when handling [ChatMembersDialedAll].
+          if (!connected) {
+            for (UserId e
+                in chat.members.items.keys.where((e) => e != me.id.userId)) {
+              _addDialing(e);
+            }
           }
         }
       }
@@ -444,20 +461,35 @@ class OngoingCall {
       // members to the [members] in redialing mode as fast as possible.
       final FutureOr<RxChat?>? chatOrFuture = getChat?.call(chatId.value);
       if (chatOrFuture is RxChat?) {
-        if (chatOrFuture != null) {
-          addDialingsFrom(chatOrFuture);
-        }
+        addDialingsFrom(chatOrFuture);
       } else {
-        chatOrFuture.then((c) {
-          if (!connected && c != null) {
-            addDialingsFrom(c);
-          }
-        });
+        chatOrFuture.then(addDialingsFrom);
       }
 
-      await _setInitialMediaSettings();
+      try {
+        // Set all the constraints to ensure no disabled track is sent while
+        // initializing the local media.
+        await _room?.setLocalMediaSettings(
+          _mediaStreamSettings(
+            audio: audioState.value == LocalTrackState.enabling,
+            video: videoState.value == LocalTrackState.enabling,
+            screen: false,
+          ),
+          false,
+          true,
+        );
+      } on StateError catch (e) {
+        // [_room] is allowed to be in a detached state there as the call might
+        // has already ended.
+        if (!e.toString().contains('detached')) {
+          addError('setLocalMediaSettings() failed: $e');
+          rethrow;
+        }
+      } catch (e) {
+        addError('setLocalMediaSettings() failed: $e');
+        rethrow;
+      }
 
-      Log.debug('init(): await _initLocalMedia()', '$runtimeType');
       await _initLocalMedia();
       Log.debug('init(): await _initLocalMedia() done', '$runtimeType');
 
@@ -506,6 +538,9 @@ class OngoingCall {
               calls.remove(chatId.value);
               calls.removeCredentials(node.call.chatId, node.call.id);
             } else {
+              call.value = node.call;
+              call.refresh();
+
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
                     ? OngoingCallState.pending
@@ -551,53 +586,44 @@ class OngoingCall {
               // Additionally handles the case, when [dialed] are
               // [ChatMembersDialedAll], since we need to have a [RxChat] to
               // retrieve the whole list of users this way.
-              void redialAndResubscribe(RxChat? v) {
-                if (!connected) {
+              Future<void> redialAndResubscribe(RxChat? v) async {
+                if (!connected || v == null) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
                   return;
                 }
 
                 // Add the redialed members of the call to the [members].
-                if (dialed is ChatMembersDialedAll) {
-                  final Iterable<ChatMember> dialings = v?.chat.value.members
-                          .where((e) =>
-                              e.user.id != me.id.userId &&
-                              dialed.answeredMembers
-                                  .none((a) => a.user.id == e.user.id)) ??
-                      [];
+                if (dialed is ChatMembersDialedAll &&
+                    v.chat.value.membersCount <= v.members.perPage) {
+                  if (v.members.items.length < v.chat.value.membersCount) {
+                    await v.members.around();
+                  }
 
-                  // Remove the members, who are not connected and still
-                  // redialing, that are missing from the [dialings].
-                  members.removeWhere(
-                    (_, v) =>
-                        v.isConnected.isFalse &&
-                        v.isDialing.isTrue &&
-                        dialings.none((e) => e.user.id == v.id.userId) &&
-                        node.call.members.none((e) => e.user.id == v.id.userId),
-                  );
+                  // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
+                  if (call.value?.dialed is ChatMembersDialedAll) {
+                    final Iterable<RxUser> dialings = v.members.values.where(
+                      (e) =>
+                          e.id != me.id.userId &&
+                          dialed.answeredMembers.none((a) => a.user.id == e.id),
+                    );
 
-                  for (final ChatMember m in dialings) {
-                    _addDialing(m.user.id);
+                    // Remove the members, who are not connected and still
+                    // redialing, that are missing from the [dialings].
+                    members.removeWhere(
+                      (_, v) =>
+                          v.isConnected.isFalse &&
+                          v.isDialing.isTrue &&
+                          dialings.none((e) => e.id == v.id.userId) &&
+                          node.call.members
+                              .none((e) => e.user.id == v.id.userId),
+                    );
+
+                    for (final RxUser e in dialings) {
+                      _addDialing(e.id);
+                    }
                   }
                 }
-
-                _membersSubscription?.cancel();
-                _membersSubscription = v?.members.changes.listen((event) {
-                  switch (event.op) {
-                    case OperationKind.added:
-                      _addDialing(event.key!);
-                      break;
-
-                    case OperationKind.removed:
-                      members.remove(CallMemberId(event.key!, null))?.dispose();
-                      break;
-
-                    case OperationKind.updated:
-                      // No-op.
-                      break;
-                  }
-                });
               }
 
               // Retrieve the [RxChat] to subscribe to its [RxChat.members]
@@ -616,9 +642,6 @@ class OngoingCall {
                       ?.handRaised ??
                   false;
             }
-
-            call.value = node.call;
-            call.refresh();
             break;
 
           case ChatCallEventsKind.event:
@@ -779,6 +802,8 @@ class OngoingCall {
                       members.remove(id)?.dispose();
                     }
                   } else {
+                    call.value?.dialed = null;
+
                     members.removeWhere((k, v) {
                       if (k.deviceId == null && v.isConnected.isFalse) {
                         v.dispose();
@@ -792,6 +817,15 @@ class OngoingCall {
 
                 case ChatCallEventKind.conversationStarted:
                   // TODO: Implement [EventChatCallConversationStarted].
+                  break;
+
+                case ChatCallEventKind.undialed:
+                  final node = event as EventChatCallMemberUndialed;
+
+                  final CallMemberId id = CallMemberId(node.user.id, null);
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id)?.dispose();
+                  }
                   break;
               }
             }
@@ -811,7 +845,6 @@ class OngoingCall {
     Log.debug('dispose()', '$runtimeType');
 
     _heartbeat?.cancel();
-    _membersSubscription?.cancel();
     connected = false;
 
     return _mediaSettingsGuard.protect(() async {
@@ -822,7 +855,6 @@ class OngoingCall {
       _devicesSubscription?.cancel();
       _displaysSubscription?.cancel();
       _heartbeat?.cancel();
-      _membersSubscription?.cancel();
       _outputWorker?.dispose();
       connected = false;
     });

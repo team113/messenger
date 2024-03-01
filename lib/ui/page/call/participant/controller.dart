@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
@@ -97,6 +98,13 @@ class ParticipantController extends GetxController {
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
+  /// Subscription for the [RxChat.members] changes.
+  StreamSubscription? _membersSubscription;
+
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
   /// Returns an ID of the [Chat] this modal is bound to.
   Rx<ChatId> get chatId => _call.value.chatId;
 
@@ -105,6 +113,8 @@ class ParticipantController extends GetxController {
 
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
@@ -146,8 +156,10 @@ class ParticipantController extends GetxController {
   @override
   void onClose() {
     _chatsSubscription?.cancel();
+    _membersSubscription?.cancel();
     _stateWorker?.dispose();
     _chatWorker?.dispose();
+    scrollController.removeListener(_scrollListener);
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -188,7 +200,7 @@ class ParticipantController extends GetxController {
     status.value = RxStatus.loading();
 
     try {
-      if (chat.value?.chat.value.isGroup != false) {
+      if (chat.value?.chat.value.isGroup ?? true) {
         List<Future> futures = ids
             .map((e) => _chatService.addChatMember(chatId.value, e))
             .toList();
@@ -223,13 +235,31 @@ class ParticipantController extends GetxController {
     }
   }
 
-  /// Fetches the [chat].
-  void _fetchChat() async {
+  /// Fetches the [chat], or [pop]s, if it's `null`.
+  Future<void> _fetchChat() async {
     chat.value = null;
-    chat.value = (await _chatService.get(chatId.value));
+
+    final FutureOr<RxChat?> fetched = _chatService.get(chatId.value);
+    chat.value = fetched is RxChat? ? fetched : await fetched;
+
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
+    } else {
+      _membersSubscription = chat.value!.members.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            // No-op.
+            break;
+
+          case OperationKind.removed:
+            _scrollListener();
+            break;
+        }
+      });
+
+      await chat.value!.members.around();
     }
   }
 
@@ -240,5 +270,25 @@ class ParticipantController extends GetxController {
   bool _onBack(bool _, RouteInfo __) {
     pop?.call();
     return true;
+  }
+
+  /// Requests the next page of [ChatMember]s based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        _scrollIsInvoked = false;
+
+        if (scrollController.hasClients &&
+            chat.value?.members.hasNext.value == true &&
+            chat.value?.members.nextLoading.value == false &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 500) {
+          await chat.value?.members.next();
+        }
+      });
+    }
   }
 }

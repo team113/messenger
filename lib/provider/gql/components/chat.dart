@@ -315,6 +315,28 @@ mixin ChatGraphQlMixin {
     return GetMessages$Query.fromJson(result.data!);
   }
 
+  /// Returns a [ChatItem] by its ID.
+  ///
+  /// The authenticated [MyUser] should be a member of the [Chat] the provided
+  /// [ChatItem] belongs to, in order to view it.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetMessage$Query> chatItem(ChatItemId id) async {
+    Log.debug('chatItem($id)', '$runtimeType');
+
+    final variables = GetMessageArguments(id: id);
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetMessage',
+        document: GetMessageQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetMessage$Query.fromJson(result.data!);
+  }
+
   /// Posts a new [ChatMessage] to the specified [Chat] by the authenticated
   /// [MyUser].
   ///
@@ -1553,5 +1575,54 @@ mixin ChatGraphQlMixin {
       ),
     );
     return GetAvatar$Query.fromJson(result.data!);
+  }
+
+  /// Fetches [ChatMember]s of a [Chat] identified by its [id] ordered by their
+  /// joining time.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [ChatMember]s are sorted primarily by their joining [DateTime],
+  /// and secondary by their IDs (if the joining [DateTime] is the same), in
+  /// ascending order.
+  ///
+  /// ### Pagination
+  ///
+  /// It's allowed to specify both [first] and [last] counts at the same time,
+  /// provided that [after] and [before] cursors are equal. In such case the
+  /// returned page will include the [ChatMember] pointed by the cursor and the
+  /// requested count of [ChatMember]s preceding and following it.
+  ///
+  /// If it's desired to receive the [ChatMember], pointed by the cursor,
+  /// without querying in both directions, one can specify [first] or [last]
+  /// count as 0.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  Future<GetMembers$Query> chatMembers(
+    ChatId id, {
+    int? first,
+    ChatMembersCursor? after,
+    int? last,
+    ChatMembersCursor? before,
+  }) async {
+    Log.debug('chatItems($id, $first, $after, $last, $before)', '$runtimeType');
+
+    final variables = GetMembersArguments(
+      id: id,
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    );
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetMembers',
+        document: GetMembersQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetMembers$Query.fromJson(result.data!);
   }
 }

@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/api/backend/schema.dart';
+import '/config.dart';
 import '/domain/model_type_id.dart';
 import '/l10n/l10n.dart';
 import '/util/new_type.dart';
@@ -368,6 +369,22 @@ class ChatDirectLinkSlug extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
+
+  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  ///
+  /// If [val] starts with [Config.link], then that part is omitted.
+  static ChatDirectLinkSlug? tryParse(String val) {
+    if (val.startsWith('${Config.link}/')) {
+      val = val.substring(Config.link.length + 1);
+    }
+
+    try {
+      return ChatDirectLinkSlug(val);
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
   factory ChatDirectLinkSlug.generate([int length = 10]) {

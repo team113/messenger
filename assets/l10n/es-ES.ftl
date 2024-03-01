@@ -61,7 +61,7 @@ label_introduction_description1 =
     Para guardar el acceso a su cuenta, por favor, indique una contraseña, correo electrónico o número de teléfono en{" "}
 label_introduction_description2 = las configuraciónes
 label_introduction_description3 = {" "}.
-label_one_time_account_created = Cuenta desechable creada
+label_guest_account_created = Cuenta desechable creada
 label_account_created = Cuenta está creada
 btn_ok = Ok
 label_num = Gapopa ID

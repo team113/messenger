@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/widget/avatar.dart';
 
 import '/themes.dart';
 import '/ui/page/call/controller.dart';
@@ -35,10 +34,10 @@ class CallButtonWidget extends StatelessWidget {
     this.hinted = true,
     this.expanded = false,
     this.withBlur = false,
+    this.opaque = false,
     this.color,
     this.border,
     this.constrained = false,
-    this.opaque = false,
     bool big = false,
   }) : size = constrained
             ? null
@@ -72,13 +71,14 @@ class CallButtonWidget extends StatelessWidget {
   /// Indicator whether this [CallButtonWidget] should be constrained.
   final bool constrained;
 
+  /// Indicator whether this [CallButtonWidget] should be less transparent.
+  final bool opaque;
+
   /// Background color of this [CallButtonWidget].
   final Color? color;
 
   /// Border style of this [CallButtonWidget].
   final BoxBorder? border;
-
-  final bool opaque;
 
   @override
   Widget build(BuildContext context) {

@@ -24,14 +24,11 @@ import '/ui/widget/outlined_rounded_button.dart';
 class ShadowedRoundedButton extends StatelessWidget {
   const ShadowedRoundedButton({
     super.key,
-    this.title,
     this.color,
     this.onPressed,
     this.maxWidth,
+    this.child,
   });
-
-  /// Primary content of this button.
-  final Widget? title;
 
   /// Background color of this button.
   final Color? color;
@@ -40,6 +37,9 @@ class ShadowedRoundedButton extends StatelessWidget {
   final void Function()? onPressed;
 
   final double? maxWidth;
+
+  /// Primary content of this button.
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class ShadowedRoundedButton extends StatelessWidget {
         shadows: [
           BoxShadow(blurRadius: 8, color: style.colors.onBackgroundOpacity13),
         ],
-        child: title,
+        child: child,
       ),
     );
   }

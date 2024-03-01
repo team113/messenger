@@ -30,10 +30,14 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/recent_chat.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/search_field.dart';
 
@@ -323,7 +327,10 @@ class SearchView extends StatelessWidget {
                     return ShadowedRoundedButton(
                       key: const Key('SearchSubmitButton'),
                       maxWidth: double.infinity,
-                      title: Text(
+                      color: style.colors.primary,
+                      onPressed:
+                          enabled ? () => onSubmit?.call(c.selected()) : null,
+                      child: Text(
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -331,14 +338,10 @@ class SearchView extends StatelessWidget {
                             ? style.fonts.medium.regular.onPrimary
                             : style.fonts.medium.regular.onBackground,
                       ),
-                      onPressed:
-                          enabled ? () => onSubmit?.call(c.selected()) : null,
-                      color: style.colors.primary,
                     );
                   }),
                 ),
               ],
-              const SizedBox(height: 12),
             ],
           ),
         );

@@ -17,13 +17,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/themes.dart';
 
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// [Chat.members] addition view.
@@ -41,9 +42,9 @@ class AddChatMemberView extends StatelessWidget {
 
     return ModalPopup.show(
       context: context,
-      mobilePadding: const EdgeInsets.all(0),
-      // background: style.sidebarColor,
-      background: const Color.fromARGB(255, 240, 242, 244),
+      background: style.colors.background,
+      desktopPadding: const EdgeInsets.only(bottom: 12),
+      mobilePadding: const EdgeInsets.only(bottom: 12),
       child: AddChatMemberView(chatId: chatId),
     );
   }
@@ -54,7 +55,7 @@ class AddChatMemberView extends StatelessWidget {
       init: AddChatMemberController(
         chatId,
         Get.find(),
-        pop: Navigator.of(context).pop,
+        pop: context.popModal,
       ),
       builder: (AddChatMemberController c) {
         return Obx(() {

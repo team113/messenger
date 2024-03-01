@@ -18,13 +18,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatCallFinishReason;
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/ui/page/call/widget/animated_dots.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
+import 'package:messenger/ui/widget/animated_switcher.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -51,7 +54,7 @@ import '/util/message_popup.dart';
 import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
-import 'slidable.dart';
+import 'slidable_action.dart';
 import 'unread_counter.dart';
 
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat].
@@ -74,7 +77,6 @@ class RecentChatTile extends StatelessWidget {
     this.onCall,
     this.onLeave,
     this.onHide,
-    this.onDismiss,
     this.onDrop,
     this.onJoin,
     this.onMute,
@@ -85,6 +87,7 @@ class RecentChatTile extends StatelessWidget {
     this.onCreateGroup,
     this.onContact,
     this.onTap,
+    this.onDismissed,
     this.monolog = true,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -119,9 +122,10 @@ class RecentChatTile extends StatelessWidget {
   /// required.
   final FutureOr<RxUser?> Function(UserId id)? getUser;
 
-  /// Callback, called to check whether this device of the currently
-  /// authenticated [MyUser] takes part in the [Chat.ongoingCall], if any.
   final bool Function()? inCall;
+
+  /// Callback, called to check whether the [rxChat] is considered to be in
+  /// contacts list of the authenticated [MyUser].
   final bool Function()? inContacts;
 
   final void Function(bool)? onCall;
@@ -130,9 +134,7 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onLeave;
 
   /// Callback, called when this [rxChat] hide action is triggered.
-  final void Function()? onHide;
-
-  final void Function()? onDismiss;
+  final void Function(bool)? onHide;
 
   /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action is
   /// triggered.
@@ -160,12 +162,17 @@ class RecentChatTile extends StatelessWidget {
 
   final void Function()? onCreateGroup;
 
+  /// Callback, called when this [rxChat] add or remove contact action is
+  /// triggered.
   final void Function(bool)? onContact;
 
   /// Callback, called when this [RecentChatTile] is tapped.
   final void Function()? onTap;
 
   final bool price;
+
+  /// Callback, called when this [RecentChatTile] is dismissed.
+  final void Function()? onDismissed;
 
   /// Builder for building an [AvatarWidget] the [ChatTile] displays.
   ///
@@ -200,18 +207,24 @@ class RecentChatTile extends StatelessWidget {
           (myUser?.name?.val.toLowerCase() == 'alex2' ||
               myUser?.name?.val.toLowerCase() == 'kirey');
 
-      return CustomSlidable(
-        enabled: onHide != null,
-        slidableKey: Key(rxChat.id.val),
+      return Slidable(
+        key: Key(rxChat.id.val),
         groupTag: 'chat',
-        actions: [
-          CustomAction(
-            onPressed: _hideChat,
-            icon: const Icon(Icons.delete),
-            text: 'btn_delete'.l10n,
-          ),
-        ],
-        onDismissed: onDismiss,
+        enabled: onHide != null,
+        endActionPane: ActionPane(
+          extentRatio: 0.33,
+          motion: const StretchMotion(),
+          dismissible: onDismissed == null
+              ? null
+              : DismissiblePane(onDismissed: onDismissed!),
+          children: [
+            FadingSlidableAction(
+              onPressed: _hideChat,
+              icon: const Icon(Icons.delete),
+              text: 'btn_delete'.l10n,
+            ),
+          ],
+        ),
         child: ChatTile(
           chat: rxChat,
           avatarBuilder: avatarBuilder,
@@ -885,6 +898,7 @@ class RecentChatTile extends StatelessWidget {
       content = RetryImage(
         e.medium.url,
         checksum: e.medium.checksum,
+        thumbhash: e.medium.thumbhash,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
@@ -1010,13 +1024,7 @@ class RecentChatTile extends StatelessWidget {
               ? const Key('JoinCallButton')
               : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
-          decoration: BoxDecoration(
-            // border: Border.all(
-            //   color: paid ? paidColor : style.colors.onPrimary,
-            //   width: 0.5,
-            // ),
-            borderRadius: BorderRadius.circular(6),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
           child: Material(
             elevation: 0,
             type: MaterialType.button,
@@ -1034,14 +1042,10 @@ class RecentChatTile extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Icon(
-                    //   displayed ? Icons.call_end : Icons.call,
-                    //   size: 16,
-                    //   color: style.colors.onPrimary,
-                    // ),
-
                     PeriodicBuilder(
-                      period: const Duration(seconds: 1),
+                      period: Config.disableInfiniteAnimations
+                          ? const Duration(minutes: 1)
+                          : const Duration(seconds: 1),
                       builder: (_) {
                         final Duration duration =
                             DateTime.now().difference(chat.ongoingCall!.at.val);
@@ -1080,9 +1084,9 @@ class RecentChatTile extends StatelessWidget {
         padding: const EdgeInsets.only(left: 5),
         child: Transform.translate(
           offset: const Offset(1, 0),
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: 300.milliseconds,
-            child: button(inCall?.call() == true),
+            child: button(rxChat.inCall.value),
           ),
         ),
       );
@@ -1095,32 +1099,26 @@ class RecentChatTile extends StatelessWidget {
 
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      // description: [
-      //   TextSpan(text: 'alert_chat_will_be_hidden1'.l10n),
-      //   TextSpan(text: rxChat.title.value, style: style.fonts.normal.regular.onBackground),
-      //   TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
-      // ],
-      description: [
-        TextSpan(text: 'label_to_restore_chat_use_search'.l10n),
-        // TextSpan(text: rxChat.title.value, style: style.fonts.normal.regular.onBackground),
-        // TextSpan(text: 'alert_chat_will_be_hidden2'.l10n),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chat_use_search'.l10n)],
       additional: [
         const SizedBox(height: 21),
-        StatefulBuilder(builder: (context, setState) {
-          return RectangleButton(
-            label: 'btn_clear_history'.l10n,
-            selected: clear,
-            tappable: true,
-            radio: true,
-            onPressed: () => setState(() => clear = !clear),
-          );
-        })
+        StatefulBuilder(
+          builder: (context, setState) {
+            return RectangleButton(
+              label: 'btn_clear_history'.l10n,
+              selected: clear,
+              tappable: true,
+              //  toggleable: true,
+              radio: true,
+              onPressed: () => setState(() => clear = !clear),
+            );
+          },
+        )
       ],
     );
 
     if (result == true) {
-      onHide?.call();
+      onHide?.call(clear);
     }
   }
 

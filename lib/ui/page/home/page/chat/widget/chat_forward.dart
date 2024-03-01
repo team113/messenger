@@ -61,7 +61,6 @@ import 'donate.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
-import 'swipeable_status.dart';
 
 /// [ChatForward] visual representation.
 class ChatForwardWidget extends StatefulWidget {
@@ -138,7 +137,7 @@ class ChatForwardWidget extends StatefulWidget {
   final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a [ChatForward] is tapped.
-  final void Function(ChatItemQuote)? onForwardedTap;
+  final void Function(ChatForward)? onForwardedTap;
 
   /// Callback, called when a [FileAttachment] of some [ChatItem] is tapped.
   final void Function(ChatItem, FileAttachment)? onFileTap;
@@ -662,7 +661,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
           child: WidgetButton(
-            onPressed: menu ? null : () => widget.onForwardedTap?.call(quote),
+            onPressed: menu ? null : () => widget.onForwardedTap?.call(msg),
             child: Stack(
               children: [
                 Row(

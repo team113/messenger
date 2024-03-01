@@ -16,16 +16,17 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
@@ -35,6 +36,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
+        CallAlreadyExistsException,
         CallAlreadyJoinedException,
         CallDoesNotExistException,
         CallIsInPopupException;
@@ -53,6 +55,7 @@ import '/provider/gql/exceptions.dart'
         CreateGroupChatException,
         FavoriteChatException,
         HideChatException,
+        JoinChatCallException,
         RemoveChatMemberException,
         ToggleChatMuteException,
         UnfavoriteChatException;
@@ -77,7 +80,7 @@ class ChatsTabController extends GetxController {
   );
 
   /// Reactive list of sorted [Chat]s.
-  late final RxList<RxChat> chats;
+  final RxList<ChatEntry> chats = RxList();
 
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -98,8 +101,6 @@ class ChatsTabController extends GetxController {
 
   final Rx<LoaderElement?> loader = Rx(null);
 
-  final RxList<ReversibleAction> undo = RxList();
-
   /// Status of the [createGroup] progression.
   ///
   /// May be:
@@ -118,6 +119,7 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
+  /// [TextFieldState] for [ChatName] inputting while [groupCreating].
   final TextFieldState groupName = TextFieldState();
 
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
@@ -127,6 +129,9 @@ class ChatsTabController extends GetxController {
 
   /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
+
+  /// [DismissedChat]s added in [dismiss].
+  final RxList<DismissedChat> dismissed = RxList();
 
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
@@ -156,14 +161,12 @@ class ChatsTabController extends GetxController {
   /// Subscription for the [ChatService.status] changes.
   StreamSubscription? _statusSubscription;
 
-  /// Map of [_ChatSortingData]s used to sort the [chats].
-  final HashMap<ChatId, _ChatSortingData> _sortingData =
-      HashMap<ChatId, _ChatSortingData>();
+  /// Subscription for the [RxUser]s changes.
+  final Map<UserId, StreamSubscription> _userSubscriptions = {};
 
-  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
-  ///
-  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
-  final List<RxUser> _recipients = [];
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -183,23 +186,22 @@ class ChatsTabController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    chats = RxList<RxChat>(_chatService.paginated.values.toList());
-
-    HardwareKeyboard.instance.addHandler(_escapeListener);
-    if (PlatformUtils.isMobile) {
-      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
-    }
+    chats.value = RxList(
+      _chatService.paginated.values
+          .map((e) => ChatEntry(e, chats.sort))
+          .toList(),
+    );
 
     chats.sort();
 
-    for (RxChat chat in chats) {
-      _sortingData[chat.chat.value.id] =
-          _ChatSortingData(chat.chat, () => chats.sort());
+    HardwareKeyboard.instance.addHandler(_escapeListener);
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
     // listening to its updates.
-    Future<void> listenUpdates(RxChat chat) async {
+    Future<void> listenUpdates(ChatEntry chat) async {
       final UserId? userId = chat.chat.value.members
           .firstWhereOrNull((u) => u.user.id != me)
           ?.user
@@ -210,7 +212,8 @@ class ChatsTabController extends GetxController {
             chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
-          _recipients.add(rxUser..listenUpdates());
+          _userSubscriptions.remove(userId)?.cancel();
+          _userSubscriptions[userId] = rxUser.updates.listen((_) {});
         }
       }
     }
@@ -219,19 +222,24 @@ class ChatsTabController extends GetxController {
     _chatsSubscription = _chatService.paginated.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          chats.add(event.value!);
+          final entry = ChatEntry(event.value!, chats.sort);
+          chats.add(entry);
           chats.sort();
-          _sortingData[event.value!.chat.value.id] ??=
-              _ChatSortingData(event.value!.chat, chats.sort);
 
           if (event.value!.chat.value.isDialog) {
-            listenUpdates(event.value!);
+            listenUpdates(entry);
           }
           break;
 
         case OperationKind.removed:
-          _sortingData.remove(event.key)?.dispose();
-          chats.removeWhere((e) => e.chat.value.id == event.key);
+          chats.removeWhere((e) {
+            if (e.chat.value.id == event.key) {
+              e.dispose();
+              return true;
+            }
+
+            return false;
+          });
 
           if (event.value!.chat.value.isDialog) {
             final UserId? userId = event.value!.chat.value.members
@@ -239,15 +247,10 @@ class ChatsTabController extends GetxController {
                 ?.user
                 .id;
 
-            _recipients.removeWhere((e) {
-              if (e.id == userId) {
-                e.stopUpdates();
-                return true;
-              }
-
-              return false;
-            });
+            _userSubscriptions.remove(userId)?.cancel();
           }
+
+          _scrollListener();
           break;
 
         case OperationKind.updated:
@@ -257,26 +260,16 @@ class ChatsTabController extends GetxController {
     });
 
     if (_chatService.status.value.isSuccess) {
-      _ensureScrollable();
+      SchedulerBinding.instance
+          .addPostFrameCallback((_) => _ensureScrollable());
     } else {
       _statusSubscription = _chatService.status.listen((status) {
         if (status.isSuccess) {
-          _ensureScrollable();
+          SchedulerBinding.instance
+              .addPostFrameCallback((_) => _ensureScrollable());
         }
       });
     }
-
-    // search2 = SearchController(
-    //   _chatService,
-    //   _userService,
-    //   _contactService,
-    //   categories: const [
-    //     SearchCategory.recent,
-    //     SearchCategory.chat,
-    //     SearchCategory.contact,
-    //     SearchCategory.user,
-    //   ],
-    // )..onInit();
 
     super.onInit();
   }
@@ -286,11 +279,11 @@ class ChatsTabController extends GetxController {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
     scrollController.removeListener(_scrollListener);
 
-    if (PlatformUtils.isMobile) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
 
-    for (var data in _sortingData.values) {
+    for (var data in chats) {
       data.dispose();
     }
     _chatsSubscription.cancel();
@@ -300,8 +293,12 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
-    for (RxUser v in _recipients) {
-      v.stopUpdates();
+    for (StreamSubscription s in _userSubscriptions.values) {
+      s.cancel();
+    }
+
+    for (var e in dismissed) {
+      e._timer.cancel();
     }
 
     fetching.value?.cancel();
@@ -334,12 +331,15 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Starts an [OngoingCall] in the [Chat] identified by the provided [id].
   Future<void> call(ChatId id, [bool withVideo = false]) async {
     try {
       await _callService.call(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
-    } on CallDoesNotExistException catch (e) {
+    } on CallAlreadyExistsException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
@@ -351,6 +351,8 @@ class ChatsTabController extends GetxController {
   Future<void> joinCall(ChatId id, {bool withVideo = false}) async {
     try {
       await _callService.join(id, withVideo: withVideo);
+    } on JoinChatCallException catch (e) {
+      MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     } on CallDoesNotExistException catch (e) {
@@ -375,11 +377,21 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Hides the [Chat] identified by the provided [id].
-  Future<void> hideChat(ChatId id) async {
+  /// Hides the [Chat] identified by the provided [id] and clears its history as
+  /// well if [clear] is `true`.
+  Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
-      await _chatService.hideChat(id);
+      final Iterable<Future> futures = [
+        if (clear) _chatService.clearChat(id),
+        _chatService.hideChat(id)
+      ];
+
+      await Future.wait(futures);
     } on HideChatException catch (e) {
+      MessagePopup.error(e);
+    } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -403,6 +415,8 @@ class ChatsTabController extends GetxController {
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);
@@ -477,8 +491,11 @@ class ChatsTabController extends GetxController {
     return _callService.calls[id] != null;
   }
 
+  /// Indicates whether [User] from this [chat] is already in contacts.
+  ///
+  /// Only meaningful, if [chat] is dialog.
   bool inContacts(RxChat chat) {
-    if (chat.chat.value.isDialog != true) {
+    if (!chat.chat.value.isDialog) {
       return false;
     }
 
@@ -488,11 +505,15 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    return _contactService.paginated.values
-        .any((e) => e.contact.value.users.every((m) => m.id == userId));
+    return _contactService.contacts.values.any((e) =>
+        e.contact.value.users.length == 1 &&
+        e.contact.value.users.every((m) => m.id == userId));
   }
 
-  /// Adds the [user] to the contacts list of the authenticated [MyUser].
+  /// Adds the [User] from this [chat] to the contacts list of the authenticated
+  /// [MyUser].
+  ///
+  /// Only meaningful, if [chat] is dialog.
   Future<void> addToContacts(RxChat chat) async {
     if (inContacts(chat)) {
       return;
@@ -512,7 +533,10 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Removes the [user] from the contacts list of the authenticated [MyUser].
+  /// Removes the [User] from this [chat] from the contacts list of the
+  /// authenticated [MyUser].
+  ///
+  /// Only meaningful, if [chat] is dialog.
   Future<void> removeFromContacts(RxChat chat) async {
     if (!inContacts(chat)) {
       return;
@@ -526,8 +550,10 @@ class ChatsTabController extends GetxController {
 
     try {
       final RxChatContact? contact =
-          _contactService.paginated.values.firstWhereOrNull(
-        (e) => e.contact.value.users.every((m) => m.id == user.id),
+          _contactService.contacts.values.firstWhereOrNull(
+        (e) =>
+            e.contact.value.users.length == 1 &&
+            e.contact.value.users.every((m) => m.id == user.id),
       );
       if (contact != null) {
         await _contactService.deleteContact(contact.contact.value.id);
@@ -570,6 +596,7 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
+    groupName.clear();
     closeSearch(true);
     router.navigation.value = true;
   }
@@ -590,10 +617,7 @@ class ChatsTabController extends GetxController {
         name: groupName.text.isEmpty ? null : ChatName(groupName.text),
       );
 
-      groupName.clear();
-
       router.chat(chat.chat.value.id);
-      // router.chatInfo(chat.chat.value.id, push: true, edit: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -627,10 +651,14 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    final List<RxChat> favorites = chats
-        .where((e) =>
-            e.chat.value.ongoingCall == null &&
-            e.chat.value.favoritePosition != null)
+    final List<ChatEntry> favorites = chats
+        .where(
+          (e) =>
+              e.chat.value.ongoingCall == null &&
+              e.chat.value.favoritePosition != null &&
+              !e.chat.value.isHidden &&
+              !e.hidden.value,
+        )
         .toList();
 
     double position;
@@ -658,37 +686,40 @@ class ChatsTabController extends GetxController {
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
 
-  void restore(ReversibleAction action) {
-    action.cancel();
-    undo.remove(action);
-  }
-
   final RxBool withPrices = RxBool(true);
 
-  void unwind(ReversibleAction action) {
-    if (action is HideReversibleAction) {
-      final index = chats.indexWhere((e) => e.id == action.chat.id);
+  /// Dismisses the [chat], adding it to the [dismissed].
+  void dismiss(RxChat chat) {
+    for (var e in List<DismissedChat>.from(dismissed, growable: false)) {
+      e._done(true);
+    }
+    dismissed.clear();
 
-      if (index != -1) {
-        final RxChat chat = chats.removeAt(index);
+    DismissedChat? entry;
 
-        action.onCancel = () {
-          chats.insert(index, chat);
-          undo.remove(action);
-        };
-
-        action.onDone = () {
-          // Uncomment to REALLY hide the chat.
-          // hideChat(action.chat.id);
-          undo.remove(action);
-        };
-
-        for (var e in List.from(undo, growable: false)) {
-          e.finish();
+    entry = DismissedChat(
+      chat,
+      onDone: (d) {
+        if (d) {
+          hideChat(chat.id);
+        } else {
+          for (var e in chats) {
+            if (e.id == chat.id) {
+              e.hidden.value = false;
+            }
+          }
         }
-        undo.clear();
 
-        undo.add(action..start());
+        dismissed.remove(entry!);
+      },
+    );
+
+    router.removeWhere((e) => chat.chat.value.isRoute(e, me));
+    dismissed.add(entry);
+
+    for (var e in chats) {
+      if (e.id == chat.id) {
+        e.hidden.value = true;
       }
     }
   }
@@ -709,9 +740,9 @@ class ChatsTabController extends GetxController {
         _userService,
         _contactService,
         _myUserService,
-        categories: const [
+        categories: [
           SearchCategory.recent,
-          SearchCategory.chat,
+          if (groupCreating.isFalse) SearchCategory.chat,
           SearchCategory.contact,
           SearchCategory.user,
         ],
@@ -798,17 +829,29 @@ class ChatsTabController extends GetxController {
   /// Requests the next page of [Chat]s based on the [ScrollController.position]
   /// value.
   void _scrollListener() {
-    if (scrollController.hasClients &&
-        hasNext.isTrue &&
-        _chatService.nextLoading.isFalse &&
-        scrollController.position.pixels >
-            scrollController.position.maxScrollExtent - 500) {
-      _chatService.next();
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (scrollController.hasClients &&
+            hasNext.isTrue &&
+            _chatService.nextLoading.isFalse &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 500) {
+          _chatService.next();
+        }
+      });
     }
   }
 
   /// Ensures the [ChatsTabView] is scrollable.
   Future<void> _ensureScrollable() async {
+    if (isClosed) {
+      return;
+    }
+
     if (hasNext.isTrue) {
       await Future.delayed(1.milliseconds, () async {
         if (isClosed) {
@@ -850,38 +893,62 @@ class ChatsTabController extends GetxController {
 }
 
 /// Container of data used to sort a [Chat].
-class _ChatSortingData {
-  /// Returns a [_ChatSortingData] capturing the provided [chat] changes to
+class ChatEntry implements Comparable<ChatEntry> {
+  /// Returns a [ChatEntry] capturing the provided [chat] changes to
   /// invoke a [sort] on [Chat.updatedAt] or [Chat.ongoingCall] updates.
-  _ChatSortingData(Rx<Chat> chat, [void Function()? sort]) {
-    updatedAt = chat.value.updatedAt;
-    hasCall = chat.value.ongoingCall != null;
+  ChatEntry(this._chat, [void Function()? sort]) {
+    _updatedAt = _chat.chat.value.updatedAt;
+    _hasCall = _chat.chat.value.ongoingCall != null;
 
-    worker = ever(
-      chat,
+    _worker = ever(
+      _chat.chat,
       (Chat chat) {
         bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != updatedAt || hasCall != this.hasCall) {
+        if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
           sort?.call();
-          updatedAt = chat.updatedAt;
-          this.hasCall = hasCall;
+          _updatedAt = chat.updatedAt;
+          _hasCall = hasCall;
         }
       },
     );
   }
 
-  /// Worker capturing the [Chat] changes to invoke sorting on [updatedAt] and
-  /// [hasCall] mismatches.
-  late final Worker worker;
+  /// [RxChat] itself.
+  final RxChat _chat;
+
+  /// Indicator whether this [ChatEntry] is hidden.
+  final RxBool hidden = RxBool(false);
+
+  /// Worker capturing the [Chat] changes to invoke sorting on [_updatedAt] and
+  /// [_hasCall] mismatches.
+  late final Worker _worker;
 
   /// Previously captured [Chat.updatedAt] value.
-  late PreciseDateTime updatedAt;
+  late PreciseDateTime _updatedAt;
 
   /// Previously captured indicator of [Chat.ongoingCall] being non-`null`.
-  late bool hasCall;
+  late bool _hasCall;
 
-  /// Disposes this [_ChatSortingData].
-  void dispose() => worker.dispose();
+  /// Returns the [RxChat] this [ChatEntry] represents.
+  RxChat get rx => _chat;
+
+  /// Returns value of a [Chat] this [ChatEntry] represents.
+  Rx<Chat> get chat => _chat.chat;
+
+  /// Returns a [ChatId] of the [chat].
+  ChatId get id => _chat.chat.value.id;
+
+  /// Returns observable list of [ChatItem]s of the [chat].
+  RxObsList<Rx<ChatItem>> get messages => _chat.messages;
+
+  /// Reactive map of [User]s being members of this [chat].
+  RxObsMap<UserId, RxUser> get members => _chat.members.items;
+
+  /// Disposes this [ChatEntry].
+  void dispose() => _worker.dispose();
+
+  @override
+  int compareTo(ChatEntry other) => _chat.compareTo(other._chat);
 }
 
 /// Element to display in a [ListView].
@@ -938,43 +1005,49 @@ class LoaderElement extends ListElement {
   const LoaderElement();
 }
 
-abstract class ReversibleAction {
-  ReversibleAction();
-
-  final RxInt remaining = RxInt(5000);
-
-  void Function()? onDone;
-  void Function()? onCancel;
-
-  Timer? _timer;
-
-  void start() {
+/// [RxChat] being dismissed.
+///
+/// Invokes the irreversible action (e.g. hiding the [chat]) when the
+/// [remaining] milliseconds have passed.
+class DismissedChat {
+  DismissedChat(this.chat, {void Function(bool)? onDone}) : _onDone = onDone {
     _timer = Timer.periodic(32.milliseconds, (t) {
       final value = remaining.value - 32;
 
       if (remaining.value <= 0) {
         remaining.value = 0;
-        finish();
+        _done(true);
       } else {
         remaining.value = value;
       }
     });
   }
 
-  void finish() {
-    onDone?.call();
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  void cancel() {
-    onCancel?.call();
-    _timer?.cancel();
-    _timer = null;
-  }
-}
-
-class HideReversibleAction extends ReversibleAction {
-  HideReversibleAction(this.chat);
+  /// [RxChat] itself.
   final RxChat chat;
+
+  /// Time in milliseconds before the [chat] invokes the irreversible action.
+  final RxInt remaining = RxInt(5000);
+
+  /// Callback, called when [_timer] is done counting the [remaining]
+  /// milliseconds.
+  final void Function(bool)? _onDone;
+
+  /// [Timer] counting milliseconds until the [remaining].
+  late final Timer _timer;
+
+  /// Indicator whether the [_done] was already invoked.
+  bool _invoked = false;
+
+  /// Cancels the dismissal.
+  void cancel() => _done();
+
+  /// Invokes the [_onDone] and cancels the [_timer].
+  void _done([bool done = false]) {
+    if (!_invoked) {
+      _invoked = true;
+      _onDone?.call(done);
+      _timer.cancel();
+    }
+  }
 }

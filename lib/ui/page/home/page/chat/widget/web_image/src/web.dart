@@ -25,6 +25,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '/domain/model/file.dart';
+import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
@@ -40,11 +42,23 @@ class WebImage extends StatefulWidget {
   const WebImage(
     this.src, {
     super.key,
+    this.width,
+    this.height,
+    this.thumbhash,
     this.onForbidden,
   });
 
   /// URL of the image to display.
   final String src;
+
+  /// Width of this [WebImage].
+  final double? width;
+
+  /// Height of this [WebImage].
+  final double? height;
+
+  /// [ThumbHash] of this [WebImage].
+  final ThumbHash? thumbhash;
 
   /// Callback, called when loading an image from the provided [src] fails with
   /// a forbidden network error.
@@ -95,10 +109,12 @@ class _WebImageState extends State<WebImage> {
             : MediaQuery.of(context).size.height,
         child: Stack(
           children: [
-            if (_loading)
+            if (_loading) ...[
+              _thumbhash(),
               const Positioned.fill(
                 child: Center(child: CircularProgressIndicator()),
               ),
+            ],
             if (!_backoffRunning)
               IgnorePointer(
                 child: _HtmlImage(
@@ -111,6 +127,30 @@ class _WebImageState extends State<WebImage> {
         ),
       );
     });
+  }
+
+  /// Returns [Image] representing the [WebImage.thumbhash].
+  Widget _thumbhash() {
+    if (widget.thumbhash == null) {
+      return const SizedBox();
+    }
+
+    Widget thumbhash = Image(
+      key: const Key('Thumbhash'),
+      image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
+      height: widget.height,
+      width: widget.width,
+      fit: BoxFit.fill,
+    );
+
+    if (widget.width != null && widget.height != null) {
+      thumbhash = AspectRatio(
+        aspectRatio: widget.width! / widget.height!,
+        child: Center(child: thumbhash),
+      );
+    }
+
+    return Positioned.fill(child: Center(child: thumbhash));
   }
 
   /// Loads the image header from the [WebImage.src] to ensure that image can be

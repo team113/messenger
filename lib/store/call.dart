@@ -277,13 +277,13 @@ class CallRepository extends DisposableInterface
   @override
   Future<Rx<OngoingCall>?> join(
     ChatId chatId,
-    ChatItemId? callId, {
+    ChatCall? call, {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
   }) async {
     Log.debug(
-      'join($chatId, $callId, $withAudio, $withVideo, $withScreen)',
+      'join($chatId, $call, $withAudio, $withVideo, $withScreen)',
       '$runtimeType',
     );
 
@@ -297,14 +297,15 @@ class CallRepository extends DisposableInterface
       }
 
       ChatCallCredentials? credentials;
-      if (callId != null) {
-        credentials = getCredentials(callId);
+      if (call != null) {
+        credentials = getCredentials(call.id);
       }
 
       ongoing = Rx<OngoingCall>(
         OngoingCall(
           chatId,
           me,
+          call: call,
           withAudio: withAudio,
           withVideo: withVideo,
           withScreen: withScreen,
@@ -621,6 +622,15 @@ class CallRepository extends DisposableInterface
         node.call.toModel(),
         node.user.toModel(),
         node.byUser.toModel(),
+      );
+    } else if (e.$$typename == 'EventChatCallMemberUndialed') {
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberUndialed;
+      return EventChatCallMemberUndialed(
+        node.callId,
+        node.chatId,
+        node.at,
+        node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
       final node = e

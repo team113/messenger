@@ -19,16 +19,14 @@ import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/auth.dart';
-import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
+import '/config.dart';
 import '/domain/repository/chat.dart';
-import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -37,8 +35,10 @@ import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -53,6 +53,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/recognizers.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
@@ -124,16 +125,6 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.groupCreating.value) {
-                      // child = SizedBox(
-                      //   width: double.infinity,
-                      //   height: double.infinity,
-                      //   child: Center(
-                      //     child: Text(
-                      //       'btn_create_group'.l10n,
-                      //       key: const Key('1'),
-                      //     ),
-                      //   ),
-                      // );
                       child = Theme(
                         data: MessageFieldView.theme(context),
                         child: Padding(
@@ -142,7 +133,7 @@ class ChatsTabView extends StatelessWidget {
                             offset: const Offset(0, 1),
                             child: ReactiveTextField(
                               state: c.groupName,
-                              hint: 'Название группы'.l10n,
+                              hint: 'label_group_name'.l10n,
                               maxLines: 1,
                               filled: false,
                               dense: true,
@@ -175,22 +166,24 @@ class ChatsTabView extends StatelessWidget {
                         synchronization = const SizedBox.shrink();
                       }
 
-                      child = Column(
-                        key: const Key('2'),
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          WidgetButton(
-                            onPressed: () {
-                              Get.find<AuthService>().renewSession();
-                            },
-                            child: Text('label_chats'.l10n),
-                          ),
-                          AnimatedSizeAndFade(
-                            sizeDuration: const Duration(milliseconds: 300),
-                            fadeDuration: const Duration(milliseconds: 300),
-                            child: synchronization,
-                          ),
-                        ],
+                      child = AllowOverflow(
+                        child: Column(
+                          key: const Key('2'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            WidgetButton(
+                              onPressed: () {
+                                Get.find<AuthService>().renewSession();
+                              },
+                              child: Text('label_chats'.l10n),
+                            ),
+                            AnimatedSizeAndFade(
+                              sizeDuration: const Duration(milliseconds: 300),
+                              fadeDuration: const Duration(milliseconds: 300),
+                              child: synchronization,
+                            ),
+                          ],
+                        ),
                       );
                     }
 
@@ -201,42 +194,34 @@ class ChatsTabView extends StatelessWidget {
                   }),
                   leading: [
                     Obx(() {
-                      final bool selected = c.chats.where((e) {
-                        final bool isHidden = e.chat.value.isHidden &&
-                            !e.chat.value.isRoute(router.route, c.me);
-
-                        return ((!e.id.isLocal ||
-                                e.messages.isNotEmpty ||
-                                e.chat.value.isMonolog) &&
-                            !isHidden);
-                      }).every(
-                        (e) => c.selectedChats.any((m) => m == e.id),
-                      );
-
                       if (c.selecting.value) {
-                        return WidgetButton(
-                          onPressed: () {
-                            final List<RxChat> chats = [];
-
-                            for (RxChat e in c.chats) {
-                              final bool isHidden = e.chat.value.isHidden &&
-                                  !e.chat.value.isRoute(router.route, c.me);
-
-                              if ((!e.id.isLocal ||
+                        final bool selected = c.chats.isNotEmpty &&
+                            c.chats.where((e) {
+                              return (!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !isHidden) {
-                                chats.add(e);
-                              }
-                            }
-
-                            bool selected = chats.every(
+                                  !e.chat.value.isHidden;
+                            }).every(
                               (e) => c.selectedChats.any((m) => m == e.id),
                             );
 
+                        return WidgetButton(
+                          onPressed: () {
                             if (selected) {
                               c.selectedChats.clear();
                             } else {
+                              final List<RxChat> chats = [];
+
+                              for (var e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    !e.hidden.value) {
+                                  chats.add(e.rx);
+                                }
+                              }
+
                               for (var e in chats) {
                                 if (!c.selectedChats.contains(e.id)) {
                                   c.selectChat(e);
@@ -247,38 +232,32 @@ class ChatsTabView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.only(left: 20, right: 6),
                             height: double.infinity,
-                            child: AnimatedButton(
-                              child: SelectedDot(
-                                selected: selected,
-                                inverted: false,
-                                outlined: !selected,
-                                size: 21,
-                              ),
+                            child: SelectedDot(
+                              selected: selected,
+                              inverted: false,
+                              outlined: !selected,
+                              size: 21,
                             ),
                           ),
                         );
                       }
 
                       return AnimatedButton(
-                        child: SafeAnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: WidgetButton(
-                            key: c.searching.value
-                                ? const Key('CloseSearchButton')
-                                : const Key('SearchButton'),
-                            onPressed: c.searching.value
-                                ? c.closeSearch
-                                : c.startSearch,
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.only(left: 20, right: 6),
-                              width: 46,
-                              height: double.infinity,
-                              child: Center(
-                                child: c.searching.value
-                                    ? const SvgIcon(SvgIcons.search)
-                                    : const SvgIcon(SvgIcons.search),
-                              ),
+                        child: WidgetButton(
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : const Key('SearchButton'),
+                          onPressed: c.searching.value
+                              ? () => c.closeSearch(c.groupCreating.isFalse)
+                              : () => c.startSearch(),
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 20, right: 6),
+                            width: 46,
+                            height: double.infinity,
+                            child: Center(
+                              child: c.searching.value
+                                  ? const SvgIcon(SvgIcons.search)
+                                  : const SvgIcon(SvgIcons.search),
                             ),
                           ),
                         ),
@@ -608,7 +587,7 @@ class ChatsTabView extends StatelessWidget {
                             }
 
                             if (i == c.elements.length - 1 &&
-                                c.search.value?.hasNext.value == true) {
+                                c.search.value?.hasNext == true) {
                               child = Column(
                                 children: [
                                   child,
@@ -737,7 +716,7 @@ class ChatsTabView extends StatelessWidget {
                               }
 
                               if (i == c.elements.length - 1) {
-                                if (c.search.value?.hasNext.value == true) {
+                                if (c.search.value?.hasNext == true) {
                                   child = Column(
                                     children: [
                                       child,
@@ -825,18 +804,19 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (RxChat e in c.chats) {
+                            for (var e in c.chats) {
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden) {
+                                  !e.chat.value.isHidden &&
+                                  !e.hidden.value) {
                                 if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e);
+                                  calls.add(e.rx);
                                 } else if (e.chat.value.favoritePosition !=
                                     null) {
-                                  favorites.add(e);
+                                  favorites.add(e.rx);
                                 } else {
-                                  chats.add(e);
+                                  chats.add(e.rx);
                                 }
                               }
                             }
@@ -850,7 +830,6 @@ class ChatsTabView extends StatelessWidget {
                               final bool selected =
                                   c.selectedChats.contains(e.id);
 
-                              // return Obx(() {
                               return RecentChatTile(
                                 e,
                                 key: e.chat.value.isMonolog
@@ -873,9 +852,7 @@ class ChatsTabView extends StatelessWidget {
                                 onLeave: e.chat.value.isMonolog
                                     ? null
                                     : () => c.leaveChat(e.id),
-                                onHide: () => c.hideChat(e.id),
-                                onDismiss: () =>
-                                    c.unwind(HideReversibleAction(e)),
+                                onHide: (clear) => c.hideChat(e.id, clear),
                                 inCall: () => c.containsCall(e.id),
                                 inContacts: e.chat.value.isDialog
                                     ? () => c.inContacts(e)
@@ -904,6 +881,7 @@ class ChatsTabView extends StatelessWidget {
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
                                     : null,
+                                onDismissed: () => c.dismiss(e),
                                 enableContextMenu: !c.selecting.value,
                                 trailing: c.selecting.value
                                     ? [
@@ -914,7 +892,6 @@ class ChatsTabView extends StatelessWidget {
                                       ]
                                     : null,
                               );
-                              // });
                             }
 
                             return CustomScrollView(
@@ -1075,7 +1052,9 @@ class ChatsTabView extends StatelessWidget {
                                         ...chats.mapIndexed((i, e) {
                                           return AnimationConfiguration
                                               .staggeredList(
-                                            position: i,
+                                            position: calls.length +
+                                                favorites.length +
+                                                i,
                                             duration: const Duration(
                                               milliseconds: 375,
                                             ),
@@ -1088,9 +1067,13 @@ class ChatsTabView extends StatelessWidget {
                                           );
                                         }),
                                         if (c.hasNext.isTrue)
-                                          const Center(
+                                          Center(
                                             child: CustomProgressIndicator(
-                                              key: Key('ChatsLoading'),
+                                              key: const Key('ChatsLoading'),
+                                              value: Config
+                                                      .disableInfiniteAnimations
+                                                  ? 0
+                                                  : null,
                                             ),
                                           ),
                                       ],
@@ -1114,67 +1097,146 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
-                bottomNavigationBar: Obx(() {
-                  if (c.groupCreating.value) {
-                    return BottomPaddedRow(
-                      children: [
-                        ShadowedRoundedButton(
-                          onPressed: c.closeGroupCreating,
-                          color: style.colors.onPrimary,
-                          title: Text(
-                            'btn_cancel'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                        ShadowedRoundedButton(
-                          onPressed: c.createGroup,
-                          color: style.colors.primary,
-                          title: Text(
-                            'btn_create_group'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  } else if (c.selecting.value) {
-                    return BottomPaddedRow(
-                      children: [
-                        ShadowedRoundedButton(
-                          onPressed: c.toggleSelecting,
-                          title: Text(
-                            'btn_cancel'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                        ShadowedRoundedButton(
-                          key: const Key('DeleteChats'),
-                          onPressed: c.selectedChats.isEmpty
-                              ? null
-                              : () => _hideChats(context, c),
-                          color: style.colors.primary,
-                          title: Text(
-                            'btn_delete_count'.l10nfmt({
-                              'count': c.selectedChats.length,
-                            }),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: c.selectedChats.isEmpty
-                                ? style.fonts.medium.regular.onBackground
-                                : style.fonts.medium.regular.onPrimary,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+                bottomNavigationBar: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(() {
+                      final Widget child;
+                      final action = c.dismissed.lastOrNull;
 
-                  return const SizedBox();
-                }),
+                      if (action == null) {
+                        child = const SizedBox(key: Key('NoDismissed'));
+                      } else {
+                        child = Padding(
+                          key: Key('Dismissed_${action.chat.id}'),
+                          padding: EdgeInsets.fromLTRB(
+                            10 + 10,
+                            0,
+                            10 + 10,
+                            72 + router.context!.mediaQueryViewPadding.bottom,
+                          ),
+                          child: WidgetButton(
+                            key: const Key('Restore'),
+                            onPressed: action.cancel,
+                            child: Container(
+                              key: Key('${action.chat.id}'),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: style.colors.primary.withOpacity(0.9),
+                                boxShadow: [
+                                  CustomBoxShadow(
+                                    blurRadius: 8,
+                                    color: style.colors.onBackgroundOpacity13,
+                                    blurStyle: BlurStyle.outer.workaround,
+                                  ),
+                                ],
+                              ),
+                              height: CustomNavigationBar.height,
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          value: action.remaining.value / 5000,
+                                          color: style.colors.onPrimary,
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${action.remaining.value ~/ 1000 + 1}',
+                                        style:
+                                            style.fonts.small.regular.onPrimary,
+                                      )
+                                    ],
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      'btn_undo_delete'.l10n,
+                                      style: style.fonts.big.regular.onPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      return SafeAnimatedSwitcher(
+                        duration: 200.milliseconds,
+                        child: child,
+                      );
+                    }),
+                    Obx(() {
+                      if (c.groupCreating.value) {
+                        return BottomPaddedRow(
+                          children: [
+                            ShadowedRoundedButton(
+                              onPressed: c.closeGroupCreating,
+                              color: style.colors.onPrimary,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onBackground,
+                              ),
+                            ),
+                            ShadowedRoundedButton(
+                              onPressed: c.createGroup,
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_create_group'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      } else if (c.selecting.value) {
+                        return BottomPaddedRow(
+                          children: [
+                            ShadowedRoundedButton(
+                              onPressed: c.toggleSelecting,
+                              child: Text(
+                                'btn_cancel'.l10n,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: style.fonts.medium.regular.onBackground,
+                              ),
+                            ),
+                            ShadowedRoundedButton(
+                              key: const Key('DeleteChats'),
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              color: style.colors.primary,
+                              child: Text(
+                                'btn_delete_count'.l10nfmt({
+                                  'count': c.selectedChats.length,
+                                }),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: c.selectedChats.isEmpty
+                                    ? style.fonts.medium.regular.onBackground
+                                    : style.fonts.medium.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return const SizedBox();
+                    }),
+                  ],
+                ),
               );
             }),
             Obx(() {
@@ -1196,84 +1258,6 @@ class ChatsTabView extends StatelessWidget {
                 child: child,
               );
             }),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Obx(() {
-                final Widget child;
-
-                if (c.undo.isEmpty) {
-                  child = const SizedBox();
-                } else {
-                  final ReversibleAction last = c.undo.last;
-                  if (last is HideReversibleAction) {
-                    child = Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        10 + 10,
-                        0,
-                        10 + 10,
-                        72 + MediaQuery.of(context).viewPadding.bottom,
-                      ),
-                      child: WidgetButton(
-                        onPressed: () => c.restore(last),
-                        child: Container(
-                          key: Key('${last.chat.id}'),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: style.colors.primary.withOpacity(0.9),
-                            boxShadow: [
-                              CustomBoxShadow(
-                                blurRadius: 8,
-                                color: style.colors.onBackgroundOpacity13,
-                                blurStyle: BlurStyle.outer.workaround,
-                              ),
-                            ],
-                          ),
-                          height: CustomNavigationBar.height,
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          child: Stack(
-                            alignment: Alignment.centerLeft,
-                            children: [
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      value: last.remaining.value / 5000,
-                                      color: style.colors.onPrimary,
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${last.remaining.value ~/ 1000 + 1}',
-                                    style: style.fonts.small.regular.onPrimary,
-                                  )
-                                ],
-                              ),
-                              Center(
-                                child: Text(
-                                  'Undo delete'.l10n,
-                                  style: style.fonts.big.regular.onPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  } else {
-                    child = const SizedBox();
-                  }
-                }
-
-                return SafeAnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: child,
-                );
-              }),
-            ),
           ],
         );
       },
@@ -1297,46 +1281,15 @@ class ChatsTabView extends StatelessWidget {
             selected: clear,
             tappable: true,
             radio: true,
+            // toggleable: true,
             onPressed: () => setState(() => clear = !clear),
           );
-          // return FieldButton(
-          //   text: 'btn_clear_history'.l10n,
-          //   onPressed: () => setState(() => clear = !clear),
-          //   trailing: SelectedDot(selected: clear, size: 22, inverted: false),
-          // );
         })
       ],
     );
 
     if (result == true) {
       await c.hideChats(clear);
-    }
-  }
-}
-
-/// [OneSequenceGestureRecognizer] rejecting the secondary mouse button events.
-class DisableSecondaryButtonRecognizer extends OneSequenceGestureRecognizer {
-  @override
-  String get debugDescription => 'DisableSecondaryButtonRecognizer';
-
-  @override
-  void didStopTrackingLastPointer(int pointer) {
-    // No-op.
-  }
-
-  @override
-  void handleEvent(PointerEvent event) {
-    // No-op.
-  }
-
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    startTrackingPointer(event.pointer);
-
-    if (event.buttons == kPrimaryButton) {
-      resolve(GestureDisposition.rejected);
-    } else {
-      resolve(GestureDisposition.accepted);
     }
   }
 }

@@ -20,23 +20,22 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/ui/page/home/widget/num.dart';
-import 'package:messenger/ui/page/login/controller.dart';
-import 'package:messenger/ui/page/login/view.dart';
-import 'package:messenger/ui/widget/download_button.dart';
-import 'package:messenger/util/message_popup.dart';
 import 'package:messenger/util/web/web_utils.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/num.dart';
+import '/ui/page/login/controller.dart';
+import '/ui/page/login/view.dart';
+import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -58,10 +57,12 @@ class IntroductionView extends StatelessWidget {
     BuildContext context, {
     IntroductionViewStage initial = IntroductionViewStage.oneTime,
   }) {
+    final style = Theme.of(context).style;
+
     return ModalPopup.show(
       context: context,
       background: initial == IntroductionViewStage.link
-          ? const Color(0xFFF0F2F4)
+          ? style.colors.background
           : null,
       child: IntroductionView(initial: initial),
     );
@@ -76,133 +77,10 @@ class IntroductionView extends StatelessWidget {
       init: IntroductionController(Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
-          final Widget? header;
+          final Widget header;
           final List<Widget> children;
 
           switch (c.stage.value) {
-            case IntroductionViewStage.link:
-              // header = null;
-
-              // header = const ModalPopupHeader(
-              //   text: 'Messenger by Gapopa',
-              //   close: false,
-              //   // header: Center(
-              //   //   child: Text(
-              //   //     'Messenger by Gapopa',
-              //   //     style: style.fonts.normal.regular.secondary,
-              //   //   ),
-              //   // ),
-              //   dense: false,
-              // );
-
-              final guestButton = Center(
-                child: OutlinedRoundedButton(
-                  key: const Key('StartButton'),
-                  maxWidth: 290,
-                  height: 46,
-                  leading: Transform.translate(
-                    offset: const Offset(4, 0),
-                    child: const SvgIcon(SvgIcons.oneTime),
-                  ),
-                  onPressed: Navigator.of(context).pop,
-                  child: Text('btn_guest'.l10n),
-                ),
-              );
-
-              final signInButton = Center(
-                child: OutlinedRoundedButton(
-                  key: const Key('SignInButton'),
-                  maxWidth: 290,
-                  height: 46,
-                  leading: Transform.translate(
-                    offset: const Offset(4, 0),
-                    child: const SvgIcon(SvgIcons.enter),
-                  ),
-                  onPressed: () =>
-                      LoginView.show(context, initial: LoginViewStage.signIn),
-                  child: Text('btn_sign_in'.l10n),
-                ),
-              );
-
-              final applicationButton = Center(
-                child: OutlinedRoundedButton(
-                  maxWidth: 290,
-                  height: 46,
-                  leading: const Padding(
-                    padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                    child: SvgIcon(SvgIcons.logo),
-                  ),
-                  onPressed: () async {
-                    await WebUtils.launchScheme('/d/${router.joinByLink}');
-                    if (context.mounted) {
-                      await _download(context);
-                    }
-                  },
-                  child: Text('label_application'.l10n),
-                ),
-              );
-
-              if (PlatformUtils.isMobile) {
-                header = const ModalPopupHeader(dense: true);
-                children = [
-                  const SizedBox(height: 8),
-                  guestButton,
-                  const SizedBox(height: 15),
-                  signInButton,
-                  if (PlatformUtils.isWeb) ...[
-                    const SizedBox(height: 15),
-                    applicationButton,
-                  ],
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Animate(
-                      effects: const [
-                        FadeEffect(
-                          delay: Duration(milliseconds: 0),
-                          duration: Duration(milliseconds: 2000),
-                        ),
-                        MoveEffect(
-                          delay: Duration(milliseconds: 0),
-                          begin: Offset(0, 100),
-                          end: Offset(0, 0),
-                          curve: Curves.ease,
-                          duration: Duration(milliseconds: 1000),
-                        ),
-                      ],
-                      child: Text(
-                        'Messenger by Gapopa',
-                        style: style.fonts.normal.regular.secondary,
-                      ),
-                    ),
-                  ),
-                ];
-              } else {
-                header = const ModalPopupHeader(
-                  text: 'Messenger by Gapopa',
-                  // header: Padding(
-                  //   padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
-                  //   child: Text(
-                  //     'Messenger by Gapopa',
-                  //     style: style.fonts.big.regular.onBackground,
-                  //     textAlign: TextAlign.center,
-                  //   ),
-                  // ),
-                  dense: false,
-                );
-                children = [
-                  const SizedBox(height: 8),
-                  if (true || PlatformUtils.isWeb) ...[
-                    applicationButton,
-                    const SizedBox(height: 15),
-                  ],
-                  guestButton,
-                  const SizedBox(height: 15),
-                  signInButton,
-                  const SizedBox(height: 16),
-                ];
-              }
-              break;
-
             case IntroductionViewStage.signUp:
               header = ModalPopupHeader(text: 'label_account_created'.l10n);
 
@@ -228,7 +106,7 @@ class IntroductionView extends StatelessWidget {
 
             case IntroductionViewStage.oneTime:
               header = ModalPopupHeader(
-                text: 'label_one_time_account_created'.l10n,
+                text: 'label_guest_account_created'.l10n,
               );
 
               children = [
@@ -274,6 +152,108 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 16),
               ];
               break;
+
+            case IntroductionViewStage.link:
+              final guestButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('StartButton'),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: const SvgIcon(SvgIcons.guest),
+                  ),
+                  onPressed: Navigator.of(context).pop,
+                  child: Text('btn_guest'.l10n),
+                ),
+              );
+
+              final signInButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('SignInButton'),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: Transform.translate(
+                    offset: const Offset(4, 0),
+                    child: const SvgIcon(SvgIcons.enter),
+                  ),
+                  onPressed: () =>
+                      LoginView.show(context, initial: LoginViewStage.signIn),
+                  child: Text('btn_sign_in'.l10n),
+                ),
+              );
+
+              final applicationButton = Center(
+                child: OutlinedRoundedButton(
+                  key: const Key('DownloadButton'),
+                  maxWidth: 290,
+                  height: 46,
+                  leading: const Padding(
+                    padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                    child: SvgIcon(SvgIcons.logo),
+                  ),
+                  onPressed: () async {
+                    await WebUtils.launchScheme('/d/${router.joinByLink}');
+                    if (context.mounted) {
+                      await _download(context);
+                    }
+                  },
+                  child: Text('label_application'.l10n),
+                ),
+              );
+
+              if (PlatformUtils.isMobile) {
+                header = const ModalPopupHeader(dense: true);
+                children = [
+                  const SizedBox(height: 8),
+                  guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
+                  if (PlatformUtils.isWeb) ...[
+                    const SizedBox(height: 15),
+                    applicationButton,
+                  ],
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Animate(
+                      effects: const [
+                        FadeEffect(
+                          delay: Duration(milliseconds: 0),
+                          duration: Duration(milliseconds: 2000),
+                        ),
+                        MoveEffect(
+                          delay: Duration(milliseconds: 0),
+                          begin: Offset(0, 100),
+                          end: Offset(0, 0),
+                          curve: Curves.ease,
+                          duration: Duration(milliseconds: 1000),
+                        ),
+                      ],
+                      child: Text(
+                        'label_messenger_by_gapopa'.l10n,
+                        style: style.fonts.normal.regular.secondary,
+                      ),
+                    ),
+                  ),
+                ];
+              } else {
+                header = ModalPopupHeader(
+                  text: 'label_messenger_by_gapopa'.l10n,
+                  dense: false,
+                );
+                children = [
+                  const SizedBox(height: 8),
+                  if (PlatformUtils.isWeb) ...[
+                    applicationButton,
+                    const SizedBox(height: 15),
+                  ],
+                  guestButton,
+                  const SizedBox(height: 15),
+                  signInButton,
+                  const SizedBox(height: 16),
+                ];
+              }
+              break;
           }
 
           return AnimatedSizeAndFade(
@@ -287,7 +267,7 @@ class IntroductionView extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [
-                  if (header != null) header,
+                  header,
                   ...children.map(
                     (e) => Padding(
                       padding: ModalPopup.padding(context),
@@ -352,41 +332,17 @@ class IntroductionView extends StatelessWidget {
               padding: ModalPopup.padding(context),
               shrinkWrap: true,
               children: const [
-                DownloadButton(
-                  asset: SvgIcons.windows,
-                  title: 'Windows',
-                  link: 'messenger-windows.zip',
-                ),
+                DownloadButton.windows(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.apple,
-                  title: 'macOS',
-                  link: 'messenger-macos.zip',
-                ),
+                DownloadButton.macos(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.linux,
-                  title: 'Linux',
-                  link: 'messenger-linux.zip',
-                ),
+                DownloadButton.linux(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.appStore,
-                  title: 'App Store',
-                  link: 'messenger-ios.zip',
-                ),
+                DownloadButton.appStore(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.googlePlay,
-                  title: 'Google Play',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.googlePlay(),
                 SizedBox(height: 8),
-                DownloadButton(
-                  asset: SvgIcons.android,
-                  title: 'Android',
-                  link: 'messenger-android.apk',
-                ),
+                DownloadButton.android(),
               ],
             ),
           ),

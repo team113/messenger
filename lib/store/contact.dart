@@ -30,7 +30,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
-import '/domain/repository/search.dart';
+import '/domain/repository/paginated.dart';
 import '/provider/gql/exceptions.dart' show StaleVersionException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
@@ -47,10 +47,10 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'paginated.dart';
 import 'pagination/combined_pagination.dart';
-import 'pagination/hive.dart';
 import 'pagination/hive_graphql.dart';
-import 'search.dart';
+import 'pagination/hive.dart';
 import 'user.dart';
 
 /// Implementation of an [AbstractContactRepository].
@@ -271,7 +271,7 @@ class ContactRepository extends DisposableInterface
   }
 
   @override
-  SearchResult<ChatContactId, RxChatContact> search({
+  Paginated<ChatContactId, RxChatContact> search({
     UserName? name,
     UserEmail? email,
     UserPhone? phone,
@@ -279,7 +279,7 @@ class ContactRepository extends DisposableInterface
     Log.debug('search($name, $email, $phone)', '$runtimeType');
 
     if (name == null && email == null && phone == null) {
-      return SearchResultImpl();
+      return PaginatedImpl();
     }
 
     Pagination<RxChatContact, ChatContactsCursor, ChatContactId>? pagination;
@@ -316,8 +316,7 @@ class ContactRepository extends DisposableInterface
       return {};
     }
 
-    final SearchResultImpl<ChatContactId, RxChatContact> searchResult =
-        SearchResultImpl(
+    return PaginatedImpl(
       pagination: pagination,
       initial: [
         {for (var u in contacts) u.id: u},
@@ -325,8 +324,6 @@ class ContactRepository extends DisposableInterface
         if (phone != null) searchByPhone(phone).then(toMap),
       ],
     );
-
-    return searchResult;
   }
 
   @override
@@ -535,7 +532,7 @@ class ContactRepository extends DisposableInterface
     final HiveRxChatContact? saved = contacts[contactId];
 
     if (saved != null) {
-      if (saved.ver >= contact.ver) {
+      if (saved.ver > contact.ver) {
         if (pagination) {
           paginated[contactId] ??= saved;
         } else {
@@ -665,7 +662,7 @@ class ContactRepository extends DisposableInterface
 
       case ChatContactsEventsKind.event:
         final versioned = (event as ChatContactsEventsEvent).event;
-        if (versioned.listVer <= _sessionLocal.getChatContactsListVersion()) {
+        if (versioned.listVer < _sessionLocal.getChatContactsListVersion()) {
           Log.debug(
             '_contactRemoteEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
             '$runtimeType',

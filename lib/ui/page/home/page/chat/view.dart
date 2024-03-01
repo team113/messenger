@@ -40,8 +40,10 @@ import 'package:messenger/ui/widget/selected_dot.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/message_popup.dart';
 
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -51,14 +53,21 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'forward/view.dart';
@@ -69,6 +78,7 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
+import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/paid_notification.dart';
 import 'widget/square_button.dart';
@@ -146,7 +156,7 @@ class ChatView extends StatelessWidget {
               ),
               body: const Center(child: CustomProgressIndicator.primary()),
               bottomNavigationBar: Padding(
-                padding: const EdgeInsets.only(bottom: 4),
+                padding: Insets.dense.copyWith(top: 0),
                 child: _bottomBar(c, context),
               ),
             );
@@ -156,7 +166,7 @@ class ChatView extends StatelessWidget {
           final bool hasCall = c.chat?.chat.value.ongoingCall != null;
 
           return CustomDropTarget(
-            key: Key('ChatView_${id}'),
+            key: Key('ChatView_$id'),
             onDragDone: (details) => c.dropFiles(details),
             onDragEntered: (_) => c.isDraggingFiles.value = true,
             onDragExited: (_) => c.isDraggingFiles.value = false,
@@ -201,32 +211,31 @@ class ChatView extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Obx(() {
-                                        return Row(
-                                          children: [
-                                            Flexible(
-                                              child: Text(
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Obx(() {
+                                              return Text(
                                                 c.chat!.title.value,
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
-                                              ),
-                                            ),
-                                            Obx(() {
-                                              if (c.chat?.chat.value.muted ==
-                                                  null) {
-                                                return const SizedBox();
-                                              }
-
-                                              return const Padding(
-                                                padding:
-                                                    EdgeInsets.only(left: 5),
-                                                child: SvgIcon(SvgIcons.muted),
                                               );
                                             }),
-                                          ],
-                                        );
-                                      }),
-                                      if (!isMonolog && c.chat != null)
+                                          ),
+                                          Obx(() {
+                                            if (c.chat?.chat.value.muted ==
+                                                null) {
+                                              return const SizedBox();
+                                            }
+
+                                            return const Padding(
+                                              padding: EdgeInsets.only(left: 5),
+                                              child: SvgIcon(SvgIcons.muted),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                      if (!isMonolog)
                                         ChatSubtitle(c.chat!, c.me),
                                     ],
                                   ),
@@ -653,8 +662,7 @@ class ChatView extends StatelessWidget {
                                               }
 
                                               c.animateTo(
-                                                c.pinned[c.displayPinned.value]
-                                                    .id,
+                                                c.pinned[c.displayPinned.value],
                                               );
                                             },
                                             child: Padding(
@@ -1162,8 +1170,8 @@ class ChatView extends StatelessWidget {
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlightIndex.value == i || c.selected.contains(element),
+              highlight: c.highlighted.value == element.id ||
+                  c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
                 context,
@@ -1177,7 +1185,7 @@ class ChatView extends StatelessWidget {
                   me: c.me!,
                   paid: c.paid,
                   avatar: !previousSame,
-                  reads: c.chat!.members.length > 10
+                  reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where((m) =>
                           m.at == e.value.at &&
@@ -1208,7 +1216,7 @@ class ChatView extends StatelessWidget {
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(q.original!.id);
+                      await c.animateTo(e.value, reply: q);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -1222,7 +1230,10 @@ class ChatView extends StatelessWidget {
                   onDownload: c.downloadMedia,
                   onDownloadAs: c.downloadMediaAs,
                   onSave: (a) => c.saveToGallery(a, e.value),
-                  onSelect: c.selecting.toggle,
+                  onSelect: () {
+                    c.selecting.toggle();
+                    c.selected.add(element);
+                  },
                   pinned: c.pinned.contains(e.value),
                   onPin: () {
                     c.pinned.contains(e.value)
@@ -1248,8 +1259,8 @@ class ChatView extends StatelessWidget {
           future: user is Future<RxUser?> ? user : null,
           builder: (_, snapshot) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlightIndex.value == i || c.selected.contains(element),
+              highlight: c.highlighted.value == element.id ||
+                  c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
                 context,
@@ -1264,7 +1275,7 @@ class ChatView extends StatelessWidget {
                   authorId: element.authorId,
                   me: c.me!,
                   paid: c.paid,
-                  reads: c.chat!.members.length > 10
+                  reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where((m) =>
                           m.at == element.forwards.last.value.at &&
@@ -1299,22 +1310,24 @@ class ChatView extends StatelessWidget {
                     await Future.wait(futures);
                   },
                   onReply: () {
+                    final MessageFieldController field = c.edit.value ?? c.send;
+
                     if (element.forwards.any((e) =>
-                            c.send.replied.any((i) => i.id == e.value.id)) ||
-                        c.send.replied
+                            field.replied.any((i) => i.id == e.value.id)) ||
+                        field.replied
                             .any((i) => i.id == element.note.value?.value.id)) {
                       for (Rx<ChatItem> e in element.forwards) {
-                        c.send.replied.removeWhere((i) => i.id == e.value.id);
+                        field.replied.removeWhere((i) => i.id == e.value.id);
                       }
 
                       if (element.note.value != null) {
-                        c.send.replied.removeWhere(
+                        field.replied.removeWhere(
                           (i) => i.id == element.note.value!.value.id,
                         );
                       }
                     } else {
                       if (element.note.value != null) {
-                        c.send.replied.insert(0, element.note.value!.value);
+                        field.replied.insert(0, element.note.value!.value);
                       }
 
                       for (Rx<ChatItem> e in element.forwards) {
@@ -1331,14 +1344,14 @@ class ChatView extends StatelessWidget {
                   },
                   onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
-                  onForwardedTap: (quote) {
-                    if (quote.original != null) {
-                      if (quote.original!.chatId == c.id) {
-                        c.animateTo(quote.original!.id);
+                  onForwardedTap: (item) {
+                    if (item.quote.original != null) {
+                      if (item.quote.original!.chatId == c.id) {
+                        c.animateTo(item, forward: item.quote);
                       } else {
                         router.chat(
-                          quote.original!.chatId,
-                          itemId: quote.original!.id,
+                          item.quote.original!.chatId,
+                          itemId: item.quote.original!.id,
                           push: true,
                         );
                       }
@@ -1355,7 +1368,10 @@ class ChatView extends StatelessWidget {
 
                     await Future.delayed(Duration.zero);
                   },
-                  onSelect: c.selecting.toggle,
+                  onSelect: () {
+                    c.selecting.toggle();
+                    c.selected.add(element);
+                  },
                   pinned: c.pinned.contains(element.forwards.first.value),
                   onPin: () {
                     c.pinned.contains(element.forwards.first.value)
@@ -1772,7 +1788,7 @@ class ChatView extends StatelessWidget {
                             c.unpin();
 
                             if (c.pinned.isNotEmpty) {
-                              c.animateTo(c.pinned[c.displayPinned.value].id);
+                              c.animateTo(c.pinned[c.displayPinned.value]);
                             }
                           }
                         : null,
@@ -2149,32 +2165,25 @@ class ChatView extends StatelessWidget {
               key: const Key('EditField'),
               controller: c.edit.value,
               onChanged:
-                  c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-              onItemPressed: (id) =>
-                  c.animateTo(id, offsetBasedOnBottom: false),
+                  c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
+              onItemPressed: (item) => c.animateTo(item, addToHistory: false),
             ),
           ),
         );
       }
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8),
-            child: SafeArea(
-              child: MessageFieldView(
-                key: const Key('SendField'),
-                controller: c.send,
-                onChanged:
-                    c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
-                onItemPressed: (id) =>
-                    c.animateTo(id, offsetBasedOnBottom: false),
-                canForward: true,
-              ),
-            ),
+      return Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8),
+        child: SafeArea(
+          child: MessageFieldView(
+            key: const Key('SendField'),
+            controller: c.send,
+            onChanged:
+                c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
+            onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+            canForward: true,
           ),
-        ],
+        ),
       );
     });
   }

@@ -130,14 +130,14 @@ class CallService extends DisposableService {
       final RxChat? chat =
           chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
 
-      final ChatItemId? callId = chat?.chat.value.ongoingCall?.id;
+      final ChatCall? chatCall = chat?.chat.value.ongoingCall;
 
       Rx<OngoingCall>? call;
 
       try {
         call = await _callsRepo.join(
           chatId,
-          callId,
+          chatCall,
           withAudio: withAudio,
           withVideo: withVideo,
           withScreen: withScreen,
@@ -146,7 +146,7 @@ class CallService extends DisposableService {
         await _callsRepo.leave(chatId, e.deviceId);
         call = await _callsRepo.join(
           chatId,
-          callId,
+          chatCall,
           withAudio: withAudio,
           withVideo: withVideo,
           withScreen: withScreen,

@@ -102,7 +102,7 @@ class ButtonsSection {
         ),
         child: ShadowedRoundedButton(
           onPressed: () {},
-          title: const Text('Label'),
+          child: const Text('Label'),
         ),
       ),
       Headline(

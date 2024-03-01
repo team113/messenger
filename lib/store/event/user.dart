@@ -18,8 +18,8 @@
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/provider/hive/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
@@ -29,6 +29,8 @@ import 'my_user.dart' show BlocklistEvent;
 enum UserEventKind {
   avatarDeleted,
   avatarUpdated,
+  bioDeleted,
+  bioUpdated,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
@@ -151,7 +153,7 @@ class UserEventsUser extends UserEvents {
   UserEventsKind get kind => UserEventsKind.user;
 }
 
-/// Events happening with an [User].
+/// Events happening with a [User].
 abstract class UserEvent {
   const UserEvent(this.userId);
 
@@ -162,7 +164,7 @@ abstract class UserEvent {
   UserEventKind get kind;
 }
 
-/// Event of an [UserAvatar] being deleted.
+/// Event of a [UserAvatar] being deleted.
 class EventUserAvatarDeleted extends UserEvent {
   const EventUserAvatarDeleted(super.userId, this.at);
 
@@ -173,7 +175,7 @@ class EventUserAvatarDeleted extends UserEvent {
   UserEventKind get kind => UserEventKind.avatarDeleted;
 }
 
-/// Event of an [UserAvatar] being updated.
+/// Event of a [UserAvatar] being updated.
 class EventUserAvatarUpdated extends UserEvent {
   const EventUserAvatarUpdated(super.userId, this.avatar, this.at);
 
@@ -187,7 +189,32 @@ class EventUserAvatarUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.avatarUpdated;
 }
 
-/// Event of an [UserCallCover] being deleted.
+/// Event of a [UserBio] being deleted.
+class EventUserBioDeleted extends UserEvent {
+  const EventUserBioDeleted(super.userId, this.at);
+
+  /// [PreciseDateTime] when the [UserBio] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  UserEventKind get kind => UserEventKind.bioDeleted;
+}
+
+/// Event of a [UserBio] being updated.
+class EventUserBioUpdated extends UserEvent {
+  const EventUserBioUpdated(super.userId, this.bio, this.at);
+
+  /// New [UserBio].
+  final UserBio bio;
+
+  /// [PreciseDateTime] when the [UserBio] was updated.
+  final PreciseDateTime at;
+
+  @override
+  UserEventKind get kind => UserEventKind.bioUpdated;
+}
+
+/// Event of a [UserCallCover] being deleted.
 class EventUserCallCoverDeleted extends UserEvent {
   const EventUserCallCoverDeleted(super.userId, this.at);
 
@@ -198,7 +225,7 @@ class EventUserCallCoverDeleted extends UserEvent {
   UserEventKind get kind => UserEventKind.callCoverDeleted;
 }
 
-/// Event of an [UserCallCover] being updated.
+/// Event of a [UserCallCover] being updated.
 class EventUserCallCoverUpdated extends UserEvent {
   const EventUserCallCoverUpdated(super.userId, this.callCover, this.at);
 
@@ -212,7 +239,7 @@ class EventUserCallCoverUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.callCoverUpdated;
 }
 
-/// Event of an [User] coming offline.
+/// Event of a [User] coming offline.
 class EventUserCameOffline extends UserEvent {
   const EventUserCameOffline(super.userId, this.at);
 
@@ -223,7 +250,7 @@ class EventUserCameOffline extends UserEvent {
   UserEventKind get kind => UserEventKind.cameOffline;
 }
 
-/// Event of an [User] coming online.
+/// Event of a [User] coming online.
 class EventUserCameOnline extends UserEvent {
   const EventUserCameOnline(super.userId);
 
@@ -231,7 +258,7 @@ class EventUserCameOnline extends UserEvent {
   UserEventKind get kind => UserEventKind.cameOnline;
 }
 
-/// Event of an [User] being deleted.
+/// Event of a [User] being deleted.
 class EventUserDeleted extends UserEvent {
   const EventUserDeleted(super.userId, this.at);
 
@@ -242,7 +269,7 @@ class EventUserDeleted extends UserEvent {
   UserEventKind get kind => UserEventKind.userDeleted;
 }
 
-/// Event of an [UserName] being deleted.
+/// Event of a [UserName] being deleted.
 class EventUserNameDeleted extends UserEvent {
   const EventUserNameDeleted(super.userId, this.at);
 
@@ -253,7 +280,7 @@ class EventUserNameDeleted extends UserEvent {
   UserEventKind get kind => UserEventKind.nameDeleted;
 }
 
-/// Event of an [UserName] being updated.
+/// Event of a [UserName] being updated.
 class EventUserNameUpdated extends UserEvent {
   const EventUserNameUpdated(super.userId, this.name, this.at);
 
@@ -267,7 +294,7 @@ class EventUserNameUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.nameUpdated;
 }
 
-/// Event of an [User]'s [Presence] being updated.
+/// Event of a [User]'s [Presence] being updated.
 class EventUserPresenceUpdated extends UserEvent {
   const EventUserPresenceUpdated(super.userId, this.presence, this.at);
 
@@ -281,7 +308,7 @@ class EventUserPresenceUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.presenceUpdated;
 }
 
-/// Event of an [UserTextStatus] being deleted.
+/// Event of a [UserTextStatus] being deleted.
 class EventUserStatusDeleted extends UserEvent {
   const EventUserStatusDeleted(super.userId, this.at);
 
@@ -292,7 +319,7 @@ class EventUserStatusDeleted extends UserEvent {
   UserEventKind get kind => UserEventKind.statusDeleted;
 }
 
-/// Event of an [UserTextStatus] being updated.
+/// Event of a [UserTextStatus] being updated.
 class EventUserStatusUpdated extends UserEvent {
   const EventUserStatusUpdated(super.userId, this.status, this.at);
 
