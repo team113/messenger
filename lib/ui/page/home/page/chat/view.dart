@@ -315,7 +315,9 @@ class ChatView extends StatelessWidget {
                                 final bool favorite =
                                     c.chat?.chat.value.favoritePosition != null;
 
-                                final bool contact = c.inContacts.value;
+                                final bool contact =
+                                    c.user?.user.value.contacts.isNotEmpty ??
+                                        false;
 
                                 final Widget child;
 

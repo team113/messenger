@@ -44,7 +44,7 @@ class DummyRxUser extends RxUser {
 
   @override
   Stream<void> get updates => const Stream.empty();
-  
+
   @override
   Rx<RxChatContact?> get contact => Rx(null);
 }

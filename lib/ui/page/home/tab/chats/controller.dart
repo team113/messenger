@@ -482,15 +482,13 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    final UserId? userId =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.id;
-    if (userId == null) {
+    final RxUser? user =
+        chat.members.values.firstWhereOrNull((e) => e.id != me);
+    if (user == null) {
       return false;
     }
 
-    return _contactService.contacts.values.any((e) =>
-        e.contact.value.users.length == 1 &&
-        e.contact.value.users.every((m) => m.id == userId));
+    return user.user.value.contacts.isNotEmpty;
   }
 
   /// Adds the [User] from this [chat] to the contacts list of the authenticated
