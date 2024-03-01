@@ -523,21 +523,16 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
-    if (user == null) {
-      return;
-    }
-
     try {
-      final RxChatContact? contact =
-          _contactService.contacts.values.firstWhereOrNull(
-        (e) =>
-            e.contact.value.users.length == 1 &&
-            e.contact.value.users.every((m) => m.id == user.id),
-      );
-      if (contact != null) {
-        await _contactService.deleteContact(contact.contact.value.id);
+      final ChatContactId? contactId = chat.members.values
+          .firstWhereOrNull((e) => e.id != me)
+          ?.user
+          .value
+          .contacts
+          .firstOrNull;
+
+      if (contactId != null) {
+        await _contactService.deleteContact(contactId);
       }
     } catch (e) {
       MessagePopup.error(e);

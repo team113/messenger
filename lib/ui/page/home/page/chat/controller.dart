@@ -45,6 +45,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -56,7 +57,6 @@ import '/domain/repository/call.dart'
         CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
@@ -1264,11 +1264,11 @@ class ChatController extends GetxController {
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
     try {
-      final RxChatContact? contact =
-          _contactService.contacts.values.firstWhereOrNull(
-        (e) => e.contact.value.users.every((m) => m.id == user?.id),
-      );
-      await _contactService.deleteContact(contact!.contact.value.id);
+      final ChatContactId? contactId = user?.user.value.contacts.firstOrNull;
+
+      if (contactId != null) {
+        await _contactService.deleteContact(contactId);
+      }
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
