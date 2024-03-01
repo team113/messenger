@@ -76,9 +76,7 @@ abstract class RxUser {
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;
 
-  /// States that this [user] should get its updates.
-  void listenUpdates();
-
-  /// States that updates of this [user] are no longer required.
-  void stopUpdates();
+  /// Listens to the updates of this [RxUser] while the returned [Stream] is
+  /// listened to.
+  Stream<void> get updates;
 }

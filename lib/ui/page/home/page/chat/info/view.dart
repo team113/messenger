@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -258,7 +259,8 @@ class ChatInfoView extends StatelessWidget {
   Widget _members(ChatInfoController c, BuildContext context) {
     return Block(
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-      title: 'label_participants'.l10nfmt({'count': c.chat!.members.length}),
+      title: 'label_participants'
+          .l10nfmt({'count': c.chat!.chat.value.membersCount}),
       overlay: [
         Positioned(
           top: 0,
@@ -276,11 +278,11 @@ class ChatInfoView extends StatelessWidget {
       ],
       children: [
         Obx(() {
-          final RxUser? me = c.chat!.members[c.me];
+          final RxUser? me = c.chat!.members.items[c.me];
           final List<RxUser> members = [];
 
-          for (var u in c.chat!.members.entries) {
-            if (u.key != c.me) {
+          for (var u in c.chat!.members.items.entries) {
+            if (u.key != c.me && !c.membersOnRemoval.contains(u.key)) {
               members.add(u.value);
             }
           }
@@ -292,31 +294,67 @@ class ChatInfoView extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ...members.map((e) {
-                final bool inCall = c.chat?.chat.value.ongoingCall?.members
-                        .any((u) => u.user.id == e.id) ==
-                    true;
+              if (members.isEmpty)
+                CustomProgressIndicator(
+                  value: Config.disableInfiniteAnimations ? 0 : null,
+                ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 500),
+                child: Scrollbar(
+                  controller: c.membersScrollController,
+                  child: ListView.builder(
+                    key: const Key('ChatMembers'),
+                    controller: c.membersScrollController,
+                    shrinkWrap: true,
+                    itemBuilder: (_, i) {
+                      final RxUser member = members[i];
 
-                return MemberTile(
-                  user: e,
-                  me: e.id == c.me,
-                  inCall: c.chat?.chat.value.ongoingCall == null
-                      ? null
-                      : e.id == c.me
-                          ? c.chat?.inCall.value == true
-                          : inCall,
-                  onTap: () => router.chat(e.user.value.dialog, push: true),
-                  onCall: inCall
-                      ? () => c.removeChatCallMember(e.id)
-                      : e.id == c.me
-                          ? c.joinCall
-                          : () => c.redialChatCallMember(e.id),
-                  onKick: () => c.removeChatMember(e.id),
-                );
-              }),
+                      final bool inCall = c
+                              .chat?.chat.value.ongoingCall?.members
+                              .any((u) => u.user.id == member.id) ==
+                          true;
+
+                      Widget child = Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: MemberTile(
+                          user: member,
+                          me: member.id == c.me,
+                          inCall: c.chat?.chat.value.ongoingCall == null
+                              ? null
+                              : member.id == c.me
+                                  ? c.chat?.inCall.value == true
+                                  : inCall,
+                          onTap: () =>
+                              router.chat(member.user.value.dialog, push: true),
+                          onCall: inCall
+                              ? () => c.removeChatCallMember(member.id)
+                              : member.id == c.me
+                                  ? c.joinCall
+                                  : () => c.redialChatCallMember(member.id),
+                          onKick: () => c.removeChatMember(member.id),
+                        ),
+                      );
+
+                      if (i == members.length - 1 && c.haveNext.isTrue) {
+                        child = Column(
+                          children: [
+                            child,
+                            const CustomProgressIndicator(
+                              key: Key('MembersLoading'),
+                            )
+                          ],
+                        );
+                      }
+
+                      return child;
+                    },
+                    itemCount: members.length,
+                  ),
+                ),
+              ),
             ],
           );
-        })
+        }),
       ],
     );
   }

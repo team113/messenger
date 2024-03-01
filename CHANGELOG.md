@@ -19,7 +19,13 @@ All user visible changes to this project will be documented in this file. This p
     - User page:
         - Redesigned editing mode and actions. ([#868])
 
+### Fixed
+
+- Web:
+    - Missing blurred image previews in gallery. ([#880])
+
 [#868]: /../../pull/868
+[#880]: /../../pull/880
 
 
 

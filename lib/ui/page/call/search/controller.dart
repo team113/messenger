@@ -589,7 +589,7 @@ class SearchController extends GetxController {
       bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
-      bool isMember(RxUser u) => chat?.members.containsKey(u.id) ?? false;
+      bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
 
       final Iterable<RxUser> filtered = allChats
@@ -621,11 +621,11 @@ class SearchController extends GetxController {
 
       // Predicates to filter the [allContacts] by.
       bool isMember(RxChatContact c) =>
-          chat?.members.containsKey(c.user.value!.id) ?? false;
+          chat?.members.items.containsKey(c.user.value!.id) ?? false;
       bool inRecent(RxChatContact c) => recent.containsKey(c.user.value!.id);
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
-          chat.members.containsKey(c.user.value!.id));
+          chat.members.items.containsKey(c.user.value!.id));
       bool matchesQuery(RxChatContact c) =>
           _matchesQuery(user: c.user.value?.user.value);
 
@@ -666,11 +666,12 @@ class SearchController extends GetxController {
 
       // Predicates to filter [User]s by.
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
-      bool isMember(RxUser u) => chat?.members.containsKey(u.id) ?? false;
+      bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool inRecent(RxUser u) => recent.containsKey(u.id);
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
-      bool inChats(RxUser u) => chats.values
-          .any((c) => c.chat.value.isDialog && c.members.containsKey(u.id));
+      bool inChats(RxUser u) => chats.values.any(
+            (c) => c.chat.value.isDialog && c.members.items.containsKey(u.id),
+          );
       bool hasRemoteDialog(RxUser u) => !u.user.value.dialog.isLocal;
 
       RxUser? toUser(RxChat c) =>

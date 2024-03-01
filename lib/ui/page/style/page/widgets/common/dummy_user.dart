@@ -31,12 +31,6 @@ class DummyRxUser extends RxUser {
   Rx<RxChat?> get dialog => Rx(null);
 
   @override
-  void listenUpdates() {}
-
-  @override
-  void stopUpdates() {}
-
-  @override
   Rx<User> get user => Rx(
         User(
           const UserId('me'),
@@ -48,6 +42,9 @@ class DummyRxUser extends RxUser {
   @override
   Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());
 
+  @override
+  Stream<void> get updates => const Stream.empty();
+  
   @override
   Rx<RxChatContact?> get contact => Rx(null);
 }
