@@ -79,7 +79,7 @@ jobs:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2.12
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
