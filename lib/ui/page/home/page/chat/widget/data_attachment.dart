@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
+
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
@@ -26,7 +27,6 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
-import '/util/attachment_size_utils.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -237,7 +237,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                           Text(
                             e.original.size == null
                                 ? 'dot'.l10n * 3
-                                : FileUtils.formatSize(bytes: e.original.size!),
+                                : e.original.size!.asBytes,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: style.fonts.small.regular.secondary,

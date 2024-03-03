@@ -52,7 +52,6 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/chat_button.dart';
 import 'widget/close_button.dart';
-import '/util/attachment_size_utils.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
 class MessageFieldView extends StatelessWidget {
@@ -666,7 +665,7 @@ class MessageFieldView extends StatelessWidget {
               child: Text(
                 e.original.size == null
                     ? 'dot'.l10n * 3
-                    : FileUtils.formatSize(bytes: e.original.size!),
+                    : e.original.size!.asBytes,
                 style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,

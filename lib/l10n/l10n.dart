@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
@@ -282,5 +283,39 @@ extension L10nDurationExtension on Duration {
     }
 
     return result;
+  }
+}
+
+/// A list of labels used for byte size formatting.
+List<String> byteLabels = [
+  'label_b'.l10n, // Byte label
+  'label_kb'.l10n, // Kilobyte label
+  'label_mb'.l10n, // Megabyte label
+  'label_gb'.l10n, // Gigabyte label
+  'label_tb'.l10n, // Terabyte label
+  'label_pb'.l10n, // Petabyte label
+];
+
+/// Extension on [int] to provide a convenient method for formatting sizes in bytes.
+extension IntExtension on int {
+  /// Converts the integer value to a human-readable byte size string.
+  ///
+  /// Returns a formatted string representing the size in bytes, kilobytes, megabytes, etc.
+  /// The format is determined based on the magnitude of the size.
+  ///
+  /// Throws [ArgumentError] if the size is a negative integer.
+  String get asBytes {
+    if (this == 0) {
+      return '0${byteLabels[0]}';
+    }
+
+    if (this < 0) {
+      throw ArgumentError('Size must be a non-negative integer.');
+    }
+
+    final i = (log(this) / log(1024)).floor();
+    final sizeValue = this / pow(1024, i);
+
+    return '${i == 0 ? sizeValue.round() : sizeValue.toStringAsFixed(1)}${byteLabels[i]}';
   }
 }
