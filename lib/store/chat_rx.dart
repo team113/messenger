@@ -754,10 +754,16 @@ class HiveRxChat extends RxChat {
         ?.items[itemId];
     item ??= await _local.get(itemId);
 
-    try {
-      item ??= await _chatRepository.message(itemId);
-    } catch (_) {
-      // No-op.
+    if (item == null) {
+      try {
+        item = await _chatRepository.message(itemId);
+      } catch (_) {
+        // No-op.
+      }
+
+      if (item != null) {
+        await put(item);
+      }
     }
 
     return item;
@@ -1129,12 +1135,7 @@ class HiveRxChat extends RxChat {
         },
         pagination: Pagination(
           onKey: (e) => e.value.id,
-          provider: HiveGraphQlPageProvider(
-            hiveProvider: _provider.hiveProvider.copyWith(
-              readOnly: !_local.keys.contains(key),
-            ),
-            graphQlProvider: _provider.graphQlProvider,
-          ),
+          provider: _provider,
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
         onDispose: () {
