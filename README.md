@@ -1,6 +1,8 @@
 Messenger by team113
 ====================
 
+Project: https://gapopa.com
+
 Docs: [main](https://team113.github.io/messenger/main/) ([release](https://team113.github.io/messenger/release/))
 [Changelog](https://github.com/team113/messenger/blob/main/CHANGELOG.md)
 [Contribution Guide](https://github.com/team113/messenger/blob/main/CONTRIBUTING.md)
