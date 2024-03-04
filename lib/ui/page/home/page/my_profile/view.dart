@@ -25,12 +25,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/application_settings.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/main.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
@@ -114,6 +116,7 @@ class MyProfileView extends StatelessWidget {
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -2051,6 +2054,13 @@ Widget _storage(BuildContext context, MyProfileController c) {
           text: 'btn_clear_cache'.l10n,
           style: style.fonts.normal.regular.primary,
         ),
+        const SizedBox(height: 8),
+        FieldButton(
+          text: 'Очистить все данные'.l10n,
+          onPressed: () => _clearCache(c, context),
+          danger: true,
+          style: style.fonts.normal.regular.danger,
+        ),
       ],
     ),
   );
@@ -2322,6 +2332,26 @@ Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
 
   if (result == true) {
     await c.deleteAccount();
+  }
+}
+
+Future<void> _clearCache(MyProfileController c, BuildContext context) async {
+  final style = Theme.of(context).style;
+
+  final bool? result = await MessagePopup.alert(
+    'Очистить все данные?'.l10n,
+    description: [
+      TextSpan(
+        text:
+            'Весь кэш, включая любые данные авторизации, будут очищены. Продолжить?'
+                .l10n,
+      ),
+    ],
+  );
+
+  if (result == true) {
+    c.logout();
+    await Hive.clean('hive');
   }
 }
 

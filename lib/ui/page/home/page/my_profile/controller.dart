@@ -26,6 +26,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/blocklist.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/add_email/controller.dart';
@@ -71,6 +72,7 @@ class MyProfileController extends GetxController {
     this._chatService,
     this._blocklistService,
     this._userService,
+    this._authService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -237,6 +239,7 @@ class MyProfileController extends GetxController {
   final BlocklistService _blocklistService;
 
   final UserService _userService;
+  final AuthService _authService;
 
   /// Reactive list of sorted blocked [RxUser]s.
   final RxList<RxUser> blocklist = RxList();
@@ -864,6 +867,9 @@ class MyProfileController extends GetxController {
   Future<void> unblock(RxUser user) async {
     await _userService.unblockUser(user.id);
   }
+
+  /// Logs out the current session and go to the [Routes.auth] page.
+  Future<String> logout() => _authService.logout();
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
