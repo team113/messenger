@@ -361,8 +361,6 @@ class OngoingCall {
   Future<void> init({FutureOr<RxChat?> Function(ChatId)? getChat}) async {
     Log.debug('init()', '$runtimeType');
 
-    members[_me]?.isDialing.value = !outgoing;
-
     if (_background) {
       _background = false;
 
