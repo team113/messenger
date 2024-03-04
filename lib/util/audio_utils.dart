@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:media_kit/media_kit.dart' as mk hide AudioDevice;
+import 'package:media_kit/media_kit.dart' as mk;
 import 'package:mutex/mutex.dart';
 
 import '/util/media_utils.dart';
