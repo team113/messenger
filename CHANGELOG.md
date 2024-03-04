@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Be able to play audio files. ([#872])
+        - Add AudioPlayer. ([#872])
 
 ### Fixed
 
