@@ -1606,13 +1606,13 @@ class OngoingCall {
       Future<void> initLocalTracks() async {
         try {
           tracks = await MediaUtils.getTracks(
-            audio: audioState.value == LocalTrackState.enabling
+            audio: hasAudio || audioState.value.isEnabled
                 ? AudioPreferences(
                     device: audioDevice.value?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
                   )
                 : null,
-            video: videoState.value == LocalTrackState.enabling
+            video: videoState.value.isEnabled
                 ? VideoPreferences(
                     device: videoDevice.value?.deviceId() ??
                         devices.video().firstOrNull?.deviceId(),
@@ -1620,7 +1620,7 @@ class OngoingCall {
                         videoDevice.value == null ? FacingMode.user : null,
                   )
                 : null,
-            screen: screenShareState.value == LocalTrackState.enabling
+            screen: screenShareState.value.isEnabled
                 ? ScreenPreferences(
                     device: screenDevice.value?.deviceId() ??
                         displays.firstOrNull?.deviceId(),
@@ -1739,7 +1739,7 @@ class OngoingCall {
       // initializing the local media.
       await _room?.setLocalMediaSettings(
         _mediaStreamSettings(
-          audio: audioState.value.isEnabled,
+          audio: hasAudio || audioState.value.isEnabled,
           video: videoState.value.isEnabled,
           screen: screenShareState.value.isEnabled,
         ),
@@ -1772,7 +1772,7 @@ class OngoingCall {
         'Closing the previous one and connecting to the new',
         '$runtimeType',
       );
-      _closeRoom();
+      _closeRoom(false);
       _initRoom();
       await _setInitialMediaSettings();
       await _initLocalMedia();
@@ -1793,7 +1793,7 @@ class OngoingCall {
   }
 
   /// Closes the [_room] and releases the associated resources.
-  void _closeRoom() {
+  void _closeRoom([bool dispose = true]) {
     Log.debug('_closeRoom()', '$runtimeType');
 
     if (_room != null) {
@@ -1806,9 +1806,12 @@ class OngoingCall {
     }
     _room = null;
 
-    for (Track t in members.values.expand((e) => e.tracks)) {
-      t.dispose();
+    if (dispose) {
+      for (Track t in members.values.expand((e) => e.tracks)) {
+        t.dispose();
+      }
     }
+
     members.removeWhere((id, _) => id != _me);
   }
 
