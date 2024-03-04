@@ -129,6 +129,15 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
+      # TODO: Remove, when subosito/flutter-action#278 is fixed:
+      #       https://github.com/subosito/flutter-action/issues/278
+      - name: Export pub environment variable on Windows
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+          fi
+        shell: bash
+
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
