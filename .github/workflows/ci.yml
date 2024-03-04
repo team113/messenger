@@ -137,6 +137,7 @@ jobs:
             echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
           fi
         shell: bash
+        if: ${{ matrix.platform == 'windows' }}
 
       - uses: actions/checkout@v4
         with:
