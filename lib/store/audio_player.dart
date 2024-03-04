@@ -19,17 +19,35 @@ import 'package:get/get.dart';
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
 
+/// Controller implementing the [AudioPlayerInterface] to manage audio player.
+/// Exposes properties and methods for interacting with the player.
 class AudioPlayerController extends GetxController {
+  /// Initializes audio player instance
   late AudioPlayerInterface player;
+
+  /// Id of the currently selected playing audio. Later we will store some
+  /// Song object here most likely.
+  RxString? currentAudio;
+
+  // Boolean indicating whether player is playing.
+  RxBool playing = false.obs;
+
+  // Boolean indicating whether player is buffering.
+  RxBool buffering = false.obs;
+
+  // Current song position.
+  Rx<Duration> currentSongPosition = Duration.zero.obs;
+
+  // Current song duration.
+  Rx<Duration> currentSongDuration = Duration.zero.obs;
+
+  // Current song buffered position.
+  Rx<Duration> bufferedPosition = Duration.zero.obs;
+
+  /// Indicates whether [ja.AudioPlayer] or [mk.Player] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
-  var currentAudio = 'Some id'.obs;
-  var playing = false.obs;
-  var buffering = false.obs;
-  var currentSongPosition = Duration.zero.obs;
-  var currentSongDuration = Duration.zero.obs;
-  var bufferedPosition = Duration.zero.obs;
-
+  /// Initializes the player and subscribes to the streams.
   @override
   void onInit() {
     super.onInit();
@@ -56,17 +74,19 @@ class AudioPlayerController extends GetxController {
     });
   }
 
+  /// Dispose the player instance on close.
+  @override
+  void onClose() {
+    player.dispose();
+    super.onClose();
+  }
+
+  /// Initializes the audio player based on the platform.
   void _initPlayer() {
     if (_isMobile) {
       player = JustAudioPlayerAdapter();
     } else {
       player = MediaKitPlayerAdapter();
     }
-  }
-
-  @override
-  void onClose() {
-    player.dispose();
-    super.onClose();
   }
 }

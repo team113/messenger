@@ -315,18 +315,40 @@ class AudioUtilsImpl {
   }
 }
 
+/// Common audio player interface to interact both
+/// with [ja.AudioPlayer] and [mk.Player].
 abstract class AudioPlayerInterface {
+  /// Sets the [AudioSource] to play.
   setTrack(AudioSource song);
+
+  /// Triggers play.
   play();
+
+  /// Triggers pause.
   pause();
+
+  /// Seeks to specified position of the [AudioSource].
   seek(Duration position);
+
+  /// Triggers stop.
   stop();
+
+  /// Disposes the player.
   dispose();
 
+  /// Stream indicating whether the player is currently playing.
   Stream<bool> get playingStream;
+
+  /// Stream indicating whether the player is currently buffering.
   Stream<bool> get bufferingStream;
+
+  /// Stream providing the current playback position.
   Stream<Duration> get positionStream;
+
+  /// Stream providing the total duration of the current track.
   Stream<Duration> get durationStream;
+
+  /// Stream providing the buffered position of the current track.
   Stream<Duration> get bufferedPositionStream;
 }
 
