@@ -157,7 +157,7 @@ class OngoingCall {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
-    members[_me] = CallMember.me(_me, isConnected: true, isDialing: !outgoing);
+    members[_me] = CallMember.me(_me, isConnected: true);
 
     if (withAudio) {
       audioState = Rx(LocalTrackState.enabling);
@@ -360,6 +360,8 @@ class OngoingCall {
   /// No-op if already initialized.
   Future<void> init({FutureOr<RxChat?> Function(ChatId)? getChat}) async {
     Log.debug('init()', '$runtimeType');
+
+    members[_me]?.isDialing.value = !outgoing;
 
     if (_background) {
       _background = false;
