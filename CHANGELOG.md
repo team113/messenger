@@ -27,10 +27,16 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- UI:
+    - Chats tab:
+        - Chat not disappearing after being kicked from it. ([#864], [#851])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
+
 [#809]: /../../issues/809
+[#851]: /../../issues/851
+[#864]: /../../pull/864
 [#868]: /../../pull/868
 [#877]: /../../pull/877
 [#880]: /../../pull/880

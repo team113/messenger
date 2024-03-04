@@ -92,7 +92,7 @@ class SearchUserTile extends StatelessWidget {
                       : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
-              )
+              ),
           ],
         ),
       );

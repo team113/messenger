@@ -68,6 +68,7 @@ class MemberTile extends StatelessWidget {
       user: user,
       dense: true,
       onTap: me ? null : onTap,
+      padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
       trailing: [
         if (inCall != null) ...[
           SafeAnimatedSwitcher(
@@ -99,6 +100,10 @@ class MemberTile extends StatelessWidget {
         ],
         AnimatedButton(
           enabled: !me,
+          decorator: (child) => Padding(
+            padding: const EdgeInsets.all(12),
+            child: child,
+          ),
           onPressed: me
               ? null
               : () async {
