@@ -1077,8 +1077,6 @@ class IconsView extends StatelessWidget {
                       if (i == 0) {
                         trailing = SvgIcons.pin;
                       } else if (i == 1) {
-                        trailing = SvgIcons.pinDisabled;
-                      } else if (i == 2) {
                         trailing = SvgIcons.unpin;
                       }
 

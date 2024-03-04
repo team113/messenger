@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.16"
+  FLUTTER_VER: "3.19"
 
 jobs:
 
@@ -88,7 +88,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: azure/setup-helm@v3
+      - uses: azure/setup-helm@v4
 
       - run: make helm.lint chart=${{ matrix.chart }}
 
@@ -129,6 +129,13 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
+      # TODO: Remove, when subosito/flutter-action#278 is fixed:
+      #       https://github.com/subosito/flutter-action/issues/278
+      - name: Export pub environment variable on Windows
+        run: echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+        shell: bash
+        if: ${{ matrix.platform == 'windows' }}
+
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
@@ -177,7 +184,7 @@ jobs:
       #       maps reading.
       - run: make flutter.build platform=${{ matrix.platform }} profile=yes
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
-                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}'
         if: ${{ matrix.platform == 'web' }}
 
@@ -192,7 +199,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
@@ -331,7 +338,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX }}
+                            SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
 
@@ -677,7 +684,7 @@ jobs:
 
       - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
-      - uses: azure/setup-helm@v3
+      - uses: azure/setup-helm@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Parse semver versions from Git tag
@@ -953,3 +960,34 @@ jobs:
   #                 token=${{ secrets.SENTRY_TOKEN }}
   #                 release=${{ steps.semver.outputs.group1 }}
   #                 url=${{ secrets.SENTRY_URL }}
+
+  deploy-staging:
+    name: deploy (staging)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: ["docker-push", "helm-lint"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-kubectl@v3
+      - name: Login to Kubernetes cluster
+        run: |
+          set -ex
+
+          kubectl config set-cluster ${{ secrets.K8S_CLUSTER }} --server=${{ secrets.K8S_API }} --insecure-skip-tls-verify=true
+          kubectl config set-credentials ${{ secrets.K8S_USER }} --token ${{ secrets.K8S_TOKEN }}
+          kubectl config set-context ${{ secrets.K8S_CONTEXT }} --namespace=${{ secrets.K8S_NAMESPACE }} --cluster=${{ secrets.K8S_CLUSTER }} --user=${{ secrets.K8S_USER }}
+
+      - name: Prepare secret Helm values
+        run: echo "${{ secrets.K8S_VALUES }}"
+             >> my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+
+      - run: make helm.up cluster=${{ secrets.K8S_CLUSTER }}
+
+      - name: Cleanup secret Helm values
+        run: rm -rf my.${{ secrets.K8S_CLUSTER }}.vals.yaml
+        if: ${{ always() }}
+
+      - name: Logout from Kubernetes cluster
+        run: rm -rf ~/.kube/config
+        if: ${{ always() }}

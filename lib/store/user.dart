@@ -252,7 +252,7 @@ class UserRepository extends DisposableInterface
   void update(User user) {
     Log.debug('update($user)', '$runtimeType');
 
-    HiveUser? hiveUser = _userLocal.get(user.id);
+    final HiveUser? hiveUser = _userLocal.get(user.id);
     if (hiveUser != null) {
       hiveUser.value = user;
       put(hiveUser, ignoreVersion: true);
@@ -315,27 +315,27 @@ class UserRepository extends DisposableInterface
     return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
       Log.trace('userEvents($id): ${event.data}', '$runtimeType');
 
-      var events = UserEvents$Subscription.fromJson(event.data!).userEvents;
+      final events = UserEvents$Subscription.fromJson(event.data!).userEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as UserEvents$Subscription$UserEvents$SubscriptionInitialized;
         yield const UserEventsInitialized();
       } else if (events.$$typename == 'User') {
-        var mixin = events as UserEvents$Subscription$UserEvents$User;
+        final mixin = events as UserEvents$Subscription$UserEvents$User;
         yield UserEventsUser(mixin.toHive());
       } else if (events.$$typename == 'UserEventsVersioned') {
-        var mixin = events as UserEventsVersionedMixin;
+        final mixin = events as UserEventsVersionedMixin;
         yield UserEventsEvent(UserEventsVersioned(
           mixin.events.map((e) => _userEvent(e)).toList(),
           mixin.ver,
         ));
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
-        var mixin = events as BlocklistEventsVersionedMixin;
+        final mixin = events as BlocklistEventsVersionedMixin;
         yield UserEventsBlocklistEventsEvent(BlocklistEventsVersioned(
           mixin.events.map((e) => _blocklistEvent(e)).toList(),
           mixin.myVer,
         ));
       } else if (events.$$typename == 'isBlocked') {
-        var node = events as UserEvents$Subscription$UserEvents$IsBlocked;
+        final node = events as UserEvents$Subscription$UserEvents$IsBlocked;
         yield UserEventsIsBlocked(
           node.record == null
               ? null
@@ -354,11 +354,11 @@ class UserRepository extends DisposableInterface
   Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
     Log.trace('_putUser($user, $ignoreVersion)', '$runtimeType');
 
-    var saved = _userLocal.get(user.value.id);
+    final saved = _userLocal.get(user.value.id);
 
     if (saved == null ||
-        saved.ver < user.ver ||
-        saved.blockedVer < user.blockedVer ||
+        saved.ver <= user.ver ||
+        saved.blockedVer <= user.blockedVer ||
         ignoreVersion) {
       await _userLocal.put(user);
     }
@@ -370,11 +370,11 @@ class UserRepository extends DisposableInterface
 
     _localSubscription = StreamIterator(_userLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
+      final BoxEvent event = _localSubscription!.current;
       if (event.deleted) {
         users.remove(UserId(event.key))?.dispose();
       } else {
-        RxUser? user = users[UserId(event.key)];
+        final RxUser? user = users[UserId(event.key)];
         if (user == null) {
           users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
         } else {
@@ -449,49 +449,58 @@ class UserRepository extends DisposableInterface
     Log.trace('_userEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventUserAvatarDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
+      final node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
       return EventUserAvatarDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
+      final node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(
         node.userId,
         node.avatar.toModel(),
         node.at,
       );
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
       return EventUserCallCoverUpdated(
         node.userId,
         node.callCover.toModel(),
         node.at,
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserCameOffline;
+      final node = e as UserEventsVersionedMixin$Events$EventUserCameOffline;
       return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCameOnline') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserCameOnline;
+      final node = e as UserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
     } else if (e.$$typename == 'EventUserDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserDeleted;
+      final node = e as UserEventsVersionedMixin$Events$EventUserDeleted;
       return EventUserDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserNameDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
+      final node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserNameUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
+      final node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);
     } else if (e.$$typename == 'EventUserPresenceUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserPresenceUpdated;
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserPresenceUpdated;
       return EventUserPresenceUpdated(node.userId, node.presence, node.at);
     } else if (e.$$typename == 'EventUserStatusDeleted') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserStatusDeleted;
+      final node = e as UserEventsVersionedMixin$Events$EventUserStatusDeleted;
       return EventUserStatusDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserStatusUpdated') {
-      var node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
+      final node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status, node.at);
+    } else if (e.$$typename == 'EventUserBioDeleted') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
+      return EventUserBioDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserBioUpdated') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
+      return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }
@@ -503,7 +512,7 @@ class UserRepository extends DisposableInterface
     Log.trace('_blocklistEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventBlocklistRecordAdded') {
-      var node =
+      final node =
           e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
       return EventBlocklistRecordAdded(
         e.user.toHive(),

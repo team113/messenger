@@ -27,10 +27,12 @@ import 'package:permission_handler/permission_handler.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart' show ResubscriptionRequiredException;
 import '/store/event/chat_call.dart';
+import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
@@ -285,10 +287,6 @@ class OngoingCall {
   /// [OngoingCall] is alive on a client side.
   StreamSubscription? _heartbeat;
 
-  /// Subscription to the [RxChat.members] changes adding and removing the
-  /// redialed [members].
-  StreamSubscription? _membersSubscription;
-
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
 
@@ -310,6 +308,10 @@ class OngoingCall {
   /// [StreamSubscription] for the [MediaUtilsImpl.onDisplayChange] stream
   /// updating the [displays].
   StreamSubscription? _displaysSubscription;
+
+  /// [Worker] reacting on the [MediaUtilsImpl.outputDeviceId] changes updating
+  /// the [outputDevice].
+  Worker? _outputWorker;
 
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
@@ -425,11 +427,30 @@ class OngoingCall {
 
       // Puts the members of the provided [chat] to the [members] through
       // [_addDialing].
-      void addDialingsFrom(RxChat chat) {
-        if ((outgoing && conversationStartedAt == null) ||
-            chat.chat.value.isDialog) {
-          for (UserId e in chat.members.keys.where((e) => e != me.id.userId)) {
-            _addDialing(e);
+      Future<void> addDialingsFrom(RxChat? chat) async {
+        if (chat == null) {
+          return;
+        }
+
+        final int membersCount = chat.chat.value.membersCount;
+        final bool shouldAddDialed =
+            (outgoing && conversationStartedAt == null) ||
+                chat.chat.value.isDialog;
+
+        // Dialed [User]s should be added, if [membersCount] is less than a page
+        // of [Chat.members].
+        if (membersCount <= chat.members.perPage && shouldAddDialed) {
+          if (chat.members.items.length < membersCount) {
+            await chat.members.around();
+          }
+
+          // If [connected], then the dialed [User] will be added in [connect],
+          // when handling [ChatMembersDialedAll].
+          if (!connected) {
+            for (UserId e
+                in chat.members.items.keys.where((e) => e != me.id.userId)) {
+              _addDialing(e);
+            }
           }
         }
       }
@@ -438,15 +459,9 @@ class OngoingCall {
       // members to the [members] in redialing mode as fast as possible.
       final FutureOr<RxChat?>? chatOrFuture = getChat?.call(chatId.value);
       if (chatOrFuture is RxChat?) {
-        if (chatOrFuture != null) {
-          addDialingsFrom(chatOrFuture);
-        }
+        addDialingsFrom(chatOrFuture);
       } else {
-        chatOrFuture.then((c) {
-          if (!connected && c != null) {
-            addDialingsFrom(c);
-          }
-        });
+        chatOrFuture.then(addDialingsFrom);
       }
 
       _initRoom();
@@ -497,6 +512,9 @@ class OngoingCall {
               calls.remove(chatId.value);
               calls.removeCredentials(node.call.chatId, node.call.id);
             } else {
+              call.value = node.call;
+              call.refresh();
+
               if (state.value == OngoingCallState.local) {
                 state.value = node.call.conversationStartedAt == null
                     ? OngoingCallState.pending
@@ -542,53 +560,44 @@ class OngoingCall {
               // Additionally handles the case, when [dialed] are
               // [ChatMembersDialedAll], since we need to have a [RxChat] to
               // retrieve the whole list of users this way.
-              void redialAndResubscribe(RxChat? v) {
-                if (!connected) {
+              Future<void> redialAndResubscribe(RxChat? v) async {
+                if (!connected || v == null) {
                   // [OngoingCall] might have been disposed or disconnected
                   // while this [Future] was executing.
                   return;
                 }
 
                 // Add the redialed members of the call to the [members].
-                if (dialed is ChatMembersDialedAll) {
-                  final Iterable<ChatMember> dialings = v?.chat.value.members
-                          .where((e) =>
-                              e.user.id != me.id.userId &&
-                              dialed.answeredMembers
-                                  .none((a) => a.user.id == e.user.id)) ??
-                      [];
+                if (dialed is ChatMembersDialedAll &&
+                    v.chat.value.membersCount <= v.members.perPage) {
+                  if (v.members.items.length < v.chat.value.membersCount) {
+                    await v.members.around();
+                  }
 
-                  // Remove the members, who are not connected and still
-                  // redialing, that are missing from the [dialings].
-                  members.removeWhere(
-                    (_, v) =>
-                        v.isConnected.isFalse &&
-                        v.isDialing.isTrue &&
-                        dialings.none((e) => e.user.id == v.id.userId) &&
-                        node.call.members.none((e) => e.user.id == v.id.userId),
-                  );
+                  // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
+                  if (call.value?.dialed is ChatMembersDialedAll) {
+                    final Iterable<RxUser> dialings = v.members.values.where(
+                      (e) =>
+                          e.id != me.id.userId &&
+                          dialed.answeredMembers.none((a) => a.user.id == e.id),
+                    );
 
-                  for (final ChatMember m in dialings) {
-                    _addDialing(m.user.id);
+                    // Remove the members, who are not connected and still
+                    // redialing, that are missing from the [dialings].
+                    members.removeWhere(
+                      (_, v) =>
+                          v.isConnected.isFalse &&
+                          v.isDialing.isTrue &&
+                          dialings.none((e) => e.id == v.id.userId) &&
+                          node.call.members
+                              .none((e) => e.user.id == v.id.userId),
+                    );
+
+                    for (final RxUser e in dialings) {
+                      _addDialing(e.id);
+                    }
                   }
                 }
-
-                _membersSubscription?.cancel();
-                _membersSubscription = v?.members.changes.listen((event) {
-                  switch (event.op) {
-                    case OperationKind.added:
-                      _addDialing(event.key!);
-                      break;
-
-                    case OperationKind.removed:
-                      members.remove(CallMemberId(event.key!, null))?.dispose();
-                      break;
-
-                    case OperationKind.updated:
-                      // No-op.
-                      break;
-                  }
-                });
               }
 
               // Retrieve the [RxChat] to subscribe to its [RxChat.members]
@@ -607,9 +616,6 @@ class OngoingCall {
                       ?.handRaised ??
                   false;
             }
-
-            call.value = node.call;
-            call.refresh();
             break;
 
           case ChatCallEventsKind.event:
@@ -770,6 +776,8 @@ class OngoingCall {
                       members.remove(id)?.dispose();
                     }
                   } else {
+                    call.value?.dialed = null;
+
                     members.removeWhere((k, v) {
                       if (k.deviceId == null && v.isConnected.isFalse) {
                         v.dispose();
@@ -783,6 +791,15 @@ class OngoingCall {
 
                 case ChatCallEventKind.conversationStarted:
                   // TODO: Implement [EventChatCallConversationStarted].
+                  break;
+
+                case ChatCallEventKind.undialed:
+                  final node = event as EventChatCallMemberUndialed;
+
+                  final CallMemberId id = CallMemberId(node.user.id, null);
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id)?.dispose();
+                  }
                   break;
               }
             }
@@ -802,7 +819,6 @@ class OngoingCall {
     Log.debug('dispose()', '$runtimeType');
 
     _heartbeat?.cancel();
-    _membersSubscription?.cancel();
     connected = false;
 
     return _mediaSettingsGuard.protect(() async {
@@ -813,7 +829,7 @@ class OngoingCall {
       _devicesSubscription?.cancel();
       _displaysSubscription?.cancel();
       _heartbeat?.cancel();
-      _membersSubscription?.cancel();
+      _outputWorker?.dispose();
       connected = false;
     });
   }
@@ -1524,10 +1540,48 @@ class OngoingCall {
         // No-op.
       }
 
-      outputDevice.value = devices
-              .output()
-              .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-          devices.output().firstOrNull;
+      // On mobile platforms, output device is picked in the following priority:
+      // - headphones;
+      // - earpiece (if [videoState] is disabled);
+      // - speaker (if [videoState] is enabled).
+      if (PlatformUtils.isMobile) {
+        _outputWorker = ever(
+          MediaUtils.outputDeviceId,
+          (id) {
+            outputDevice.value =
+                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
+                    outputDevice.value;
+          },
+        );
+
+        if (outputDevice.value == null) {
+          final Iterable<DeviceDetails> output = devices.output();
+          outputDevice.value = output.firstWhereOrNull(
+            (e) => e.speaker == AudioSpeakerKind.headphones,
+          );
+
+          if (outputDevice.value == null) {
+            final bool speaker =
+                PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+
+            if (speaker) {
+              outputDevice.value = output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.speaker,
+              );
+            }
+
+            outputDevice.value ??= output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.earpiece,
+            );
+          }
+        }
+      } else {
+        // On any other platform the output device is the preferred one.
+        outputDevice.value = devices
+                .output()
+                .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
+            devices.output().firstOrNull;
+      }
 
       audioDevice.value = devices
               .audio()
@@ -1541,10 +1595,8 @@ class OngoingCall {
       screenDevice.value = displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
-      final String? setOutputDevice = outputDevice.value?.deviceId() ??
-          devices.output().firstOrNull?.deviceId();
-      if (setOutputDevice != null) {
-        MediaUtils.mediaManager?.setOutputAudioId(setOutputDevice);
+      if (outputDevice.value != null) {
+        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
       }
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -2033,8 +2085,22 @@ class OngoingCall {
     Log.debug('_setOutputDevice($device)', '$runtimeType');
 
     if (device != outputDevice.value) {
-      await MediaUtils.setOutputAudioId(device.deviceId());
+      final DeviceDetails? previous = outputDevice.value;
+
       outputDevice.value = device;
+
+      try {
+        // [MediaUtils.setOutputDevice] seems to switch the speaker in
+        // [AudioUtils] as well, when [hasRemote] is `true`.
+        await Future.wait([
+          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
+          MediaUtils.setOutputDevice(device.deviceId()),
+        ]);
+      } catch (e) {
+        addError(e.toString());
+        outputDevice.value = previous;
+        rethrow;
+      }
     }
   }
 }

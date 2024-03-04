@@ -60,6 +60,7 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -114,6 +115,9 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
+  /// [TextFieldState] for [ChatName] inputting while [groupCreating].
+  final TextFieldState groupName = TextFieldState();
+
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
@@ -153,10 +157,8 @@ class ChatsTabController extends GetxController {
   /// Subscription for the [ChatService.status] changes.
   StreamSubscription? _statusSubscription;
 
-  /// [RxUser]s being recipients of the [Chat]-dialogs in the [chats].
-  ///
-  /// Used to call [RxUser.listenUpdates] and [RxUser.stopUpdates] invocations.
-  final List<RxUser> _recipients = [];
+  /// Subscription for the [RxUser]s changes.
+  final Map<UserId, StreamSubscription> _userSubscriptions = {};
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -204,7 +206,8 @@ class ChatsTabController extends GetxController {
             chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
-          _recipients.add(rxUser..listenUpdates());
+          _userSubscriptions.remove(userId)?.cancel();
+          _userSubscriptions[userId] = rxUser.updates.listen((_) {});
         }
       }
     }
@@ -238,14 +241,7 @@ class ChatsTabController extends GetxController {
                 ?.user
                 .id;
 
-            _recipients.removeWhere((e) {
-              if (e.id == userId) {
-                e.stopUpdates();
-                return true;
-              }
-
-              return false;
-            });
+            _userSubscriptions.remove(userId)?.cancel();
           }
 
           _scrollListener();
@@ -291,8 +287,8 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
-    for (RxUser v in _recipients) {
-      v.stopUpdates();
+    for (StreamSubscription s in _userSubscriptions.values) {
+      s.cancel();
     }
 
     for (var e in dismissed) {
@@ -583,6 +579,7 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
+    groupName.clear();
     closeSearch(true);
     router.navigation.value = true;
   }
@@ -593,14 +590,14 @@ class ChatsTabController extends GetxController {
     creatingStatus.value = RxStatus.loading();
 
     try {
-      RxChat chat = await _chatService.createGroupChat(
+      final RxChat chat = await _chatService.createGroupChat(
         {
           ...search.value!.selectedRecent.map((e) => e.id),
           ...search.value!.selectedContacts
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: null,
+        name: groupName.text.isEmpty ? null : ChatName(groupName.text),
       );
 
       router.chat(chat.chat.value.id);
@@ -923,8 +920,8 @@ class ChatEntry implements Comparable<ChatEntry> {
   /// Returns observable list of [ChatItem]s of the [chat].
   RxObsList<Rx<ChatItem>> get messages => _chat.messages;
 
-  /// Reactive list of [User]s being members of this [chat].
-  RxObsMap<UserId, RxUser> get members => _chat.members;
+  /// Reactive map of [User]s being members of this [chat].
+  RxObsMap<UserId, RxUser> get members => _chat.members.items;
 
   /// Disposes this [ChatEntry].
   void dispose() => _worker.dispose();

@@ -52,8 +52,9 @@ class SearchUserTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final ChatId? chatId =
-          user?.user.value.dialog ?? contact?.user.value?.user.value.dialog;
+      final ChatId? chatId = user?.dialog.value?.id ??
+          user?.user.value.dialog ??
+          contact?.user.value?.user.value.dialog;
 
       final UserId? userId = user?.id ?? contact?.user.value?.id;
 
@@ -91,7 +92,7 @@ class SearchUserTile extends StatelessWidget {
                       : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
-              )
+              ),
           ],
         ),
       );

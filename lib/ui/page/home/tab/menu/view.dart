@@ -114,8 +114,7 @@ class MenuTabView extends StatelessWidget {
                             ),
                             Obx(() {
                               return Text(
-                                c.myUser.value?.status?.val ??
-                                    'label_online'.l10n,
+                                c.myUser.value?.bio?.val ?? 'label_online'.l10n,
                                 style: style.fonts.small.regular.secondary,
                               );
                             }),
@@ -176,7 +175,7 @@ class MenuTabView extends StatelessWidget {
                       router.route == Routes.me;
 
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(vertical: 1.5),
                     child: MenuButton.tab(
                       tab,
                       key: key,

@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -49,6 +51,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.dense = false,
     this.preventContextMenu = false,
+    this.padding,
     this.margin = const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -94,6 +97,9 @@ class ContactTile extends StatelessWidget {
 
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
+
+  /// Padding to apply to this [ContactTile].
+  final EdgeInsets? padding;
 
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
@@ -145,10 +151,8 @@ class ContactTile extends StatelessWidget {
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                   : null,
-              padding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: dense ? 4 : 6,
-              ),
+              padding: padding ??
+                  EdgeInsets.symmetric(horizontal: 12, vertical: dense ? 4 : 6),
               child: Row(
                 children: [
                   ...leading,
@@ -174,21 +178,16 @@ class ContactTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          contact?.contact.value.name.val ??
-                              user?.user.value.name?.val ??
-                              user?.user.value.num.toString() ??
-                              myUser?.name?.val ??
-                              myUser?.num.toString() ??
-                              (myUser == null
-                                  ? 'dot'.l10n * 3
-                                  : 'btn_your_profile'.l10n),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: selected
-                              ? style.fonts.big.regular.onPrimary
-                              : style.fonts.big.regular.onBackground,
-                        ),
+                        if (contact != null || user != null)
+                          Obx(() {
+                            return _name(
+                              context,
+                              contact: contact?.contact.value,
+                              user: user?.user.value,
+                            );
+                          })
+                        else
+                          _name(context),
                         ...subtitle,
                       ],
                     ),
@@ -200,6 +199,29 @@ class ContactTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// Returns [Text] representing the [contact], [user] or [myUser] name.
+  Widget _name(
+    BuildContext context, {
+    ChatContact? contact,
+    User? user,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Text(
+      contact?.name.val ??
+          user?.name?.val ??
+          user?.num.toString() ??
+          myUser?.name?.val ??
+          myUser?.num.toString() ??
+          (myUser == null ? 'dot'.l10n * 3 : 'btn_your_profile'.l10n),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      style: selected
+          ? style.fonts.big.regular.onPrimary
+          : style.fonts.big.regular.onBackground,
     );
   }
 

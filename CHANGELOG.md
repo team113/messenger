@@ -9,7 +9,57 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.1.0-alpha.13] · 2024-??-??
 [0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
 
-[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.13) | [Milestone](/../../milestone/15)
+[Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned editing mode and actions. ([#868])
+    - User page:
+        - Redesigned editing mode and actions. ([#868])
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Chat not disappearing after being kicked from it. ([#864], [#851])
+- Web:
+    - Missing blurred image previews in gallery. ([#880])
+
+[#851]: /../../issues/851
+[#864]: /../../pull/864
+[#868]: /../../pull/868
+[#880]: /../../pull/880
+
+
+
+
+## [0.1.0-alpha.12.3] · 2024-02-23
+[0.1.0-alpha.12.3]: /../../tree/v0.1.0-alpha.12.3
+
+[Diff](/../../compare/v0.1.0-alpha.12.2...v0.1.0-alpha.12.3) | [Milestone](/../../milestone/17)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Ringtone not switching its output device on mobile. ([#840], [#817])
+    - Chat page:
+        - Blank previews of video attachments. ([#840])
+- Web:
+    - Video in calls being loaded indefinitely. ([#840])
+
+[#817]: /../../issues/817
+[#840]: /../../pull/840
+
+
+
+
+## [0.1.0-alpha.12.2] · 2024-02-22
+[0.1.0-alpha.12.2]: /../../tree/v0.1.0-alpha.12.2
+
+[Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.12.2) | [Milestone](/../../milestone/15)
 
 ### Added
 
@@ -22,13 +72,19 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Redesigned incoming/outgoing call. ([#832], [#812])
+        - Mobile interface on tablets. ([#863])
     - Chats tab:
         - Direct link searching. ([#843], [#831])
+        - Name specifying of group being created in app bar. ([#863])
     - Home page:
         - Redesigned introduction after following direct link. ([#848], [#820])
+        - Redesigned context menu in navigation. ([#863])
 
 ### Fixed
 
+- UI:
+    - Chat page:
+        - Keyboard hiding after sending a message on mobile. ([#856], [#828])
 - Web:
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
 
@@ -36,11 +92,14 @@ All user visible changes to this project will be documented in this file. This p
 [#465]: /../../pull/465
 [#812]: /../../issues/812
 [#820]: /../../issues/820
+[#828]: /../../issues/828
 [#831]: /../../issues/831
 [#832]: /../../pull/832
 [#843]: /../../pull/843
 [#848]: /../../pull/848
 [#855]: /../../pull/855
+[#856]: /../../pull/856
+[#863]: /../../pull/863
 
 
 

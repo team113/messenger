@@ -122,15 +122,20 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.groupCreating.value) {
-                      child = WidgetButton(
-                        onPressed: c.startSearch,
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Center(
-                            child: Text(
-                              'btn_create_group'.l10n,
-                              key: const Key('1'),
+                      child = Theme(
+                        data: MessageFieldView.theme(context),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Transform.translate(
+                            offset: const Offset(0, 1),
+                            child: ReactiveTextField(
+                              state: c.groupName,
+                              hint: 'label_group_name'.l10n,
+                              maxLines: 1,
+                              filled: false,
+                              dense: true,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              style: style.fonts.medium.regular.onBackground,
                             ),
                           ),
                         ),
@@ -710,6 +715,7 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         controller: c.scrollController,
+                        bottom: c.selecting.isFalse,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
@@ -950,8 +956,10 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                 ),
                                 SliverPadding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height,
+                                  padding: EdgeInsets.only(
+                                    bottom: c.selecting.isTrue
+                                        ? 0
+                                        : CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),

@@ -55,6 +55,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
     this.totalCount = 0,
     this.ongoingCall,
     this.favoritePosition,
+    this.membersCount = 0,
   })  : createdAt = createdAt ?? PreciseDateTime.now(),
         updatedAt = updatedAt ?? PreciseDateTime.now(),
         lastDelivery = lastDelivery ?? PreciseDateTime.now();
@@ -162,6 +163,10 @@ class Chat extends HiveObject implements Comparable<Chat> {
   /// [MyUser].
   @HiveField(18)
   ChatFavoritePosition? favoritePosition;
+
+  /// Total count of [members] in this [Chat].
+  @HiveField(19)
+  int membersCount;
 
   /// Indicates whether this [Chat] is a monolog.
   bool get isMonolog => kind == ChatKind.monolog;
@@ -297,7 +302,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
 /// Member of a [Chat].
 @HiveType(typeId: ModelTypeId.chatMember)
-class ChatMember {
+class ChatMember implements Comparable<ChatMember> {
   ChatMember(this.user, this.joinedAt);
 
   /// [User] represented by this [ChatMember].
@@ -307,6 +312,16 @@ class ChatMember {
   /// [PreciseDateTime] when the [User] became a [ChatMember].
   @HiveField(1)
   final PreciseDateTime joinedAt;
+
+  @override
+  int compareTo(ChatMember other) {
+    int result = joinedAt.compareTo(other.joinedAt);
+    if (result == 0) {
+      result = user.id.compareTo(other.user.id);
+    }
+
+    return result;
+  }
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].

@@ -600,6 +600,8 @@ class ChatView extends StatelessWidget {
                               c.chat!.messages.isEmpty) {
                             return Center(
                               child: Container(
+                                constraints:
+                                    const BoxConstraints(maxWidth: 300),
                                 margin: const EdgeInsets.symmetric(
                                   horizontal: 8,
                                 ),
@@ -834,7 +836,7 @@ class ChatView extends StatelessWidget {
                   item: e,
                   me: c.me!,
                   avatar: !previousSame,
-                  reads: c.chat!.members.length > 10
+                  reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where((m) =>
                           m.at == e.value.at &&
@@ -913,7 +915,7 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
-                  reads: c.chat!.members.length > 10
+                  reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where((m) =>
                           m.at == element.forwards.last.value.at &&
@@ -1387,7 +1389,8 @@ class ChatView extends StatelessWidget {
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
-          onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
+          onChanged:
+              c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
           onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         );
       }
@@ -1395,7 +1398,7 @@ class ChatView extends StatelessWidget {
       return MessageFieldView(
         key: const Key('SendField'),
         controller: c.send,
-        onChanged: c.chat?.chat.value.isMonolog == true ? null : c.keepTyping,
+        onChanged: c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
         onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         canForward: true,
       );

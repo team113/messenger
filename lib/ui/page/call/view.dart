@@ -52,9 +52,9 @@ class CallView extends StatelessWidget {
           );
         }
 
-        if (c.isMobile != context.isMobile) {
-          c.isMobile = context.isMobile;
-          if (context.isMobile) {
+        if (c.isMobile != PlatformUtils.isMobile) {
+          c.isMobile = PlatformUtils.isMobile;
+          if (PlatformUtils.isMobile) {
             c.minimized.value = false;
           } else {
             c.minimized.value = true;

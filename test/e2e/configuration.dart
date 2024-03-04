@@ -63,6 +63,7 @@ import 'steps/dismiss_contact.dart';
 import 'steps/download_file.dart';
 import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
+import 'steps/favorite_group.dart';
 import 'steps/go_to.dart';
 import 'steps/has_blocked_users.dart';
 import 'steps/has_contact.dart';
@@ -79,6 +80,7 @@ import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
+import 'steps/remove_chat_member.dart';
 import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
 import 'steps/right_click_message.dart';
@@ -88,6 +90,7 @@ import 'steps/scroll_until.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_dismissed.dart';
+import 'steps/see_chat_members.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_position.dart';
 import 'steps/see_chat_selection.dart';
@@ -159,6 +162,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         downloadFile,
         dragChatDown,
         dragContactDown,
+        favoriteGroup,
         fillField,
         fillFieldN,
         fillFieldWithMyCredential,
@@ -169,14 +173,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasFavoriteContacts,
         hasFavoriteGroups,
         hasGroupNamed,
+        hasGroupWithMembers,
         hasGroups,
-
-        // Don't resort the `haveGroup` steps, as `gherkin` packages checks its
-        // regular expression in the provided order.
-        haveGroup2Named,
         haveGroup1Named,
+        haveGroup2Named,
         haveGroupNamed,
-
         haveInternetWithDelay,
         haveInternetWithoutDelay,
         iAm,
@@ -185,6 +186,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInMonolog,
         iTapChatGroup,
         iTapChatWith,
+        logout,
         longPressChat,
         longPressContact,
         longPressMessageByAttachment,
@@ -198,6 +200,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         popupWindows,
         readsAllMessages,
         readsMessage,
+        removeGroupMember,
         repliesToMessage,
         restartApp,
         returnToPreviousPage,
@@ -213,6 +216,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
+        seeChatMembers,
         seeChatMessage,
         seeChatMessages,
         seeChatSelection,
@@ -317,7 +321,7 @@ Future<void> appInitializationFn(World world) {
   return Future.sync(app.main);
 }
 
-/// Creates a new [Session] for an [User] identified by the provided [name].
+/// Creates a new [Session] for the provided [user].
 Future<CustomUser> createUser({
   TestUser? user,
   CustomWorld? world,
@@ -338,6 +342,7 @@ Future<CustomUser> createUser({
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
       await provider.updateUserPassword(null, password);
+      world.sessions[user.name]?.password = password;
 
       final result =
           await provider.signIn(password, null, customUser.userNum, null, null);
