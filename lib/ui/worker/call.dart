@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:callkeep/callkeep.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -28,6 +29,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -249,11 +251,21 @@ class CallWorker extends DisposableService {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
                     call.state.value == OngoingCallState.ended;
-            final bool withMe = call.members.values.any(
-              (m) => m.id.userId == _myUser.value?.id,
-            );
+            final bool withMe = call.members.containsValue(call.me);
 
-            if (withMe && isActiveOrEnded) {
+            bool isDialingMe = false;
+            final ChatMembersDialed? dialed = call.call.value?.dialed;
+            if (dialed is ChatMembersDialedConcrete) {
+              isDialingMe = dialed.members.any(
+                (m) => m.user.id == _myUser.value?.id,
+              );
+            } else if (dialed is ChatMembersDialedAll) {
+              isDialingMe = dialed.answeredMembers.none(
+                (m) => m.user.id == _myUser.value?.id,
+              );
+            }
+
+            if (withMe && isActiveOrEnded && !isDialingMe) {
               play(_endCall);
             }
           }
