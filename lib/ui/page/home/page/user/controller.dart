@@ -142,7 +142,7 @@ class UserController extends GetxController {
 
   /// Returns [ChatContactId] of the [contact].
   ///
-  /// Should be used to determine whether the [user] is in the contacts list as
+  /// Should be used to determine whether the [user] is in the contacts list, as
   /// [contact] may be fetched with a delay.
   ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
 

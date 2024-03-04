@@ -560,7 +560,7 @@ class ContactRepository extends DisposableInterface
     // [_putChatContact] invoked earlier.
     await Future.delayed(Duration.zero);
 
-    List<RxChatContact> contacts =
+    final List<RxChatContact> contacts =
         (await Future.wait(result.map((e) async => await get(e.value.id))))
             .whereNotNull()
             .toList();
