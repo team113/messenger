@@ -251,7 +251,7 @@ class CallWorker extends DisposableService {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
                     call.state.value == OngoingCallState.ended;
-            final bool withMe = call.members.containsValue(call.me);
+            final bool withMe = call.members.containsKey(call.me.id);
 
             bool isDialingMe = false;
             final ChatMembersDialed? dialed = call.call.value?.dialed;
