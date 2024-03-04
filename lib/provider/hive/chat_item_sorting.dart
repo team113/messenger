@@ -55,7 +55,7 @@ class ChatItemSortingHiveProvider extends HiveBaseProvider<ChatItemId> {
     await putSafe(key.toString(), item);
   }
 
-  /// Removes the provided [ChatId] from [Hive].
+  /// Removes the provided [ChatItemKey] from [Hive].
   Future<void> remove(ChatItemKey key) async {
     Log.debug('remove($key)', '$runtimeType');
     await deleteSafe(key.toString());
