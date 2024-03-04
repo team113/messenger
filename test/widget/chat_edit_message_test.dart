@@ -559,8 +559,5 @@ void main() async {
     expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
-
-    await tester.runAsync(() => Future.delayed(1.milliseconds));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }
