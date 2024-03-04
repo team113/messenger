@@ -369,6 +369,7 @@ class HiveRxChat extends RxChat {
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     await _local.close();
+    await _sortingLocal.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
     _userWorker?.dispose();
@@ -454,7 +455,7 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    // Ensure [_local] storage is initialized.
+    // Ensure [_local] and [_sortingLocal] storages are initialized.
     await _local.init(userId: me);
     await _sortingLocal.init(userId: me);
 
@@ -704,6 +705,11 @@ class HiveRxChat extends RxChat {
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
+
+    // Put [item] to the [_local] storage if it's not stored there yet.
+    if (!_local.keys.contains(item.value.id)) {
+      await _local.put(item);
+    }
   }
 
   @override
@@ -834,6 +840,7 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
+    await _sortingLocal.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -1770,7 +1777,8 @@ class HiveRxChat extends RxChat {
                   // If any [ChatMessage] sharing the same fields as the posted
                   // one is found in the [_pending] messages, and this message
                   // is not yet added to the store, then remove the [pending].
-                  if (pending != null && await _local.get(item.value.id) == null) {
+                  if (pending != null &&
+                      await _local.get(item.value.id) == null) {
                     remove(pending.id);
                     _pending.remove(pending);
                   }
