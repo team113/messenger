@@ -249,10 +249,11 @@ class CallWorker extends DisposableService {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
                     call.state.value == OngoingCallState.ended;
-            final bool myUserIsInCall = call.members.values
-                .any((m) => m.id.userId == _myUser.value?.id);
+            final bool withMe = call.members.values.any(
+              (m) => m.id.userId == _myUser.value?.id,
+            );
 
-            if (myUserIsInCall && isActiveOrEnded) {
+            if (withMe && isActiveOrEnded) {
               play(_endCall);
             }
           }
@@ -389,10 +390,10 @@ class CallWorker extends DisposableService {
             final bool isActiveOrEnded =
                 call.state == OngoingCallState.active ||
                     call.state == OngoingCallState.ended;
-            final bool myUserIsInCall =
+            final bool withMe =
                 call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
                     false;
-            if (isActiveOrEnded && myUserIsInCall) {
+            if (isActiveOrEnded && withMe) {
               play(_endCall);
             }
           }
