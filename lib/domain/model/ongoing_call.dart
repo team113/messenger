@@ -157,7 +157,7 @@ class OngoingCall {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
-    members[_me] = CallMember.me(_me, isConnected: true);
+    members[_me] = CallMember.me(_me, isConnected: true, isDialing: !outgoing);
 
     if (withAudio) {
       audioState = Rx(LocalTrackState.enabling);
