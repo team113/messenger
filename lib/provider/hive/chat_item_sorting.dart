@@ -49,10 +49,10 @@ class ChatItemSortingHiveProvider extends HiveBaseProvider<ChatItemId> {
   /// Returns a list of [ChatItemId]s from [Hive].
   Iterable<ChatItemId> get values => valuesSafe;
 
-  /// Puts the provided [ChatItemId] by the provided [key] to [Hive].
-  Future<void> put(ChatItemKey key, ChatItemId item) async {
-    Log.debug('put($item)', '$runtimeType');
-    await putSafe(key.toString(), item);
+  /// Puts the provided [key] to [Hive].
+  Future<void> put(ChatItemKey key) async {
+    Log.debug('put($key))', '$runtimeType');
+    await putSafe(key.toString(), key.id);
   }
 
   /// Removes the provided [ChatItemKey] from [Hive].

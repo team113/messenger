@@ -968,7 +968,12 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _add(event.value!.value);
+          final ChatItem item = event.value!.value;
+          _add(item);
+
+          if (!_sortingLocal.keys.contains(item.key)) {
+            _sortingLocal.put(item.key);
+          }
           break;
 
         case OperationKind.removed:
@@ -1056,10 +1061,10 @@ class HiveRxChat extends RxChat {
     Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
     // Retrieve the [item] itself pointed around.
-    final HiveChatItem? hiveItem = await get(item.key.id);
+    final HiveChatItem? hiveItem = await get(item.id);
 
     final ChatItemsCursor? cursor;
-    final ChatItemId key = forward ?? reply ?? item.key.id;
+    final ChatItemId key = forward ?? reply ?? item.id;
 
     // If [reply] or [forward] is provided, then the [item] should contain it,
     // let's try to retrieve the key and cursor to paginate around it.
@@ -1166,8 +1171,6 @@ class HiveRxChat extends RxChat {
   /// Adds the provided [ChatItem] to the [messages] list.
   void _add(ChatItem item) {
     Log.debug('_add($item)', '$runtimeType($id)');
-
-    _sortingLocal.put(item.key, item.id);
 
     final int i = messages.indexWhere((e) => e.value.id == item.id);
     if (i == -1) {
