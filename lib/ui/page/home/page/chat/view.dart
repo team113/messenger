@@ -670,12 +670,6 @@ class ChatView extends StatelessWidget {
                               );
                             }),
                           ),
-                        // Positioned(
-                        //   top: 20,
-                        //   left: 0,
-                        //   right: 0,
-                        //   child: AudioBarWidget(),
-                        // ),
                       ],
                     ),
                     floatingActionButton: Obx(() {

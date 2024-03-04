@@ -86,7 +86,6 @@ class ChatItemWidget extends StatefulWidget {
     this.onRepliedTap,
     this.onResend,
     this.onFileTap,
-    this.onAudioTap,
     this.onAttachmentError,
     this.onDownload,
     this.onDownloadAs,
@@ -144,9 +143,6 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a [FileAttachment] of this [ChatItem] is tapped.
   final void Function(FileAttachment)? onFileTap;
-
-  /// Callback, called when a [AudioAttaudiont] of this [ChatItem] is tapped.
-  final void Function(FileAttachment)? onAudioTap;
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onAttachmentError;
@@ -327,18 +323,9 @@ class ChatItemWidget extends StatefulWidget {
   }
 
   /// Returns a visual representation of the provided audio-[Attachment].
-  static Widget audioAttachment(
-    Attachment e, {
-    // void Function(AudioAttachment)? onAudioTap,
-    void Function(FileAttachment)? onAudioTap,
-  }) {
+  static Widget audioAttachment(Attachment e) {
     return AudioAttachment(
       e,
-      // onPressed: () {
-      //   if (e is FileAttachment) {
-      //     onAudioTap?.call(e);
-      //   }
-      // },
     );
   }
 }
@@ -939,7 +926,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       (e) => [
                         ChatItemWidget.audioAttachment(
                           e,
-                          onAudioTap: widget.onAudioTap,
                         ),
                         if (audio.last != e) const SizedBox(height: 6),
                       ],

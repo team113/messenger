@@ -57,7 +57,8 @@ class _AudioAttachmentState extends State<AudioAttachment> {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      final AudioPlayerController audioPlayer = Get.find<AudioPlayerController>();
+      final AudioPlayerController audioPlayer =
+          Get.find<AudioPlayerController>();
 
       var isCurrent = audioPlayer.currentAudio.value == e.id.toString();
       var isPlaying = audioPlayer.playing.value;
