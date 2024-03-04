@@ -30,19 +30,19 @@ class AudioPlayerController extends GetxController {
   RxString? currentAudio;
 
   // Boolean indicating whether player is playing.
-  RxBool playing = false.obs;
+  final RxBool playing = false.obs;
 
   // Boolean indicating whether player is buffering.
-  RxBool buffering = false.obs;
+  final RxBool buffering = false.obs;
 
   // Current song position.
-  Rx<Duration> currentSongPosition = Duration.zero.obs;
+  final Rx<Duration> currentSongPosition = Duration.zero.obs;
 
   // Current song duration.
-  Rx<Duration> currentSongDuration = Duration.zero.obs;
+  final Rx<Duration> currentSongDuration = Duration.zero.obs;
 
   // Current song buffered position.
-  Rx<Duration> bufferedPosition = Duration.zero.obs;
+  final Rx<Duration> bufferedPosition = Duration.zero.obs;
 
   /// Indicates whether [ja.AudioPlayer] or [mk.Player] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;

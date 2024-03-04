@@ -28,7 +28,7 @@ import '/ui/widget/widget_button.dart';
 import '/store/audio_player.dart';
 import '/util/audio_utils.dart';
 
-/// Visual representation of a audio file [Attachment].
+/// Visual representation of aa audio file [Attachment].
 class AudioAttachment extends StatefulWidget {
   const AudioAttachment(this.attachment, {super.key});
 
