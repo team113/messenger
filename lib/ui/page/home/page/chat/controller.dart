@@ -1251,11 +1251,15 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
-    try {
-      await _contactService.createChatContact(user!.user.value);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
+    final ChatContactId? contactId = user?.user.value.contacts.firstOrNull;
+
+    if (contactId == null) {
+      try {
+        await _contactService.createChatContact(user!.user.value);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
     }
   }
 
