@@ -335,9 +335,17 @@ class ChatView extends StatelessWidget {
                                         c.paidDisclaimerDismissed.value = false;
                                         c.paidDisclaimer.value = true;
                                       },
+                                      child: Text(
+                                        '¤',
+                                        style: style
+                                            .fonts.larger.regular.onBackground
+                                            .copyWith(
+                                          color: style.colors.primary,
+                                        ),
+                                      ),
                                       // child: const SvgIcon(SvgIcons.paidChat),
-                                      child:
-                                          const SvgIcon(SvgIcons.faceSmileBig),
+                                      // child:
+                                      //     const SvgIcon(SvgIcons.faceSmileBig),
                                     ),
                                   ),
                                   if (children.isNotEmpty)

@@ -104,6 +104,7 @@ class ChatForwardView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         from: from,
         quotes: quotes,
         text: text,
@@ -113,6 +114,10 @@ class ChatForwardView extends StatelessWidget {
       ),
       builder: (ChatForwardController c) {
         return Obx(() {
+          final int price = c.selected.value?.chats
+                  .fold(0, (p, e) => (p ?? 0) + e.messageCost) ??
+              0;
+
           return CustomDropTarget(
             key: Key('ChatForwardView_$from'),
             onDragDone: c.dropFiles,
@@ -133,7 +138,23 @@ class ChatForwardView extends StatelessWidget {
                             SearchCategory.contact,
                             SearchCategory.user,
                           ],
-                          title: 'label_forward_message'.l10n,
+                          title: 'label_forward_messages_for'
+                              .l10nfmt({'amount': price}),
+                          // title: TextSpan(
+                          //   children: [
+                          //     TextSpan(
+                          //       text: price == 0
+                          //           ? 'label_forward_message'.l10n
+                          //           : 'label_forward_messages_for'.l10n,
+                          //     ),
+                          //     if (price != 0)
+                          //       TextSpan(
+                          //         text: '¤$price',
+                          //         style: style.fonts.big.regular.onBackground
+                          //             .copyWith(color: style.colors.leather),
+                          //       ),
+                          //   ],
+                          // ),
                           onSelected: (r) => c.selected.value = r,
                         ),
                       ),

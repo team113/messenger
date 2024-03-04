@@ -1064,6 +1064,7 @@ label_paid_chat = Платный чат
 btn_accept = Принять
 label_insufficient_funds = Недостаточно средств
 label_not_enough_funds_on_your_account = На Вашем счету недостаточно средств.
+label_please_add_funds_to_your_account = Пожалуйста, пополните Ваш счёт.
 label_message_cant_send_message_funds = К сожалению, сообщение не может быть отправлено. Пожалуйста, пополните Ваш счёт.
 label_gift_cant_send_message_funds = К сожалению, донат не может быть отправлен. Пожалуйста, пополните Ваш счёт.
 label_message_cant_make_call_funds = К сожалению, звонок не может быть совершён. Пожалуйста, пополните Ваш счёт.
@@ -1251,3 +1252,7 @@ btn_show_work_tab = Показать раздел работы
 btn_hide_work_tab = Скрыть раздел работы
 btn_show_publics_tab = Показать раздел пабликов
 btn_hide_publics_tab = Скрыть раздел пабликов
+label_forward_messages_for = Переслать сообщения{$amount ->
+    [0] {""}
+   *[other] {" "}за ¤{$amount}
+}

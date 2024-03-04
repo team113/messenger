@@ -22,6 +22,11 @@ import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/insufficient_funds/view.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
@@ -45,7 +50,8 @@ class ChatForwardController extends GetxController {
   ChatForwardController(
     this._chatService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._balanceService, {
     this.text,
     this.pop,
     this.attachments = const [],
@@ -91,6 +97,8 @@ class ChatForwardController extends GetxController {
   /// [AbstractSettingsRepository], used to create a [MessageFieldController].
   final AbstractSettingsRepository _settingsRepository;
 
+  final BalanceService _balanceService;
+
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
@@ -113,27 +121,66 @@ class ChatForwardController extends GetxController {
           return;
         }
 
-        for (var e in selected.value!.chats) {
-          if (e.chat.value.isDialog &&
-              e.chat.value.members.any((e) => e.user.messageCost != 0)) {
-            final member = e.chat.value.members
-                .firstWhere((e) => e.user.messageCost != 0)
-                .user;
-            final result = await MessagePopup.alert(
-              'Переслать сообщение?',
-              description: [
-                TextSpan(
-                  text:
-                      '${member.name ?? member.num} взымает плату за входящие сообщения и звонки.\n\nСтоимость данного сообщения ¤123.',
-                ),
-              ],
-            );
+        final price =
+            selected.value?.chats.fold(0, (p, e) => p + e.messageCost) ?? 0;
+        if (price != 0) {
+          final result = await MessagePopup.alert(
+            'label_forward_messages_for'.l10nfmt({'amount': price}),
+            description: [
+              const TextSpan(
+                text:
+                    'Один или несколько выбранных корреспондентов взимают плату за входящие сообщения и звонки.',
+              ),
+              // TextSpan(
+              //   text: 'Итоговая стоимость: ¤$price',
+              // ),
+              // TextSpan(
+              //   text: 'label_forward_messages_for'.l10nfmt({'amount': price}),
+              // ),
+            ],
+          );
 
-            if (result != true) {
-              return;
-            }
+          if (result != true) {
+            return;
+          }
+
+          if (_balanceService.balance.value < price) {
+            InsufficientFundsView.show(
+              router.context!,
+              description: 'label_please_add_funds_to_your_account'.l10n,
+            );
+            return;
+          } else {
+            _balanceService.add(
+              OutgoingTransaction(
+                amount: -price.toDouble(),
+                at: DateTime.now(),
+              ),
+            );
           }
         }
+
+        // for (var e in selected.value!.chats) {
+        //   if (e.chat.value.isDialog &&
+        //       e.chat.value.members.any((e) => e.user.messageCost != 0)) {
+        //     final member = e.chat.value.members
+        //         .firstWhere((e) => e.user.messageCost != 0)
+        //         .user;
+        //     final result = await MessagePopup.alert(
+        //       'Переслать сообщение?',
+        //       description: [
+        //         TextSpan(
+        //           text:
+        //               '${member.name ?? member.num} взымает плату за входящие сообщения и звонки.\n\nСтоимость данного сообщения ¤123.',
+        //         ),
+        //       ],
+        //     );
+
+        //     if (result != true) {
+        //       return;
+        //     }
+        //   }
+        // }
 
         send.field.status.value = RxStatus.loading();
         send.field.editable.value = false;
@@ -206,7 +253,7 @@ class ChatForwardController extends GetxController {
         } on ForwardChatItemsException catch (e) {
           MessagePopup.error(e);
         } catch (e) {
-          MessagePopup.error(e);
+          MessagePopup.error('err_data_transfer'.l10n);
           rethrow;
         } finally {
           send.field.unsubmit();

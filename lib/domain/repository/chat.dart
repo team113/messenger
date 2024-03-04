@@ -316,12 +316,16 @@ abstract class RxChat implements Comparable<RxChat> {
 
   int get messageCost {
     if (chat.value.isDialog) {
-      return members.values
-              .firstWhereOrNull((e) => e.id != me)
-              ?.user
-              .value
-              .messageCost ??
-          0;
+      return members.values.fold(
+        0,
+        (p, e) => p + e.user.value.messageCost,
+      );
+      // return members.values
+      //         .firstWhereOrNull((e) => e.id != me)
+      //         ?.user
+      //         .value
+      //         .messageCost ??
+      //     0;
     }
 
     return 0;
@@ -329,12 +333,16 @@ abstract class RxChat implements Comparable<RxChat> {
 
   int get callCost {
     if (chat.value.isDialog) {
-      return members.values
-              .firstWhereOrNull((e) => e.id != me)
-              ?.user
-              .value
-              .callCost ??
-          0;
+      return members.values.fold(
+        0,
+        (p, e) => p + e.user.value.callCost,
+      );
+      // return members.values
+      //         .firstWhereOrNull((e) => e.id != me)
+      //         ?.user
+      //         .value
+      //         .callCost ??
+      //     0;
     }
 
     return 0;

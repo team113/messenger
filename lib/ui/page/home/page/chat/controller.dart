@@ -512,7 +512,7 @@ class ChatController extends GetxController {
             if (_balanceService.balance.value < 100) {
               InsufficientFundsView.show(
                 router.context!,
-                description: 'label_message_cant_send_message_funds'.l10n,
+                description: 'label_please_add_funds_to_your_account'.l10n,
               );
               return;
             } else {
@@ -527,7 +527,7 @@ class ChatController extends GetxController {
           if (_balanceService.balance.value < send.donation.value!) {
             InsufficientFundsView.show(
               router.context!,
-              description: 'label_gift_cant_send_message_funds'.l10n,
+              description: 'label_please_add_funds_to_your_account'.l10n,
             );
             return;
           } else {
@@ -687,7 +687,7 @@ class ChatController extends GetxController {
       if (_balanceService.balance.value < 100) {
         await InsufficientFundsView.show(
           router.context!,
-          description: 'label_message_cant_make_call_funds'.l10n,
+          description: 'label_please_add_funds_to_your_account'.l10n,
         );
         return;
       } else {
@@ -761,7 +761,7 @@ class ChatController extends GetxController {
     if (_balanceService.balance.value < sum.toDouble()) {
       await InsufficientFundsView.show(
         router.context!,
-        description: 'label_donate_cant_reject_donate'.l10n,
+        description: 'label_please_add_funds_to_your_account'.l10n,
       );
     } else {
       // TODO

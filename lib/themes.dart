@@ -115,6 +115,7 @@ class Themes {
       decline: const Color(0xFFFF0000),
       danger: const Color(0xFFF44336),
       warning: const Color(0xFFFF9800),
+      leather: const Color(0xFFd79e65),
       userColors: const [
         Color(0xFFD2B334),
         Color(0xFF2192FF),
@@ -709,6 +710,7 @@ class Palette {
     Color? declineOpacity88,
     required this.danger,
     required this.warning,
+    required this.leather,
     required this.userColors,
   })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
         primaryOpacity70 = primaryOpacity70 ?? primary.withOpacity(0.70),
@@ -1010,6 +1012,8 @@ class Palette {
   /// [Color] used to indicate caution, risk, or a potential threat.
   final Color warning;
 
+  final Color leather;
+
   /// [Color]s associated with the [User].
   ///
   /// Used for [AvatarWidget]s and [UserName]s.
@@ -1121,6 +1125,7 @@ class Palette {
           Color.lerp(color.declineOpacity88, other.declineOpacity88, t)!,
       danger: Color.lerp(color.danger, other.danger, t)!,
       warning: Color.lerp(color.warning, other.warning, t)!,
+      leather: Color.lerp(color.leather, other.leather, t)!,
       userColors:
           other.userColors.isNotEmpty ? other.userColors : color.userColors,
     );

@@ -1027,6 +1027,7 @@ label_send_message = Send message
 label_paid_chat = Paid chat
 btn_accept = Accept
 label_insufficient_funds = Insufficient funds
+label_please_add_funds_to_your_account = Please, add funds to your account.
 label_message_cant_send_message_funds = Unfortunately, the message cannot be sent. Please, add funds to your account.
 label_gift_cant_send_message_funds = Unfortunately, the donation can not be sent. Please, add funds to your account.
 label_message_cant_make_call_funds = Unfortunately, the call can not be completed. Please, add funds to your account.
@@ -1203,3 +1204,7 @@ btn_show_work_tab = Display work tab
 btn_hide_work_tab = Hide work tab
 btn_show_publics_tab = Display publics tab
 btn_hide_publics_tab = Hide publics tab
+label_forward_messages_for = Forward messages{$amount ->
+    [0] {""}
+   *[other] {" "}for ¤{$amount}
+}

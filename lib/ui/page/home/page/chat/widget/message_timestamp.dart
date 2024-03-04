@@ -122,8 +122,9 @@ class MessageTimestamp extends StatelessWidget {
             SelectionContainer.disabled(
               child: Text(
                 'Возвращено ', // Refunded
-                style: style.fonts.small.regular.danger
-                    .copyWith(color: const Color(0xFFd79e65)),
+                style: style.fonts.small.regular.secondary,
+                // style: style.fonts.small.regular.danger
+                //     .copyWith(color: style.colors.leather),
               ),
             ),
           if (price != null) ...[
@@ -137,7 +138,9 @@ class MessageTimestamp extends StatelessWidget {
               child: Text(
                 '¤ ${price!.toStringAsFixed(0)}',
                 style: style.fonts.small.regular.secondary.copyWith(
-                  color: rejected ? const Color(0xFFd79e65) : paidColor,
+                  color: rejected
+                      ? /*style.colors.leather*/ style.colors.secondary
+                      : paidColor,
                 ),
               ),
             ),

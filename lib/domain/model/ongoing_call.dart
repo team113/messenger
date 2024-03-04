@@ -1640,13 +1640,13 @@ class OngoingCall {
 
         try {
           tracks = await MediaUtils.getTracks(
-            audio: audioState.value == LocalTrackState.enabling
+            audio: audioState.value.isEnabled
                 ? AudioPreferences(
                     device: audioDevice.value?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
                   )
                 : null,
-            video: videoState.value == LocalTrackState.enabling
+            video: videoState.value.isEnabled
                 ? VideoPreferences(
                     device: videoDevice.value?.deviceId() ??
                         devices.video().firstOrNull?.deviceId(),
@@ -1654,7 +1654,7 @@ class OngoingCall {
                         videoDevice.value == null ? FacingMode.user : null,
                   )
                 : null,
-            screen: screenShareState.value == LocalTrackState.enabling
+            screen: screenShareState.value.isEnabled
                 ? ScreenPreferences(
                     device: screenDevice.value?.deviceId() ??
                         displays.firstOrNull?.deviceId(),
@@ -1796,7 +1796,7 @@ class OngoingCall {
       // initializing the local media.
       await _room?.setLocalMediaSettings(
         _mediaStreamSettings(
-          audio: audioState.value.isEnabled,
+          audio: true,
           video: videoState.value.isEnabled,
           screen: screenShareState.value.isEnabled,
         ),

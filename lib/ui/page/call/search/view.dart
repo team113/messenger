@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
@@ -113,7 +112,16 @@ class SearchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ModalPopupHeader(onBack: onBack, text: title),
+              ModalPopupHeader(
+                onBack: onBack,
+                text: title,
+                // header: Center(
+                //   child: Text.rich(
+                //     title,
+                //     style: style.fonts.big.regular.onBackground,
+                //   ),
+                // ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SearchField(
@@ -121,70 +129,70 @@ class SearchView extends StatelessWidget {
                   onChanged: () => c.query.value = c.search.text,
                 ),
               ),
-              Obx(() {
-                final Widget child;
+              // Obx(() {
+              //   final Widget child;
 
-                final total = c.selectedChats.fold(0, (p, e) {
-                  if (e.chat.value.isDialog) {
-                    return p +
-                        e.chat.value.members.fold(
-                          0,
-                          (p, e) => p + e.user.messageCost,
-                        );
-                  }
+              //   final total = c.selectedChats.fold(0, (p, e) {
+              //     if (e.chat.value.isDialog) {
+              //       return p +
+              //           e.chat.value.members.fold(
+              //             0,
+              //             (p, e) => p + e.user.messageCost,
+              //           );
+              //     }
 
-                  return p;
-                });
+              //     return p;
+              //   });
 
-                if (total == 0) {
-                  child = const SizedBox(width: double.infinity);
-                } else {
-                  child = Container(
-                    margin: const EdgeInsets.fromLTRB(10, 1, 10, 0),
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: style.cardBorder,
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.white,
-                      boxShadow: [
-                        CustomBoxShadow(
-                          blurRadius: 8,
-                          color: style.colors.onBackgroundOpacity13,
-                          blurStyle: BlurStyle.outer.workaround,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Общая стоимость:',
-                          style: style.fonts.normal.regular.secondary.copyWith(
-                            color: const Color(0xFFd79e65),
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
-                        Expanded(
-                          child: Text(
-                            '¤$total',
-                            style:
-                                style.fonts.normal.regular.secondary.copyWith(
-                              color: const Color(0xFFd79e65),
-                            ),
-                            textAlign: TextAlign.right,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+              //   if (total == 0) {
+              //     child = const SizedBox(width: double.infinity);
+              //   } else {
+              //     child = Container(
+              //       margin: const EdgeInsets.fromLTRB(10, 1, 10, 0),
+              //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              //       width: double.infinity,
+              //       decoration: BoxDecoration(
+              //         border: style.cardBorder,
+              //         borderRadius: BorderRadius.circular(12),
+              //         color: Colors.white,
+              //         boxShadow: [
+              //           CustomBoxShadow(
+              //             blurRadius: 8,
+              //             color: style.colors.onBackgroundOpacity13,
+              //             blurStyle: BlurStyle.outer.workaround,
+              //           ),
+              //         ],
+              //       ),
+              //       child: Row(
+              //         children: [
+              //           Text(
+              //             'Общая стоимость:',
+              //             style: style.fonts.normal.regular.secondary.copyWith(
+              //               color: const Color(0xFFd79e65),
+              //             ),
+              //             textAlign: TextAlign.left,
+              //           ),
+              //           Expanded(
+              //             child: Text(
+              //               '¤$total',
+              //               style:
+              //                   style.fonts.normal.regular.secondary.copyWith(
+              //                 color: const Color(0xFFd79e65),
+              //               ),
+              //               textAlign: TextAlign.right,
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     );
+              //   }
 
-                return AnimatedSizeAndFade(
-                  fadeDuration: const Duration(milliseconds: 200),
-                  sizeDuration: const Duration(milliseconds: 200),
-                  child: child,
-                );
-              }),
+              //   return AnimatedSizeAndFade(
+              //     fadeDuration: const Duration(milliseconds: 200),
+              //     sizeDuration: const Duration(milliseconds: 200),
+              //     child: child,
+              //   );
+              // }),
               Expanded(
                 child: Obx(() {
                   final RxStatus status = c.searchStatus.value;
@@ -324,10 +332,10 @@ class SearchView extends StatelessWidget {
                                     '¤123',
                                     style: selected
                                         ? style.fonts.medium.regular.onPrimary
-                                        : style.fonts.medium.regular.secondary
-                                            .copyWith(
-                                            color: const Color(0xFFd79e65),
-                                          ),
+                                        : style.fonts.medium.regular.secondary,
+                                    //   .copyWith(
+                                    //   color: style.colors.leather,
+                                    // ),
                                   ),
                                   // const SizedBox(width: 4),
                                   // SvgIcon(

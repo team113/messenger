@@ -846,8 +846,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   : /* _fromMe ||*/ _rejected
                       ? Text(
                           'Возвращено',
-                          style: style.fonts.small.regular.danger
-                              .copyWith(color: const Color(0xFFd79e65)),
+                          style: style.fonts.small.regular.secondary,
+                          // style: style.fonts.small.regular.danger
+                          //     .copyWith(color: style.colors.leather),
                         )
                       : null,
               title: widget.user?.user.value.name?.val ??
