@@ -391,6 +391,10 @@ class ChatController extends GetxController {
       listController.position.pixels >
           listController.position.maxScrollExtent - 500;
 
+  /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
+  /// if any.
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -1251,9 +1255,7 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
-    final ChatContactId? contactId = user?.user.value.contacts.firstOrNull;
-
-    if (contactId == null) {
+    if (_contactId == null) {
       try {
         await _contactService.createChatContact(user!.user.value);
       } catch (e) {
@@ -1268,8 +1270,7 @@ class ChatController extends GetxController {
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
     try {
-      final ChatContactId? contactId = user?.user.value.contacts.firstOrNull;
-
+      final ChatContactId? contactId = _contactId;
       if (contactId != null) {
         await _contactService.deleteContact(contactId);
       }
