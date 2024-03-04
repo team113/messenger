@@ -99,6 +99,7 @@ import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
 import 'widget/chat_gallery.dart';
+import '/store/audio_player.dart';
 
 export 'view.dart';
 
@@ -478,6 +479,8 @@ class ChatController extends GetxController {
     // Stop the [_typingSubscription] when the send field loses its focus.
     send.field.focus.addListener(_stopTypingOnUnfocus);
 
+    Get.put(AudioPlayerController());
+
     super.onInit();
   }
 
@@ -526,6 +529,8 @@ class ChatController extends GetxController {
     for (final s in _fragmentSubscriptions) {
       s.cancel();
     }
+
+    Get.delete<AudioPlayerController>();
 
     super.onClose();
   }

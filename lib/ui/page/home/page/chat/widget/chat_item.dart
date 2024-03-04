@@ -186,8 +186,6 @@ class ChatItemWidget extends StatefulWidget {
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
-      // QUEST
-      // isVideo = e is FileAttachment;
       isVideo = (e is FileAttachment && e.isVideo);
     }
 
@@ -249,19 +247,9 @@ class ChatItemWidget extends StatefulWidget {
                   final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
-                  // QUEST
-                  // int initial = attachments.indexed
-                  var attachments_list = attachments.toList();
-                  int initial = attachments_list.isEmpty ? -2 : attachments_list.indexed
+                  int initial = attachments.indexed
                       .firstWhere((a) => a.$2.attachment == e)
                       .$1;
-
-                  // If there are no video or image attachments to display,
-                  // do nothing.
-                  if (initial == -2) {
-                    return;
-                  }
-
                   if (initial == -1) {
                     initial = 0;
                   }
@@ -793,17 +781,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
 
     final List<Attachment> audio = msg.attachments.where((e) {
-      return (
-          (e is FileAttachment && e.isAudio) ||
+      return ((e is FileAttachment && e.isAudio) ||
           (e is LocalAttachment && e.file.isAudio));
     }).toList();
 
     final List<Attachment> files = msg.attachments.where((e) {
-      // QUEST
-      // return ((e is FileAttachment && !e.isVideo) ||
-      //     (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
       return ((e is FileAttachment && !e.isVideo && !e.isAudio) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo && !e.file.isAudio));
+          (e is LocalAttachment &&
+              !e.file.isImage &&
+              !e.file.isVideo &&
+              !e.file.isAudio));
     }).toList();
 
     final Color color = _fromMe
@@ -1466,8 +1453,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     if (item is ChatMessage) {
       copyable = item.text?.val;
       media.addAll(item.attachments.where(
-        // QUEST
-        // (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
         (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
       ));
     }
@@ -1935,11 +1920,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       _galleryKeys = msg.attachments
           .where((e) =>
               e is ImageAttachment ||
-              // QUEST
-              // (e is FileAttachment && e.isVideo) ||
-              // (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
-              (e is FileAttachment && (e.isVideo || e.isAudio)) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo || e.file.isAudio)))
+              (e is FileAttachment && e.isVideo) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)))
           .map((e) => GlobalKey())
           .toList();
     } else if (msg is ChatForward) {

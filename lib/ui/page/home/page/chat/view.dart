@@ -66,7 +66,6 @@ import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
-import '/ui/widget/audio_bar.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
@@ -878,11 +877,6 @@ class ChatView extends StatelessWidget {
                   onResend: () => c.resendItem(e.value),
                   onEdit: () => c.editMessage(e.value),
                   onFileTap: (a) => c.downloadFile(e.value, a),
-                  onAudioTap: (a) {
-                    // TODO
-                    // c.downloadFile(e.value, a);
-                    print('yoyo');
-                  },
                   onAttachmentError: () async {
                     await c.chat?.updateAttachments(e.value);
                     await Future.delayed(Duration.zero);

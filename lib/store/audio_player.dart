@@ -15,86 +15,58 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
 import 'package:get/get.dart';
-import '/domain/model/audio_file.dart';
 import '/util/audio_utils.dart';
+import '/util/platform_utils.dart';
 
-class AudioStore extends GetxController {
-  var currentAudio = 'Some id'.obs; // obs indicates observables for reactivity
-  // var currentAudio = AudioFile(
-  //   id: '2',
-  //   name: 'Some id',
-  //   ).obs; // obs indicates observables for reactivity
+class AudioPlayerController extends GetxController {
+  late AudioPlayerInterface player;
+  bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
-  var playlistQueue = <AudioFile>[].obs;
-
-  // var playbackState = PlaybackState.stopped.obs;
+  var currentAudio = 'Some id'.obs;
   var playing = false.obs;
-  var bufferedPosition = Duration.zero.obs;
+  var buffering = false.obs;
   var currentSongPosition = Duration.zero.obs;
   var currentSongDuration = Duration.zero.obs;
+  var bufferedPosition = Duration.zero.obs;
 
-  /// [StreamSubscription] for the audio playback.
-  StreamSubscription? _audio;
+  @override
+  void onInit() {
+    super.onInit();
+    _initPlayer();
 
-  /// current audio stream player
-  PlayerController? _audioStream;
+    player.positionStream.listen((position) {
+      currentSongPosition.value = position;
+    });
 
-  // Methods
-  // void play(AudioFile audioFile) {
-  void play(path, url) {
-    playing.value = true;
+    player.durationStream.listen((duration) {
+      currentSongDuration.value = duration;
+    });
 
-    var asrc = path != null ? AudioSource.file(path!) : AudioSource.url(url!);
-    _audioStream = AudioUtils.createPlayStream(asrc, loop: false, stop_others: true);
-    _audio = _audioStream?.beginPlay(
-      onData: (_) {
-          print('get data');
-          _audioStream?.getDurationStream().listen((event) {
-            print('event');
-            print(event);
-            currentSongDuration.value = event;
-          },
-          onError: (e) {
-            print('Error occurred while listening to duration stream: $e');
-          }, );
-          _audioStream?.getPositionStream().listen((event) {
-            print('yoyoyo');
-            currentSongPosition.value = event;
-          });
-      },
-      onDone: () => {
-        stop(external_call: true)
-      }
-    );
+    player.playingStream.listen((isPlaying) {
+      playing.value = isPlaying;
+    });
+
+    player.playingStream.listen((isBuffering) {
+      buffering.value = isBuffering;
+    });
+
+    player.bufferedPositionStream.listen((buffered) {
+      bufferedPosition.value = buffered;
+    });
   }
 
-  void stop({bool external_call=false}) {
-    if (!external_call) {
-      _audio?.cancel();
+  void _initPlayer() {
+    if (_isMobile) {
+      player = JustAudioPlayerAdapter();
+    } else {
+      player = MediaKitPlayerAdapter();
     }
-    _audio = null;
-    _audioStream = null;
   }
 
-  void pause() {
-    playing.value = false;
-    // Implement pause logic, inheriting from AudioUtils (not provided)
-  }
-
-  // void seek(Duration position) {
-  void seek(double position) {
-    // Implement seek logic, inheriting from AudioUtils (not provided)
-    // currentSongPosition.value = position; // TODO: convert to Duration
-    _audioStream?.seek(position);
-  }
-
-  // void setCurrentAudio(AudioFile audioFile) {
-  //   currentAudio.value = audioFile;
-  // }
-
-  void setCurrentAudio(String id) {
-    currentAudio.value = id;
+  @override
+  void onClose() {
+    player.dispose();
+    super.onClose();
   }
 }

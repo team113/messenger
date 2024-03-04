@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.12.2...v0.1.0-alpha.12.3) | [Milestone](/../../milestone/17)
 
+### Added
+
+- UI:
+    - Chat page:
+        - Be able to play audio files. ([#872])
+
 ### Fixed
 
 - UI:

@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -25,23 +24,16 @@ import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/store/audio_player.dart';
 import '/util/audio_utils.dart';
-// import '/ui/worker/cache.dart';
 
 /// Visual representation of a audio file [Attachment].
 class AudioAttachment extends StatefulWidget {
-  const AudioAttachment(this.attachment, {super.key,
-    // this.onPressed
-  });
+  const AudioAttachment(this.attachment, {super.key});
 
   /// [Attachment] to display.
   final Attachment attachment;
-
-  /// Callback, called when this [AudioAttachment] is pressed.
-  // final void Function()? onPressed;
 
   @override
   State<AudioAttachment> createState() => _AudioAttachmentState();
@@ -49,12 +41,6 @@ class AudioAttachment extends StatefulWidget {
 
 /// State of a [AudioAttachment] maintaining the [_hovered] indicator.
 class _AudioAttachmentState extends State<AudioAttachment> {
-  /// Indicator whether this [AudioAttachment] is playing.
-  bool _hovered = false;
-
-  /// Indicator whether this [AudioAttachment] has loaded.
-  bool _loaded = false;
-
   @override
   void initState() {
     if (widget.attachment is FileAttachment) {
@@ -62,11 +48,8 @@ class _AudioAttachmentState extends State<AudioAttachment> {
     }
 
     super.initState();
-
-    print(widget.attachment);
-    print(widget.attachment.id);
-    // debugDumpObject(widget.attachment);
   }
+
   @override
   Widget build(BuildContext context) {
     final Attachment e = widget.attachment;
@@ -74,21 +57,60 @@ class _AudioAttachmentState extends State<AudioAttachment> {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      final AudioStore audioStore = Get.find<AudioStore>();
-      // var audio = audioStore.currentAudio.value;
+      final AudioPlayerController audioPlayer = Get.find<AudioPlayerController>();
 
-      var isCurrent = audioStore.currentAudio.value == e.id.toString();
-      var isPlaying = audioStore.playing.value;
-      var isCurrentPlaying = isCurrent && isPlaying;
+      var isCurrent = audioPlayer.currentAudio.value == e.id.toString();
+      var isPlaying = audioPlayer.playing.value;
 
-      // var _currentSliderValueMs = 0.0.obs;
-      // var _maxSliderValueMs = 1000.0.obs;
-      var _currentSliderValueMs = audioStore.currentSongPosition.value.inMilliseconds.toDouble();
-      var _maxSliderValueMs = audioStore.currentSongDuration.value.inMilliseconds.toDouble();
+      var playedPosition =
+          audioPlayer.currentSongPosition.value.inMilliseconds.toDouble();
+      var totalDuration =
+          audioPlayer.currentSongDuration.value.inMilliseconds.toDouble();
+      var bufferedPosition =
+          audioPlayer.bufferedPosition.value.inMilliseconds.toDouble();
+
+      // This determines if buffering is blocking the playing
+      var bufferDifference = bufferedPosition - playedPosition;
+
+      var isBuffering = audioPlayer.buffering.value &&
+          isPlaying &&
+          bufferDifference <
+              const Duration(seconds: 1).inMilliseconds.toDouble();
 
       Widget leading = Container();
 
       if (e is FileAttachment) {
+        Widget icon;
+
+        if (isCurrent) {
+          if (isPlaying) {
+            if (isBuffering) {
+              icon = const CircularProgressIndicator(
+                strokeWidth: 2.0,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              );
+            } else {
+              icon = const Icon(
+                Icons.pause_rounded,
+                size: 25,
+                color: Color(0xFFFFFFFF),
+              );
+            }
+          } else {
+            icon = const Icon(
+              Icons.play_arrow_rounded,
+              size: 25,
+              color: Color(0xFFFFFFFF),
+            );
+          }
+        } else {
+          icon = const Icon(
+            Icons.play_arrow_rounded,
+            size: 25,
+            color: Color(0xFFFFFFFF),
+          );
+        }
+
         leading = Container(
           key: const Key('Play'),
           height: 29,
@@ -97,20 +119,7 @@ class _AudioAttachmentState extends State<AudioAttachment> {
             shape: BoxShape.circle,
             color: style.colors.primary,
           ),
-          child: Center(
-            child: Icon(
-              isCurrentPlaying
-                  ? Icons.pause_rounded
-                  : Icons.play_arrow_rounded,
-              size: 25,
-              // color: const Colors.white
-              color: const Color(0xFFFFFFFF)
-            ),
-            // child: Transform.translate(
-            //   // offset: const Offset(0.3, -0.5),
-            //   // child: SvgIcon(isCurrentPlaying ? SvgIcons.pause : SvgIcons.play),
-            // ),
-          ),
+          child: Center(child: icon),
         );
       } else if (e is LocalAttachment) {
         switch (e.status.value) {
@@ -128,7 +137,7 @@ class _AudioAttachmentState extends State<AudioAttachment> {
 
           case SendingStatus.sent:
             leading = Icon(
-              Icons.play_arrow_rounded,
+              Icons.check_circle,
               key: const Key('Sent'),
               size: 29,
               color: style.colors.acceptAuxiliary,
@@ -146,119 +155,136 @@ class _AudioAttachmentState extends State<AudioAttachment> {
         }
       }
 
-      // return Text(
-      //   'Hello world',
-      //   style: style.fonts.medium.regular.onBackground,
-      //   maxLines: 1,
-      //   overflow: TextOverflow.ellipsis,
-      // );
-
       return MouseRegion(
-        // onEnter: (_) => setState(() => _hovered = true),
-        // onExit: (_) => setState(() => _hovered = false),
         child: Padding(
           key: Key('AudioFile_${e.id}'),
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
             onPressed: () {
-              var path;
-
-              if (e is LocalAttachment) {
-                path.value = (e as LocalAttachment).file.path;
-              }
-              var url = e.original.url;
-
               if (isCurrent) {
                 if (isPlaying) {
-                  audioStore.stop();
-                  // audioStore.pause();
+                  audioPlayer.player.pause();
                 } else {
-                  audioStore.play(path, url);
+                  audioPlayer.player.play();
                 }
               } else {
-                audioStore.setCurrentAudio(e.id.toString());
-                audioStore.play(path, url);
+                String? path = (e is LocalAttachment) ? e.file.path : null;
+                String? url = e.original.url;
+
+                AudioSource audioSource = path != null
+                    ? AudioSource.file(path)
+                    : AudioSource.url(url);
+
+                audioPlayer.player.setTrack(audioSource);
+                audioPlayer.currentAudio.value = e.id.toString();
+                audioPlayer.player.play();
               }
             },
-            child: Row(
-              children: [
-                const SizedBox(width: 6),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: SafeAnimatedSwitcher(
-                    key: Key('AttachmentStatus_${e.id}'),
-                    duration: 250.milliseconds,
-                    child: leading,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minWidth:
+                    400, // Here we set some minimal width, so message never jumps
+                // in width after Slider is shown
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 6),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: SafeAnimatedSwitcher(
+                      key: Key('AttachmentStatus_${e.id}'),
+                      duration: 250.milliseconds,
+                      child: leading,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              p.basenameWithoutExtension(e.filename),
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                p.basenameWithoutExtension(e.filename),
+                                style: style.fonts.medium.regular.onBackground,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              p.extension(e.filename),
                               style: style.fonts.medium.regular.onBackground,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            p.extension(e.filename),
-                            style: style.fonts.medium.regular.onBackground,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      if (isCurrentPlaying)
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              flex: 4, // take 80% of space
-                              child: Slider(
-                                value: _currentSliderValueMs,
-                                max: _maxSliderValueMs,
-                                label: _currentSliderValueMs.round().toString(),
-                                onChanged: (double value) {
-                                  audioStore.seek(value);
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1, // take 20% of space
-                              child: Text(
-                                "${(_currentSliderValueMs/60000.0).floor().toString().padLeft(2, '0')}:${((_currentSliderValueMs % 60000.0) / 1000.0).floor().toString().padLeft(2, '0')}/"
-                                "${(_maxSliderValueMs/60000.0).floor().toString().padLeft(2, '0')}:${((_maxSliderValueMs % 60000.0) / 1000.0).floor().toString().padLeft(2, '0')}",
-                                style: style.fonts.small.regular.secondary,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            )
                           ],
                         ),
-                      if (!isCurrentPlaying)
-                        Text(
-                          'label_kb'.l10nfmt({
-                            'amount': e.original.size == null
-                                ? 'dot'.l10n * 3
-                                : e.original.size! ~/ 1024
-                          }),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                    ],
+                        const SizedBox(height: 3),
+                        if (isCurrent)
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: Padding(
+                                  padding: EdgeInsets.zero,
+                                  child: SliderTheme(
+                                    data: SliderTheme.of(context).copyWith(
+                                        trackHeight: 1.0,
+                                        thumbShape: const RoundSliderThumbShape(
+                                            enabledThumbRadius: 8.0),
+                                        // This removes the additional circular area around the thumb.
+                                        overlayShape:
+                                            const RoundSliderOverlayShape(
+                                                overlayRadius: 1.0),
+                                        thumbColor: style.colors.primary,
+                                        activeTrackColor: style
+                                            .colors.primaryHighlightLightest),
+                                    child: Slider(
+                                      value: playedPosition,
+                                      secondaryTrackValue: bufferedPosition,
+                                      max: totalDuration,
+                                      label: playedPosition.round().toString(),
+                                      onChanged: (double value) {
+                                        Duration seekDuration = Duration(
+                                            milliseconds: value.round());
+                                        audioPlayer.player.seek(seekDuration);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                    "${(playedPosition / 60000.0).floor().toString().padLeft(2, '0')}:${((playedPosition % 60000.0) / 1000.0).floor().toString().padLeft(2, '0')}/"
+                                    "${(totalDuration / 60000.0).floor().toString().padLeft(2, '0')}:${((totalDuration % 60000.0) / 1000.0).floor().toString().padLeft(2, '0')}",
+                                    style: style.fonts.small.regular.secondary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.end),
+                              )
+                            ],
+                          ),
+                        if (!isCurrent)
+                          Text(
+                            'label_kb'.l10nfmt({
+                              'amount': e.original.size == null
+                                  ? 'dot'.l10n * 3
+                                  : e.original.size! ~/ 1024
+                            }),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.fonts.small.regular.secondary,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

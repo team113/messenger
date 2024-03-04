@@ -104,12 +104,10 @@ class FileAttachment extends Attachment {
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
 
-
   /// Indicates whether this [FileAttachment] represents a audio.
   bool get isAudio {
     final String file = filename.toLowerCase();
-    return file.endsWith('.mp3') ||
-        file.endsWith('.wav');
+    return file.endsWith('.mp3') || file.endsWith('.wav');
   }
 
   /// Indicates whether this [FileAttachment] represents a video.

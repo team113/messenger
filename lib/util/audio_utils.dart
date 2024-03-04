@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:media_kit/media_kit.dart' hide AudioDevice;
+import 'package:media_kit/media_kit.dart' as mk hide AudioDevice;
 import 'package:mutex/mutex.dart';
 
 import '/util/media_utils.dart';
@@ -32,64 +32,21 @@ import 'platform_utils.dart';
 // ignore: non_constant_identifier_names
 AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
-class PlayerController {
-  late StreamController<void> _stream_controller;
-  Player ?_player;
-  Timer ?_timer;
-
-  StreamSubscription<void> beginPlay({
-    void Function(void) ?onData = null,
-    dynamic Function() ?onDone = null
-  }) {
-    print('here check onData');
-    print(onData);
-    return _stream_controller.stream.listen(
-      // onData ?? (_) {},
-      (_) {
-        print('yoyoyoyoyoyo1111');
-        // _stream_controller.getDurationStream().listen((event) {
-        //   print('event');
-        //   print(event);
-        // });
-      },
-      onDone: onDone
-    );
-  }
-
-  Stream<Duration> getPositionStream() {
-    return _player!.stream.position;
-  }
-
-  Stream<Duration> getDurationStream() {
-    return _player!.stream.duration;
-  }
-
-  void close() {
-    _stream_controller.close();
-  }
-
-  void seek(double milliseconds) {
-    _player?.seek(Duration(milliseconds: milliseconds.floor()));
-  }
-}
-
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
-  /// [Player] lazily initialized to play sounds [once].
-  Player? _player;
+  /// [mk.Player] lazily initialized to play sounds [once].
+  mk.Player? _player;
 
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ///
   /// [ja.AudioPlayer] is used on mobile platforms due to it accounting
   /// [AudioSession] preferences (e.g. switching audio output for mobiles),
-  /// which [Player] doesn't do.
+  /// which [mk.Player] doesn't do.
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
-  // QUEST
-  // final Map<AudioSource, StreamController<void>> _players = {};
-  final Map<AudioSource, PlayerController> _players = {};
+  final Map<AudioSource, StreamController<void>> _players = {};
 
   /// [AudioSpeakerKind] currently used for audio output.
   AudioSpeakerKind? _speaker;
@@ -107,10 +64,10 @@ class AudioUtilsImpl {
       if (_isMobile) {
         _jaPlayer ??= ja.AudioPlayer();
       } else {
-        _player ??= Player();
+        _player ??= mk.Player();
       }
     } catch (e) {
-      // If [Player] isn't available on the current platform, this throws a
+      // If [mk.Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
       if (e is! TypeError) {
         Log.error(
@@ -133,57 +90,29 @@ class AudioUtilsImpl {
     }
   }
 
-  // TODO
+  /// Plays the provided [music] looped with the specified [fade].
+  ///
+  /// Stopping the [music] means canceling the returned [StreamSubscription].
   StreamSubscription<void> play(
     AudioSource music, {
-      Duration fade = Duration.zero,
-      bool loop = true,
-      bool stop_others = false,
-    }) {
-    var stream = createPlayStream(music, fade: fade, loop: loop, stop_others: stop_others);
-    return stream.beginPlay();
-  }
-
-  /// Plays the provided [music] looped with the specified [fade].
-  /// [loop] forces the [music] to loop. It is true by default.
-  /// [stop_others] if true, stops other played streams. It is false by default.
-  /// [onDone] optional onDone handler for returned StreamSubscription.
-  /// Stopping the [music] means canceling the returned [StreamSubscription].
-  PlayerController createPlayStream(
-    AudioSource music, {
     Duration fade = Duration.zero,
-    bool loop = true,
-    bool stop_others = false,
   }) {
-    PlayerController? controller = _players[music];
+    StreamController? controller = _players[music];
     StreamSubscription? position;
-    print('here creating');
 
-    // if (controller == null) {
-    //   ja.AudioPlayer? jaPlayer;
-    //   Player? player;
-    //   Timer? timer;
-    if (stop_others) {
-      _players.forEach((key, value) {
-        if (key != music) {
-          value.close();
-        }
-      });
-    }
+    if (controller == null) {
+      ja.AudioPlayer? jaPlayer;
+      mk.Player? player;
+      Timer? timer;
 
-    if (controller == null || controller._player == null) {
-      controller = PlayerController();
-      // controller = StreamController.broadcast(
-      var stream_controller = StreamController.broadcast(
+      controller = StreamController.broadcast(
         onListen: () async {
           try {
-            // TODO
-            controller?._player = Player();
-            // if (_isMobile) {
-            //   jaPlayer = ja.AudioPlayer();
-            // } else {
-            //   player = Player();
-            // }
+            if (_isMobile) {
+              jaPlayer = ja.AudioPlayer();
+            } else {
+              player = mk.Player();
+            }
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -196,79 +125,55 @@ class AudioUtilsImpl {
           }
 
           if (_isMobile) {
-            // await jaPlayer?.setAudioSource(music.source);
-            // await jaPlayer?.setLoopMode(ja.LoopMode.all);
-            // await jaPlayer?.play();
+            await jaPlayer?.setAudioSource(music.source);
+            await jaPlayer?.setLoopMode(ja.LoopMode.all);
+            await jaPlayer?.play();
           } else {
-            // await player?.open(music.media);
-            await controller?._player?.open(music.media);
+            await player?.open(music.media);
 
-            // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-            // if (PlatformUtils.isWeb) {
-            //   position = player?.stream.completed.listen((e) async {
-            //     await player?.seek(Duration.zero);
-            //     await player?.play();
-            //   });
-            if (loop) {
-              if (PlatformUtils.isWeb) {
-                position = controller?._player?.stream.completed.listen((e) async {
-                  await controller?._player?.seek(Duration.zero);
-                  await controller?._player?.play();
-                });
-              } else {
-                await controller?._player?.setPlaylistMode(PlaylistMode.loop);
-              }
-            } else {
-              // await player?.setPlaylistMode(PlaylistMode.loop);
-              controller?._player?.stream.completed.listen((e) {
-                Future.delayed(const Duration(milliseconds: 500), ()
-                {
-                  if (controller?._player != null && controller!._player!.state.completed) {
-                    controller?.close();
-                  }
-                });
+            // TODO: Wait for `media_kit` to improve [mk.PlaylistMode.loop] in Web.
+            if (PlatformUtils.isWeb) {
+              position = player?.stream.completed.listen((e) async {
+                await player?.seek(Duration.zero);
+                await player?.play();
               });
+            } else {
+              await player?.setPlaylistMode(mk.PlaylistMode.loop);
             }
           }
 
           if (fade != Duration.zero) {
-            // await (jaPlayer?.setVolume ?? player?.setVolume)?.call(0);
+            await (jaPlayer?.setVolume ?? player?.setVolume)?.call(0);
 
-            // timer = Timer.periodic(
-            //   Duration(microseconds: fade.inMicroseconds ~/ 10),
-            //   (timer) async {
-            //     if (timer.tick > 9) {
-            //       timer.cancel();
-            //     } else {
-            //       await jaPlayer?.setVolume((timer.tick + 1) / 10);
-            //       await player?.setVolume(100 * (timer.tick + 1) / 10);
-            //     }
-            //   },
-            // );
+            timer = Timer.periodic(
+              Duration(microseconds: fade.inMicroseconds ~/ 10),
+              (timer) async {
+                if (timer.tick > 9) {
+                  timer.cancel();
+                } else {
+                  await jaPlayer?.setVolume((timer.tick + 1) / 10);
+                  await player?.setVolume(100 * (timer.tick + 1) / 10);
+                }
+              },
+            );
           }
         },
         onCancel: () async {
           _players.remove(music);
           position?.cancel();
-          // timer?.cancel();
-          controller?._timer?.cancel();
+          timer?.cancel();
 
-          // Future<void>? dispose = jaPlayer?.dispose() ?? player?.dispose();
-          // jaPlayer = null;
-          // player = null;
-          Future<void>? dispose = controller?._player?.dispose();
-          controller?._player = null;
+          Future<void>? dispose = jaPlayer?.dispose() ?? player?.dispose();
+          jaPlayer = null;
+          player = null;
           await dispose;
         },
       );
 
-      controller._stream_controller = stream_controller;
       _players[music] = controller;
     }
 
-    print('here before returning controller');
-    return controller!;
-    // return controller.stream.listen((_) {});
+    return controller.stream.listen((_) {});
   }
 
   /// Sets the [speaker] to use for audio output.
@@ -410,6 +315,127 @@ class AudioUtilsImpl {
   }
 }
 
+abstract class AudioPlayerInterface {
+  setTrack(AudioSource song);
+  play();
+  pause();
+  seek(Duration position);
+  stop();
+  dispose();
+
+  Stream<bool> get playingStream;
+  Stream<bool> get bufferingStream;
+  Stream<Duration> get positionStream;
+  Stream<Duration> get durationStream;
+  Stream<Duration> get bufferedPositionStream;
+}
+
+// Create a class for just_audio, that implements the common interface
+class JustAudioPlayerAdapter implements AudioPlayerInterface {
+  final ja.AudioPlayer _player = ja.AudioPlayer();
+
+  @override
+  setTrack(AudioSource song) async {
+    _player.setAudioSource(song.source);
+  }
+
+  @override
+  play() async {
+    _player.play();
+  }
+
+  @override
+  pause() {
+    _player.pause();
+  }
+
+  @override
+  seek(Duration position) {
+    _player.seek(position);
+  }
+
+  @override
+  stop() {
+    _player.stop();
+  }
+
+  @override
+  dispose() {
+    _player.dispose();
+  }
+
+  @override
+  Stream<bool> get playingStream => _player.playingStream;
+
+  @override
+  Stream<bool> get bufferingStream => _player.processingStateStream
+      .map((state) => state == ja.ProcessingState.buffering);
+
+  @override
+  Stream<Duration> get positionStream => _player.positionStream;
+
+  @override
+  Stream<Duration> get durationStream => _player.durationStream
+      .where((duration) => duration != null)
+      .map((duration) => duration!);
+
+  @override
+  Stream<Duration> get bufferedPositionStream => _player.bufferedPositionStream;
+}
+
+// Create a class for media_kit, that implements the common interface
+class MediaKitPlayerAdapter implements AudioPlayerInterface {
+  final mk.Player _player = mk.Player();
+
+  @override
+  setTrack(AudioSource song) async {
+    await _player.open(
+      song.media,
+      play: false,
+    );
+  }
+
+  @override
+  play() async {
+    _player.play();
+  }
+
+  @override
+  pause() {
+    _player.pause();
+  }
+
+  @override
+  seek(Duration position) {
+    _player.seek(position);
+  }
+
+  @override
+  stop() {
+    _player.stop();
+  }
+
+  @override
+  dispose() {
+    _player.dispose();
+  }
+
+  @override
+  Stream<bool> get playingStream => _player.stream.playing;
+
+  @override
+  Stream<bool> get bufferingStream => _player.stream.buffering;
+
+  @override
+  Stream<Duration> get positionStream => _player.stream.position;
+
+  @override
+  Stream<Duration> get durationStream => _player.stream.duration;
+
+  @override
+  Stream<Duration> get bufferedPositionStream => _player.stream.buffer;
+}
+
 /// Possible [AudioSource] kind.
 enum AudioSourceKind { asset, file, url }
 
@@ -483,17 +509,17 @@ class UrlAudioSource extends AudioSource {
   bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
 }
 
-/// Extension adding conversion from an [AudioSource] to a [Media] or
+/// Extension adding conversion from an [AudioSource] to a [mk.Media] or
 /// [ja.AudioSource].
 extension on AudioSource {
   /// Returns a [Media] corresponding to this [AudioSource].
-  Media get media => switch (kind) {
-        AudioSourceKind.asset => Media(
+  mk.Media get media => switch (kind) {
+        AudioSourceKind.asset => mk.Media(
             'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
           ),
         AudioSourceKind.file =>
-          Media('file:///${(this as FileAudioSource).file}'),
-        AudioSourceKind.url => Media((this as UrlAudioSource).url),
+          mk.Media('file:///${(this as FileAudioSource).file}'),
+        AudioSourceKind.url => mk.Media((this as UrlAudioSource).url),
       };
 
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
