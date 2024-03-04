@@ -147,8 +147,13 @@ class NativeFile {
     // Best effort if [mime] is `null`.
     if (mime == null) {
       return [
-        'mp3',
-        'wav',
+        '.mp3',
+        '.wav',
+        '.aac',
+        '.ogg',
+        '.flac',
+        '.aiff',
+        '.m4a',
       ].contains(extension.toLowerCase());
     }
 

@@ -107,7 +107,18 @@ class FileAttachment extends Attachment {
   /// Indicates whether this [FileAttachment] represents an audio.
   bool get isAudio {
     final String file = filename.toLowerCase();
-    return file.endsWith('.mp3') || file.endsWith('.wav');
+    // In case we ever need to support more formats, see this:
+    // https://pub.dev/packages/media_kit#supported-formats
+    // https://github.com/ryanheise/just_audio/blob/minor/just_audio/README.md#audio-file-formatsencodings
+    //
+    // Right now only most popular are included.
+    return file.endsWith('.mp3') ||
+        file.endsWith('.wav') ||
+        file.endsWith('.aac') ||
+        file.endsWith('.ogg') ||
+        file.endsWith('.flac') ||
+        file.endsWith('.aiff') ||
+        file.endsWith('.m4a');
   }
 
   /// Indicates whether this [FileAttachment] represents a video.
