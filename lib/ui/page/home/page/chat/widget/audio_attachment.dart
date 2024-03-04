@@ -60,7 +60,7 @@ class _AudioAttachmentState extends State<AudioAttachment> {
       final AudioPlayerController audioPlayer =
           Get.find<AudioPlayerController>();
 
-      var isCurrent = audioPlayer.currentAudio?.value == e.id.toString();
+      var isCurrent = audioPlayer.currentAudio.value == e.id.toString();
       var isPlaying = audioPlayer.playing.value;
 
       var playedPosition =
@@ -177,7 +177,7 @@ class _AudioAttachmentState extends State<AudioAttachment> {
                     : AudioSource.url(url);
 
                 audioPlayer.player.setTrack(audioSource);
-                audioPlayer.currentAudio!.value = e.id.toString();
+                audioPlayer.currentAudio.value = e.id.toString();
                 audioPlayer.player.play();
               }
             },

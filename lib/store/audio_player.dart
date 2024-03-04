@@ -28,7 +28,7 @@ class AudioPlayerController extends GetxController {
 
   /// Id of the currently selected playing audio. Later we will store some
   /// Song object here most likely.
-  RxString? currentAudio;
+  final RxnString currentAudio = RxnString(null);
 
   // Boolean indicating whether player is playing.
   final RxBool playing = false.obs;
