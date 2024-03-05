@@ -192,7 +192,7 @@ class ChatService extends DisposableService {
     RxChat? chat;
 
     if (userId == me) {
-      chat = chats.remove(chatId);
+      chat = chats[chatId];
       if (router.route.startsWith('${Routes.chats}/$chatId')) {
         router.home();
       }
