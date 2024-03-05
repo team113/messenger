@@ -62,10 +62,6 @@ class AudioPlayerService extends DisposableService {
   /// if it's a new track - set the audioSource and play.
   void play(AudioTrack audio) {
     var isCurrent = currentAudio.value == audio.id;
-    print(isCurrent);
-    print(audio);
-    print(audio.id);
-    print(audio.audioSource);
 
     if (isCurrent) {
       _player.play();
