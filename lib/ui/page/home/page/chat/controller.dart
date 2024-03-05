@@ -530,8 +530,7 @@ class ChatController extends GetxController {
 
     // NOTE: Right now we stop the player when we leave the chat page.
     final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
-    audioPlayer.player.stop();
-    audioPlayer.currentAudio.value = null;
+    audioPlayer.stop();
 
     super.onClose();
   }

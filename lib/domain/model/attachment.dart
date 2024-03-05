@@ -24,8 +24,10 @@ import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/ui/worker/cache.dart';
+import '/util/audio_utils.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
+import 'audio_track.dart';
 import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -208,4 +210,25 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+}
+
+/// Extension on [Attachment] to transform to [AudioTrack].
+extension ConvertToAudioTrack on Attachment {
+  AudioTrack convertToAudioTrack() {
+    if (this is LocalAttachment) {
+      String path = (this as LocalAttachment).file.path!;
+      AudioSource audioSource = AudioSource.file(path);
+
+      return AudioTrack(
+          id: id.toString(), title: filename, audioSource: audioSource);
+    } else if (this is FileAttachment) {
+      String path = (this as FileAttachment).original.url;
+      AudioSource audioSource = AudioSource.url(path);
+
+      return AudioTrack(
+          id: id.toString(), title: filename, audioSource: audioSource);
+    } else {
+      throw ArgumentError('Attachment type not supported');
+    }
+  }
 }

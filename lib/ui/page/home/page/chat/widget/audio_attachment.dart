@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import '/domain/model/audio_track.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/service/audio_player.dart';
@@ -26,7 +27,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/audio_utils.dart';
 
 /// Visual representation of an audio file [Attachment].
 class AudioAttachment extends StatelessWidget {
@@ -52,13 +52,12 @@ class AudioAttachment extends StatelessWidget {
       var bufferedPosition = audioPlayer.bufferedPosition.value;
 
       // This determines if buffering is blocking the playing
-      var bufferDifference = bufferedPosition.inMilliseconds.toDouble()
-          - playedPosition.inMilliseconds.toDouble();
+      var bufferDifference =
+          bufferedPosition.inMilliseconds - playedPosition.inMilliseconds;
 
       var isBuffering = audioPlayer.buffering.value &&
           isPlaying &&
-          bufferDifference <
-              const Duration(seconds: 1).inMilliseconds.toDouble();
+          bufferDifference < const Duration(seconds: 1).inMilliseconds;
 
       Widget leading = Container();
 
@@ -144,30 +143,18 @@ class AudioAttachment extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: WidgetButton(
             onPressed: () {
-              if (isCurrent) {
-                if (isPlaying) {
-                  audioPlayer.player.pause();
-                } else {
-                  audioPlayer.player.play();
-                }
+              if (isCurrent && isPlaying) {
+                audioPlayer.pause();
               } else {
-                String? path = (e is LocalAttachment) ? e.file.path : null;
-                String? url = e.original.url;
-
-                AudioSource audioSource = path != null
-                    ? AudioSource.file(path)
-                    : AudioSource.url(url);
-
-                audioPlayer.player.setTrack(audioSource);
-                audioPlayer.currentAudio.value = e.id.toString();
-                audioPlayer.player.play();
+                AudioTrack track = attachment.convertToAudioTrack();
+                audioPlayer.play(track);
               }
             },
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                minWidth:
-                    400, // Here we set some minimal width, so message never jumps
+                // Here we set some minimal width, so message never jumps
                 // in width after Slider is shown
+                minWidth: 400,
               ),
               child: Row(
                 children: [
@@ -227,14 +214,21 @@ class AudioAttachment extends StatelessWidget {
                                         activeTrackColor: style
                                             .colors.primaryHighlightLightest),
                                     child: Slider(
-                                      value: playedPosition.inMilliseconds.toDouble(),
-                                      secondaryTrackValue: bufferedPosition.inMilliseconds.toDouble(),
-                                      max: totalDuration.inMilliseconds.toDouble(),
-                                      label: playedPosition.inMilliseconds.toDouble().round().toString(),
+                                      value: playedPosition.inMilliseconds
+                                          .toDouble(),
+                                      secondaryTrackValue: bufferedPosition
+                                          .inMilliseconds
+                                          .toDouble(),
+                                      max: totalDuration.inMilliseconds
+                                          .toDouble(),
+                                      label: playedPosition.inMilliseconds
+                                          .toDouble()
+                                          .round()
+                                          .toString(),
                                       onChanged: (double value) {
-                                        Duration seekDuration = Duration(
+                                        Duration seekPosition = Duration(
                                             milliseconds: value.round());
-                                        audioPlayer.player.seek(seekDuration);
+                                        audioPlayer.seek(seekPosition);
                                       },
                                     ),
                                   ),

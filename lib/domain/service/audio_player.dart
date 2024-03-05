@@ -18,17 +18,14 @@
 import 'dart:async';
 import 'package:get/get.dart';
 
+import '/domain/model/audio_track.dart';
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
 import 'disposable_service.dart';
 
-/// Service implementing the [AudioPlayerInterface] to manage audio player.
+/// Service implementing the [AudioPlayer] to manage audio player.
 /// Exposes properties and methods for interacting with the player.
 class AudioPlayerService extends DisposableService {
-  /// Initializes audio player instance
-  late AudioPlayerInterface player;
-  // late AudioPlayerInterface player = AudioUtils.player();
-
   /// Id of the currently selected playing audio. Later we will store some
   /// Song object here most likely.
   final RxnString currentAudio = RxnString(null);
@@ -48,6 +45,9 @@ class AudioPlayerService extends DisposableService {
   // Current song buffered position.
   final Rx<Duration> bufferedPosition = Duration.zero.obs;
 
+  /// Initializes audio player instance
+  late AudioPlayer _player;
+
   /// Indicates whether [ja.AudioPlayer] or [mk.Player] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
@@ -57,14 +57,49 @@ class AudioPlayerService extends DisposableService {
   late StreamSubscription<Duration> _durationSubscription;
   late StreamSubscription<Duration> _bufferedPositionSubscription;
 
-  /// Initializes the player and subscribes to the streams.
+  /// Plays the [AudioTrack] in the [AudioPlayer].
+  /// If it's previously selected track being played again - just resume.
+  /// if it's a new track - set the audioSource and play.
+  void play(AudioTrack audio) {
+    var isCurrent = currentAudio.value == audio.id;
+    print(isCurrent);
+    print(audio);
+    print(audio.id);
+    print(audio.audioSource);
+
+    if (isCurrent) {
+      _player.play();
+    } else {
+      currentAudio.value = audio.id;
+      _player.setTrack(audio.audioSource);
+      _player.play();
+    }
+  }
+
+  /// Pauses the [AudioPlayer].
+  void pause() {
+    _player.pause();
+  }
+
+  /// Rewinds [AudioPlayer] to a given position.
+  void seek(Duration seekPosition) {
+    _player.seek(seekPosition);
+  }
+
+  /// Stops the [AudioPlayer]
+  void stop() {
+    _player.stop();
+    currentAudio.value = null;
+  }
+
+  /// Initializes the _player and subscribes to the streams.
   @override
   void onInit() {
     super.onInit();
     _initPlayer();
   }
 
-  /// Dispose the player instance on close.
+  /// Dispose the _player instance on close.
   @override
   void onClose() {
     _playingSubscription.cancel();
@@ -72,35 +107,36 @@ class AudioPlayerService extends DisposableService {
     _positionSubscription.cancel();
     _durationSubscription.cancel();
     _bufferedPositionSubscription.cancel();
-    player.dispose();
+    _player.dispose();
     super.onClose();
   }
 
-  /// Initializes the audio player based on the platform.
+  /// Initializes the audio _player based on the platform.
   void _initPlayer() {
     if (_isMobile) {
-      player = JustAudioPlayerAdapter();
+      _player = JustAudioPlayerAdapter();
     } else {
-      player = MediaKitPlayerAdapter();
+      _player = MediaKitPlayerAdapter();
     }
 
-    _positionSubscription = player.positionStream.listen((position) {
+    _positionSubscription = _player.positionStream.listen((position) {
       currentSongPosition.value = position;
     });
 
-    _durationSubscription = player.durationStream.listen((duration) {
+    _durationSubscription = _player.durationStream.listen((duration) {
       currentSongDuration.value = duration;
     });
 
-    _playingSubscription = player.playingStream.listen((isPlaying) {
+    _playingSubscription = _player.playingStream.listen((isPlaying) {
       playing.value = isPlaying;
     });
 
-    _playingSubscription = player.playingStream.listen((isBuffering) {
+    _playingSubscription = _player.playingStream.listen((isBuffering) {
       buffering.value = isBuffering;
     });
 
-    _bufferedPositionSubscription = player.bufferedPositionStream.listen((buffered) {
+    _bufferedPositionSubscription =
+        _player.bufferedPositionStream.listen((buffered) {
       bufferedPosition.value = buffered;
     });
   }

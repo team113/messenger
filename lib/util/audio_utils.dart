@@ -317,7 +317,7 @@ class AudioUtilsImpl {
 
 /// Common audio player interface to interact both
 /// with [ja.AudioPlayer] and [mk.Player].
-abstract class AudioPlayerInterface {
+abstract class AudioPlayer {
   /// Sets the [AudioSource] to play.
   setTrack(AudioSource song);
 
@@ -353,7 +353,7 @@ abstract class AudioPlayerInterface {
 }
 
 // Create a class for just_audio, that implements the common interface
-class JustAudioPlayerAdapter implements AudioPlayerInterface {
+class JustAudioPlayerAdapter implements AudioPlayer {
   final ja.AudioPlayer _player = ja.AudioPlayer();
 
   @override
@@ -406,7 +406,7 @@ class JustAudioPlayerAdapter implements AudioPlayerInterface {
 }
 
 // Create a class for media_kit, that implements the common interface
-class MediaKitPlayerAdapter implements AudioPlayerInterface {
+class MediaKitPlayerAdapter implements AudioPlayer {
   final mk.Player _player = mk.Player();
 
   @override
