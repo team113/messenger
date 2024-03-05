@@ -56,7 +56,6 @@ class ChatMemberSortingHiveProvider extends HiveBaseProvider<UserId> {
   /// Removes the provided [UserId] from [Hive].
   Future<void> remove(UserId id) async {
     Log.debug('remove($id)', '$runtimeType');
-    await deleteSafe(id.val);
 
     final int index = valuesSafe.toList().indexOf(id);
     if (index != -1) {

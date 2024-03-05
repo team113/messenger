@@ -1581,6 +1581,7 @@ class ChatController extends GetxController {
       }
 
       await _fragment!.ensureInitialized();
+      await _fragment!.around();
 
       elements.clear();
       _fragment!.items.values.forEach(_add);

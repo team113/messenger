@@ -1039,13 +1039,23 @@ class HiveRxChat extends RxChat {
         Future(() async {
           final Map<UserId, RxUser> initial = {};
 
+          // Add the authenticated [MyUser] to the [members] as he mast be first
+          // in the members list.
           final RxUser? myUser = await _chatRepository.getUser(me!);
           if (myUser != null) {
             initial[me!] = myUser;
           }
 
           return initial;
-        })
+        }),
+        // Ensure [_membersLocal] and [_membersSortingLocal] storages are
+        // initialized.
+        Future(() async {
+          await _membersLocal.init(userId: me);
+          await _membersSortingLocal.init(userId: me);
+
+          return {};
+        }),
       ],
     );
 
@@ -1246,19 +1256,13 @@ class HiveRxChat extends RxChat {
     Log.debug('_ensureTitle()', '$runtimeType($id)');
 
     if (chat.value.name == null) {
-      final List<RxUser> users;
+      final List<RxUser> users = [];
 
-      if (members.items.length < 3) {
-        users = [];
-
-        for (var m in chat.value.members.take(3)) {
-          final RxUser? user = await _chatRepository.getUser(m.user.id);
-          if (user != null) {
-            users.add(user);
-          }
+      for (var m in chat.value.members.take(3)) {
+        final RxUser? user = await _chatRepository.getUser(m.user.id);
+        if (user != null) {
+          users.add(user);
         }
-      } else {
-        users = members.values.take(3).toList();
       }
 
       _userWorkers.removeWhere((k, v) {
@@ -1294,14 +1298,10 @@ class HiveRxChat extends RxChat {
     users ??= [];
 
     if (chat.value.name == null && users.isEmpty) {
-      if (members.values.isNotEmpty == true) {
-        users.addAll(members.values.take(3).map((e) => e.user.value));
-      } else {
-        for (var u in chat.value.members.take(3)) {
-          final user = (await _chatRepository.getUser(u.user.id))?.user.value;
-          if (user != null) {
-            users.add(user);
-          }
+      for (var u in chat.value.members.take(3)) {
+        final user = (await _chatRepository.getUser(u.user.id))?.user.value;
+        if (user != null) {
+          users.add(user);
         }
       }
     }
@@ -1457,7 +1457,6 @@ class HiveRxChat extends RxChat {
         _membersSortingLocal.remove(contactId);
       } else {
         final HiveChatMember value = event.value;
-
         _membersSortingLocal.put(value.value.joinedAt, contactId);
       }
     }

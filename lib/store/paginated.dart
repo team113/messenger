@@ -229,8 +229,6 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
         }
       }
 
-      _futures.add(pagination!.around(key: initialKey, cursor: initialCursor));
-
       await Future.wait(_futures);
       status.value = RxStatus.success();
       _futures.clear();
@@ -240,8 +238,23 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   }
 
   @override
+  Future<void> around() async {
+    Log.debug('around()', '$runtimeType');
+
+    if (!status.value.isSuccess) {
+      await ensureInitialized();
+    }
+
+    await pagination?.around(key: initialKey, cursor: initialCursor);
+  }
+
+  @override
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
+
+    if (!status.value.isSuccess) {
+      await ensureInitialized();
+    }
 
     if (nextLoading.isFalse) {
       await pagination?.next();
@@ -251,6 +264,10 @@ class RxPaginatedImpl<K extends Comparable, T, V, C>
   @override
   Future<void> previous() async {
     Log.debug('previous()', '$runtimeType');
+
+    if (!status.value.isSuccess) {
+      await ensureInitialized();
+    }
 
     if (previousLoading.isFalse) {
       await pagination?.previous();
