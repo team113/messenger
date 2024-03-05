@@ -637,7 +637,7 @@ class RecentChatTile extends StatelessWidget {
 
               content = userBuilder(action.user.id, (context, user) {
                 final User author = item.author;
-                user ??= action.user;
+                user = action.user;
 
                 if (item.author.id != action.user.id) {
                   final Map<String, dynamic> args = {
@@ -662,7 +662,7 @@ class RecentChatTile extends StatelessWidget {
               if (item.author.id != action.user.id) {
                 content = userBuilder(action.user.id, (context, user) {
                   final User author = item.author;
-                  user ??= action.user;
+                  user = action.user;
 
                   final Map<String, dynamic> args = {
                     'author': author.name?.val ?? author.num.toString(),
