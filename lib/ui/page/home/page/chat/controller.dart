@@ -60,6 +60,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/audio_player.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -99,7 +100,6 @@ import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
 import 'widget/chat_gallery.dart';
-import '/store/audio_player.dart';
 
 export 'view.dart';
 
@@ -479,8 +479,6 @@ class ChatController extends GetxController {
     // Stop the [_typingSubscription] when the send field loses its focus.
     send.field.focus.addListener(_stopTypingOnUnfocus);
 
-    Get.put(AudioPlayerController());
-
     super.onInit();
   }
 
@@ -530,7 +528,10 @@ class ChatController extends GetxController {
       s.cancel();
     }
 
-    Get.delete<AudioPlayerController>();
+    // NOTE: Right now we stop the player when we leave the chat page.
+    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
+    audioPlayer.player.stop();
+    audioPlayer.currentAudio.value = null;
 
     super.onClose();
   }

@@ -20,6 +20,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'domain/service/audio_player.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
@@ -647,6 +648,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
+
+            deps.put(AudioPlayerService());
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].

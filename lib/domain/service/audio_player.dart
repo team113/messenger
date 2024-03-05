@@ -19,12 +19,14 @@ import 'package:get/get.dart';
 
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
+import 'disposable_service.dart';
 
-/// Controller implementing the [AudioPlayerInterface] to manage audio player.
+/// Service implementing the [AudioPlayerInterface] to manage audio player.
 /// Exposes properties and methods for interacting with the player.
-class AudioPlayerController extends GetxController {
+class AudioPlayerService extends DisposableService {
   /// Initializes audio player instance
   late AudioPlayerInterface player;
+  // late AudioPlayerInterface player = AudioUtils.player();
 
   /// Id of the currently selected playing audio. Later we will store some
   /// Song object here most likely.
@@ -74,6 +76,28 @@ class AudioPlayerController extends GetxController {
       bufferedPosition.value = buffered;
     });
   }
+
+  // void togglePlay(Attachment audioAttachment) {
+  //   if (audioAttachment.id === currentAudioId.value) {
+  //     if (playing.value) {
+  //       player.pause();
+  //     } else {
+  //       player.play();
+  //     }
+  //   } else {
+  //     String? path = (e is LocalAttachment) ? audioAttachment.file.path : null;
+  //     String? url = audioAttachment.original.url;
+
+  //     AudioSource audioSource = path != null
+  //         ? AudioSource.file(path)
+  //         : AudioSource.url(url);
+
+  //     currentAudioId.value = audioAttachment.id.toString();
+
+  //     player.setTrack(audioSource);
+  //     player.play();
+  //   }
+  // }
 
   /// Dispose the player instance on close.
   @override
