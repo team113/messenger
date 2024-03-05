@@ -135,7 +135,7 @@ class HiveRxChat extends RxChat {
   /// [ChatItem]s local [Hive] storage.
   ChatItemHiveProvider _local;
 
-  /// [ChatItemId]s sorted by [ChatItem.at] [Hive] storage.
+  /// [Hive] storage for [ChatItemId]s sorted by [ChatItem.at].
   ChatItemSortingHiveProvider _sorting;
 
   /// [Pagination] loading [messages] with pagination.
