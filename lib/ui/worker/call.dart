@@ -335,24 +335,24 @@ class CallWorker extends DisposableService {
 
   /// Plays the given [asset].
   Future<void> play(String asset, {bool fade = false}) async {
-    if (_myUser.value?.muted == null) {
-      if (asset == _incoming) {
+    if (asset == _incoming) {
+      if (_myUser.value?.muted == null) {
         final previous = _incomingAudio;
         _incomingAudio = AudioUtils.play(
           AudioSource.asset('audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
-      } else if (asset == _outgoing) {
-        final previous = _outgoingAudio;
-        _outgoingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
-          fade: fade ? 1.seconds : Duration.zero,
-        );
-        previous?.cancel();
-      } else if (asset == _endCall) {
-        AudioUtils.once(AudioSource.asset('audio/$_endCall'));
       }
+    } else if (asset == _outgoing) {
+      final previous = _outgoingAudio;
+      _outgoingAudio = AudioUtils.play(
+        AudioSource.asset('audio/$asset'),
+        fade: fade ? 1.seconds : Duration.zero,
+      );
+      previous?.cancel();
+    } else if (asset == _endCall) {
+      AudioUtils.once(AudioSource.asset('audio/$_endCall'));
     }
   }
 
