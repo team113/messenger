@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:callkeep/callkeep.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -29,7 +28,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/chat.dart';
@@ -245,28 +243,15 @@ class CallWorker extends DisposableService {
             stop();
           }
 
-          // Play a sound when a call with [myUser] ends.
+          // Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
           final OngoingCall? call = event.value?.value;
           if (call != null) {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
                     call.state.value == OngoingCallState.ended;
             final bool withMe = call.members.containsKey(call.me.id);
-            bool isDialingMe = false;
 
-            // Check if [MyUser] is being dialed.
-            final ChatMembersDialed? dialed = call.call.value?.dialed;
-            if (dialed is ChatMembersDialedConcrete) {
-              isDialingMe = dialed.members.any(
-                (m) => m.user.id == _myUser.value?.id,
-              );
-            } else if (dialed is ChatMembersDialedAll) {
-              isDialingMe = dialed.answeredMembers.none(
-                (m) => m.user.id == _myUser.value?.id,
-              );
-            }
-
-            if (withMe && isActiveOrEnded && !isDialingMe) {
+            if (withMe && isActiveOrEnded && call.participated) {
               play(_endCall);
             }
           }
@@ -406,6 +391,7 @@ class CallWorker extends DisposableService {
             final bool withMe =
                 call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
                     false;
+
             if (isActiveOrEnded && withMe) {
               play(_endCall);
             }
