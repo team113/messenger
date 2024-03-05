@@ -804,11 +804,13 @@ class HiveRxChat extends RxChat {
       final Iterable<HiveChatItem> saved = await _local.values;
 
       // Clear and close the current [ChatItemHiveProvider].
-      await clear();
+      await _local.clear();
       _local.close();
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
+
+      await clear();
       _provider.hive = _local;
 
       for (var e in saved.whereType<HiveChatMessage>()) {
@@ -830,15 +832,12 @@ class HiveRxChat extends RxChat {
   /// Clears the [_pagination] and [_fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
-
     for (var e in _fragments) {
       e.dispose();
     }
     _fragments.clear();
 
     await _pagination.clear();
-
-    await _local.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -1836,7 +1835,7 @@ class HiveRxChat extends RxChat {
                       chatEntity.value.lastReads
                           .removeWhere((e) => e.memberId == action.user.id);
                       reads.removeWhere((e) => e.memberId == action.user.id);
-                      _chatRepository.onMemberRemoved(id, action.user.id);
+                      await _chatRepository.onMemberRemoved(id, action.user.id);
                       break;
 
                     case ChatInfoActionKind.nameUpdated:

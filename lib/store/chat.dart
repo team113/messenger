@@ -530,11 +530,31 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
-    await _graphQlProvider.addChatMember(chatId, userId);
 
-    // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
-    if (chats[chatId]?.chat.value.ongoingCall != null) {
-      await _callRepo.redialChatCallMember(chatId, userId);
+    final HiveRxChat? chat = chats[chatId];
+    final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
+    final RxUser? user =
+        userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+
+    if (user != null) {
+      final HiveChatMember member = HiveChatMember(
+          ChatMember(user.user.value, PreciseDateTime.now()), null);
+      chat?.members.put(member);
+    }
+
+    try {
+      await Future.delayed(5.seconds);
+      await _graphQlProvider.addChatMember(chatId, userId);
+
+      // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
+      if (chats[chatId]?.chat.value.ongoingCall != null) {
+        await _callRepo.redialChatCallMember(chatId, userId);
+      }
+    } catch (_) {
+      if (user != null) {
+        chat?.members.remove(user.id);
+      }
+      rethrow;
     }
   }
 
