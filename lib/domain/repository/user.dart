@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/contact.dart';
 import 'chat.dart';
 import 'paginated.dart';
 
@@ -65,6 +66,12 @@ abstract class RxUser {
 
   /// Returns reactive [User.lastSeenAt] value.
   Rx<PreciseDateTime?> get lastSeen;
+
+  /// Returns reactive [RxChatContact] linked to this [RxUser].
+  ///
+  /// `null` means this [RxUser] is not in the address book of the authenticated
+  /// [MyUser].
+  Rx<RxChatContact?> get contact;
 
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;
