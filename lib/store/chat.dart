@@ -537,9 +537,14 @@ class ChatRepository extends DisposableInterface
         userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
     if (user != null) {
-      final HiveChatMember member = HiveChatMember(
+      final chatMember = ChatMember(user.user.value, PreciseDateTime.now());
+      final hiveMember = HiveChatMember(
           ChatMember(user.user.value, PreciseDateTime.now()), null);
-      chat?.members.put(member);
+      chat?.members.put(hiveMember);
+      chat?.chat.update((c) {
+        c?.membersCount++;
+        c?.members.add(chatMember);
+      });
     }
 
     try {
