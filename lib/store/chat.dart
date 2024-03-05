@@ -540,6 +540,7 @@ class ChatRepository extends DisposableInterface
       final chatMember = ChatMember(user.user.value, PreciseDateTime.now());
       final hiveMember = HiveChatMember(
           ChatMember(user.user.value, PreciseDateTime.now()), null);
+
       chat?.members.put(hiveMember);
       chat?.chat.update((c) {
         c?.membersCount++;
@@ -548,7 +549,6 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
-      await Future.delayed(5.seconds);
       await _graphQlProvider.addChatMember(chatId, userId);
 
       // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
