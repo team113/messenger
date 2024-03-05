@@ -531,27 +531,30 @@ class ChatRepository extends DisposableInterface
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
 
-    final request = _graphQlProvider.addChatMember(chatId, userId);
-
     final HiveRxChat? chat = chats[chatId];
     final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
     final RxUser? user =
         userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
+    ChatMember? chatMember;
+
     if (user != null) {
-      final chatMember = ChatMember(user.user.value, PreciseDateTime.now());
+      chatMember = ChatMember(user.user.value, PreciseDateTime.now());
       final hiveMember = HiveChatMember(
           ChatMember(user.user.value, PreciseDateTime.now()), null);
 
       chat?.members.put(hiveMember);
       chat?.chat.update((c) {
         c?.membersCount++;
-        c?.members.add(chatMember);
+        if (c != null && c.members.length < 3) {
+          c.members.add(chatMember!);
+        }
       });
     }
 
     try {
-      await request;
+      await Future.delayed(5.seconds);
+      await _graphQlProvider.addChatMember(chatId, userId);
 
       // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
       if (chats[chatId]?.chat.value.ongoingCall != null) {
@@ -560,6 +563,10 @@ class ChatRepository extends DisposableInterface
     } catch (_) {
       if (user != null) {
         chat?.members.remove(user.id);
+        chat?.chat.update((c) {
+          c?.membersCount--;
+          c?.members.remove(chatMember);
+        });
       }
       rethrow;
     }
@@ -570,10 +577,29 @@ class ChatRepository extends DisposableInterface
     Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
 
     final HiveRxChat? chat = chats[chatId];
+    final HiveChatMember? hiveMember = chat?.members.pagination?.items[userId];
 
-    await _graphQlProvider.removeChatMember(chatId, userId);
-    await onMemberRemoved.call(chatId, userId);
     chat?.members.items.remove(userId);
+    chat?.chat.update((c) {
+      c?.membersCount--;
+      c?.members.removeWhere((e) => e.user.id == userId);
+    });
+
+    try {
+      await Future.delayed(5.seconds);
+      await _graphQlProvider.removeChatMember(chatId, userId);
+      await onMemberRemoved.call(chatId, userId);
+    } catch (_) {
+      if (hiveMember != null) {
+        chat?.members.put(hiveMember);
+        chat?.chat.update((c) {
+          c?.membersCount++;
+          c?.members.add(hiveMember.value);
+        });
+      }
+
+      rethrow;
+    }
   }
 
   @override
