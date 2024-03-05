@@ -97,6 +97,7 @@ void main() async {
               'num': '4737639025920649',
               'name': 'Nikita',
               'mutualContactsCount': 0,
+              'contacts': [],
               'online': {'__typename': 'UserOnline'},
               'presence': 'PRESENT',
               'status': '08:00 - 16:00 UTC',

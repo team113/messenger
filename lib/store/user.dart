@@ -26,9 +26,11 @@ import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
@@ -60,6 +62,12 @@ class UserRepository extends DisposableInterface
   ///
   /// Used to populate the [RxUser.dialog] values.
   FutureOr<RxChat?> Function(ChatId id)? getChat;
+
+  /// Callback, called when a [RxChatContact] with the provided [ChatContactId]
+  /// is required by this [UserRepository].
+  ///
+  /// Used to populate the [RxUser.contact] value.
+  FutureOr<RxChatContact?> Function(ChatContactId id)? getContact;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -307,6 +315,31 @@ class UserRepository extends DisposableInterface
     int? first,
   }) =>
       _search(name: name, after: after, first: first);
+
+  /// Adds the provided [ChatContactId] to the [User.contacts] with the
+  /// specified [UserId].
+  ///
+  /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
+  /// of its [User.contacts] list changes.
+  Future<void> addContact(ChatContactId contactId, UserId userId) async {
+    final HiveUser? user = _userLocal.get(userId);
+    if (user != null && !user.value.contacts.contains(contactId)) {
+      user.value.contacts.add(contactId);
+      await _userLocal.put(user);
+    }
+  }
+
+  /// Removes the provided [ChatContactId] from the [User.contacts] with the
+  /// specified [UserId].
+  ///
+  /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
+  /// of its [User.contacts] list changes.
+  Future<void> removeContact(ChatContactId contactId, UserId userId) async {
+    final HiveUser? user = _userLocal.get(userId);
+    if (user != null && user.value.contacts.remove(contactId)) {
+      await _userLocal.put(user);
+    }
+  }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
