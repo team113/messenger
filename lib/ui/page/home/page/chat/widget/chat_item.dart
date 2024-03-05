@@ -41,6 +41,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/audio_player.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -73,6 +74,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.item,
     required this.chat,
     required this.me,
+    required this.audioPlayer,
     this.user,
     this.avatar = true,
     this.reads = const [],
@@ -110,6 +112,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
+
+  /// [AudioPlayerService] to handle audio player in [ChatItem]'s.
+  final AudioPlayerService audioPlayer;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -323,10 +328,8 @@ class ChatItemWidget extends StatefulWidget {
   }
 
   /// Returns a visual representation of the provided audio-[Attachment].
-  static Widget audioAttachment(Attachment e) {
-    return AudioAttachment(
-      e,
-    );
+  static Widget audioAttachment(Attachment e, AudioPlayerService audioPlayer) {
+    return AudioAttachment(e, audioPlayer);
   }
 }
 
@@ -924,9 +927,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     ...audio.expand(
                       (e) => [
-                        ChatItemWidget.audioAttachment(
-                          e,
-                        ),
+                        ChatItemWidget.audioAttachment(e, widget.audioPlayer),
                         if (audio.last != e) const SizedBox(height: 6),
                       ],
                     ),

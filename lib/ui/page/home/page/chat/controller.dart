@@ -107,6 +107,7 @@ export 'view.dart';
 class ChatController extends GetxController {
   ChatController(
     this.id,
+    this.audioPlayer,
     this._chatService,
     this._callService,
     this._authService,
@@ -310,6 +311,9 @@ class ChatController extends GetxController {
 
   /// [ContactService] maintaining [ChatContact]s of this [me].
   final ContactService _contactService;
+
+  /// [AudioPlayerService] to handle audio player in [ChatItem]'s.
+  AudioPlayerService audioPlayer;
 
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
@@ -528,8 +532,6 @@ class ChatController extends GetxController {
       s.cancel();
     }
 
-    // NOTE: Right now we stop the player when we leave the chat page.
-    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
     audioPlayer.stop();
 
     super.onClose();

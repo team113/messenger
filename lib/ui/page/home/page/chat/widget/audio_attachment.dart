@@ -30,10 +30,13 @@ import '/ui/widget/widget_button.dart';
 
 /// Visual representation of an audio file [Attachment].
 class AudioAttachment extends StatelessWidget {
-  const AudioAttachment(this.attachment, {super.key});
+  const AudioAttachment(this.attachment, this.audioPlayer, {super.key});
 
   /// [Attachment] to display.
   final Attachment attachment;
+
+  /// [AudioPlayerService] to audio player.
+  final AudioPlayerService audioPlayer;
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +44,6 @@ class AudioAttachment extends StatelessWidget {
 
     return Obx(() {
       final style = Theme.of(context).style;
-
-      final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
 
       var isCurrent = audioPlayer.currentAudio.value == e.id.toString();
       var isPlaying = audioPlayer.playing.value;
