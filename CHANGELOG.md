@@ -33,7 +33,6 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
-
 [#809]: /../../issues/809
 [#851]: /../../issues/851
 [#864]: /../../pull/864
