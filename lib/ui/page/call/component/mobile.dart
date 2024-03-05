@@ -601,7 +601,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       Padding(
                         padding: EdgeInsets.only(
                           bottom: isOutgoing
-                              ? 0
+                              ? max(0, MediaQuery.of(context).padding.bottom - 30)
                               : max(30, MediaQuery.of(context).padding.bottom),
                         ),
                         child: buttons(
