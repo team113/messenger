@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'package:get/get.dart';
 
 import '/util/audio_utils.dart';
@@ -50,58 +51,27 @@ class AudioPlayerService extends DisposableService {
   /// Indicates whether [ja.AudioPlayer] or [mk.Player] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
+  late StreamSubscription<bool> _playingSubscription;
+  late StreamSubscription<bool> _bufferingSubscription;
+  late StreamSubscription<Duration> _positionSubscription;
+  late StreamSubscription<Duration> _durationSubscription;
+  late StreamSubscription<Duration> _bufferedPositionSubscription;
+
   /// Initializes the player and subscribes to the streams.
   @override
   void onInit() {
     super.onInit();
     _initPlayer();
-
-    player.positionStream.listen((position) {
-      currentSongPosition.value = position;
-    });
-
-    player.durationStream.listen((duration) {
-      currentSongDuration.value = duration;
-    });
-
-    player.playingStream.listen((isPlaying) {
-      playing.value = isPlaying;
-    });
-
-    player.playingStream.listen((isBuffering) {
-      buffering.value = isBuffering;
-    });
-
-    player.bufferedPositionStream.listen((buffered) {
-      bufferedPosition.value = buffered;
-    });
   }
-
-  // void togglePlay(Attachment audioAttachment) {
-  //   if (audioAttachment.id === currentAudioId.value) {
-  //     if (playing.value) {
-  //       player.pause();
-  //     } else {
-  //       player.play();
-  //     }
-  //   } else {
-  //     String? path = (e is LocalAttachment) ? audioAttachment.file.path : null;
-  //     String? url = audioAttachment.original.url;
-
-  //     AudioSource audioSource = path != null
-  //         ? AudioSource.file(path)
-  //         : AudioSource.url(url);
-
-  //     currentAudioId.value = audioAttachment.id.toString();
-
-  //     player.setTrack(audioSource);
-  //     player.play();
-  //   }
-  // }
 
   /// Dispose the player instance on close.
   @override
   void onClose() {
+    _playingSubscription.cancel();
+    _bufferingSubscription.cancel();
+    _positionSubscription.cancel();
+    _durationSubscription.cancel();
+    _bufferedPositionSubscription.cancel();
     player.dispose();
     super.onClose();
   }
@@ -113,5 +83,25 @@ class AudioPlayerService extends DisposableService {
     } else {
       player = MediaKitPlayerAdapter();
     }
+
+    _positionSubscription = player.positionStream.listen((position) {
+      currentSongPosition.value = position;
+    });
+
+    _durationSubscription = player.durationStream.listen((duration) {
+      currentSongDuration.value = duration;
+    });
+
+    _playingSubscription = player.playingStream.listen((isPlaying) {
+      playing.value = isPlaying;
+    });
+
+    _playingSubscription = player.playingStream.listen((isBuffering) {
+      buffering.value = isBuffering;
+    });
+
+    _bufferedPositionSubscription = player.bufferedPositionStream.listen((buffered) {
+      bufferedPosition.value = buffered;
+    });
   }
 }
