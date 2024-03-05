@@ -479,6 +479,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 !c.minimized.value;
 
         double panelHeight = 0;
+        double minHeight = 0;
         List<Widget> panelChildren = [];
 
         final bool panel = (c.isGroup && isOutgoing) ||
@@ -487,8 +488,11 @@ Widget mobileCall(CallController c, BuildContext context) {
 
         // Populate the sliding panel height and its content.
         if (panel) {
-          panelHeight = 260 + 37;
+          panelHeight = 260 + max(37, MediaQuery.of(context).padding.bottom);
           panelHeight = min(c.size.height - 45, panelHeight);
+
+          minHeight = 95 + max(35, MediaQuery.of(context).padding.bottom);
+          minHeight = min(c.size.height - 45, minHeight);
 
           panelChildren = [
             const SizedBox(height: 12),
@@ -523,10 +527,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           duration: const Duration(milliseconds: 400),
           child: panel
               ? AnimatedSlider(
-                  beginOffset: Offset(
-                    0,
-                    130 + MediaQuery.of(context).padding.bottom,
-                  ),
+                  beginOffset: Offset(0, minHeight),
                   isOpen: showUi,
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutQuad,
@@ -545,7 +546,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                           : style.colors.primaryDarkOpacity70,
                       backdropEnabled: true,
                       backdropOpacity: 0,
-                      minHeight: min(c.size.height - 45, 130),
+                      minHeight: minHeight,
                       maxHeight: panelHeight,
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(10),
