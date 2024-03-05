@@ -66,6 +66,7 @@ void main() async {
     'avatar': null,
     'callCover': null,
     'mutualContactsCount': 0,
+    'contacts': [],
     'online': {'__typename': 'UserOnline'},
     'presence': 'PRESENT',
     'status': null,
