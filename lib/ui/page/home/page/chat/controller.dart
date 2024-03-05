@@ -45,6 +45,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -56,7 +57,6 @@ import '/domain/repository/call.dart'
         CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
@@ -220,10 +220,6 @@ class ChatController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// Indicator whether the [user] has a [ChatContact] associated with them in
-  /// the address book of the authenticated [MyUser].
-  final RxBool inContacts = RxBool(false);
-
   /// Indicator whether the [elements] selection mode is enabled.
   final RxBool selecting = RxBool(false);
 
@@ -268,10 +264,6 @@ class ChatController extends GetxController {
 
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
-
-  /// [StreamSubscription] to [ContactService.contacts] determining the
-  /// [inContacts] indicator.
-  StreamSubscription? _contactsSubscription;
 
   /// Subscription for the [RxUser] changes.
   StreamSubscription? _userSubscription;
@@ -399,6 +391,10 @@ class ChatController extends GetxController {
       listController.position.pixels >
           listController.position.maxScrollExtent - 500;
 
+  /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
+  /// if any.
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -501,7 +497,6 @@ class ChatController extends GetxController {
     _selectingWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
-    _contactsSubscription?.cancel();
     _userSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
@@ -870,31 +865,6 @@ class ChatController extends GetxController {
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
-      }
-
-      if (chat?.chat.value.isDialog == true) {
-        inContacts.value = _contactService.contacts.values.any(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-
-        _contactsSubscription = _contactService.contacts.changes.listen((e) {
-          switch (e.op) {
-            case OperationKind.added:
-            case OperationKind.updated:
-              if (e.value!.contact.value.users.isNotEmpty &&
-                  e.value!.contact.value.users.any((e) => e.id == user?.id)) {
-                inContacts.value = true;
-              }
-              break;
-
-            case OperationKind.removed:
-              if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
-                  true) {
-                inContacts.value = false;
-              }
-              break;
-          }
-        });
       }
     }
 
@@ -1285,10 +1255,9 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
-    if (!inContacts.value) {
+    if (_contactId == null) {
       try {
         await _contactService.createChatContact(user!.user.value);
-        inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -1300,18 +1269,14 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
-    if (inContacts.value) {
-      try {
-        final RxChatContact? contact =
-            _contactService.contacts.values.firstWhereOrNull(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-        await _contactService.deleteContact(contact!.contact.value.id);
-        inContacts.value = false;
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
+    try {
+      final ChatContactId? contactId = _contactId;
+      if (contactId != null) {
+        await _contactService.deleteContact(contactId);
       }
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 

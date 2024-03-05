@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 
 /// Dummy implementation of [RxUser].
@@ -43,4 +44,7 @@ class DummyRxUser extends RxUser {
 
   @override
   Stream<void> get updates => const Stream.empty();
+
+  @override
+  Rx<RxChatContact?> get contact => Rx(null);
 }

@@ -44,7 +44,7 @@ abstract class AbstractContactRepository {
   RxBool get nextLoading;
 
   /// Returns a [ChatContact] by the provided [id].
-  RxChatContact? get(ChatContactId id);
+  FutureOr<RxChatContact?> get(ChatContactId id);
 
   /// Fetches the next [paginated] page.
   Future<void> next();

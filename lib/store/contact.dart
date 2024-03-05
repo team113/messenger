@@ -21,6 +21,7 @@ import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/page_info.dart';
@@ -108,6 +109,9 @@ class ContactRepository extends DisposableInterface
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatContactsEvents>? _remoteSubscription;
+
+  /// [Mutex]es guarding access to the [get] method.
+  final Map<ChatContactId, Mutex> _getGuards = {};
 
   @override
   RxBool get hasNext => _pagination.hasNext;
@@ -327,17 +331,61 @@ class ContactRepository extends DisposableInterface
   }
 
   @override
-  RxChatContact? get(ChatContactId id) {
+  FutureOr<RxChatContact?> get(ChatContactId id) async {
     Log.debug('get($id)', '$runtimeType');
 
-    // TODO: Get [ChatContact] from remote if it's not stored locally.
-    return contacts[id];
+    HiveRxChatContact? contact = contacts[id];
+    if (contact != null) {
+      return contact;
+    }
+
+    // If [contact] doesn't exists, we should lock the [mutex] to avoid remote
+    // double invoking.
+    Mutex? mutex = _getGuards[id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _getGuards[id] = mutex;
+    }
+
+    return mutex.protect(() async {
+      contact = contacts[id];
+      if (contact == null) {
+        final HiveChatContact? hiveContact = await _contactLocal.get(id);
+        if (hiveContact != null) {
+          contact = HiveRxChatContact(_userRepo, hiveContact);
+          contact!.init();
+        }
+
+        if (contact == null) {
+          final query = (await _graphQlProvider.chatContact(id)).chatContact;
+          if (query != null) {
+            contact = await _putChatContact(query.toHive());
+          }
+        }
+
+        if (contact != null) {
+          contacts[id] = contact!;
+        }
+      }
+
+      return contact;
+    });
   }
 
   /// Removes a [ChatContact] identified by the provided [id].
-  Future<void> remove(ChatContactId id) {
+  Future<void> remove(ChatContactId id) async {
     Log.debug('remove($id)', '$runtimeType');
-    return _contactLocal.remove(id);
+
+    final ChatContact? contact =
+        contacts[id]?.contact.value ?? (await _contactLocal.get(id))?.value;
+
+    if (contact != null) {
+      for (User user in contact.users) {
+        await _userRepo.removeContact(contact.id, user.id);
+      }
+    }
+
+    await _contactLocal.remove(id);
   }
 
   /// Searches [ChatContact]s by the provided [UserName].
@@ -512,8 +560,10 @@ class ContactRepository extends DisposableInterface
     // [_putChatContact] invoked earlier.
     await Future.delayed(Duration.zero);
 
-    List<RxChatContact> contacts =
-        result.map((e) => get(e.value.id)).whereNotNull().toList();
+    final List<RxChatContact> contacts =
+        (await Future.wait(result.map((e) async => await get(e.value.id))))
+            .whereNotNull()
+            .toList();
 
     return Page(
       RxList(contacts),
@@ -522,7 +572,7 @@ class ContactRepository extends DisposableInterface
   }
 
   /// Puts the provided [contact] to [Pagination] and [Hive].
-  Future<void> _putChatContact(
+  Future<HiveRxChatContact> _putChatContact(
     HiveChatContact contact, {
     bool pagination = false,
   }) async {
@@ -539,22 +589,24 @@ class ContactRepository extends DisposableInterface
           await _pagination.put(contact);
         }
 
-        return;
+        return saved;
       }
     }
 
-    _add(contact, pagination: pagination);
+    final HiveRxChatContact entry = _add(contact, pagination: pagination);
 
     // [pagination] is `true`, if the [contact] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
       await _pagination.put(contact);
     }
+
+    return entry;
   }
 
   /// Adds the provided [HiveChatContact] to the [contacts] and optionally to
   /// the [paginated].
-  void _add(HiveChatContact contact, {bool pagination = false}) {
+  HiveRxChatContact _add(HiveChatContact contact, {bool pagination = false}) {
     Log.debug('_add($contact, $pagination)', '$runtimeType');
 
     final ChatContactId contactId = contact.value.id;
@@ -583,6 +635,8 @@ class ContactRepository extends DisposableInterface
     if (emitUpdate) {
       _emit(MapChangeNotification.updated(entry.id, entry.id, entry));
     }
+
+    return entry;
   }
 
   /// Initializes [ContactHiveProvider.boxEvents] subscription.
@@ -785,18 +839,25 @@ class ContactRepository extends DisposableInterface
     }
   }
 
-  // TODO: This currently fetches all the contacts. Should be reimplemented when
-  //       backend will allow to fetch single ChatContact by its ID.
   /// Fetches and persists a [HiveChatContact] by the provided [id].
   Future<HiveChatContact?> _fetchById(ChatContactId id) async {
     Log.debug('_fetchById($id)', '$runtimeType');
 
-    var contact =
-        (await _chatContacts()).edges.firstWhereOrNull((e) => e.value.id == id);
-    if (contact != null) {
-      _putChatContact(contact);
+    Mutex? mutex = _getGuards[id];
+    if (mutex == null) {
+      mutex = Mutex();
+      _getGuards[id] = mutex;
     }
-    return contact;
+
+    return mutex.protect(() async {
+      final HiveChatContact? contact =
+          (await _graphQlProvider.chatContact(id)).chatContact?.toHive();
+      if (contact != null) {
+        _putChatContact(contact);
+      }
+
+      return contact;
+    });
   }
 
   /// Fetches [HiveChatContact]s ordered by their [ChatContact.name] with
@@ -972,11 +1033,24 @@ class ContactRepository extends DisposableInterface
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
       _userRepo.put(e.user.toHive());
+
+      // Add the [node.contactId] to the [node.user], as [User] has no events
+      // about its [User.contacts] list changes.
+      _userRepo.addContact(node.contactId, node.user.id);
+
       return EventChatContactUserAdded(
-          node.contactId, node.at, node.user.toModel());
+        node.contactId,
+        node.at,
+        node.user.toModel(),
+      );
     } else if (e.$$typename == 'EventChatContactUserRemoved') {
       var node = e
           as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
+
+      // Remove the [node.contactId] from the [node.user], as [User] has no
+      // events about its [User.contacts] list changes.
+      _userRepo.removeContact(node.contactId, node.userId);
+
       return EventChatContactUserRemoved(node.contactId, node.at, node.userId);
     } else {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');
