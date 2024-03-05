@@ -599,66 +599,62 @@ Widget mobileCall(CallController c, BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(bottom: isOutgoing ? 0 : 30),
-                        child: AnimatedSlider(
-                          isOpen: showUi,
-                          duration: const Duration(milliseconds: 400),
-                          beginOffset: Offset(
-                            0,
-                            150 + MediaQuery.of(context).padding.bottom,
-                          ),
-                          child: buttons(
-                            isOutgoing
-                                ? [
-                                    if (PlatformUtils.isMobile)
-                                      padding(
-                                        c.videoState.value.isEnabled
-                                            ? SwitchButton(c).build(
-                                                hinted: false,
-                                                opaque: true,
-                                              )
-                                            : SpeakerButton(c).build(
-                                                hinted: false,
-                                                opaque: true,
-                                              ),
-                                      ),
+                        padding: EdgeInsets.only(
+                          bottom: isOutgoing
+                              ? 0
+                              : max(30, MediaQuery.of(context).padding.bottom),
+                        ),
+                        child: buttons(
+                          isOutgoing
+                              ? [
+                                  if (PlatformUtils.isMobile)
                                     padding(
-                                      AudioButton(c).build(
-                                        hinted: false,
-                                        opaque: true,
-                                      ),
+                                      c.videoState.value.isEnabled
+                                          ? SwitchButton(c).build(
+                                              hinted: false,
+                                              opaque: true,
+                                            )
+                                          : SpeakerButton(c).build(
+                                              hinted: false,
+                                              opaque: true,
+                                            ),
                                     ),
-                                    padding(
-                                      VideoButton(c).build(
-                                        hinted: false,
-                                        opaque: true,
-                                      ),
+                                  padding(
+                                    AudioButton(c).build(
+                                      hinted: false,
+                                      opaque: true,
                                     ),
-                                    padding(
-                                      CancelButton(c).build(
-                                        hinted: false,
-                                        opaque: true,
-                                      ),
+                                  ),
+                                  padding(
+                                    VideoButton(c).build(
+                                      hinted: false,
+                                      opaque: true,
                                     ),
-                                  ]
-                                : [
-                                    padding(
-                                      AcceptAudioButton(
-                                        c,
-                                        highlight: !c.withVideo,
-                                      ).build(expanded: true),
+                                  ),
+                                  padding(
+                                    CancelButton(c).build(
+                                      hinted: false,
+                                      opaque: true,
                                     ),
-                                    padding(
-                                      AcceptVideoButton(
-                                        c,
-                                        highlight: c.withVideo,
-                                      ).build(expanded: true),
-                                    ),
-                                    padding(
-                                      DeclineButton(c).build(expanded: true),
-                                    ),
-                                  ],
-                          ),
+                                  ),
+                                ]
+                              : [
+                                  padding(
+                                    AcceptAudioButton(
+                                      c,
+                                      highlight: !c.withVideo,
+                                    ).build(expanded: true),
+                                  ),
+                                  padding(
+                                    AcceptVideoButton(
+                                      c,
+                                      highlight: c.withVideo,
+                                    ).build(expanded: true),
+                                  ),
+                                  padding(
+                                    DeclineButton(c).build(expanded: true),
+                                  ),
+                                ],
                         ),
                       ),
                     ],
