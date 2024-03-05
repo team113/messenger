@@ -806,7 +806,7 @@ class HiveRxChat extends RxChat {
       final Iterable<HiveChatItem> saved = await _local.values;
 
       // Clear and close the current [ChatItemHiveProvider].
-      await _local.clear();
+      await clear();
       _local.close();
 
       await _sortingLocal.clear();
@@ -814,12 +814,10 @@ class HiveRxChat extends RxChat {
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
+      _provider.hive = _local;
 
       _sortingLocal = ChatItemSortingHiveProvider(id);
       await _sortingLocal.init(userId: me);
-
-      await clear();
-      _provider.hive = _local;
 
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
@@ -840,6 +838,7 @@ class HiveRxChat extends RxChat {
   /// Clears the [_pagination] and [_fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
+
     for (var e in _fragments) {
       e.dispose();
     }
@@ -847,6 +846,8 @@ class HiveRxChat extends RxChat {
 
     await _pagination.clear();
     await _sortingLocal.clear();
+
+    await _local.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -1844,7 +1845,7 @@ class HiveRxChat extends RxChat {
                       chatEntity.value.lastReads
                           .removeWhere((e) => e.memberId == action.user.id);
                       reads.removeWhere((e) => e.memberId == action.user.id);
-                      await _chatRepository.onMemberRemoved(id, action.user.id);
+                      _chatRepository.onMemberRemoved(id, action.user.id);
                       break;
 
                     case ChatInfoActionKind.nameUpdated:
