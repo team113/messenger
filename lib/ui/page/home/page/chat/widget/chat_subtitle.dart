@@ -100,10 +100,6 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       if (widget.withActivities) {
         if (chat.ongoingCall != null) {
           final List<TextSpan> spans = [];
-          // if (!context.isMobile) {
-          //   spans.add(TextSpan(text: 'label_call_active'.l10n));
-          //   spans.add(TextSpan(text: 'space_vertical_space'.l10n));
-          // }
 
           spans.add(
             TextSpan(
@@ -196,6 +192,13 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         if (member != null) {
           return Obx(() {
+            if (member.user.value.isBlocked != null) {
+              return Text(
+                'Заблокировано',
+                style: style.fonts.small.regular.secondary,
+              );
+            }
+
             final String? subtitle = chat.getSubtitle(partner: member);
             final UserTextStatus? status = member.user.value.status;
             final Widget child;

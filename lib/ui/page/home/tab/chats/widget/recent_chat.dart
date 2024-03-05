@@ -92,6 +92,7 @@ class RecentChatTile extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.subtitle = const [],
+    this.tappable = true,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -188,6 +189,8 @@ class RecentChatTile extends StatelessWidget {
   final bool monolog;
 
   final List<Widget> subtitle;
+
+  final bool tappable;
 
   @override
   Widget build(BuildContext context) {
@@ -424,7 +427,7 @@ class RecentChatTile extends StatelessWidget {
           selected: selected || inverted,
           // paid: paid,
           enableContextMenu: enableContextMenu,
-          onTap: onTap ?? () => router.chat(chat.id),
+          onTap: tappable ? onTap ?? () => router.chat(chat.id) : null,
         ),
       );
     });
@@ -437,7 +440,7 @@ class RecentChatTile extends StatelessWidget {
 
     if (blocked) {
       return Text(
-        'Blocked',
+        'Заблокировано', // You blocked / You are blocked / Blocked (if both)
         style: inverted
             ? style.fonts.normal.regular.onPrimary
             : style.fonts.normal.regular.secondary,

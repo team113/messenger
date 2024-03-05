@@ -270,6 +270,8 @@ class ChatController extends GetxController {
   /// [ListElement]s selected during [selecting] mode.
   final RxList<ListElement> selected = RxList();
 
+  final RxBool makeItSeemLikeIAmBlocked = RxBool(false);
+
   void pin(ChatItem item) {
     pinned.add(item);
     displayPinned.value = pinned.length - 1;
@@ -1580,6 +1582,11 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> unblock() async {
+    if (!makeItSeemLikeIAmBlocked.value) {
+      makeItSeemLikeIAmBlocked.value = true;
+      return;
+    }
+
     try {
       if (user != null) {
         await _userService.unblockUser(user!.id);

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
@@ -282,6 +283,9 @@ class SearchView extends StatelessWidget {
                                 onTap: () => c.select(contact: element),
                                 selected: c.selectedContacts.contains(element),
                                 invertible: !selectable,
+                                blocked:
+                                    element.user.value?.user.value.isBlocked !=
+                                        null,
                                 trailing: [
                                   if (element
                                           .user.value?.user.value.messageCost !=
@@ -315,6 +319,14 @@ class SearchView extends StatelessWidget {
                             final bool selected =
                                 c.selectedChats.contains(element);
 
+                            final RxUser? member = element.chat.value.isDialog
+                                ? element.members.values
+                                    .firstWhereOrNull((e) => e.id != c.me)
+                                : null;
+
+                            final bool blocked =
+                                member?.user.value.isBlocked != null;
+
                             final bool paid = element.chat.value.isDialog &&
                                 element.chat.value.members
                                     .any((e) => e.user.messageCost != 0);
@@ -323,9 +335,13 @@ class SearchView extends StatelessWidget {
                               key: Key('SearchChat_${element.id}'),
                               element,
                               me: c.me,
-                              onTap: () => c.select(chat: element),
+                              tappable: !blocked,
+                              onTap: blocked
+                                  ? null
+                                  : () => c.select(chat: element),
                               selected: c.selectedChats.contains(element),
                               invertible: !selectable,
+                              blocked: blocked,
                               trailing: [
                                 if (paid) ...[
                                   Text(
@@ -345,10 +361,15 @@ class SearchView extends StatelessWidget {
                                   // ),
                                   const SizedBox(width: 4),
                                 ],
-                                SelectedDot(
-                                  selected: c.selectedChats.contains(element),
-                                  size: 20,
-                                )
+                                if (!paid && blocked) ...[
+                                  const SvgIcon(SvgIcons.blocked20),
+                                  const SizedBox(width: 4),
+                                ] else
+                                  SelectedDot(
+                                    disabled: blocked,
+                                    selected: c.selectedChats.contains(element),
+                                    size: 20,
+                                  )
                               ],
                             );
                           });

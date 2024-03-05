@@ -202,7 +202,9 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           break;
 
         case _BigAvatarMode.user:
-          avatar = widget.user?.user.value.avatar;
+          avatar = widget.user?.user.value.isBlocked != null
+              ? null
+              : widget.user?.user.value.avatar;
           child = AvatarWidget.fromRxUser(
             widget.user,
             key: _avatarKey,

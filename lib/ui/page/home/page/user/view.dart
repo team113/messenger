@@ -135,7 +135,7 @@ class UserView extends StatelessWidget {
                           ],
                         ),
                       _profile(c, context),
-                      _quick(c, context),
+                      if (c.isBlocked == null) _quick(c, context),
                       _bio(c, context),
                       _info(c),
                       SelectionContainer.disabled(
@@ -237,6 +237,16 @@ class UserView extends StatelessWidget {
                     style: style.fonts.large.regular.onBackground,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text(
+                    c.isBlocked != null
+                        ? 'Вы заблокированы'
+                        : c.user?.user.value.getStatus() ?? '',
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ),
               ];
             }
 
@@ -327,6 +337,7 @@ class UserView extends StatelessWidget {
       final RxChat? dialog = c.user?.dialog.value;
       final bool hasCall = dialog?.chat.value.ongoingCall != null;
       final bool isMuted = dialog?.chat.value.muted != null;
+      final bool blocked = c.isBlocked != null;
 
       return ContextMenuRegion(
         key: c.moreKey,
@@ -341,28 +352,30 @@ class UserView extends StatelessWidget {
             trailing: const SvgIcon(SvgIcons.chat18),
             inverted: const SvgIcon(SvgIcons.chat18White),
           ),
-          ContextMenuButton(
-            label: 'btn_audio_call'.l10n,
-            onPressed: hasCall ? null : () => c.call(false),
-            trailing: hasCall
-                ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
-                : const SvgIcon(SvgIcons.makeAudioCall),
-            inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
-          ),
-          ContextMenuButton(
-            label: 'btn_video_call'.l10n,
-            onPressed: hasCall ? null : () => c.call(true),
-            trailing: Transform.translate(
-              offset: const Offset(2, 0),
-              child: hasCall
+          if (!blocked) ...[
+            ContextMenuButton(
+              label: 'btn_audio_call'.l10n,
+              onPressed: hasCall ? null : () => c.call(false),
+              trailing: hasCall
                   ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
-                  : const SvgIcon(SvgIcons.makeVideoCall),
+                  : const SvgIcon(SvgIcons.makeAudioCall),
+              inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
             ),
-            inverted: Transform.translate(
-              offset: const Offset(2, 0),
-              child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+            ContextMenuButton(
+              label: 'btn_video_call'.l10n,
+              onPressed: hasCall ? null : () => c.call(true),
+              trailing: Transform.translate(
+                offset: const Offset(2, 0),
+                child: hasCall
+                    ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
+                    : const SvgIcon(SvgIcons.makeVideoCall),
+              ),
+              inverted: Transform.translate(
+                offset: const Offset(2, 0),
+                child: const SvgIcon(SvgIcons.makeVideoCallWhite),
+              ),
             ),
-          ),
+          ],
           ContextMenuButton(
             key: contact
                 ? const Key('DeleteFromContactsButton')
@@ -448,10 +461,25 @@ class UserView extends StatelessWidget {
       );
     });
 
-    return Center(
-      child: Row(
+    final Widget title;
+
+    if (!c.displayName.value) {
+      title = Row(
+        key: const Key('Profile'),
         children: [
+          const StyledBackButton(),
           const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+              child: Center(child: Text('label_profile'.l10n)),
+            ),
+          ),
+        ],
+      );
+    } else {
+      title = Row(
+        children: [
           const StyledBackButton(),
           Material(
             elevation: 6,
@@ -471,15 +499,20 @@ class UserView extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               child: Obx(() {
-                final String? status = c.user?.user.value.getStatus();
-                // final UserTextStatus? text = c.user?.user.value.status;
-                final StringBuffer buffer = StringBuffer();
+                final String subtitle;
 
-                if (status != null) {
-                  buffer.write(status);
+                if (c.isBlocked != null) {
+                  subtitle = 'Заблокировано';
+                } else {
+                  final String? status = c.user?.user.value.getStatus();
+                  final StringBuffer buffer = StringBuffer();
+
+                  if (status != null) {
+                    buffer.write(status);
+                  }
+
+                  subtitle = buffer.toString();
                 }
-
-                final String subtitle = buffer.toString();
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -502,10 +535,21 @@ class UserView extends StatelessWidget {
               }),
             ),
           ),
-          const SizedBox(width: 40),
-          editButton,
+          const SizedBox(width: 10),
         ],
-      ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            child: title,
+          ),
+        ),
+        editButton,
+      ],
     );
   }
 

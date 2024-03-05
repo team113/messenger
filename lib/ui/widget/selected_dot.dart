@@ -29,6 +29,7 @@ class SelectedDot extends StatelessWidget {
     this.darken = 0,
     this.inverted = true,
     this.outlined = false,
+    this.disabled = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
@@ -47,9 +48,31 @@ class SelectedDot extends StatelessWidget {
   /// Indicator whether this [SelectedDot] should be outlined.
   final bool outlined;
 
+  final bool disabled;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    if (disabled) {
+      return SizedBox(
+        width: 30,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: style.colors.secondaryHighlight,
+            border: Border.all(
+              color: outlined
+                  ? style.colors.primary
+                  : style.colors.secondaryHighlightDarkest,
+              width: 1.5,
+            ),
+          ),
+          width: size,
+          height: size,
+        ),
+      );
+    }
 
     return SizedBox(
       width: 30,

@@ -79,6 +79,7 @@ class AvatarWidget extends StatefulWidget {
     this.opacity = 1,
     this.isOnline = false,
     this.isAway = false,
+    this.isBlocked = false,
     this.label,
     this.onForbidden,
     this.child,
@@ -197,18 +198,21 @@ class AvatarWidget extends StatefulWidget {
       );
     }
 
-    return Obx(
-      () => AvatarWidget(
+    return Obx(() {
+      final bool blocked = user.user.value.isBlocked != null;
+
+      return AvatarWidget(
         key: key,
         isOnline: badge && user.user.value.online == true,
         isAway: user.user.value.presence == Presence.away,
-        avatar: user.user.value.avatar,
+        avatar: blocked ? null : user.user.value.avatar,
         title: user.user.value.name?.val ?? user.user.value.num.val,
         color: user.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
-      ),
-    );
+        isBlocked: blocked,
+      );
+    });
   }
 
   /// Creates an [AvatarWidget] from the specified [chat]-monolog.
@@ -245,6 +249,7 @@ class AvatarWidget extends StatefulWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    bool isBlocked = false,
   }) =>
       AvatarWidget(
         key: key,
@@ -253,6 +258,7 @@ class AvatarWidget extends StatefulWidget {
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
         opacity: opacity,
+        isBlocked: isBlocked,
       );
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
@@ -284,11 +290,13 @@ class AvatarWidget extends StatefulWidget {
 
       final RxUser? user =
           chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
+      final bool blocked =
+          chat.chat.value.isDialog && user?.user.value.isBlocked != null;
       return AvatarWidget(
         key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
         isAway: user?.user.value.presence == Presence.away,
-        avatar: chat.avatar.value,
+        avatar: blocked ? null : chat.avatar.value,
         title: chat.chat.value.isMonolog && !monolog
             ? (chat.members.values.firstOrNull?.user.value.name?.val ??
                 chat.members.values.firstOrNull?.user.value.num.toString())
@@ -298,6 +306,7 @@ class AvatarWidget extends StatefulWidget {
             : chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,
+        isBlocked: blocked,
       );
     });
   }
@@ -331,6 +340,8 @@ class AvatarWidget extends StatefulWidget {
 
   /// Optional label to show inside this [AvatarWidget].
   final Widget? label;
+
+  final bool isBlocked;
 
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
@@ -438,7 +449,7 @@ class _AvatarWidgetState extends State<AvatarWidget> {
         ),
         child: Badge(
           largeSize: badgeSize * 1.16,
-          isLabelVisible: widget.isOnline,
+          isLabelVisible: widget.isOnline || widget.isBlocked,
           alignment: Alignment.bottomRight,
           backgroundColor: style.colors.onPrimary,
           padding: EdgeInsets.all(badgeSize / 12),
@@ -450,14 +461,22 @@ class _AvatarWidgetState extends State<AvatarWidget> {
           label: SizedBox(
             width: badgeSize,
             height: badgeSize,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.isAway
-                    ? style.colors.warning
-                    : style.colors.acceptAuxiliary,
-              ),
-            ),
+            child: widget.isBlocked
+                ? Center(
+                    child: SvgIcon(
+                      SvgIcons.restricted,
+                      width: badgeSize / 1.7,
+                      height: badgeSize / 1.7,
+                    ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.isAway
+                          ? style.colors.warning
+                          : style.colors.acceptAuxiliary,
+                    ),
+                  ),
           ),
           child: Stack(
             children: [

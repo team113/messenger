@@ -551,6 +551,12 @@ class SvgIcons {
     height: 15,
   );
 
+  static const SvgData blocked20 = SvgData(
+    'assets/icons/blocked20.svg',
+    width: 20,
+    height: 20,
+  );
+
   static const SvgData sent = SvgData(
     'assets/icons/sent.svg',
     width: 12.42,
@@ -2234,5 +2240,11 @@ class SvgIcons {
     'assets/icons/gapopa_id.svg',
     width: 21.25 * 0.9,
     height: 21.25 * 0.9,
+  );
+
+  static const SvgData restricted = SvgData(
+    'assets/icons/restricted.svg',
+    width: 7,
+    height: 7,
   );
 }

@@ -2157,6 +2157,15 @@ class ChatView extends StatelessWidget {
       }
 
       if (c.chat?.blocked == true) {
+        if (c.makeItSeemLikeIAmBlocked.value) {
+          return const SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(left: 8, right: 8),
+              child: UnblockButton(null, text: 'Вы заблокированы'),
+            ),
+          );
+        }
+
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.only(left: 8, right: 8),
