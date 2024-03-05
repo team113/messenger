@@ -42,7 +42,7 @@ class StyleView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: StyleController(),
+      init: StyleController(Get.find()),
       builder: (StyleController c) {
         return Scaffold(
           backgroundColor: style.colors.background,
@@ -137,7 +137,8 @@ class StyleView extends StatelessWidget {
                       return ColorsView(inverted: c.inverted.value);
                     }),
                   StyleTab.typography => const TypographyView(),
-                  StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                  StyleTab.widgets => SelectionArea(
+                      child: WidgetsView(audioPlayer: c.audioPlayer)),
                   StyleTab.icons => const SelectionArea(child: IconsView()),
                 },
               );

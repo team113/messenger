@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
+import '/domain/service/audio_player.dart';
 import 'section/animations.dart';
 import 'section/avatars.dart';
 import 'section/buttons.dart';
@@ -33,7 +34,9 @@ import 'section/tiles.dart';
 
 /// Widgets view of the [Routes.style] page.
 class WidgetsView extends StatelessWidget {
-  const WidgetsView({super.key});
+  const WidgetsView({super.key, required this.audioPlayer});
+
+  final AudioPlayerService audioPlayer;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class WidgetsView extends StatelessWidget {
       cacheExtent: 3000,
       children: [
         ...ImagesSection.build(),
-        ...ChatSection.build(context),
+        ...ChatSection(audioPlayer: audioPlayer).build(context),
         ...AnimationsSection.build(),
         ...AvatarsSection.build(),
         ...FieldsSection.build(context),
