@@ -27,7 +27,7 @@ import '/util/obs/obs.dart';
 import 'pagination.dart';
 
 /// Implementation of a [Paginated].
-class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
+class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
   PaginatedImpl({
     this.pagination,
     this.initial = const [],
@@ -175,8 +175,7 @@ class PaginatedImpl<K extends Comparable, T, V, C> extends Paginated<K, T> {
 
 /// Implementation of a [Paginated] transforming [V] from [Pagination] to [T]
 /// value.
-class RxPaginatedImpl<K extends Comparable, T, V, C>
-    extends PaginatedImpl<K, T, V, C> {
+class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   RxPaginatedImpl({
     required this.transform,
     required super.pagination,
