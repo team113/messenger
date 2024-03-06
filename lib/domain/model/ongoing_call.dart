@@ -176,6 +176,10 @@ class OngoingCall {
     } else {
       screenShareState = Rx(LocalTrackState.disabled);
     }
+
+    _stateWorker = ever(this.state, (state) {
+      _participated = _participated || isActive;
+    });
   }
 
   /// ID of the [Chat] this [OngoingCall] takes place in.
@@ -313,6 +317,16 @@ class OngoingCall {
   /// the [outputDevice].
   Worker? _outputWorker;
 
+  /// Indicator whether [isActive] was `true` at least once during the lifecycle
+  /// of this [OngoingCall].
+  ///
+  /// Required, as neither [state] nor [connected] hold its values when
+  /// [dispose]d.
+  bool _participated = false;
+
+  /// [Worker] reacting on the [state] changes updating the [_participated].
+  Worker? _stateWorker;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -354,6 +368,12 @@ class OngoingCall {
 
   /// Indicates whether the current authorized [MyUser] is the caller.
   bool get outgoing => me.id.userId == caller?.id || caller == null;
+
+  /// Indicates whether [isActive] was `true` at least once during the lifecycle
+  /// of this [OngoingCall].
+  ///
+  /// Intended be used to determine whether [OngoingCall] is not a notification.
+  bool get participated => _participated;
 
   /// Initializes the media client resources.
   ///
@@ -481,6 +501,8 @@ class OngoingCall {
   /// No-op if already [connected].
   void connect(CallService calls) {
     Log.debug('connect($calls)', '$runtimeType');
+
+    _participated = true;
 
     if (connected || callChatItemId == null || deviceId == null) {
       return;
@@ -819,6 +841,8 @@ class OngoingCall {
     Log.debug('dispose()', '$runtimeType');
 
     _heartbeat?.cancel();
+    _participated = _participated || connected || isActive;
+    _stateWorker?.dispose();
     connected = false;
 
     return _mediaSettingsGuard.protect(() async {
