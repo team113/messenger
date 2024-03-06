@@ -104,12 +104,11 @@ class AddChatMemberController extends GetxController {
     status.value = RxStatus.loading();
 
     try {
+      pop?.call();
+
       List<Future> futures =
           ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
-
       await Future.wait(futures);
-
-      pop?.call();
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
