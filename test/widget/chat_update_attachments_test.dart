@@ -637,8 +637,5 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await Get.deleteAll(force: true);
-
-    await tester.runAsync(() => Future.delayed(1.milliseconds));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }
