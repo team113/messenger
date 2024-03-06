@@ -332,7 +332,12 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.logout:
-                      return const SizedBox();
+                      return const SafeArea(
+                        top: false,
+                        right: false,
+                        left: false,
+                        child: SizedBox(),
+                      );
                   }
                 },
               );
