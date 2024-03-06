@@ -113,55 +113,60 @@ class UserView extends StatelessWidget {
             );
           }
 
+          final List<Widget> blocks = [
+            const SizedBox(height: 8),
+            if (c.isBlocked != null)
+              Block(
+                title: 'label_user_is_blocked'.l10n,
+                children: [
+                  BlocklistRecordWidget(
+                    c.isBlocked!,
+                    onUnblock: c.unblock,
+                  ),
+                ],
+              ),
+            _profile(c, context),
+            if (c.isBlocked == null) _quick(c, context),
+            if (c.paid) _price(c, context),
+            _bio(c, context),
+            _info(c),
+            SelectionContainer.disabled(
+              child: Block(
+                title: 'label_direct_chat_link'.l10n,
+                children: [
+                  DirectLinkField(
+                    ChatDirectLink(
+                      slug: ChatDirectLinkSlug('dqwdqwdqwd'),
+                    ),
+                    editing: false,
+                    transitions: false,
+                    background: c.background.value,
+                  ),
+                ],
+              ),
+            ),
+            _money(c, context),
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
+            const SizedBox(height: 8),
+          ];
+
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
-              child: Obx(() {
-                return SelectionArea(
-                  child: ListView(
-                    key: const Key('UserScrollable'),
-                    controller: c.scrollController,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (c.isBlocked != null)
-                        Block(
-                          title: 'label_user_is_blocked'.l10n,
-                          children: [
-                            BlocklistRecordWidget(
-                              c.isBlocked!,
-                              onUnblock: c.unblock,
-                            ),
-                          ],
-                        ),
-                      _profile(c, context),
-                      if (c.isBlocked == null) _quick(c, context),
-                      _bio(c, context),
-                      _info(c),
-                      SelectionContainer.disabled(
-                        child: Block(
-                          title: 'label_direct_chat_link'.l10n,
-                          children: [
-                            DirectLinkField(
-                              ChatDirectLink(
-                                slug: ChatDirectLinkSlug('dqwdqwdqwd'),
-                              ),
-                              editing: false,
-                              transitions: false,
-                              background: c.background.value,
-                            ),
-                          ],
-                        ),
-                      ),
-                      _money(c, context),
-                      SelectionContainer.disabled(
-                        child: Block(children: [_actions(c, context)]),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                );
-              }),
+              child: SelectionArea(
+                child: ScrollablePositionedList.builder(
+                  key: const Key('UserScrollable'),
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  initialScrollIndex: c.initialScrollIndex,
+                ),
+              ),
             ),
           );
         });
@@ -454,12 +459,36 @@ class UserView extends StatelessWidget {
             )
         ],
         child: Container(
-          padding: const EdgeInsets.only(left: 31, right: 25),
+          padding: const EdgeInsets.only(left: 21, right: 25),
           height: double.infinity,
           child: const SvgIcon(SvgIcons.more),
         ),
       );
     });
+
+    final Widget moneyButton;
+
+    if (c.paid) {
+      moneyButton = WidgetButton(
+        onPressed: () {
+          c.itemScrollController.scrollTo(
+            index: c.isBlocked == null ? 3 : 2,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.ease,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(right: 4.0),
+          child: Text(
+            '¤',
+            style: style.fonts.larger.regular.onBackground
+                .copyWith(color: style.colors.primary),
+          ),
+        ),
+      );
+    } else {
+      moneyButton = const SizedBox();
+    }
 
     final Widget title;
 
@@ -548,6 +577,7 @@ class UserView extends StatelessWidget {
             child: title,
           ),
         ),
+        moneyButton,
         editButton,
       ],
     );
@@ -739,6 +769,26 @@ class UserView extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _price(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return SelectionContainer.disabled(
+      child: Block(
+        title: 'label_payment_set'.l10n,
+        children: [
+          Text(
+            'label_price_for_messages_and_calls_to_user'.l10nfmt({
+              'name': c.user?.user.value.name?.val ??
+                  c.user?.user.value.num.toString() ??
+                  '...',
+            }),
+            style: style.fonts.small.regular.secondary,
+          ),
+        ],
       ),
     );
   }

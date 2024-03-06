@@ -92,6 +92,7 @@ class MyProfileController extends GetxController {
   final ItemPositionsListener positionsListener =
       ItemPositionsListener.create();
 
+  final ScrollController paidScrollController = ScrollController();
   final ScrollController blocklistScrollController = ScrollController();
 
   /// Index of the initial profile page section to show in a

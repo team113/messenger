@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
@@ -10,12 +11,16 @@ class PaidNotification extends StatelessWidget {
     this.description,
     this.action,
     this.accepted = false,
+    this.name,
+    this.header,
   });
 
   final bool accepted;
   final Border? border;
   final void Function()? onPressed;
 
+  final String? name;
+  final String? header;
   final String? description;
   final String? action;
 
@@ -52,9 +57,19 @@ class PaidNotification extends StatelessWidget {
               ),
               child: Column(
                 children: [
+                  if (header != null) ...[
+                    Text(
+                      header!,
+                      style: style.fonts.normal.regular.onBackground,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                   Text(
                     description ??
-                        'Kirey установил 50 ¤ за отправку сообщения и 150 ¤/мин за совершение звонка.',
+                        'label_price_for_messages_and_calls_to_user'
+                            .l10nfmt({'name': name ?? ''}),
+
+                    // 'Kirey установил ¤ 50 за отправку сообщения и ¤ 150/мин за совершение звонка.',
                     style: style.systemMessageStyle,
                   ),
                   const SizedBox(height: 8),

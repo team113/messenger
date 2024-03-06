@@ -202,6 +202,10 @@ class UserController extends GetxController {
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
+  bool get paid =>
+      user != null &&
+      (user?.user.value.messageCost != 0 || user?.user.value.callCost != 0);
+
   void _scrollListener() {
     displayName.value = scrollController.position.pixels >= 250; //365;
   }

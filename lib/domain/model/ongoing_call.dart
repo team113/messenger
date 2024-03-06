@@ -1839,7 +1839,28 @@ class OngoingCall {
         'Closing the previous one and connecting to the new',
         '$runtimeType',
       );
+
+      final List<CallMember> connected = members.values
+          .where((e) => e.isConnected.value == true && e.id != _me)
+          .toList();
+
       _closeRoom();
+
+      members.addEntries(
+        connected
+            .map(
+              (e) => MapEntry(
+                e.id,
+                CallMember(
+                  e.id,
+                  null,
+                  isDialing: true,
+                ),
+              ),
+            )
+            .toList(),
+      );
+
       _initRoom();
       await _setInitialMediaSettings();
       await _initLocalMedia();

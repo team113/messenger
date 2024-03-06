@@ -1208,3 +1208,5 @@ label_forward_messages_for = Forward messages{$amount ->
     [0] {""}
    *[other] {" "}for ¤{$amount}
 }
+label_price_for_messages_and_calls_to_user = ¤ 50 for a message and ¤ 150/min for a call to {$name}.
+label_payment_set = Payment set

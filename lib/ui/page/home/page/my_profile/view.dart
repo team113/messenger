@@ -1693,12 +1693,12 @@ Widget _blocklist(BuildContext context, MyProfileController c) {
       );
     } else {
       return Scrollbar(
-        controller: c.blocklistScrollController,
+        controller: c.paidScrollController,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 400),
           child: ListView.builder(
             // padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            controller: c.blocklistScrollController,
+            controller: c.paidScrollController,
             shrinkWrap: true,
             itemBuilder: (context, i) {
               final RxUser e = blocklist.elementAt(i);
@@ -1885,18 +1885,66 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
-    final int count = c.myUser.value?.blocklistCount ?? 0;
+    // Show only users with [User.isBlocked] for optimistic
+    // deletion from blocklist.
+    final Iterable<RxUser> blocklist = c.blocklist
+        .where((e) => e.user.value.isBlocked != null)
+        .map((e) => [e, e, e, e, e, e, e, e, e, e, e])
+        .expand((e) => e);
 
-    return Paddings.dense(
-      FieldButton(
-        key: const Key('ShowBlocklist'),
-        text: 'label_users_count'.l10nfmt({'count': count}),
-        onPressed: count == 0 ? null : () => BlocklistView.show(context),
-        style: count == 0
-            ? style.fonts.normal.regular.onBackground
-            : style.fonts.normal.regular.primary,
-      ),
-    );
+    if (c.blocklistStatus.value.isLoading) {
+      return SizedBox(
+        height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+        child: const Center(
+          child: CustomProgressIndicator.primary(),
+        ),
+      );
+    } else if (blocklist.isEmpty) {
+      return Text(
+        'Пользователей нет.'.l10n,
+        style: style.fonts.small.regular.secondary,
+      );
+    } else {
+      return Scrollbar(
+        controller: c.blocklistScrollController,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 400),
+          child: ListView.builder(
+            controller: c.blocklistScrollController,
+            shrinkWrap: true,
+            itemBuilder: (context, i) {
+              final RxUser e = blocklist.elementAt(i);
+
+              return ContactTile(
+                user: e,
+                onTap: () => router.user(e.id, push: true),
+                height: 52,
+                radius: AvatarRadius.small,
+                subtitle: [
+                  Text(
+                    e.user.value.isBlocked?.at.val.yyMd ?? '',
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ],
+                trailing: [
+                  AnimatedButton(
+                    onPressed: () async {
+                      await c.unblock(e);
+                    },
+                    child: Text(
+                      'Разблокировать',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                    // child: const SvgIcon(SvgIcons.block16),
+                  ),
+                ],
+              );
+            },
+            itemCount: blocklist.length,
+          ),
+        ),
+      );
+    }
   });
 }
 

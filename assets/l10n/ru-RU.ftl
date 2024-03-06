@@ -1256,3 +1256,5 @@ label_forward_messages_for = Переслать сообщения{$amount ->
     [0] {""}
    *[other] {" "}за ¤{$amount}
 }
+label_price_for_messages_and_calls_to_user = ¤ 50 за отправку сообщения и ¤ 150/мин за совершение звонка пользователю {$name}.
+label_payment_set = Установлена плата

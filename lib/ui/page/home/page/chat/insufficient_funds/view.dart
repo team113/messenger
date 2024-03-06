@@ -71,8 +71,9 @@ class InsufficientFundsView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   Text(
-                    description,
+                    'label_please_add_funds_to_your_account'.l10n,
                     style: style.fonts.medium.regular.onBackground,
+                    textAlign: TextAlign.center,
                   )
                 ],
               ),

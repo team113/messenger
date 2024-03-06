@@ -912,6 +912,7 @@ class ChatView extends StatelessWidget {
                                                 : 8,
                                           ),
                                           child: PaidNotification(
+                                            header: 'label_payment_set'.l10n,
                                             accepted: c.paidAccepted.value,
                                             border: c.paidBorder.value
                                                 ? Border.all(
@@ -929,6 +930,10 @@ class ChatView extends StatelessWidget {
                                               c.paidBorder.value = false;
                                               c.paidAccepted.value = true;
                                             },
+                                            name:
+                                                c.user?.user.value.name?.val ??
+                                                    c.user?.user.value.num
+                                                        .toString(),
                                           ),
                                         );
                                       } else if (c.emailNotValidated.value) {
