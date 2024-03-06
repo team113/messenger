@@ -319,6 +319,9 @@ class SearchController extends GetxController {
     _populateUsers();
   }
 
+  /// Returns an [User] from the [UserService] by the provided [id].
+  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
+
   /// Searches the [User]s based on the provided [query].
   ///
   /// Query may be a [UserNum], [UserName] or [UserLogin].
@@ -526,7 +529,7 @@ class SearchController extends GetxController {
           return;
         }
 
-        final String title = monolog.title.value;
+        final String title = monolog.title;
         final String? name = myUser.name?.val;
         final String? login = myUser.login?.val;
         final String num = myUser.num.val;
@@ -554,12 +557,9 @@ class SearchController extends GetxController {
       // Predicates to filter [allChats] by.
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool matchesQuery(RxChat c) => _matchesQuery(
-            title: c.title.value,
+            title: c.title,
             user: c.chat.value.isDialog
-                ? c.members.values
-                    .firstWhereOrNull((u) => u.id != me)
-                    ?.user
-                    .value
+                ? c.members.values.firstWhereOrNull((u) => u.id != me)
                 : null,
           );
       bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
@@ -590,7 +590,7 @@ class SearchController extends GetxController {
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.id != me);
       bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
-      bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
+      bool matchesQuery(RxUser user) => _matchesQuery(user: user);
 
       final Iterable<RxUser> filtered = allChats
           .where(remoteDialog)
@@ -626,8 +626,7 @@ class SearchController extends GetxController {
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
           chat.members.items.containsKey(c.user.value!.id));
-      bool matchesQuery(RxChatContact c) =>
-          _matchesQuery(user: c.user.value?.user.value);
+      bool matchesQuery(RxChatContact c) => _matchesQuery(user: c.user.value);
 
       final List<RxChatContact> filtered = allContacts
           .where(matchesQuery)
@@ -665,7 +664,7 @@ class SearchController extends GetxController {
       bool hidden(RxChat c) => c.chat.value.isHidden;
 
       // Predicates to filter [User]s by.
-      bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
+      bool matchesQuery(RxUser user) => _matchesQuery(user: user);
       bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool inRecent(RxUser u) => recent.containsKey(u.id);
       bool inContacts(RxUser u) => contacts.containsKey(u.id);
@@ -820,7 +819,7 @@ class SearchController extends GetxController {
   ///
   /// Note that any entity with non-`null` [user] or [title] matches the empty
   /// [query].
-  bool _matchesQuery({User? user, String? title}) {
+  bool _matchesQuery({RxUser? user, String? title}) {
     if (user != null || title != null) {
       // Formatted string representation of the current [query].
       final String queryString = query.value.toLowerCase().trim();
@@ -832,16 +831,11 @@ class SearchController extends GetxController {
         // TODO: Add [UserLogin] searching.
 
         if (user != null) {
-          num = user.num.val;
-          name = user.name?.val;
+          num = user.user.value.num.val;
+          name = user.user.value.name?.val;
 
           // [user] might be a contact with a custom [UserName].
-          contactName = _contactService.paginated.values
-              .firstWhereOrNull((c) => c.user.value?.user.value.id == user.id)
-              ?.contact
-              .value
-              .name
-              .val;
+          contactName = user.contact.value?.contact.value.name.val;
         }
 
         for (final param in [title, name, contactName].whereNotNull()) {

@@ -152,7 +152,7 @@ class ChatWorker extends DisposableService {
       if (newChat) {
         if (_myUser.value?.muted == null) {
           _notificationService.show(
-            c.title.value,
+            c.title,
             body: 'label_you_were_added_to_group'.l10n,
             payload: '${Routes.chats}/${c.chat.value.id}',
             icon: c.avatar.value?.original,
@@ -169,7 +169,7 @@ class ChatWorker extends DisposableService {
       onNotification: (body, tag, image) async {
         if (_displayNotification) {
           await _notificationService.show(
-            c.title.value,
+            c.title,
             body: body,
             payload: '${Routes.chats}/${c.chat.value.id}',
             icon: c.avatar.value?.original,

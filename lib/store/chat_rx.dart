@@ -40,6 +40,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
@@ -51,7 +52,6 @@ import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
-import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -100,7 +100,84 @@ class HiveRxChat extends RxChat {
   late final MembersPaginated members;
 
   @override
-  final RxString title = RxString('');
+  String get title {
+    String title = 'dot'.l10n * 3;
+
+    // [RxUser]s take parts in the [title] formation. Used to subscribe to the
+    // [RxUser.updates] to keep this [users] up-to-date.
+    List<RxUser> users = [];
+
+    switch (chat.value.kind) {
+      case ChatKind.monolog:
+        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
+        break;
+
+      case ChatKind.dialog:
+        final String? partnerName;
+        final RxUser? rxUser =
+            members.items.values.firstWhereOrNull((u) => u.id != me);
+
+        if (rxUser != null) {
+          users.add(rxUser);
+          partnerName = rxUser.title;
+        } else {
+          final User? user =
+              chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user;
+          partnerName = user?.name?.val ?? user?.num.val;
+        }
+
+        if (partnerName != null) {
+          title = partnerName;
+        }
+        break;
+
+      case ChatKind.group:
+        if (chat.value.name == null) {
+          Iterable<String> titleParts;
+
+          Iterable<RxUser> rxUsers = members.items.values.take(3);
+
+          if (rxUsers.length < chat.value.membersCount && rxUsers.length < 3) {
+            titleParts = chat.value.members
+                .take(3)
+                .map((e) => e.user.name?.val ?? e.user.num.val);
+          } else {
+            users.addAll(rxUsers);
+
+            titleParts = rxUsers.map((e) => e.title);
+          }
+
+          title = titleParts.join('comma_space'.l10n);
+          if (chat.value.membersCount > 3) {
+            title += 'comma_space'.l10n + ('dot'.l10n * 3);
+          }
+        } else {
+          title = chat.value.name!.val;
+        }
+        break;
+
+      case ChatKind.artemisUnknown:
+        // No-op.
+        break;
+    }
+
+    _userSubscriptions.removeWhere((k, v) {
+      if (users.none((u) => u.id == k)) {
+        v.cancel();
+        return true;
+      }
+
+      return false;
+    });
+
+    for (final e in users) {
+      if (_userSubscriptions[e.id] == null) {
+        _userSubscriptions[e.id] = e.updates.listen((_) {});
+      }
+    }
+
+    return title;
+  }
 
   @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
@@ -146,9 +223,6 @@ class HiveRxChat extends RxChat {
   /// [PageProvider] fetching pages of [HiveChatItem]s.
   late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
       _provider;
-
-  /// Subscription to [User]s from the [members] list forming the [title].
-  final Map<UserId, Worker> _userWorkers = {};
 
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
@@ -310,10 +384,6 @@ class HiveRxChat extends RxChat {
     _initMessagesPagination();
     _initMembersPagination();
 
-    // Provide [List] of [ChatMember]s to the [_updateTitle] to synchronously
-    // initialize the [title]. It is required for notifications to show correct
-    // title when a new [Chat] is added, for example.
-    _updateTitle(chat.value.members.map((e) => e.user).toList());
     _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
 
     Chat previous = chat.value;
@@ -366,9 +436,6 @@ class HiveRxChat extends RxChat {
     status.value = RxStatus.empty();
     _worker?.dispose();
     _userWorker?.dispose();
-    for (var e in _userWorkers.values) {
-      e.dispose();
-    }
 
     for (StreamSubscription s in _userSubscriptions.values) {
       s.cancel();
@@ -1178,10 +1245,6 @@ class HiveRxChat extends RxChat {
   Future<void> _updateFields({Chat? previous}) async {
     Log.debug('_updateFields($previous)', '$runtimeType($id)');
 
-    if (chat.value.name != null) {
-      _updateTitle();
-    }
-
     if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;
     }
@@ -1207,76 +1270,6 @@ class HiveRxChat extends RxChat {
             _readTimer == null)) {
       unreadCount.value = chat.value.unreadCount;
     }
-
-    await _ensureTitle();
-  }
-
-  /// Initializes the [_userWorkers] updating the [title].
-  Future<void> _ensureTitle() async {
-    Log.debug('_ensureTitle()', '$runtimeType($id)');
-
-    if (chat.value.name == null) {
-      final List<RxUser> users;
-
-      if (members.items.length < 3) {
-        users = [];
-
-        for (var m in chat.value.members.take(3)) {
-          final RxUser? user = await _chatRepository.getUser(m.user.id);
-          if (user != null) {
-            users.add(user);
-          }
-        }
-      } else {
-        users = members.values.take(3).toList();
-      }
-
-      _userWorkers.removeWhere((k, v) {
-        if (users.none((u) => u.id == k)) {
-          v.dispose();
-          _userSubscriptions.remove(k)?.cancel();
-          return true;
-        }
-
-        return false;
-      });
-
-      for (RxUser u in users) {
-        if (!_userWorkers.containsKey(u.id)) {
-          // TODO: Title should be updated only if [User.name] had actually
-          // changed.
-          _userWorkers[u.id] = ever(u.user, (_) => _updateTitle());
-
-          // TODO: Perhaps [RxUser.updates] should behave like a [ever].
-          _userSubscriptions.remove(u.id)?.cancel();
-          _userSubscriptions[u.id] = u.updates.listen((_) {});
-        }
-      }
-    }
-
-    _updateTitle();
-  }
-
-  /// Updates the [title] according to the [Chat.name] and [Chat.members].
-  Future<void> _updateTitle([List<User>? users]) async {
-    Log.debug('_updateTitle()', '$runtimeType($id)');
-
-    users ??= [];
-
-    if (chat.value.name == null && users.isEmpty) {
-      if (members.values.isNotEmpty == true) {
-        users.addAll(members.values.take(3).map((e) => e.user.value));
-      } else {
-        for (var u in chat.value.members.take(3)) {
-          final user = (await _chatRepository.getUser(u.user.id))?.user.value;
-          if (user != null) {
-            users.add(user);
-          }
-        }
-      }
-    }
-
-    title.value = chat.value.getTitle(users, me);
   }
 
   /// Updates the [avatar].

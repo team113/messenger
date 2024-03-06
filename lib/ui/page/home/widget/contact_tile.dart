@@ -183,7 +183,7 @@ class ContactTile extends StatelessWidget {
                             return _name(
                               context,
                               contact: contact?.contact.value,
-                              user: user?.user.value,
+                              user: user,
                             );
                           })
                         else
@@ -206,14 +206,13 @@ class ContactTile extends StatelessWidget {
   Widget _name(
     BuildContext context, {
     ChatContact? contact,
-    User? user,
+    RxUser? user,
   }) {
     final style = Theme.of(context).style;
 
     return Text(
       contact?.name.val ??
-          user?.name?.val ??
-          user?.num.toString() ??
+          user?.title ??
           myUser?.name?.val ??
           myUser?.num.toString() ??
           (myUser == null ? 'dot'.l10n * 3 : 'btn_your_profile'.l10n),

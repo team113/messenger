@@ -2183,49 +2183,6 @@ class LoaderElement extends ListElement {
 
 /// Extension adding [ChatView] related wrappers and helpers.
 extension ChatViewExt on Chat {
-  /// Returns text represented title of this [Chat].
-  String getTitle(Iterable<User> users, UserId? me) {
-    String title = 'dot'.l10n * 3;
-
-    switch (kind) {
-      case ChatKind.monolog:
-        title = name?.val ?? 'label_chat_monolog'.l10n;
-        break;
-
-      case ChatKind.dialog:
-        final User? partner = users.firstWhereOrNull((u) => u.id != me);
-        final partnerName = partner?.name?.val ?? partner?.num.toString();
-        if (partnerName != null) {
-          title = partnerName;
-        }
-        break;
-
-      case ChatKind.group:
-        if (name == null) {
-          if (users.isEmpty) {
-            users = members.map((e) => e.user);
-          }
-
-          title = users
-              .take(3)
-              .map((u) => u.name?.val ?? u.num.toString())
-              .join('comma_space'.l10n);
-          if (membersCount > 3) {
-            title += 'comma_space'.l10n + ('dot'.l10n * 3);
-          }
-        } else {
-          title = name!.val;
-        }
-        break;
-
-      case ChatKind.artemisUnknown:
-        // No-op.
-        break;
-    }
-
-    return title;
-  }
-
   /// Returns string represented subtitle of this [Chat].
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the

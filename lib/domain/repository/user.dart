@@ -76,6 +76,9 @@ abstract class RxUser {
   /// Returns the [User.id] of this [RxUser].
   UserId get id => user.value.id;
 
+  /// Text representing the title of this [user].
+  String get title;
+
   /// Listens to the updates of this [RxUser] while the returned [Stream] is
   /// listened to.
   Stream<void> get updates;
