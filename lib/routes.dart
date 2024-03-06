@@ -562,6 +562,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                 ),
               );
+              userRepository.getContact = contactRepository.get;
+
               BlocklistRepository blocklistRepository = BlocklistRepository(
                 graphQlProvider,
                 Get.find(),
@@ -713,6 +715,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
+            userRepository.getContact = contactRepository.get;
+
             BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
               Get.find(),

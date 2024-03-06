@@ -121,7 +121,7 @@ class DummyRxChat extends RxChat {
   Future<void> addMessage(ChatMessageText text) async {}
 
   @override
-  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
     ChatItem? item,
     ChatItemId? reply,
     ChatItemId? forward,

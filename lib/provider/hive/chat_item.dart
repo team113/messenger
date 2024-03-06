@@ -37,7 +37,7 @@ part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
 class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
-    implements IterableHiveProvider<HiveChatItem, ChatItemKey> {
+    implements IterableHiveProvider<HiveChatItem, ChatItemId> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -90,8 +90,7 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
   }
 
   @override
-  Iterable<ChatItemKey> get keys =>
-      keysSafe.map((e) => ChatItemKey.fromString(e));
+  Iterable<ChatItemId> get keys => keysSafe.map((e) => ChatItemId(e));
 
   @override
   Future<Iterable<HiveChatItem>> get values => valuesSafe;
@@ -99,17 +98,17 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
   @override
   Future<void> put(HiveChatItem item) async {
     Log.debug('put($item)', '$runtimeType');
-    await putSafe(item.value.key.toString(), item);
+    await putSafe(item.value.id.toString(), item);
   }
 
   @override
-  Future<HiveChatItem?> get(ChatItemKey key) async {
+  Future<HiveChatItem?> get(ChatItemId key) async {
     Log.debug('get($key)', '$runtimeType');
     return await getSafe(key.toString());
   }
 
   @override
-  Future<void> remove(ChatItemKey key) async {
+  Future<void> remove(ChatItemId key) async {
     Log.debug('remove($key)', '$runtimeType');
     await deleteSafe(key.toString());
   }

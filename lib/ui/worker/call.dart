@@ -104,6 +104,9 @@ class CallWorker extends DisposableService {
   /// Returns the name of an outgoing call sound asset.
   String get _outgoing => 'outgoing_call.mp3';
 
+  /// Returns the name of an end call sound asset.
+  String get _endCall => 'end_call.wav';
+
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
@@ -240,6 +243,19 @@ class CallWorker extends DisposableService {
             stop();
           }
 
+          // Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
+          final OngoingCall? call = event.value?.value;
+          if (call != null) {
+            final bool isActiveOrEnded =
+                call.state.value == OngoingCallState.active ||
+                    call.state.value == OngoingCallState.ended;
+            final bool withMe = call.members.containsKey(call.me.id);
+
+            if (withMe && isActiveOrEnded && call.participated) {
+              play(_endCall);
+            }
+          }
+
           // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
             await AudioUtils.setDefaultSpeaker();
@@ -319,22 +335,24 @@ class CallWorker extends DisposableService {
 
   /// Plays the given [asset].
   Future<void> play(String asset, {bool fade = false}) async {
-    if (_myUser.value?.muted == null) {
-      if (asset == _incoming) {
+    if (asset == _incoming) {
+      if (_myUser.value?.muted == null) {
         final previous = _incomingAudio;
         _incomingAudio = AudioUtils.play(
           AudioSource.asset('audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
-      } else {
-        final previous = _outgoingAudio;
-        _outgoingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
-          fade: fade ? 1.seconds : Duration.zero,
-        );
-        previous?.cancel();
       }
+    } else if (asset == _outgoing) {
+      final previous = _outgoingAudio;
+      _outgoingAudio = AudioUtils.play(
+        AudioSource.asset('audio/$asset'),
+        fade: fade ? 1.seconds : Duration.zero,
+      );
+      previous?.cancel();
+    } else if (asset == _endCall) {
+      AudioUtils.once(AudioSource.asset('audio/$_endCall'));
     }
   }
 
@@ -351,19 +369,35 @@ class CallWorker extends DisposableService {
 
   /// Initializes [WebUtils] related functionality.
   void _initWebUtils() {
-    _storageSubscription = WebUtils.onStorageChange.listen((s) {
-      if (s.key == null) {
+    _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      if (e.key == null) {
         stop();
-      } else if (s.key?.startsWith('call_') == true) {
-        ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
-        if (s.newValue == null) {
+      } else if (e.key?.startsWith('call_') == true) {
+        final chatId = ChatId(e.key!.replaceAll('call_', ''));
+        if (e.newValue == null) {
           _callService.remove(chatId);
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
             stop();
           }
+
+          // Play a sound when a call with [myUser] ends in a popup.
+          if (e.oldValue != null) {
+            final call = WebStoredCall.fromJson(json.decode(e.oldValue!));
+
+            final bool isActiveOrEnded =
+                call.state == OngoingCallState.active ||
+                    call.state == OngoingCallState.ended;
+            final bool withMe =
+                call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
+                    false;
+
+            if (isActiveOrEnded && withMe) {
+              play(_endCall);
+            }
+          }
         } else {
-          var call = WebStoredCall.fromJson(json.decode(s.newValue!));
+          final call = WebStoredCall.fromJson(json.decode(e.newValue!));
           if (call.state != OngoingCallState.local &&
               call.state != OngoingCallState.pending) {
             _workers.remove(chatId)?.dispose();
