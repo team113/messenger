@@ -30,13 +30,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Chat not disappearing after being kicked from it. ([#864], [#851])
+    - Profile page:
+        - Missing bottom mobile paddings. ([#886], [#821])
+    - Media panel:
+        - Missing bottom mobile paddings in panel. ([#886], [#821])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
-- Mobile:
-    - Profile page:
-        - Missing bottom padding. ([#886], [#821])
-    - Media panel:
-        - Missing bottom padding in bottom buttons panel. ([#886], [#821])
 
 [#809]: /../../issues/809
 [#821]: /../../issues/821
