@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Call ended sound and left alone in group call sound. ([#877], [#809])
+
 ### Changed
 
 - UI:
@@ -24,13 +30,21 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Chat not disappearing after being kicked from it. ([#864], [#851])
+    - Profile page:
+        - Missing bottom mobile paddings. ([#886], [#821])
+    - Media panel:
+        - Missing bottom mobile paddings in panel. ([#886], [#821])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
+[#809]: /../../issues/809
+[#821]: /../../issues/821
 [#851]: /../../issues/851
 [#864]: /../../pull/864
 [#868]: /../../pull/868
+[#877]: /../../pull/877
 [#880]: /../../pull/880
+[#886]: /../../pull/886
 
 
 

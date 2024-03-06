@@ -548,6 +548,12 @@ class CallController extends GetxController {
   double get secondaryRatio =>
       size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33;
 
+  /// Returns the name of an end call sound asset.
+  String get _endCall => 'end_call.wav';
+
+  /// Returns the name of a reconnect sound asset.
+  String get _reconnect => 'reconnect.mp3';
+
   @override
   void onInit() {
     super.onInit();
@@ -795,7 +801,7 @@ class CallController extends GetxController {
     _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
       if (b) {
         _reconnectAudio =
-            AudioUtils.play(AudioSource.asset('audio/reconnect.mp3'));
+            AudioUtils.play(AudioSource.asset('audio/$_reconnect'));
       } else {
         _reconnectAudio?.cancel();
       }
@@ -2129,6 +2135,19 @@ class CallController extends GetxController {
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
+            }
+
+            // Play a sound when the last connected [CallMember] except [MyUser]
+            // leaves the call.
+            final bool isActiveCall =
+                _currentCall.value.state.value == OngoingCallState.active;
+            final bool myUserIsAlone =
+                members.values.where((m) => m.isConnected.value).length == 1;
+
+            // React to removal of connected [CallMember]s only.
+            final bool wasConnected = e.value?.isConnected.value ?? false;
+            if (isGroup && isActiveCall && wasConnected && myUserIsAlone) {
+              AudioUtils.once(AudioSource.asset('audio/$_endCall'));
             }
             break;
 

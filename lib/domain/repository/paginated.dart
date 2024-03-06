@@ -23,7 +23,7 @@ import 'package:get/get.dart';
 import '/util/obs/obs.dart';
 
 /// Paginated view of [T] items.
-abstract class Paginated<K extends Comparable, T> {
+abstract class Paginated<K, T> {
   Paginated({this.onDispose});
 
   /// Paginated [T] items themselves.
