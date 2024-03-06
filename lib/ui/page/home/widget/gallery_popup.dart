@@ -659,6 +659,9 @@ class _GalleryPopupState extends State<GalleryPopup>
                         child: PlatformUtils.isWeb
                             ? WebImage(
                                 e.link,
+                                width: e.width?.toDouble(),
+                                height: e.height?.toDouble(),
+                                thumbhash: e.thumbhash,
                                 onForbidden: e.onError,
 
                                 // TODO: Wait for HTML to support specifying
