@@ -72,6 +72,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
+
     if (_futures.isEmpty && !status.value.isSuccess) {
       for (var f in initial) {
         if (f is Future<Map<K, T>>) {

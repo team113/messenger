@@ -1545,7 +1545,6 @@ class ChatController extends GetxController {
         _fragment = fragment;
       }
 
-      await _fragment!.ensureInitialized();
       await _fragment!.around();
 
       elements.clear();

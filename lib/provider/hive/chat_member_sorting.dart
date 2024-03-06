@@ -43,13 +43,12 @@ class ChatMemberSortingHiveProvider extends HiveBaseProvider<UserId> {
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
-  /// Returns a list of [UserId]s from [Hive].
+  /// Returns the list of [UserId]s from [Hive].
   Iterable<UserId> get values => valuesSafe;
 
   /// Puts the provided [UserId] by the provided [time] to [Hive].
   Future<void> put(PreciseDateTime time, UserId id) async {
     Log.debug('put($time, $id)', '$runtimeType');
-
     await putSafe('${time.toUtc().toString()}_$id', id);
   }
 
