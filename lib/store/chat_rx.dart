@@ -841,7 +841,6 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
-    await _sorting.clear();
 
     await _local.clear();
     await _sorting.clear();

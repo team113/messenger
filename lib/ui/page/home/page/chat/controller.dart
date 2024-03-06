@@ -1513,7 +1513,7 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.any((e) => e == itemId),
+        (e) => e.items.keys.contains(itemId),
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],
