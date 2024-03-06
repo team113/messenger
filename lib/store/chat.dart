@@ -574,8 +574,6 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.membersCount--);
 
     try {
-      // await Future.delayed(1.seconds);
-      // throw 'Test error';
       await _graphQlProvider.removeChatMember(chatId, userId);
       await onMemberRemoved.call(chatId, userId);
     } catch (_) {
