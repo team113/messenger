@@ -536,20 +536,14 @@ class ChatRepository extends DisposableInterface
     final RxUser? user =
         userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
-    ChatMember? chatMember;
-
     if (user != null) {
-      chatMember = ChatMember(user.user.value, PreciseDateTime.now());
-      final hiveMember = HiveChatMember(
-          ChatMember(user.user.value, PreciseDateTime.now()), null);
+      final member = HiveChatMember(
+        ChatMember(user.user.value, PreciseDateTime.now()),
+        null,
+      );
 
-      chat?.members.put(hiveMember);
-      chat?.chat.update((c) {
-        c?.membersCount++;
-        if (c != null && c.members.length < 3) {
-          c.members.add(chatMember!);
-        }
-      });
+      chat?.members.put(member);
+      chat?.chat.update((c) => c?.membersCount++);
     }
 
     try {
@@ -562,11 +556,9 @@ class ChatRepository extends DisposableInterface
     } catch (_) {
       if (user != null) {
         chat?.members.remove(user.id);
-        chat?.chat.update((c) {
-          c?.membersCount--;
-          c?.members.remove(chatMember);
-        });
+        chat?.chat.update((c) => c?.membersCount--);
       }
+
       rethrow;
     }
   }
@@ -579,21 +571,17 @@ class ChatRepository extends DisposableInterface
     final HiveChatMember? hiveMember = chat?.members.pagination?.items[userId];
 
     chat?.members.items.remove(userId);
-    chat?.chat.update((c) {
-      c?.membersCount--;
-      c?.members.removeWhere((e) => e.user.id == userId);
-    });
+    chat?.chat.update((c) => c?.membersCount--);
 
     try {
+      // await Future.delayed(1.seconds);
+      // throw 'Test error';
       await _graphQlProvider.removeChatMember(chatId, userId);
       await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (hiveMember != null) {
         chat?.members.put(hiveMember);
-        chat?.chat.update((c) {
-          c?.membersCount++;
-          c?.members.add(hiveMember.value);
-        });
+        chat?.chat.update((c) => c?.membersCount++);
       }
 
       rethrow;

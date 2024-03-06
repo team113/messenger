@@ -1803,29 +1803,29 @@ class HiveRxChat extends RxChat {
                     case ChatInfoActionKind.memberAdded:
                       final action = msg.action as ChatInfoActionMemberAdded;
 
-                      chatEntity.value.membersCount++;
-
                       // Store the first 3 [ChatMember]s in the [Chat.members]
-                      // to display default [Chat]s name.
+                      // to display default [Chat]s name while fetching data
+                      // from backend.
                       if (chatEntity.value.members.length < 3) {
                         chatEntity.value.members.add(
                           ChatMember(action.user, msg.at),
                         );
                       }
 
-                      _putMember(
+                      await _putMember(
                         HiveChatMember(ChatMember(action.user, msg.at), null),
                       );
+
+                      chatEntity.value.membersCount = members.items.length;
                       break;
 
                     case ChatInfoActionKind.memberRemoved:
                       final action = msg.action as ChatInfoActionMemberRemoved;
 
                       await members.remove(action.user.id);
-
+                      chatEntity.value.membersCount = members.items.length;
                       chatEntity.value.members
                           .removeWhere((e) => e.user.id == action.user.id);
-                      chatEntity.value.membersCount--;
 
                       if (chatEntity.value.members.length < 3) {
                         if (members.items.length < 3) {
