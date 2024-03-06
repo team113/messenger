@@ -553,7 +553,6 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
-      await Future.delayed(5.seconds);
       await _graphQlProvider.addChatMember(chatId, userId);
 
       // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
@@ -586,7 +585,6 @@ class ChatRepository extends DisposableInterface
     });
 
     try {
-      await Future.delayed(5.seconds);
       await _graphQlProvider.removeChatMember(chatId, userId);
       await onMemberRemoved.call(chatId, userId);
     } catch (_) {
