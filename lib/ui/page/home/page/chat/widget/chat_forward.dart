@@ -846,8 +846,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 return Tooltip(
-                  message:
-                      data?.title ?? user?.name?.val ?? user?.num.toString(),
+                  message: data?.title ?? user?.title,
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(

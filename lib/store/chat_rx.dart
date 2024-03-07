@@ -102,86 +102,6 @@ class HiveRxChat extends RxChat {
   late final MembersPaginated members;
 
   @override
-  String get title {
-    String title = 'dot'.l10n * 3;
-
-    // [RxUser]s take parts in the [title] formation. Used to subscribe to the
-    // [RxUser.updates] to keep this [users] up-to-date.
-    List<RxUser> users = [];
-
-    switch (chat.value.kind) {
-      case ChatKind.monolog:
-        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
-        break;
-
-      case ChatKind.dialog:
-        final String? partnerName;
-        final RxUser? rxUser =
-            members.items.values.firstWhereOrNull((u) => u.id != me);
-
-        if (rxUser != null) {
-          users.add(rxUser);
-          partnerName = rxUser.title;
-        } else {
-          final User? user =
-              chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user;
-          partnerName = user?.name?.val ?? user?.num.val;
-        }
-
-        if (partnerName != null) {
-          title = partnerName;
-        }
-        break;
-
-      case ChatKind.group:
-        if (chat.value.name == null) {
-          Iterable<String> titleParts;
-
-          Iterable<RxUser> rxUsers = members.items.values.take(3);
-
-          if (rxUsers.length < chat.value.membersCount && rxUsers.length < 3) {
-            titleParts = chat.value.members
-                .take(3)
-                .map((e) => e.user.name?.val ?? e.user.num.val);
-          } else {
-            users.addAll(rxUsers);
-
-            titleParts = rxUsers.map((e) => e.title);
-          }
-
-          title = titleParts.join('comma_space'.l10n);
-          if (chat.value.membersCount > 3) {
-            title += 'comma_space'.l10n + ('dot'.l10n * 3);
-          }
-        } else {
-          title = chat.value.name!.val;
-        }
-        break;
-
-      case ChatKind.artemisUnknown:
-        // No-op.
-        break;
-    }
-
-    _userSubscriptions.removeWhere((k, v) {
-      if (users.none((u) => u.id == k)) {
-        v.cancel();
-        return true;
-      }
-
-      return false;
-    });
-
-    for (final e in users) {
-      if (_userSubscriptions[e.id] == null) {
-        _userSubscriptions[e.id] = e.updates.listen((_) {});
-      }
-    }
-
-    return title;
-  }
-
-  @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
   @override
@@ -371,6 +291,84 @@ class HiveRxChat extends RxChat {
 
   /// Indicates whether this [RxChat] is listening to the remote updates.
   bool get subscribed => _remoteSubscription != null;
+
+  @override
+  String get title {
+    String title = 'dot'.l10n * 3;
+
+    // [RxUser]s take parts in the [title] formation. Used to subscribe to the
+    // [RxUser.updates] to keep this [users] up-to-date.
+    List<RxUser> users = [];
+
+    switch (chat.value.kind) {
+      case ChatKind.monolog:
+        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
+        break;
+
+      case ChatKind.dialog:
+        final String? partnerName;
+        final RxUser? rxUser =
+            members.items.values.firstWhereOrNull((u) => u.id != me);
+
+        if (rxUser != null) {
+          users.add(rxUser);
+          partnerName = rxUser.title;
+        } else {
+          final User? user =
+              chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user;
+          partnerName = user?.title;
+        }
+
+        if (partnerName != null) {
+          title = partnerName;
+        }
+        break;
+
+      case ChatKind.group:
+        if (chat.value.name == null) {
+          Iterable<String> titleParts;
+
+          Iterable<RxUser> rxUsers = members.items.values.take(3);
+
+          if (rxUsers.length < chat.value.membersCount && rxUsers.length < 3) {
+            titleParts = chat.value.members.take(3).map((e) => e.user.title);
+          } else {
+            users.addAll(rxUsers);
+
+            titleParts = rxUsers.map((e) => e.title);
+          }
+
+          title = titleParts.join('comma_space'.l10n);
+          if (chat.value.membersCount > 3) {
+            title += 'comma_space'.l10n + ('dot'.l10n * 3);
+          }
+        } else {
+          title = chat.value.name!.val;
+        }
+        break;
+
+      case ChatKind.artemisUnknown:
+        // No-op.
+        break;
+    }
+
+    _userSubscriptions.removeWhere((k, v) {
+      if (users.none((u) => u.id == k)) {
+        v.cancel();
+        return true;
+      }
+
+      return false;
+    });
+
+    for (final e in users) {
+      if (_userSubscriptions[e.id] == null) {
+        _userSubscriptions[e.id] = e.updates.listen((_) {});
+      }
+    }
+
+    return title;
+  }
 
   /// Initializes this [HiveRxChat].
   Future<void> init() async {

@@ -424,9 +424,7 @@ class CallController extends GetxController {
   UserCallCover? get callCover => _currentCall.value.caller?.callCover;
 
   /// Returns a name of the current [OngoingCall]'s caller.
-  String? get callerName =>
-      _currentCall.value.caller?.name?.val ??
-      _currentCall.value.caller?.num.toString();
+  String? get callerName => _currentCall.value.caller?.title;
 
   /// Indicates whether a drag and drop videos hint should be displayed.
   bool get showDragAndDropVideosHint =>

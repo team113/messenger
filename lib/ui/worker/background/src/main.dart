@@ -30,6 +30,7 @@ import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 
 import '/api/backend/extension/credentials.dart';
+import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -384,7 +385,7 @@ class _BackgroundService {
                 // TODO: Display `Chat` name instead of the `ChatCall.author`.
                 _displayIncomingCall(
                   call.chatId,
-                  call.author.name?.val ?? call.author.num.toString(),
+                  call.author.toModel().title,
                 );
               }
 
@@ -410,7 +411,7 @@ class _BackgroundService {
               // TODO: Display `Chat` name instead of the `ChatCall.author`.
               _displayIncomingCall(
                 call.chatId,
-                call.author.name?.val ?? call.author.num.toString(),
+                call.author.toModel().title,
               );
             }
             break;

@@ -138,15 +138,18 @@ class User extends HiveObject {
   @HiveField(13)
   PreciseDateTime? lastSeenAt;
 
-  /// List of [ChatContactId]s this [User] is linked to.
+  /// List of [NestedChatContact]s this [User] is linked to.
   @HiveField(14)
-  final List<ChatContactId> contacts;
+  final List<NestedChatContact> contacts;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
   ChatId get dialog => _dialog ?? ChatId.local(id);
 
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
+
+  /// Returns text representing the title of this [User].
+  String get title => contacts.firstOrNull?.name.val ?? name?.val ?? num.val;
 
   @override
   String toString() => '$runtimeType($id)';
@@ -460,4 +463,24 @@ class BlocklistRecord implements Comparable<BlocklistRecord> {
 @HiveType(typeId: ModelTypeId.blocklistReason)
 class BlocklistReason extends NewType<String> {
   const BlocklistReason(super.val);
+}
+
+/// Record in an address book of the authenticated [MyUser].
+@HiveType(typeId: ModelTypeId.nestedChatContact)
+class NestedChatContact {
+  NestedChatContact(this.id, this.name);
+
+  /// Constructs a  [NestedChatContact] from the provided [ChatContact].
+  NestedChatContact.from(ChatContact contact)
+      : id = contact.id,
+        name = contact.name;
+
+  /// Unique ID of this [NestedChatContact].
+  @HiveField(0)
+  final ChatContactId id;
+
+  /// Custom [UserName] of this [NestedChatContact] given by the authenticated
+  /// [MyUser].
+  @HiveField(1)
+  UserName name;
 }

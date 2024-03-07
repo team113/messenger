@@ -171,7 +171,7 @@ class AvatarWidget extends StatelessWidget {
       AvatarWidget(
         key: key,
         avatar: user?.avatar,
-        title: user?.name?.val ?? user?.num.val,
+        title: user?.title,
         color: user?.num.val.sum(),
         radius: radius,
         opacity: opacity,

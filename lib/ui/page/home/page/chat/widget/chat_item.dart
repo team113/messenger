@@ -542,12 +542,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': widget.user?.title ??
-                  message.author.name?.val ??
-                  message.author.num.toString(),
-              'user': rxUser?.title ??
-                  action.user.name?.val ??
-                  action.user.num.toString(),
+              'author': widget.user?.title ?? message.author.title,
+              'user': rxUser?.title ?? action.user.title,
             };
 
             return Text.rich(
@@ -573,10 +569,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             );
           });
         } else {
+          final User user = widget.user?.user.value ?? action.user;
+
           final Map<String, dynamic> args = {
-            'author': widget.user?.title ??
-                action.user.name?.val ??
-                action.user.num.toString(),
+            'author': widget.user?.title ?? action.user.title,
           };
 
           content = Text.rich(
@@ -585,7 +581,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(action.user.dialog, push: true),
+                    ..onTap = () => router.chat(user.dialog, push: true),
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
@@ -607,12 +603,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': widget.user?.title ??
-                  message.author.name?.val ??
-                  message.author.num.toString(),
-              'user': rxUser?.title ??
-                  action.user.name?.val ??
-                  action.user.num.toString(),
+              'author': widget.user?.title ?? message.author.title,
+              'user': rxUser?.title ?? action.user.title,
             };
 
             return Text.rich(
@@ -638,8 +630,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             );
           });
         } else {
+          final User user = widget.user?.user.value ?? action.user;
+
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.toString(),
+            'author': widget.user?.title ?? action.user.title,
           };
 
           content = Text.rich(
@@ -648,7 +642,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(action.user.dialog, push: true),
+                    ..onTap = () => router.chat(user.dialog, push: true),
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
@@ -666,7 +660,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.toString(),
+          'author': widget.user?.title ?? user.title,
         };
 
         final String phrase1, phrase2;
@@ -701,7 +695,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.toString(),
+          'author': widget.user?.title ?? user.title,
           if (action.name != null) 'name': action.name?.val,
         };
 
@@ -1275,9 +1269,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        data?.user.value.name?.val ??
-                            data?.user.value.num.toString() ??
-                            'dot'.l10n * 3,
+                        data?.title ?? 'dot'.l10n * 3,
                         style: style.fonts.medium.regular.onBackground
                             .copyWith(color: color),
                       ),
@@ -1439,8 +1431,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 return Tooltip(
-                  message:
-                      data?.title ?? user?.name?.val ?? user?.num.toString(),
+                  message: data?.title ?? user?.title,
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(

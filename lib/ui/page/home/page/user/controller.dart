@@ -144,7 +144,7 @@ class UserController extends GetxController {
   ///
   /// Should be used to determine whether the [user] is in the contacts list, as
   /// [contact] may be fetched with a delay.
-  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
+  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
 
   @override
   void onInit() {

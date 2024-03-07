@@ -92,6 +92,9 @@ class UserRepository extends DisposableInterface
   Future<void> onInit() async {
     Log.debug('onInit()', '$runtimeType');
 
+    // Wait for [getChat] and [getContact] to be determined.
+    await Future.delayed(Duration.zero);
+
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
         users[c.value.id] = HiveRxUser(this, _userLocal, c);
@@ -321,11 +324,19 @@ class UserRepository extends DisposableInterface
   ///
   /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
   /// of its [User.contacts] list changes.
-  Future<void> addContact(ChatContactId contactId, UserId userId) async {
+  Future<void> addContact(ChatContact contact, UserId userId) async {
     final HiveUser? user = _userLocal.get(userId);
-    if (user != null && !user.value.contacts.contains(contactId)) {
-      user.value.contacts.add(contactId);
-      await _userLocal.put(user);
+    if (user != null) {
+      final NestedChatContact? userContact =
+          user.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
+
+      if (userContact == null) {
+        user.value.contacts.add(NestedChatContact.from(contact));
+        await _userLocal.put(user);
+      } else if (userContact.name != contact.name) {
+        userContact.name = contact.name;
+        await _userLocal.put(user);
+      }
     }
   }
 
@@ -336,8 +347,14 @@ class UserRepository extends DisposableInterface
   /// of its [User.contacts] list changes.
   Future<void> removeContact(ChatContactId contactId, UserId userId) async {
     final HiveUser? user = _userLocal.get(userId);
-    if (user != null && user.value.contacts.remove(contactId)) {
-      await _userLocal.put(user);
+    if (user != null) {
+      final NestedChatContact? contact =
+          user.value.contacts.firstWhereOrNull((e) => e.id == contactId);
+
+      if (contact != null) {
+        user.value.contacts.remove(contact);
+        await _userLocal.put(user);
+      }
     }
   }
 

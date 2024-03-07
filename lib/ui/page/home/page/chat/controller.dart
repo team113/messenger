@@ -393,7 +393,7 @@ class ChatController extends GetxController {
 
   /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
   /// if any.
-  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
   @override
   void onInit() {

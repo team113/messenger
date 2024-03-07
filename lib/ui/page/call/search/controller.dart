@@ -835,7 +835,8 @@ class SearchController extends GetxController {
           name = user.user.value.name?.val;
 
           // [user] might be a contact with a custom [UserName].
-          contactName = user.contact.value?.contact.value.name.val;
+          contactName = user.user.value.contacts.firstOrNull?.name.val ??
+              user.contact.value?.contact.value.name.val;
         }
 
         for (final param in [title, name, contactName].whereNotNull()) {

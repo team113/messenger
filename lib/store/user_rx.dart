@@ -45,7 +45,7 @@ class HiveRxUser extends RxUser {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
-    final ChatContactId? contactId = user.value.contacts.firstOrNull;
+    final ChatContactId? contactId = user.value.contacts.firstOrNull?.id;
     if (contactId != null) {
       final FutureOr<RxChatContact?> contactOrFuture =
           _userRepository.getContact?.call(contactId);
@@ -65,7 +65,7 @@ class HiveRxUser extends RxUser {
         at = user.lastSeenAt;
       }
 
-      final ChatContactId? contactId = user.contacts.firstOrNull;
+      final ChatContactId? contactId = user.contacts.firstOrNull?.id;
       if (contact.value?.id != contactId) {
         if (contactId != null) {
           final FutureOr<RxChatContact?> contactOrFuture =
@@ -145,10 +145,7 @@ class HiveRxUser extends RxUser {
   Stream<void> get updates => _controller.stream;
 
   @override
-  String get title =>
-      contact.value?.contact.value.name.val ??
-      user.value.name?.val ??
-      user.value.num.val;
+  String get title => contact.value?.contact.value.name.val ?? user.value.title;
 
   /// Disposes this [HiveRxUser].
   void dispose() {

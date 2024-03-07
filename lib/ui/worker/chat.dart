@@ -320,7 +320,7 @@ class _ChatWatchData {
     ChatMessageText? text,
     List<Attachment> attachments = const [],
   }) {
-    final String name = author?.name?.val ?? 'x';
+    final String name = author?.title ?? 'x';
     final String num = author?.num.val ?? 'err_unknown_user'.l10n;
     final String type = isGroup ? 'group' : 'dialog';
     String attachmentsType = attachments.every((e) => e is ImageAttachment)
@@ -356,20 +356,20 @@ class _ChatWatchData {
         if (author?.id == action.user.id) {
           return 'fcm_user_joined_group_by_link'.l10nfmt(
             {
-              'authorName': action.user.name?.val ?? 'x',
+              'authorName': action.user.title,
               'authorNum': action.user.num.val,
             },
           );
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_added_you_to_group'.l10nfmt({
-            'authorName': author?.name?.val ?? 'x',
+            'authorName': author?.title ?? 'x',
             'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
           });
         } else {
           return 'fcm_user_added_user'.l10nfmt({
-            'authorName': author?.name?.val ?? 'x',
+            'authorName': author?.title ?? 'x',
             'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
-            'userName': action.user.name?.val ?? 'x',
+            'userName': action.user.title,
             'userNum': action.user.num.val,
           });
         }
@@ -380,20 +380,20 @@ class _ChatWatchData {
         if (author?.id == action.user.id) {
           return 'fcm_user_left_group'.l10nfmt(
             {
-              'authorName': action.user.name?.val ?? 'x',
+              'authorName': action.user.title,
               'authorNum': action.user.num.val,
             },
           );
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_removed_you'.l10nfmt({
-            'authorName': author?.name?.val ?? 'x',
+            'authorName': author?.title ?? 'x',
             'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
           });
         } else {
           return 'fcm_user_removed_user'.l10nfmt({
-            'authorName': author?.name?.val ?? 'x',
+            'authorName': author?.title ?? 'x',
             'authorNum': author?.num.val ?? 'err_unknown_user'.l10n,
-            'userName': action.user.name?.val ?? 'x',
+            'userName': action.user.title,
             'userNum': action.user.num.val,
           });
         }
@@ -402,10 +402,8 @@ class _ChatWatchData {
         final action = info as ChatInfoActionAvatarUpdated;
 
         return 'fcm_group_avatar_changed'.l10nfmt({
-          'userName':
-              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-          'userNum':
-              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'userName': author?.title ?? 'x',
+          'userNum': author?.num.val ?? 'err_unknown_user'.l10n,
           'operation': action.avatar == null ? 'delete' : 'update',
         });
 
@@ -413,10 +411,8 @@ class _ChatWatchData {
         final action = info as ChatInfoActionNameUpdated;
 
         return 'fcm_group_name_changed'.l10nfmt({
-          'userName':
-              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
-          'userNum':
-              author?.name?.val ?? author?.num.val ?? 'err_unknown_user'.l10n,
+          'userName': author?.title ?? 'x',
+          'userNum': author?.num.val ?? 'err_unknown_user'.l10n,
           'operation': action.name == null ? 'delete' : 'update',
           'groupName': action.name?.val ?? '',
         });
