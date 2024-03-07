@@ -36,7 +36,7 @@ part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
 class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
-    implements IterableHiveProvider<HiveChatItem, ChatItemKey> {
+    implements IterableHiveProvider<HiveChatItem, ChatItemId> {
   ChatItemHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -87,21 +87,21 @@ class ChatItemHiveProvider extends HiveLazyProvider<HiveChatItem>
   }
 
   @override
-  Iterable<ChatItemKey> get keys =>
-      keysSafe.map((e) => ChatItemKey.fromString(e));
+  Iterable<ChatItemId> get keys => keysSafe.map((e) => ChatItemId(e));
 
   @override
   Future<Iterable<HiveChatItem>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChatItem item) =>
-      putSafe(item.value.key.toString(), item);
+  Future<void> put(HiveChatItem item) async {
+    await putSafe(item.value.id.toString(), item);
+  }
 
   @override
-  Future<HiveChatItem?> get(ChatItemKey key) => getSafe(key.toString());
+  Future<HiveChatItem?> get(ChatItemId key) => getSafe(key.toString());
 
   @override
-  Future<void> remove(ChatItemKey key) => deleteSafe(key.toString());
+  Future<void> remove(ChatItemId key) => deleteSafe(key.toString());
 }
 
 /// Persisted in [Hive] storage [ChatItem]'s [value].

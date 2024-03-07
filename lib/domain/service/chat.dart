@@ -188,7 +188,7 @@ class ChatService extends DisposableService {
     RxChat? chat;
 
     if (userId == me) {
-      chat = chats.remove(chatId);
+      chat = chats[chatId];
       if (router.route.startsWith('${Routes.chats}/$chatId')) {
         router.home();
       }
@@ -435,7 +435,7 @@ class ChatService extends DisposableService {
   ///
   /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
   /// provided.
- Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
+  Future<void> clearChat(ChatId id, [ChatItemId? untilId]) async {
     Log.debug('clearChat($id, $untilId)', '$runtimeType');
     await _chatRepository.clearChat(id, untilId);
   }

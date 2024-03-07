@@ -40,6 +40,7 @@ import 'package:messenger/domain/model/sending_status.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/model/user_call_cover.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/repository/paginated.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/l10n/l10n.dart';
@@ -1730,7 +1731,11 @@ class DummyRxUser extends RxUser {
 
   @override
   // TODO: implement updates
-  Stream<void> get updates => throw UnimplementedError();
+  Stream<void> get updates => const Stream.empty();
+
+  @override
+  // TODO: implement contact
+  Rx<RxChatContact?> get contact => Rx(null);
 }
 
 class DummyRxChat extends RxChat {
@@ -1822,16 +1827,17 @@ class DummyRxChat extends RxChat {
   Future<void> updateAvatar() async {}
 
   @override
-  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+  Paginated<UserId, RxUser> get members => PaginatedImpl();
+
+  @override
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
     ChatItem? item,
     ChatItemId? reply,
     ChatItemId? forward,
-  }) async {
-    return null;
+  }) {
+    // TODO: implement around
+    throw UnimplementedError();
   }
-
-  @override
-  Paginated<UserId, RxUser> get members => PaginatedImpl();
 }
 
 class _HoveredBuilder extends StatefulWidget {

@@ -83,9 +83,6 @@ class UserController extends GetxController {
   /// Reactive [User] itself.
   RxUser? user;
 
-  /// Reactive [ChatContact] linked to the [user].
-  Rx<RxChatContact?> contact = Rx<RxChatContact?>(null);
-
   /// Status of the [user] fetching.
   ///
   /// May be:
@@ -170,21 +167,17 @@ class UserController extends GetxController {
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
 
-  /// [StreamSubscription] to [ContactService.contacts] determining the
-  /// [inContacts] and [inFavorites] indicators.
-  StreamSubscription? _contactsSubscription;
-
-  /// [StreamSubscription] to [ContactService.favorites] determining the
-  /// [inContacts] indicator.
-  StreamSubscription? _favoritesSubscription;
-
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
   /// Worker to react on [myUser] changes.
   Worker? _myUserWorker;
 
-  /// [Worker] reacting on the [contact] or [user] changes updating the [name].
+  /// [Worker] reacting on the [RxUser.contact] changes updating the [_worker].
+  Worker? _contactWorker;
+
+  /// [Worker] reacting on the [RxChatContact.contact] or [user] changes
+  /// updating the [name].
   Worker? _worker;
 
   /// Subscription for the [user] changes.
@@ -195,6 +188,17 @@ class UserController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  /// Returns reactive [RxChatContact] linked to the [user].
+  ///
+  /// Only meaningful, if [user] is non-`null`.
+  Rx<RxChatContact?> get contact => user!.contact;
+
+  /// Returns [ChatContactId] of the [contact].
+  ///
+  /// Should be used to determine whether the [user] is in the contacts list, as
+  /// [contact] may be fetched with a delay.
+  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -264,33 +268,21 @@ class UserController extends GetxController {
       },
     );
 
-    _fetchUser();
-
-    // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
-    contact.value = _contactService.contacts.values.firstWhereOrNull(
-      (e) => e.contact.value.users.every((m) => m.id == id),
-    );
-
     _updateWorker();
 
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          if (e.value!.contact.value.users.isNotEmpty &&
-              e.value!.contact.value.users.every((e) => e.id == id)) {
-            contact.value = e.value;
-            _updateWorker();
-          }
-          break;
+    _fetchUser().whenComplete(() {
+      if (isClosed) {
+        return;
+      }
 
-        case OperationKind.removed:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            contact.value = null;
+      if (user != null) {
+        _contactWorker = ever(contact, (contact) {
+          if (contact == null) {
             profileEditing.value = false;
-            _updateWorker();
           }
-          break;
+
+          _updateWorker();
+        });
       }
     });
 
@@ -305,7 +297,6 @@ class UserController extends GetxController {
                   .jumpTo(scrollController.position.maxScrollExtent);
             }
           }
-          // itemScrollController.jumpTo(index: initialScrollIndex);
         });
       });
     } else {
@@ -333,9 +324,8 @@ class UserController extends GetxController {
   @override
   void onClose() {
     _myUserWorker?.dispose();
-    _contactsSubscription?.cancel();
-    _favoritesSubscription?.cancel();
     _userSubscription?.cancel();
+    _contactWorker?.dispose();
     _worker?.dispose();
     scrollController.removeListener(_scrollListener);
     super.onClose();
@@ -343,7 +333,7 @@ class UserController extends GetxController {
 
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
   Future<void> addToContacts() async {
-    if (contact.value == null) {
+    if (contactId == null) {
       status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(user!.user.value);
@@ -358,14 +348,10 @@ class UserController extends GetxController {
 
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
-    if (contact.value != null) {
+    if (contactId != null) {
       status.value = RxStatus.loadingMore();
       try {
-        if (contact.value != null) {
-          await _contactService.deleteContact(contact.value!.contact.value.id);
-          contact.value = null;
-          _updateWorker();
-        }
+        await _contactService.deleteContact(contactId!);
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -432,8 +418,8 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      if (contact.value != null) {
-        await _contactService.favoriteChatContact(contact.value!.id);
+      if (contactId != null) {
+        await _contactService.favoriteChatContact(contactId!);
       }
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -446,8 +432,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      if (contact.value != null) {
-        await _contactService.unfavoriteChatContact(contact.value!.id);
+      if (contactId != null) {
+        await _contactService.unfavoriteChatContact(contactId!);
       }
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -621,7 +607,7 @@ class UserController extends GetxController {
 
   /// Listens to the [contact] or [user] changes updating the [name].
   void _updateWorker() {
-    if (contact.value != null) {
+    if (user != null && contact.value != null) {
       name.unchecked = contact.value!.contact.value.name.val;
 
       _worker?.dispose();

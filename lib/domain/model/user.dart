@@ -23,6 +23,7 @@ import 'package:hive/hive.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
+import '/domain/model/contact.dart';
 import '/domain/model_type_id.dart';
 import '/l10n/l10n.dart';
 import '/util/new_type.dart';
@@ -51,6 +52,7 @@ class User extends HiveObject {
     ChatId? dialog,
     this.isBlocked,
     this.lastSeenAt,
+    this.contacts = const [],
   }) : _dialog = dialog {
     messageCost =
         name?.val.toLowerCase() == 'alex2' || name?.val.toLowerCase() == 'kirey'
@@ -144,6 +146,10 @@ class User extends HiveObject {
   /// [PreciseDateTime] when this [User] was seen online last time.
   @HiveField(13)
   PreciseDateTime? lastSeenAt;
+
+  /// List of [ChatContactId]s this [User] is linked to.
+  @HiveField(14)
+  final List<ChatContactId> contacts;
 
   late int messageCost;
   late int callCost;

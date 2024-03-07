@@ -22,7 +22,8 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import 'base.dart';
 
-/// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s.
+/// [Hive] storage for [ChatId]s sorted by the [PreciseDateTime]s and secondary
+/// by [ChatId].
 class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
   /// [Mutex] guarding synchronized access to the [put] and [remove].
   final Mutex _mutex = Mutex();
@@ -43,7 +44,7 @@ class RecentChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(PreciseDateTime key, ChatId item) async {
-    final String i = key.toUtc().toString();
+    final String i = '${key.toUtc().toString()}_$item';
 
     if (getSafe(i) != item) {
       await _mutex.protect(() async {

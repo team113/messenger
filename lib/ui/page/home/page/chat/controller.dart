@@ -49,6 +49,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -419,10 +420,10 @@ class ChatController extends GetxController {
   final List<ChatItem> _history = [];
 
   /// [Paginated] of [ChatItem]s to display in the [elements].
-  Paginated<ChatItemKey, Rx<ChatItem>>? _fragment;
+  Paginated<ChatItemId, Rx<ChatItem>>? _fragment;
 
   /// [Paginated]es used by this [ChatController].
-  final HashSet<Paginated<ChatItemKey, Rx<ChatItem>>> _fragments = HashSet();
+  final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
 
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
@@ -469,6 +470,10 @@ class ChatController extends GetxController {
       listController.hasClients &&
       listController.position.pixels >
           listController.position.maxScrollExtent - 500;
+
+  /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
+  /// if any.
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
 
   @override
   void onInit() {
@@ -1784,13 +1789,13 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.any((e) => e.id == itemId),
+        (e) => e.items.keys.contains(itemId),
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
-        final Paginated<ChatItemKey, Rx<ChatItem>>? fragment =
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
             await chat!.around(
           item: item,
           reply: reply?.original?.id,
@@ -2002,7 +2007,7 @@ class ChatController extends GetxController {
   /// [_remove]ing the [elements].
   void _subscribeFor({
     RxChat? chat,
-    Paginated<ChatItemKey, Rx<ChatItem>>? fragment,
+    Paginated<ChatItemId, Rx<ChatItem>>? fragment,
   }) {
     _messagesSubscription?.cancel();
 

@@ -176,6 +176,10 @@ class OngoingCall {
     } else {
       screenShareState = Rx(LocalTrackState.disabled);
     }
+
+    _stateWorker = ever(this.state, (state) {
+      _participated = _participated || isActive;
+    });
   }
 
   /// ID of the [Chat] this [OngoingCall] takes place in.
@@ -313,6 +317,16 @@ class OngoingCall {
   /// the [outputDevice].
   Worker? _outputWorker;
 
+  /// Indicator whether [isActive] was `true` at least once during the lifecycle
+  /// of this [OngoingCall].
+  ///
+  /// Required, as neither [state] nor [connected] hold its values when
+  /// [dispose]d.
+  bool _participated = false;
+
+  /// [Worker] reacting on the [state] changes updating the [_participated].
+  Worker? _stateWorker;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -354,6 +368,12 @@ class OngoingCall {
 
   /// Indicates whether the current authorized [MyUser] is the caller.
   bool get outgoing => me.id.userId == caller?.id || caller == null;
+
+  /// Indicates whether [isActive] was `true` at least once during the lifecycle
+  /// of this [OngoingCall].
+  ///
+  /// Intended be used to determine whether [OngoingCall] is not a notification.
+  bool get participated => _participated;
 
   /// Initializes the media client resources.
   ///
@@ -425,8 +445,6 @@ class OngoingCall {
         _pickScreenDevice(removed);
       });
 
-      _initRoom();
-
       // Puts the members of the provided [chat] to the [members] through
       // [_addDialing].
       Future<void> addDialingsFrom(RxChat? chat) async {
@@ -466,34 +484,10 @@ class OngoingCall {
         chatOrFuture.then(addDialingsFrom);
       }
 
-      try {
-        // Set all the constraints to ensure no disabled track is sent while
-        // initializing the local media.
-        await _room?.setLocalMediaSettings(
-          _mediaStreamSettings(
-            audio: audioState.value == LocalTrackState.enabling,
-            video: videoState.value == LocalTrackState.enabling,
-            screen: false,
-          ),
-          false,
-          true,
-        );
-      } on StateError catch (e) {
-        // [_room] is allowed to be in a detached state there as the call might
-        // has already ended.
-        if (!e.toString().contains('detached')) {
-          addError('setLocalMediaSettings() failed: $e');
-          rethrow;
-        }
-      } catch (e) {
-        addError('setLocalMediaSettings() failed: $e');
-        rethrow;
-      }
-
+      _initRoom();
+      await _setInitialMediaSettings();
       await _initLocalMedia();
-      Log.debug('init(): await _initLocalMedia() done', '$runtimeType');
 
-      Log.debug('init(): _await _joinRoom()', '$runtimeType');
       if (state.value == OngoingCallState.active &&
           call.value?.joinLink != null) {
         await _joinRoom(call.value!.joinLink!);
@@ -507,6 +501,8 @@ class OngoingCall {
   /// No-op if already [connected].
   void connect(CallService calls) {
     Log.debug('connect($calls)', '$runtimeType');
+
+    _participated = true;
 
     if (connected || callChatItemId == null || deviceId == null) {
       return;
@@ -845,6 +841,8 @@ class OngoingCall {
     Log.debug('dispose()', '$runtimeType');
 
     _heartbeat?.cancel();
+    _participated = _participated || connected || isActive;
+    _stateWorker?.dispose();
     connected = false;
 
     return _mediaSettingsGuard.protect(() async {
@@ -1483,12 +1481,13 @@ class OngoingCall {
         }
       });
 
-      conn.onQualityScoreUpdate((p0) {
-        members[id]?.quality.value = p0;
+      conn.onQualityScoreUpdate((p) {
         Log.debug(
-          'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p0',
+          'onQualityScoreUpdate with ${conn.getRemoteMemberId()}: $p',
           '$runtimeType',
         );
+
+        members[id]?.quality.value = p;
       });
     });
   }
@@ -1640,7 +1639,7 @@ class OngoingCall {
 
         try {
           tracks = await MediaUtils.getTracks(
-            audio: audioState.value.isEnabled
+            audio: hasAudio || audioState.value.isEnabled
                 ? AudioPreferences(
                     device: audioDevice.value?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
@@ -1788,6 +1787,8 @@ class OngoingCall {
     members[_me]?.tracks.clear();
   }
 
+  /// Sets the [_mediaStreamSettings] with track statuses based on [audioState],
+  /// [videoState], [screenShareState].
   Future<void> _setInitialMediaSettings() async {
     Log.debug('_setInitialMediaSettings()', '$runtimeType');
 
@@ -1796,7 +1797,7 @@ class OngoingCall {
       // initializing the local media.
       await _room?.setLocalMediaSettings(
         _mediaStreamSettings(
-          audio: true,
+          audio: hasAudio || audioState.value.isEnabled,
           video: videoState.value.isEnabled,
           screen: screenShareState.value.isEnabled,
         ),
@@ -1844,7 +1845,7 @@ class OngoingCall {
           .where((e) => e.isConnected.value == true && e.id != _me)
           .toList();
 
-      _closeRoom();
+      _closeRoom(false);
 
       members.addEntries(
         connected
@@ -1885,7 +1886,7 @@ class OngoingCall {
   }
 
   /// Closes the [_room] and releases the associated resources.
-  void _closeRoom() {
+  void _closeRoom([bool dispose = true]) {
     Log.debug('_closeRoom()', '$runtimeType');
 
     if (_room != null) {
@@ -1898,9 +1899,12 @@ class OngoingCall {
     }
     _room = null;
 
-    for (Track t in members.values.expand((e) => e.tracks)) {
-      t.dispose();
+    if (dispose) {
+      for (Track t in members.values.expand((e) => e.tracks)) {
+        t.dispose();
+      }
     }
+
     members.removeWhere((id, _) => id != _me);
   }
 

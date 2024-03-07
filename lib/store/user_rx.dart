@@ -21,9 +21,11 @@ import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/provider/hive/user.dart';
 import '/store/event/user.dart';
@@ -43,12 +45,40 @@ class HiveRxUser extends RxUser {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
+    final ChatContactId? contactId = user.value.contacts.firstOrNull;
+    if (contactId != null) {
+      final FutureOr<RxChatContact?> contactOrFuture =
+          _userRepository.getContact?.call(contactId);
+
+      if (contactOrFuture is RxChatContact?) {
+        contact.value = contactOrFuture;
+      } else {
+        contactOrFuture.then((v) => contact.value = v);
+      }
+    }
+
     // Re-run [_runLastSeenTimer], if [User.lastSeenAt] has been changed.
     PreciseDateTime? at = user.value.lastSeenAt;
-    _worker = ever(user, (User user) {
+    _worker = ever(user, (User user) async {
       if (at != user.lastSeenAt) {
         _runLastSeenTimer();
         at = user.lastSeenAt;
+      }
+
+      final ChatContactId? contactId = user.contacts.firstOrNull;
+      if (contact.value?.id != contactId) {
+        if (contactId != null) {
+          final FutureOr<RxChatContact?> contactOrFuture =
+              _userRepository.getContact?.call(contactId);
+
+          if (contactOrFuture is RxChatContact?) {
+            contact.value = contactOrFuture;
+          } else {
+            contact.value = await contactOrFuture;
+          }
+        } else {
+          contact.value = null;
+        }
       }
     });
   }
@@ -58,6 +88,9 @@ class HiveRxUser extends RxUser {
 
   @override
   final Rx<PreciseDateTime?> lastSeen;
+
+  @override
+  final Rx<RxChatContact?> contact = Rx(null);
 
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;

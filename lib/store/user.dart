@@ -26,9 +26,11 @@ import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/graphql.dart';
@@ -38,6 +40,7 @@ import '/store/model/user.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
+import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
@@ -59,6 +62,12 @@ class UserRepository extends DisposableInterface
   ///
   /// Used to populate the [RxUser.dialog] values.
   FutureOr<RxChat?> Function(ChatId id)? getChat;
+
+  /// Callback, called when a [RxChatContact] with the provided [ChatContactId]
+  /// is required by this [UserRepository].
+  ///
+  /// Used to populate the [RxUser.contact] value.
+  FutureOr<RxChatContact?> Function(ChatContactId id)? getContact;
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -236,7 +245,7 @@ class UserRepository extends DisposableInterface
 
   /// Updates the locally stored [HiveUser] with the provided [user] value.
   void update(User user) {
-    HiveUser? hiveUser = _userLocal.get(user.id);
+    final HiveUser? hiveUser = _userLocal.get(user.id);
     if (hiveUser != null) {
       hiveUser.value = user;
       put(hiveUser, ignoreVersion: true);
@@ -289,6 +298,31 @@ class UserRepository extends DisposableInterface
     int? first,
   }) =>
       _search(name: name, after: after, first: first);
+
+  /// Adds the provided [ChatContactId] to the [User.contacts] with the
+  /// specified [UserId].
+  ///
+  /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
+  /// of its [User.contacts] list changes.
+  Future<void> addContact(ChatContactId contactId, UserId userId) async {
+    final HiveUser? user = _userLocal.get(userId);
+    if (user != null && !user.value.contacts.contains(contactId)) {
+      user.value.contacts.add(contactId);
+      await _userLocal.put(user);
+    }
+  }
+
+  /// Removes the provided [ChatContactId] from the [User.contacts] with the
+  /// specified [UserId].
+  ///
+  /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
+  /// of its [User.contacts] list changes.
+  Future<void> removeContact(ChatContactId contactId, UserId userId) async {
+    final HiveUser? user = _userLocal.get(userId);
+    if (user != null && user.value.contacts.remove(contactId)) {
+      await _userLocal.put(user);
+    }
+  }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
   Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {

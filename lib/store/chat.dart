@@ -59,9 +59,9 @@ import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';
-import '/provider/hive/session_data.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/recent_chat.dart';
+import '/provider/hive/session_data.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
@@ -395,7 +395,7 @@ class ChatRepository extends DisposableInterface
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
 
-    var chat =
+    final ChatData chat =
         _chat(await _graphQlProvider.createGroupChat(memberIds, name: name));
     return _putEntry(chat);
   }
@@ -694,7 +694,7 @@ class ChatRepository extends DisposableInterface
     final HiveRxChat? chat = chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
-      chat?.remove(message.id, message.key);
+      chat?.remove(message.id);
     } else {
       Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
@@ -706,7 +706,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatMessage(message.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.key);
+          chat?.remove(item.value.id);
         }
       } catch (_) {
         if (item != null) {
@@ -741,7 +741,7 @@ class ChatRepository extends DisposableInterface
         await _graphQlProvider.deleteChatForward(forward.id);
 
         if (item != null) {
-          chat?.remove(item.value.id, item.value.key);
+          chat?.remove(item.value.id);
         }
       } catch (_) {
         if (item != null) {
@@ -773,7 +773,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.hideChatItem(id);
 
       if (item != null) {
-        chat?.remove(item.value.id, item.value.key);
+        chat?.remove(item.value.id);
       }
     } catch (_) {
       if (item != null) {
@@ -1575,27 +1575,35 @@ class ChatRepository extends DisposableInterface
       final ChatId chatId = ChatId(event.key);
 
       if (event.deleted) {
-        chats.remove(chatId)?.dispose();
+        final HiveRxChat? chat = chats.remove(chatId);
+        await chat?.clear();
+        chat?.dispose();
+
         paginated.remove(chatId);
         _pagination?.remove(chatId);
+
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        final HiveRxChat? chat = chats[chatId];
-        if (chat == null ||
-            (chat.ver != null && chat.ver! <= event.value.ver)) {
+        final HiveRxChat? existing = chats[chatId];
+        final Chat chat = event.value.value as Chat;
+
+        // If this [BoxEvent] is about a [Chat] not contained in [chats], or the
+        // stored version is less or equal to the [chat], then add it.
+        if (existing == null ||
+            (existing.ver != null && existing.ver! <= event.value.ver)) {
           _add(event.value);
         }
 
-        if (event.value.value.favoritePosition != null) {
-          _favoriteLocal.put(event.value.value.favoritePosition!, chatId);
+        if (chat.favoritePosition != null) {
+          _favoriteLocal.put(chat.favoritePosition!, chatId);
           _recentLocal.remove(chatId);
         } else {
-          _recentLocal.put(event.value.value.updatedAt, chatId);
+          _recentLocal.put(chat.updatedAt, chatId);
           _favoriteLocal.remove(chatId);
         }
 
-        if (event.value.value.isHidden) {
+        if (chat.isHidden) {
           paginated.remove(chatId);
         }
       }

@@ -44,6 +44,7 @@ import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
+import '/provider/hive/chat_item_sorting.dart';
 import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/store/model/chat.dart';
@@ -65,7 +66,7 @@ import 'paginated.dart';
 import 'pagination/graphql.dart';
 
 typedef MessagesPaginated
-    = RxPaginatedImpl<ChatItemKey, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
+    = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
 
 typedef MembersPaginated
     = RxPaginatedImpl<UserId, RxUser, HiveChatMember, ChatMembersCursor>;
@@ -80,6 +81,7 @@ class HiveRxChat extends RxChat {
   )   : chat = Rx<Chat>(hiveChat.value),
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
+        _sorting = ChatItemSortingHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
         ver = hiveChat.ver;
@@ -133,8 +135,11 @@ class HiveRxChat extends RxChat {
   /// [ChatItem]s local [Hive] storage.
   ChatItemHiveProvider _local;
 
+  /// [Hive] storage for [ChatItemId]s sorted by [ChatItem.at].
+  ChatItemSortingHiveProvider _sorting;
+
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> _pagination;
+  late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemId> _pagination;
 
   /// [MessagesPaginated]s created by this [HiveRxChat].
   final List<MessagesPaginated> _fragments = [];
@@ -144,7 +149,7 @@ class HiveRxChat extends RxChat {
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
   /// [PageProvider] fetching pages of [HiveChatItem]s.
-  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>
+  late final HiveGraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemId>
       _provider;
 
   /// Subscription to [User]s from the [members] list forming the [title].
@@ -363,6 +368,7 @@ class HiveRxChat extends RxChat {
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     await _local.close();
+    await _sorting.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
     _userWorker?.dispose();
@@ -420,7 +426,7 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  Future<Paginated<ChatItemKey, Rx<ChatItem>>?> around({
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
     ChatItem? item,
     ChatItemId? reply,
     ChatItemId? forward,
@@ -443,20 +449,16 @@ class HiveRxChat extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    // Ensure [_local] storage is initialized.
+    // Ensure [_local] and [_sorting] storages are initialized.
     await _local.init(userId: me);
-
-    HiveChatItem? lastRead;
-    if (chat.value.lastReadItem != null) {
-      lastRead = await get(chat.value.lastReadItem!);
-    }
+    await _sorting.init(userId: me);
 
     // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
     //       This will make it easy to dispose the messages, when they aren't
     //       needed, so that RAM is freed.
     await _pagination.around(
       cursor: _lastReadItemCursor,
-      key: lastRead?.value.key,
+      key: chat.value.lastReadItem,
     );
 
     status.value = RxStatus.success();
@@ -662,7 +664,7 @@ class HiveRxChat extends RxChat {
           as EventChatItemPosted?;
 
       if (event != null && event.item is HiveChatMessage) {
-        remove(message.value.id, message.value.key);
+        remove(message.value.id);
         _pending.remove(message.value);
         message = event.item as HiveChatMessage;
       }
@@ -684,62 +686,60 @@ class HiveRxChat extends RxChat {
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
+
+    // Put [item] to the [_local] storage if it's not stored there yet.
+    if (!_local.keys.contains(item.value.id)) {
+      await _local.put(item);
+    }
   }
 
   @override
-  Future<void> remove(ChatItemId itemId, [ChatItemKey? key]) async {
-    key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
-    key ??= _fragments.fold(
-      <ChatItemKey>[],
-      (keys, e) => keys..addAll(e.items.keys),
-    ).firstWhereOrNull((e) => e.id == itemId);
+  Future<void> remove(ChatItemId itemId) async {
+    _pagination.remove(itemId);
+    for (var e in _fragments) {
+      e.pagination?.remove(itemId);
+    }
+    for (var e in _sorting.keys.where((e) => e.id == itemId)) {
+      _sorting.remove(e);
+    }
 
-    if (key != null) {
-      _pagination.remove(key);
-      for (var e in _fragments) {
-        e.pagination?.remove(key);
+    final HiveChat? chatEntity = await _chatLocal.get(id);
+    if (chatEntity?.value.lastItem?.id == itemId) {
+      var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
+
+      if (lastItem != null) {
+        chatEntity?.value.lastItem = lastItem.value;
+        chatEntity?.lastItemCursor =
+            (await _local.get(lastItem.value.id))?.cursor;
+      } else {
+        chatEntity?.value.lastItem = null;
+        chatEntity?.lastItemCursor = null;
       }
 
-      final HiveChat? chatEntity = await _chatLocal.get(id);
-      if (chatEntity?.value.lastItem?.id == itemId) {
-        var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
-
-        if (lastItem != null) {
-          chatEntity?.value.lastItem = lastItem.value;
-          chatEntity?.lastItemCursor =
-              (await _local.get(lastItem.value.key))?.cursor;
-        } else {
-          chatEntity?.value.lastItem = null;
-          chatEntity?.lastItemCursor = null;
-        }
-
-        _chatLocal.put(chatEntity!);
-      }
+      _chatLocal.put(chatEntity!);
     }
   }
 
   /// Returns the stored or fetched [HiveChatItem] identified by the provided
   /// [itemId].
-  ///
-  /// Optionally, a [key] may be specified, otherwise it will be fetched
-  /// from the [_local] store.
-  Future<HiveChatItem?> get(ChatItemId itemId, {ChatItemKey? key}) async {
-    key ??= _local.keys.firstWhereOrNull((e) => e.id == itemId);
+  Future<HiveChatItem?> get(ChatItemId itemId) async {
+    HiveChatItem? item = _pagination.items[itemId];
+    item ??= _fragments
+        .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
+        ?.pagination
+        ?.items[itemId];
+    item ??= await _local.get(itemId);
 
-    HiveChatItem? item;
-    if (key != null) {
-      item = _pagination.items[key];
-      item ??= _fragments
-          .firstWhereOrNull((e) => e.pagination?.items[key] != null)
-          ?.pagination
-          ?.items[key];
-      item ??= await _local.get(key);
-    }
+    if (item == null) {
+      try {
+        item = await _chatRepository.message(itemId);
+      } catch (_) {
+        // No-op.
+      }
 
-    try {
-      item ??= await _chatRepository.message(itemId);
-    } catch (_) {
-      // No-op.
+      if (item != null) {
+        await put(item);
+      }
     }
 
     return item;
@@ -778,14 +778,16 @@ class HiveRxChat extends RxChat {
       final Iterable<HiveChatItem> saved = await _local.values;
 
       // Clear and close the current [ChatItemHiveProvider].
-      await _local.clear();
+      await clear();
       _local.close();
+      _sorting.close();
 
       _local = ChatItemHiveProvider(id);
       await _local.init(userId: me);
-
-      await clear();
       _provider.hive = _local;
+
+      _sorting = ChatItemSortingHiveProvider(id);
+      await _sorting.init(userId: me);
 
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
@@ -796,7 +798,7 @@ class HiveRxChat extends RxChat {
           copy.value.status.value = SendingStatus.sending;
         }
 
-        _pagination.put(copy, ignoreBounds: true);
+        put(copy, ignoreBounds: true);
       }
 
       _pagination.around();
@@ -806,12 +808,16 @@ class HiveRxChat extends RxChat {
   /// Clears the [_pagination] and [_fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
+
     for (var e in _fragments) {
       e.dispose();
     }
     _fragments.clear();
 
     await _pagination.clear();
+
+    await _local.clear();
+    await _sorting.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -915,7 +921,8 @@ class HiveRxChat extends RxChat {
       hiveProvider: HivePageProvider(
         _local,
         getCursor: (e) => e?.cursor,
-        getKey: (e) => e.value.key,
+        getKey: (e) => e.value.id,
+        orderBy: (_) => _sorting.values,
         isFirst: (e) =>
             id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
         isLast: (e) =>
@@ -924,8 +931,8 @@ class HiveRxChat extends RxChat {
       ),
     );
 
-    _pagination = Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
-      onKey: (e) => e.value.key,
+    _pagination = Pagination(
+      onKey: (e) => e.value.id,
       provider: _provider,
       compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
@@ -940,7 +947,12 @@ class HiveRxChat extends RxChat {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _add(event.value!.value);
+          final ChatItem item = event.value!.value;
+          _add(item);
+
+          if (!_sorting.keys.contains(item.key)) {
+            _sorting.put(item.key);
+          }
           break;
 
         case OperationKind.removed:
@@ -950,13 +962,17 @@ class HiveRxChat extends RxChat {
     });
 
     await _local.init(userId: me);
+    await _sorting.init(userId: me);
 
     HiveChatItem? item;
-    if (chat.value.lastReadItem != null) {
+
+    // If [_local] storage is empty, then there's no need to initialize the
+    // [_pagination], as it fetches its items from [_local] by this method.
+    if (chat.value.lastReadItem != null && _local.keys.isNotEmpty) {
       item = await get(chat.value.lastReadItem!);
+      await _pagination.init(item?.value.id);
     }
 
-    await _pagination.init(item?.value.key);
     if (_pagination.items.isNotEmpty) {
       status.value = RxStatus.success();
     }
@@ -1024,10 +1040,10 @@ class HiveRxChat extends RxChat {
     Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
     // Retrieve the [item] itself pointed around.
-    final HiveChatItem? hiveItem = await get(item.key.id, key: item.key);
+    final HiveChatItem? hiveItem = await get(item.id);
 
     final ChatItemsCursor? cursor;
-    final ChatItemKey? key;
+    final ChatItemId key = forward ?? reply ?? item.id;
 
     // If [reply] or [forward] is provided, then the [item] should contain it,
     // let's try to retrieve the key and cursor to paginate around it.
@@ -1048,7 +1064,6 @@ class HiveRxChat extends RxChat {
       }
 
       cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
-      key = message.repliesTo.elementAt(replyIndex).original?.key;
     } else if (forward != null) {
       if (hiveItem is! HiveChatForward) {
         throw ArgumentError.value(
@@ -1059,10 +1074,8 @@ class HiveRxChat extends RxChat {
       }
 
       cursor = hiveItem.quoteCursor;
-      key = (hiveItem.value as ChatForward).quote.original?.key;
     } else {
       cursor = hiveItem?.cursor;
-      key = hiveItem?.value.key;
     }
 
     // Try to find any [MessagesPaginated] already containing the item requested.
@@ -1093,14 +1106,9 @@ class HiveRxChat extends RxChat {
 
           return Rx(data.value);
         },
-        pagination: Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey>(
-          onKey: (e) => e.value.key,
-          provider: HiveGraphQlPageProvider(
-            hiveProvider: _provider.hiveProvider.copyWith(
-              readOnly: !_local.keys.contains(key),
-            ),
-            graphQlProvider: _provider.graphQlProvider,
-          ),
+        pagination: Pagination(
+          onKey: (e) => e.value.id,
+          provider: _provider,
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
         onDispose: () {
@@ -1134,8 +1142,7 @@ class HiveRxChat extends RxChat {
     return fragment;
   }
 
-  /// Adds the provided [ChatItem] to the [messages] list, initializing the
-  /// [FileAttachment]s, if any.
+  /// Adds the provided [ChatItem] to the [messages] list.
   void _add(ChatItem item) {
     final int i = messages.indexWhere((e) => e.value.id == item.id);
     if (i == -1) {
@@ -1331,7 +1338,7 @@ class HiveRxChat extends RxChat {
 
   /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
   Future<void> _updateAttachments(ChatItem item) async {
-    final HiveChatItem? stored = await get(item.id, key: item.key);
+    final HiveChatItem? stored = await get(item.id);
     if (stored != null) {
       final List<Attachment> response =
           await _chatRepository.attachments(stored);
@@ -1378,7 +1385,7 @@ class HiveRxChat extends RxChat {
       }
 
       stored.value = item;
-      _pagination.put(stored);
+      put(stored);
     }
   }
 
@@ -1537,7 +1544,7 @@ class HiveRxChat extends RxChat {
               case ChatEventKind.hidden:
                 event as EventChatHidden;
                 chatEntity.value.isHidden = true;
-                break;
+                continue;
 
               case ChatEventKind.itemDeleted:
                 event as EventChatItemDeleted;
@@ -1597,7 +1604,7 @@ class HiveRxChat extends RxChat {
                   '$runtimeType',
                 );
 
-                final message = await get(event.call.id, key: event.call.key);
+                final message = await get(event.call.id);
 
                 if (message != null) {
                   event.call.at = message.value.at;
@@ -1637,7 +1644,7 @@ class HiveRxChat extends RxChat {
                   _chatRepository.endCall(event.call.chatId);
                 }
 
-                final message = await get(event.call.id, key: event.call.key);
+                final message = await get(event.call.id);
 
                 if (message != null) {
                   event.call.at = message.value.at;
@@ -1680,7 +1687,7 @@ class HiveRxChat extends RxChat {
 
                     if (chatEntity.value.ongoingCall != null) {
                       final call = chatEntity.value.ongoingCall!;
-                      final message = await get(call.id, key: call.key);
+                      final message = await get(call.id);
 
                       if (message != null) {
                         call.at = message.value.at;
@@ -1732,9 +1739,9 @@ class HiveRxChat extends RxChat {
 
                   if (event.byUser.id == me) {
                     final ChatItemKey? key =
-                        _local.keys.lastWhereOrNull((e) => e.at == at);
+                        _sorting.keys.lastWhereOrNull((e) => e.at == at);
                     if (key != null) {
-                      final HiveChatItem? item = await _local.get(key);
+                      final HiveChatItem? item = await _local.get(key.id);
                       if (item != null) {
                         chatEntity.lastReadItemCursor = item.cursor!;
                         chatEntity.value.lastReadItem = item.value.id;
@@ -1767,7 +1774,7 @@ class HiveRxChat extends RxChat {
                 }
 
                 if (item.value is ChatMessage && item.value.author.id == me) {
-                  ChatMessage? pending =
+                  final ChatMessage? pending =
                       _pending.whereType<ChatMessage>().firstWhereOrNull(
                             (e) =>
                                 e.status.value == SendingStatus.sending &&
@@ -1778,8 +1785,8 @@ class HiveRxChat extends RxChat {
                   // one is found in the [_pending] messages, and this message
                   // is not yet added to the store, then remove the [pending].
                   if (pending != null &&
-                      await get(item.value.id, key: item.value.key) == null) {
-                    remove(pending.id, pending.key);
+                      await _local.get(item.value.id) == null) {
+                    remove(pending.id);
                     _pending.remove(pending);
                   }
                 }
@@ -1787,7 +1794,7 @@ class HiveRxChat extends RxChat {
                 put(item);
 
                 if (item.value is ChatInfo) {
-                  var msg = item.value as ChatInfo;
+                  final msg = item.value as ChatInfo;
 
                   switch (msg.action.kind) {
                     case ChatInfoActionKind.avatarUpdated:
