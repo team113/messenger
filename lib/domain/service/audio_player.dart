@@ -51,11 +51,13 @@ class AudioPlayerService extends DisposableService {
   /// Indicates whether [ja.AudioPlayer] or [mk.Player] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
-  late StreamSubscription<bool> _playingSubscription;
-  late StreamSubscription<bool> _bufferingSubscription;
-  late StreamSubscription<Duration> _positionSubscription;
-  late StreamSubscription<Duration> _durationSubscription;
-  late StreamSubscription<Duration> _bufferedPositionSubscription;
+  // Reason why not using "late":
+  // https://stackoverflow.com/questions/67401385/lateinitializationerror-field-data-has-not-been-initialized-got-error
+  StreamSubscription<bool>? _playingSubscription;
+  StreamSubscription<bool>? _bufferingSubscription;
+  StreamSubscription<Duration>? _positionSubscription;
+  StreamSubscription<Duration>? _durationSubscription;
+  StreamSubscription<Duration>? _bufferedPositionSubscription;
 
   /// Plays the [AudioTrack] in the [AudioPlayer].
   /// If it's previously selected track being played again - just resume.
@@ -98,11 +100,11 @@ class AudioPlayerService extends DisposableService {
   /// Dispose the _player instance on close.
   @override
   void onClose() {
-    _playingSubscription.cancel();
-    _bufferingSubscription.cancel();
-    _positionSubscription.cancel();
-    _durationSubscription.cancel();
-    _bufferedPositionSubscription.cancel();
+    _playingSubscription?.cancel();
+    _bufferingSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _durationSubscription?.cancel();
+    _bufferedPositionSubscription?.cancel();
     _player.dispose();
     super.onClose();
   }
