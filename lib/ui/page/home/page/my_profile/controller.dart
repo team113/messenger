@@ -95,6 +95,10 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [MyUser.chatDirectLink] editing mode is enabled.
   final RxBool linkEditing = RxBool(false);
 
+  /// Indicator whether [MyUser.name] and [MyUser.avatar] should be displayed in
+  /// the [AppBar].
+  final RxBool displayName = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -293,6 +297,8 @@ class MyProfileController extends GetxController {
       },
     );
 
+    scrollController.addListener(_ensureNameDisplayed);
+
     super.onInit();
   }
 
@@ -300,6 +306,7 @@ class MyProfileController extends GetxController {
   void onClose() {
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
+    scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
 
@@ -466,6 +473,12 @@ class MyProfileController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlightIndex.value = null;
     });
+  }
+
+  /// Ensures the [displayName] is either `true` or `false` based on the
+  /// [scrollController].
+  void _ensureNameDisplayed() {
+    displayName.value = scrollController.position.pixels >= 250;
   }
 }
 

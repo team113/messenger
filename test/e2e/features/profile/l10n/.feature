@@ -27,9 +27,9 @@ Feature: Localization
     And I tap `ChangeLanguage` button
     And I tap `Language_ru` button
     And I tap `CloseButton` button
-    Then I wait until text "Аккаунт" is present
+    Then I wait until text "Язык" is present
 
     When I tap `ChangeLanguage` button
     And I tap `Language_en` button
     And I tap `CloseButton` button
-    Then I wait until text "Account" is present
+    Then I wait until text "Language" is present

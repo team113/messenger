@@ -107,6 +107,9 @@ class UserController extends GetxController {
   /// - `status.isEmpty`, meaning no [block] is executing.
   final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
 
+  /// Indicator whether [AppBar] should display the [UserName] and [UserAvatar].
+  final RxBool displayName = RxBool(false);
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -218,6 +221,8 @@ class UserController extends GetxController {
       }
     });
 
+    scrollController.addListener(_ensureNameDisplayed);
+
     super.onInit();
   }
 
@@ -226,6 +231,7 @@ class UserController extends GetxController {
     _userSubscription?.cancel();
     _contactWorker?.dispose();
     _worker?.dispose();
+    scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
 
@@ -481,6 +487,12 @@ class UserController extends GetxController {
         }
       });
     }
+  }
+
+  /// Ensures the [displayName] is either `true` or `false` based on the
+  /// [scrollController].
+  void _ensureNameDisplayed() {
+    displayName.value = scrollController.position.pixels >= 250;
   }
 }
 
