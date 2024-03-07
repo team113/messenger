@@ -57,13 +57,13 @@ class PaidNotification extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  if (header != null) ...[
-                    Text(
-                      header!,
-                      style: style.fonts.normal.regular.onBackground,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                  // if (header != null) ...[
+                  //   Text(
+                  //     header!,
+                  //     style: style.fonts.normal.regular.onBackground,
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  // ],
                   Text(
                     description ??
                         'label_price_for_messages_and_calls_to_user'
