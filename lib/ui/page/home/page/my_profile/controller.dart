@@ -95,6 +95,8 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [MyUser.chatDirectLink] editing mode is enabled.
   final RxBool linkEditing = RxBool(false);
 
+  /// Indicator whether [MyUser.name] and [MyUser.avatar] should be displayed in
+  /// the [AppBar].
   final RxBool displayName = RxBool(false);
 
   /// Service responsible for [MyUser] management.
