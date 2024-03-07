@@ -19,10 +19,13 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/api/backend/schema.graphql.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';
@@ -34,7 +37,8 @@ export 'view.dart';
 class AddChatMemberController extends GetxController {
   AddChatMemberController(
     this.chatId,
-    this._chatService, {
+    this._chatService,
+    this._userService, {
     this.pop,
   });
 
@@ -57,6 +61,9 @@ class AddChatMemberController extends GetxController {
 
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
+
+  /// [User]s service.
+  final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
@@ -103,20 +110,16 @@ class AddChatMemberController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
-    try {
-      pop?.call();
+    pop?.call();
 
-      List<Future> futures =
-          ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
-      await Future.wait(futures);
-    } on AddChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      status.value = RxStatus.empty();
-    }
+    final Iterable<Future<void>> futures = ids.map(
+      (userId) => _chatService
+          .addChatMember(chatId, userId)
+          .catchError((e) => _onError(e, userId)),
+    );
+
+    await Future.wait(futures);
+    status.value = RxStatus.empty();
   }
 
   /// Fetches the [chat], or [pop]s, if it's `null`.
@@ -129,6 +132,35 @@ class AddChatMemberController extends GetxController {
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
+    }
+  }
+
+  /// Handles errors occurring during the [addMembers] execution.
+  Future<void> _onError(Object e, UserId userId) async {
+    switch (e) {
+      case AddChatMemberException _:
+        if (e.code == AddChatMemberErrorCode.blocked) {
+          final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+          final User? user = userOrFuture is RxUser?
+              ? userOrFuture?.user.value
+              : (await userOrFuture)?.user.value;
+
+          if (user != null) {
+            final String nameOrNum = (user.name ?? user.num).toString();
+
+            MessagePopup.error(
+              'err_blocked_by'.l10nfmt({'user': nameOrNum}),
+            );
+            break;
+          }
+        }
+
+        MessagePopup.error(e);
+        break;
+
+      default:
+        MessagePopup.error(e);
+        throw e;
     }
   }
 }

@@ -25,8 +25,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
+import '/api/backend/schema.dart' show CreateGroupChatErrorCode;
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -48,6 +49,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         ClearChatException,
@@ -583,13 +585,15 @@ class ChatsTabController extends GetxController {
     creatingStatus.value = RxStatus.loading();
 
     try {
+      final List<UserId> memberIds = {
+        ...search.value!.selectedRecent.map((e) => e.id),
+        ...search.value!.selectedContacts
+            .expand((e) => e.contact.value.users.map((u) => u.id)),
+        ...search.value!.selectedUsers.map((e) => e.id),
+      }.where((e) => e != me).toList();
+
       final RxChat chat = await _chatService.createGroupChat(
-        {
-          ...search.value!.selectedRecent.map((e) => e.id),
-          ...search.value!.selectedContacts
-              .expand((e) => e.contact.value.users.map((u) => u.id)),
-          ...search.value!.selectedUsers.map((e) => e.id),
-        }.where((e) => e != me).toList(),
+        memberIds,
         name: groupName.text.isEmpty ? null : ChatName(groupName.text),
       );
 
@@ -597,7 +601,11 @@ class ChatsTabController extends GetxController {
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
-      MessagePopup.error(e);
+      if (e.code == CreateGroupChatErrorCode.blocked) {
+        MessagePopup.error('err_blocked_some'.l10n);
+      } else {
+        MessagePopup.error(e);
+      }
     } on FormatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

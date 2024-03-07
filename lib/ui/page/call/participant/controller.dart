@@ -22,12 +22,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.graphql.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -54,7 +57,8 @@ class ParticipantController extends GetxController {
   ParticipantController(
     this._call,
     this._chatService,
-    this._callService, {
+    this._callService,
+    this._userService, {
     this.pop,
     ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
   }) : stage = Rx(initial);
@@ -94,6 +98,9 @@ class ParticipantController extends GetxController {
 
   /// [CallService] transforming the [_call] into a group-call.
   final CallService _callService;
+
+  /// [User]s service.
+  final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
@@ -160,6 +167,7 @@ class ParticipantController extends GetxController {
     _stateWorker?.dispose();
     _chatWorker?.dispose();
     scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -199,27 +207,62 @@ class ParticipantController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
-    try {
-      if (chat.value?.chat.value.isGroup ?? true) {
-        List<Future> futures = ids
-            .map((e) => _chatService.addChatMember(chatId.value, e))
-            .toList();
+    if (chat.value?.chat.value.isGroup ?? true) {
+      Iterable<Future> futures = ids.map(
+        (userId) => _chatService
+            .addChatMember(chatId.value, userId)
+            .catchError((e) => _onError(e, userId)),
+      );
 
-        await Future.wait(futures);
-      } else {
-        await _callService.transformDialogCallIntoGroupCall(chatId.value, ids);
-      }
+      await Future.wait(futures);
+    } else {
+      await _callService
+          .transformDialogCallIntoGroupCall(chatId.value, ids)
+          .catchError((e) => _onError(e, null));
+    }
 
-      stage.value = ParticipantsFlowStage.participants;
-    } on AddChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } on TransformDialogCallIntoGroupCallException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    } finally {
-      status.value = RxStatus.empty();
+    stage.value = ParticipantsFlowStage.participants;
+    status.value = RxStatus.empty();
+  }
+
+  /// Handles errors occurring during the [addMembers] execution.
+  ///
+  /// [userId] being `null` means that the error does not relate to any specific
+  /// [User].
+  Future<void> _onError(Exception err, UserId? userId) async {
+    switch (err) {
+      case AddChatMemberException e:
+        if (e.code == AddChatMemberErrorCode.blocked) {
+          if (userId == null) {
+            MessagePopup.error('err_blocked_some'.l10n);
+            break;
+          }
+
+          final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+          final User? user = userOrFuture is RxUser?
+              ? userOrFuture?.user.value
+              : (await userOrFuture)?.user.value;
+
+          if (user != null) {
+            final String nameOrNum = (user.name ?? user.num).toString();
+
+            MessagePopup.error(
+              'err_blocked_by'.l10nfmt({'user': nameOrNum}),
+            );
+            break;
+          }
+        }
+
+        MessagePopup.error(e);
+        break;
+
+      case TransformDialogCallIntoGroupCallException _:
+        MessagePopup.error('err_blocked_some'.l10n);
+        break;
+
+      default:
+        MessagePopup.error(err);
+        throw err;
     }
   }
 

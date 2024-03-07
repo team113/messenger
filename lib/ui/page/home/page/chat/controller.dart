@@ -443,13 +443,20 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3')))
+                .then(
+                  (_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3'),
+                  ),
+                )
                 .onError<PostChatMessageException>(
-                    (e, _) => MessagePopup.error(e))
+                  (e, _) => _onPostMessageError(e),
+                )
                 .onError<UploadAttachmentException>(
-                    (e, _) => MessagePopup.error(e))
-                .onError<ConnectionException>((e, _) {});
+                  (e, _) => MessagePopup.error(e),
+                )
+                .onError<ConnectionException>(
+                  (e, _) {},
+                );
 
             send.clear(unfocus: false);
 
@@ -591,9 +598,10 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) =>
-              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
-          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .then(
+            (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
+          )
+          .onError<PostChatMessageException>((e, _) => _onPostMessageError(e))
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
     }
@@ -2055,6 +2063,27 @@ class ChatController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Handles the [PostChatMessageException] occurring during sending a message.
+  Future<void> _onPostMessageError(PostChatMessageException e) {
+    // This [Exception] can be thrown only in [Chat]-dialogs.
+    if (e.code == PostChatMessageErrorCode.blocked &&
+        (chat?.chat.value.isDialog ?? false)) {
+      final User? user =
+          chat?.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+
+      if (user != null) {
+        final String nameOrNum = (user.name ?? user.num).toString();
+        final Map<String, String> args = {'user': nameOrNum};
+
+        return MessagePopup.error(
+          'err_blocked_by'.l10nfmt(args),
+        );
+      }
+    }
+
+    return MessagePopup.error(e);
   }
 }
 
