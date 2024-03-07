@@ -2398,8 +2398,9 @@ Future<void> _clearCache(MyProfileController c, BuildContext context) async {
   );
 
   if (result == true) {
-    c.logout();
+    final Future<String> future = c.logout();
     await Hive.clean('hive');
+    router.go(await future);
   }
 }
 
