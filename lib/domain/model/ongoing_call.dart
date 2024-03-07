@@ -1846,23 +1846,14 @@ class OngoingCall {
           .toList();
 
       _closeRoom(false);
+      _initRoom();
 
       members.addEntries(
         connected
-            .map(
-              (e) => MapEntry(
-                e.id,
-                CallMember(
-                  e.id,
-                  null,
-                  isDialing: true,
-                ),
-              ),
-            )
+            .map((e) => MapEntry(e.id, CallMember(e.id, null, isDialing: true)))
             .toList(),
       );
 
-      _initRoom();
       await _setInitialMediaSettings();
       await _initLocalMedia();
     }
