@@ -50,153 +50,154 @@ class MenuTabView extends StatelessWidget {
 
         return Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: CustomAppBar(
-            title: ContextMenuRegion(
-              selector: c.profileKey,
-              alignment: Alignment.topLeft,
-              margin: const EdgeInsets.only(top: 7, right: 32),
-              enablePrimaryTap: true,
-              actions: [
-                ContextMenuButton(
-                  label: 'label_presence_present'.l10n,
-                  onPressed: () => c.setPresence(Presence.present),
-                  trailing: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: style.colors.acceptAuxiliary,
-                    ),
-                  ),
-                ),
-                ContextMenuButton(
-                  label: 'label_presence_away'.l10n,
-                  onPressed: () => c.setPresence(Presence.away),
-                  trailing: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: style.colors.warning,
-                    ),
-                  ),
-                ),
-              ],
-              child: Row(
-                children: [
-                  Material(
-                    elevation: 6,
-                    type: MaterialType.circle,
-                    shadowColor: style.colors.onBackgroundOpacity27,
-                    color: style.colors.onPrimary,
-                    child: Center(
-                      child: Obx(() {
-                        return AvatarWidget.fromMyUser(
-                          c.myUser.value,
-                          key: c.profileKey,
-                          radius: AvatarRadius.medium,
-                        );
-                      }),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Flexible(
-                    child: DefaultTextStyle.merge(
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      child: Obx(() {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.toString() ??
-                                  'dot'.l10n * 3,
-                              style: style.fonts.big.regular.onBackground,
-                            ),
-                            Text(
-                              // c.myUser.value?.status?.val ??
-                              'label_online'.l10n,
-                              style: style.fonts.small.regular.secondary,
-                            ),
-                            // Obx(() {
-                            //   return Text(
-                            //     // c.myUser.value?.status?.val ??
-                            //     'label_online'.l10n,
-                            //     style: style.fonts.small.regular.secondary,
-                            //   );
-                            // }),
-                          ],
-                        );
-                      }),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-            ),
-            leading: context.isNarrow
-                ? const [StyledBackButton()]
-                : [const SizedBox(width: 20)],
-            actions: [
-              WidgetButton(
-                behavior: HitTestBehavior.translucent,
-                onPressed: () => AccountsView.show(context),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Obx(() {
-                    if (router.accounts.value == 0) {
-                      return AnimatedButton(
-                        child: Transform.translate(
-                          offset: const Offset(0, 1),
-                          child: const SvgIcon(SvgIcons.addAccount),
-                        ),
-                      );
-                    } else if (router.accounts.value == 1) {
-                      return AnimatedButton(
-                        child: AvatarWidget(
-                          radius: AvatarRadius.small,
-                          title: c.myUser.value!.name?.val ??
-                              c.myUser.value!.num.toString(),
-                          color: c.myUser.value!.num.val.sum() - 1,
-                        ),
-                      );
-                    } else {
-                      return AnimatedButton(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            AvatarWidget(
-                              radius: AvatarRadius.small,
-                              title: c.myUser.value!.name?.val ??
-                                  c.myUser.value!.num.toString(),
-                              color: c.myUser.value!.num.val.sum() - 2,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: style.colors.onPrimary,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.all(1),
-                                child: AvatarWidget(
-                                  radius: AvatarRadius.small,
-                                  title: c.myUser.value!.name?.val ??
-                                      c.myUser.value!.num.toString(),
-                                  color: c.myUser.value!.num.val.sum() - 1,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  }),
-                ),
-              ),
-            ],
+          appBar: const CustomAppBar(
+            title: Text('Настройки'),
+            // title: ContextMenuRegion(
+            //   selector: c.profileKey,
+            //   alignment: Alignment.topLeft,
+            //   margin: const EdgeInsets.only(top: 7, right: 32),
+            //   enablePrimaryTap: true,
+            //   actions: [
+            //     ContextMenuButton(
+            //       label: 'label_presence_present'.l10n,
+            //       onPressed: () => c.setPresence(Presence.present),
+            //       trailing: Container(
+            //         width: 10,
+            //         height: 10,
+            //         decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.circular(8),
+            //           color: style.colors.acceptAuxiliary,
+            //         ),
+            //       ),
+            //     ),
+            //     ContextMenuButton(
+            //       label: 'label_presence_away'.l10n,
+            //       onPressed: () => c.setPresence(Presence.away),
+            //       trailing: Container(
+            //         width: 10,
+            //         height: 10,
+            //         decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.circular(8),
+            //           color: style.colors.warning,
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            //   child: Row(
+            //     children: [
+            //       Material(
+            //         elevation: 6,
+            //         type: MaterialType.circle,
+            //         shadowColor: style.colors.onBackgroundOpacity27,
+            //         color: style.colors.onPrimary,
+            //         child: Center(
+            //           child: Obx(() {
+            //             return AvatarWidget.fromMyUser(
+            //               c.myUser.value,
+            //               key: c.profileKey,
+            //               radius: AvatarRadius.medium,
+            //             );
+            //           }),
+            //         ),
+            //       ),
+            //       const SizedBox(width: 10),
+            //       Flexible(
+            //         child: DefaultTextStyle.merge(
+            //           maxLines: 1,
+            //           overflow: TextOverflow.ellipsis,
+            //           child: Obx(() {
+            //             return Column(
+            //               mainAxisAlignment: MainAxisAlignment.center,
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 Text(
+            //                   c.myUser.value?.name?.val ??
+            //                       c.myUser.value?.num.toString() ??
+            //                       'dot'.l10n * 3,
+            //                   style: style.fonts.big.regular.onBackground,
+            //                 ),
+            //                 Text(
+            //                   // c.myUser.value?.status?.val ??
+            //                   'label_online'.l10n,
+            //                   style: style.fonts.small.regular.secondary,
+            //                 ),
+            //                 // Obx(() {
+            //                 //   return Text(
+            //                 //     // c.myUser.value?.status?.val ??
+            //                 //     'label_online'.l10n,
+            //                 //     style: style.fonts.small.regular.secondary,
+            //                 //   );
+            //                 // }),
+            //               ],
+            //             );
+            //           }),
+            //         ),
+            //       ),
+            //       const SizedBox(width: 10),
+            //     ],
+            //   ),
+            // ),
+            // leading: context.isNarrow
+            //     ? const [StyledBackButton()]
+            //     : [const SizedBox(width: 20)],
+            // actions: [
+            //   WidgetButton(
+            //     behavior: HitTestBehavior.translucent,
+            //     onPressed: () => AccountsView.show(context),
+            //     child: Padding(
+            //       padding: const EdgeInsets.only(right: 16),
+            //       child: Obx(() {
+            //         if (router.accounts.value == 0) {
+            //           return AnimatedButton(
+            //             child: Transform.translate(
+            //               offset: const Offset(0, 1),
+            //               child: const SvgIcon(SvgIcons.addAccount),
+            //             ),
+            //           );
+            //         } else if (router.accounts.value == 1) {
+            //           return AnimatedButton(
+            //             child: AvatarWidget(
+            //               radius: AvatarRadius.small,
+            //               title: c.myUser.value!.name?.val ??
+            //                   c.myUser.value!.num.toString(),
+            //               color: c.myUser.value!.num.val.sum() - 1,
+            //             ),
+            //           );
+            //         } else {
+            //           return AnimatedButton(
+            //             child: Stack(
+            //               alignment: Alignment.center,
+            //               children: [
+            //                 AvatarWidget(
+            //                   radius: AvatarRadius.small,
+            //                   title: c.myUser.value!.name?.val ??
+            //                       c.myUser.value!.num.toString(),
+            //                   color: c.myUser.value!.num.val.sum() - 2,
+            //                 ),
+            //                 Padding(
+            //                   padding: const EdgeInsets.only(right: 12),
+            //                   child: Container(
+            //                     decoration: BoxDecoration(
+            //                       color: style.colors.onPrimary,
+            //                       borderRadius: BorderRadius.circular(8),
+            //                     ),
+            //                     padding: const EdgeInsets.all(1),
+            //                     child: AvatarWidget(
+            //                       radius: AvatarRadius.small,
+            //                       title: c.myUser.value!.name?.val ??
+            //                           c.myUser.value!.num.toString(),
+            //                       color: c.myUser.value!.num.val.sum() - 1,
+            //                     ),
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           );
+            //         }
+            //       }),
+            //     ),
+            //   ),
+            // ],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,

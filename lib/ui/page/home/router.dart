@@ -17,6 +17,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/terms/view.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -155,6 +156,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('FaqPage'),
           name: Routes.faq,
           child: FaqView(),
+        ));
+      } else if (route == Routes.terms) {
+        pages.add(const CustomPage(
+          key: ValueKey('TermsPage'),
+          name: Routes.terms,
+          child: TermsAndConditionsView(),
         ));
       }
     }

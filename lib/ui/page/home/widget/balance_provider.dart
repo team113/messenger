@@ -79,7 +79,7 @@ class BalanceProviderWidget extends StatelessWidget {
                     : style.fonts.small.regular.secondary,
               ),
               TextSpan(
-                text: '-$bonus%',
+                text: '$bonus%',
                 style: selected
                     ? style.fonts.small.regular.onPrimary
                     : style.fonts.small.regular.danger,

@@ -54,72 +54,73 @@ class BalanceTabView extends StatelessWidget {
             title: Obx(() {
               return Text('Balance: ¤${c.balance.value.toInt().withSpaces()}');
             }),
-            leading: [
-              Obx(() {
-                final Widget child;
+            // leading: [
+            //   Obx(() {
+            //     final Widget child;
 
-                if (c.adding.value) {
-                  if (c.hintDismissed.value) {
-                    child = const SvgIcon(SvgIcons.infoThick);
-                  } else {
-                    child = const SvgIcon(SvgIcons.infoThickDisabled);
-                  }
+            //     if (c.adding.value) {
+            //       if (c.hintDismissed.value) {
+            //         child = const SvgIcon(SvgIcons.infoThick);
+            //       } else {
+            //         child = const SvgIcon(SvgIcons.infoThickDisabled);
+            //       }
 
-                  return AnimatedButton(
-                    onPressed: () {
-                      c.hintDismissed.toggle();
-                      c.setDisplayRates(!c.hintDismissed.value);
-                    },
-                    decorator: (child) => Container(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      height: double.infinity,
-                      child: child,
-                    ),
-                    child: child,
-                  );
-                } else {
-                  child = const SvgIcon(key: Key('Search'), SvgIcons.search);
-                  return AnimatedButton(
-                    onPressed: () {},
-                    decorator: (child) => Container(
-                      padding: const EdgeInsets.only(left: 20, right: 12),
-                      height: double.infinity,
-                      child: child,
-                    ),
-                    child: child,
-                  );
-                }
-              }),
-            ],
-            actions: [
-              Obx(() {
-                final Widget child;
+            //       return AnimatedButton(
+            //         onPressed: () {
+            //           router.terms();
+            //           // c.hintDismissed.toggle();
+            //           // c.setDisplayRates(!c.hintDismissed.value);
+            //         },
+            //         decorator: (child) => Container(
+            //           padding: const EdgeInsets.only(left: 20, right: 12),
+            //           height: double.infinity,
+            //           child: child,
+            //         ),
+            //         child: const SvgIcon(SvgIcons.infoThick),
+            //       );
+            //     } else {
+            //       child = const SvgIcon(key: Key('Search'), SvgIcons.search);
+            //       return AnimatedButton(
+            //         onPressed: () {},
+            //         decorator: (child) => Container(
+            //           padding: const EdgeInsets.only(left: 20, right: 12),
+            //           height: double.infinity,
+            //           child: child,
+            //         ),
+            //         child: child,
+            //       );
+            //     }
+            //   }),
+            // ],
+            // actions: [
+            //   Obx(() {
+            //     final Widget child;
 
-                if (c.adding.value) {
-                  child = Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: const SizedBox(
-                      child: SvgIcon(SvgIcons.transactions),
-                    ),
-                  );
-                } else {
-                  child = const SvgImage.asset(
-                    key: Key('CloseSearch'),
-                    'assets/icons/add_funds.svg',
-                    height: 19.94,
-                  );
-                }
+            //     if (c.adding.value) {
+            //       child = Transform.translate(
+            //         offset: const Offset(0, -1),
+            //         child: const SizedBox(
+            //           child: SvgIcon(SvgIcons.transactions),
+            //         ),
+            //       );
+            //     } else {
+            //       child = const SvgImage.asset(
+            //         key: Key('CloseSearch'),
+            //         'assets/icons/add_funds.svg',
+            //         height: 19.94,
+            //       );
+            //     }
 
-                return WidgetButton(
-                  onPressed: c.adding.toggle,
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 12, right: 20),
-                    height: double.infinity,
-                    child: SizedBox(width: 20.28, child: Center(child: child)),
-                  ),
-                );
-              }),
-            ],
+            //     return WidgetButton(
+            //       onPressed: c.adding.toggle,
+            //       child: Container(
+            //         padding: const EdgeInsets.only(left: 12, right: 20),
+            //         height: double.infinity,
+            //         child: SizedBox(width: 20.28, child: Center(child: child)),
+            //       ),
+            //     );
+            //   }),
+            // ],
           ),
 
           extendBodyBehindAppBar: true,
@@ -132,292 +133,307 @@ class BalanceTabView extends StatelessWidget {
                   controller: c.scrollController,
                   children: [
                     // if (false)
-                    Obx(() {
-                      return AnimatedSizeAndFade.showHide(
-                        show: !c.hintDismissed.value,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10),
-                          height: 54,
-                          decoration: BoxDecoration(
-                            borderRadius: style.cardRadius,
-                            border: style.cardBorder,
-                            color: style.colors.transparent,
+                    //   Obx(() {
+                    //     return AnimatedSizeAndFade.showHide(
+                    //       show: !c.hintDismissed.value,
+                    //       child: Container(
+                    //         margin: const EdgeInsets.symmetric(horizontal: 10),
+                    //         height: 54,
+                    //         decoration: BoxDecoration(
+                    //           borderRadius: style.cardRadius,
+                    //           border: style.cardBorder,
+                    //           color: style.colors.transparent,
+                    //         ),
+                    //         child: Material(
+                    //           type: MaterialType.card,
+                    //           borderRadius: style.cardRadius,
+                    //           color: style.cardColor,
+                    //           child: InkWell(
+                    //             borderRadius: style.cardRadius,
+                    //             onTap: () async {
+                    //               await launchUrlString(Config.origin);
+                    //             },
+                    //             hoverColor: style.cardHoveredColor,
+                    //             child: Row(
+                    //               crossAxisAlignment: CrossAxisAlignment.center,
+                    //               children: [
+                    //                 const SizedBox(width: 19),
+                    //                 Text(
+                    //                   'T&C',
+                    //                   style: style
+                    //                       .fonts.medium.regular.onBackground
+                    //                       .copyWith(
+                    //                           color: style.colors.primary),
+                    //                 ),
+                    //                 const SizedBox(width: 15),
+                    //                 Expanded(
+                    //                   child: Text(
+                    //                     'Terms and conditions',
+                    //                     style: style
+                    //                         .fonts.big.regular.onBackground,
+                    //                   ),
+                    //                 ),
+                    //                 WidgetButton(
+                    //                   key: const Key('CloseButton'),
+                    //                   onPressed: c.hintDismissed.toggle,
+                    //                   child: Container(
+                    //                     padding: const EdgeInsets.fromLTRB(
+                    //                       16,
+                    //                       16,
+                    //                       16,
+                    //                       16,
+                    //                     ),
+                    //                     child: const SvgIcon(
+                    //                       SvgIcons.closeSmallPrimary,
+                    //                     ),
+                    //                   ),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //       // child: MenuButton(
+                    //       //   title: 'Terms and conditions',
+                    //       //   dense: true,
+                    //       //   // subtitle: 'Privacy policy, refund policy, etc',
+                    //       //   // leading: const SvgIcon(SvgIcons.menuLanguage),
+                    //       //   leading: Text(
+                    //       //     'T&C',
+                    //       //     style: style.fonts.medium.regular.onBackground
+                    //       //         .copyWith(color: style.colors.primary),
+                    //       //   ),
+                    //       //   onPressed: () async {
+                    //       //     await launchUrlString(Config.origin);
+                    //       //   },
+                    //       // ),
+                    //       // child: Center(
+                    //       //   child: Container(
+                    //       //     margin: const EdgeInsets.symmetric(
+                    //       //       horizontal: 10,
+                    //       //       vertical: 4,
+                    //       //     ),
+                    //       //     width: double.infinity,
+                    //       //     decoration: BoxDecoration(
+                    //       //       color: Colors.white,
+                    //       //       borderRadius: BorderRadius.circular(10),
+                    //       //       border: style.cardBorder,
+                    //       //     ),
+                    //       //     child: Stack(
+                    //       //       children: [
+                    //       //         Column(
+                    //       //           mainAxisSize: MainAxisSize.min,
+                    //       //           children: [
+                    //       //             const SizedBox(height: 12),
+                    //       //             Center(
+                    //       //               child: WidgetButton(
+                    //       //                 onPressed: () async =>
+                    //       //                     await launchUrlString(
+                    //       //                   Config.origin,
+                    //       //                 ),
+                    //       //                 child: Text(
+                    //       //                   'Terms and conditions',
+                    //       //                   style: style
+                    //       //                       .fonts.normal.regular.primary,
+                    //       //                 ),
+                    //       //               ),
+                    //       //             ),
+                    //       //             // ModalPopupHeader(
+                    //       //             //   close: true,
+                    //       //             //   onClose: () {
+                    //       //             //     c.hintDismissed.toggle();
+                    //       //             //     c.setDisplayRates(!c.hintDismissed.value);
+                    //       //             //   },
+                    //       //             //   header: Text('Terms and conditions'),
+                    //       //             // ),
+                    //       //             const SizedBox(height: 12),
+                    //       //           ],
+                    //       //         ),
+                    //       //         Align(
+                    //       //           alignment: Alignment.topRight,
+                    //       //           child: WidgetButton(
+                    //       //             key: const Key('CloseButton'),
+                    //       //             onPressed: c.hintDismissed.toggle,
+                    //       //             child: Container(
+                    //       //               padding: const EdgeInsets.fromLTRB(
+                    //       //                 12,
+                    //       //                 14,
+                    //       //                 14,
+                    //       //                 8,
+                    //       //               ),
+                    //       //               child: const SvgIcon(
+                    //       //                   SvgIcons.closeSmallPrimary),
+                    //       //             ),
+                    //       //           ),
+                    //       //         ),
+                    //       //       ],
+                    //       //     ),
+                    //       //   ),
+                    //       // ),
+
+                    //       // child: MenuButton(
+                    //       //   title: 'G100 = E100',
+                    //       //   subtitle: 'Rate for ${DateTime.now().yMd}',
+                    //       //   leading: const SvgIcon(SvgIcons.menuDanger),
+                    //       //   onPressed: c.hintDismissed.toggle,
+                    //       // ),
+                    //       // child: Center(
+                    //       //   child: Container(
+                    //       //     margin: const EdgeInsets.symmetric(
+                    //       //       horizontal: 10,
+                    //       //       vertical: 4,
+                    //       //     ),
+                    //       //     width: double.infinity,
+                    //       //     decoration: BoxDecoration(
+                    //       //       color: Colors.white,
+                    //       //       borderRadius: BorderRadius.circular(10),
+                    //       //       border: style.cardBorder,
+                    //       //     ),
+                    //       //     child: Column(
+                    //       //       mainAxisSize: MainAxisSize.min,
+                    //       //       children: [
+                    //       //         ModalPopupHeader(
+                    //       //           close: true,
+                    //       //           onClose: () {
+                    //       //             c.hintDismissed.toggle();
+                    //       //             c.setDisplayRates(!c.hintDismissed.value);
+                    //       //           },
+                    //       //           text: '¤100 = €1.00',
+                    //       //         ),
+                    //       //         const SizedBox(height: 4),
+                    //       //         Padding(
+                    //       //           padding: const EdgeInsets.fromLTRB(
+                    //       //             32,
+                    //       //             0,
+                    //       //             32,
+                    //       //             0,
+                    //       //           ),
+                    //       //           child: Center(
+                    //       //             child: Text(
+                    //       //               'Rate for ${DateTime.now().yMd}.',
+                    //       //               style:
+                    //       //                   style.fonts.small.regular.secondary,
+                    //       //             ),
+                    //       //           ),
+                    //       //         ),
+                    //       //         const SizedBox(height: 12),
+                    //       //       ],
+                    //       //     ),
+                    //       //   ),
+                    //       // ),
+                    //     );
+                    //   }),
+                    // if (false &&
+                    //     (PlatformUtils.isAndroid || PlatformUtils.isIOS)) ...[
+                    //   ...[500, 1000, 2000, 5000, 10000, 20000].map((e) {
+                    //     final icon = PlatformUtils.isAndroid
+                    //         ? SvgIcons.menuDevices
+                    //         : SvgIcons.menuNav;
+
+                    //     final double bonus;
+
+                    //     return MenuButton(
+                    //       leading: SvgIcon(icon),
+                    //       title: e == null ? 'Произвольная сумма' : '¤$e',
+                    //       subtitle: e == null
+                    //           ? 'Пополнить счёт'
+                    //           : 'Top up for ${e / 100 * 1.33}\$',
+                    //       // subtitle: 'Пополнить счёт',
+                    //       onPressed: () {},
+                    //     );
+                    //   }),
+                    // ] else
+                    // MenuButton(
+                    //   title: 'Транзакции',
+                    //   subtitle: 'Зачисления и расходы',
+                    //   leading: const SvgIcon(SvgIcons.menuNotifications),
+                    //   onPressed: () {},
+                    // ),
+                    ...BalanceProvider.values.filtered.map((e) {
+                      Widget button({
+                        required String title,
+                        required SvgData asset,
+                        // required IconData icon,
+                        double? bonus,
+                      }) {
+                        final bool selected = router.route
+                            .startsWith('${Routes.balance}/${e.name}');
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 1.5),
+                          child: BalanceProviderWidget(
+                            title: title,
+                            leading: [
+                              SvgIcon(asset),
+                              // Icon(
+                              //   icon,
+                              //   size: 42,
+                              //   color: selected
+                              //       ? style.colors.onPrimary
+                              //       : style.colors.primary,
+                              // )
+                            ],
+                            selected: selected,
+                            bonus: bonus,
+                            onPressed: () => router.balance(e),
                           ),
-                          child: Material(
-                            type: MaterialType.card,
-                            borderRadius: style.cardRadius,
-                            color: style.cardColor,
-                            child: InkWell(
-                              borderRadius: style.cardRadius,
-                              onTap: () async {
-                                await launchUrlString(Config.origin);
-                              },
-                              hoverColor: style.cardHoveredColor,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(width: 19),
-                                  Text(
-                                    'T&C',
-                                    style: style
-                                        .fonts.medium.regular.onBackground
-                                        .copyWith(color: style.colors.primary),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Expanded(
-                                    child: Text(
-                                      'Terms and conditions',
-                                      style:
-                                          style.fonts.big.regular.onBackground,
-                                    ),
-                                  ),
-                                  WidgetButton(
-                                    key: const Key('CloseButton'),
-                                    onPressed: c.hintDismissed.toggle,
-                                    child: Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        16,
-                                        16,
-                                        16,
-                                        16,
-                                      ),
-                                      child: const SvgIcon(
-                                        SvgIcons.closeSmallPrimary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        // child: MenuButton(
-                        //   title: 'Terms and conditions',
-                        //   dense: true,
-                        //   // subtitle: 'Privacy policy, refund policy, etc',
-                        //   // leading: const SvgIcon(SvgIcons.menuLanguage),
-                        //   leading: Text(
-                        //     'T&C',
-                        //     style: style.fonts.medium.regular.onBackground
-                        //         .copyWith(color: style.colors.primary),
-                        //   ),
-                        //   onPressed: () async {
-                        //     await launchUrlString(Config.origin);
-                        //   },
-                        // ),
-                        // child: Center(
-                        //   child: Container(
-                        //     margin: const EdgeInsets.symmetric(
-                        //       horizontal: 10,
-                        //       vertical: 4,
-                        //     ),
-                        //     width: double.infinity,
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.white,
-                        //       borderRadius: BorderRadius.circular(10),
-                        //       border: style.cardBorder,
-                        //     ),
-                        //     child: Stack(
-                        //       children: [
-                        //         Column(
-                        //           mainAxisSize: MainAxisSize.min,
-                        //           children: [
-                        //             const SizedBox(height: 12),
-                        //             Center(
-                        //               child: WidgetButton(
-                        //                 onPressed: () async =>
-                        //                     await launchUrlString(
-                        //                   Config.origin,
-                        //                 ),
-                        //                 child: Text(
-                        //                   'Terms and conditions',
-                        //                   style: style
-                        //                       .fonts.normal.regular.primary,
-                        //                 ),
-                        //               ),
-                        //             ),
-                        //             // ModalPopupHeader(
-                        //             //   close: true,
-                        //             //   onClose: () {
-                        //             //     c.hintDismissed.toggle();
-                        //             //     c.setDisplayRates(!c.hintDismissed.value);
-                        //             //   },
-                        //             //   header: Text('Terms and conditions'),
-                        //             // ),
-                        //             const SizedBox(height: 12),
-                        //           ],
-                        //         ),
-                        //         Align(
-                        //           alignment: Alignment.topRight,
-                        //           child: WidgetButton(
-                        //             key: const Key('CloseButton'),
-                        //             onPressed: c.hintDismissed.toggle,
-                        //             child: Container(
-                        //               padding: const EdgeInsets.fromLTRB(
-                        //                 12,
-                        //                 14,
-                        //                 14,
-                        //                 8,
-                        //               ),
-                        //               child: const SvgIcon(
-                        //                   SvgIcons.closeSmallPrimary),
-                        //             ),
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
-
-                        // child: MenuButton(
-                        //   title: 'G100 = E100',
-                        //   subtitle: 'Rate for ${DateTime.now().yMd}',
-                        //   leading: const SvgIcon(SvgIcons.menuDanger),
-                        //   onPressed: c.hintDismissed.toggle,
-                        // ),
-                        // child: Center(
-                        //   child: Container(
-                        //     margin: const EdgeInsets.symmetric(
-                        //       horizontal: 10,
-                        //       vertical: 4,
-                        //     ),
-                        //     width: double.infinity,
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.white,
-                        //       borderRadius: BorderRadius.circular(10),
-                        //       border: style.cardBorder,
-                        //     ),
-                        //     child: Column(
-                        //       mainAxisSize: MainAxisSize.min,
-                        //       children: [
-                        //         ModalPopupHeader(
-                        //           close: true,
-                        //           onClose: () {
-                        //             c.hintDismissed.toggle();
-                        //             c.setDisplayRates(!c.hintDismissed.value);
-                        //           },
-                        //           text: '¤100 = €1.00',
-                        //         ),
-                        //         const SizedBox(height: 4),
-                        //         Padding(
-                        //           padding: const EdgeInsets.fromLTRB(
-                        //             32,
-                        //             0,
-                        //             32,
-                        //             0,
-                        //           ),
-                        //           child: Center(
-                        //             child: Text(
-                        //               'Rate for ${DateTime.now().yMd}.',
-                        //               style:
-                        //                   style.fonts.small.regular.secondary,
-                        //             ),
-                        //           ),
-                        //         ),
-                        //         const SizedBox(height: 12),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
-                      );
-                    }),
-                    if (PlatformUtils.isAndroid || PlatformUtils.isIOS) ...[
-                      ...[500, 1000, 2000, 5000, 10000, 20000].map((e) {
-                        final icon = PlatformUtils.isAndroid
-                            ? SvgIcons.menuDevices
-                            : SvgIcons.menuNav;
-
-                        final double bonus;
-
-                        return MenuButton(
-                          leading: SvgIcon(icon),
-                          title: e == null ? 'Произвольная сумма' : '¤$e',
-                          subtitle: e == null
-                              ? 'Пополнить счёт'
-                              : 'Top up for ${e / 100 * 1.33}\$',
-                          // subtitle: 'Пополнить счёт',
-                          onPressed: () {},
                         );
-                      }),
-                    ] else
-                      ...BalanceProvider.values.filtered.map((e) {
-                        Widget button({
-                          required String title,
-                          required SvgData asset,
-                          // required IconData icon,
-                          double? bonus,
-                        }) {
-                          final bool selected = router.route
-                              .startsWith('${Routes.balance}/${e.name}');
+                      }
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 1.5),
-                            child: BalanceProviderWidget(
-                              title: title,
-                              leading: [
-                                SvgIcon(asset),
-                                // Icon(
-                                //   icon,
-                                //   size: 42,
-                                //   color: selected
-                                //       ? style.colors.onPrimary
-                                //       : style.colors.primary,
-                                // )
-                              ],
-                              selected: selected,
-                              bonus: bonus,
-                              onPressed: () => router.balance(e),
-                            ),
+                      switch (e) {
+                        case BalanceProvider.creditCard:
+                          return button(
+                            asset: SvgIcons.menuPayment,
+                            title: 'Credit card',
+                            bonus: 5,
                           );
-                        }
 
-                        switch (e) {
-                          case BalanceProvider.creditCard:
-                            return button(
-                              asset: SvgIcons.menuPayment,
-                              title: 'Credit card',
-                              bonus: 5,
-                            );
+                        case BalanceProvider.swift:
+                          return button(
+                            asset: SvgIcons.menuCalls,
+                            title: 'SWIFT transfer',
+                            bonus: 2,
+                          );
 
-                          case BalanceProvider.swift:
-                            return button(
-                              asset: SvgIcons.menuCalls,
-                              title: 'SWIFT transfer',
-                              bonus: 2,
-                            );
+                        case BalanceProvider.sepa:
+                          return button(
+                            asset: SvgIcons.menuLink,
+                            title: 'SEPA transfer',
+                            bonus: 2,
+                          );
 
-                          case BalanceProvider.sepa:
-                            return button(
-                              asset: SvgIcons.menuLink,
-                              title: 'SEPA transfer',
-                              bonus: 2,
-                            );
+                        case BalanceProvider.paypal:
+                          return button(
+                            asset: SvgIcons.menuBackground,
+                            title: 'PayPal',
+                            bonus: -5,
+                          );
 
-                          case BalanceProvider.paypal:
-                            return button(
-                              asset: SvgIcons.menuBackground,
-                              title: 'PayPal',
-                              bonus: -5,
-                            );
+                        case BalanceProvider.applePay:
+                          return button(
+                            asset: SvgIcons.menuNav,
+                            title: 'Apple Pay',
+                            bonus: -30,
+                          );
 
-                          case BalanceProvider.applePay:
-                            return button(
-                              asset: SvgIcons.menuNav,
-                              title: 'Apple Pay',
-                              bonus: -30,
-                            );
+                        case BalanceProvider.googlePay:
+                          return button(
+                            asset: SvgIcons.menuDevices,
+                            title: 'Google Pay',
+                            bonus: -30,
+                          );
 
-                          case BalanceProvider.googlePay:
-                            return button(
-                              asset: SvgIcons.menuDevices,
-                              title: 'Google Pay',
-                              bonus: -30,
-                            );
-
-                          default:
-                            return const SizedBox();
-                        }
-                      }),
+                        default:
+                          return const SizedBox();
+                      }
+                    }),
+                    // const SizedBox(height: 8),
+                    // Center(
+                    //   child: Text(
+                    //     'Terms and conditions',
+                    //     style: style.fonts.small.regular.primary,
+                    //   ),
+                    // ),
                   ],
                 ),
               );
@@ -456,6 +472,10 @@ extension on int {
 
 extension on Iterable<BalanceProvider> {
   Iterable<BalanceProvider> get filtered {
+    return where(
+      (e) => e != BalanceProvider.googlePay && e != BalanceProvider.applePay,
+    );
+
     if (PlatformUtils.isAndroid) {
       return where((e) => e == BalanceProvider.googlePay);
     } else if (PlatformUtils.isIOS) {

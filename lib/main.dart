@@ -31,12 +31,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:messenger/util/get.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -384,7 +386,7 @@ Future<void> _initHive() async {
 
   // Load and compare application version.
   Box box = await Hive.openBox('version');
-  final String version = Config.version ?? Pubspec.version;
+  final String version = Config.schema ?? Config.version ?? Pubspec.version;
   final String? stored = box.get(0);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
@@ -396,6 +398,10 @@ Future<void> _initHive() async {
       await box.put(0, version);
       await box.close();
     });
+
+    if (stored != null) {
+      _schedulePopup();
+    }
   }
 
   await Get.put(CredentialsHiveProvider()).init();
@@ -405,6 +411,16 @@ Future<void> _initHive() async {
     await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
+}
+
+void _schedulePopup() {
+  SchedulerBinding.instance.addPostFrameCallback((_) {
+    if (router.context == null) {
+      return _schedulePopup();
+    }
+
+    MessagePopup.error('err_version_mismatch'.l10n);
+  });
 }
 
 /// Extension adding an ability to clean [Hive].

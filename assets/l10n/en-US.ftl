@@ -1208,5 +1208,7 @@ label_forward_messages_for = Forward messages{$amount ->
     [0] {""}
    *[other] {" "}for ¤{$amount}
 }
+label_payment_price_for_messages_and_calls_to_user = There is a payment set: ¤ 50 for a message and ¤ 150/min for a call to {$name}.
 label_price_for_messages_and_calls_to_user = ¤ 50 for a message and ¤ 150/min for a call to {$name}.
 label_payment_set = Payment set
+err_version_mismatch = The application's data schema has been changed, so the cache is cleared to prevent disruptions to local data. Please, log in again.

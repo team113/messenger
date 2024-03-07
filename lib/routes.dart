@@ -109,6 +109,7 @@ class Routes {
   static const user = '/user';
   static const vacancy = '/vacancy';
   static const work = '/work';
+  static const terms = '/terms';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -148,10 +149,10 @@ enum ProfileTab {
 }
 
 enum BalanceProvider {
+  paypal,
   applePay,
   googlePay,
   creditCard,
-  paypal,
   sepa,
   swift,
 }
@@ -291,6 +292,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.balance ||
             routes.last == Routes.transaction ||
             routes.last == Routes.faq ||
+            routes.last == Routes.terms ||
             routes.last == '/dev' ||
             routes.last == Routes.vacancy) {
           routes.last = Routes.home;
@@ -861,6 +863,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.public) ||
         _state.route.startsWith(Routes.balance) ||
         _state.route.startsWith(Routes.faq) ||
+        _state.route.startsWith(Routes.terms) ||
         _state.route.startsWith(Routes.transaction) ||
         _state.route.startsWith(Routes.style) ||
         _state.route.startsWith(Routes.vacancy) ||
@@ -1038,6 +1041,8 @@ extension RouteLinks on RouterState {
   }
 
   void faq({bool push = false}) => (push ? this.push : go)(Routes.faq);
+
+  void terms() => go(Routes.terms);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

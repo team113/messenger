@@ -1931,11 +1931,7 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
                     onPressed: () async {
                       await c.unblock(e);
                     },
-                    child: Text(
-                      'Разблокировать',
-                      style: style.fonts.small.regular.primary,
-                    ),
-                    // child: const SvgIcon(SvgIcons.block16),
+                    child: const SvgIcon(SvgIcons.block16),
                   ),
                 ],
               );
@@ -2271,7 +2267,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
                       style: style.fonts.big.regular.onBackground,
                     ),
                     Text(
-                      'label_online'.l10n,
+                      'Настройки'.l10n,
                       style: style.fonts.small.regular.secondary,
                     ),
                   ],
@@ -2307,7 +2303,8 @@ Widget _bar(MyProfileController c, BuildContext context) {
             child: title,
           ),
         ),
-        searchButton,
+        const SizedBox(width: 52),
+        // searchButton,
       ],
     );
   });

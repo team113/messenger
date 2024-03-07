@@ -16,32 +16,37 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class BalanceProviderController extends GetxController {
-  BalanceProviderController(this._balanceService);
+  BalanceProviderController(this._balanceService, this._myUserService);
 
   final Rx<WebViewController?> webController = Rx(null);
 
   final BalanceService _balanceService;
+  final MyUserService _myUserService;
+
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onReady() async {
-    try {
-      final WebViewController controller =
-          WebViewController.fromPlatformCreationParams(
-        const PlatformWebViewControllerCreationParams(),
-      );
+    // try {
+    //   final WebViewController controller =
+    //       WebViewController.fromPlatformCreationParams(
+    //     const PlatformWebViewControllerCreationParams(),
+    //   );
 
-      controller.loadRequest(Uri.parse('https://flutter.dev'));
+    //   controller.loadRequest(Uri.parse('https://flutter.dev'));
 
-      webController.value = controller;
-    } catch (e) {
-      print(e);
-      webController.value = null;
-    }
+    //   webController.value = controller;
+    // } catch (e) {
+    //   print(e);
+    //   webController.value = null;
+    // }
   }
 
   void add(Transaction transaction) {

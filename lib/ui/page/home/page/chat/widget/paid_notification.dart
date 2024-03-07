@@ -66,7 +66,7 @@ class PaidNotification extends StatelessWidget {
                   // ],
                   Text(
                     description ??
-                        'label_price_for_messages_and_calls_to_user'
+                        'label_payment_price_for_messages_and_calls_to_user'
                             .l10nfmt({'name': name ?? ''}),
 
                     // 'Kirey установил ¤ 50 за отправку сообщения и ¤ 150/мин за совершение звонка.',
