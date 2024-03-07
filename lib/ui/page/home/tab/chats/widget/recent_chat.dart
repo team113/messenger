@@ -701,6 +701,7 @@ class RecentChatTile extends StatelessWidget {
               content = userBuilder(item.author.id, (context, user) {
                 final Map<String, dynamic> args = {
                   'author': user?.title ?? item.author.title,
+                  'name': action.name?.val,
                 };
 
                 if (action.name == null) {
