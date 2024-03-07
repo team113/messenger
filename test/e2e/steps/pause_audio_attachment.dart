@@ -14,3 +14,20 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+/// Indicates whether audio player is paused
+///
+/// Examples:
+/// - Then audio "test.mp3" is not playing
+
+import 'package:gherkin/gherkin.dart' hide Attachment;
+
+import '../world/custom_world.dart';
+
+final StepDefinitionGeneric checkAudioPaused = then1<String, CustomWorld>(
+  'audio {string} is not playing',
+  (text, context) async {
+    // TODO: check player instance of playerService is not playing
+    // expect(text, (PlatformUtils as PlatformUtilsMock).clipboard);
+  },
+);

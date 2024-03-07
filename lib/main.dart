@@ -45,6 +45,7 @@ import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
+import 'domain/service/audio_player.dart';
 import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
@@ -115,6 +116,8 @@ Future<void> main() async {
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
+
+    // Get.put(AudioPlayerService());
 
     WebUtils.deleteLoader();
 

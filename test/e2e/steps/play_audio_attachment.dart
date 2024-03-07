@@ -23,19 +23,21 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/audio_player.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Plays the audio in [AudioAttachment] in the [ChatItem] when clicked.
+/// Plays the audio in [AudioAttachment] when clicked.
 ///
 /// Examples:
-/// - And Bob removes Alice from "Alice and Bob" group
-final StepDefinitionGeneric playAudioAttachment = then1<String, CustomWorld>(
-  'I play audio file',
+/// - When I play "test.mp3" audio file
+final StepDefinitionGeneric playAudioAttachment = when1<String, CustomWorld>(
+  'I play {string} audio file',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
+    final AudioPlayerService audioPlayer = Get.put(AudioPlayerService());
 
     RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
@@ -45,17 +47,32 @@ final StepDefinitionGeneric playAudioAttachment = then1<String, CustomWorld>(
         .expand((e) => e.attachments)
         .firstWhere((a) => a.filename == name);
 
-    Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('File_${attachment.id}');
-    Finder downloadButton = context.world.appDriver.findByDescendant(
-      finder,
-      context.world.appDriver.findByKeySkipOffstage('Download'),
-    );
+    await Future.delayed(const Duration(milliseconds: 500));
+    Finder playButton =
+        context.world.appDriver.findByKeySkipOffstage('AudioFile_${attachment.id}');
 
-    await context.world.appDriver.nativeDriver.tap(downloadButton);
+    await context.world.appDriver.nativeDriver.tap(playButton);
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    while (audioPlayer.buffering.value) {
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+
+    // Delay to showcase audio is working
+    await Future.delayed(const Duration(seconds: 3));
   }
 );
 
-// pauseAudioFile
-// seekAudioFile
+/// Indicates whether audio player is playing (and correct track is playing).
+///
+/// Examples:
+/// - Then audio "test.mp3" is playing
+final StepDefinitionGeneric checkAudioPlaying = then1<String, CustomWorld>(
+  'audio {string} is playing',
+  (text, context) async {
+    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
+    var isPlaying = audioPlayer.playing.value;
 
+    expect(isPlaying, true);
+  },
+);
