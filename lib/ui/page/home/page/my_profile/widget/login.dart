@@ -52,7 +52,6 @@ class _UserLoginFieldState extends State<UserLoginField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
-    approvable: true,
     onChanged: (s) async {
       s.error.value = null;
 
@@ -65,8 +64,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
       } on FormatException catch (_) {
         s.error.value = 'err_incorrect_login_input'.l10n;
       }
-    },
-    onSubmitted: (s) async {
+
       if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
@@ -115,6 +113,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
 
     if (_editing) {
       child = Padding(
+        key: const Key('1'),
         padding: const EdgeInsets.only(top: 8.0),
         child: ReactiveTextField(
           key: const Key('LoginField'),
@@ -129,6 +128,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
                   }
                 },
           label: 'label_login'.l10n,
+          prefixText: '@',
           hint: widget.login == null
               ? 'label_login_hint'.l10n
               : widget.login!.val,
@@ -138,7 +138,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
       child = Paddings.basic(
         InfoTile(
           title: 'label_login'.l10n,
-          content: _state.text,
+          content: '@${_state.text}',
           trailing: WidgetButton(
             onPressed: () => setState(() => _editing = true),
             child: const SvgIcon(SvgIcons.editField),

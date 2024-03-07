@@ -34,11 +34,13 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/download_button.dart';
@@ -81,11 +83,7 @@ class MyProfileView extends StatelessWidget {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
-            appBar: CustomAppBar(
-              title: Text('label_account'.l10n),
-              padding: const EdgeInsets.only(left: 4, right: 20),
-              leading: const [StyledBackButton()],
-            ),
+            appBar: CustomAppBar(title: _bar(c, context)),
             body: Builder(builder: (context) {
               final Widget child = ScrollablePositionedList.builder(
                 key: const Key('MyProfileScrollable'),
@@ -114,38 +112,52 @@ class MyProfileView extends StatelessWidget {
 
                   switch (ProfileTab.values[i]) {
                     case ProfileTab.public:
-                      return block(
-                        title: 'label_profile'.l10n,
-                        children: [
-                          Obx(() {
-                            return BigAvatarWidget.myUser(
-                              c.myUser.value,
-                              loading: c.avatarUpload.value.isLoading,
-                              onUpload: c.uploadAvatar,
-                              onDelete: c.myUser.value?.avatar != null
-                                  ? c.deleteAvatar
-                                  : null,
-                            );
-                          }),
-                          const SizedBox(height: 12),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserNameField(
-                                c.myUser.value?.name,
-                                onSubmit: c.updateUserName,
-                              );
-                            }),
+                      return Obx(() {
+                        return HighlightedContainer(
+                          highlight: c.highlightIndex.value == i,
+                          child: Column(
+                            children: [
+                              block(
+                                title: 'label_profile'.l10n,
+                                children: [
+                                  Obx(() {
+                                    return BigAvatarWidget.myUser(
+                                      c.myUser.value,
+                                      loading: c.avatarUpload.value.isLoading,
+                                      onUpload: c.uploadAvatar,
+                                      onDelete: c.myUser.value?.avatar != null
+                                          ? c.deleteAvatar
+                                          : null,
+                                    );
+                                  }),
+                                  const SizedBox(height: 12),
+                                  Paddings.basic(
+                                    Obx(() {
+                                      return UserNameField(
+                                        c.myUser.value?.name,
+                                        onSubmit: c.updateUserName,
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              block(
+                                title: 'label_about'.l10n,
+                                children: [
+                                  Paddings.basic(
+                                    Obx(() {
+                                      return UserBioField(
+                                        c.myUser.value?.bio,
+                                        onSubmit: c.updateUserBio,
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              )
+                            ],
                           ),
-                          Paddings.basic(
-                            Obx(() {
-                              return UserBioField(
-                                c.myUser.value?.bio,
-                                onSubmit: c.updateUserBio,
-                              );
-                            }),
-                          )
-                        ],
-                      );
+                        );
+                      });
 
                     case ProfileTab.signing:
                       return block(
@@ -1051,6 +1063,91 @@ Widget _storage(BuildContext context, MyProfileController c) {
       ],
     ),
   );
+}
+
+/// Returns information about the [MyUser].
+Widget _bar(MyProfileController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return Obx(() {
+    final Widget title;
+
+    if (c.displayName.value && context.isNarrow) {
+      title = Row(
+        children: [
+          const SizedBox(width: 4),
+          const StyledBackButton(),
+          Material(
+            elevation: 6,
+            type: MaterialType.circle,
+            shadowColor: style.colors.onBackgroundOpacity27,
+            color: style.colors.onPrimary,
+            child: Center(
+              child: Obx(() {
+                return AvatarWidget.fromMyUser(
+                  c.myUser.value,
+                  radius: AvatarRadius.medium,
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: DefaultTextStyle.merge(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              child: Obx(() {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      c.myUser.value?.name?.val ??
+                          c.myUser.value?.num.toString() ??
+                          'dot'.l10n * 3,
+                      style: style.fonts.big.regular.onBackground,
+                    ),
+                    Text(
+                      'label_online'.l10n,
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ),
+          const SizedBox(width: 10),
+        ],
+      );
+    } else {
+      title = Row(
+        key: const Key('Profile'),
+        children: [
+          const SizedBox(width: 4),
+          const StyledBackButton(),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+              child: Center(child: Text('label_profile'.l10n)),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            child: title,
+          ),
+        ),
+        const SizedBox(width: 52),
+      ],
+    );
+  });
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

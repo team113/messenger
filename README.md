@@ -1,4 +1,4 @@
-Messenger by team113
+[Messenger](https://gapopa.com) by team113
 ====================
 
 Docs: [main](https://team113.github.io/messenger/main/) ([release](https://team113.github.io/messenger/release/))  
@@ -8,6 +8,15 @@ Docs: [main](https://team113.github.io/messenger/main/) ([release](https://team1
 Open-source front-end part of messenger by team113.
 
 Currently, is under hard development.
+
+
+
+
+## For freelancers
+
+[Rules](https://gapopa.com/work/freelance)  
+[List of available tasks (`Todo` column)](https://github.com/orgs/team113/projects/2)  
+[Flutter/Dart incubator](https://github.com/team113/flutter-incubator)  
 
 
 
