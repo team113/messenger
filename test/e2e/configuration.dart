@@ -77,6 +77,8 @@ import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/open_chat_info.dart';
+// import 'steps/pause_audio_attachment.dart';
+import 'steps/play_audio_attachment.dart';
 import 'steps/popup_windows.dart';
 import 'steps/reads_message.dart';
 import 'steps/reply_message.dart';
@@ -85,6 +87,8 @@ import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+// import 'steps/see_audio_attachment_duration.dart';
+// import 'steps/see_audio_attachment_playback_position.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_dismissed.dart';
@@ -101,6 +105,7 @@ import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_favorite_monolog.dart';
 import 'steps/see_search_results.dart';
+// import 'steps/seek_audio_attachment.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -148,6 +153,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         chatIsIndeedHidden,
         chatIsMuted,
         chatsAvailability,
+        checkAudioPlaying,
         checkCopyText,
         contact,
         contactIsFavorite,
@@ -194,6 +200,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         monologAvailability,
         noInternetConnection,
         openChatInfo,
+        playAudioAttachment,
         pasteToField,
         popupWindows,
         readsAllMessages,
