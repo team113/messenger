@@ -543,7 +543,6 @@ class ChatRepository extends DisposableInterface
       );
 
       chat?.members.put(member);
-      chat?.chat.update((c) => c?.membersCount++);
     }
 
     try {
@@ -556,7 +555,6 @@ class ChatRepository extends DisposableInterface
     } catch (_) {
       if (user != null) {
         chat?.members.remove(user.id);
-        chat?.chat.update((c) => c?.membersCount--);
       }
 
       rethrow;
@@ -571,7 +569,6 @@ class ChatRepository extends DisposableInterface
     final HiveChatMember? hiveMember = chat?.members.pagination?.items[userId];
 
     chat?.members.items.remove(userId);
-    chat?.chat.update((c) => c?.membersCount--);
 
     try {
       await _graphQlProvider.removeChatMember(chatId, userId);
@@ -579,7 +576,6 @@ class ChatRepository extends DisposableInterface
     } catch (_) {
       if (hiveMember != null) {
         chat?.members.put(hiveMember);
-        chat?.chat.update((c) => c?.membersCount++);
       }
 
       rethrow;
