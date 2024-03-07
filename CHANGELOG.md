@@ -24,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned editing mode and actions. ([#868])
     - User page:
         - Redesigned editing mode and actions. ([#868])
+    - Profile page:
+        - About field in separate block. ([#891])
 
 ### Fixed
 
@@ -45,6 +47,7 @@ All user visible changes to this project will be documented in this file. This p
 [#877]: /../../pull/877
 [#880]: /../../pull/880
 [#886]: /../../pull/886
+[#891]: /../../pull/891
 
 
 
