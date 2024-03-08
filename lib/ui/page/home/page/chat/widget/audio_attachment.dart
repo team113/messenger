@@ -57,11 +57,18 @@ class AudioAttachment extends StatelessWidget {
       // Sometimes new track duration hasn't been calculated yet (so it's 0),
       // but buffered position stays from the previous track (greater than 0):
       // - this causes [Slider] to crash as value should be within min and max.
+      //
+      // We fix it by first checking if bufferedPosition exceeds totalDuration and
+      // if yes - setting bufferedPosition to zero.
+      //
+      // Fyi: manually resetting the position in the [AudioPlayerService] on
+      // track change doesn't work. Seems to be the problem either with
+      // media_kit library or the way values come from the multiple streams.
       if (bufferedPosition > totalDuration) {
         bufferedPosition = Duration.zero;
       }
 
-      // Same as previous comment.
+      // // Same as previous comment.
       if (playedPosition > totalDuration) {
         playedPosition = Duration.zero;
       }
