@@ -144,6 +144,8 @@ class ChatForwardController extends GetxController {
 
           final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
 
+          // Show [MessagePopup.error] with the name of the [User] who blocked
+          // authenticated [MyUser] specified.
           Future<void> showBlockedPopup(UserId id) async {
             final FutureOr<RxUser?> userOrFuture = _userService.get(id);
             final User? user =
@@ -153,7 +155,6 @@ class ChatForwardController extends GetxController {
 
             if (user != null) {
               final String nameOrNum = '${user.name ?? user.num}';
-
               MessagePopup.error(
                 'err_blocked_by'.l10nfmt({'user': nameOrNum}),
               );

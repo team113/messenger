@@ -99,7 +99,7 @@ class ParticipantController extends GetxController {
   /// [CallService] transforming the [_call] into a group-call.
   final CallService _callService;
 
-  /// [User]s service.
+  /// [UserService] fetching [User]s to display in [MessagePopup]s.
   final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
@@ -215,12 +215,14 @@ class ParticipantController extends GetxController {
               .onError<AddChatMemberException>(
             (e, _) async {
               final FutureOr<RxUser?> userOrFuture = _userService.get(id);
-              final User? user = userOrFuture is RxUser?
-                  ? userOrFuture?.user.value
-                  : (await userOrFuture)?.user.value;
+              final User? user =
+                  (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                      ?.user
+                      .value;
 
               if (user != null) {
                 final String nameOrNum = '${user.name ?? user.num}';
+
                 MessagePopup.error(
                   'err_blocked_by'.l10nfmt({'user': nameOrNum}),
                 );

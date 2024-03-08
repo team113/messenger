@@ -568,7 +568,7 @@ class ChatRepository extends DisposableInterface
     final HiveRxChat? chat = chats[chatId];
     final HiveChatMember? hiveMember = chat?.members.pagination?.items[userId];
 
-    chat?.members.items.remove(userId);
+    chat?.members.remove(userId);
 
     try {
       await _graphQlProvider.removeChatMember(chatId, userId);

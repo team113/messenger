@@ -62,7 +62,7 @@ class AddChatMemberController extends GetxController {
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
 
-  /// [User]s service.
+  /// [UserService] fetching [User]s to display in [MessagePopup]s.
   final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
@@ -125,7 +125,6 @@ class AddChatMemberController extends GetxController {
 
             if (user != null) {
               final String nameOrNum = '${user.name ?? user.num}';
-
               MessagePopup.error(
                 'err_blocked_by'.l10nfmt({'user': nameOrNum}),
               );

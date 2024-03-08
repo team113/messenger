@@ -449,7 +449,7 @@ class ChatController extends GetxController {
                   ),
                 )
                 .onError<PostChatMessageException>(
-                  (e, _) => _onPostMessageError(e),
+                  (_, __) => _showBlockedPopup(),
                   test: (e) => e.code == PostChatMessageErrorCode.blocked,
                 )
                 .onError<UploadAttachmentException>(
@@ -603,7 +603,7 @@ class ChatController extends GetxController {
             (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
           )
           .onError<PostChatMessageException>(
-            (e, _) => _onPostMessageError(e),
+            (_, __) => _showBlockedPopup(),
             test: (e) => e.code == PostChatMessageErrorCode.blocked,
           )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
@@ -2069,16 +2069,14 @@ class ChatController extends GetxController {
     return false;
   }
 
-  /// Handles the [PostChatMessageException] occurring during sending a message.
-  ///
-  /// This [Exception] can occur in [Chat]-dialogs only.
-  void _onPostMessageError(PostChatMessageException e) {
+  /// Shows [MessagePopup.error] with the name of the [User] who blocked
+  /// authenticated [MyUser] specified.
+  void _showBlockedPopup() {
     final User? user =
         chat?.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
 
     if (user != null) {
       final String nameOrNum = '${user.name ?? user.num}';
-
       MessagePopup.error(
         'err_blocked_by'.l10nfmt({'user': nameOrNum}),
       );
