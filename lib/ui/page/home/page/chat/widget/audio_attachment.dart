@@ -45,23 +45,35 @@ class AudioAttachment extends StatelessWidget {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      var isCurrent = audioPlayer.currentAudio.value == e.id.toString();
-      var isPlaying = audioPlayer.playing.value;
-      var isBuffering = audioPlayer.buffering.value;
-      var isCompleted = audioPlayer.completed.value;
+      bool isCurrent = audioPlayer.currentAudio.value == e.id.toString();
+      bool isPlaying = audioPlayer.playing.value;
+      bool isBuffering = audioPlayer.buffering.value;
+      bool isCompleted = audioPlayer.completed.value;
 
-      var playedPosition = audioPlayer.currentSongPosition.value;
-      var totalDuration = audioPlayer.currentSongDuration.value;
-      var bufferedPosition = audioPlayer.bufferedPosition.value;
+      Duration totalDuration = audioPlayer.currentSongDuration.value;
+      Duration playedPosition = audioPlayer.currentSongPosition.value;
+      Duration bufferedPosition = audioPlayer.bufferedPosition.value;
+
+      // Sometimes new track duration hasn't been calculated yet (so it's 0),
+      // but buffered position stays from the previous track (greater than 0):
+      // - this causes [Slider] to crash as value should be within min and max.
+      if (bufferedPosition > totalDuration) {
+        bufferedPosition = Duration.zero;
+      }
+
+      // Same as previous comment.
+      if (playedPosition > totalDuration) {
+        playedPosition = Duration.zero;
+      }
 
       // This determines if buffering is blocking the playing
-      var bufferDifference =
+      int bufferDifferenceInMs =
           bufferedPosition.inMilliseconds - playedPosition.inMilliseconds;
 
-      var isAudioBuffering = isBuffering &&
-          isPlaying &&
+      bool isAudioBuffering = isPlaying &&
+          isBuffering &&
           !isCompleted &&
-          bufferDifference < const Duration(seconds: 1).inMilliseconds;
+          bufferDifferenceInMs < const Duration(seconds: 1).inMilliseconds;
 
       Widget leading = Container();
 
@@ -162,6 +174,15 @@ class AudioAttachment extends StatelessWidget {
               ),
               child: Row(
                 children: [
+                  // Text(
+                  //   'label_a_slash_b'.l10nfmt({
+                  //     'a': playedPosition.hhMmSs(),
+                  //     'b': totalDuration.hhMmSs()
+                  //   }),
+                  //   style: style.fonts.small.regular.secondary,
+                  //   maxLines: 1,
+                  //   overflow: TextOverflow.ellipsis,
+                  //   textAlign: TextAlign.end),
                   const SizedBox(width: 6),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
