@@ -311,10 +311,12 @@
   </script>
   <!-- Clean the whole IndexedDB. -->
   <script>
-    async function cleanIndexedDB() {
+    async function cleanIndexedDB(except) {
       var databases = await window.indexedDB.databases();
       for (var d of databases) {
-        window.indexedDB.deleteDatabase(d.name);
+        if (except == null || d.name != except) {
+          window.indexedDB.deleteDatabase(d.name);
+        }
       }
     }
   </script>
