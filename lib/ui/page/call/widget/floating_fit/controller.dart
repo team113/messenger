@@ -129,7 +129,7 @@ class FloatingFitController extends GetxController {
         intersect.left,
         intersect.top,
         intersect.width,
-        intersect.height + 10,
+        intersect.height == 0 ? 0 : intersect.height + 10,
       );
 
       if (intersect.width > 0 && intersect.height > 0) {
