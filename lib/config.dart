@@ -85,6 +85,12 @@ class Config {
   /// Intended to be used in E2E testing.
   static String? version;
 
+  /// Level of [Log]ger to log.
+  static me.LogLevel logLevel = me.LogLevel.info;
+
+  /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
+  static String? schema = '0';
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
@@ -105,9 +111,6 @@ class Config {
       },
     };
   }
-
-  /// Level of [Log]ger to log.
-  static me.LogLevel logLevel = me.LogLevel.info;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
