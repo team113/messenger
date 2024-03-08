@@ -34,11 +34,47 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - When I play "test.mp3" audio file
 final StepDefinitionGeneric playAudioAttachment = when1<String, CustomWorld>(
-  'I play {string} audio file',
-  (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-    final AudioPlayerService audioPlayer = Get.put(AudioPlayerService());
+    'I play {string} audio file', (name, context) async {
+  await context.world.appDriver.waitForAppToSettle();
+  final AudioPlayerService audioPlayer = Get.put(AudioPlayerService());
 
+  RxChat? chat =
+      Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+  Attachment attachment = chat!.messages
+      .map((e) => e.value)
+      .whereType<ChatMessage>()
+      .expand((e) => e.attachments)
+      .firstWhere((a) => a.filename == name);
+
+  await Future.delayed(const Duration(milliseconds: 500));
+  Finder playButton = context.world.appDriver
+      .findByKeySkipOffstage('AudioFile_${attachment.id}');
+  await context.world.appDriver.nativeDriver.tap(playButton);
+  await Future.delayed(const Duration(seconds: 3));
+
+  while (audioPlayer.buffering.value) {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  // Delay to showcase audio is working
+  await Future.delayed(const Duration(seconds: 3));
+});
+
+/// Indicates whether [AudioPlayer] is playing
+/// and correct [AudioTrack] is playing.
+///
+/// Examples:
+/// - Then audio "test.mp3" is playing
+final StepDefinitionGeneric checkAudioPlaying = then1<String, CustomWorld>(
+  'audio {string} is playing',
+  (name, context) async {
+    /// 1. See [AudioPlayer] is playing.
+    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
+    var isPlaying = audioPlayer.playing.value;
+
+    expect(isPlaying, true);
+
+    /// 2. See [AudioPlayerService] has correct [AudioTrack].id.
     RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
     Attachment attachment = chat!.messages
@@ -47,32 +83,6 @@ final StepDefinitionGeneric playAudioAttachment = when1<String, CustomWorld>(
         .expand((e) => e.attachments)
         .firstWhere((a) => a.filename == name);
 
-    await Future.delayed(const Duration(milliseconds: 500));
-    Finder playButton =
-        context.world.appDriver.findByKeySkipOffstage('AudioFile_${attachment.id}');
-
-    await context.world.appDriver.nativeDriver.tap(playButton);
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    while (audioPlayer.buffering.value) {
-      await Future.delayed(const Duration(milliseconds: 500));
-    }
-
-    // Delay to showcase audio is working
-    await Future.delayed(const Duration(seconds: 3));
-  }
-);
-
-/// Indicates whether audio player is playing (and correct track is playing).
-///
-/// Examples:
-/// - Then audio "test.mp3" is playing
-final StepDefinitionGeneric checkAudioPlaying = then1<String, CustomWorld>(
-  'audio {string} is playing',
-  (text, context) async {
-    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
-    var isPlaying = audioPlayer.playing.value;
-
-    expect(isPlaying, true);
+    expect(audioPlayer.currentAudio.toString(), attachment.id.toString());
   },
 );

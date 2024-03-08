@@ -18,11 +18,7 @@
 import 'package:gherkin/gherkin.dart';
 
 /// Available [Attachment] types of the [AttachmentTypeParameter].
-enum AttachmentType {
-  file,
-  image,
-  audio
-}
+enum AttachmentType { file, image, audio }
 
 /// [CustomParameter] representing a type of an [Attachment].
 class AttachmentTypeParameter extends CustomParameter<AttachmentType> {

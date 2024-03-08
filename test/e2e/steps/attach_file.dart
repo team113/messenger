@@ -19,6 +19,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
@@ -34,6 +35,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I attach "test.txt" file
 /// - Then I attach "test.png" image
+/// - Then I attach "test.mp3" image
 final StepDefinitionGeneric attachFile =
     then2<String, AttachmentType, CustomWorld>(
   'I attach {string} {attachment}',
@@ -74,6 +76,25 @@ final StepDefinitionGeneric attachFile =
           final controller =
               Get.find<ChatController>(tag: router.route.split('/').last);
           controller.send.addPlatformAttachment(image);
+        }
+        break;
+
+      case AttachmentType.audio:
+        final ByteData byteData =
+            await rootBundle.load('assets/audio/sample_audio.mp3');
+        final PlatformFile audio = PlatformFile(
+          name: name,
+          size: 2,
+          bytes: byteData.buffer.asUint8List(),
+        );
+
+        if (Get.isRegistered<ChatForwardController>()) {
+          final controller = Get.find<ChatForwardController>();
+          controller.send.addPlatformAttachment(audio);
+        } else {
+          final controller =
+              Get.find<ChatController>(tag: router.route.split('/').last);
+          controller.send.addPlatformAttachment(audio);
         }
         break;
     }

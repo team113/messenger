@@ -30,9 +30,9 @@ Feature: Audio attachments can be played, paused and seeked
     When I play "test.mp3" audio file
     Then audio "test.mp3" is playing
 
-  # Scenario: Audio attachment can be paused
-  #   When I pause "test.mp3" audio file
-  #   Then audio "test.mp3" is paused
+  Scenario: Audio attachment can be paused
+    When I pause "test.mp3" audio file
+    Then audio "test.mp3" is paused
 
   # Scenario: Audio attachment can be seek
   #   When I seek "test.mp3" audio file
