@@ -107,7 +107,7 @@ external dynamic webkitFullscreenElement;
 external dynamic msFullscreenElement;
 
 @JS('cleanIndexedDB')
-external cleanIndexedDB();
+external cleanIndexedDB(dynamic);
 
 @JS('window.isPopup')
 external bool _isPopup;
@@ -449,9 +449,9 @@ class WebUtils {
   }
 
   /// Clears the browser's `IndexedDB`.
-  static Future<void> cleanIndexedDb() async {
+  static Future<void> cleanIndexedDb({String? except}) async {
     try {
-      await promiseToFuture(cleanIndexedDB());
+      await promiseToFuture(cleanIndexedDB(except));
     } catch (e) {
       consoleError(e);
     }
