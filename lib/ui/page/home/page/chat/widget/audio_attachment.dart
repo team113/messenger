@@ -61,8 +61,8 @@ class AudioAttachment extends StatelessWidget {
       // We fix it by first checking if bufferedPosition exceeds totalDuration and
       // if yes - setting bufferedPosition to zero.
       //
-      // Fyi: manually resetting the position in the [AudioPlayerService] on
-      // track change doesn't work. Seems to be the problem either with
+      // fyi: manually resetting the position in the [AudioPlayerService] on
+      // track change didn't work. Seems to be the problem either with
       // media_kit library or the way values come from the multiple streams.
       if (bufferedPosition > totalDuration) {
         bufferedPosition = Duration.zero;
@@ -181,15 +181,6 @@ class AudioAttachment extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Text(
-                  //   'label_a_slash_b'.l10nfmt({
-                  //     'a': playedPosition.hhMmSs(),
-                  //     'b': totalDuration.hhMmSs()
-                  //   }),
-                  //   style: style.fonts.small.regular.secondary,
-                  //   maxLines: 1,
-                  //   overflow: TextOverflow.ellipsis,
-                  //   textAlign: TextAlign.end),
                   const SizedBox(width: 6),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),

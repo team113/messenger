@@ -319,26 +319,25 @@ class AudioUtilsImpl {
 /// with [ja.AudioPlayer] and [mk.Player].
 abstract class AudioPlayer {
   /// Sets the [AudioSource] to play.
-  setTrack(AudioSource song);
+  void setTrack(AudioSource song);
 
   /// Sets [AudioSource] and triggers play.
-  play(AudioSource song);
-  // play();
+  void play(AudioSource song);
 
   /// Resumes currently loaded track.
-  resume();
+  void resume();
 
   /// Triggers pause.
-  pause();
+  void pause();
 
   /// Seeks to specified position of the [AudioSource].
-  seek(Duration position);
+  void seek(Duration position);
 
   /// Triggers stop.
-  stop();
+  void stop();
 
   /// Disposes the player.
-  dispose();
+  void dispose();
 
   /// Stream indicating whether the player is currently playing.
   Stream<bool> get playingStream;
@@ -362,41 +361,42 @@ abstract class AudioPlayer {
 /// Adapter class for just_audio library that implements
 /// the common [AudioPlayer] interface.
 class JustAudioPlayerAdapter implements AudioPlayer {
+  /// Initializes just_audio [ja.AudioPlayer] instance.
   final ja.AudioPlayer _player = ja.AudioPlayer();
 
   @override
-  setTrack(AudioSource song) async {
+  void setTrack(AudioSource song) async {
     _player.setAudioSource(song.source);
   }
 
   @override
-  play(AudioSource song) async {
+  void play(AudioSource song) async {
     _player.setAudioSource(song.source);
     _player.play();
   }
 
   @override
-  resume() {
+  void resume() {
     _player.play();
   }
 
   @override
-  pause() {
+  void pause() {
     _player.pause();
   }
 
   @override
-  seek(Duration position) {
+  void seek(Duration position) {
     _player.seek(position);
   }
 
   @override
-  stop() {
+  void stop() {
     _player.stop();
   }
 
   @override
-  dispose() {
+  void dispose() {
     _player.dispose();
   }
 
@@ -426,10 +426,11 @@ class JustAudioPlayerAdapter implements AudioPlayer {
 /// Adapter class for media_kit library that implements
 /// the common [AudioPlayer] interface.
 class MediaKitPlayerAdapter implements AudioPlayer {
+  /// Initializes media_kit [mk.Player] instance.
   final mk.Player _player = mk.Player();
 
   @override
-  setTrack(AudioSource song) async {
+  void setTrack(AudioSource song) async {
     await _player.open(
       song.media,
       play: false,
@@ -437,32 +438,32 @@ class MediaKitPlayerAdapter implements AudioPlayer {
   }
 
   @override
-  play(AudioSource song) async {
+  void play(AudioSource song) async {
     _player.open(song.media);
   }
 
   @override
-  resume() async {
+  void resume() async {
     _player.play();
   }
 
   @override
-  pause() {
+  void pause() {
     _player.pause();
   }
 
   @override
-  seek(Duration position) {
+  void seek(Duration position) {
     _player.seek(position);
   }
 
   @override
-  stop() {
+  void stop() {
     _player.stop();
   }
 
   @override
-  dispose() {
+  void dispose() {
     _player.dispose();
   }
 
