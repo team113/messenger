@@ -144,7 +144,7 @@ class ChatForwardController extends GetxController {
 
           final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
 
-          Future<void> _showBlockedPopup(UserId id) async {
+          Future<void> showBlockedPopup(UserId id) async {
             final FutureOr<RxUser?> userOrFuture = _userService.get(id);
             final User? user =
                 (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
@@ -175,7 +175,7 @@ class ChatForwardController extends GetxController {
                   final UserId userId =
                       chat.members.values.firstWhere((u) => u.id != me).id;
 
-                  _showBlockedPopup(userId);
+                  showBlockedPopup(userId);
                 },
                 test: (e) =>
                     e.code == ForwardChatItemsErrorCode.blocked &&
@@ -194,7 +194,7 @@ class ChatForwardController extends GetxController {
                     attachments: attachments,
                   )
                   .onError<ForwardChatItemsException>(
-                      (_, __) => _showBlockedPopup(user.id),
+                      (_, __) => showBlockedPopup(user.id),
                       test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
             }),
             ...selected.value!.contacts.map((contact) {
@@ -210,7 +210,7 @@ class ChatForwardController extends GetxController {
                     attachments: attachments,
                   )
                   .onError<ForwardChatItemsException>(
-                    (_, __) => _showBlockedPopup(user.id),
+                    (_, __) => showBlockedPopup(user.id),
                     test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
                   );
             })
