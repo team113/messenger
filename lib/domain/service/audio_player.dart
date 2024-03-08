@@ -64,6 +64,7 @@ class AudioPlayerService extends DisposableService {
   StreamSubscription<Duration>? _bufferedPositionSubscription;
 
   /// Plays the [AudioTrack] in the [AudioPlayer].
+  ///
   /// If it's previously selected track being played again - just resume.
   /// if it's a new track - set the audioSource and play.
   void play(AudioTrack audio) async {
