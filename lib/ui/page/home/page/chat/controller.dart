@@ -450,6 +450,7 @@ class ChatController extends GetxController {
                 )
                 .onError<PostChatMessageException>(
                   (e, _) => _onPostMessageError(e),
+                  test: (e) => e.code == PostChatMessageErrorCode.blocked,
                 )
                 .onError<UploadAttachmentException>(
                   (e, _) => MessagePopup.error(e),
@@ -601,7 +602,10 @@ class ChatController extends GetxController {
           .then(
             (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
           )
-          .onError<PostChatMessageException>((e, _) => _onPostMessageError(e))
+          .onError<PostChatMessageException>(
+            (e, _) => _onPostMessageError(e),
+            test: (e) => e.code == PostChatMessageErrorCode.blocked,
+          )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
     }
@@ -2066,24 +2070,19 @@ class ChatController extends GetxController {
   }
 
   /// Handles the [PostChatMessageException] occurring during sending a message.
-  Future<void> _onPostMessageError(PostChatMessageException e) {
-    // This [Exception] can be thrown only in [Chat]-dialogs.
-    if (e.code == PostChatMessageErrorCode.blocked &&
-        (chat?.chat.value.isDialog ?? false)) {
-      final User? user =
-          chat?.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+  ///
+  /// This [Exception] can occur in [Chat]-dialogs only.
+  void _onPostMessageError(PostChatMessageException e) {
+    final User? user =
+        chat?.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
 
-      if (user != null) {
-        final String nameOrNum = (user.name ?? user.num).toString();
-        final Map<String, String> args = {'user': nameOrNum};
+    if (user != null) {
+      final String nameOrNum = '${user.name ?? user.num}';
 
-        return MessagePopup.error(
-          'err_blocked_by'.l10nfmt(args),
-        );
-      }
+      MessagePopup.error(
+        'err_blocked_by'.l10nfmt({'user': nameOrNum}),
+      );
     }
-
-    return MessagePopup.error(e);
   }
 }
 

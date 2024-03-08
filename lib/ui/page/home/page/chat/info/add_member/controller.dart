@@ -112,14 +112,38 @@ class AddChatMemberController extends GetxController {
 
     pop?.call();
 
-    final Iterable<Future<void>> futures = ids.map(
-      (userId) => _chatService
-          .addChatMember(chatId, userId)
-          .catchError((e) => _onError(e, userId)),
-    );
+    try {
+      final Iterable<Future> futures = ids.map(
+        (userId) => _chatService
+            .addChatMember(chatId, userId)
+            .onError<AddChatMemberException>(
+          (e, _) async {
+            final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+            final User? user = userOrFuture is RxUser?
+                ? userOrFuture?.user.value
+                : (await userOrFuture)?.user.value;
 
-    await Future.wait(futures);
-    status.value = RxStatus.empty();
+            if (user != null) {
+              final String nameOrNum = '${user.name ?? user.num}';
+
+              MessagePopup.error(
+                'err_blocked_by'.l10nfmt({'user': nameOrNum}),
+              );
+            }
+          },
+          test: (e) => e.code == AddChatMemberErrorCode.blocked,
+        ),
+      );
+
+      await Future.wait(futures);
+    } on AddChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      status.value = RxStatus.empty();
+    }
   }
 
   /// Fetches the [chat], or [pop]s, if it's `null`.
@@ -132,35 +156,6 @@ class AddChatMemberController extends GetxController {
     if (chat.value == null) {
       MessagePopup.error('err_unknown_chat'.l10n);
       pop?.call();
-    }
-  }
-
-  /// Handles errors occurring during the [addMembers] execution.
-  Future<void> _onError(Object e, UserId userId) async {
-    switch (e) {
-      case AddChatMemberException _:
-        if (e.code == AddChatMemberErrorCode.blocked) {
-          final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-          final User? user = userOrFuture is RxUser?
-              ? userOrFuture?.user.value
-              : (await userOrFuture)?.user.value;
-
-          if (user != null) {
-            final String nameOrNum = (user.name ?? user.num).toString();
-
-            MessagePopup.error(
-              'err_blocked_by'.l10nfmt({'user': nameOrNum}),
-            );
-            break;
-          }
-        }
-
-        MessagePopup.error(e);
-        break;
-
-      default:
-        MessagePopup.error(e);
-        throw e;
     }
   }
 }

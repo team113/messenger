@@ -207,62 +207,44 @@ class ParticipantController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
-    if (chat.value?.chat.value.isGroup ?? true) {
-      Iterable<Future> futures = ids.map(
-        (userId) => _chatService
-            .addChatMember(chatId.value, userId)
-            .catchError((e) => _onError(e, userId)),
-      );
+    try {
+      if (chat.value?.chat.value.isGroup ?? true) {
+        Iterable<Future> futures = ids.map(
+          (id) => _chatService
+              .addChatMember(chatId.value, id)
+              .onError<AddChatMemberException>(
+            (e, _) async {
+              final FutureOr<RxUser?> userOrFuture = _userService.get(id);
+              final User? user = userOrFuture is RxUser?
+                  ? userOrFuture?.user.value
+                  : (await userOrFuture)?.user.value;
 
-      await Future.wait(futures);
-    } else {
-      await _callService
-          .transformDialogCallIntoGroupCall(chatId.value, ids)
-          .catchError((e) => _onError(e, null));
-    }
+              if (user != null) {
+                final String nameOrNum = '${user.name ?? user.num}';
+                MessagePopup.error(
+                  'err_blocked_by'.l10nfmt({'user': nameOrNum}),
+                );
+              }
+            },
+            test: (e) => e.code == AddChatMemberErrorCode.blocked,
+          ),
+        );
 
-    stage.value = ParticipantsFlowStage.participants;
-    status.value = RxStatus.empty();
-  }
+        await Future.wait(futures);
+      } else {
+        await _callService.transformDialogCallIntoGroupCall(chatId.value, ids);
+      }
 
-  /// Handles errors occurring during the [addMembers] execution.
-  ///
-  /// [userId] being `null` means that the error does not relate to any specific
-  /// [User].
-  Future<void> _onError(Exception err, UserId? userId) async {
-    switch (err) {
-      case AddChatMemberException e:
-        if (e.code == AddChatMemberErrorCode.blocked) {
-          if (userId == null) {
-            MessagePopup.error('err_blocked_some'.l10n);
-            break;
-          }
-
-          final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-          final User? user = userOrFuture is RxUser?
-              ? userOrFuture?.user.value
-              : (await userOrFuture)?.user.value;
-
-          if (user != null) {
-            final String nameOrNum = (user.name ?? user.num).toString();
-
-            MessagePopup.error(
-              'err_blocked_by'.l10nfmt({'user': nameOrNum}),
-            );
-            break;
-          }
-        }
-
-        MessagePopup.error(e);
-        break;
-
-      case TransformDialogCallIntoGroupCallException _:
-        MessagePopup.error('err_blocked_some'.l10n);
-        break;
-
-      default:
-        MessagePopup.error(err);
-        throw err;
+      stage.value = ParticipantsFlowStage.participants;
+    } on AddChatMemberException catch (e) {
+      MessagePopup.error(e);
+    } on TransformDialogCallIntoGroupCallException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      status.value = RxStatus.empty();
     }
   }
 
