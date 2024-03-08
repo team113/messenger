@@ -667,6 +667,7 @@ label_delete_message = Удалить сообщение?
 label_delete_messages = Удалить сообщения?
 label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
+label_description = Описание
 label_details = Подробнее.
 label_device_by_default = По умолчанию - {$device}
 label_dialog_created = Диалог создан

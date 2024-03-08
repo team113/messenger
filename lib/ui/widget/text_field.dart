@@ -212,7 +212,8 @@ class ReactiveTextField extends StatelessWidget {
             suffix != null ||
             trailing != null ||
             !status.isEmpty ||
-            hasError;
+            hasError ||
+            onCanceled != null;
 
         final Widget cancelButton = AllowOverflow(
           key: const ValueKey('Cancel'),

@@ -27,7 +27,6 @@ Feature: Account creation
     And I wait until `MyProfileView` is present
     And I wait until `NameField` is present
     And I fill `NameField` field with "Alice"
-    And I tap `Approve` button
 
     When I scroll `MyProfileScrollable` until `SetPassword` is present
     And I tap `SetPassword` button
