@@ -119,9 +119,10 @@ class AddChatMemberController extends GetxController {
             .onError<AddChatMemberException>(
           (e, _) async {
             final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-            final User? user = userOrFuture is RxUser?
-                ? userOrFuture?.user.value
-                : (await userOrFuture)?.user.value;
+            final User? user =
+                (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                    ?.user
+                    .value;
 
             if (user != null) {
               final String nameOrNum = '${user.name ?? user.num}';

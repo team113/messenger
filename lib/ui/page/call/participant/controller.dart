@@ -222,7 +222,6 @@ class ParticipantController extends GetxController {
 
               if (user != null) {
                 final String nameOrNum = '${user.name ?? user.num}';
-
                 MessagePopup.error(
                   'err_blocked_by'.l10nfmt({'user': nameOrNum}),
                 );
