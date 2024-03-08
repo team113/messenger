@@ -68,7 +68,7 @@ class AudioAttachment extends StatelessWidget {
         bufferedPosition = Duration.zero;
       }
 
-      // // Same as previous comment.
+      // Same as previous comment.
       if (playedPosition > totalDuration) {
         playedPosition = Duration.zero;
       }

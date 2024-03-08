@@ -94,14 +94,13 @@ class AudioPlayerService extends DisposableService {
     currentAudio.value = null;
   }
 
-  /// Initializes the _player and subscribes to the streams.
   @override
   void onInit() {
     super.onInit();
     _initPlayer();
   }
 
-  /// Dispose the _player instance on close.
+  /// Dispose the [_player] and cancel subscriptions on close.
   @override
   void onClose() {
     _playingSubscription?.cancel();
@@ -114,7 +113,8 @@ class AudioPlayerService extends DisposableService {
     super.onClose();
   }
 
-  /// Initializes the audio _player based on the platform.
+  /// Initializes the [_player] (based on the platform) and subscribes to the
+  /// stream.
   void _initPlayer() {
     if (_isMobile) {
       _player = JustAudioPlayerAdapter();
