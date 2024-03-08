@@ -341,17 +341,31 @@ Future<void> _initHive() async {
   await Hive.initFlutter('hive');
 
   // Load and compare application version.
-  Box box = await Hive.openBox('version');
+  final Box box = await Hive.openBox('version');
+
   final String version = Config.version ?? Config.schema ?? Pubspec.version;
-  final String? stored = box.get(0);
+  final String? storedVersion = box.get(0);
+
+  final String? session = Config.credentials;
+  final String? storedSession = box.get(1);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
-  if (stored != version) {
+  if (storedVersion != version || storedSession != session) {
     await Hive.close();
-    await Hive.clean('hive');
+    await Hive.clean(
+      'hive',
+      except: storedSession != session ? null : 'credentials',
+    );
     await Hive.initFlutter('hive');
     Hive.openBox('version').then((box) async {
       await box.put(0, version);
+
+      if (session != null) {
+        await box.put(1, session);
+      } else if (storedSession != null) {
+        await box.delete(1);
+      }
+
       await box.close();
     });
   }
@@ -369,13 +383,24 @@ Future<void> _initHive() async {
 extension HiveClean on HiveInterface {
   /// Cleans the [Hive] data stored at the provided [path] on non-web platforms
   /// and the whole `IndexedDB` on a web platform.
-  Future<void> clean(String path) async {
+  Future<void> clean(String path, {String? except}) async {
     if (PlatformUtils.isWeb) {
-      await WebUtils.cleanIndexedDb();
+      await WebUtils.cleanIndexedDb(except: except);
     } else {
-      var documents = (await getApplicationDocumentsDirectory()).path;
+      final String documents = (await getApplicationDocumentsDirectory()).path;
+      final Directory directory = Directory('$documents/$path');
+
       try {
-        await Directory('$documents/$path').delete(recursive: true);
+        if (except == null) {
+          await directory.delete(recursive: true);
+        } else {
+          for (var file in directory.listSync()) {
+            if (!file.path.endsWith('$except.hive') &&
+                !file.path.endsWith('$except.lock')) {
+              await file.delete();
+            }
+          }
+        }
       } on FileSystemException {
         // No-op.
       }

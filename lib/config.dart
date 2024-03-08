@@ -91,6 +91,10 @@ class Config {
   /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
   static String? schema = '0';
 
+  /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
+  /// mismatch is detected.
+  static String? credentials;
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
