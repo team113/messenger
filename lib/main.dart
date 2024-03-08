@@ -117,8 +117,6 @@ Future<void> main() async {
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
 
-    // Get.put(AudioPlayerService());
-
     WebUtils.deleteLoader();
 
     runApp(
