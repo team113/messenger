@@ -342,7 +342,7 @@ Future<void> _initHive() async {
 
   // Load and compare application version.
   Box box = await Hive.openBox('version');
-  final String version = Config.version ?? Pubspec.version;
+  final String version = Config.version ?? Config.schema ?? Pubspec.version;
   final String? stored = box.get(0);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
