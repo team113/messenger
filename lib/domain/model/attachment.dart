@@ -213,8 +213,16 @@ class LocalAttachment extends Attachment {
 }
 
 /// Extension on [Attachment] to transform to [AudioTrack].
+///
+/// Used to have a common interface for audio files, both coming from
+/// [LocalAttachment] and [FileAttachment].
 extension ConvertToAudioTrack on Attachment {
-  AudioTrack convertToAudioTrack() {
+  /// If it's a [LocalAttachment], then constructs the [AudioSource] from the
+  /// local path.
+  /// If it's a [FileAttachment], then constructs the [AudioSource] from the
+  /// remote url.
+  /// Also takes id and filename of the [Attachment].
+  AudioTrack toAudioTrack() {
     if (this is LocalAttachment) {
       String path = (this as LocalAttachment).file.path!;
       AudioSource audioSource = AudioSource.file(path);

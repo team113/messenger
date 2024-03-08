@@ -321,8 +321,12 @@ abstract class AudioPlayer {
   /// Sets the [AudioSource] to play.
   setTrack(AudioSource song);
 
-  /// Triggers play.
-  play();
+  /// Sets [AudioSource] and triggers play.
+  play(AudioSource song);
+  // play();
+
+  /// Resumes currently loaded track.
+  resume();
 
   /// Triggers pause.
   pause();
@@ -342,6 +346,9 @@ abstract class AudioPlayer {
   /// Stream indicating whether the player is currently buffering.
   Stream<bool> get bufferingStream;
 
+  /// Stream indicating whether the player has completed playing.
+  Stream<bool> get completedStream;
+
   /// Stream providing the current playback position.
   Stream<Duration> get positionStream;
 
@@ -352,7 +359,8 @@ abstract class AudioPlayer {
   Stream<Duration> get bufferedPositionStream;
 }
 
-// Create a class for just_audio, that implements the common interface
+/// Adapter class for just_audio library that implements
+/// the common [AudioPlayer] interface.
 class JustAudioPlayerAdapter implements AudioPlayer {
   final ja.AudioPlayer _player = ja.AudioPlayer();
 
@@ -362,7 +370,13 @@ class JustAudioPlayerAdapter implements AudioPlayer {
   }
 
   @override
-  play() async {
+  play(AudioSource song) async {
+    _player.setAudioSource(song.source);
+    _player.play();
+  }
+
+  @override
+  resume() {
     _player.play();
   }
 
@@ -394,6 +408,10 @@ class JustAudioPlayerAdapter implements AudioPlayer {
       .map((state) => state == ja.ProcessingState.buffering);
 
   @override
+  Stream<bool> get completedStream => _player.processingStateStream
+      .map((state) => state == ja.ProcessingState.completed);
+
+  @override
   Stream<Duration> get positionStream => _player.positionStream;
 
   @override
@@ -405,7 +423,8 @@ class JustAudioPlayerAdapter implements AudioPlayer {
   Stream<Duration> get bufferedPositionStream => _player.bufferedPositionStream;
 }
 
-// Create a class for media_kit, that implements the common interface
+/// Adapter class for media_kit library that implements
+/// the common [AudioPlayer] interface.
 class MediaKitPlayerAdapter implements AudioPlayer {
   final mk.Player _player = mk.Player();
 
@@ -418,7 +437,12 @@ class MediaKitPlayerAdapter implements AudioPlayer {
   }
 
   @override
-  play() async {
+  play(AudioSource song) async {
+    _player.open(song.media);
+  }
+
+  @override
+  resume() async {
     _player.play();
   }
 
@@ -447,6 +471,9 @@ class MediaKitPlayerAdapter implements AudioPlayer {
 
   @override
   Stream<bool> get bufferingStream => _player.stream.buffering;
+
+  @override
+  Stream<bool> get completedStream => _player.stream.completed;
 
   @override
   Stream<Duration> get positionStream => _player.stream.position;

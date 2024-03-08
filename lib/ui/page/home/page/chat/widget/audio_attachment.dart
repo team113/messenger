@@ -47,6 +47,8 @@ class AudioAttachment extends StatelessWidget {
 
       var isCurrent = audioPlayer.currentAudio.value == e.id.toString();
       var isPlaying = audioPlayer.playing.value;
+      var isBuffering = audioPlayer.buffering.value;
+      var isCompleted = audioPlayer.completed.value;
 
       var playedPosition = audioPlayer.currentSongPosition.value;
       var totalDuration = audioPlayer.currentSongDuration.value;
@@ -56,8 +58,9 @@ class AudioAttachment extends StatelessWidget {
       var bufferDifference =
           bufferedPosition.inMilliseconds - playedPosition.inMilliseconds;
 
-      var isBuffering = audioPlayer.buffering.value &&
+      var isAudioBuffering = isBuffering &&
           isPlaying &&
+          !isCompleted &&
           bufferDifference < const Duration(seconds: 1).inMilliseconds;
 
       Widget leading = Container();
@@ -67,7 +70,7 @@ class AudioAttachment extends StatelessWidget {
 
         if (isCurrent) {
           if (isPlaying) {
-            if (isBuffering) {
+            if (isAudioBuffering) {
               icon = const CircularProgressIndicator(
                 strokeWidth: 2.0,
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -147,7 +150,7 @@ class AudioAttachment extends StatelessWidget {
               if (isCurrent && isPlaying) {
                 audioPlayer.pause();
               } else {
-                AudioTrack track = attachment.convertToAudioTrack();
+                AudioTrack track = attachment.toAudioTrack();
                 audioPlayer.play(track);
               }
             },
@@ -155,7 +158,7 @@ class AudioAttachment extends StatelessWidget {
               constraints: const BoxConstraints(
                 // Here we set some minimal width, so message never jumps
                 // in width after Slider is shown
-                minWidth: 400,
+                minWidth: 450,
               ),
               child: Row(
                 children: [

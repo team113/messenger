@@ -36,6 +36,9 @@ class AudioPlayerService extends DisposableService {
   // Boolean indicating whether player is buffering.
   final RxBool buffering = false.obs;
 
+  // Boolean indicating whether player has finished playing.
+  final RxBool completed = false.obs;
+
   // Current song position.
   final Rx<Duration> currentSongPosition = Duration.zero.obs;
 
@@ -55,6 +58,7 @@ class AudioPlayerService extends DisposableService {
   // https://stackoverflow.com/questions/67401385/lateinitializationerror-field-data-has-not-been-initialized-got-error
   StreamSubscription<bool>? _playingSubscription;
   StreamSubscription<bool>? _bufferingSubscription;
+  StreamSubscription<bool>? _completedSubscription;
   StreamSubscription<Duration>? _positionSubscription;
   StreamSubscription<Duration>? _durationSubscription;
   StreamSubscription<Duration>? _bufferedPositionSubscription;
@@ -62,15 +66,14 @@ class AudioPlayerService extends DisposableService {
   /// Plays the [AudioTrack] in the [AudioPlayer].
   /// If it's previously selected track being played again - just resume.
   /// if it's a new track - set the audioSource and play.
-  void play(AudioTrack audio) {
+  void play(AudioTrack audio) async {
     var isCurrent = currentAudio.value == audio.id;
 
     if (isCurrent) {
-      _player.play();
+      _player.resume();
     } else {
       currentAudio.value = audio.id;
-      _player.setTrack(audio.audioSource);
-      _player.play();
+      _player.play(audio.audioSource);
     }
   }
 
@@ -81,6 +84,7 @@ class AudioPlayerService extends DisposableService {
 
   /// Rewinds [AudioPlayer] to a given position.
   void seek(Duration seekPosition) {
+    _player.seek(seekPosition);
     _player.seek(seekPosition);
   }
 
@@ -102,6 +106,7 @@ class AudioPlayerService extends DisposableService {
   void onClose() {
     _playingSubscription?.cancel();
     _bufferingSubscription?.cancel();
+    _completedSubscription?.cancel();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     _bufferedPositionSubscription?.cancel();
@@ -117,20 +122,25 @@ class AudioPlayerService extends DisposableService {
       _player = MediaKitPlayerAdapter();
     }
 
+    _playingSubscription = _player.playingStream.listen((isPlaying) {
+      playing.value = isPlaying;
+    });
+
+    _bufferingSubscription = _player.bufferingStream.listen((isBuffering) {
+      buffering.value = isBuffering;
+    });
+
+    _completedSubscription = _player.completedStream.listen((isCompleted) {
+      completed.value = isCompleted;
+      playing.value = !isCompleted;
+    });
+
     _positionSubscription = _player.positionStream.listen((position) {
       currentSongPosition.value = position;
     });
 
     _durationSubscription = _player.durationStream.listen((duration) {
       currentSongDuration.value = duration;
-    });
-
-    _playingSubscription = _player.playingStream.listen((isPlaying) {
-      playing.value = isPlaying;
-    });
-
-    _playingSubscription = _player.playingStream.listen((isBuffering) {
-      buffering.value = isBuffering;
     });
 
     _bufferedPositionSubscription =
