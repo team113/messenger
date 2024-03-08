@@ -20,7 +20,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/config.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -80,6 +80,7 @@ class ParticipantView extends StatelessWidget {
         call,
         Get.find(),
         Get.find(),
+        Get.find(),
         pop: context.popModal,
         initial: initial,
       ),
@@ -114,16 +115,11 @@ class ParticipantView extends StatelessWidget {
 
             case ParticipantsFlowStage.participants:
               child = Obx(() {
-                final RxUser? me = c.chat.value!.members.items[c.me];
                 final List<RxUser> members = [];
 
                 for (var u in c.chat.value!.members.items.entries
                     .where((e) => e.key != c.me)) {
                   members.add(u.value);
-                }
-
-                if (me != null) {
-                  members.insert(0, me);
                 }
 
                 final Set<UserId> ids = call.value.members.keys
@@ -144,47 +140,56 @@ class ParticipantView extends StatelessWidget {
                         }),
                       ),
                       const SizedBox(height: 6),
-                      if (c.chat.value!.members.items.isEmpty)
-                        CustomProgressIndicator(
-                          value: Config.disableInfiniteAnimations ? 0 : null,
-                        ),
                       Flexible(
                         child: Scrollbar(
                           controller: c.scrollController,
-                          child: ListView(
+                          child: ListView.builder(
                             shrinkWrap: true,
                             controller: c.scrollController,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            children: members.mapIndexed((i, user) {
-                              bool inCall = false;
-                              bool isRedialed = false;
+                            itemCount: members.length + 1,
+                            itemBuilder: (_, i) {
+                              i -= 1;
 
-                              CallMember? member =
-                                  call.value.members.values.firstWhereOrNull(
-                                (e) => e.id.userId == user.id,
-                              );
+                              Widget child;
 
-                              if (member != null) {
-                                inCall = true;
-                                isRedialed = member.isDialing.isTrue;
+                              if (i == -1) {
+                                final MyUser? myUser = c.myUser.value;
+
+                                child = MemberTile(myUser: myUser);
+                              } else {
+                                final RxUser user = members[i];
+
+                                bool inCall = false;
+                                bool isRedialed = false;
+
+                                CallMember? member =
+                                    call.value.members.values.firstWhereOrNull(
+                                  (e) => e.id.userId == user.id,
+                                );
+
+                                if (member != null) {
+                                  inCall = true;
+                                  isRedialed = member.isDialing.isTrue;
+                                }
+
+                                child = MemberTile(
+                                  user: user,
+                                  inCall: user.id == c.me ? null : inCall,
+                                  onTap: () {
+                                    // TODO: Open the [Routes.user] page.
+                                  },
+                                  // TODO: Wait for backend to support removing
+                                  //       active call notification.
+                                  onCall: inCall
+                                      ? isRedialed
+                                          ? null
+                                          : () =>
+                                              c.removeChatCallMember(user.id)
+                                      : () => c.redialChatCallMember(user.id),
+                                  onKick: () => c.removeChatMember(user.id),
+                                );
                               }
-
-                              Widget child = MemberTile(
-                                user: user,
-                                me: user.id == c.me,
-                                inCall: user.id == c.me ? null : inCall,
-                                onTap: () {
-                                  // TODO: Open the [Routes.user] page.
-                                },
-                                // TODO: Wait for backend to support removing
-                                //       active call notification.
-                                onCall: inCall
-                                    ? isRedialed
-                                        ? null
-                                        : () => c.removeChatCallMember(user.id)
-                                    : () => c.redialChatCallMember(user.id),
-                                onKick: () => c.removeChatMember(user.id),
-                              );
 
                               if (i == members.length - 1 &&
                                   c.chat.value!.members.hasNext.isTrue) {
@@ -197,7 +202,7 @@ class ParticipantView extends StatelessWidget {
                               }
 
                               return child;
-                            }).toList(),
+                            },
                           ),
                         ),
                       ),

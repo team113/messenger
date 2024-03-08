@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -26,21 +27,24 @@ import 'animated_button.dart';
 import 'animated_switcher.dart';
 import 'svg/svg.dart';
 
-/// Styled [ContactTile] representing the provided [RxUser] as a member of some
-/// [Chat] or [OngoingCall].
+/// Styled [ContactTile] representing the provided [RxUser] or [MyUser] as a
+/// member of some [Chat] or [OngoingCall].
 class MemberTile extends StatelessWidget {
   const MemberTile({
     super.key,
-    required this.user,
+    this.user,
+    this.myUser,
     this.inCall,
     this.onTap,
-    this.me = false,
     this.onKick,
     this.onCall,
   });
 
   /// [RxUser] this [MemberTile] is about.
-  final RxUser user;
+  final RxUser? user;
+
+  /// [MyUser] this [MemberTile] is about.
+  final MyUser? myUser;
 
   /// Indicator whether a call button should be active or not.
   ///
@@ -53,12 +57,12 @@ class MemberTile extends StatelessWidget {
   /// Callback, called when the call button is pressed.
   final void Function()? onCall;
 
-  /// Indicator whether this [user] is treated as [MyUser], meaning displaying
-  /// appropriate labels.
-  final bool me;
-
   /// Callback, called when the kick button is pressed.
   final Future<void> Function()? onKick;
+
+  /// Indicated whether this [MemberTile] is represents a [MyUser], meaning
+  /// displaying appropriate labels.
+  bool get me => myUser != null;
 
   @override
   Widget build(BuildContext context) {
@@ -66,11 +70,12 @@ class MemberTile extends StatelessWidget {
 
     return ContactTile(
       user: user,
+      myUser: myUser,
       dense: true,
       onTap: me ? null : onTap,
       padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
       trailing: [
-        if (inCall != null) ...[
+        if (inCall != null)
           SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Material(
@@ -96,40 +101,49 @@ class MemberTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-        ],
-        AnimatedButton(
-          enabled: !me,
-          decorator: (child) => Padding(
-            padding: const EdgeInsets.all(12),
-            child: child,
-          ),
-          onPressed: me
-              ? null
-              : () async {
-                  final bool? result = await MessagePopup.alert(
-                    'label_remove_member'.l10n,
-                    description: [
-                      TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-                      TextSpan(
-                        text: user.user.value.name?.val ??
-                            user.user.value.num.toString(),
-                        style: style.fonts.normal.regular.onBackground,
-                      ),
-                      TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-                    ],
-                  );
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 41 + 16),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AnimatedButton(
+              enabled: !me,
+              decorator: (child) => Padding(
+                padding: const EdgeInsets.all(12),
+                child: child,
+              ),
+              onPressed: me
+                  ? null
+                  : () async {
+                      final bool? result = await MessagePopup.alert(
+                        'label_remove_member'.l10n,
+                        description: [
+                          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+                          TextSpan(
+                            text: myUser?.name?.val ??
+                                myUser?.num.val ??
+                                user?.user.value.name?.val ??
+                                user?.user.value.num.toString(),
+                            style: style.fonts.normal.regular.onBackground,
+                          ),
+                          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+                        ],
+                      );
 
-                  if (result == true) {
-                    await onKick?.call();
-                  }
-                },
-          child: me
-              ? Text(
-                  'label_you'.l10n,
-                  style: style.fonts.normal.regular.secondary,
-                )
-              : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
+                      if (result == true) {
+                        await onKick?.call();
+                      }
+                    },
+              child: me
+                  ? Text(
+                      'label_you'.l10n,
+                      style: style.fonts.normal.regular.secondary,
+                    )
+                  : const SvgIcon(
+                      SvgIcons.delete,
+                      key: Key('DeleteMemberButton'),
+                    ),
+            ),
+          ),
         ),
         const SizedBox(width: 6),
       ],

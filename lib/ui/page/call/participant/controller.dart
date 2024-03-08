@@ -23,11 +23,13 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -54,7 +56,8 @@ class ParticipantController extends GetxController {
   ParticipantController(
     this._call,
     this._chatService,
-    this._callService, {
+    this._callService,
+    this._myUserService, {
     this.pop,
     ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
   }) : stage = Rx(initial);
@@ -95,6 +98,9 @@ class ParticipantController extends GetxController {
   /// [CallService] transforming the [_call] into a group-call.
   final CallService _callService;
 
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
+
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
 
@@ -110,6 +116,9 @@ class ParticipantController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {

@@ -20,8 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -61,6 +61,7 @@ class ChatInfoView extends StatelessWidget {
       key: const Key('ChatInfoView'),
       init: ChatInfoController(
         id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -278,7 +279,6 @@ class ChatInfoView extends StatelessWidget {
       ],
       children: [
         Obx(() {
-          final RxUser? me = c.chat!.members.items[c.me];
           final List<RxUser> members = [];
 
           for (var u in c.chat!.members.items.entries) {
@@ -287,17 +287,9 @@ class ChatInfoView extends StatelessWidget {
             }
           }
 
-          if (me != null) {
-            members.insert(0, me);
-          }
-
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (members.isEmpty)
-                CustomProgressIndicator(
-                  value: Config.disableInfiniteAnimations ? 0 : null,
-                ),
               ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 500),
                 child: Scrollbar(
@@ -306,33 +298,55 @@ class ChatInfoView extends StatelessWidget {
                     key: const Key('ChatMembers'),
                     controller: c.membersScrollController,
                     shrinkWrap: true,
+                    itemCount: members.length + 1,
                     itemBuilder: (_, i) {
-                      final RxUser member = members[i];
+                      i -= 1;
 
-                      final bool inCall = c
-                              .chat?.chat.value.ongoingCall?.members
-                              .any((u) => u.user.id == member.id) ==
-                          true;
+                      Widget child;
 
-                      Widget child = Padding(
-                        padding: const EdgeInsets.only(right: 10, left: 10),
-                        child: MemberTile(
-                          user: member,
-                          me: member.id == c.me,
+                      if (i == -1) {
+                        MyUser? myUser = c.myUser.value;
+
+                        final bool inCall = c.chat?.inCall.value == true;
+
+                        child = MemberTile(
+                          myUser: myUser,
                           inCall: c.chat?.chat.value.ongoingCall == null
                               ? null
-                              : member.id == c.me
-                                  ? c.chat?.inCall.value == true
-                                  : inCall,
+                              : inCall,
+                          onCall: inCall
+                              ? () {
+                                  if (myUser != null) {
+                                    c.removeChatCallMember(myUser.id);
+                                  }
+                                }
+                              : c.joinCall,
+                        );
+                      } else {
+                        RxUser member = members[i];
+
+                        final bool inCall = c
+                                .chat?.chat.value.ongoingCall?.members
+                                .any((u) => u.user.id == member.id) ==
+                            true;
+
+                        child = MemberTile(
+                          user: member,
+                          inCall: c.chat?.chat.value.ongoingCall == null
+                              ? null
+                              : inCall,
                           onTap: () =>
                               router.chat(member.user.value.dialog, push: true),
                           onCall: inCall
                               ? () => c.removeChatCallMember(member.id)
-                              : member.id == c.me
-                                  ? c.joinCall
-                                  : () => c.redialChatCallMember(member.id),
+                              : () => c.redialChatCallMember(member.id),
                           onKick: () => c.removeChatMember(member.id),
-                        ),
+                        );
+                      }
+
+                      child = Padding(
+                        padding: const EdgeInsets.only(right: 10, left: 10),
+                        child: child,
                       );
 
                       if (i == members.length - 1 && c.haveNext.isTrue) {
@@ -348,7 +362,6 @@ class ChatInfoView extends StatelessWidget {
 
                       return child;
                     },
-                    itemCount: members.length,
                   ),
                 ),
               ),
