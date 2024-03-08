@@ -346,7 +346,7 @@ Future<void> _initHive() async {
   final String version = Config.version ?? Config.schema ?? Pubspec.version;
   final String? storedVersion = box.get(0);
 
-  final String? session = Config.credentials;
+  final String? session = Config.version ?? Config.credentials;
   final String? storedSession = box.get(1);
 
   // If mismatch is detected, then clean the existing [Hive] cache.
