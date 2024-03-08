@@ -251,12 +251,9 @@ class ContactsTabView extends StatelessWidget {
                           ],
                           child: Container(
                             key: c.moreKey,
-                            padding: const EdgeInsets.only(left: 12, right: 18),
+                            padding: const EdgeInsets.only(left: 21, right: 28),
                             height: double.infinity,
-                            child: Icon(
-                              Icons.more_vert,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                            child: const SvgIcon(SvgIcons.more),
                           ),
                         ),
                       ),

@@ -2231,7 +2231,9 @@ Widget _bar(MyProfileController c, BuildContext context) {
   return Obx(() {
     final Widget title;
 
-    if (c.displayName.value && context.isNarrow) {
+    if (c.displayName.value ||
+        !context.isNarrow ||
+        true /* && context.isNarrow*/) {
       title = Row(
         children: [
           const SizedBox(width: 4),
@@ -2267,7 +2269,8 @@ Widget _bar(MyProfileController c, BuildContext context) {
                       style: style.fonts.big.regular.onBackground,
                     ),
                     Text(
-                      'Настройки'.l10n,
+                      '${router.profileSection.value?.name.capitalizeFirst}'
+                          .l10n,
                       style: style.fonts.small.regular.secondary,
                     ),
                   ],
@@ -2303,7 +2306,26 @@ Widget _bar(MyProfileController c, BuildContext context) {
             child: title,
           ),
         ),
-        const SizedBox(width: 52),
+        // const SizedBox(width: 52),
+        // AnimatedButton(
+        //   onPressed: () {},
+        //   decorator: (child) => Padding(
+        //     padding: const EdgeInsets.only(left: 31, right: 20),
+        //     child: child,
+        //   ),
+        //   child: Text(
+        //     'Редактировать',
+        //     style: style.fonts.small.regular.primary,
+        //   ),
+        // ),
+        // AnimatedButton(
+        //   onPressed: () {},
+        //   decorator: (child) => Padding(
+        //     padding: const EdgeInsets.only(left: 31, right: 20),
+        //     child: child,
+        //   ),
+        //   child: const SvgIcon(SvgIcons.menuProfile),
+        // ),
         // searchButton,
       ],
     );

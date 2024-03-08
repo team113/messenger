@@ -18,7 +18,10 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/domain/service/user.dart';
 
+import '/api/backend/schema.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -34,7 +37,8 @@ export 'view.dart';
 class AddChatMemberController extends GetxController {
   AddChatMemberController(
     this.chatId,
-    this._chatService, {
+    this._chatService,
+    this._userService, {
     this.pop,
   });
 
@@ -57,6 +61,7 @@ class AddChatMemberController extends GetxController {
 
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
+  final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
@@ -104,8 +109,26 @@ class AddChatMemberController extends GetxController {
     status.value = RxStatus.loading();
 
     try {
-      List<Future> futures =
-          ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
+      final List<Future> futures = ids
+          .map(
+            (e) => _chatService.addChatMember(chatId, e).catchError(
+              (_) async {
+                final futureOrUser = _userService.get(e);
+                final RxUser? user =
+                    futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+
+                if (user != null) {
+                  await MessagePopup.error(
+                    'user ${user.user.value.name ?? user.user.value.num} has blocked you',
+                  );
+                }
+              },
+              test: (e) =>
+                  e is AddChatMemberException &&
+                  e.code == AddChatMemberErrorCode.blocked,
+            ),
+          )
+          .toList();
 
       await Future.wait(futures);
 

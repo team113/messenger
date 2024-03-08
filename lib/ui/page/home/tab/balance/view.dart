@@ -48,83 +48,34 @@ class BalanceTabView extends StatelessWidget {
       init: BalanceTabController(Get.find(), Get.find()),
       builder: (BalanceTabController c) {
         return Scaffold(
-          // extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            // title: Text('Money'),
-            title: Obx(() {
-              return Text('Balance: ¤${c.balance.value.toInt().withSpaces()}');
-            }),
-            // leading: [
-            //   Obx(() {
-            //     final Widget child;
-
-            //     if (c.adding.value) {
-            //       if (c.hintDismissed.value) {
-            //         child = const SvgIcon(SvgIcons.infoThick);
-            //       } else {
-            //         child = const SvgIcon(SvgIcons.infoThickDisabled);
-            //       }
-
-            //       return AnimatedButton(
-            //         onPressed: () {
-            //           router.terms();
-            //           // c.hintDismissed.toggle();
-            //           // c.setDisplayRates(!c.hintDismissed.value);
-            //         },
-            //         decorator: (child) => Container(
-            //           padding: const EdgeInsets.only(left: 20, right: 12),
-            //           height: double.infinity,
-            //           child: child,
-            //         ),
-            //         child: const SvgIcon(SvgIcons.infoThick),
-            //       );
-            //     } else {
-            //       child = const SvgIcon(key: Key('Search'), SvgIcons.search);
-            //       return AnimatedButton(
-            //         onPressed: () {},
-            //         decorator: (child) => Container(
-            //           padding: const EdgeInsets.only(left: 20, right: 12),
-            //           height: double.infinity,
-            //           child: child,
-            //         ),
-            //         child: child,
-            //       );
-            //     }
-            //   }),
-            // ],
-            // actions: [
-            //   Obx(() {
-            //     final Widget child;
-
-            //     if (c.adding.value) {
-            //       child = Transform.translate(
-            //         offset: const Offset(0, -1),
-            //         child: const SizedBox(
-            //           child: SvgIcon(SvgIcons.transactions),
-            //         ),
-            //       );
-            //     } else {
-            //       child = const SvgImage.asset(
-            //         key: Key('CloseSearch'),
-            //         'assets/icons/add_funds.svg',
-            //         height: 19.94,
-            //       );
-            //     }
-
-            //     return WidgetButton(
-            //       onPressed: c.adding.toggle,
-            //       child: Container(
-            //         padding: const EdgeInsets.only(left: 12, right: 20),
-            //         height: double.infinity,
-            //         child: SizedBox(width: 20.28, child: Center(child: child)),
-            //       ),
-            //     );
-            //   }),
-            // ],
+            leading: const [SizedBox(width: 21)],
+            title: Row(
+              children: [
+                const SvgIcon(SvgIcons.menuBalance),
+                const SizedBox(width: 16),
+                Obx(() {
+                  return Text(
+                    'Balance: ¤${c.balance.value.toInt().withSpaces()}',
+                  );
+                }),
+              ],
+            ),
+            // title: Obx(() {
+            //   return Text('Balance: ¤${c.balance.value.toInt().withSpaces()}');
+            // }),
+            actions: [
+              AnimatedButton(
+                onPressed: () {},
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 24, 8),
+                  child: child,
+                ),
+                child: const SvgIcon(SvgIcons.transactions),
+              ),
+            ],
           ),
-
           extendBodyBehindAppBar: true,
-
           body: Obx(() {
             if (c.adding.value) {
               return SafeScrollbar(

@@ -50,8 +50,14 @@ class MenuTabView extends StatelessWidget {
 
         return Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: const CustomAppBar(
-            title: Text('Настройки'),
+          appBar: CustomAppBar(
+            title: const Row(
+              children: [
+                SvgIcon(SvgIcons.menuSettings),
+                SizedBox(width: 16),
+                Text('Настройки'),
+              ],
+            ),
             // title: ContextMenuRegion(
             //   selector: c.profileKey,
             //   alignment: Alignment.topLeft,
@@ -140,64 +146,102 @@ class MenuTabView extends StatelessWidget {
             // leading: context.isNarrow
             //     ? const [StyledBackButton()]
             //     : [const SizedBox(width: 20)],
-            // actions: [
-            //   WidgetButton(
-            //     behavior: HitTestBehavior.translucent,
-            //     onPressed: () => AccountsView.show(context),
-            //     child: Padding(
-            //       padding: const EdgeInsets.only(right: 16),
-            //       child: Obx(() {
-            //         if (router.accounts.value == 0) {
-            //           return AnimatedButton(
-            //             child: Transform.translate(
-            //               offset: const Offset(0, 1),
-            //               child: const SvgIcon(SvgIcons.addAccount),
-            //             ),
-            //           );
-            //         } else if (router.accounts.value == 1) {
-            //           return AnimatedButton(
-            //             child: AvatarWidget(
-            //               radius: AvatarRadius.small,
-            //               title: c.myUser.value!.name?.val ??
-            //                   c.myUser.value!.num.toString(),
-            //               color: c.myUser.value!.num.val.sum() - 1,
-            //             ),
-            //           );
-            //         } else {
-            //           return AnimatedButton(
-            //             child: Stack(
-            //               alignment: Alignment.center,
-            //               children: [
-            //                 AvatarWidget(
-            //                   radius: AvatarRadius.small,
-            //                   title: c.myUser.value!.name?.val ??
-            //                       c.myUser.value!.num.toString(),
-            //                   color: c.myUser.value!.num.val.sum() - 2,
-            //                 ),
-            //                 Padding(
-            //                   padding: const EdgeInsets.only(right: 12),
-            //                   child: Container(
-            //                     decoration: BoxDecoration(
-            //                       color: style.colors.onPrimary,
-            //                       borderRadius: BorderRadius.circular(8),
-            //                     ),
-            //                     padding: const EdgeInsets.all(1),
-            //                     child: AvatarWidget(
-            //                       radius: AvatarRadius.small,
-            //                       title: c.myUser.value!.name?.val ??
-            //                           c.myUser.value!.num.toString(),
-            //                       color: c.myUser.value!.num.val.sum() - 1,
-            //                     ),
-            //                   ),
-            //                 ),
-            //               ],
-            //             ),
-            //           );
-            //         }
-            //       }),
-            //     ),
-            //   ),
-            // ],
+            leading: const [SizedBox(width: 21)],
+            actions: [
+              WidgetButton(
+                behavior: HitTestBehavior.translucent,
+                onPressed: () => AccountsView.show(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Obx(() {
+                    if (router.accounts.value == 0) {
+                      return AnimatedButton(
+                        decorator: (child) => Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 12, 3, 12),
+                          child: child,
+                        ),
+                        child: Transform.translate(
+                          offset: const Offset(0, 1),
+                          child: const SvgIcon(SvgIcons.addAccount),
+                        ),
+                      );
+
+                      return WidgetButton(
+                        child: Text(
+                          'Добавить\nаккаунт',
+                          style: style.fonts.smaller.regular.primary,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    } else {
+                      return AnimatedButton(
+                        decorator: (child) => Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                          child: child,
+                        ),
+                        child: const SvgIcon(SvgIcons.more),
+                      );
+
+                      return WidgetButton(
+                        child: Text(
+                          'Сменить\nаккаунт',
+                          style: style.fonts.small.regular.primary,
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    }
+
+                    if (router.accounts.value == 0) {
+                      return AnimatedButton(
+                        child: Transform.translate(
+                          offset: const Offset(0, 1),
+                          child: const SvgIcon(SvgIcons.addAccount),
+                        ),
+                      );
+                    } else if (router.accounts.value == 1) {
+                      return AnimatedButton(
+                        child: AvatarWidget(
+                          radius: AvatarRadius.small,
+                          title: c.myUser.value!.name?.val ??
+                              c.myUser.value!.num.toString(),
+                          color: c.myUser.value!.num.val.sum() - 1,
+                        ),
+                      );
+                    } else {
+                      return AnimatedButton(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AvatarWidget(
+                              radius: AvatarRadius.small,
+                              title: c.myUser.value!.name?.val ??
+                                  c.myUser.value!.num.toString(),
+                              color: c.myUser.value!.num.val.sum() - 2,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: style.colors.onPrimary,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.all(1),
+                                child: AvatarWidget(
+                                  radius: AvatarRadius.small,
+                                  title: c.myUser.value!.name?.val ??
+                                      c.myUser.value!.num.toString(),
+                                  color: c.myUser.value!.num.val.sum() - 1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  }),
+                ),
+              ),
+            ],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
