@@ -97,7 +97,7 @@ class UserRepository extends DisposableInterface
 
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        users[c.value.id] = HiveRxUser(this, _userLocal, c);
+        users[c.value.id] ??= HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
@@ -325,6 +325,8 @@ class UserRepository extends DisposableInterface
   /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
   /// of its [User.contacts] list changes.
   Future<void> addContact(ChatContact contact, UserId userId) async {
+    Log.debug('addContact($contact, $userId)', '$runtimeType');
+
     final HiveUser? user = _userLocal.get(userId);
     if (user != null) {
       final NestedChatContact? userContact =
@@ -346,6 +348,8 @@ class UserRepository extends DisposableInterface
   /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
   /// of its [User.contacts] list changes.
   Future<void> removeContact(ChatContactId contactId, UserId userId) async {
+    Log.debug('removeContact($contactId, $userId)', '$runtimeType');
+
     final HiveUser? user = _userLocal.get(userId);
     if (user != null) {
       final NestedChatContact? contact =
