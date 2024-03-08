@@ -602,6 +602,7 @@ class RecentChatTile extends StatelessWidget {
             final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
 
             return FutureBuilder(
+              key: Key('UserBuilder_$id'),
               future: userOrFuture is RxUser? ? null : userOrFuture,
               initialData: userOrFuture is RxUser? ? userOrFuture : null,
               builder: (context, snapshot) {

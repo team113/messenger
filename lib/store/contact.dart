@@ -836,7 +836,7 @@ class ContactRepository extends DisposableInterface
                 node as EventChatContactUserRemoved;
                 entity.value.users.removeWhere((e) => e.id == node.userId);
 
-                // Remove the [node.contactId] from the [node.user], as [User]
+                // Remove the [node.contactId] from the [node.userId], as [User]
                 // has no events about its [User.contacts] list changes.
                 _userRepo.removeContact(node.contactId, node.userId);
                 break;
