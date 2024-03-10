@@ -650,7 +650,11 @@ class ChatController extends GetxController {
 
               send.field.focus.requestFocus();
             } on EditChatMessageException catch (e) {
-              MessagePopup.error(e);
+              if (e.code == EditChatMessageErrorCode.blocked) {
+                _showBlockedPopup();
+              } else {
+                MessagePopup.error(e);
+              }
             } catch (e) {
               MessagePopup.error(e);
               rethrow;

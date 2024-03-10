@@ -1102,7 +1102,7 @@ class EditChatMessageException
       case EditChatMessageErrorCode.uneditable:
         return 'err_uneditable_message'.l10n;
       case EditChatMessageErrorCode.blocked:
-        return 'err_unknown'.l10n;
+        return 'err_blocked'.l10n;
       case EditChatMessageErrorCode.notAuthor:
         return 'err_not_author'.l10n;
       case EditChatMessageErrorCode.wrongAttachmentsCount:
