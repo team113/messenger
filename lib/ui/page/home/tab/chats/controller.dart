@@ -583,15 +583,13 @@ class ChatsTabController extends GetxController {
     creatingStatus.value = RxStatus.loading();
 
     try {
-      final List<UserId> memberIds = {
-        ...search.value!.selectedRecent.map((e) => e.id),
-        ...search.value!.selectedContacts
-            .expand((e) => e.contact.value.users.map((u) => u.id)),
-        ...search.value!.selectedUsers.map((e) => e.id),
-      }.where((e) => e != me).toList();
-
       final RxChat chat = await _chatService.createGroupChat(
-        memberIds,
+        {
+          ...search.value!.selectedRecent.map((e) => e.id),
+          ...search.value!.selectedContacts
+              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...search.value!.selectedUsers.map((e) => e.id),
+        }.where((e) => e != me).toList(),
         name: groupName.text.isEmpty ? null : ChatName(groupName.text),
       );
 
