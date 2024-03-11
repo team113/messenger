@@ -378,7 +378,7 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if the [chat] is a dialog.
   RxUser? get user => chat?.chat.value.isDialog == true
-      ? chat?.members.values.firstWhereOrNull((e) => e.id != me)
+      ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
       : null;
 
   /// Indicates whether the [listController] is scrolled to its bottom.
@@ -775,8 +775,9 @@ class ChatController extends GetxController {
 
       if (chat?.chat.value.isDialog == true) {
         _userSubscription = chat?.members.values
-            .lastWhereOrNull((u) => u.id != me)
-            ?.updates
+            .lastWhereOrNull((u) => u.user.id != me)
+            ?.user
+            .updates
             .listen((_) {});
       }
 

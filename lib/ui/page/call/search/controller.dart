@@ -557,8 +557,9 @@ class SearchController extends GetxController {
             title: c.title.value,
             user: c.chat.value.isDialog
                 ? c.members.values
-                    .firstWhereOrNull((u) => u.id != me)
+                    .firstWhereOrNull((u) => u.user.id != me)
                     ?.user
+                    .user
                     .value
                 : null,
           );
@@ -588,7 +589,7 @@ class SearchController extends GetxController {
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
-          c.members.values.firstWhereOrNull((u) => u.id != me);
+          c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user;
       bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user.user.value);
 
@@ -675,7 +676,7 @@ class SearchController extends GetxController {
       bool hasRemoteDialog(RxUser u) => !u.user.value.dialog.isLocal;
 
       RxUser? toUser(RxChat c) =>
-          c.members.values.firstWhereOrNull((u) => u.id != me);
+          c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user;
       RxChat? toChat(RxUser u) => u.dialog.value;
 
       // [Chat]s-dialogs with [User]s found in the global search and not
@@ -809,7 +810,16 @@ class SearchController extends GetxController {
         } else {
           // Ensure all animations are finished as [scrollController.hasClients]
           // may be `true` during an animation.
-          _ensureScrollableTimer = Timer(1.seconds, _ensureScrollable);
+          _ensureScrollableTimer = Timer(
+            1.seconds,
+            () async {
+              if (!scrollController.hasClients ||
+                  scrollController.position.maxScrollExtent < 50) {
+                await _next();
+                _ensureScrollable();
+              }
+            },
+          );
         }
       });
     }

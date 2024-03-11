@@ -239,8 +239,9 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               if (isDialog) {
                 final User? user = c.chat.value?.members.values
-                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
+                        .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
                         ?.user
+                        .user
                         .value ??
                     c.chat.value?.chat.value.members
                         .firstWhereOrNull((e) => e.user.id != c.me.id.userId)

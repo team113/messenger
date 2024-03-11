@@ -27,7 +27,7 @@ abstract class Paginated<K, T> {
   Paginated({this.onDispose});
 
   /// Paginated [T] items themselves.
-  final RxObsMap<K, T> items = RxObsMap<K, T>();
+  final RxSortedObsMap<K, T> items = RxSortedObsMap<K, T>();
 
   /// Reactive [RxStatus] of [items] being fetched.
   ///

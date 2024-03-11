@@ -598,11 +598,14 @@ class OngoingCall {
 
                   // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
                   if (call.value?.dialed is ChatMembersDialedAll) {
-                    final Iterable<RxUser> dialings = v.members.values.where(
-                      (e) =>
-                          e.id != me.id.userId &&
-                          dialed.answeredMembers.none((a) => a.user.id == e.id),
-                    );
+                    final Iterable<RxUser> dialings = v.members.values
+                        .where(
+                          (e) =>
+                              e.user.id != me.id.userId &&
+                              dialed.answeredMembers
+                                  .none((a) => a.user.id == e.user.id),
+                        )
+                        .map((e) => e.user);
 
                     // Remove the members, who are not connected and still
                     // redialing, that are missing from the [dialings].

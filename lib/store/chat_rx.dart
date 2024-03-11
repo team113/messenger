@@ -70,7 +70,7 @@ typedef MessagesPaginated
     = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
 
 typedef MembersPaginated
-    = RxPaginatedImpl<UserId, RxUser, HiveChatMember, ChatMembersCursor>;
+    = RxPaginatedImpl<UserId, RxChatMember, HiveChatMember, ChatMembersCursor>;
 
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
@@ -252,13 +252,14 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
-        callCover = members.values.firstOrNull?.user.value.callCover;
+        callCover = members.values.firstOrNull?.user.user.value.callCover;
         break;
 
       case ChatKind.dialog:
         callCover = members.values
-            .firstWhereOrNull((e) => e.id != me)
+            .firstWhereOrNull((e) => e.user.id != me)
             ?.user
+            .user
             .value
             .callCover;
         break;
@@ -1019,8 +1020,26 @@ class HiveRxChat extends RxChat {
   /// Initializes the [members] pagination.
   Future<void> _initMembersPagination() async {
     members = MembersPaginated(
-      transform: ({required HiveChatMember data, RxUser? previous}) {
-        return _chatRepository.getUser(data.value.user.id);
+      transform: ({
+        required HiveChatMember data,
+        RxChatMember? previous,
+      }) {
+        final FutureOr<RxUser?> userOrFuture =
+            _chatRepository.getUser(data.value.user.id);
+
+        if (userOrFuture is RxUser) {
+          return RxChatMember(userOrFuture, data.value.joinedAt);
+        } else {
+          return Future(() async {
+            final RxUser? user = await userOrFuture;
+
+            if (user != null) {
+              return RxChatMember(user, data.value.joinedAt);
+            }
+
+            return null;
+          });
+        }
       },
       pagination: Pagination(
         onKey: (e) => e.value.user.id,
@@ -1264,7 +1283,7 @@ class HiveRxChat extends RxChat {
           }
         }
       } else {
-        users = members.values.take(3).toList();
+        users = members.values.take(3).map((e) => e.user).toList();
       }
 
       _userWorkers.removeWhere((k, v) {
@@ -1301,7 +1320,7 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.name == null && users.isEmpty) {
       if (members.values.isNotEmpty == true) {
-        users.addAll(members.values.take(3).map((e) => e.user.value));
+        users.addAll(members.values.take(3).map((e) => e.user.user.value));
       } else {
         for (var u in chat.value.members.take(3)) {
           final user = (await _chatRepository.getUser(u.user.id))?.user.value;
@@ -1323,7 +1342,7 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.dialog:
-        member = members.values.firstWhereOrNull((e) => e.id != me);
+        member = members.values.firstWhereOrNull((e) => e.user.id != me)?.user;
         break;
 
       case ChatKind.group:
