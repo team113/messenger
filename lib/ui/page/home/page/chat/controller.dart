@@ -192,8 +192,8 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Indicator whether the [ChatView] is currently obscured by a popup.
-  bool get isObscured => ModalRoute.of(router.context!) is RawDialogRoute;
+  /// Indicator whether the [ChatView] is currently obscured by a [PopupRoute].
+  bool get isObscured => router.isModalOpen.value;
 
   /// Sticky element index of a [FlutterListView] currently being visible.
   final RxnInt stickyIndex = RxnInt(null);
