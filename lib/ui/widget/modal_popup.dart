@@ -107,7 +107,6 @@ abstract class ModalPopup {
     } else {
       return showGeneralDialog(
         context: context,
-        useRootNavigator: false,
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
         pageBuilder: (_, __, ___) {
