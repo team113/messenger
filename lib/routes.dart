@@ -943,15 +943,20 @@ extension AppLifecycleStateExtension on AppLifecycleState {
 class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
-    if (route is RawDialogRoute) {
+    if (_isObscuring(route)) {
       router.isModalOpen.value = true;
     }
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    if (route is RawDialogRoute) {
+    if (_isObscuring(route)) {
       router.isModalOpen.value = false;
     }
+  }
+
+  /// Determines whether the [route] is obscuring the content.
+  bool _isObscuring(Route route) {
+    return route is RawDialogRoute || route is ModalBottomSheetRoute;
   }
 }

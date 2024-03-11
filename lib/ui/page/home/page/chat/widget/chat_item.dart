@@ -250,7 +250,7 @@ class ChatItemWidget extends StatefulWidget {
                   }
 
                   GalleryPopup.show(
-                    context: router.context!,
+                    context: context,
                     gallery: ChatGallery(
                       attachments: attachments,
                       initial: (initial, key),
@@ -1648,7 +1648,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     const SvgIcon(SvgIcons.forwardSmallWhite),
                                 onPressed: () async {
                                   await ChatForwardView.show(
-                                    router.context!,
+                                    context,
                                     widget.chat.value!.id,
                                     [ChatItemQuoteInput(item: item)],
                                   );

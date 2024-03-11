@@ -1070,7 +1070,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               }
 
                               await ChatForwardView.show(
-                                router.context!,
+                                context,
                                 widget.chat.value!.id,
                                 quotes,
                               );
