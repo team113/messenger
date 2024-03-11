@@ -209,7 +209,7 @@ class ParticipantController extends GetxController {
 
     try {
       if (chat.value?.chat.value.isGroup ?? true) {
-        Iterable<Future> futures = ids.map(
+        final Iterable<Future> futures = ids.map(
           (id) => _chatService
               .addChatMember(chatId.value, id)
               .onError<AddChatMemberException>(
