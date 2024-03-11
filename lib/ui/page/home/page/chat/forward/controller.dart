@@ -33,6 +33,7 @@ import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
@@ -143,37 +144,73 @@ class ChatForwardController extends GetxController {
 
           final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
 
+          // Displays a [MessagePopup.error] visually representing a blocked by
+          // the provided [user] error.
+          Future<void> showBlockedPopup(User? user) async {
+            if (user == null) {
+              await MessagePopup.error('err_blocked'.l10n);
+            } else {
+              await MessagePopup.error(
+                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
+              );
+            }
+          }
+
           final List<Future<void>> futures = [
             ...selected.value!.chats.map((e) {
-              return _chatService.forwardChatItems(
+              return _chatService
+                  .forwardChatItems(
                 from,
                 e.chat.value.id,
                 quotes,
                 text: text,
                 attachments: attachments,
+              )
+                  .onError<ForwardChatItemsException>(
+                (_, __) async {
+                  await showBlockedPopup(
+                    e.members.values
+                        .firstWhereOrNull((u) => u.id != me)
+                        ?.user
+                        .value,
+                  );
+                },
+                test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
               );
             }),
-            ...selected.value!.users.map((e) async {
-              ChatId dialog = e.user.value.dialog;
+            ...selected.value!.users.map((u) {
+              final User user = u.user.value;
+              final ChatId dialog = user.dialog;
 
-              return _chatService.forwardChatItems(
-                from,
-                dialog,
-                quotes,
-                text: text,
-                attachments: attachments,
-              );
+              return _chatService
+                  .forwardChatItems(
+                    from,
+                    dialog,
+                    quotes,
+                    text: text,
+                    attachments: attachments,
+                  )
+                  .onError<ForwardChatItemsException>(
+                    (_, __) => showBlockedPopup(user),
+                    test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
+                  );
             }),
-            ...selected.value!.contacts.map((e) async {
-              ChatId dialog = e.user.value!.user.value.dialog;
+            ...selected.value!.contacts.map((c) {
+              final User user = c.user.value!.user.value;
+              final ChatId dialog = user.dialog;
 
-              return _chatService.forwardChatItems(
-                from,
-                dialog,
-                quotes,
-                text: text,
-                attachments: attachments,
-              );
+              return _chatService
+                  .forwardChatItems(
+                    from,
+                    dialog,
+                    quotes,
+                    text: text,
+                    attachments: attachments,
+                  )
+                  .onError<ForwardChatItemsException>(
+                    (_, __) => showBlockedPopup(user),
+                    test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
+                  );
             })
           ];
 

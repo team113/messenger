@@ -55,6 +55,7 @@ class AddChatMemberView extends StatelessWidget {
       init: AddChatMemberController(
         chatId,
         Get.find(),
+        Get.find(),
         pop: context.popModal,
       ),
       builder: (AddChatMemberController c) {
