@@ -19,6 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -174,6 +175,9 @@ class RouterState extends ChangeNotifier {
 
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
+
+  /// Indicator whether any modal is currently open.
+  final RxBool isModalOpen = RxBool(false);
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -806,6 +810,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
+            observers: [
+              SentryNavigatorObserver(),
+              ModalNavigatorObserver(),
+            ],
             pages: _pages,
             onPopPage: (Route<dynamic> route, dynamic result) {
               final bool success = route.didPop(result);
@@ -927,6 +935,26 @@ extension AppLifecycleStateExtension on AppLifecycleState {
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         return false;
+    }
+  }
+}
+
+/// [NavigatorObserver] to track the opening and closing of modal popups.
+class ModalNavigatorObserver extends NavigatorObserver {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    if (route is RawDialogRoute) {
+      print('[ModalNavigationObserver] pushed modal: $route');
+      print('[router.context]: ${ModalRoute.of(router.context!)}');
+      router.isModalOpen.value = true;
+    }
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    if (route is RawDialogRoute) {
+      print('[ModalNavigationObserver] popped modal: $route');
+      router.isModalOpen.value = false;
     }
   }
 }
