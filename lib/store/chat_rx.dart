@@ -1806,8 +1806,7 @@ class HiveRxChat extends RxChat {
                       chatEntity.value.membersCount++;
 
                       // Store the first 3 [ChatMember]s in the [Chat.members]
-                      // to display default [Chat]s name while fetching data
-                      // from backend.
+                      // to display default [Chat]s name.
                       if (chatEntity.value.members.length < 3) {
                         chatEntity.value.members.add(
                           ChatMember(action.user, msg.at),

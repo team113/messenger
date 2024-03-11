@@ -566,7 +566,7 @@ class ChatRepository extends DisposableInterface
     Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
 
     final HiveRxChat? chat = chats[chatId];
-    final HiveChatMember? hiveMember = chat?.members.pagination?.items[userId];
+    final HiveChatMember? member = chat?.members.pagination?.items[userId];
 
     chat?.members.remove(userId);
 
@@ -574,8 +574,8 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.removeChatMember(chatId, userId);
       await onMemberRemoved.call(chatId, userId);
     } catch (_) {
-      if (hiveMember != null) {
-        chat?.members.put(hiveMember);
+      if (member != null) {
+        chat?.members.put(member);
       }
 
       rethrow;

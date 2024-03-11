@@ -297,7 +297,7 @@ class CreateGroupChatException
       case CreateGroupChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
       case CreateGroupChatErrorCode.blocked:
-        return 'err_blocked_some'.l10n;
+        return 'err_blocked_by_multiple'.l10n;
     }
   }
 }
@@ -1229,7 +1229,7 @@ class TransformDialogCallIntoGroupCallException
   String toMessage() {
     switch (code) {
       case TransformDialogCallIntoGroupCallErrorCode.blocked:
-        return 'err_blocked_some'.l10n;
+        return 'err_blocked_by_multiple'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.notDialog:
         return 'err_not_dialog'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.noCall:

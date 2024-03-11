@@ -125,9 +125,8 @@ class AddChatMemberController extends GetxController {
                     .value;
 
             if (user != null) {
-              final String nameOrNum = '${user.name ?? user.num}';
               MessagePopup.error(
-                'err_blocked_by'.l10nfmt({'user': nameOrNum}),
+                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
               );
             }
           },

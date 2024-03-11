@@ -455,9 +455,7 @@ class ChatController extends GetxController {
                 .onError<UploadAttachmentException>(
                   (e, _) => MessagePopup.error(e),
                 )
-                .onError<ConnectionException>(
-                  (e, _) {},
-                );
+                .onError<ConnectionException>((e, _) {});
 
             send.clear(unfocus: false);
 
@@ -2073,17 +2071,31 @@ class ChatController extends GetxController {
     return false;
   }
 
-  /// Shows [MessagePopup.error] with the name of the [User] who blocked
-  /// authenticated [MyUser] specified.
+  /// Displays a [MessagePopup.error] visually representing a blocked error.
+  ///
+  /// Meant to be invoked in case of `blocked` type of errors possibly thrown
+  /// during operations with this [Chat].
   void _showBlockedPopup() {
-    final User? user =
-        chat?.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    switch (chat?.chat.value.kind) {
+      case ChatKind.dialog:
+        if (user != null) {
+          MessagePopup.error(
+            'err_blocked_by'.l10nfmt(
+              {'user': '${user?.user.value.name ?? user?.user.value.num}'},
+            ),
+          );
+        }
+        break;
 
-    if (user != null) {
-      final String nameOrNum = '${user.name ?? user.num}';
-      MessagePopup.error(
-        'err_blocked_by'.l10nfmt({'user': nameOrNum}),
-      );
+      case ChatKind.group:
+        MessagePopup.error('err_blocked'.l10n);
+        break;
+
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+      case null:
+        // No-op.
+        break;
     }
   }
 }

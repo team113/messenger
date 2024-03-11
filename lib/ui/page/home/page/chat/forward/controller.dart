@@ -144,35 +144,38 @@ class ChatForwardController extends GetxController {
 
           final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
 
-          // Shows [MessagePopup.error] with the name of the [User] who blocked
-          // authenticated [MyUser] specified.
-          Future<void> showBlockedPopup(User user) {
-            final String nameOrNum = '${user.name ?? user.num}';
-            return MessagePopup.error(
-              'err_blocked_by'.l10nfmt({'user': nameOrNum}),
-            );
+          // Displays a [MessagePopup.error] visually representing a blocked by
+          // the provided [user] error.
+          Future<void> showBlockedPopup(User? user) async {
+            if (user == null) {
+              await MessagePopup.error('err_blocked'.l10n);
+            } else {
+              await MessagePopup.error(
+                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
+              );
+            }
           }
 
           final List<Future<void>> futures = [
-            ...selected.value!.chats.map((c) {
+            ...selected.value!.chats.map((e) {
               return _chatService
                   .forwardChatItems(
                 from,
-                c.chat.value.id,
+                e.chat.value.id,
                 quotes,
                 text: text,
                 attachments: attachments,
               )
                   .onError<ForwardChatItemsException>(
-                (_, __) {
-                  final User user =
-                      c.members.values.firstWhere((u) => u.id != me).user.value;
-
-                  showBlockedPopup(user);
+                (_, __) async {
+                  await showBlockedPopup(
+                    e.members.values
+                        .firstWhereOrNull((u) => u.id != me)
+                        ?.user
+                        .value,
+                  );
                 },
-                test: (e) =>
-                    e.code == ForwardChatItemsErrorCode.blocked &&
-                    c.chat.value.isDialog,
+                test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
               );
             }),
             ...selected.value!.users.map((u) {
