@@ -443,12 +443,18 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3')))
+                .then(
+                  (_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3'),
+                  ),
+                )
                 .onError<PostChatMessageException>(
-                    (e, _) => MessagePopup.error(e))
+                  (_, __) => _showBlockedPopup(),
+                  test: (e) => e.code == PostChatMessageErrorCode.blocked,
+                )
                 .onError<UploadAttachmentException>(
-                    (e, _) => MessagePopup.error(e))
+                  (e, _) => MessagePopup.error(e),
+                )
                 .onError<ConnectionException>((e, _) {});
 
             send.clear(unfocus: false);
@@ -591,9 +597,13 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) =>
-              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
-          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .then(
+            (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
+          )
+          .onError<PostChatMessageException>(
+            (_, __) => _showBlockedPopup(),
+            test: (e) => e.code == PostChatMessageErrorCode.blocked,
+          )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
     }
@@ -638,7 +648,11 @@ class ChatController extends GetxController {
 
               send.field.focus.requestFocus();
             } on EditChatMessageException catch (e) {
-              MessagePopup.error(e);
+              if (e.code == EditChatMessageErrorCode.blocked) {
+                _showBlockedPopup();
+              } else {
+                MessagePopup.error(e);
+              }
             } catch (e) {
               MessagePopup.error(e);
               rethrow;
@@ -2056,6 +2070,34 @@ class ChatController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Displays a [MessagePopup.error] visually representing a blocked error.
+  ///
+  /// Meant to be invoked in case of `blocked` type of errors possibly thrown
+  /// during operations with this [Chat].
+  void _showBlockedPopup() {
+    switch (chat?.chat.value.kind) {
+      case ChatKind.dialog:
+        if (user != null) {
+          MessagePopup.error(
+            'err_blocked_by'.l10nfmt(
+              {'user': '${user?.user.value.name ?? user?.user.value.num}'},
+            ),
+          );
+        }
+        break;
+
+      case ChatKind.group:
+        MessagePopup.error('err_blocked'.l10n);
+        break;
+
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+      case null:
+        // No-op.
+        break;
+    }
   }
 }
 

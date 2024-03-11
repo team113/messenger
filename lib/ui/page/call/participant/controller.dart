@@ -22,14 +22,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.graphql.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -57,6 +60,7 @@ class ParticipantController extends GetxController {
     this._call,
     this._chatService,
     this._callService,
+    this._userService,
     this._myUserService, {
     this.pop,
     ParticipantsFlowStage initial = ParticipantsFlowStage.participants,
@@ -98,6 +102,9 @@ class ParticipantController extends GetxController {
   /// [CallService] transforming the [_call] into a group-call.
   final CallService _callService;
 
+  /// [UserService] fetching [User]s to display in [MessagePopup]s.
+  final UserService _userService;
+  
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
@@ -169,6 +176,7 @@ class ParticipantController extends GetxController {
     _stateWorker?.dispose();
     _chatWorker?.dispose();
     scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -210,9 +218,28 @@ class ParticipantController extends GetxController {
 
     try {
       if (chat.value?.chat.value.isGroup ?? true) {
-        List<Future> futures = ids
-            .map((e) => _chatService.addChatMember(chatId.value, e))
-            .toList();
+        final Iterable<Future> futures = ids.map(
+          (id) => _chatService
+              .addChatMember(chatId.value, id)
+              .onError<AddChatMemberException>(
+            (e, _) async {
+              final FutureOr<RxUser?> userOrFuture = _userService.get(id);
+              final User? user =
+                  (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                      ?.user
+                      .value;
+
+              if (user != null) {
+                await MessagePopup.error(
+                  'err_blocked_by'.l10nfmt(
+                    {'user': '${user.name ?? user.num}'},
+                  ),
+                );
+              }
+            },
+            test: (e) => e.code == AddChatMemberErrorCode.blocked,
+          ),
+        );
 
         await Future.wait(futures);
       } else {
