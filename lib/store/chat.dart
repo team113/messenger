@@ -572,7 +572,6 @@ class ChatRepository extends DisposableInterface
 
     try {
       await _graphQlProvider.removeChatMember(chatId, userId);
-      await onMemberRemoved.call(chatId, userId);
     } catch (_) {
       if (member != null) {
         chat?.members.put(member);
@@ -580,6 +579,8 @@ class ChatRepository extends DisposableInterface
 
       rethrow;
     }
+
+    await onMemberRemoved.call(chatId, userId);
   }
 
   @override
