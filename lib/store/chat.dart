@@ -547,17 +547,17 @@ class ChatRepository extends DisposableInterface
 
     try {
       await _graphQlProvider.addChatMember(chatId, userId);
-
-      // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
-      if (chats[chatId]?.chat.value.ongoingCall != null) {
-        await _callRepo.redialChatCallMember(chatId, userId);
-      }
     } catch (_) {
       if (user != null) {
         chat?.members.remove(user.id);
       }
 
       rethrow;
+    }
+
+    // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
+    if (chats[chatId]?.chat.value.ongoingCall != null) {
+      await _callRepo.redialChatCallMember(chatId, userId);
     }
   }
 
