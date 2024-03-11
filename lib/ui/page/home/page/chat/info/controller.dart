@@ -89,9 +89,6 @@ class ChatInfoController extends GetxController {
   /// enabled.
   final RxBool profileEditing = RxBool(false);
 
-  /// List of [UserId]s that are being removed from the [chat].
-  final RxList<UserId> membersOnRemoval = RxList([]);
-
   /// [Chat.name] field state.
   late final TextFieldState name;
 
@@ -228,7 +225,6 @@ class ChatInfoController extends GetxController {
 
   /// Removes [User] identified by the provided [userId] from the [chat].
   Future<void> removeChatMember(UserId userId) async {
-    membersOnRemoval.add(userId);
     try {
       await _chatService.removeChatMember(chatId, userId);
       if (userId == me && router.route.startsWith('${Routes.chats}/$chatId')) {
@@ -239,8 +235,6 @@ class ChatInfoController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
-    } finally {
-      membersOnRemoval.remove(userId);
     }
   }
 

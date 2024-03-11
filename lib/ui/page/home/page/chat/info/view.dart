@@ -283,7 +283,7 @@ class ChatInfoView extends StatelessWidget {
           final List<RxUser> members = [];
 
           for (var u in c.chat!.members.items.values) {
-            if (u.user.id != c.me && !c.membersOnRemoval.contains(u.user.id)) {
+            if (u.user.id != c.me) {
               members.add(u.user);
             }
           }

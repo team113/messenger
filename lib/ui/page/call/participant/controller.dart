@@ -104,7 +104,7 @@ class ParticipantController extends GetxController {
 
   /// [UserService] fetching [User]s to display in [MessagePopup]s.
   final UserService _userService;
-  
+
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 

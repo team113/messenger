@@ -170,8 +170,9 @@ class ChatForwardController extends GetxController {
                 (_, __) async {
                   await showBlockedPopup(
                     e.members.values
-                        .firstWhereOrNull((u) => u.id != me)
+                        .firstWhereOrNull((u) => u.user.id != me)
                         ?.user
+                        .user
                         .value,
                   );
                 },
