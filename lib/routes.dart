@@ -176,8 +176,8 @@ class RouterState extends ChangeNotifier {
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
 
-  /// Indicator whether any modal is currently open.
-  final RxBool isModalOpen = RxBool(false);
+  /// Indicator whether any screen obscuring modal is currently open.
+  final RxBool isObscured = RxBool(false);
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -944,14 +944,20 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      router.isModalOpen.value = true;
+      print(
+        '[ModalNavigationObserver] PUSHED modal: ${route.runtimeType} on ${route.navigator}',
+      );
+      router.isObscured.value = true;
     }
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      router.isModalOpen.value = false;
+      print(
+        '[ModalNavigationObserver] POPPED modal: ${route.runtimeType} off ${route.navigator}',
+      );
+      router.isObscured.value = false;
     }
   }
 

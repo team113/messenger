@@ -192,9 +192,6 @@ class ChatController extends GetxController {
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [chat].
   int unreadMessages = 0;
 
-  /// Indicator whether the [ChatView] is currently obscured by a [PopupRoute].
-  bool get isObscured => router.isModalOpen.value;
-
   /// Sticky element index of a [FlutterListView] currently being visible.
   final RxnInt stickyIndex = RxnInt(null);
 
@@ -904,7 +901,7 @@ class ChatController extends GetxController {
         status.value.isSuccess &&
         !status.value.isLoadingMore &&
         item.status.value == SendingStatus.sent &&
-        !isObscured) {
+        !router.isObscured.value) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {
