@@ -963,7 +963,7 @@ class HiveRxChat extends RxChat {
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
-  /// Puts the provided [member] the [members].
+  /// Puts the provided [member] to the [members].
   Future<void> _putMember(
     HiveChatMember member, {
     bool ignoreBounds = false,
@@ -1796,6 +1796,8 @@ class HiveRxChat extends RxChat {
 
                       chatEntity.value.membersCount++;
 
+                      // Store the first 3 [ChatMember]s in the [Chat.members]
+                      // to display default [Chat]s name.
                       if (chatEntity.value.members.length < 3) {
                         chatEntity.value.members.add(
                           ChatMember(action.user, msg.at),
@@ -1810,11 +1812,12 @@ class HiveRxChat extends RxChat {
                     case ChatInfoActionKind.memberRemoved:
                       final action = msg.action as ChatInfoActionMemberRemoved;
 
+                      chatEntity.value.membersCount--;
+
                       await members.remove(action.user.id);
 
                       chatEntity.value.members
                           .removeWhere((e) => e.user.id == action.user.id);
-                      chatEntity.value.membersCount--;
 
                       if (chatEntity.value.members.length < 3) {
                         if (members.items.length < 3) {
