@@ -944,8 +944,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     if (route is RawDialogRoute) {
-      print('[ModalNavigationObserver] pushed modal: $route');
-      print('[router.context]: ${ModalRoute.of(router.context!)}');
       router.isModalOpen.value = true;
     }
   }
@@ -953,7 +951,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
     if (route is RawDialogRoute) {
-      print('[ModalNavigationObserver] popped modal: $route');
       router.isModalOpen.value = false;
     }
   }
