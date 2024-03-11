@@ -19,10 +19,13 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/api/backend/schema.graphql.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';
@@ -34,7 +37,8 @@ export 'view.dart';
 class AddChatMemberController extends GetxController {
   AddChatMemberController(
     this.chatId,
-    this._chatService, {
+    this._chatService,
+    this._userService, {
     this.pop,
   });
 
@@ -57,6 +61,9 @@ class AddChatMemberController extends GetxController {
 
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
+
+  /// [UserService] fetching [User]s to display in [MessagePopup]s.
+  final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
   StreamSubscription? _chatsSubscription;
@@ -103,13 +110,31 @@ class AddChatMemberController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
+    pop?.call();
+
     try {
-      List<Future> futures =
-          ids.map((e) => _chatService.addChatMember(chatId, e)).toList();
+      final Iterable<Future> futures = ids.map(
+        (userId) => _chatService
+            .addChatMember(chatId, userId)
+            .onError<AddChatMemberException>(
+          (_, __) async {
+            final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+            final User? user =
+                (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                    ?.user
+                    .value;
+
+            if (user != null) {
+              MessagePopup.error(
+                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
+              );
+            }
+          },
+          test: (e) => e.code == AddChatMemberErrorCode.blocked,
+        ),
+      );
 
       await Future.wait(futures);
-
-      pop?.call();
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

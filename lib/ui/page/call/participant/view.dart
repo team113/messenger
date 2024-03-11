@@ -80,6 +80,7 @@ class ParticipantView extends StatelessWidget {
         call,
         Get.find(),
         Get.find(),
+        Get.find(),
         pop: context.popModal,
         initial: initial,
       ),
