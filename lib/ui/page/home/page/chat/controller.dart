@@ -2249,7 +2249,7 @@ extension ChatViewExt on Chat {
           if (users.length < membersCount && users.length < 3) {
             titleParts = members.take(3).map((e) => e.user.title);
           } else {
-            titleParts = users.map((e) => e.title);
+            titleParts = users.take(3).map((e) => e.title);
           }
 
           title = titleParts.join('comma_space'.l10n);
