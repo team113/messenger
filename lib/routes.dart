@@ -944,9 +944,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      print(
-        '[ModalNavigationObserver] PUSHED modal: ${route.runtimeType} on ${route.navigator}',
-      );
       router.isObscured.value = true;
     }
   }
@@ -954,9 +951,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      print(
-        '[ModalNavigationObserver] POPPED modal: ${route.runtimeType} off ${route.navigator}',
-      );
       router.isObscured.value = false;
     }
   }
