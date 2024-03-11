@@ -20,7 +20,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -154,9 +153,7 @@ class ParticipantView extends StatelessWidget {
                               Widget child;
 
                               if (i == -1) {
-                                final MyUser? myUser = c.myUser.value;
-
-                                child = MemberTile(myUser: myUser);
+                                child = MemberTile(myUser: c.myUser.value);
                               } else {
                                 final RxUser user = members[i];
 
