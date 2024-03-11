@@ -17,12 +17,12 @@
 
 Feature: Contacts renaming
 
-  Scenario: Dialog title depends on contact name
+  Scenario: User sees dialog's title being contact's name
     Given I am Alice
     And user Bob
     And contact Bob
     And Bob has dialog with me
-    And I see dialog named "Bob"
+    And I see "Bob" chat
 
     When I rename Bob contact to "Charlie"
-    Then I see dialog named "Charlie"
+    Then I see "Charlie" chat

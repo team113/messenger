@@ -319,7 +319,7 @@ class SearchController extends GetxController {
     _populateUsers();
   }
 
-  /// Returns an [User] from the [UserService] by the provided [id].
+  /// Returns a [User] from the [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Searches the [User]s based on the provided [query].

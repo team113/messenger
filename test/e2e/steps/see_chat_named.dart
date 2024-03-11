@@ -22,13 +22,13 @@ import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat]-dialog with the provided name is displayed at the
+/// Indicates whether a [Chat] with the provided name is displayed in the
 /// [Chat]s list.
 ///
 /// Examples:
-/// - Then I see dialog named "Example"
-final StepDefinitionGeneric seeDialogNamed = then1<String, CustomWorld>(
-  'I see dialog named {string}',
+/// - Then I see "Example" chat
+final StepDefinitionGeneric seeNamedChat = then1<String, CustomWorld>(
+  'I see {string} chat',
   (name, context) async {
     await context.world.appDriver.waitUntil(
       () async {

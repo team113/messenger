@@ -485,9 +485,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (widget.chat.value?.isGroup == true) {
           content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
-              final Map<String, dynamic> args = {
-                'author': user.title,
-              };
+              final Map<String, dynamic> args = {'author': user.title};
 
               return Text.rich(
                 TextSpan(

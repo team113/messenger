@@ -47,7 +47,4 @@ class DummyRxUser extends RxUser {
 
   @override
   Rx<RxChatContact?> get contact => Rx(null);
-
-  @override
-  String get title => '';
 }

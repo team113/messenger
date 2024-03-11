@@ -48,7 +48,7 @@ class CallCoverWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    UserCallCover? cover = this.cover ?? user?.user.value.callCover;
+    final UserCallCover? cover = this.cover ?? user?.user.value.callCover;
 
     return Stack(
       children: [

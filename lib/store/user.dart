@@ -89,11 +89,8 @@ class UserRepository extends DisposableInterface
   RxBool get isReady => _isReady;
 
   @override
-  Future<void> onInit() async {
-    Log.debug('onInit()', '$runtimeType');
-
-    // Wait for [getChat] and [getContact] to be determined.
-    await Future.delayed(Duration.zero);
+  Future<void> onReady() async {
+    Log.debug('onReady()', '$runtimeType');
 
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
@@ -104,7 +101,7 @@ class UserRepository extends DisposableInterface
 
     _initLocalSubscription();
 
-    super.onInit();
+    super.onReady();
   }
 
   @override
@@ -329,14 +326,14 @@ class UserRepository extends DisposableInterface
 
     final HiveUser? user = _userLocal.get(userId);
     if (user != null) {
-      final NestedChatContact? userContact =
+      final NestedChatContact? existing =
           user.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
 
-      if (userContact == null) {
+      if (existing == null) {
         user.value.contacts.add(NestedChatContact.from(contact));
         await _userLocal.put(user);
-      } else if (userContact.name != contact.name) {
-        userContact.name = contact.name;
+      } else if (existing.name != contact.name) {
+        existing.name = contact.name;
         await _userLocal.put(user);
       }
     }
@@ -352,11 +349,11 @@ class UserRepository extends DisposableInterface
 
     final HiveUser? user = _userLocal.get(userId);
     if (user != null) {
-      final NestedChatContact? contact =
+      final NestedChatContact? existing =
           user.value.contacts.firstWhereOrNull((e) => e.id == contactId);
 
-      if (contact != null) {
-        user.value.contacts.remove(contact);
+      if (existing != null) {
+        user.value.contacts.remove(existing);
         await _userLocal.put(user);
       }
     }

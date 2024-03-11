@@ -383,10 +383,7 @@ class _BackgroundService {
                 _incomingCalls.add(call.chatId.val);
 
                 // TODO: Display `Chat` name instead of the `ChatCall.author`.
-                _displayIncomingCall(
-                  call.chatId,
-                  call.author.toModel().title,
-                );
+                _displayIncomingCall(call.chatId, call.author.toModel().title);
               }
 
               _setForegroundNotificationInfo(
@@ -409,10 +406,7 @@ class _BackgroundService {
               );
 
               // TODO: Display `Chat` name instead of the `ChatCall.author`.
-              _displayIncomingCall(
-                call.chatId,
-                call.author.toModel().title,
-              );
+              _displayIncomingCall(call.chatId, call.author.toModel().title);
             }
             break;
 

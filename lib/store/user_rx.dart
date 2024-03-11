@@ -144,9 +144,6 @@ class HiveRxUser extends RxUser {
   @override
   Stream<void> get updates => _controller.stream;
 
-  @override
-  String get title => contact.value?.contact.value.name.val ?? user.value.title;
-
   /// Disposes this [HiveRxUser].
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
