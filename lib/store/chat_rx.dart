@@ -40,7 +40,6 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/chat.dart';
@@ -53,6 +52,7 @@ import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
+import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -294,59 +294,27 @@ class HiveRxChat extends RxChat {
 
   @override
   String get title {
-    String title = 'dot'.l10n * 3;
-
     // [RxUser]s take parts in the [title] formation. Used to subscribe to the
     // [RxUser.updates] to keep this [users] up-to-date.
     List<RxUser> users = [];
 
     switch (chat.value.kind) {
-      case ChatKind.monolog:
-        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
-        break;
-
       case ChatKind.dialog:
-        final String? partnerName;
         final RxUser? rxUser =
             members.items.values.firstWhereOrNull((u) => u.id != me);
 
         if (rxUser != null) {
           users.add(rxUser);
-          partnerName = rxUser.title;
-        } else {
-          final User? user =
-              chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user;
-          partnerName = user?.title;
-        }
-
-        if (partnerName != null) {
-          title = partnerName;
         }
         break;
 
       case ChatKind.group:
         if (chat.value.name == null) {
-          Iterable<String> titleParts;
-
-          Iterable<RxUser> rxUsers = members.items.values.take(3);
-
-          if (rxUsers.length < chat.value.membersCount && rxUsers.length < 3) {
-            titleParts = chat.value.members.take(3).map((e) => e.user.title);
-          } else {
-            users.addAll(rxUsers);
-
-            titleParts = rxUsers.map((e) => e.title);
-          }
-
-          title = titleParts.join('comma_space'.l10n);
-          if (chat.value.membersCount > 3) {
-            title += 'comma_space'.l10n + ('dot'.l10n * 3);
-          }
-        } else {
-          title = chat.value.name!.val;
+          users.addAll(members.items.values.take(3));
         }
         break;
 
+      case ChatKind.monolog:
       case ChatKind.artemisUnknown:
         // No-op.
         break;
@@ -367,7 +335,7 @@ class HiveRxChat extends RxChat {
       }
     }
 
-    return title;
+    return chat.value.getTitle(users, me);
   }
 
   /// Initializes this [HiveRxChat].
