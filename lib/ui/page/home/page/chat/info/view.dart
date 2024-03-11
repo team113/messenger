@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
@@ -353,8 +354,10 @@ class ChatInfoView extends StatelessWidget {
                         child = Column(
                           children: [
                             child,
-                            const CustomProgressIndicator(
-                              key: Key('MembersLoading'),
+                            CustomProgressIndicator(
+                              key: const Key('MembersLoading'),
+                              value:
+                                  Config.disableInfiniteAnimations ? 0 : null,
                             )
                           ],
                         );
