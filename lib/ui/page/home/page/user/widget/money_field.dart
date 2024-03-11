@@ -9,10 +9,12 @@ class MoneyField extends StatelessWidget {
     super.key,
     required this.state,
     this.label,
+    this.onChanged,
   });
 
   final TextFieldState state;
   final String? label;
+  final void Function(int)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +29,8 @@ class MoneyField extends StatelessWidget {
         LengthLimitingTextInputFormatter(9),
       ],
       onChanged: () {
-        String string =
-            NumberFormat.decimalPattern().format(int.tryParse(state.text) ?? 0);
+        final int parsed = int.tryParse(state.text) ?? 0;
+        String string = NumberFormat.decimalPattern().format(parsed);
 
         if (string == '0') {
           string = '';
@@ -38,6 +40,8 @@ class MoneyField extends StatelessWidget {
           text: string,
           selection: TextSelection.collapsed(offset: string.length),
         );
+
+        onChanged?.call(parsed);
       },
       hint: '0',
       prefixIcon: SizedBox(

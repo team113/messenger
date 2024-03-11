@@ -233,36 +233,36 @@ class _HomeViewState extends State<HomeView> {
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
                         final List<ContextMenuItem> top = [
-                          ContextMenuBuilder(
-                            (_) => Obx(() {
-                              final hasBalance =
-                                  c.settings.value?.balanceTabEnabled == true;
+                          // ContextMenuBuilder(
+                          //   (_) => Obx(() {
+                          //     final hasBalance =
+                          //         c.settings.value?.balanceTabEnabled == true;
 
-                              return ContextMenuTile(
-                                icon: const WalletWidget(),
-                                label: 'label_balance'.l10n,
-                                pinned: hasBalance,
-                                onPinned: () =>
-                                    c.setBalanceTabEnabled(!hasBalance),
-                              );
-                            }),
-                          ),
-                          ContextMenuBuilder(
-                            (_) => Obx(() {
-                              final hasWork =
-                                  c.settings.value?.workWithUsTabEnabled ==
-                                      true;
+                          //     return ContextMenuTile(
+                          //       icon: const WalletWidget(),
+                          //       label: 'label_balance'.l10n,
+                          //       pinned: hasBalance,
+                          //       onPinned: () =>
+                          //           c.setBalanceTabEnabled(!hasBalance),
+                          //     );
+                          //   }),
+                          // ),
+                          // ContextMenuBuilder(
+                          //   (_) => Obx(() {
+                          //     final hasWork =
+                          //         c.settings.value?.workWithUsTabEnabled ==
+                          //             true;
 
-                              return ContextMenuTile(
-                                icon: const SvgIcon(SvgIcons.partner),
-                                label: 'label_work_with_us'.l10n,
-                                pinned: hasWork,
-                                onPinned: () =>
-                                    c.setPartnerTabEnabled(!hasWork),
-                              );
-                            }),
-                          ),
-                          const ContextMenuDivider(),
+                          //     return ContextMenuTile(
+                          //       icon: const SvgIcon(SvgIcons.partner),
+                          //       label: 'label_work_with_us'.l10n,
+                          //       pinned: hasWork,
+                          //       onPinned: () =>
+                          //           c.setPartnerTabEnabled(!hasWork),
+                          //     );
+                          //   }),
+                          // ),
+                          // const ContextMenuDivider(),
                         ];
 
                         return AnimatedSlider(
@@ -465,7 +465,12 @@ class _HomeViewState extends State<HomeView> {
                                           left: 8,
                                         ),
                                         actions: [
-                                          ...top,
+                                          ContextMenuTile(
+                                            icon: SvgIcon(SvgIcons.addAccount),
+                                            label: 'Добавить аккаунт'.l10n,
+                                            pinnable: false,
+                                          ),
+                                          const ContextMenuDivider(),
                                           ContextMenuTile(
                                             label:
                                                 'label_presence_present'.l10n,

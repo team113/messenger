@@ -19,7 +19,9 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/page/login/widget/primary_button.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
@@ -38,26 +40,13 @@ class AccountsView extends StatelessWidget {
   static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(
       context: context,
-      desktopConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      modalConstraints: const BoxConstraints(maxWidth: 380),
-      mobilePadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-      mobileConstraints: const BoxConstraints(
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
-      ),
-      // color: const Color.fromARGB(255, 233, 235, 237),
       child: const AccountsView(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-    final TextStyle? thin =
-        theme.textTheme.bodyLarge?.copyWith(color: Colors.black);
+    final style = Theme.of(context).style;
 
     return GetBuilder(
       key: const Key('AccountsView'),
@@ -69,20 +58,12 @@ class AccountsView extends StatelessWidget {
           switch (c.stage.value) {
             case AccountsViewStage.login:
               children = [
-                ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'Login'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
-                ),
+                ModalPopupHeader(text: 'Login'.l10n),
                 const SizedBox(height: 50 - 12),
                 ReactiveTextField(
                   key: const Key('LoginField'),
                   state: c.login,
                   label: 'label_login'.l10n,
-                  style: thin,
                   treatErrorAsStatus: false,
                 ),
                 const SizedBox(height: 12),
@@ -91,7 +72,6 @@ class AccountsView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
-                  style: thin,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
                   trailing: SvgIcon(
@@ -109,7 +89,7 @@ class AccountsView extends StatelessWidget {
                         maxWidth: double.infinity,
                         onPressed: () => c.stage.value = AccountsViewStage.add,
                         color: const Color(0xFFEEEEEE),
-                        child: Text('btn_back'.l10n, style: thin),
+                        child: Text('btn_back'.l10n),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -119,10 +99,7 @@ class AccountsView extends StatelessWidget {
                         maxWidth: double.infinity,
                         onPressed: () {},
                         color: const Color(0xFF63B4FF),
-                        child: Text(
-                          'Login'.l10n,
-                          style: thin?.copyWith(color: Colors.white),
-                        ),
+                        child: Text('Login'.l10n),
                       ),
                     ),
                   ],
@@ -133,12 +110,7 @@ class AccountsView extends StatelessWidget {
             case AccountsViewStage.add:
               children = [
                 ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'Add account'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
+                  text: 'Add account'.l10n,
                   onBack: () => c.stage.value = null,
                 ),
                 const SizedBox(height: 25 - 12),
@@ -148,7 +120,6 @@ class AccountsView extends StatelessWidget {
                     key: const Key('LoginField'),
                     state: c.login,
                     label: 'label_login'.l10n,
-                    style: thin,
                     treatErrorAsStatus: false,
                   ),
                 ),
@@ -160,7 +131,6 @@ class AccountsView extends StatelessWidget {
                     state: c.password,
                     label: 'label_password'.l10n,
                     obscure: c.obscurePassword.value,
-                    style: thin,
                     onSuffixPressed: c.obscurePassword.toggle,
                     treatErrorAsStatus: false,
                     trailing: SvgIcon(
@@ -187,10 +157,7 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Center(
-                  child: Text(
-                    'OR'.l10n,
-                    style: thin?.copyWith(fontSize: 18),
-                  ),
+                  child: Text('OR'.l10n),
                 ),
                 const SizedBox(height: 25),
                 Padding(
@@ -215,33 +182,25 @@ class AccountsView extends StatelessWidget {
 
             default:
               children = [
-                ModalPopupHeader(
-                  header: Center(
-                    child: Text(
-                      'Your accounts'.l10n,
-                      style: thin?.copyWith(fontSize: 18),
-                    ),
-                  ),
-                ),
+                ModalPopupHeader(text: 'Your accounts'.l10n),
                 const SizedBox(height: 25 - 12),
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: ContactTile(
                     myUser: c.myUser.value,
                     darken: 0.05,
-                    // border: style.cardBorder,
                     selected: true,
-                    trailing: const [
+                    trailing: [
                       Text(
                         'Active',
-                        style: TextStyle(color: Color(0xFF63B4FF)),
+                        style: style.fonts.small.regular.onPrimary,
                       ),
                     ],
-                    subtitle: const [
-                      SizedBox(height: 5),
+                    subtitle: [
+                      const SizedBox(height: 5),
                       Text(
                         'Online',
-                        style: TextStyle(color: Color(0xFF888888)),
+                        style: style.fonts.small.regular.onPrimary,
                       ),
                     ],
                   ),
@@ -270,17 +229,9 @@ class AccountsView extends StatelessWidget {
                 const SizedBox(height: 10),
                 Padding(
                   padding: ModalPopup.padding(context),
-                  child: OutlinedRoundedButton(
-                    maxWidth: double.infinity,
+                  child: PrimaryButton(
                     onPressed: () => c.stage.value = AccountsViewStage.add,
-                    color: const Color(0xFF63B4FF),
-                    child: Text(
-                      'Add account'.l10n,
-                      style: thin?.copyWith(color: Colors.white),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    // color: Colors.white.darken(0.05),
+                    title: 'Add account'.l10n,
                   ),
                 ),
               ];

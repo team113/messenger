@@ -433,8 +433,14 @@ class SvgIcons {
 
   static const SvgData addAccount = SvgData(
     'assets/icons/add_account.svg',
-    width: 21.47,
-    height: 20,
+    width: 21.94,
+    height: 20.8,
+  );
+
+  static const SvgData switchAccount = SvgData(
+    'assets/icons/switch_account.svg',
+    width: 22.53,
+    height: 20.8,
   );
 
   static const SvgData delete = SvgData(
@@ -2178,8 +2184,8 @@ class SvgIcons {
 
   static const SvgData transactions = SvgData(
     'assets/icons/transactions.svg',
-    width: 20.5,
-    height: 20.82,
+    width: 19,
+    height: 20.8,
   );
 
   static const SvgData infoThick = SvgData(
@@ -2258,5 +2264,29 @@ class SvgIcons {
     'assets/icons/restricted.svg',
     width: 7,
     height: 7,
+  );
+
+  static const SvgData paypal = SvgData(
+    'assets/icons/paypal.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData creditCard = SvgData(
+    'assets/icons/credit_card.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData sepa = SvgData(
+    'assets/icons/sepa.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData swift = SvgData(
+    'assets/icons/swift.svg',
+    width: 32,
+    height: 32,
   );
 }

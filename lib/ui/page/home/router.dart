@@ -135,6 +135,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: ChatInfoView(ChatId(id)),
           ));
         }
+      } else if (route == Routes.balance) {
+        pages.add(const CustomPage(
+          key: ValueKey('BalancePage'),
+          name: Routes.balance,
+          child: BalanceProviderView(null),
+        ));
       } else if (route.startsWith('${Routes.balance}/')) {
         final provider = route.replaceFirst('${Routes.balance}/', '');
         pages.add(CustomPage(

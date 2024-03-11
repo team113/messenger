@@ -15,8 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
@@ -27,16 +29,19 @@ import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
+import 'package:messenger/ui/widget/menu_button.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'controller.dart';
+import 'widget/paypal_button/paypal_button.dart';
 
 class BalanceProviderView extends StatelessWidget {
   const BalanceProviderView(this.provider, {super.key});
 
-  final BalanceProvider provider;
+  final BalanceProvider? provider;
 
   @override
   Widget build(BuildContext context) {
@@ -108,18 +113,47 @@ class BalanceProviderView extends StatelessWidget {
                     .where((e) =>
                         e != BalanceProvider.applePay &&
                         e != BalanceProvider.googlePay)
-                    .map((e) {
+                    .mapIndexed((i, e) {
+                  if (e == BalanceProvider.paypal) {
+                    return Block(
+                      title: e.name,
+                      children: [
+                        MenuButton(
+                          leading: const SvgIcon(SvgIcons.paypal),
+                          title: 'G99',
+                          subtitle: 'Buy for \$0.99',
+                          onPressed: () {},
+                        ),
+                        const SizedBox(height: 3),
+                        MenuButton(
+                          leading: const SvgIcon(SvgIcons.paypal),
+                          title: 'G499',
+                          subtitle: 'Buy for \$4.99',
+                          onPressed: () {},
+                        ),
+                        const SizedBox(height: 8),
+                        const PayPalButton(),
+                      ],
+                    );
+                  }
+
                   return Block(
                     title: e.name,
                     children: [
                       const SizedBox(height: 8),
-                      MoneyField(state: TextFieldState(), label: 'Amount'),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Total: \$12.42',
-                        style: style.fonts.small.regular.secondary,
-                        textAlign: TextAlign.left,
+                      MoneyField(
+                        state: c.states[i],
+                        label: 'Amount',
+                        onChanged: (s) => c.prices[i].value = s,
                       ),
+                      const SizedBox(height: 8),
+                      Obx(() {
+                        return Text(
+                          'Total: \$${(c.prices[i].value / 100).withSpaces()}',
+                          style: style.fonts.small.regular.secondary,
+                          textAlign: TextAlign.left,
+                        );
+                      }),
                       const SizedBox(height: 8),
                       PrimaryButton(
                         title: 'Proceed',
@@ -294,4 +328,8 @@ class BalanceProviderView extends StatelessWidget {
       },
     );
   }
+}
+
+extension on num {
+  String withSpaces() => NumberFormat('#,##0.00').format(this);
 }

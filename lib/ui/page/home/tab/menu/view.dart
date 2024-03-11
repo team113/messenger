@@ -176,16 +176,16 @@ class MenuTabView extends StatelessWidget {
                     } else {
                       return AnimatedButton(
                         decorator: (child) => Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                          padding: const EdgeInsets.fromLTRB(16, 12, 3, 12),
                           child: child,
                         ),
-                        child: const SvgIcon(SvgIcons.more),
+                        child: const SvgIcon(SvgIcons.switchAccount),
                       );
 
                       return WidgetButton(
                         child: Text(
                           'Сменить\nаккаунт',
-                          style: style.fonts.small.regular.primary,
+                          style: style.fonts.smaller.regular.primary,
                           textAlign: TextAlign.center,
                         ),
                       );
@@ -250,6 +250,17 @@ class MenuTabView extends StatelessWidget {
               key: const Key('MenuListView'),
               itemCount: ProfileTab.values.length,
               itemBuilder: (context, i) {
+                // if (i == 0) {
+                //   return MenuButton(
+                //     leading: SvgIcon(SvgIcons.menuBalance),
+                //     title: 'Добавить аккаунт',
+                //     subtitle: 'Создать или войти в аккаунт',
+                //     onPressed: () => AccountsView.show(context),
+                //   );
+                // }
+
+                // --i;
+
                 final Widget child;
                 final ProfileTab tab = ProfileTab.values[i];
 

@@ -1009,7 +1009,7 @@ extension RouteLinks on RouterState {
 
   void balance(BalanceProvider provider, {bool push = false}) => push
       ? this.push('${Routes.balance}/${provider.name}')
-      : go('${Routes.balance}/${provider.name}');
+      : go(Routes.balance);
 
   void transaction(String id, {bool push = false}) => push
       ? this.push('${Routes.transaction}/$id')

@@ -158,6 +158,8 @@
   <!-- <script src="https://unpkg.com/@zxing/library@0.19.1" type="application/javascript"></script> -->
   <script src="https://unpkg.com/@zxing/library@0.20.0"></script>
   <script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+  <script
+    src='https://www.paypal.com/sdk/js?&client-id=AYoQZjIlYhx5-aTwG7cFBMHcP_RfzzZsiyg3XA6GGf5_CeaawsqfeQiEmr9ZDGYsbZkWYtr1hS8jIhgt&locale=en_US&currency=USD&disable-funding=paylater,bancontact,blik,eps,giropay,ideal,mercadopago,mybank,p24,sepa,sofort,venmo&enable-funding=card,credit'></script>
 </head>
 
 <body>
@@ -345,6 +347,34 @@
     function locksAvailable() {
       return navigator.locks !== undefined;
     }
+  </script>
+
+  <script>
+    function renderPayPalButton() {
+      paypal.Buttons({
+        style: {
+          layout: 'vertical',
+          color: 'blue',
+          shape: 'rect',
+          label: 'paypal'
+        },
+        createOrder: function (data, actions) {
+          return actions.order.create({
+            "purchase_units": [
+              {
+                "amount": {
+                  "currency_code": "USD",
+                  "value": 1
+                },
+                "description": "100 Gapopa coins"
+              }
+            ]
+          });
+        },
+        onInit(data, actions) { },
+      }).render('#paypal-button-container');
+    }
+
   </script>
 </body>
 

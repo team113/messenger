@@ -20,12 +20,19 @@ import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class BalanceProviderController extends GetxController {
   BalanceProviderController(this._balanceService, this._myUserService);
 
   final Rx<WebViewController?> webController = Rx(null);
+
+  final List<TextFieldState> states =
+      BalanceProvider.values.map((e) => TextFieldState()).toList();
+  final List<RxInt> prices =
+      BalanceProvider.values.map((e) => RxInt(0)).toList();
 
   final BalanceService _balanceService;
   final MyUserService _myUserService;

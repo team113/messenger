@@ -187,7 +187,7 @@ class ModalPopupHeader extends StatelessWidget {
               WidgetButton(
                 onPressed: onBack,
                 child: const Padding(
-                  padding: EdgeInsets.fromLTRB(12, 9, 12, 8),
+                  padding: EdgeInsets.fromLTRB(12, 9 + 5, 12, 8),
                   child: SvgIcon(SvgIcons.backSmall),
                 ),
               )

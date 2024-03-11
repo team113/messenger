@@ -53,10 +53,38 @@ class BalanceTabView extends StatelessWidget {
             title: Row(
               children: [
                 const SvgIcon(SvgIcons.menuBalance),
+                // Container(
+                //   constraints:
+                //       const BoxConstraints(minHeight: 32, minWidth: 32),
+                //   height: 32,
+                //   decoration: BoxDecoration(
+                //     color: Colors.brown,
+                //     borderRadius: BorderRadius.circular(6),
+                //   ),
+                //   padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                //   child: Center(
+                //     child: Text(
+                //       '¤${c.balance.value.toInt().withSpaces()}',
+                //       style: style.fonts.large.regular.onBackground
+                //           .copyWith(color: style.colors.onPrimary),
+                //     ),
+                //   ),
+                // ),
                 const SizedBox(width: 16),
                 Obx(() {
-                  return Text(
-                    'Balance: ¤${c.balance.value.toInt().withSpaces()}',
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '¤${c.balance.value.toInt().withSpaces()}',
+                        style: style.fonts.big.regular.onBackground,
+                      ),
+                      // Text(
+                      //   'Balance',
+                      //   style: style.fonts.smaller.regular.secondary,
+                      // ),
+                    ],
                   );
                 }),
               ],
@@ -65,6 +93,17 @@ class BalanceTabView extends StatelessWidget {
             //   return Text('Balance: ¤${c.balance.value.toInt().withSpaces()}');
             // }),
             actions: [
+              // WidgetButton(
+              //   onPressed: () {},
+              //   child: Padding(
+              //     padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+              //     child: Text(
+              //       'Транзакции',
+              //       style: style.fonts.small.regular.primary,
+              //       // textAlign: TextAlign.center,
+              //     ),
+              //   ),
+              // ),
               AnimatedButton(
                 onPressed: () {},
                 decorator: (child) => Padding(
@@ -300,6 +339,21 @@ class BalanceTabView extends StatelessWidget {
                     //   leading: const SvgIcon(SvgIcons.menuNotifications),
                     //   onPressed: () {},
                     // ),
+                    // Container(
+                    //   width: double.infinity,
+                    //   height: 170,
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(8),
+                    //     color: Colors.grey,
+                    //     border: Border.all(width: 0.5, color: Colors.black26),
+                    //   ),
+                    //   margin: const EdgeInsets.fromLTRB(10, 0, 10, 3),
+                    //   padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    //   child: Text(
+                    //     '¤${c.balance.value.toInt().withSpaces()}',
+                    //     style: style.fonts.largest.regular.onBackground,
+                    //   ),
+                    // ),
                     ...BalanceProvider.values.filtered.map((e) {
                       Widget button({
                         required String title,
@@ -334,28 +388,28 @@ class BalanceTabView extends StatelessWidget {
                       switch (e) {
                         case BalanceProvider.creditCard:
                           return button(
-                            asset: SvgIcons.menuPayment,
+                            asset: SvgIcons.creditCard,
                             title: 'Credit card',
                             bonus: 5,
                           );
 
                         case BalanceProvider.swift:
                           return button(
-                            asset: SvgIcons.menuCalls,
+                            asset: SvgIcons.swift,
                             title: 'SWIFT transfer',
                             bonus: 2,
                           );
 
                         case BalanceProvider.sepa:
                           return button(
-                            asset: SvgIcons.menuLink,
+                            asset: SvgIcons.sepa,
                             title: 'SEPA transfer',
                             bonus: 2,
                           );
 
                         case BalanceProvider.paypal:
                           return button(
-                            asset: SvgIcons.menuBackground,
+                            asset: SvgIcons.paypal,
                             title: 'PayPal',
                             bonus: -5,
                           );
