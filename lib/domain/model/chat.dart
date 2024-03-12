@@ -381,6 +381,14 @@ class ChatName extends NewType<String> {
 
   /// Regular expression for a [ChatName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+
+  static ChatName? tryParse(String val) {
+    try {
+      return ChatName(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Position of this [Chat] in the favorites list of the authenticated [MyUser].
@@ -389,8 +397,16 @@ class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {
   const ChatFavoritePosition(super.val);
 
-  factory ChatFavoritePosition.parse(String val) =>
+  static ChatFavoritePosition parse(String val) =>
       ChatFavoritePosition(double.parse(val));
+
+  static ChatFavoritePosition? tryParse(String val) {
+    try {
+      return parse(val);
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);

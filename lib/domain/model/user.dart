@@ -173,6 +173,9 @@ class UserId extends NewType<String> implements Comparable<UserId> {
 class UserNum extends NewType<String> {
   const UserNum._(super.val);
 
+  /// Creates an object without any validation.
+  const factory UserNum.unchecked(String val) = UserNum._;
+
   factory UserNum(String val) {
     val = val.replaceAll(' ', '');
 
@@ -183,6 +186,16 @@ class UserNum extends NewType<String> {
     }
 
     return UserNum._(val);
+  }
+
+  /// Parses the provided [val] as a [UserNum], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  static UserNum? tryParse(String val) {
+    try {
+      return UserNum(val);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Returns [UserNum] as [String] formatted in quartets.
@@ -198,9 +211,6 @@ class UserNum extends NewType<String> {
     }
     return formattedUserNum.trim();
   }
-
-  /// Creates an object without any validation.
-  const factory UserNum.unchecked(String val) = UserNum._;
 }
 
 /// Unique login of an [User].

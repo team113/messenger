@@ -218,6 +218,14 @@ class ChatItemKey implements Comparable<ChatItemKey> {
   /// [PreciseDateTime] part of this [ChatItemKey].
   final PreciseDateTime at;
 
+  static ChatItemKey? tryParse(String value) {
+    try {
+      return ChatItemKey.fromString(value);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   String toString() => '${at.microsecondsSinceEpoch}_$id';
 
