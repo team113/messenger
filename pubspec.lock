@@ -1288,18 +1288,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "37372d571a71468ec393ad69618eed95b5ba5d6d121e59d6231d5cc894492385"
+      sha256: "8b2d48c9a673f5218d4b3f800f2575dc7f478304910bf1b4531bc2e429a81ef0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.0-dev+rev.e0f5c599cce00f80872f4fa182242ac70dee2a7f"
+    version: "0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "30acacf5c9a5c4b6cde4a1720133a60406b47d5416ffc2806554a1a1bdc64e68"
+      sha256: c2cf09feaa703742a385396bbacb86cf753588f4c0e919322634ae5a8a270024
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.1-dev+rev.bdc39e03f2c129d82538a8b96741b93eac1cef38"
+    version: "0.5.0-dev+rev.3be6cab97a20c0ed382caf381ad4b44f65f9c97a"
   media_kit:
     dependency: "direct main"
     description:
@@ -1444,6 +1444,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.2"
+  os_detect:
+    dependency: transitive
+    description:
+      name: os_detect
+      sha256: faf3bcf39515e64da8ff76b2f2805b20a6ff47ae515393e535f8579ff91d6b7f
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   package_config:
     dependency: transitive
     description:
@@ -2251,6 +2259,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0+1"
+  upgrader:
+    dependency: "direct main"
+    description:
+      name: upgrader
+      sha256: ee220a2b68c9573ee5b88fff20c947c04422c2e9b3d3cc125a21ccc9bddcac64
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.0.0-alpha.3"
   uri_parser:
     dependency: transitive
     description:
@@ -2363,6 +2379,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  version:
+    dependency: transitive
+    description:
+      name: version
+      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
   vibration:
     dependency: "direct main"
     description:
