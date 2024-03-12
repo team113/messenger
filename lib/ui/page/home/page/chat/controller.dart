@@ -2235,24 +2235,24 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        final partnerName = users.firstWhereOrNull((u) => u.id != me)?.title ??
+        final String? name = users.firstWhereOrNull((u) => u.id != me)?.title ??
             members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
-        if (partnerName != null) {
-          title = partnerName;
+        if (name != null) {
+          title = name;
         }
         break;
 
       case ChatKind.group:
         if (name == null) {
-          Iterable<String> titleParts;
+          final Iterable<String> names;
 
           if (users.length < membersCount && users.length < 3) {
-            titleParts = members.take(3).map((e) => e.user.title);
+            names = members.take(3).map((e) => e.user.title);
           } else {
-            titleParts = users.take(3).map((e) => e.title);
+            names = users.take(3).map((e) => e.title);
           }
 
-          title = titleParts.join('comma_space'.l10n);
+          title = names.join('comma_space'.l10n);
           if (membersCount > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);
           }

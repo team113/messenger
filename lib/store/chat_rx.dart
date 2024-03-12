@@ -294,9 +294,11 @@ class HiveRxChat extends RxChat {
 
   @override
   String get title {
-    // [RxUser]s take parts in the [title] formation. Used to subscribe to the
-    // [RxUser.updates] to keep this [users] up-to-date.
-    List<RxUser> users = [];
+    // [RxUser]s taking part in the [title] formation.
+    //
+    // Used to subscribe to the [RxUser.updates] to keep these [users]
+    // up-to-date.
+    final List<RxUser> users = [];
 
     switch (chat.value.kind) {
       case ChatKind.dialog:
