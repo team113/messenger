@@ -22,6 +22,7 @@ import 'package:intl/intl.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/home/widget/wallet.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -52,7 +53,8 @@ class BalanceTabView extends StatelessWidget {
             leading: const [SizedBox(width: 21)],
             title: Row(
               children: [
-                const SvgIcon(SvgIcons.menuBalance),
+                const WalletWidget(balance: 0, visible: false),
+                // const SvgIcon(SvgIcons.menuBalance),
                 // Container(
                 //   constraints:
                 //       const BoxConstraints(minHeight: 32, minWidth: 32),

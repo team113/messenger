@@ -25,16 +25,21 @@ import '/ui/widget/text_field.dart';
 
 /// Possible [AccountsView] flow stage.
 enum AccountsViewStage {
+  accounts,
   add,
-  login,
+  signIn,
+  signUp,
 }
 
 /// Controller of an [AccountsView].
 class AccountsController extends GetxController {
-  AccountsController(this._myUser);
+  AccountsController(
+    this._myUser, {
+    AccountsViewStage initial = AccountsViewStage.accounts,
+  }) : stage = Rx(initial);
 
   /// [AccountsViewStage] currently being displayed.
-  final Rx<AccountsViewStage?> stage = Rx(null);
+  late final Rx<AccountsViewStage> stage;
 
   /// [MyUser.num]'s copyable [TextFieldState].
   late final TextFieldState login;

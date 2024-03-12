@@ -142,8 +142,8 @@ class _ChatTileState extends State<ChatTile> {
     final Color chosen =
         widget.active ? style.activeColor : style.selectedColor;
 
-    final Border normalBorder =
-        Border.all(color: style.colors.secondaryHighlight, width: 0.5);
+    final Border normalBorder = style.cardBorder;
+    // Border.all(color: style.colors.secondaryHighlight, width: 0.5);
     final Border hoverBorder =
         Border.all(color: style.colors.primaryHighlightShiniest, width: 0.5);
     final Border paidBorder =

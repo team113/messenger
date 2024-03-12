@@ -42,6 +42,7 @@ import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
 import 'package:messenger/ui/page/home/page/user/widget/copy_or_share.dart';
 import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/page/user/widget/prices.dart';
+import 'package:messenger/ui/page/home/tab/menu/accounts/view.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
@@ -2229,11 +2230,32 @@ Widget _bar(MyProfileController c, BuildContext context) {
   );
 
   return Obx(() {
+    final section = switch (router.profileSection.value) {
+      null || ProfileTab.public => 'label_profile'.l10n,
+      ProfileTab.signing => 'label_login_options'.l10n,
+      ProfileTab.link => 'label_link_to_chat'.l10n,
+      ProfileTab.background => 'label_background'.l10n,
+      ProfileTab.chats => 'label_chats'.l10n,
+      ProfileTab.calls => 'label_calls'.l10n,
+      ProfileTab.media => 'label_media'.l10n,
+      ProfileTab.welcome => 'label_welcome_message'.l10n,
+      ProfileTab.getPaid => 'Монетизация (входящие)'.l10n,
+      ProfileTab.donates => 'Монетизация (донаты)'.l10n,
+      ProfileTab.notifications => 'label_notifications'.l10n,
+      ProfileTab.storage => 'label_storage'.l10n,
+      ProfileTab.language => 'label_language'.l10n,
+      ProfileTab.blocklist => 'label_blocked_users'.l10n,
+      ProfileTab.devices => 'label_linked_devices'.l10n,
+      ProfileTab.sections => 'label_show_sections'.l10n,
+      ProfileTab.download => 'label_download'.l10n,
+      ProfileTab.danger => 'label_danger_zone'.l10n,
+      ProfileTab.styles => 'Styles'.l10n,
+      ProfileTab.logout => 'btn_logout'.l10n,
+    };
+
     final Widget title;
 
-    if (c.displayName.value ||
-        !context.isNarrow ||
-        true /* && context.isNarrow*/) {
+    if (context.isNarrow) {
       title = Row(
         children: [
           const SizedBox(width: 4),
@@ -2253,7 +2275,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
             ),
           ),
           const SizedBox(width: 10),
-          Flexible(
+          Expanded(
             child: DefaultTextStyle.merge(
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -2268,17 +2290,39 @@ Widget _bar(MyProfileController c, BuildContext context) {
                           'dot'.l10n * 3,
                       style: style.fonts.big.regular.onBackground,
                     ),
-                    Text(
-                      '${router.profileSection.value?.name.capitalizeFirst}'
-                          .l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
+                    Text(section, style: style.fonts.small.regular.secondary),
                   ],
                 );
               }),
             ),
           ),
           const SizedBox(width: 10),
+          WidgetButton(
+            behavior: HitTestBehavior.translucent,
+            onPressed: () => AccountsView.show(context),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Obx(() {
+                if (router.accounts.value == 0) {
+                  return WidgetButton(
+                    child: Text(
+                      'Добавить\nаккаунт',
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                } else {
+                  return WidgetButton(
+                    child: Text(
+                      'Сменить\nаккаунт',
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
+              }),
+            ),
+          ),
         ],
       );
     } else {
@@ -2291,9 +2335,10 @@ Widget _bar(MyProfileController c, BuildContext context) {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(child: Text('label_profile'.l10n)),
+              child: Center(child: Text(section)),
             ),
           ),
+          const SizedBox(width: 54),
         ],
       );
     }

@@ -66,6 +66,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
+import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/log.dart';
@@ -160,6 +161,7 @@ Future<void> main() async {
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
+    Get.put(UpgradeWorker());
 
     WebUtils.deleteLoader();
 

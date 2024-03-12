@@ -52,6 +52,7 @@ class MessagePopup {
     String title, {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
+    String? proceed,
   }) {
     final style = Theme.of(router.context!).style;
 
@@ -99,7 +100,7 @@ class MessagePopup {
                   onPressed: () => Navigator.of(context).pop(true),
                   color: style.colors.primary,
                   child: Text(
-                    'btn_proceed'.l10n,
+                    proceed ?? 'btn_proceed'.l10n,
                     style: style.fonts.normal.regular.onPrimary,
                   ),
                 ),
