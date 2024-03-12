@@ -234,6 +234,7 @@ class ChatForwardController extends GetxController {
   @override
   void onClose() {
     send.onClose();
+    scrollController.dispose();
     super.onClose();
   }
 

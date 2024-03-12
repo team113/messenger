@@ -123,6 +123,12 @@ class ChangePasswordController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   /// Validates and updates current [myUser]'s password with the one specified
   /// in the [newPassword] and [repeatPassword] fields.
   Future<void> changePassword() async {

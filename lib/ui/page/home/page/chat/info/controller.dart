@@ -212,8 +212,8 @@ class ChatInfoController extends GetxController {
     _worker?.dispose();
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();
-    membersScrollController.removeListener(_scrollListener);
-    scrollController.removeListener(_ensureNameDisplayed);
+    membersScrollController.dispose();
+    scrollController.dispose();
     super.onClose();
   }
 

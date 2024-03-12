@@ -186,6 +186,7 @@ class ContactsTabController extends GetxController {
     }
 
     fetching.value?.cancel();
+    scrollController.dispose();
 
     super.onClose();
   }
