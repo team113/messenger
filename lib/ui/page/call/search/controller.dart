@@ -810,6 +810,7 @@ class SearchController extends GetxController {
         } else {
           // Ensure all animations are finished as [scrollController.hasClients]
           // may be `true` during an animation.
+          _ensureScrollableTimer?.cancel();
           _ensureScrollableTimer = Timer(
             1.seconds,
             () async {

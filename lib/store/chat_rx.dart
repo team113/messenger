@@ -1089,7 +1089,7 @@ class HiveRxChat extends RxChat {
         _putMember(HiveChatMember(member, null), ignoreBounds: true);
       }
 
-      if (members.items.length == chat.value.membersCount) {
+      if (members.pagination?.items.length == chat.value.membersCount) {
         members.pagination?.hasNext.value = false;
         members.pagination?.hasPrevious.value = false;
         members.status.value = RxStatus.success();
