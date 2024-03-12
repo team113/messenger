@@ -1239,10 +1239,15 @@ class ChatRepository extends DisposableInterface
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
       } else if (id.isLocal) {
-        await ensureRemoteDialog(id);
+        final HiveRxChat? chat = await ensureRemoteDialog(id);
+        if (chat != null) {
+          id = chat.id;
+        }
       }
 
-      await _graphQlProvider.favoriteChat(id, newPosition);
+      if (!id.isLocal) {
+        await _graphQlProvider.favoriteChat(id, newPosition);
+      }
     } catch (e) {
       if (chat?.chat.value.isMonolog == true) {
         _localMonologFavoritePosition = null;
