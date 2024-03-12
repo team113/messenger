@@ -201,9 +201,7 @@ class CallWorker extends DisposableService {
 
                   void showIncomingCallNotification(RxChat? chat) {
                     if (chat?.chat.value.muted == null) {
-                      String? title = chat?.title.value ??
-                          c.caller?.name?.val ??
-                          c.caller?.num.val;
+                      String? title = chat?.title ?? c.caller?.title;
 
                       _notificationService.show(
                         title ?? 'label_incoming_call'.l10n,

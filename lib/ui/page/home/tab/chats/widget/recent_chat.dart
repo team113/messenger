@@ -338,7 +338,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
-          .map((User user) => user.name?.val ?? user.num.toString());
+          .map((User user) => user.title);
 
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
@@ -597,16 +597,17 @@ class RecentChatTile extends StatelessWidget {
           // [id].
           Widget userBuilder(
             UserId id,
-            Widget Function(BuildContext context, User? user) builder,
+            Widget Function(BuildContext context, RxUser? user) builder,
           ) {
             final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
 
             return FutureBuilder(
+              key: Key('UserBuilder_$id'),
               future: userOrFuture is RxUser? ? null : userOrFuture,
               initialData: userOrFuture is RxUser? ? userOrFuture : null,
               builder: (context, snapshot) {
                 if (snapshot.data != null) {
-                  return Obx(() => builder(context, snapshot.data!.user.value));
+                  return Obx(() => builder(context, snapshot.data!));
                 }
 
                 return builder(context, null);
@@ -618,9 +619,8 @@ class RecentChatTile extends StatelessWidget {
             case ChatInfoActionKind.created:
               if (chat.isGroup) {
                 content = userBuilder(item.author.id, (context, user) {
-                  user ??= item.author;
                   final Map<String, dynamic> args = {
-                    'author': user.name?.val ?? user.num.toString(),
+                    'author': user?.title ?? item.author.title,
                   };
 
                   return Text('label_group_created_by'.l10nfmt(args));
@@ -636,21 +636,20 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               content = userBuilder(action.user.id, (context, user) {
-                final User author = item.author;
-                user = action.user;
+                final String userName = user?.title ?? action.user.title;
 
                 if (item.author.id != action.user.id) {
-                  final Map<String, dynamic> args = {
-                    'author': author.name?.val ?? author.num.toString(),
-                    'user': user.name?.val ?? user.num.toString(),
-                  };
+                  return userBuilder(item.author.id, (context, author) {
+                    final Map<String, dynamic> args = {
+                      'author': author?.title ?? item.author.title,
+                      'user': userName,
+                    };
 
-                  return Text('label_user_added_user'.l10nfmt(args));
+                    return Text('label_user_added_user'.l10nfmt(args));
+                  });
                 } else {
                   return Text(
-                    'label_was_added'.l10nfmt(
-                      {'author': user.name?.val ?? user.num.toString()},
-                    ),
+                    'label_was_added'.l10nfmt({'author': userName}),
                   );
                 }
               });
@@ -660,53 +659,58 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberRemoved;
 
               if (item.author.id != action.user.id) {
-                content = userBuilder(action.user.id, (context, user) {
-                  final User author = item.author;
-                  user = action.user;
+                content = userBuilder(item.author.id, (context, author) {
+                  return userBuilder(action.user.id, (context, user) {
+                    final Map<String, dynamic> args = {
+                      'author': author?.title ?? item.author.title,
+                      'user': user?.title ?? action.user.title,
+                    };
 
-                  final Map<String, dynamic> args = {
-                    'author': author.name?.val ?? author.num.toString(),
-                    'user': user.name?.val ?? user.num.toString(),
-                  };
-
-                  return Text('label_user_removed_user'.l10nfmt(args));
+                    return Text('label_user_removed_user'.l10nfmt(args));
+                  });
                 });
               } else {
-                content = Text(
-                  'label_was_removed'.l10nfmt(
-                    {'author': '${action.user.name ?? action.user.num}'},
-                  ),
-                );
+                content = userBuilder(action.user.id, (context, rxUser) {
+                  return Text(
+                    'label_was_removed'.l10nfmt(
+                      {'author': rxUser?.title ?? action.user.title},
+                    ),
+                  );
+                });
               }
               break;
 
             case ChatInfoActionKind.avatarUpdated:
               final action = item.action as ChatInfoActionAvatarUpdated;
 
-              final Map<String, dynamic> args = {
-                'author': item.author.name?.val ?? item.author.num.toString(),
-              };
+              content = userBuilder(item.author.id, (context, user) {
+                final Map<String, dynamic> args = {
+                  'author': user?.title ?? item.author.title,
+                };
 
-              if (action.avatar == null) {
-                content = Text('label_avatar_removed'.l10nfmt(args));
-              } else {
-                content = Text('label_avatar_updated'.l10nfmt(args));
-              }
+                if (action.avatar == null) {
+                  return Text('label_avatar_removed'.l10nfmt(args));
+                } else {
+                  return Text('label_avatar_updated'.l10nfmt(args));
+                }
+              });
               break;
 
             case ChatInfoActionKind.nameUpdated:
               final action = item.action as ChatInfoActionNameUpdated;
 
-              final Map<String, dynamic> args = {
-                'author': item.author.name?.val ?? item.author.num.toString(),
-                if (action.name != null) 'name': action.name?.val
-              };
+              content = userBuilder(item.author.id, (context, user) {
+                final Map<String, dynamic> args = {
+                  'author': user?.title ?? item.author.title,
+                  'name': action.name?.val,
+                };
 
-              if (action.name == null) {
-                content = Text('label_name_removed'.l10nfmt(args));
-              } else {
-                content = Text('label_name_updated'.l10nfmt(args));
-              }
+                if (action.name == null) {
+                  return Text('label_name_removed'.l10nfmt(args));
+                } else {
+                  return Text('label_name_updated'.l10nfmt(args));
+                }
+              });
               break;
           }
 
