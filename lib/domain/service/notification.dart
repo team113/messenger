@@ -195,8 +195,8 @@ class NotificationService extends DisposableService {
       }
     }
 
-    // If application is in focus and the payload is the current route, then
-    // don't show a local notification.
+    // If application is in focus, the payload is the current route and nothing
+    // is obscuring the screen, then don't show a local notification.
     if (_active && payload == router.route && router.obscuringModals.isEmpty) {
       return;
     }
