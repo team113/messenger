@@ -304,9 +304,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                           child: SelectionText.rich(
                             TextSpan(
-                              text: widget.user?.user.value.name?.val ??
-                                  widget.user?.user.value.num.toString() ??
-                                  'dot'.l10n * 3,
+                              text: widget.user?.title ?? 'dot'.l10n * 3,
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () =>
                                     router.user(widget.authorId, push: true),
@@ -419,9 +417,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         padding: const EdgeInsets.only(left: 12, right: 9),
                         child: SelectionText.rich(
                           TextSpan(
-                            text: data?.user.value.name?.val ??
-                                data?.user.value.num.toString() ??
-                                'dot'.l10n * 3,
+                            text: data?.title ?? 'dot'.l10n * 3,
                             recognizer: TapGestureRecognizer()
                               ..onTap =
                                   () => router.user(quote.author, push: true),
@@ -709,9 +705,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                     child: SelectionText.rich(
                       TextSpan(
-                        text: widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.toString() ??
-                            'dot'.l10n * 3,
+                        text: widget.user?.title ?? 'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
                           ..onTap =
                               () => router.user(widget.authorId, push: true),
@@ -852,10 +846,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 return Tooltip(
-                  message: data?.user.value.name?.val ??
-                      data?.user.value.num.toString() ??
-                      user?.name?.val ??
-                      user?.num.toString(),
+                  message: data?.title ?? user?.title,
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(

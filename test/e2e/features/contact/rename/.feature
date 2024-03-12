@@ -15,42 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment User on User {
-    id
-    num
-    name
-    bio
-    avatar {
-        __typename
-        ...UserAvatar
-    }
-    callCover {
-        __typename
-        ...UserCallCover
-    }
-    mutualContactsCount
-    contacts {
-        __typename
-        ...NestedChatContact
-    }
-    online {
-        __typename
-        ... on UserOffline {
-            lastSeenAt
-        }
-    }
-    presence
-    status
-    isDeleted
-    dialog {
-        id
-    }
-    isBlocked {
-        record {
-            reason
-            at
-        }
-        ver
-    }
-    ver
-}
+Feature: Contacts renaming
+
+  Scenario: User sees dialog's title being contact's name
+    Given I am Alice
+    And user Bob
+    And contact Bob
+    And Bob has dialog with me
+    And I see "Bob" chat
+
+    When I rename Bob contact to "Charlie"
+    Then I see "Charlie" chat
