@@ -1238,6 +1238,8 @@ class ChatRepository extends DisposableInterface
 
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
+      } else if (id.isLocal) {
+        await ensureRemoteDialog(id);
       }
 
       await _graphQlProvider.favoriteChat(id, newPosition);
