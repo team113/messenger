@@ -301,20 +301,20 @@ class ChatInfoView extends StatelessWidget {
                     shrinkWrap: true,
                     itemCount: members.length + 1,
                     itemBuilder: (_, i) {
-                      i -= 1;
+                      i--;
 
                       Widget child;
 
-                      if (i == -1) {
-                        MyUser? myUser = c.myUser.value;
+                      final bool hasCall =
+                          c.chat?.chat.value.ongoingCall != null;
 
+                      if (i == -1) {
+                        final MyUser? myUser = c.myUser.value;
                         final bool inCall = c.chat?.inCall.value == true;
 
                         child = MemberTile(
                           myUser: myUser,
-                          inCall: c.chat?.chat.value.ongoingCall == null
-                              ? null
-                              : inCall,
+                          inCall: hasCall ? inCall : null,
                           onCall: inCall
                               ? () {
                                   if (myUser != null) {
@@ -324,7 +324,7 @@ class ChatInfoView extends StatelessWidget {
                               : c.joinCall,
                         );
                       } else {
-                        RxUser member = members[i];
+                        final RxUser member = members[i];
 
                         final bool inCall = c
                                 .chat?.chat.value.ongoingCall?.members
@@ -333,9 +333,7 @@ class ChatInfoView extends StatelessWidget {
 
                         child = MemberTile(
                           user: member,
-                          inCall: c.chat?.chat.value.ongoingCall == null
-                              ? null
-                              : inCall,
+                          inCall: hasCall ? inCall : null,
                           onTap: () =>
                               router.chat(member.user.value.dialog, push: true),
                           onCall: inCall

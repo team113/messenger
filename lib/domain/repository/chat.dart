@@ -348,10 +348,10 @@ abstract class RxChat implements Comparable<RxChat> {
 class RxChatMember implements Comparable<RxChatMember> {
   RxChatMember(this.user, this.joinedAt);
 
-  /// [RxUser] of this [RxChatMember].
+  /// [RxUser] itself.
   final RxUser user;
 
-  /// [PreciseDateTime] when the [user] joined to the chat.
+  /// [PreciseDateTime] when the [User] became a [ChatMember].
   final PreciseDateTime joinedAt;
 
   @override

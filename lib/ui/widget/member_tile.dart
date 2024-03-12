@@ -60,9 +60,9 @@ class MemberTile extends StatelessWidget {
   /// Callback, called when the kick button is pressed.
   final Future<void> Function()? onKick;
 
-  /// Indicated whether this [MemberTile] is represents a [MyUser], meaning
+  /// Indicates whether this [MemberTile] represents a [MyUser], meaning
   /// displaying appropriate labels.
-  bool get me => myUser != null;
+  bool get _me => myUser != null;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class MemberTile extends StatelessWidget {
       user: user,
       myUser: myUser,
       dense: true,
-      onTap: me ? null : onTap,
+      onTap: _me ? null : onTap,
       padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
       trailing: [
         if (inCall != null)
@@ -106,12 +106,12 @@ class MemberTile extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerRight,
             child: AnimatedButton(
-              enabled: !me,
+              enabled: !_me,
               decorator: (child) => Padding(
                 padding: const EdgeInsets.all(12),
                 child: child,
               ),
-              onPressed: me
+              onPressed: _me
                   ? null
                   : () async {
                       final bool? result = await MessagePopup.alert(
@@ -133,7 +133,7 @@ class MemberTile extends StatelessWidget {
                         await onKick?.call();
                       }
                     },
-              child: me
+              child: _me
                   ? Text(
                       'label_you'.l10n,
                       style: style.fonts.normal.regular.secondary,

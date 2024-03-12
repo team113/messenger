@@ -1469,7 +1469,7 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Initializes [ContactHiveProvider.boxEvents] subscription.
+  /// Initializes [ChatMemberHiveProvider.boxEvents] subscription.
   Future<void> _initMembersLocalSubscription() async {
     Log.debug('_initMembersLocalSubscription()', '$runtimeType');
 

@@ -149,7 +149,7 @@ class ParticipantView extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             itemCount: members.length + 1,
                             itemBuilder: (_, i) {
-                              i -= 1;
+                              i--;
 
                               Widget child;
 
@@ -177,6 +177,7 @@ class ParticipantView extends StatelessWidget {
                                   onTap: () {
                                     // TODO: Open the [Routes.user] page.
                                   },
+
                                   // TODO: Wait for backend to support removing
                                   //       active call notification.
                                   onCall: inCall
