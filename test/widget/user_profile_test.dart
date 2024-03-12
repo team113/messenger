@@ -122,6 +122,7 @@ void main() async {
     'avatar': null,
     'callCover': null,
     'mutualContactsCount': 0,
+    'contacts': [],
     'online': {
       '__typename': 'UserOffline',
       'lastSeenAt': '2022-03-14T12:55:28.415454+00:00'
@@ -230,6 +231,7 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  await sessionProvider.clear();
   var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
@@ -365,6 +367,9 @@ void main() async {
           'avatar': null,
           'callCover': null,
           'mutualContactsCount': 0,
+          'contacts': [
+            {'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'}
+          ],
           'online': {
             '__typename': 'UserOffline',
             'lastSeenAt': '2022-03-14T12:55:28.415454+00:00'
@@ -413,8 +418,8 @@ void main() async {
             'at': '2022-03-21T12:58:29.700441900+00:00',
           }
         ],
-        'ver': '3',
-        'listVer': '3'
+        'ver': '7',
+        'listVer': '7'
       };
 
       contactEvents.add(QueryResult.internal(
@@ -481,6 +486,7 @@ void main() async {
       ),
     );
     Get.put(ContactService(contactRepository));
+    userRepository.getContact = contactRepository.get;
 
     final callRepository = Get.put(
       CallRepository(
@@ -516,13 +522,13 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('user name'), findsAny);
-    expect(find.byKey(const Key('Present')), findsOneWidget);
     await tester.dragUntilVisible(
       find.byKey(const Key('NumCopyable')),
       find.byKey(const Key('UserScrollable')),
       const Offset(1, 1),
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.byKey(const Key('Present')), findsOneWidget);
     expect(find.text('5769space2360space9862space1822'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('MoreButton')));

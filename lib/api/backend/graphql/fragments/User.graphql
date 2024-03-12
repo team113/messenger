@@ -29,6 +29,9 @@ fragment User on User {
         ...UserCallCover
     }
     mutualContactsCount
+    contacts {
+        id
+    }
     online {
         __typename
         ... on UserOffline {

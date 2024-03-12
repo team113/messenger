@@ -263,6 +263,7 @@ void main() async {
                   'id': 'me',
                   'num': '1234567890123456',
                   'mutualContactsCount': 0,
+                  'contacts': [],
                   'isDeleted': false,
                   'isBlocked': {'ver': '0'},
                   'presence': 'AWAY',
@@ -636,8 +637,5 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await Get.deleteAll(force: true);
-
-    await tester.runAsync(() => Future.delayed(1.milliseconds));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

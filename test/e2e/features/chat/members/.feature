@@ -41,3 +41,8 @@ Feature: Chat members
     And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
     Then I wait until text "Charlie" is present
+
+  Scenario: User gets removed
+    When I wait until text "Alice and Bob" is present
+    And Bob removes Alice from "Alice and Bob" group
+    Then I wait until text "Alice and Bob" is absent

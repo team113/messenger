@@ -279,6 +279,7 @@ void main() async {
                     'id': 'me',
                     'num': '1234567890123456',
                     'mutualContactsCount': 0,
+                    'contacts': [],
                     'isDeleted': false,
                     'isBlocked': {'ver': '0'},
                     'presence': 'AWAY',
@@ -346,6 +347,7 @@ void main() async {
                 'id': 'me',
                 'num': '1234567890123456',
                 'mutualContactsCount': 0,
+                'contacts': [],
                 'isDeleted': false,
                 'isBlocked': {'ver': '0'},
                 'presence': 'AWAY',
@@ -360,6 +362,7 @@ void main() async {
                     'id': 'me',
                     'num': '1234567890123456',
                     'mutualContactsCount': 0,
+                    'contacts': [],
                     'isDeleted': false,
                     'isBlocked': {'ver': '0'},
                     'presence': 'AWAY',
@@ -644,8 +647,5 @@ void main() async {
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
     await Get.deleteAll(force: true);
-
-    await tester.runAsync(() => Future.delayed(1.milliseconds));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
   });
 }

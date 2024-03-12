@@ -153,6 +153,7 @@ void main() async {
                 'presence': 'AWAY',
                 'online': {'__typename': 'UserOnline'},
                 'mutualContactsCount': 0,
+                'contacts': [],
                 'isDeleted': false,
                 'isBlocked': {'ver': '0'},
               },
@@ -173,6 +174,7 @@ void main() async {
                   'presence': 'AWAY',
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
+                  'contacts': [],
                   'isDeleted': false,
                   'isBlocked': {'ver': '0'},
                 },
@@ -216,6 +218,7 @@ void main() async {
                 'presence': 'AWAY',
                 'online': {'__typename': 'UserOnline'},
                 'mutualContactsCount': 0,
+                'contacts': [],
                 'isDeleted': false,
                 'isBlocked': {'ver': '0'},
               },
@@ -236,6 +239,7 @@ void main() async {
                   'presence': 'AWAY',
                   'online': {'__typename': 'UserOnline'},
                   'mutualContactsCount': 0,
+                  'contacts': [],
                   'isDeleted': false,
                   'isBlocked': {'ver': '0'},
                 },
@@ -382,6 +386,8 @@ void main() async {
       ),
       throwsA(isA<AddChatMemberException>()),
     );
+
+    await Future.delayed(Duration.zero);
 
     verify(graphQlProvider.addChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

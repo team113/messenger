@@ -248,7 +248,7 @@ class _HomeViewState extends State<HomeView> {
                                                 label:
                                                     'label_work_with_us'.l10n,
                                                 pinned: hasWork,
-                                                onPinned: () =>
+                                                onPressed: (_) =>
                                                     c.setWorkWithUsTabEnabled(
                                                   !hasWork,
                                                 ),

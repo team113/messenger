@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,6 +25,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -53,7 +53,6 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
@@ -73,9 +72,6 @@ class UserController extends GetxController {
 
   /// Reactive [User] itself.
   RxUser? user;
-
-  /// Reactive [ChatContact] linked to the [user].
-  Rx<RxChatContact?> contact = Rx<RxChatContact?>(null);
 
   /// Status of the [user] fetching.
   ///
@@ -111,6 +107,9 @@ class UserController extends GetxController {
   /// - `status.isEmpty`, meaning no [block] is executing.
   final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
 
+  /// Indicator whether [AppBar] should display the [UserName] and [UserAvatar].
+  final RxBool displayName = RxBool(false);
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -123,11 +122,11 @@ class UserController extends GetxController {
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
 
-  /// [StreamSubscription] to [ContactService.contacts] determining the
-  /// [inContacts] and [inFavorites] indicators.
-  StreamSubscription? _contactsSubscription;
+  /// [Worker] reacting on the [RxUser.contact] changes updating the [_worker].
+  Worker? _contactWorker;
 
-  /// [Worker] reacting on the [contact] or [user] changes updating the [name].
+  /// [Worker] reacting on the [RxChatContact.contact] or [user] changes
+  /// updating the [name].
   Worker? _worker;
 
   /// Subscription for the [user] changes.
@@ -138,6 +137,17 @@ class UserController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  /// Returns reactive [RxChatContact] linked to the [user].
+  ///
+  /// Only meaningful, if [user] is non-`null`.
+  Rx<RxChatContact?> get contact => user!.contact;
+
+  /// Returns [ChatContactId] of the [contact].
+  ///
+  /// Should be used to determine whether the [user] is in the contacts list, as
+  /// [contact] may be fetched with a delay.
+  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
 
   @override
   void onInit() {
@@ -193,50 +203,41 @@ class UserController extends GetxController {
       },
     );
 
-    _fetchUser();
-
-    // TODO: Refactor determination to be a [RxBool] in [RxUser] field.
-    contact.value = _contactService.contacts.values.firstWhereOrNull(
-      (e) => e.contact.value.users.every((m) => m.id == id),
-    );
-
     _updateWorker();
 
-    _contactsSubscription = _contactService.contacts.changes.listen((e) {
-      switch (e.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          if (e.value!.contact.value.users.isNotEmpty &&
-              e.value!.contact.value.users.every((e) => e.id == id)) {
-            contact.value = e.value;
-            _updateWorker();
-          }
-          break;
+    _fetchUser().whenComplete(() {
+      if (isClosed) {
+        return;
+      }
 
-        case OperationKind.removed:
-          if (e.value?.contact.value.users.every((e) => e.id == id) == true) {
-            contact.value = null;
+      if (user != null) {
+        _contactWorker = ever(contact, (contact) {
+          if (contact == null) {
             profileEditing.value = false;
-            _updateWorker();
           }
-          break;
+
+          _updateWorker();
+        });
       }
     });
+
+    scrollController.addListener(_ensureNameDisplayed);
 
     super.onInit();
   }
 
   @override
   void onClose() {
-    _contactsSubscription?.cancel();
     _userSubscription?.cancel();
+    _contactWorker?.dispose();
     _worker?.dispose();
+    scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
 
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
   Future<void> addToContacts() async {
-    if (contact.value == null) {
+    if (contactId == null) {
       status.value = RxStatus.loadingMore();
       try {
         await _contactService.createChatContact(user!.user.value);
@@ -251,14 +252,10 @@ class UserController extends GetxController {
 
   /// Removes the [user] from the contacts list of the authenticated [MyUser].
   Future<void> removeFromContacts() async {
-    if (contact.value != null) {
+    if (contactId != null) {
       status.value = RxStatus.loadingMore();
       try {
-        if (contact.value != null) {
-          await _contactService.deleteContact(contact.value!.contact.value.id);
-          contact.value = null;
-          _updateWorker();
-        }
+        await _contactService.deleteContact(contactId!);
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -325,8 +322,8 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      if (contact.value != null) {
-        await _contactService.favoriteChatContact(contact.value!.id);
+      if (contactId != null) {
+        await _contactService.favoriteChatContact(contactId!);
       }
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -339,8 +336,8 @@ class UserController extends GetxController {
   /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
-      if (contact.value != null) {
-        await _contactService.unfavoriteChatContact(contact.value!.id);
+      if (contactId != null) {
+        await _contactService.unfavoriteChatContact(contactId!);
       }
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -470,7 +467,7 @@ class UserController extends GetxController {
 
   /// Listens to the [contact] or [user] changes updating the [name].
   void _updateWorker() {
-    if (contact.value != null) {
+    if (user != null && contact.value != null) {
       name.unchecked = contact.value!.contact.value.name.val;
 
       _worker?.dispose();
@@ -490,6 +487,12 @@ class UserController extends GetxController {
         }
       });
     }
+  }
+
+  /// Ensures the [displayName] is either `true` or `false` based on the
+  /// [scrollController].
+  void _ensureNameDisplayed() {
+    displayName.value = scrollController.position.pixels >= 250;
   }
 }
 

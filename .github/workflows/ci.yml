@@ -129,6 +129,13 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
+      # TODO: Remove, when subosito/flutter-action#278 is fixed:
+      #       https://github.com/subosito/flutter-action/issues/278
+      - name: Export pub environment variable on Windows
+        run: echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+        shell: bash
+        if: ${{ matrix.platform == 'windows' }}
+
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
@@ -715,7 +722,7 @@ jobs:
                   name=link::${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: helm/${{ matrix.chart }} ${{ steps.semver.outputs.group1 }}
           body: >
@@ -845,7 +852,7 @@ jobs:
         working-directory: artifacts/
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.semver.outputs.group1 }}
           body: >

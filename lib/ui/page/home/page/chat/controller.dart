@@ -45,6 +45,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -56,7 +57,6 @@ import '/domain/repository/call.dart'
         CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
-import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
@@ -220,10 +220,6 @@ class ChatController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// Indicator whether the [user] has a [ChatContact] associated with them in
-  /// the address book of the authenticated [MyUser].
-  final RxBool inContacts = RxBool(false);
-
   /// Indicator whether the [elements] selection mode is enabled.
   final RxBool selecting = RxBool(false);
 
@@ -268,10 +264,6 @@ class ChatController extends GetxController {
 
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
-
-  /// [StreamSubscription] to [ContactService.contacts] determining the
-  /// [inContacts] indicator.
-  StreamSubscription? _contactsSubscription;
 
   /// Subscription for the [RxUser] changes.
   StreamSubscription? _userSubscription;
@@ -348,10 +340,10 @@ class ChatController extends GetxController {
   final List<ChatItem> _history = [];
 
   /// [Paginated] of [ChatItem]s to display in the [elements].
-  Paginated<ChatItemKey, Rx<ChatItem>>? _fragment;
+  Paginated<ChatItemId, Rx<ChatItem>>? _fragment;
 
   /// [Paginated]es used by this [ChatController].
-  final HashSet<Paginated<ChatItemKey, Rx<ChatItem>>> _fragments = HashSet();
+  final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
 
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
@@ -398,6 +390,10 @@ class ChatController extends GetxController {
       listController.hasClients &&
       listController.position.pixels >
           listController.position.maxScrollExtent - 500;
+
+  /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
+  /// if any.
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
 
   @override
   void onInit() {
@@ -447,12 +443,18 @@ class ChatController extends GetxController {
                   repliesTo: send.replied.toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
-                .then((_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3')))
+                .then(
+                  (_) => AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3'),
+                  ),
+                )
                 .onError<PostChatMessageException>(
-                    (e, _) => MessagePopup.error(e))
+                  (_, __) => _showBlockedPopup(),
+                  test: (e) => e.code == PostChatMessageErrorCode.blocked,
+                )
                 .onError<UploadAttachmentException>(
-                    (e, _) => MessagePopup.error(e))
+                  (e, _) => MessagePopup.error(e),
+                )
                 .onError<ConnectionException>((e, _) {});
 
             send.clear(unfocus: false);
@@ -501,7 +503,6 @@ class ChatController extends GetxController {
     _selectingWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
-    _contactsSubscription?.cancel();
     _userSubscription?.cancel();
     _onActivityChanged?.cancel();
     _typingTimer?.cancel();
@@ -596,9 +597,13 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) =>
-              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
-          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .then(
+            (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
+          )
+          .onError<PostChatMessageException>(
+            (_, __) => _showBlockedPopup(),
+            test: (e) => e.code == PostChatMessageErrorCode.blocked,
+          )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
     }
@@ -643,7 +648,11 @@ class ChatController extends GetxController {
 
               send.field.focus.requestFocus();
             } on EditChatMessageException catch (e) {
-              MessagePopup.error(e);
+              if (e.code == EditChatMessageErrorCode.blocked) {
+                _showBlockedPopup();
+              } else {
+                MessagePopup.error(e);
+              }
             } catch (e) {
               MessagePopup.error(e);
               rethrow;
@@ -870,31 +879,6 @@ class ChatController extends GetxController {
 
       if (_lastSeenItem.value != null) {
         readChat(_lastSeenItem.value);
-      }
-
-      if (chat?.chat.value.isDialog == true) {
-        inContacts.value = _contactService.contacts.values.any(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-
-        _contactsSubscription = _contactService.contacts.changes.listen((e) {
-          switch (e.op) {
-            case OperationKind.added:
-            case OperationKind.updated:
-              if (e.value!.contact.value.users.isNotEmpty &&
-                  e.value!.contact.value.users.any((e) => e.id == user?.id)) {
-                inContacts.value = true;
-              }
-              break;
-
-            case OperationKind.removed:
-              if (e.value?.contact.value.users.any((e) => e.id == user?.id) ==
-                  true) {
-                inContacts.value = false;
-              }
-              break;
-          }
-        });
       }
     }
 
@@ -1285,10 +1269,9 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
-    if (!inContacts.value) {
+    if (_contactId == null) {
       try {
         await _contactService.createChatContact(user!.user.value);
-        inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -1300,18 +1283,14 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
-    if (inContacts.value) {
-      try {
-        final RxChatContact? contact =
-            _contactService.contacts.values.firstWhereOrNull(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-        await _contactService.deleteContact(contact!.contact.value.id);
-        inContacts.value = false;
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
+    try {
+      final ChatContactId? contactId = _contactId;
+      if (contactId != null) {
+        await _contactService.deleteContact(contactId);
       }
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
@@ -1548,13 +1527,13 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.any((e) => e.id == itemId),
+        (e) => e.items.keys.contains(itemId),
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
-        final Paginated<ChatItemKey, Rx<ChatItem>>? fragment =
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
             await chat!.around(
           item: item,
           reply: reply?.original?.id,
@@ -1766,7 +1745,7 @@ class ChatController extends GetxController {
   /// [_remove]ing the [elements].
   void _subscribeFor({
     RxChat? chat,
-    Paginated<ChatItemKey, Rx<ChatItem>>? fragment,
+    Paginated<ChatItemId, Rx<ChatItem>>? fragment,
   }) {
     _messagesSubscription?.cancel();
 
@@ -2090,6 +2069,34 @@ class ChatController extends GetxController {
     }
 
     return false;
+  }
+
+  /// Displays a [MessagePopup.error] visually representing a blocked error.
+  ///
+  /// Meant to be invoked in case of `blocked` type of errors possibly thrown
+  /// during operations with this [Chat].
+  void _showBlockedPopup() {
+    switch (chat?.chat.value.kind) {
+      case ChatKind.dialog:
+        if (user != null) {
+          MessagePopup.error(
+            'err_blocked_by'.l10nfmt(
+              {'user': '${user?.user.value.name ?? user?.user.value.num}'},
+            ),
+          );
+        }
+        break;
+
+      case ChatKind.group:
+        MessagePopup.error('err_blocked'.l10n);
+        break;
+
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+      case null:
+        // No-op.
+        break;
+    }
   }
 }
 

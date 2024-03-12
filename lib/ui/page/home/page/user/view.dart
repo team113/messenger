@@ -184,6 +184,14 @@ class UserView extends StatelessWidget {
                     style: style.fonts.large.regular.onBackground,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text(
+                    c.user?.user.value.getStatus() ?? '',
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ),
               ];
             }
 
@@ -243,7 +251,7 @@ class UserView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final Widget editButton = Obx(key: const Key('MoreButton'), () {
-      final bool contact = c.contact.value != null;
+      final bool contact = c.contactId != null;
       final bool favorite =
           c.contact.value?.contact.value.favoritePosition != null;
       final RxChat? dialog = c.user?.dialog.value;
@@ -372,10 +380,25 @@ class UserView extends StatelessWidget {
       );
     });
 
-    return Center(
-      child: Row(
+    final Widget title;
+
+    if (!c.displayName.value) {
+      title = Row(
+        key: const Key('Profile'),
         children: [
+          const StyledBackButton(),
           const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+              child: Center(child: Text('label_profile'.l10n)),
+            ),
+          ),
+        ],
+      );
+    } else {
+      title = Row(
+        children: [
           const StyledBackButton(),
           Material(
             elevation: 6,
@@ -418,10 +441,21 @@ class UserView extends StatelessWidget {
               }),
             ),
           ),
-          const SizedBox(width: 40),
-          editButton,
+          const SizedBox(width: 10),
         ],
-      ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            child: title,
+          ),
+        ),
+        editButton,
+      ],
     );
   }
 

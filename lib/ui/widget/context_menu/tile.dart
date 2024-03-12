@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'menu.dart';
@@ -41,8 +40,7 @@ class ContextMenuTile extends StatefulWidget with ContextMenuItem {
     required this.label,
     this.onPressed,
     this.asset = SvgIcons.videoMessage,
-    this.pinned = false,
-    this.onPinned,
+    this.pinned,
     this.trailing,
   });
 
@@ -57,12 +55,9 @@ class ContextMenuTile extends StatefulWidget with ContextMenuItem {
 
   /// Indicator whether the [ContextMenuTile] is considered pinned, meaning
   /// displaying an appropriate icon.
-  final bool pinned;
-
-  /// Callback, called when tile is considered pinned.
   ///
   /// If `null`, then no icon associated with pinning is displayed.
-  final void Function()? onPinned;
+  final bool? pinned;
 
   /// Optional trailing [Widget].
   final Widget? trailing;
@@ -100,10 +95,7 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
       child: WidgetButton(
         onPressed: widget.onPressed == null
             ? null
-            : () {
-                widget.onPressed?.call(context);
-                _hovered = false;
-              },
+            : () => widget.onPressed?.call(context),
         child: Container(
           width: double.infinity,
           color: _hovered ? style.colors.onBackgroundOpacity2 : null,
@@ -120,29 +112,20 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
               ),
               const Spacer(),
               const SizedBox(width: 16),
-              if (widget.onPinned != null)
-                WidgetButton(
-                  onPressed: widget.onPinned,
-                  child: SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: Center(
-                      child: AnimatedButton(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 100),
-                          child: widget.pinned
-                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                              : Transform.translate(
-                                  offset: const Offset(0.5, 0),
-                                  child: SvgIcon(
-                                    widget.onPinned != null
-                                        ? SvgIcons.pin
-                                        : SvgIcons.pinDisabled,
-                                    key: const Key('Pin'),
-                                  ),
-                                ),
-                        ),
-                      ),
+              if (widget.pinned != null)
+                SizedBox(
+                  height: 40,
+                  width: 40,
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 100),
+                      child: widget.pinned!
+                          ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
+                          : Transform.translate(
+                              offset: const Offset(0.5, 0),
+                              child:
+                                  const SvgIcon(SvgIcons.pin, key: Key('Pin')),
+                            ),
                     ),
                   ),
                 ),
