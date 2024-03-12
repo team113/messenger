@@ -165,9 +165,7 @@ class UserView extends StatelessWidget {
                   child: ReactiveTextField(
                     state: c.name,
                     label: 'label_name'.l10n,
-                    hint: c.contact.value?.contact.value.name.val ??
-                        c.user!.user.value.name?.val ??
-                        c.user!.user.value.num.toString(),
+                    hint: c.user!.title,
                     formatters: [LengthLimitingTextInputFormatter(100)],
                   ),
                 ),
@@ -424,9 +422,7 @@ class UserView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${c.contact.value?.contact.value.name.val ?? c.user?.user.value.name?.val ?? c.user?.user.value.num}',
-                    ),
+                    Text(c.user!.title),
                     if (subtitle?.isNotEmpty == true)
                       Text(
                         key: Key(
@@ -585,8 +581,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_deleted1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_deleted2'.l10n),
@@ -607,8 +602,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
@@ -629,9 +623,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.contact.value?.contact.value.name.val ??
-              c.user?.user.value.name?.val ??
-              c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),

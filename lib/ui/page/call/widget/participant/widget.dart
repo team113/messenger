@@ -81,7 +81,7 @@ class ParticipantWidget extends StatelessWidget {
         return [
           CallCoverWidget(
             participant.user.value?.user.value.callCover,
-            user: participant.user.value?.user.value,
+            user: participant.user.value,
           )
         ];
       }

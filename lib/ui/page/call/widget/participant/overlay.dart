@@ -141,9 +141,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       final Widget name = Container(
         padding: const EdgeInsets.only(left: 3, right: 3),
         child: Text(
-          participant.user.value?.user.value.name?.val ??
-              participant.user.value?.user.value.num.toString() ??
-              'dot'.l10n * 3,
+          participant.user.value?.title ?? 'dot'.l10n * 3,
           style: style.fonts.normal.regular.onPrimary,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

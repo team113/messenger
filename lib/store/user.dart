@@ -89,19 +89,19 @@ class UserRepository extends DisposableInterface
   RxBool get isReady => _isReady;
 
   @override
-  Future<void> onInit() async {
-    Log.debug('onInit()', '$runtimeType');
+  Future<void> onReady() async {
+    Log.debug('onReady()', '$runtimeType');
 
     if (!_userLocal.isEmpty) {
       for (HiveUser c in _userLocal.users) {
-        users[c.value.id] = HiveRxUser(this, _userLocal, c);
+        users[c.value.id] ??= HiveRxUser(this, _userLocal, c);
       }
       isReady.value = true;
     }
 
     _initLocalSubscription();
 
-    super.onInit();
+    super.onReady();
   }
 
   @override
@@ -321,11 +321,21 @@ class UserRepository extends DisposableInterface
   ///
   /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
   /// of its [User.contacts] list changes.
-  Future<void> addContact(ChatContactId contactId, UserId userId) async {
+  Future<void> addContact(ChatContact contact, UserId userId) async {
+    Log.debug('addContact($contact, $userId)', '$runtimeType');
+
     final HiveUser? user = _userLocal.get(userId);
-    if (user != null && !user.value.contacts.contains(contactId)) {
-      user.value.contacts.add(contactId);
-      await _userLocal.put(user);
+    if (user != null) {
+      final NestedChatContact? existing =
+          user.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
+
+      if (existing == null) {
+        user.value.contacts.add(NestedChatContact.from(contact));
+        await _userLocal.put(user);
+      } else if (existing.name != contact.name) {
+        existing.name = contact.name;
+        await _userLocal.put(user);
+      }
     }
   }
 
@@ -335,9 +345,17 @@ class UserRepository extends DisposableInterface
   /// Intended to be invoked from [ContactRepository], as [RxUser] has no events
   /// of its [User.contacts] list changes.
   Future<void> removeContact(ChatContactId contactId, UserId userId) async {
+    Log.debug('removeContact($contactId, $userId)', '$runtimeType');
+
     final HiveUser? user = _userLocal.get(userId);
-    if (user != null && user.value.contacts.remove(contactId)) {
-      await _userLocal.put(user);
+    if (user != null) {
+      final NestedChatContact? existing =
+          user.value.contacts.firstWhereOrNull((e) => e.id == contactId);
+
+      if (existing != null) {
+        user.value.contacts.remove(existing);
+        await _userLocal.put(user);
+      }
     }
   }
 

@@ -959,8 +959,7 @@ class MessageFieldView extends StatelessWidget {
               snapshot.data != null
                   ? Obx(() {
                       return Text(
-                        snapshot.data!.user.value.name?.val ??
-                            snapshot.data!.user.value.num.toString(),
+                        snapshot.data!.title,
                         style: style.fonts.medium.regular.onBackground
                             .copyWith(color: color),
                       );

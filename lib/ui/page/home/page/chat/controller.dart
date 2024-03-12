@@ -393,7 +393,7 @@ class ChatController extends GetxController {
 
   /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
   /// if any.
-  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
   @override
   void onInit() {
@@ -2227,7 +2227,7 @@ class LoaderElement extends ListElement {
 /// Extension adding [ChatView] related wrappers and helpers.
 extension ChatViewExt on Chat {
   /// Returns text represented title of this [Chat].
-  String getTitle(Iterable<User> users, UserId? me) {
+  String getTitle(Iterable<RxUser> users, UserId? me) {
     String title = 'dot'.l10n * 3;
 
     switch (kind) {
@@ -2236,23 +2236,24 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        final User? partner = users.firstWhereOrNull((u) => u.id != me);
-        final partnerName = partner?.name?.val ?? partner?.num.toString();
-        if (partnerName != null) {
-          title = partnerName;
+        final String? name = users.firstWhereOrNull((u) => u.id != me)?.title ??
+            members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
+        if (name != null) {
+          title = name;
         }
         break;
 
       case ChatKind.group:
         if (name == null) {
-          if (users.isEmpty) {
-            users = members.map((e) => e.user);
+          final Iterable<String> names;
+
+          if (users.length < membersCount && users.length < 3) {
+            names = members.take(3).map((e) => e.user.title);
+          } else {
+            names = users.take(3).map((e) => e.title);
           }
 
-          title = users
-              .take(3)
-              .map((u) => u.name?.val ?? u.num.toString())
-              .join('comma_space'.l10n);
+          title = names.join('comma_space'.l10n);
           if (membersCount > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);
           }
