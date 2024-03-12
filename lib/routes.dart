@@ -176,6 +176,7 @@ class RouterState extends ChangeNotifier {
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
 
+  /// List of open modal windows obscuring the screen.
   final List<Route> obscuringModals = [];
 
   /// Dynamic arguments of the [route].
@@ -943,10 +944,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      print(
-        '[ModalNavigationObserver] PUSHED modal: ${route.runtimeType} on ${route.navigator}',
-      );
-
       router.obscuringModals.add(route);
     }
   }
@@ -954,10 +951,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      print(
-        '[ModalNavigationObserver] POPPED modal: ${route.runtimeType} off ${route.navigator}',
-      );
-
       router.obscuringModals.remove(route);
     }
   }
@@ -965,10 +958,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   didRemove(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      print(
-        '[ModalNavigationObserver] REMOVED modal: ${route.runtimeType} from ${route.navigator}',
-      );
-
       router.obscuringModals.remove(route);
     }
   }
@@ -978,10 +967,6 @@ class ModalNavigatorObserver extends NavigatorObserver {
     if (newRoute != null &&
         _isObscuring(newRoute) &&
         (oldRoute == null || !_isObscuring(oldRoute))) {
-      print(
-        '[ModalNavigationObserver] REPLACED modal: ${oldRoute!.runtimeType} with ${newRoute.runtimeType} on ${newRoute.navigator}',
-      );
-
       router.obscuringModals.remove(newRoute);
     }
   }

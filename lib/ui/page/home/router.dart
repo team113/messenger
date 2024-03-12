@@ -17,6 +17,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -124,6 +125,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       key: navigatorKey,
       pages: _pages,
       observers: [
+        SentryNavigatorObserver(),
         ModalNavigatorObserver(),
       ],
       onPopPage: (route, result) {
