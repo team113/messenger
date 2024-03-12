@@ -18,7 +18,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/routes.dart';
 import '/ui/widget/custom_page.dart';
@@ -72,10 +71,6 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      observers: [
-        SentryNavigatorObserver(),
-        ModalNavigatorObserver(),
-      ],
       pages: _pages,
       onPopPage: (route, result) {
         _state.pop();

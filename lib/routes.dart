@@ -176,8 +176,7 @@ class RouterState extends ChangeNotifier {
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
 
-  /// Indicator whether any screen obscuring modal is currently open.
-  final RxBool isObscured = RxBool(false);
+  final List<Route> obscuringModals = [];
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -944,19 +943,52 @@ class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      router.isObscured.value = true;
+      print(
+        '[ModalNavigationObserver] PUSHED modal: ${route.runtimeType} on ${route.navigator}',
+      );
+
+      router.obscuringModals.add(route);
     }
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
     if (_isObscuring(route)) {
-      router.isObscured.value = false;
+      print(
+        '[ModalNavigationObserver] POPPED modal: ${route.runtimeType} off ${route.navigator}',
+      );
+
+      router.obscuringModals.remove(route);
+    }
+  }
+
+  @override
+  didRemove(Route route, Route? previousRoute) {
+    if (_isObscuring(route)) {
+      print(
+        '[ModalNavigationObserver] REMOVED modal: ${route.runtimeType} from ${route.navigator}',
+      );
+
+      router.obscuringModals.remove(route);
+    }
+  }
+
+  @override
+  didReplace({Route? newRoute, Route? oldRoute}) {
+    if (newRoute != null &&
+        _isObscuring(newRoute) &&
+        (oldRoute == null || !_isObscuring(oldRoute))) {
+      print(
+        '[ModalNavigationObserver] REPLACED modal: ${oldRoute!.runtimeType} with ${newRoute.runtimeType} on ${newRoute.navigator}',
+      );
+
+      router.obscuringModals.remove(newRoute);
     }
   }
 
   /// Determines whether the [route] is obscuring the content.
   bool _isObscuring(Route route) {
-    return route is RawDialogRoute || route is ModalBottomSheetRoute;
+    return route is RawDialogRoute && route is! DialogRoute ||
+        route is ModalBottomSheetRoute;
   }
 }
