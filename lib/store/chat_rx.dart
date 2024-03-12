@@ -317,7 +317,7 @@ class HiveRxChat extends RxChat {
     switch (chat.value.kind) {
       case ChatKind.dialog:
         final RxUser? rxUser =
-            members.items.values.firstWhereOrNull((u) => u.id != me);
+            members.items.values.firstWhereOrNull((u) => u.user.id != me)?.user;
 
         if (rxUser != null) {
           users.add(rxUser);
@@ -326,7 +326,7 @@ class HiveRxChat extends RxChat {
 
       case ChatKind.group:
         if (chat.value.name == null) {
-          users.addAll(members.items.values.take(3));
+          users.addAll(members.items.values.take(3).map((e) => e.user));
         }
         break;
 

@@ -559,7 +559,9 @@ class SearchController extends GetxController {
       bool matchesQuery(RxChat c) => _matchesQuery(
             title: c.title,
             user: c.chat.value.isDialog
-                ? c.members.values.firstWhereOrNull((u) => u.user.id != me).user
+                ? c.members.values
+                    .firstWhereOrNull((u) => u.user.id != me)
+                    ?.user
                 : null,
           );
       bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
