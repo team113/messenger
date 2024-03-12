@@ -1895,7 +1895,7 @@ class HiveRxChat extends RxChat {
                           .removeWhere((e) => e.user.id == action.user.id);
 
                       if (chatEntity.value.members.length < 3) {
-                        if (members.items.length < 3) {
+                        if (members.pagination!.items.length < 3) {
                           await members.next();
                         }
 
