@@ -470,7 +470,7 @@ class BlocklistReason extends NewType<String> {
 class NestedChatContact {
   NestedChatContact(this.id, this.name);
 
-  /// Constructs a  [NestedChatContact] from the provided [ChatContact].
+  /// Constructs a [NestedChatContact] from the provided [ChatContact].
   NestedChatContact.from(ChatContact contact)
       : id = contact.id,
         name = contact.name;
