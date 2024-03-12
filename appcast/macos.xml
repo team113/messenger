@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>macOS</title>
+    <item>
+        <title>0.1.0-alpha.12.1-preview.1</title>
+        <description>List of changes.</description>
+        <pubDate>Sat, 26 Jul 2014 15:20:11 +0000</pubDate>
+        <enclosure url="http://localhost:1337/test.zip" sparkle:version="3.0" sparkle:os="macos" />
+        <sparkle:tags> <sparkle:criticalUpdate /> </sparkle:tags>
+    </item>
+  </channel>
+</rss>
