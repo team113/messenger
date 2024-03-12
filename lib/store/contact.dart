@@ -801,6 +801,12 @@ class ContactRepository extends DisposableInterface
               case ChatContactEventKind.nameUpdated:
                 node as EventChatContactNameUpdated;
                 entity.value.name = node.name;
+
+                // Add the [entity.value] to the [node.user], as [User] has no
+                // events about its [User.contacts] list changes.
+                for (var e in entity.value.users) {
+                  _userRepo.addContact(entity.value, e.id);
+                }
                 break;
 
               case ChatContactEventKind.phoneAdded:
@@ -820,11 +826,19 @@ class ContactRepository extends DisposableInterface
               case ChatContactEventKind.userAdded:
                 node as EventChatContactUserAdded;
                 entity.value.users.add(node.user);
+
+                // Add the [entity.value] to the [node.user], as [User] has no
+                // events about its [User.contacts] list changes.
+                _userRepo.addContact(entity.value, node.user.id);
                 break;
 
               case ChatContactEventKind.userRemoved:
                 node as EventChatContactUserRemoved;
                 entity.value.users.removeWhere((e) => e.id == node.userId);
+
+                // Remove the [node.contactId] from the [node.userId], as [User]
+                // has no events about its [User.contacts] list changes.
+                _userRepo.removeContact(node.contactId, node.userId);
                 break;
 
               case ChatContactEventKind.created:
@@ -1034,10 +1048,6 @@ class ContactRepository extends DisposableInterface
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
       _userRepo.put(e.user.toHive());
 
-      // Add the [node.contactId] to the [node.user], as [User] has no events
-      // about its [User.contacts] list changes.
-      _userRepo.addContact(node.contactId, node.user.id);
-
       return EventChatContactUserAdded(
         node.contactId,
         node.at,
@@ -1046,10 +1056,6 @@ class ContactRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatContactUserRemoved') {
       var node = e
           as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
-
-      // Remove the [node.contactId] from the [node.user], as [User] has no
-      // events about its [User.contacts] list changes.
-      _userRepo.removeContact(node.contactId, node.userId);
 
       return EventChatContactUserRemoved(node.contactId, node.at, node.userId);
     } else {

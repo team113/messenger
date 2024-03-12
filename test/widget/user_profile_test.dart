@@ -368,7 +368,10 @@ void main() async {
           'callCover': null,
           'mutualContactsCount': 0,
           'contacts': [
-            {'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'}
+            {
+              'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
+              'name': '1009422423626377',
+            }
           ],
           'online': {
             '__typename': 'UserOffline',

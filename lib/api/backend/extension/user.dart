@@ -34,7 +34,7 @@ extension UserConversion on UserMixin {
         avatar: avatar?.toModel(),
         callCover: callCover?.toModel(),
         mutualContactsCount: mutualContactsCount,
-        contacts: contacts.map((e) => e.id).toList(),
+        contacts: contacts.map((e) => NestedChatContact(e.id, e.name)).toList(),
         online: online?.$$typename == 'UserOnline',
         lastSeenAt: online?.$$typename == 'UserOffline'
             ? (online as UserMixin$Online$UserOffline).lastSeenAt

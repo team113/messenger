@@ -147,22 +147,12 @@ class UserController extends GetxController {
   ///
   /// Should be used to determine whether the [user] is in the contacts list, as
   /// [contact] may be fetched with a delay.
-  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
+  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
 
   @override
   void onInit() {
     name = TextFieldState(
-      approvable: true,
-      onChanged: (s) {
-        if (s.text.isNotEmpty) {
-          try {
-            UserName(s.text);
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-      },
-      onSubmitted: (s) async {
+      onChanged: (s) async {
         s.error.value = null;
         s.focus.unfocus();
 
