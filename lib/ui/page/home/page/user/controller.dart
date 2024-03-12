@@ -152,17 +152,7 @@ class UserController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      approvable: true,
-      onChanged: (s) {
-        if (s.text.isNotEmpty) {
-          try {
-            UserName(s.text);
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-      },
-      onSubmitted: (s) async {
+      onChanged: (s) async {
         s.error.value = null;
         s.focus.unfocus();
 
