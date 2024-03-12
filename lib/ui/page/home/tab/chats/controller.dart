@@ -529,7 +529,8 @@ class ChatsTabController extends GetxController {
           ?.user
           .value
           .contacts
-          .firstOrNull;
+          .firstOrNull
+          ?.id;
 
       if (contactId != null) {
         await _contactService.deleteContact(contactId);

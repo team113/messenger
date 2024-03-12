@@ -461,7 +461,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     // Builds a [FutureBuilder] returning a [User] fetched by the provided [id].
     Widget userBuilder(
       UserId id,
-      Widget Function(BuildContext context, User? user) builder,
+      Widget Function(BuildContext context, RxUser? user) builder,
     ) {
       final FutureOr<RxUser?>? user = widget.getUser?.call(id);
 
@@ -470,7 +470,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         builder: (context, snapshot) {
           final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
           if (data != null) {
-            return Obx(() => builder(context, data.user.value));
+            return Obx(() => builder(context, data));
           }
 
           return builder(context, null);
@@ -485,9 +485,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (widget.chat.value?.isGroup == true) {
           content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
-              final Map<String, dynamic> args = {
-                'author': user.name?.val ?? user.num.toString(),
-              };
+              final Map<String, dynamic> args = {'author': user.title};
 
               return Text.rich(
                 TextSpan(
@@ -495,7 +493,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     TextSpan(
                       text: 'label_group_created_by1'.l10nfmt(args),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () => router.chat(user.dialog, push: true),
+                        ..onTap = () =>
+                            router.chat(user.user.value.dialog, push: true),
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
@@ -536,13 +535,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final action = message.action as ChatInfoActionMemberAdded;
 
         if (action.user.id != message.author.id) {
-          content = userBuilder(action.user.id, (context, user) {
+          content = userBuilder(action.user.id, (context, rxUser) {
             final User author = widget.user?.user.value ?? message.author;
-            user ??= action.user;
+            final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': author.name?.val ?? author.num.toString(),
-              'user': user.name?.val ?? user.num.toString(),
+              'author': widget.user?.title ?? message.author.title,
+              'user': rxUser?.title ?? action.user.title,
             };
 
             return Text.rich(
@@ -560,7 +559,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(user!.dialog, push: true),
+                      ..onTap = () => router.chat(user.dialog, push: true),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -568,11 +567,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             );
           });
         } else {
+          final User user = widget.user?.user.value ?? action.user;
+
           final Map<String, dynamic> args = {
-            'author': widget.user?.user.value.name?.val ??
-                widget.user?.user.value.num.toString() ??
-                action.user.name?.val ??
-                action.user.num.toString(),
+            'author': widget.user?.title ?? action.user.title,
           };
 
           content = Text.rich(
@@ -581,7 +579,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(action.user.dialog, push: true),
+                    ..onTap = () => router.chat(user.dialog, push: true),
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
@@ -598,13 +596,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         final action = message.action as ChatInfoActionMemberRemoved;
 
         if (action.user.id != message.author.id) {
-          content = userBuilder(action.user.id, (context, user) {
+          content = userBuilder(action.user.id, (context, rxUser) {
             final User author = widget.user?.user.value ?? message.author;
-            user ??= action.user;
+            final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': author.name?.val ?? author.num.toString(),
-              'user': user.name?.val ?? user.num.toString(),
+              'author': widget.user?.title ?? message.author.title,
+              'user': rxUser?.title ?? action.user.title,
             };
 
             return Text.rich(
@@ -622,7 +620,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(user!.dialog, push: true),
+                      ..onTap = () => router.chat(user.dialog, push: true),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -630,8 +628,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             );
           });
         } else {
+          final User user = widget.user?.user.value ?? action.user;
+
           final Map<String, dynamic> args = {
-            'author': action.user.name?.val ?? action.user.num.toString(),
+            'author': widget.user?.title ?? action.user.title,
           };
 
           content = Text.rich(
@@ -640,7 +640,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(action.user.dialog, push: true),
+                    ..onTap = () => router.chat(user.dialog, push: true),
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
@@ -658,7 +658,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.toString(),
+          'author': widget.user?.title ?? user.title,
         };
 
         final String phrase1, phrase2;
@@ -693,7 +693,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': user.name?.val ?? user.num.toString(),
+          'author': widget.user?.title ?? user.title,
           if (action.name != null) 'name': action.name?.val,
         };
 
@@ -789,9 +789,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                     child: SelectionText.rich(
                       TextSpan(
-                        text: widget.user?.user.value.name?.val ??
-                            widget.user?.user.value.num.toString() ??
-                            'dot'.l10n * 3,
+                        text: widget.user?.title ?? 'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
                           ..onTap =
                               () => router.chat(_author.dialog, push: true),
@@ -1052,9 +1050,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
                         TextSpan(
-                          text: widget.user?.user.value.name?.val ??
-                              widget.user?.user.value.num.toString() ??
-                              'dot'.l10n * 3,
+                          text: widget.user?.title ?? 'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
                             ..onTap =
                                 () => router.chat(_author.dialog, push: true),
@@ -1271,9 +1267,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        data?.user.value.name?.val ??
-                            data?.user.value.num.toString() ??
-                            'dot'.l10n * 3,
+                        data?.title ?? 'dot'.l10n * 3,
                         style: style.fonts.medium.regular.onBackground
                             .copyWith(color: color),
                       ),
@@ -1435,10 +1429,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 return Tooltip(
-                  message: data?.user.value.name?.val ??
-                      data?.user.value.num.toString() ??
-                      user?.name?.val ??
-                      user?.num.toString(),
+                  message: data?.title ?? user?.title,
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(

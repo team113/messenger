@@ -174,7 +174,7 @@ class ChatInfoView extends StatelessWidget {
                   key: const Key('RenameChatField'),
                   state: c.name,
                   label: 'label_name'.l10n,
-                  hint: c.chat?.title.value,
+                  hint: c.chat?.title,
                   formatters: [LengthLimitingTextInputFormatter(100)],
                 ),
               ),
@@ -187,7 +187,7 @@ class ChatInfoView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: Text(
-                  c.chat?.title.value ?? c.name.text,
+                  c.chat?.title ?? c.name.text,
                   style: style.fonts.large.regular.onBackground,
                 ),
               ),
@@ -537,7 +537,7 @@ class ChatInfoView extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            c.chat!.title.value,
+                            c.chat!.title,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
@@ -641,7 +641,7 @@ class ChatInfoView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
-          text: c.chat?.title.value,
+          text: c.chat?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
@@ -662,7 +662,7 @@ class ChatInfoView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.chat?.title.value,
+          text: c.chat?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),

@@ -19,6 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -174,6 +175,8 @@ class RouterState extends ChangeNotifier {
 
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
+
+  final List<Route> obscuringModals = [];
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -806,6 +809,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
+            observers: [
+              SentryNavigatorObserver(),
+              ModalNavigatorObserver(),
+            ],
             pages: _pages,
             onPopPage: (Route<dynamic> route, dynamic result) {
               final bool success = route.didPop(result);
@@ -928,5 +935,60 @@ extension AppLifecycleStateExtension on AppLifecycleState {
       case AppLifecycleState.hidden:
         return false;
     }
+  }
+}
+
+/// [NavigatorObserver] to track the opening and closing of modal popups.
+class ModalNavigatorObserver extends NavigatorObserver {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    if (_isObscuring(route)) {
+      print(
+        '[ModalNavigationObserver] PUSHED modal: ${route.runtimeType} on ${route.navigator}',
+      );
+
+      router.obscuringModals.add(route);
+    }
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    if (_isObscuring(route)) {
+      print(
+        '[ModalNavigationObserver] POPPED modal: ${route.runtimeType} off ${route.navigator}',
+      );
+
+      router.obscuringModals.remove(route);
+    }
+  }
+
+  @override
+  didRemove(Route route, Route? previousRoute) {
+    if (_isObscuring(route)) {
+      print(
+        '[ModalNavigationObserver] REMOVED modal: ${route.runtimeType} from ${route.navigator}',
+      );
+
+      router.obscuringModals.remove(route);
+    }
+  }
+
+  @override
+  didReplace({Route? newRoute, Route? oldRoute}) {
+    if (newRoute != null &&
+        _isObscuring(newRoute) &&
+        (oldRoute == null || !_isObscuring(oldRoute))) {
+      print(
+        '[ModalNavigationObserver] REPLACED modal: ${oldRoute!.runtimeType} with ${newRoute.runtimeType} on ${newRoute.navigator}',
+      );
+
+      router.obscuringModals.remove(newRoute);
+    }
+  }
+
+  /// Determines whether the [route] is obscuring the content.
+  bool _isObscuring(Route route) {
+    return route is RawDialogRoute && route is! DialogRoute ||
+        route is ModalBottomSheetRoute;
   }
 }

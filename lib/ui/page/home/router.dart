@@ -123,6 +123,9 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
     return Navigator(
       key: navigatorKey,
       pages: _pages,
+      observers: [
+        ModalNavigatorObserver(),
+      ],
       onPopPage: (route, result) {
         _state.pop();
         notifyListeners();
