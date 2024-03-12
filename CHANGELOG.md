@@ -26,7 +26,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
         - About field in separate block. ([#891])
-    - Contact's name of users added to contacts displayed. ([#890], [#874])
+    - Contacts displayed everywhere with given names. ([#890], [#874])
 
 ### Fixed
 
