@@ -73,14 +73,16 @@ class ChangePasswordController extends GetxController {
   void onInit() {
     oldPassword = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
-        repeatPassword.unsubmit();
+        final UserPassword? password = UserPassword.tryParse(s.text);
 
-        try {
-          UserPassword(s.text);
-        } on FormatException catch (_) {
+        if (s.text.isNotEmpty && password == null) {
           s.error.value = 'err_incorrect_input'.l10n;
+        } else {
+          s.error.value = null;
         }
+
+        repeatPassword.error.value = null;
+        repeatPassword.unsubmit();
       },
       onSubmitted: (s) {
         newPassword.focus.requestFocus();
@@ -90,15 +92,16 @@ class ChangePasswordController extends GetxController {
 
     newPassword = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
+        final UserPassword? password = UserPassword.tryParse(s.text);
+
+        if (s.text.isNotEmpty && password == null) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        } else {
+          s.error.value = null;
+        }
+
         repeatPassword.error.value = null;
         repeatPassword.unsubmit();
-
-        try {
-          UserPassword(s.text);
-        } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
       },
       onSubmitted: (s) {
         repeatPassword.focus.requestFocus();

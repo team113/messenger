@@ -61,6 +61,7 @@ class ContactService extends DisposableService {
   Future<void> createChatContact(User user) {
     Log.debug('createChatContact($user)', '$runtimeType');
 
+    // TODO: check this? should it be done here???
     return _contactRepository.createChatContact(
       user.name ?? UserName(user.num.toString()),
       user.id,

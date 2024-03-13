@@ -319,13 +319,16 @@ class LoginController extends GetxController {
       return;
     }
 
+    final UserPassword? userPassword = UserPassword.tryParse(password.text);
+
     if (password.text.isEmpty) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;
     }
 
-    if (userLogin == null && num == null && email == null && phone == null) {
+    if (userLogin == null && num == null && email == null && phone == null ||
+        userPassword == null) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;
@@ -335,7 +338,7 @@ class LoginController extends GetxController {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
       await _authService.signIn(
-        UserPassword(password.text),
+        userPassword,
         login: userLogin,
         num: num,
         email: email,
@@ -343,8 +346,6 @@ class LoginController extends GetxController {
       );
 
       (onSuccess ?? router.home)();
-    } on FormatException {
-      password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
@@ -406,19 +407,20 @@ class LoginController extends GetxController {
       return;
     }
 
+    // TODO: better way???
     // Parse the [recovery] input.
     try {
       _recoveryNum = UserNum(recovery.text);
-    } catch (e) {
+    } catch (_) {
       try {
         _recoveryPhone = UserPhone(recovery.text);
-      } catch (e) {
+      } catch (_) {
         try {
           _recoveryLogin = UserLogin(recovery.text.toLowerCase());
-        } catch (e) {
+        } catch (_) {
           try {
             _recoveryEmail = UserEmail(recovery.text);
-          } catch (e) {
+          } catch (_) {
             // No-op.
           }
         }

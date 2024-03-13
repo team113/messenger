@@ -366,27 +366,9 @@ class SearchController extends GetxController {
     _contactsSearchWorker = null;
 
     if (query.isNotEmpty) {
-      UserName? name;
-      UserEmail? email;
-      UserPhone? phone;
-
-      try {
-        name = UserName(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        email = UserEmail(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        phone = UserPhone(query);
-      } catch (e) {
-        // No-op.
-      }
+      final UserName? name = UserName.tryParse(query);
+      final UserEmail? email = UserEmail.tryParse(query);
+      final UserPhone? phone = UserPhone.tryParse(query);
 
       if (name != null || email != null || phone != null) {
         searchStatus.value = searchStatus.value.isSuccess

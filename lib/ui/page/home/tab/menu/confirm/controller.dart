@@ -94,19 +94,13 @@ class ConfirmLogoutController extends GetxController {
         password.error.value = null;
         repeat.error.value = null;
 
-        if (s.text.isNotEmpty) {
-          try {
-            UserPassword(s.text);
+        final UserPassword? userPassword = UserPassword.tryParse(s.text);
 
-            if (repeat.text != password.text && password.isValidated) {
-              repeat.error.value = 'err_passwords_mismatch'.l10n;
-            }
-          } on FormatException {
-            if (s.text.isEmpty) {
-              s.error.value = 'err_repeat_password_empty'.l10n;
-            } else {
-              s.error.value = 'err_password_incorrect'.l10n;
-            }
+        if (s.text.isNotEmpty) {
+          if (userPassword == null) {
+            s.error.value = 'err_password_incorrect'.l10n;
+          } else if (repeat.text != password.text && password.isValidated) {
+            repeat.error.value = 'err_passwords_mismatch'.l10n;
           }
         }
       },
