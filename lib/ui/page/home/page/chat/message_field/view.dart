@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -45,7 +44,6 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
@@ -391,20 +389,6 @@ class MessageFieldView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Container(
-                    //   padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                    //   width: double.infinity,
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.brown.withOpacity(0.05),
-                    //   ),
-                    //   child: Text(
-                    //     'Общая стоимость: ¤123',
-                    //     style: style.fonts.small.regular.secondary.copyWith(
-                    //       color: const Color(0xFFd79e65),
-                    //     ),
-                    //     textAlign: TextAlign.right,
-                    //   ),
-                    // ),
                     if (c.edited.value != null)
                       Container(
                         padding: const EdgeInsets.all(0),
@@ -1125,8 +1109,7 @@ class MessageFieldView extends StatelessWidget {
                 snapshot.data != null
                     ? Obx(() {
                         return Text(
-                          snapshot.data!.user.value.name?.val ??
-                              snapshot.data!.user.value.num.toString(),
+                          snapshot.data!.title,
                           style: style.fonts.medium.regular.onBackground
                               .copyWith(color: color),
                         );

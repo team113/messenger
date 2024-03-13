@@ -97,10 +97,14 @@ class MemberTile extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(width: me ? 12 : 16),
+        const SizedBox(width: 16),
       ],
       AnimatedButton(
         enabled: !me,
+        decorator: (child) => Padding(
+          padding: const EdgeInsets.all(12),
+          child: child,
+        ),
         onPressed: me
             ? null
             : () async {
@@ -112,8 +116,7 @@ class MemberTile extends StatelessWidget {
                     else ...[
                       TextSpan(text: 'alert_user_will_be_removed1'.l10n),
                       TextSpan(
-                        text: user.user.value.name?.val ??
-                            user.user.value.num.toString(),
+                        text: user.title,
                         style: style.fonts.normal.regular.onBackground,
                       ),
                       TextSpan(text: 'alert_user_will_be_removed2'.l10n),

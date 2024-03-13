@@ -52,6 +52,7 @@ class ContactTile extends StatelessWidget {
     this.folded = false,
     this.dense = false,
     this.preventContextMenu = false,
+    this.padding,
     this.margin = const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
@@ -102,6 +103,9 @@ class ContactTile extends StatelessWidget {
 
   /// Margin to apply to this [ContactTile].
   final EdgeInsets margin;
+
+  /// Padding to apply to this [ContactTile].
+  final EdgeInsets? padding;
 
   /// Optional subtitle [Widget]s.
   final List<Widget> subtitle;
@@ -179,12 +183,13 @@ class ContactTile extends StatelessWidget {
                   key: contact?.contact.value.favoritePosition != null
                       ? Key('FavoriteIndicator_${contact?.contact.value.id}')
                       : null,
-                  padding: EdgeInsets.fromLTRB(
-                    12,
-                    basement == null ? 4 : 8,
-                    12,
-                    basement == null ? 4 : 0,
-                  ),
+                  padding: padding ??
+                      EdgeInsets.fromLTRB(
+                        12,
+                        basement == null ? 4 : 8,
+                        12,
+                        basement == null ? 4 : 0,
+                      ),
                   child: Row(
                     children: [
                       ...leading,
@@ -212,28 +217,16 @@ class ContactTile extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    title ??
-                                        contact?.contact.value.name.val ??
-                                        user?.user.value.name?.val ??
-                                        user?.user.value.num.toString() ??
-                                        myUser?.name?.val ??
-                                        myUser?.num.toString() ??
-                                        (myUser == null
-                                            ? '...'
-                                            : 'btn_your_profile'.l10n),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    style: selected
-                                        ? style.fonts.big.regular.onPrimary
-                                        : style.fonts.big.regular.onBackground,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            if (contact != null || user != null)
+                              Obx(() {
+                                return _name(
+                                  context,
+                                  contact: contact?.contact.value,
+                                  user: user,
+                                );
+                              })
+                            else
+                              _name(context),
                             ...subtitle,
                           ],
                         ),
@@ -277,6 +270,28 @@ class ContactTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// Returns [Text] representing the [contact], [user] or [myUser] name.
+  Widget _name(
+    BuildContext context, {
+    ChatContact? contact,
+    RxUser? user,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Text(
+      contact?.name.val ??
+          user?.title ??
+          myUser?.name?.val ??
+          myUser?.num.toString() ??
+          (myUser == null ? 'dot'.l10n * 3 : 'btn_your_profile'.l10n),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      style: selected
+          ? style.fonts.big.regular.onPrimary
+          : style.fonts.big.regular.onBackground,
     );
   }
 

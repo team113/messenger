@@ -216,7 +216,7 @@ class ChatView extends StatelessWidget {
                                           Flexible(
                                             child: Obx(() {
                                               return Text(
-                                                c.chat!.title.value,
+                                                c.chat!.title,
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
                                               );
@@ -1862,7 +1862,7 @@ class ChatView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
-          text: c.chat?.title.value,
+          text: c.chat?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
@@ -1883,7 +1883,7 @@ class ChatView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.chat?.title.value,
+          text: c.chat?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
@@ -1904,8 +1904,7 @@ class ChatView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
@@ -1933,8 +1932,7 @@ class ChatView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_contact_will_be_removed2'.l10n),

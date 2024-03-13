@@ -61,6 +61,8 @@ class AddChatMemberController extends GetxController {
 
   /// [Chat]s service adding members to the [chat].
   final ChatService _chatService;
+
+  /// [UserService] fetching [User]s to display in [MessagePopup]s.
   final UserService _userService;
 
   /// Subscription for the [ChatService.chats] changes.
@@ -108,31 +110,31 @@ class AddChatMemberController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
-    try {
-      final List<Future> futures = ids
-          .map(
-            (e) => _chatService.addChatMember(chatId, e).catchError(
-              (_) async {
-                final futureOrUser = _userService.get(e);
-                final RxUser? user =
-                    futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+    pop?.call();
 
-                if (user != null) {
-                  await MessagePopup.error(
-                    'user ${user.user.value.name ?? user.user.value.num} has blocked you',
-                  );
-                }
-              },
-              test: (e) =>
-                  e is AddChatMemberException &&
-                  e.code == AddChatMemberErrorCode.blocked,
-            ),
-          )
-          .toList();
+    try {
+      final Iterable<Future> futures = ids.map(
+        (userId) => _chatService
+            .addChatMember(chatId, userId)
+            .onError<AddChatMemberException>(
+          (_, __) async {
+            final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+            final User? user =
+                (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                    ?.user
+                    .value;
+
+            if (user != null) {
+              MessagePopup.error(
+                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
+              );
+            }
+          },
+          test: (e) => e.code == AddChatMemberErrorCode.blocked,
+        ),
+      );
 
       await Future.wait(futures);
-
-      pop?.call();
     } on AddChatMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {

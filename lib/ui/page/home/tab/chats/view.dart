@@ -413,6 +413,9 @@ class ChatsTabView extends StatelessWidget {
                   ],
                 ),
                 body: Obx(() {
+                  final RxStatus? searchStatus =
+                      c.search.value?.searchStatus.value;
+
                   if (c.status.value.isLoading) {
                     return const Center(
                       child: CustomProgressIndicator.primary(),
@@ -428,8 +431,8 @@ class ChatsTabView extends StatelessWidget {
                         c.search.value?.recent.isEmpty == true &&
                         c.search.value?.contacts.isEmpty == true &&
                         c.search.value?.users.isEmpty == true) {
-                      if (c.search.value?.searchStatus.value.isSuccess ==
-                          true) {
+                      if ((searchStatus?.isSuccess ?? false) &&
+                          !(searchStatus?.isLoadingMore ?? false)) {
                         center = Center(
                           key: UniqueKey(),
                           child: Text(
@@ -441,7 +444,7 @@ class ChatsTabView extends StatelessWidget {
                         center = Center(
                           key: UniqueKey(),
                           child: ColoredBox(
-                            color: style.colors.transparent,
+                            color: style.colors.almostTransparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -557,37 +560,13 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                 ),
                               );
-
-                              // child = Center(
-                              //   child: Container(
-                              //     margin: const EdgeInsets.fromLTRB(
-                              //       10,
-                              //       2,
-                              //       10,
-                              //       2,
-                              //     ),
-                              //     padding: const EdgeInsets.fromLTRB(
-                              //       12,
-                              //       10,
-                              //       12,
-                              //       6,
-                              //     ),
-                              //     width: double.infinity,
-                              //     child: Center(
-                              //       child: Text(
-                              //         text,
-                              //         style: style
-                              //             .fonts.normal.regular.onBackground,
-                              //       ),
-                              //     ),
-                              //   ),
-                              // );
                             } else {
                               child = const SizedBox();
                             }
 
                             if (i == c.elements.length - 1 &&
-                                c.search.value?.hasNext == true) {
+                                ((searchStatus?.isLoadingMore ?? false) ||
+                                    (searchStatus?.isLoading ?? false))) {
                               child = Column(
                                 children: [
                                   child,
@@ -603,13 +582,14 @@ class ChatsTabView extends StatelessWidget {
                     }
                   } else if (c.searching.value &&
                       c.search.value?.search.isEmpty.value == false) {
-                    if (c.search.value!.searchStatus.value.isLoading &&
+                    if (((searchStatus?.isLoading ?? false) ||
+                            (searchStatus?.isLoadingMore ?? false)) &&
                         c.elements.isEmpty) {
                       child = Center(
                         key: UniqueKey(),
                         child: ColoredBox(
                           key: const Key('Loading'),
-                          color: style.colors.transparent,
+                          color: style.colors.almostTransparent,
                           child: const CustomProgressIndicator(),
                         ),
                       );
@@ -678,11 +658,7 @@ class ChatsTabView extends StatelessWidget {
                                     horizontal: 12,
                                     vertical: 8,
                                   ),
-                                  decoration: const BoxDecoration(
-                                      // borderRadius: BorderRadius.circular(15),
-                                      // border: style.systemMessageBorder,
-                                      // color: style.systemMessageColor,
-                                      ),
+                                  decoration: const BoxDecoration(),
                                   child: Center(
                                     child: Text(
                                       element.category.name.capitalizeFirst!,
@@ -691,32 +667,13 @@ class ChatsTabView extends StatelessWidget {
                                     ),
                                   ),
                                 );
-                                // child = Center(
-                                //   child: Container(
-                                //     margin:
-                                //         const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                                //     padding: const EdgeInsets.fromLTRB(
-                                //       12,
-                                //       10,
-                                //       12,
-                                //       6,
-                                //     ),
-                                //     width: double.infinity,
-                                //     child: Center(
-                                //       child: Text(
-                                //         element.category.name.capitalizeFirst!,
-                                //         style: style
-                                //             .fonts.normal.regular.onBackground,
-                                //       ),
-                                //     ),
-                                //   ),
-                                // );
                               } else {
                                 child = const SizedBox();
                               }
 
                               if (i == c.elements.length - 1) {
-                                if (c.search.value?.hasNext == true) {
+                                if ((searchStatus?.isLoadingMore ?? false) ||
+                                    (searchStatus?.isLoading ?? false)) {
                                   child = Column(
                                     children: [
                                       child,
@@ -773,7 +730,8 @@ class ChatsTabView extends StatelessWidget {
                     if (c.chats.none(
                       (e) {
                         return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                            !e.chat.value.isHidden;
+                            !e.chat.value.isHidden &&
+                            !e.hidden.value;
                       },
                     )) {
                       if (c.status.value.isLoadingMore) {
@@ -781,7 +739,7 @@ class ChatsTabView extends StatelessWidget {
                           key: UniqueKey(),
                           child: ColoredBox(
                             key: const Key('Loading'),
-                            color: style.colors.transparent,
+                            color: style.colors.almostTransparent,
                             child: const CustomProgressIndicator(),
                           ),
                         );
@@ -797,6 +755,7 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         controller: c.scrollController,
+                        bottom: c.selecting.isFalse,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
@@ -1019,7 +978,7 @@ class ChatsTabView extends StatelessWidget {
 
                                           return AnimationConfiguration
                                               .staggeredList(
-                                            position: i,
+                                            position: calls.length + i,
                                             duration: const Duration(
                                               milliseconds: 375,
                                             ),
@@ -1041,8 +1000,10 @@ class ChatsTabView extends StatelessWidget {
                                   ),
                                 ),
                                 SliverPadding(
-                                  padding: const EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height,
+                                  padding: EdgeInsets.only(
+                                    bottom: c.selecting.isTrue
+                                        ? 0
+                                        : CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),

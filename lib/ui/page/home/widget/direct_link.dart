@@ -90,7 +90,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
 
+  /// Indicator whether editing of the [ChatDirectLinkSlug] is enabled
+  /// currently.
   bool _editing = false;
+
   bool _expanded = false;
 
   @override
@@ -440,6 +443,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     );
   }
 
+  /// Builds a wrapper around the [child] visually representing a [ChatInfo]
+  /// message.
   Widget _info(BuildContext context, Widget child) {
     final style = Theme.of(context).style;
 

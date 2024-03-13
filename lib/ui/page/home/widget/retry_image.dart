@@ -53,7 +53,6 @@ class RetryImage extends StatefulWidget {
     this.onForbidden,
     this.filter,
     this.cancelable = false,
-    this.autoLoad = true,
     this.displayProgress = true,
     this.loadingBuilder,
   });
@@ -70,7 +69,6 @@ class RetryImage extends StatefulWidget {
     Future<void> Function()? onForbidden,
     ImageFilter? filter,
     bool cancelable = false,
-    bool autoLoad = true,
     bool displayProgress = true,
   }) {
     final ImageFile image;
@@ -101,7 +99,6 @@ class RetryImage extends StatefulWidget {
       onForbidden: onForbidden,
       filter: filter,
       cancelable: cancelable,
-      autoLoad: autoLoad,
       displayProgress: displayProgress,
     );
   }
@@ -146,10 +143,6 @@ class RetryImage extends StatefulWidget {
   /// Indicator whether an ongoing image fetching from the [url] is cancelable.
   final bool cancelable;
 
-  /// Indicator whether the image fetching should start as soon as this
-  /// [RetryImage] is displayed.
-  final bool autoLoad;
-
   /// Indicator whether the image fetching progress should be displayed.
   final bool displayProgress;
 
@@ -184,11 +177,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void initState() {
-    if (widget.autoLoad) {
-      _loadImage();
-    } else {
-      _canceled = true;
-    }
+    _loadImage();
 
     // We're expecting a checksum to properly fetch the image from the cache.
     if (widget.checksum == null) {
@@ -200,8 +189,7 @@ class _RetryImageState extends State<RetryImage> {
 
   @override
   void didUpdateWidget(covariant RetryImage oldWidget) {
-    if (oldWidget.url != widget.url ||
-        (!oldWidget.autoLoad && widget.autoLoad)) {
+    if (oldWidget.url != widget.url) {
       _cancelToken.cancel();
       _cancelToken = CancelToken();
       _loadImage();
@@ -327,11 +315,19 @@ class _RetryImageState extends State<RetryImage> {
 
     if (!_imageInitialized) {
       if (widget.thumbhash != null) {
+        double? width = widget.width;
+
+        if (widget.height != null &&
+            widget.aspectRatio != null &&
+            widget.fit != BoxFit.contain) {
+          width ??= widget.height! * widget.aspectRatio!;
+        }
+
         Widget thumbhash = Image(
           image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
           key: const Key('Thumbhash'),
           height: widget.height,
-          width: widget.width,
+          width: width,
           fit: BoxFit.cover,
         );
 
@@ -340,26 +336,29 @@ class _RetryImageState extends State<RetryImage> {
               AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
         }
 
-        return SizedBox(
-          height: widget.height,
-          width: widget.width,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (widget.loadingBuilder != null) widget.loadingBuilder!(),
-              thumbhash,
-              Positioned.fill(
-                child: Center(
-                  child: SafeAnimatedSwitcher(
-                    duration: const Duration(milliseconds: 150),
-                    child: KeyedSubtree(
-                      key: Key('Image_${widget.url}'),
-                      child: child,
+        return ConstrainedBox(
+          constraints: BoxConstraints(minWidth: widget.minWidth ?? 0),
+          child: SizedBox(
+            height: widget.height,
+            width: widget.width,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (widget.loadingBuilder != null) widget.loadingBuilder!(),
+                thumbhash,
+                Positioned.fill(
+                  child: Center(
+                    child: SafeAnimatedSwitcher(
+                      duration: const Duration(milliseconds: 150),
+                      child: KeyedSubtree(
+                        key: Key('Image_${widget.url}'),
+                        child: child,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       } else if (widget.loadingBuilder != null) {

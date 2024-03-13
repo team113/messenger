@@ -126,4 +126,5 @@ class ModelTypeId {
   static const userBio = 106;
   static const hiveChatMember = 107;
   static const chatMembersCursor = 108;
+  static const nestedChatContact = 109;
 }

@@ -25,6 +25,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/web/web_utils.dart';
 
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -64,7 +65,6 @@ import '/ui/page/call/search/controller.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 
 export 'view.dart';
 
@@ -499,15 +499,13 @@ class ChatsTabController extends GetxController {
       return false;
     }
 
-    final UserId? userId =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.id;
-    if (userId == null) {
-      return false;
-    }
-
-    return _contactService.contacts.values.any((e) =>
-        e.contact.value.users.length == 1 &&
-        e.contact.value.users.every((m) => m.id == userId));
+    return chat.members.values
+            .firstWhereOrNull((e) => e.id != me)
+            ?.user
+            .value
+            .contacts
+            .isNotEmpty ==
+        true;
   }
 
   /// Adds the [User] from this [chat] to the contacts list of the authenticated
@@ -542,21 +540,17 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
-    if (user == null) {
-      return;
-    }
-
     try {
-      final RxChatContact? contact =
-          _contactService.contacts.values.firstWhereOrNull(
-        (e) =>
-            e.contact.value.users.length == 1 &&
-            e.contact.value.users.every((m) => m.id == user.id),
-      );
-      if (contact != null) {
-        await _contactService.deleteContact(contact.contact.value.id);
+      final ChatContactId? contactId = chat.members.values
+          .firstWhereOrNull((e) => e.id != me)
+          ?.user
+          .value
+          .contacts
+          .firstOrNull
+          ?.id;
+
+      if (contactId != null) {
+        await _contactService.deleteContact(contactId);
       }
     } catch (e) {
       MessagePopup.error(e);

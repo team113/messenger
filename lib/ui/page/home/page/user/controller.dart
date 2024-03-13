@@ -59,7 +59,6 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 export 'view.dart';
@@ -198,7 +197,7 @@ class UserController extends GetxController {
   ///
   /// Should be used to determine whether the [user] is in the contacts list, as
   /// [contact] may be fetched with a delay.
-  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull;
+  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -209,10 +208,6 @@ class UserController extends GetxController {
   bool get paid =>
       user != null &&
       (user?.user.value.messageCost != 0 || user?.user.value.callCost != 0);
-
-  void _scrollListener() {
-    displayName.value = scrollController.position.pixels >= 250; //365;
-  }
 
   @override
   void onInit() {
@@ -286,6 +281,8 @@ class UserController extends GetxController {
       }
     });
 
+    scrollController.addListener(_ensureNameDisplayed);
+
     if (scrollToPaid) {
       initialScrollIndex = isBlocked == null ? 6 : 7;
       SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -314,8 +311,6 @@ class UserController extends GetxController {
       },
     );
 
-    scrollController.addListener(_scrollListener);
-
     super.onInit();
   }
 
@@ -327,7 +322,7 @@ class UserController extends GetxController {
     _userSubscription?.cancel();
     _contactWorker?.dispose();
     _worker?.dispose();
-    scrollController.removeListener(_scrollListener);
+    scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
 
@@ -627,6 +622,12 @@ class UserController extends GetxController {
         }
       });
     }
+  }
+
+  /// Ensures the [displayName] is either `true` or `false` based on the
+  /// [scrollController].
+  void _ensureNameDisplayed() {
+    displayName.value = scrollController.position.pixels >= 250;
   }
 }
 

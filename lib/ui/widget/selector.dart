@@ -42,6 +42,7 @@ class Selector<T> extends StatefulWidget {
     this.margin = EdgeInsets.zero,
     required this.isMobile,
     this.closable = true,
+    this.onPointerUp = _popNavigator,
   });
 
   /// [List] of items to select from.
@@ -81,6 +82,9 @@ class Selector<T> extends StatefulWidget {
 
   final bool closable;
 
+  /// Callback, called when [Listener.onPointerUp] is called.
+  final void Function(BuildContext)? onPointerUp;
+
   /// Displays a [Selector] wrapped in a modal popup.
   static Future<T?> show<T extends Object>({
     required BuildContext context,
@@ -94,7 +98,7 @@ class Selector<T> extends StatefulWidget {
     double width = 260,
     EdgeInsets margin = EdgeInsets.zero,
     T? initial,
-    bool closable = true,
+    void Function(BuildContext)? onPointerUp = _popNavigator,
   }) {
     final bool isMobile = context.isMobile;
 
@@ -111,7 +115,7 @@ class Selector<T> extends StatefulWidget {
         width: width,
         margin: margin,
         isMobile: isMobile,
-        closable: closable,
+        onPointerUp: onPointerUp,
       );
     }
 
@@ -127,6 +131,10 @@ class Selector<T> extends StatefulWidget {
 
   @override
   State<Selector<T>> createState() => _SelectorState<T>();
+
+  /// Invokes the [NavigatorState.pop] of [Navigator] from [context].
+  static void _popNavigator(BuildContext context) =>
+      Navigator.of(context).pop();
 }
 
 /// State of a [Selector] maintaining the [_debounce].
@@ -205,7 +213,9 @@ class _SelectorState<T> extends State<Selector<T>> {
               (contextBox?.size.width ?? widget.width) / 2 -
               widget.margin.right +
               widget.margin.left;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
+          bottom = MediaQuery.of(context).size.height -
+              offset.dy +
+              widget.margin.bottom;
         } else if (widget.alignment == Alignment.topLeft) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0),
@@ -216,7 +226,9 @@ class _SelectorState<T> extends State<Selector<T>> {
               offset.dx -
               widget.margin.right +
               widget.margin.left;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
+          bottom = MediaQuery.of(context).size.height -
+              offset.dy +
+              widget.margin.bottom;
         } else if (widget.alignment == Alignment.topRight) {
           offset = Offset(
             offset.dx + (buttonBox?.size.width ?? 0),
@@ -333,17 +345,13 @@ class _SelectorState<T> extends State<Selector<T>> {
               opacity: buttonBox == null ? 0 : 1,
               child: Listener(
                 behavior: HitTestBehavior.deferToChild,
-                onPointerUp:
-                    widget.closable ? (d) => Navigator.of(context).pop() : null,
+                onPointerUp: widget.onPointerUp == null
+                    ? null
+                    : (d) => widget.onPointerUp?.call(context),
                 child: Container(
-                  // margin: widget.margin,
                   decoration: BoxDecoration(
                     color: style.contextMenuBackgroundColor,
                     borderRadius: style.contextMenuRadius,
-                    // border: Border.all(
-                    //   color: style.colors.secondaryHighlightDarkest,
-                    //   width: 0.5,
-                    // ),
                     boxShadow: [
                       BoxShadow(
                         blurRadius: 12,

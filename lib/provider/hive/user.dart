@@ -46,6 +46,7 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
     Hive.maybeRegisterAdapter(ChatIdAdapter());
     Hive.maybeRegisterAdapter(HiveUserAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
+    Hive.maybeRegisterAdapter(NestedChatContactAdapter());
     Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(ThumbHashAdapter());

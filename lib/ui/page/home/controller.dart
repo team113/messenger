@@ -16,11 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
@@ -32,6 +30,7 @@ import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
@@ -50,6 +49,7 @@ class HomeController extends GetxController {
     this._balanceService,
     this._partnerService, {
     this.signedUp = false,
+    this.link,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -71,8 +71,8 @@ class HomeController extends GetxController {
   /// Current [pages] [HomeTab] value.
   late final Rx<HomeTab> page;
 
-  /// Reactive [MyUser.unreadChats] value.
-  final Rx<int> unreadChats = Rx<int>(0);
+  /// Reactive [MyUser.unreadChatsCount] value.
+  final RxInt unreadChats = RxInt(0);
 
   /// [Timer] for discarding any horizontal movement in a [PageView] when
   /// non-`null`.
@@ -91,7 +91,14 @@ class HomeController extends GetxController {
   final GlobalKey publicsKey = GlobalKey();
   final GlobalKey partnerKey = GlobalKey();
   final GlobalKey balanceKey = GlobalKey();
+
+  /// [GlobalKey] of a [CustomNavigationBar] displayed.
+  ///
+  /// Used to position a status changing [Selector] properly.
   final GlobalKey panelKey = GlobalKey();
+
+  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
+  final ChatDirectLinkSlug? link;
 
   final RxBool publicsToggle = RxBool(false);
 
@@ -251,6 +258,11 @@ class HomeController extends GetxController {
         isMuting.value = false;
       }
     }
+  }
+
+  /// Refreshes the [MyUser] to be up to date.
+  Future<void> updateAvatar() async {
+    await _myUserService.refresh();
   }
 
   void setDisplayTransactions(bool b) => _settings.setDisplayTransactions(b);

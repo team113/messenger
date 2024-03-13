@@ -75,90 +75,17 @@ class WorkTabView extends StatelessWidget {
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
-            child: ListView(
+            child: ListView.builder(
               controller: c.scrollController,
-              children: [
-                // VacancyWidget(
-                //   'Баланс: \$9999.99',
-                //   trailing: const [
-                //     Column(
-                //       children: [
-                //         SvgImage.asset(
-                //           'assets/icons/external_link_blue.svg',
-                //           height: 16,
-                //           width: 16,
-                //         ),
-                //         SizedBox(height: 21),
-                //       ],
-                //     ),
-                //   ],
-                //   subtitle: [
-                //     // const SizedBox(height: 4),
-                //     Text(
-                //       // '\$${c.balance.value / 100}',
-                //       'Вывести деньги',
-                //       style: style.fonts.small.regular.secondary,
-                //     )
-                //   ],
-                //   onPressed: () async {
-                //     await launchUrl(
-                //       Uri.https('google.com', 'search', {'q': 'withdraw'}),
-                //     );
-                //   },
-                // ),
-                // VacancyWidget(
-                //   'Транзакции',
-                //   subtitle: [
-                //     Text.rich(
-                //       TextSpan(
-                //         children: [
-                //           TextSpan(
-                //             text: 'Новых транзакций: ',
-                //             style: style.fonts.small.regular.onBackground
-                //                 .copyWith(color: style.colors.secondary),
-                //           ),
-                //           TextSpan(
-                //             text: '4',
-                //             style: style.fonts.small.regular.onBackground
-                //                 .copyWith(color: style.colors.danger),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   ],
-                //   trailing: const [
-                //     Column(
-                //       children: [
-                //         SvgImage.asset(
-                //           'assets/icons/external_link_blue.svg',
-                //           height: 16,
-                //           width: 16,
-                //         ),
-                //         SizedBox(height: 21),
-                //       ],
-                //     ),
-                //   ],
-                //   onPressed: () async {
-                //     await launchUrl(
-                //       Uri.https(
-                //         'google.com',
-                //         'search',
-                //         {'q': 'transactions'},
-                //       ),
-                //     );
-                //   },
-                // ),
-                // const Padding(
-                //   padding: EdgeInsets.fromLTRB(8, 16, 8, 8),
-                //   child: Center(child: Text('Работайте с нами')),
-                // ),
-                ...WorkTab.values.map((e) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1.5),
-                    child: VacancyWorkButton(e),
-                  );
-                }),
-              ],
+              itemCount: WorkTab.values.length,
+              itemBuilder: (_, i) {
+                final WorkTab e = WorkTab.values[i];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                  child: VacancyWorkButton(e),
+                );
+              },
             ),
           ),
           extendBodyBehindAppBar: true,

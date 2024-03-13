@@ -979,8 +979,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_deleted1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_deleted2'.l10n),
@@ -1001,8 +1000,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_dialog_will_be_cleared1'.l10n),
         TextSpan(
-          text:
-              c.user?.user.value.name?.val ?? c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_dialog_will_be_cleared2'.l10n),
@@ -1023,9 +1021,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.contact.value?.contact.value.name.val ??
-              c.user?.user.value.name?.val ??
-              c.user?.user.value.num.toString(),
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),

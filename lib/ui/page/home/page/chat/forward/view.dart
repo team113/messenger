@@ -140,21 +140,6 @@ class ChatForwardView extends StatelessWidget {
                           ],
                           title: 'label_forward_messages_for'
                               .l10nfmt({'amount': price}),
-                          // title: TextSpan(
-                          //   children: [
-                          //     TextSpan(
-                          //       text: price == 0
-                          //           ? 'label_forward_message'.l10n
-                          //           : 'label_forward_messages_for'.l10n,
-                          //     ),
-                          //     if (price != 0)
-                          //       TextSpan(
-                          //         text: '¤$price',
-                          //         style: style.fonts.big.regular.onBackground
-                          //             .copyWith(color: style.colors.leather),
-                          //       ),
-                          //   ],
-                          // ),
                           onSelected: (r) => c.selected.value = r,
                         ),
                       ),

@@ -240,7 +240,7 @@ abstract class RxChat implements Comparable<RxChat> {
   Paginated<UserId, RxUser> get members;
 
   /// Text representing the title of this [chat].
-  RxString get title;
+  String get title;
 
   /// Reactive [Avatar] of this [chat].
   Rx<Avatar?> get avatar;
@@ -320,12 +320,6 @@ abstract class RxChat implements Comparable<RxChat> {
         0,
         (p, e) => p + e.user.value.messageCost,
       );
-      // return members.values
-      //         .firstWhereOrNull((e) => e.id != me)
-      //         ?.user
-      //         .value
-      //         .messageCost ??
-      //     0;
     }
 
     return 0;
@@ -337,12 +331,6 @@ abstract class RxChat implements Comparable<RxChat> {
         0,
         (p, e) => p + e.user.value.callCost,
       );
-      // return members.values
-      //         .firstWhereOrNull((e) => e.id != me)
-      //         ?.user
-      //         .value
-      //         .callCost ??
-      //     0;
     }
 
     return 0;

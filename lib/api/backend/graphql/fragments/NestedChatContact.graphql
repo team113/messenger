@@ -15,42 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment User on User {
+fragment NestedChatContact on ChatContact {
     id
-    num
     name
-    bio
-    avatar {
-        __typename
-        ...UserAvatar
-    }
-    callCover {
-        __typename
-        ...UserCallCover
-    }
-    mutualContactsCount
-    contacts {
-        __typename
-        ...NestedChatContact
-    }
-    online {
-        __typename
-        ... on UserOffline {
-            lastSeenAt
-        }
-    }
-    presence
-    status
-    isDeleted
-    dialog {
-        id
-    }
-    isBlocked {
-        record {
-            reason
-            at
-        }
-        ver
-    }
-    ver
 }

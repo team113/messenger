@@ -21,6 +21,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/ui/widget/context_menu/tile.dart';
 
 import '/api/backend/schema.dart' show Presence;
@@ -53,13 +54,21 @@ import 'widget/wallet.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(this._depsFactory, {super.key, this.signedUp = false});
+  const HomeView(
+    this._depsFactory, {
+    super.key,
+    this.signedUp = false,
+    this.link,
+  });
 
   /// Indicator whether the [IntroductionView] should be displayed with
   /// [IntroductionViewStage.signUp] initial stage.
   ///
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
+
+  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
+  final ChatDirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies> Function() _depsFactory;
@@ -133,6 +142,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         signedUp: widget.signedUp,
+        link: widget.link,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
@@ -232,39 +242,6 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        final List<ContextMenuItem> top = [
-                          // ContextMenuBuilder(
-                          //   (_) => Obx(() {
-                          //     final hasBalance =
-                          //         c.settings.value?.balanceTabEnabled == true;
-
-                          //     return ContextMenuTile(
-                          //       icon: const WalletWidget(),
-                          //       label: 'label_balance'.l10n,
-                          //       pinned: hasBalance,
-                          //       onPinned: () =>
-                          //           c.setBalanceTabEnabled(!hasBalance),
-                          //     );
-                          //   }),
-                          // ),
-                          // ContextMenuBuilder(
-                          //   (_) => Obx(() {
-                          //     final hasWork =
-                          //         c.settings.value?.workWithUsTabEnabled ==
-                          //             true;
-
-                          //     return ContextMenuTile(
-                          //       icon: const SvgIcon(SvgIcons.partner),
-                          //       label: 'label_work_with_us'.l10n,
-                          //       pinned: hasWork,
-                          //       onPinned: () =>
-                          //           c.setPartnerTabEnabled(!hasWork),
-                          //     );
-                          //   }),
-                          // ),
-                          // const ContextMenuDivider(),
-                        ];
-
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
@@ -286,7 +263,6 @@ class _HomeViewState extends State<HomeView> {
                                           right: 32 + 16,
                                         ),
                                         actions: [
-                                          // ...top,
                                           ContextMenuTile(
                                             label: c.displayFunds
                                                 ? 'btn_hide_balance'.l10n
@@ -421,7 +397,7 @@ class _HomeViewState extends State<HomeView> {
                                               );
                                               Navigator.of(context).pop();
                                             },
-                                            trailing: true,
+                                            // trailing: true,
                                             asset: c.myUser.value?.muted != null
                                                 ? SvgIcons.muted22
                                                 : SvgIcons.unmuted22,

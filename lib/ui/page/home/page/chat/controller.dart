@@ -473,7 +473,7 @@ class ChatController extends GetxController {
 
   /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
   /// if any.
-  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull;
+  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
   @override
   void onInit() {
@@ -794,9 +794,13 @@ class ChatController extends GetxController {
     if (item.status.value == SendingStatus.error) {
       await _chatService
           .resendChatItem(item)
-          .then((_) =>
-              AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')))
-          .onError<PostChatMessageException>((e, _) => MessagePopup.error(e))
+          .then(
+            (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
+          )
+          .onError<PostChatMessageException>(
+            (_, __) => _showBlockedPopup(),
+            test: (e) => e.code == PostChatMessageErrorCode.blocked,
+          )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
           .onError<ConnectionException>((_, __) {});
     }
@@ -842,7 +846,11 @@ class ChatController extends GetxController {
 
               send.field.focus.requestFocus();
             } on EditChatMessageException catch (e) {
-              MessagePopup.error(e);
+              if (e.code == EditChatMessageErrorCode.blocked) {
+                _showBlockedPopup();
+              } else {
+                MessagePopup.error(e);
+              }
             } catch (e) {
               MessagePopup.error(e);
               rethrow;
@@ -1521,10 +1529,9 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> addToContacts() async {
-    if (!inContacts.value) {
+    if (_contactId == null) {
       try {
         await _contactService.createChatContact(user!.user.value);
-        inContacts.value = true;
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -1536,18 +1543,14 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if this [chat] is a dialog.
   Future<void> removeFromContacts() async {
-    if (inContacts.value) {
-      try {
-        final RxChatContact? contact =
-            _contactService.contacts.values.firstWhereOrNull(
-          (e) => e.contact.value.users.every((m) => m.id == user?.id),
-        );
-        await _contactService.deleteContact(contact!.contact.value.id);
-        inContacts.value = false;
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
+    try {
+      final ChatContactId? contactId = _contactId;
+      if (contactId != null) {
+        await _contactService.deleteContact(contactId);
       }
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
@@ -2332,6 +2335,34 @@ class ChatController extends GetxController {
 
     return false;
   }
+
+  /// Displays a [MessagePopup.error] visually representing a blocked error.
+  ///
+  /// Meant to be invoked in case of `blocked` type of errors possibly thrown
+  /// during operations with this [Chat].
+  void _showBlockedPopup() {
+    switch (chat?.chat.value.kind) {
+      case ChatKind.dialog:
+        if (user != null) {
+          MessagePopup.error(
+            'err_blocked_by'.l10nfmt(
+              {'user': '${user?.user.value.name ?? user?.user.value.num}'},
+            ),
+          );
+        }
+        break;
+
+      case ChatKind.group:
+        MessagePopup.error('err_blocked'.l10n);
+        break;
+
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+      case null:
+        // No-op.
+        break;
+    }
+  }
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
@@ -2485,7 +2516,7 @@ class InfoElement extends ListElement {
 /// Extension adding [ChatView] related wrappers and helpers.
 extension ChatViewExt on Chat {
   /// Returns text represented title of this [Chat].
-  String getTitle(Iterable<User> users, UserId? me) {
+  String getTitle(Iterable<RxUser> users, UserId? me) {
     String title = 'dot'.l10n * 3;
 
     switch (kind) {
@@ -2494,23 +2525,24 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        final User? partner = users.firstWhereOrNull((u) => u.id != me);
-        final partnerName = partner?.name?.val ?? partner?.num.toString();
-        if (partnerName != null) {
-          title = partnerName;
+        final String? name = users.firstWhereOrNull((u) => u.id != me)?.title ??
+            members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
+        if (name != null) {
+          title = name;
         }
         break;
 
       case ChatKind.group:
         if (name == null) {
-          if (users.isEmpty) {
-            users = members.map((e) => e.user);
+          final Iterable<String> names;
+
+          if (users.length < membersCount && users.length < 3) {
+            names = members.take(3).map((e) => e.user.title);
+          } else {
+            names = users.take(3).map((e) => e.title);
           }
 
-          title = users
-              .take(3)
-              .map((u) => u.name?.val ?? u.num.toString())
-              .join('comma_space'.l10n);
+          title = names.join('comma_space'.l10n);
           if (membersCount > 3) {
             title += 'comma_space'.l10n + ('dot'.l10n * 3);
           }

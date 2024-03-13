@@ -26,7 +26,9 @@ class InfoTile extends StatelessWidget {
     this.title,
     required this.content,
     this.trailing,
+    this.subtitle = const [],
     this.maxLines = 1,
+    this.danger = false,
   });
 
   /// Optional title of this [InfoTile].
@@ -38,8 +40,14 @@ class InfoTile extends StatelessWidget {
   /// Optional trailing [Widget] of this [InfoTile].
   final Widget? trailing;
 
+  /// Optional subtitle of this [InfoTile].
+  final List<Widget> subtitle;
+
   /// Maximum number of lines of the [content].
   final int? maxLines;
+
+  /// Indicator whether the [title] should be displayed with danger style.
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +65,9 @@ class InfoTile extends StatelessWidget {
               if (title != null)
                 DefaultTextStyle(
                   overflow: TextOverflow.ellipsis,
-                  style: style.fonts.small.regular.secondary,
+                  style: danger
+                      ? style.fonts.small.regular.danger
+                      : style.fonts.small.regular.secondary,
                   child: Text(title!),
                 ),
               DefaultTextStyle.merge(
@@ -79,6 +89,7 @@ class InfoTile extends StatelessWidget {
                   ],
                 ),
               ),
+              ...subtitle,
             ],
           ),
         ),

@@ -76,17 +76,18 @@ import 'util/web/web_utils.dart';
 /// Entry point of this application.
 Future<void> main() async {
   await Config.init();
-  MediaKit.ensureInitialized();
 
   me.Log.options = me.LogOptions(
     level: Config.logLevel,
 
     // Browsers collect timestamps for log themselves.
     timeStamp: !PlatformUtils.isWeb,
+    dateStamp: !PlatformUtils.isWeb,
   );
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
+    MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
     await _initHive();
@@ -392,7 +393,7 @@ Future<void> _initHive() async {
   final String version = Config.version ?? Config.schema ?? Pubspec.version;
   final String? storedVersion = box.get(0);
 
-  final String? session = Config.credentials;
+  final String? session = Config.version ?? Config.credentials;
   final String? storedSession = box.get(1);
 
   // If mismatch is detected, then clean the existing [Hive] cache.

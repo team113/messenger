@@ -38,8 +38,8 @@ import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
@@ -238,13 +238,8 @@ Widget mobileCall(CallController c, BuildContext context) {
               final bool isDialog = c.chat.value?.chat.value.isDialog == true;
 
               if (isDialog) {
-                final User? user = c.chat.value?.members.values
-                        .firstWhereOrNull((e) => e.id != c.me.id.userId)
-                        ?.user
-                        .value ??
-                    c.chat.value?.chat.value.members
-                        .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
-                        ?.user;
+                final RxUser? user = c.chat.value?.members.values
+                    .firstWhereOrNull((e) => e.id != c.me.id.userId);
 
                 return CallCoverWidget(c.chat.value?.callCover, user: user);
               } else {
@@ -425,7 +420,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                     children: [
                       Flexible(
                         child: Text(
-                          c.chat.value?.title.value ?? ('dot'.l10n * 3),
+                          c.chat.value?.title ?? ('dot'.l10n * 3),
                           style: style.fonts.small.regular.onPrimary,
                           overflow: TextOverflow.ellipsis,
                         ),

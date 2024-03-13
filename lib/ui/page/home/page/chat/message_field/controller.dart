@@ -141,7 +141,7 @@ class MessageFieldController extends GetxController {
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
     _editedWorker ??= ever(edited, (item) {
-      if (item is ChatMessage) {
+      if (item != null) {
         field.text = item.text?.val ?? '';
         this.attachments.value =
             item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
@@ -180,7 +180,7 @@ class MessageFieldController extends GetxController {
   late final RxList<ChatItemQuoteInput> quotes;
 
   /// [ChatItem] being edited.
-  final Rx<ChatItem?> edited = Rx<ChatItem?>(null);
+  final Rx<ChatMessage?> edited = Rx<ChatMessage?>(null);
 
   final RxBool editing = RxBool(false);
   final RxBool donationHovered = RxBool(false);
@@ -287,6 +287,7 @@ class MessageFieldController extends GetxController {
 
   Rx<MyUser?> get myUser => _myUserService?.myUser ?? Rx(null);
 
+  /// Returns the current [ApplicationSettings] value.
   Rx<ApplicationSettings?>? get _settings =>
       _settingsRepository?.applicationSettings;
 

@@ -175,7 +175,7 @@ class AvatarWidget extends StatefulWidget {
         avatar: user?.avatar,
         isOnline: badge && user?.online == true,
         isAway: user?.presence == Presence.away,
-        title: user?.name?.val ?? user?.num.val,
+        title: user?.title,
         color: user?.num.val.sum(),
         radius: radius,
         opacity: opacity,
@@ -206,7 +206,7 @@ class AvatarWidget extends StatefulWidget {
         isOnline: badge && user.user.value.online == true,
         isAway: user.user.value.presence == Presence.away,
         avatar: blocked ? null : user.user.value.avatar,
-        title: user.user.value.name?.val ?? user.user.value.num.val,
+        title: user.title,
         color: user.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
@@ -267,6 +267,7 @@ class AvatarWidget extends StatefulWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    FutureOr<void> Function()? onForbidden,
     monolog = true,
   }) {
     if (chat == null) {
@@ -297,16 +298,18 @@ class AvatarWidget extends StatefulWidget {
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
         isAway: user?.user.value.presence == Presence.away,
         avatar: blocked ? null : chat.avatar.value,
-        title: chat.chat.value.isMonolog && !monolog
-            ? (chat.members.values.firstOrNull?.user.value.name?.val ??
-                chat.members.values.firstOrNull?.user.value.num.toString())
-            : chat.title.value,
+        title: chat.title,
+        // title: chat.chat.value.isMonolog && !monolog
+        //     ? (chat.members.values.firstOrNull?.user.value.name?.val ??
+        //         chat.members.values.firstOrNull?.user.value.num.toString())
+        //     : chat.title.value,
         color: chat.chat.value.isMonolog && !monolog
             ? chat.members.values.firstOrNull?.user.value.num.val.sum()
             : chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,
         isBlocked: blocked,
+        onForbidden: onForbidden,
       );
     });
   }
@@ -414,6 +417,14 @@ class _AvatarWidgetState extends State<AvatarWidget> {
               : maxWidth / 5
           : maxWidth / 3.75;
 
+      final ImageFile? image = maxWidth > 250
+          ? widget.avatar?.full
+          : maxWidth > 100
+              ? widget.avatar?.big
+              : maxWidth > 46
+                  ? widget.avatar?.medium
+                  : widget.avatar?.small;
+
       final Widget defaultAvatar = Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -487,24 +498,14 @@ class _AvatarWidgetState extends State<AvatarWidget> {
                     child: widget.child ??
                         RetryImage(
                           key: _imageKey,
-                          maxWidth > 250
-                              ? widget.avatar!.full.url
-                              : maxWidth > 100
-                                  ? widget.avatar!.big.url
-                                  : maxWidth > 46
-                                      ? widget.avatar!.medium.url
-                                      : widget.avatar!.small.url,
-                          checksum: maxWidth > 250
-                              ? widget.avatar!.full.checksum
-                              : maxWidth > 100
-                                  ? widget.avatar!.big.checksum
-                                  : maxWidth > 46
-                                      ? widget.avatar!.medium.checksum
-                                      : widget.avatar!.small.checksum,
+                          image!.url,
+                          checksum: image.checksum,
+                          thumbhash: image.thumbhash,
                           fit: BoxFit.cover,
                           height: double.infinity,
                           width: double.infinity,
                           displayProgress: false,
+                          onForbidden: widget.onForbidden,
                           loadingBuilder: () => defaultAvatar,
                         ),
                   ),

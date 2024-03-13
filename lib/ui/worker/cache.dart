@@ -411,7 +411,7 @@ class CacheWorker extends DisposableService {
       return;
     }
 
-    _localSubscription = StreamIterator(_cacheLocal!.boxEvents);
+    _localSubscription = StreamIterator(_cacheLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;
       if (event.deleted) {

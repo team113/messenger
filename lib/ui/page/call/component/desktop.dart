@@ -23,7 +23,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/ui/page/call/widget/tooltip_button.dart';
+import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 
 import '../controller.dart';
@@ -151,17 +151,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child = _primaryView(c);
                           } else {
                             if (c.isDialog) {
-                              final User? user = c.chat.value?.members.values
-                                      .firstWhereOrNull(
-                                        (e) => e.id != c.me.id.userId,
-                                      )
-                                      ?.user
-                                      .value ??
-                                  c.chat.value?.chat.value.members
-                                      .firstWhereOrNull(
-                                        (e) => e.user.id != c.me.id.userId,
-                                      )
-                                      ?.user;
+                              final RxUser? user =
+                                  c.chat.value?.members.values.firstWhereOrNull(
+                                (e) => e.id != c.me.id.userId,
+                              );
 
                               child = CallCoverWidget(
                                 c.chat.value?.callCover,
@@ -184,7 +177,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                                   null,
                                   chat: c.chat.value,
                                 );
-                                // child = const SizedBox();
                               }
                             }
                           }
@@ -929,7 +921,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         // 3) - is a vertical scale point.
         return Stack(
           children: [
-            // top middle
+            // Top middle.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -946,7 +938,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }),
 
-            // center left
+            // Center left.
             Obx(() {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
@@ -962,7 +954,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // center right
+
+            // Center right.
             Obx(() {
               return Positioned(
                 top: c.top.value + Scaler.size / 2,
@@ -978,7 +971,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom center
+
+            // Bottom center.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - Scaler.size / 2,
@@ -995,7 +989,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               );
             }),
 
-            // top left
+            // Top left.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -1017,7 +1011,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // top right
+
+            // Top right.
             Obx(() {
               return Positioned(
                 top: c.top.value - Scaler.size / 2,
@@ -1038,7 +1033,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom left
+
+            // Bottom left.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
@@ -1059,7 +1055,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               );
             }),
-            // bottom right
+
+            // Bottom right.
             Obx(() {
               return Positioned(
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
@@ -1884,7 +1881,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
                       child: MouseRegion(
                         cursor: isAnyDrag
                             ? MouseCursor.defer
-                            : SystemMouseCursors.grab,
+                            : c.secondaryDragged.isTrue
+                                ? CustomMouseCursors.grabbing
+                                : CustomMouseCursors.grab,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;

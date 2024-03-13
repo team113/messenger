@@ -136,7 +136,7 @@ class _PublicViewState extends State<PublicView>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              c.chat!.title.value,
+                              c.chat!.title,
                               style: const TextStyle(color: Colors.black),
                             ),
                             Text(

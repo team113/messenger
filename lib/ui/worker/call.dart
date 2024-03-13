@@ -106,7 +106,10 @@ class CallWorker extends DisposableService {
           : 'incoming_call.mp3';
 
   /// Returns the name of an outgoing call sound asset.
-  String get _outgoing => 'outgoing_call3.mp3';
+  String get _outgoing => 'outgoing_call.mp3';
+
+  /// Returns the name of an end call sound asset.
+  String get _endCall => 'end_call.wav';
 
   /// Subscription to the [PlatformUtils.onFocusChanged] updating the
   /// [_focused].
@@ -227,9 +230,7 @@ class CallWorker extends DisposableService {
 
                   void showIncomingCallNotification(RxChat? chat) {
                     if (chat?.chat.value.muted == null) {
-                      String? title = chat?.title.value ??
-                          c.caller?.name?.val ??
-                          c.caller?.num.val;
+                      String? title = chat?.title ?? c.caller?.title;
 
                       _notificationService.show(
                         title ?? 'label_incoming_call'.l10n,
@@ -283,10 +284,16 @@ class CallWorker extends DisposableService {
             stop();
           }
 
-          final OngoingCall? c = event.value?.value;
-          if (c != null) {
-            if (c.members.keys.any((e) => e.userId == _myUser.value?.id)) {
-              AudioUtils.once(AudioSource.asset('audio/end_call.wav'));
+          // Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
+          final OngoingCall? call = event.value?.value;
+          if (call != null) {
+            final bool isActiveOrEnded =
+                call.state.value == OngoingCallState.active ||
+                    call.state.value == OngoingCallState.ended;
+            final bool withMe = call.members.containsKey(call.me.id);
+
+            if (withMe && isActiveOrEnded && call.participated) {
+              play(_endCall);
             }
           }
 
@@ -376,8 +383,8 @@ class CallWorker extends DisposableService {
   }) async {
     final source = AudioSource.asset('audio/$asset');
 
-    if (_myUser.value?.muted == null) {
-      if (asset == _incoming) {
+    if (asset == _incoming) {
+      if (_myUser.value?.muted == null) {
         incomingAudio?.cancel();
         incomingAudio = AudioUtils.play(
           source,
@@ -385,27 +392,28 @@ class CallWorker extends DisposableService {
           speaker:
               speaker ? AudioSpeakerKind.speaker : AudioSpeakerKind.earpiece,
         );
-      } else {
-        outgoingAudio?.cancel();
-        outgoingAudio = AudioUtils.play(
-          source,
-          fade: fade ? 1.seconds : Duration.zero,
-          speaker:
-              speaker ? AudioSpeakerKind.speaker : AudioSpeakerKind.earpiece,
-          onDone: once
-              ? () {
-                  outgoingAudio?.cancel();
-                  outgoingAudio = AudioUtils.play(
-                    source,
-                    onDone: () {},
-                    speaker: speaker
-                        ? AudioSpeakerKind.speaker
-                        : AudioSpeakerKind.earpiece,
-                  );
-                }
-              : null,
-        );
       }
+    } else if (asset == _outgoing) {
+      outgoingAudio?.cancel();
+      outgoingAudio = AudioUtils.play(
+        source,
+        fade: fade ? 1.seconds : Duration.zero,
+        speaker: speaker ? AudioSpeakerKind.speaker : AudioSpeakerKind.earpiece,
+        onDone: once
+            ? () {
+                outgoingAudio?.cancel();
+                outgoingAudio = AudioUtils.play(
+                  source,
+                  onDone: () {},
+                  speaker: speaker
+                      ? AudioSpeakerKind.speaker
+                      : AudioSpeakerKind.earpiece,
+                );
+              }
+            : null,
+      );
+    } else if (asset == _endCall) {
+      AudioUtils.once(AudioSource.asset('audio/$_endCall'));
     }
   }
 
@@ -422,19 +430,35 @@ class CallWorker extends DisposableService {
 
   /// Initializes [WebUtils] related functionality.
   void _initWebUtils() {
-    _storageSubscription = WebUtils.onStorageChange.listen((s) {
-      if (s.key == null) {
+    _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      if (e.key == null) {
         stop();
-      } else if (s.key?.startsWith('call_') == true) {
-        ChatId chatId = ChatId(s.key!.replaceAll('call_', ''));
-        if (s.newValue == null) {
+      } else if (e.key?.startsWith('call_') == true) {
+        final chatId = ChatId(e.key!.replaceAll('call_', ''));
+        if (e.newValue == null) {
           _callService.remove(chatId);
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
             stop();
           }
+
+          // Play a sound when a call with [myUser] ends in a popup.
+          if (e.oldValue != null) {
+            final call = WebStoredCall.fromJson(json.decode(e.oldValue!));
+
+            final bool isActiveOrEnded =
+                call.state == OngoingCallState.active ||
+                    call.state == OngoingCallState.ended;
+            final bool withMe =
+                call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
+                    false;
+
+            if (isActiveOrEnded && withMe) {
+              play(_endCall);
+            }
+          }
         } else {
-          var call = WebStoredCall.fromJson(json.decode(s.newValue!));
+          final call = WebStoredCall.fromJson(json.decode(e.newValue!));
           if (call.state != OngoingCallState.local &&
               call.state != OngoingCallState.pending) {
             _workers.remove(chatId)?.dispose();

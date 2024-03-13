@@ -91,10 +91,10 @@ class Config {
   static String googleClientId = '';
 
   /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema;
+  static String? schema = '0';
 
-  /// Version of the [CredentialsHiveProvider], used to clear it, if mismatch is
-  /// detected.
+  /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
+  /// mismatch is detected.
   static String? credentials;
 
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]

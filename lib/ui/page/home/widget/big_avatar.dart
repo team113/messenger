@@ -84,13 +84,14 @@ class BigAvatarWidget extends StatefulWidget {
   /// Indicator whether a [CustomProgressIndicator] should be displayed.
   final bool loading;
 
+  /// Text to display under the [Avatar], indicating an error.
+  final String? error;
+
   /// Callback, called when an upload of [Avatar] is required.
   final void Function()? onUpload;
 
   /// Callback, called when delete of [Avatar] is required.
   final void Function()? onDelete;
-
-  final String? error;
 
   @override
   State<BigAvatarWidget> createState() => _BigAvatarWidgetState();
@@ -233,8 +234,11 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     children: [
                       GalleryItem.image(
                         avatar!.original.url,
-                        avatar.original.checksum ?? DateTime.now().toString(),
+                        avatar.original.name,
+                        width: avatar.original.width,
+                        height: avatar.original.height,
                         checksum: avatar.original.checksum,
+                        thumbhash: avatar.big.thumbhash,
                       ),
                     ],
                   ),

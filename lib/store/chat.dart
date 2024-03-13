@@ -528,7 +528,29 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
-    await _graphQlProvider.addChatMember(chatId, userId);
+    final HiveRxChat? chat = chats[chatId];
+    final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
+    final RxUser? user =
+        userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+
+    if (user != null) {
+      final member = HiveChatMember(
+        ChatMember(user.user.value, PreciseDateTime.now()),
+        null,
+      );
+
+      chat?.members.put(member);
+    }
+
+    try {
+      await _graphQlProvider.addChatMember(chatId, userId);
+    } catch (_) {
+      if (user != null) {
+        chat?.members.remove(user.id);
+      }
+
+      rethrow;
+    }
 
     // Redial the added member, if [Chat] has an [OngoingCall] happening in it.
     if (chats[chatId]?.chat.value.ongoingCall != null) {
@@ -541,10 +563,21 @@ class ChatRepository extends DisposableInterface
     Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
 
     final HiveRxChat? chat = chats[chatId];
+    final HiveChatMember? member = chat?.members.pagination?.items[userId];
 
-    await _graphQlProvider.removeChatMember(chatId, userId);
+    chat?.members.remove(userId);
+
+    try {
+      await _graphQlProvider.removeChatMember(chatId, userId);
+    } catch (_) {
+      if (member != null) {
+        chat?.members.put(member);
+      }
+
+      rethrow;
+    }
+
     await onMemberRemoved.call(chatId, userId);
-    chat?.members.items.remove(userId);
   }
 
   @override
@@ -1195,9 +1228,16 @@ class ChatRepository extends DisposableInterface
 
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
+      } else if (id.isLocal) {
+        final HiveRxChat? chat = await ensureRemoteDialog(id);
+        if (chat != null) {
+          id = chat.id;
+        }
       }
 
-      await _graphQlProvider.favoriteChat(id, newPosition);
+      if (!id.isLocal) {
+        await _graphQlProvider.favoriteChat(id, newPosition);
+      }
     } catch (e) {
       if (chat?.chat.value.isMonolog == true) {
         _localMonologFavoritePosition = null;
@@ -1212,6 +1252,10 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> unfavoriteChat(ChatId id) async {
     Log.debug('unfavoriteChat($id)', '$runtimeType');
+
+    if (id.isLocal) {
+      return;
+    }
 
     final HiveRxChat? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;

@@ -441,9 +441,7 @@ class CallController extends GetxController {
   UserCallCover? get callCover => _currentCall.value.caller?.callCover;
 
   /// Returns a name of the current [OngoingCall]'s caller.
-  String? get callerName =>
-      _currentCall.value.caller?.name?.val ??
-      _currentCall.value.caller?.num.toString();
+  String? get callerName => _currentCall.value.caller?.title;
 
   /// Indicates whether a drag and drop videos hint should be displayed.
   bool get showDragAndDropVideosHint =>
@@ -524,7 +522,7 @@ class CallController extends GetxController {
   /// title of this [OngoingCall].
   Map<String, String> get titleArguments {
     final Map<String, String> args = {
-      'title': chat.value?.title.value ?? ('dot'.l10n * 3),
+      'title': chat.value?.title ?? ('dot'.l10n * 3),
       'state': state.value.name,
     };
 
@@ -586,7 +584,7 @@ class CallController extends GetxController {
       isMobile = router.context?.isMobile ?? true;
       minimized = RxBool(!isMobile && !WebUtils.isPopup);
 
-      _currentCall.value.init();
+      _currentCall.value.init(getChat: _chatService.get);
 
       final Size size = router.context!.mediaQuerySize;
 

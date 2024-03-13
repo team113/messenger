@@ -207,11 +207,6 @@ class _ChatTileState extends State<ChatTile> {
                   ),
                   child: Row(
                     children: [
-                      // AvatarWidget.fromRxChat(
-                      //   widget.chat,
-                      //   key: _avatarKey,
-                      //   radius: 30,
-                      // ),
                       widget.avatarBuilder(
                         AvatarWidget.fromRxChat(
                           widget.chat,
@@ -293,7 +288,7 @@ class _ChatTileState extends State<ChatTile> {
                                                   }
 
                                                   return Text(
-                                                    widget.chat?.title.value ??
+                                                    widget.chat?.title ??
                                                         ('dot'.l10n * 3),
                                                     overflow:
                                                         TextOverflow.ellipsis,
@@ -320,22 +315,6 @@ class _ChatTileState extends State<ChatTile> {
                               ],
                             ),
                             ...widget.subtitle,
-                            // if (widget.basement != null)
-                            //   Align(
-                            //     alignment: Alignment.centerRight,
-                            //     child: Padding(
-                            //       padding: const EdgeInsets.only(top: 0),
-                            //       child: DefaultTextStyle(
-                            //         style: style.fonts.small.regular.onPrimary
-                            //             .copyWith(
-                            //           color: widget.selected
-                            //               ? style.colors.onPrimary
-                            //               : style.colors.primary,
-                            //         ),
-                            //         child: widget.basement!,
-                            //       ),
-                            //     ),
-                            //   )
                           ],
                         ),
                       ),
@@ -351,21 +330,9 @@ class _ChatTileState extends State<ChatTile> {
                     onPressed: widget.onBasementPressed,
                     child: Container(
                       decoration: BoxDecoration(
-                        // color: style.colors.onBackgroundOpacity7,
                         color: widget.selected
                             ? style.colors.onBackgroundOpacity7
                             : style.colors.acceptPrimary.withOpacity(0.1),
-                        // border: paidBorder,
-                        // border: Border(
-                        //   // top: BorderSide(
-                        //   //   color: style.colors.acceptPrimary.withOpacity(0.2),
-                        //   //   width: 0.5,
-                        //   // ),
-
-                        //   right: BorderSide(color: style.cardColor, width: 2),
-                        //   left: BorderSide(color: style.cardColor, width: 2),
-                        //   bottom: BorderSide(color: style.cardColor, width: 2),
-                        // ),
                         borderRadius: style.cardRadius.copyWith(
                           topLeft: Radius.zero,
                           topRight: Radius.zero,

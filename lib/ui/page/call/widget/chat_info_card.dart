@@ -81,7 +81,7 @@ class ChatInfoCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          chat?.title.value ?? 'dot'.l10n * 3,
+                          chat?.title ?? 'dot'.l10n * 3,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                           style: style.fonts.big.regular.onPrimary,

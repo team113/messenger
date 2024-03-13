@@ -30,16 +30,17 @@ class ShadowedRoundedButton extends StatelessWidget {
     this.child,
   });
 
+  /// Primary content of this button.
+  final Widget? child;
+
   /// Background color of this button.
   final Color? color;
 
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
 
+  /// Maximum width this button is allowed to occupy.
   final double? maxWidth;
-
-  /// Primary content of this button.
-  final Widget? child;
 
   @override
   Widget build(BuildContext context) {

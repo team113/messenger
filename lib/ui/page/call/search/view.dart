@@ -31,10 +31,14 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/recent_chat.dart';
+import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/search_field.dart';
 
@@ -113,16 +117,7 @@ class SearchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ModalPopupHeader(
-                onBack: onBack,
-                text: title,
-                // header: Center(
-                //   child: Text.rich(
-                //     title,
-                //     style: style.fonts.big.regular.onBackground,
-                //   ),
-                // ),
-              ),
+              ModalPopupHeader(onBack: onBack, text: title),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SearchField(
@@ -130,70 +125,6 @@ class SearchView extends StatelessWidget {
                   onChanged: () => c.query.value = c.search.text,
                 ),
               ),
-              // Obx(() {
-              //   final Widget child;
-
-              //   final total = c.selectedChats.fold(0, (p, e) {
-              //     if (e.chat.value.isDialog) {
-              //       return p +
-              //           e.chat.value.members.fold(
-              //             0,
-              //             (p, e) => p + e.user.messageCost,
-              //           );
-              //     }
-
-              //     return p;
-              //   });
-
-              //   if (total == 0) {
-              //     child = const SizedBox(width: double.infinity);
-              //   } else {
-              //     child = Container(
-              //       margin: const EdgeInsets.fromLTRB(10, 1, 10, 0),
-              //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              //       width: double.infinity,
-              //       decoration: BoxDecoration(
-              //         border: style.cardBorder,
-              //         borderRadius: BorderRadius.circular(12),
-              //         color: Colors.white,
-              //         boxShadow: [
-              //           CustomBoxShadow(
-              //             blurRadius: 8,
-              //             color: style.colors.onBackgroundOpacity13,
-              //             blurStyle: BlurStyle.outer.workaround,
-              //           ),
-              //         ],
-              //       ),
-              //       child: Row(
-              //         children: [
-              //           Text(
-              //             'Общая стоимость:',
-              //             style: style.fonts.normal.regular.secondary.copyWith(
-              //               color: const Color(0xFFd79e65),
-              //             ),
-              //             textAlign: TextAlign.left,
-              //           ),
-              //           Expanded(
-              //             child: Text(
-              //               '¤$total',
-              //               style:
-              //                   style.fonts.normal.regular.secondary.copyWith(
-              //                 color: const Color(0xFFd79e65),
-              //               ),
-              //               textAlign: TextAlign.right,
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     );
-              //   }
-
-              //   return AnimatedSizeAndFade(
-              //     fadeDuration: const Duration(milliseconds: 200),
-              //     sizeDuration: const Duration(milliseconds: 200),
-              //     child: child,
-              //   );
-              // }),
               Expanded(
                 child: Obx(() {
                   final RxStatus status = c.searchStatus.value;
@@ -244,6 +175,7 @@ class SearchView extends StatelessWidget {
                                 key: Key('SearchUser_${element.id}'),
                                 element.dialog.value!,
                                 me: c.me,
+                                getUser: c.getUser,
                                 onTap: () => c.select(user: element),
                                 selected: c.selectedUsers.contains(element),
                                 invertible: !selectable,
@@ -280,6 +212,7 @@ class SearchView extends StatelessWidget {
                                 key: Key('SearchContact_${element.id}'),
                                 element.user.value!.dialog.value!,
                                 me: c.me,
+                                getUser: c.getUser,
                                 onTap: () => c.select(contact: element),
                                 selected: c.selectedContacts.contains(element),
                                 invertible: !selectable,
@@ -335,6 +268,7 @@ class SearchView extends StatelessWidget {
                               key: Key('SearchChat_${element.id}'),
                               element,
                               me: c.me,
+                              getUser: c.getUser,
                               tappable: !blocked,
                               onTap: blocked
                                   ? null
