@@ -79,6 +79,7 @@ class CallSettingsController extends GetxController {
   void onClose() {
     super.onClose();
     _stateWorker.dispose();
+    scrollController.dispose();
   }
 
   /// Sets the provided [device] as a used by default camera device.

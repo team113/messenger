@@ -115,6 +115,12 @@ class ConfirmLogoutController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   /// Validates and sets the [password] of the currently authenticated [MyUser].
   Future<void> setPassword() async {
     if (password.error.value != null ||

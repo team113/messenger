@@ -316,6 +316,7 @@ class MessageFieldController extends GetxController {
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
     _inCallWorker?.dispose();
+    scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);

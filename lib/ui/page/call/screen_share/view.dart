@@ -75,46 +75,42 @@ class ScreenShareView extends StatelessWidget {
               ModalPopupHeader(text: 'label_screen_sharing'.l10n),
               const SizedBox(height: 12),
               Flexible(
-                child: Scrollbar(
-                  controller: c.scrollController,
-                  child: ListView.separated(
-                    controller: c.scrollController,
-                    physics: const ClampingScrollPhysics(),
-                    padding: ModalPopup.padding(context),
-                    shrinkWrap: true,
-                    itemBuilder: (_, i) {
-                      return Obx(() {
-                        final MediaDisplayDetails e = c.call.value.displays[i];
-                        return GestureDetector(
-                          onTap: () => c.selected.value = e,
-                          child: SizedBox(
-                            height: videoHeight,
-                            child: c.renderers[e] != null
-                                ? Center(
-                                    child: RtcVideoView(
-                                      c.renderers[e]!,
-                                      border: c.selected.value == e
-                                          ? Border.all(
-                                              color: style.colors.primary,
-                                              width: 4,
-                                            )
-                                          : null,
-                                      source: MediaSourceKind.display,
-                                      fit: BoxFit.contain,
-                                      enableContextMenu: false,
-                                      respectAspectRatio: true,
-                                      framelessBuilder: () => framelessBuilder,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  )
-                                : framelessBuilder,
-                          ),
-                        );
-                      });
-                    },
-                    separatorBuilder: (c, i) => const SizedBox(height: 10),
-                    itemCount: c.call.value.displays.length,
-                  ),
+                child: ListView.separated(
+                  physics: const ClampingScrollPhysics(),
+                  padding: ModalPopup.padding(context),
+                  shrinkWrap: true,
+                  itemBuilder: (_, i) {
+                    return Obx(() {
+                      final MediaDisplayDetails e = c.call.value.displays[i];
+                      return GestureDetector(
+                        onTap: () => c.selected.value = e,
+                        child: SizedBox(
+                          height: videoHeight,
+                          child: c.renderers[e] != null
+                              ? Center(
+                                  child: RtcVideoView(
+                                    c.renderers[e]!,
+                                    border: c.selected.value == e
+                                        ? Border.all(
+                                            color: style.colors.primary,
+                                            width: 4,
+                                          )
+                                        : null,
+                                    source: MediaSourceKind.display,
+                                    fit: BoxFit.contain,
+                                    enableContextMenu: false,
+                                    respectAspectRatio: true,
+                                    framelessBuilder: () => framelessBuilder,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                )
+                              : framelessBuilder,
+                        ),
+                      );
+                    });
+                  },
+                  separatorBuilder: (c, i) => const SizedBox(height: 10),
+                  itemCount: c.call.value.displays.length,
                 ),
               ),
               const SizedBox(height: 25),
