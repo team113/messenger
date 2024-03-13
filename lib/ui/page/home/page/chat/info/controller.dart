@@ -208,7 +208,7 @@ class ChatInfoController extends GetxController {
   }
 
   @override
-  onClose() {
+  void onClose() {
     _worker?.dispose();
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();

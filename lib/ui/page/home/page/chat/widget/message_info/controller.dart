@@ -55,7 +55,7 @@ class MessageInfoController extends GetxController {
   }
 
   @override
-  onClose() {
+  void onClose() {
     scrollController.dispose();
     super.onClose();
   }
