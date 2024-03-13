@@ -504,6 +504,7 @@ class ChatController extends GetxController {
     _readWorker?.dispose();
     _chatWorker?.dispose();
     _selectingWorker?.dispose();
+    _readObscuredWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _userSubscription?.cancel();
