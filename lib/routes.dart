@@ -176,8 +176,8 @@ class RouterState extends ChangeNotifier {
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
 
-  /// List of open modal windows obscuring the screen.
-  final List<Route> obscuringModals = [];
+  /// [ModalRoute]s obscuring any [Navigator] being built.
+  final RxList<ModalRoute> obscuring = RxList();
 
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
@@ -810,10 +810,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
-            observers: [
-              SentryNavigatorObserver(),
-              ModalNavigatorObserver(),
-            ],
+            observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
             onPopPage: (Route<dynamic> route, dynamic result) {
               final bool success = route.didPop(result);
@@ -939,41 +936,43 @@ extension AppLifecycleStateExtension on AppLifecycleState {
   }
 }
 
-/// [NavigatorObserver] to track the opening and closing of modal popups.
+/// [NavigatorObserver] tracking [ModalRoute]s opened and closed via
+/// [RouterState.obscuring].
 class ModalNavigatorObserver extends NavigatorObserver {
   @override
   void didPush(Route route, Route? previousRoute) {
-    if (_isObscuring(route)) {
-      router.obscuringModals.add(route);
+    if (route is ModalRoute && _isObscuring(route)) {
+      router.obscuring.add(route);
     }
   }
 
   @override
   void didPop(Route route, Route? previousRoute) {
-    if (_isObscuring(route)) {
-      router.obscuringModals.remove(route);
+    if (route is ModalRoute && _isObscuring(route)) {
+      router.obscuring.remove(route);
     }
   }
 
   @override
-  didRemove(Route route, Route? previousRoute) {
-    if (_isObscuring(route)) {
-      router.obscuringModals.remove(route);
+  void didRemove(Route route, Route? previousRoute) {
+    if (route is ModalRoute && _isObscuring(route)) {
+      router.obscuring.remove(route);
     }
   }
 
   @override
-  didReplace({Route? newRoute, Route? oldRoute}) {
+  void didReplace({Route? newRoute, Route? oldRoute}) {
     if (newRoute != null &&
         _isObscuring(newRoute) &&
         (oldRoute == null || !_isObscuring(oldRoute))) {
-      router.obscuringModals.remove(newRoute);
+      router.obscuring.remove(newRoute);
     }
   }
 
-  /// Determines whether the [route] is obscuring the content.
+  /// Indicates whether the [route] should be considered as one obscuring the
+  /// content.
   bool _isObscuring(Route route) {
-    return route is RawDialogRoute && route is! DialogRoute ||
+    return (route is RawDialogRoute && route is! DialogRoute) ||
         route is ModalBottomSheetRoute;
   }
 }

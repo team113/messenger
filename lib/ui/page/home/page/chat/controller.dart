@@ -901,7 +901,7 @@ class ChatController extends GetxController {
         status.value.isSuccess &&
         !status.value.isLoadingMore &&
         item.status.value == SendingStatus.sent &&
-        router.obscuringModals.isEmpty) {
+        router.obscuring.isEmpty) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {

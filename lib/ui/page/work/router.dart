@@ -72,10 +72,7 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
   Widget build(BuildContext context) {
     return Navigator(
       key: navigatorKey,
-      observers: [
-        SentryNavigatorObserver(),
-        ModalNavigatorObserver(),
-      ],
+      observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
       pages: _pages,
       onPopPage: (route, result) {
         _state.pop();
