@@ -16,6 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/account.dart';
+import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/routes.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -34,7 +38,8 @@ enum AccountsViewStage {
 /// Controller of an [AccountsView].
 class AccountsController extends GetxController {
   AccountsController(
-    this._myUser, {
+    this._myUser,
+    this._authService, {
     AccountsViewStage initial = AccountsViewStage.accounts,
   }) : stage = Rx(initial);
 
@@ -53,12 +58,18 @@ class AccountsController extends GetxController {
   /// [MyUserService] setting the password.
   final MyUserService _myUser;
 
+  final AuthService _authService;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;
 
+  List<Account> get accounts => _authService.accounts;
+
   @override
   void onInit() {
-    login = TextFieldState();
+    login = TextFieldState(onSubmitted: (s) {
+      password.focus.requestFocus();
+    });
 
     password = TextFieldState(
       onChanged: (s) {
@@ -75,8 +86,48 @@ class AccountsController extends GetxController {
           }
         }
       },
+      onSubmitted: (s) async {
+        if (!password.status.value.isEmpty) {
+          return;
+        }
+
+        password.status.value = RxStatus.loading();
+        await _authService.signIn(
+          UserPassword(password.text),
+          login: UserLogin(login.text),
+        );
+        password.status.value = RxStatus.empty();
+
+        router.go(Routes.nowhere);
+        await Future.delayed(const Duration(milliseconds: 500));
+        router.home();
+      },
     );
 
     super.onInit();
+  }
+
+  Future<void> delete(Account account) async {
+    await _authService.deleteAccount(account);
+  }
+
+  Future<void> switchTo(Account? account) async {
+    router.go(Routes.nowhere);
+
+    try {
+      if (account == null) {
+        await _authService.register();
+      } else {
+        await _authService.authorizeWith(account.credentials);
+      }
+    } catch (e) {
+      Future.delayed(const Duration(milliseconds: 1000)).then((v) {
+        MessagePopup.error(e);
+      });
+    }
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    router.home();
   }
 }

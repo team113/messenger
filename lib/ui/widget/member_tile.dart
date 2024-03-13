@@ -102,7 +102,7 @@ class MemberTile extends StatelessWidget {
       AnimatedButton(
         enabled: !me,
         decorator: (child) => Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
           child: child,
         ),
         onPressed: me
@@ -135,7 +135,6 @@ class MemberTile extends StatelessWidget {
               )
             : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
       ),
-      const SizedBox(width: 6),
     ];
 
     if (user.dialog.value != null && !me) {

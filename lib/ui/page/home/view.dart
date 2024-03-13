@@ -296,7 +296,7 @@ class _HomeViewState extends State<HomeView> {
                                         selector: c.partnerKey,
                                         alignment: Alignment.bottomCenter,
                                         margin:
-                                            const EdgeInsets.only(bottom: 16),
+                                            const EdgeInsets.only(bottom: 10),
                                         actions: [
                                           // ...top,
                                           ContextMenuTile(
@@ -330,7 +330,7 @@ class _HomeViewState extends State<HomeView> {
                                         selector: c.publicsKey,
                                         alignment: Alignment.bottomCenter,
                                         margin:
-                                            const EdgeInsets.only(bottom: 16),
+                                            const EdgeInsets.only(bottom: 8),
                                         actions: [
                                           // ...top,
                                           ContextMenuTile(
@@ -383,7 +383,7 @@ class _HomeViewState extends State<HomeView> {
                                         selector: c.chatsKey,
                                         alignment: Alignment.bottomCenter,
                                         margin:
-                                            const EdgeInsets.only(bottom: 16),
+                                            const EdgeInsets.only(bottom: 8),
                                         actions: [
                                           // ...top,
                                           ContextMenuTile(
@@ -437,12 +437,12 @@ class _HomeViewState extends State<HomeView> {
                                         selector: c.panelKey,
                                         alignment: Alignment.bottomRight,
                                         margin: const EdgeInsets.only(
-                                          bottom: 8,
+                                          bottom: 4,
                                           left: 8,
                                         ),
                                         actions: [
                                           ContextMenuTile(
-                                            icon: SvgIcon(SvgIcons.addAccount),
+                                            asset: SvgIcons.addAccount,
                                             label: 'Добавить аккаунт'.l10n,
                                             pinnable: false,
                                           ),
@@ -453,9 +453,9 @@ class _HomeViewState extends State<HomeView> {
                                             pinnable: false,
                                             onPressed: (context) {
                                               c.setPresence(Presence.present);
-                                              Navigator.of(context).pop();
+                                              // Navigator.of(context).pop();
                                             },
-                                            icon: Container(
+                                            trailing: Container(
                                               width: 16,
                                               height: 16,
                                               decoration: BoxDecoration(
@@ -470,9 +470,9 @@ class _HomeViewState extends State<HomeView> {
                                             pinnable: false,
                                             onPressed: (context) {
                                               c.setPresence(Presence.away);
-                                              Navigator.of(context).pop();
+                                              // Navigator.of(context).pop();
                                             },
-                                            icon: Container(
+                                            trailing: Container(
                                               width: 16,
                                               height: 16,
                                               decoration: BoxDecoration(

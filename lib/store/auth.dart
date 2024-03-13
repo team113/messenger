@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/api/backend/extension/credentials.dart';
+import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -67,15 +68,15 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> signUp() async {
+  Future<(Credentials, MyUser)> signUp() async {
     Log.debug('signUp()', '$runtimeType');
 
     final response = await _graphQlProvider.signUp();
-    return response.toModel();
+    return (response.toModel(), response.createUser.user.toModel());
   }
 
   @override
-  Future<Credentials> signIn(
+  Future<(Credentials, MyUser)> signIn(
     UserPassword password, {
     UserLogin? login,
     UserNum? num,
@@ -89,7 +90,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response =
         await _graphQlProvider.signIn(password, login, num, email, phone);
-    return response.toModel();
+    return (response.toModel(), response.user.toModel());
   }
 
   @override

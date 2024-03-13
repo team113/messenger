@@ -252,7 +252,7 @@ class _SelectorState<T> extends State<Selector<T>> {
           );
 
           left = offset.dx - widget.margin.right + widget.margin.left;
-          top = offset.dy - widget.margin.bottom;
+          top = offset.dy - widget.margin.bottom + widget.margin.top;
         } else if (widget.alignment == Alignment.bottomLeft) {
           offset = Offset(
             offset.dx - (buttonBox?.size.width ?? 0),

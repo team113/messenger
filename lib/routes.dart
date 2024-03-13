@@ -20,6 +20,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/themes.dart';
+import 'package:messenger/ui/widget/progress_indicator.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -110,6 +112,7 @@ class Routes {
   static const vacancy = '/vacancy';
   static const work = '/work';
   static const terms = '/terms';
+  static const nowhere = '/nowhere';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -512,6 +515,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('RestartPage'),
           name: Routes.restart,
           child: Center(child: Text('Restarting...')),
+        ),
+      ];
+    } else if (_state.route == Routes.nowhere) {
+      return [
+        MaterialPage(
+          key: const ValueKey('NowherePage'),
+          name: Routes.nowhere,
+          child: Scaffold(
+            backgroundColor: Theme.of(router.context!).style.colors.background,
+            body: const Center(child: CustomProgressIndicator.big()),
+          ),
         ),
       ];
     } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {

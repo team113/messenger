@@ -56,6 +56,7 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/account.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
@@ -117,8 +118,9 @@ Future<void> main() async {
     final graphQlProvider = Get.put(GraphQlProvider());
 
     Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    final authService =
-        Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
+    final authService = Get.put(
+      AuthService(AuthRepository(graphQlProvider), Get.find(), Get.find()),
+    );
 
     Uri? initial;
     try {
@@ -423,6 +425,7 @@ Future<void> _initHive() async {
 
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
+  await Get.put(AccountHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {
     await Get.put(CacheInfoHiveProvider()).init();

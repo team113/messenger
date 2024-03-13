@@ -18,17 +18,19 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/account.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
 /// ...
@@ -60,7 +62,7 @@ class AccountsView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('AccountsView'),
-      init: AccountsController(Get.find()),
+      init: AccountsController(Get.find(), Get.find()),
       builder: (AccountsController c) {
         return Obx(() {
           final Widget header;
@@ -73,51 +75,37 @@ class AccountsView extends StatelessWidget {
                 onBack: () => c.stage.value = AccountsViewStage.add,
               );
               children = [
-                const SizedBox(height: 50 - 12 - 13),
-                // ReactiveTextField(
-                //   key: const Key('LoginField'),
-                //   state: c.login,
-                //   label: 'label_login'.l10n,
-                //   treatErrorAsStatus: false,
-                // ),
-                // const SizedBox(height: 12),
-                // ReactiveTextField(
-                //   key: const Key('PasswordField'),
-                //   state: c.password,
-                //   label: 'label_password'.l10n,
-                //   obscure: c.obscurePassword.value,
-                //   onSuffixPressed: c.obscurePassword.toggle,
-                //   treatErrorAsStatus: false,
-                //   trailing: SvgIcon(
-                //     c.obscurePassword.value
-                //         ? SvgIcons.visibleOff
-                //         : SvgIcons.visibleOn,
-                //   ),
-                // ),
-                // const SizedBox(height: 50),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: OutlinedRoundedButton(
-                //         key: const Key('BackButton'),
-                //         maxWidth: double.infinity,
-                //         onPressed: () => c.stage.value = AccountsViewStage.add,
-                //         color: const Color(0xFFEEEEEE),
-                //         child: Text('btn_back'.l10n),
-                //       ),
-                //     ),
-                //     const SizedBox(width: 10),
-                //     Expanded(
-                //       child: OutlinedRoundedButton(
-                //         key: const Key('LoginButton'),
-                //         maxWidth: double.infinity,
-                //         onPressed: () {},
-                //         color: const Color(0xFF63B4FF),
-                //         child: Text('Login'.l10n),
-                //       ),
-                //     ),
-                //   ],
-                // ),
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  key: const Key('UsernameField'),
+                  state: c.login,
+                  label: 'label_sign_in_input'.l10n,
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const ValueKey('PasswordField'),
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled =
+                      !c.login.isEmpty.value && !c.password.isEmpty.value;
+
+                  return PrimaryButton(
+                    key: const Key('LoginButton'),
+                    title: 'btn_sign_in'.l10n,
+                    onPressed: enabled ? c.password.submit : null,
+                  );
+                }),
               ];
               break;
 
@@ -128,50 +116,6 @@ class AccountsView extends StatelessWidget {
               );
               children = [
                 const SizedBox(height: 50 - 12 - 13),
-                // ReactiveTextField(
-                //   key: const Key('LoginField'),
-                //   state: c.login,
-                //   label: 'label_login'.l10n,
-                //   treatErrorAsStatus: false,
-                // ),
-                // const SizedBox(height: 12),
-                // ReactiveTextField(
-                //   key: const Key('PasswordField'),
-                //   state: c.password,
-                //   label: 'label_password'.l10n,
-                //   obscure: c.obscurePassword.value,
-                //   onSuffixPressed: c.obscurePassword.toggle,
-                //   treatErrorAsStatus: false,
-                //   trailing: SvgIcon(
-                //     c.obscurePassword.value
-                //         ? SvgIcons.visibleOff
-                //         : SvgIcons.visibleOn,
-                //   ),
-                // ),
-                // const SizedBox(height: 50),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: OutlinedRoundedButton(
-                //         key: const Key('BackButton'),
-                //         maxWidth: double.infinity,
-                //         onPressed: () => c.stage.value = AccountsViewStage.add,
-                //         color: const Color(0xFFEEEEEE),
-                //         child: Text('btn_back'.l10n),
-                //       ),
-                //     ),
-                //     const SizedBox(width: 10),
-                //     Expanded(
-                //       child: OutlinedRoundedButton(
-                //         key: const Key('LoginButton'),
-                //         maxWidth: double.infinity,
-                //         onPressed: () {},
-                //         color: const Color(0xFF63B4FF),
-                //         child: Text('Login'.l10n),
-                //       ),
-                //     ),
-                //   ],
-                // ),
               ];
               break;
 
@@ -230,127 +174,124 @@ class AccountsView extends StatelessWidget {
                       onPressed: () {
                         router.accounts.value++;
                         Navigator.of(context).pop();
+                        c.switchTo(null);
                       },
                       child: Text('btn_guest'.l10n),
                     ),
                   ),
                 ),
-                // Padding(
-                //   padding: ModalPopup.padding(context),
-                //   child: ReactiveTextField(
-                //     key: const Key('LoginField'),
-                //     state: c.login,
-                //     label: 'label_login'.l10n,
-                //     treatErrorAsStatus: false,
-                //   ),
-                // ),
-                // const SizedBox(height: 12),
-                // Padding(
-                //   padding: ModalPopup.padding(context),
-                //   child: ReactiveTextField(
-                //     key: const Key('PasswordField'),
-                //     state: c.password,
-                //     label: 'label_password'.l10n,
-                //     obscure: c.obscurePassword.value,
-                //     onSuffixPressed: c.obscurePassword.toggle,
-                //     treatErrorAsStatus: false,
-                //     trailing: SvgIcon(
-                //       c.obscurePassword.value
-                //           ? SvgIcons.visibleOff
-                //           : SvgIcons.visibleOn,
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 18),
-                // Padding(
-                //   padding: ModalPopup.padding(context),
-                //   child: Center(
-                //     child: OutlinedRoundedButton(
-                //       onPressed: () {
-                //         Navigator.of(context).pop();
-                //         router.accounts.value++;
-                //       },
-                //       color: const Color(0xFFEEEEEE),
-                //       maxWidth: double.infinity,
-                //       child: Text('Login'.l10n),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 25),
-                // Center(
-                //   child: Text('OR'.l10n),
-                // ),
-                // const SizedBox(height: 25),
-                // Padding(
-                //   padding: ModalPopup.padding(context),
-                //   child: Center(
-                //     child: OutlinedRoundedButton(
-                //       onPressed: () {
-                //         Navigator.of(context).pop();
-                //         router.accounts.value++;
-                //       },
-                //       color: const Color(0xFF63B4FF),
-                //       maxWidth: double.infinity,
-                //       child: Text(
-                //         'Create account'.l10n,
-                //         style: const TextStyle(color: Colors.white),
-                //       ),
-                //     ),
-                //   ),
-                // ),
               ];
               break;
 
             case AccountsViewStage.accounts:
               header = ModalPopupHeader(text: 'Your accounts'.l10n);
 
+              final Account? active = c.accounts
+                  .firstWhereOrNull((e) => c.myUser.value?.id == e.myUser.id);
+
+              final List<Account> accounts =
+                  c.accounts.where((e) => e != active).toList();
+              accounts.sort(
+                (a, b) => '${a.myUser.name ?? a.myUser.num}'
+                    .compareTo('${b.myUser.name ?? b.myUser.num}'),
+              );
+
+              if (active != null) {
+                accounts.insert(0, active);
+              }
+
               children = [
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: ContactTile(
-                    myUser: c.myUser.value,
-                    onTap: Navigator.of(context).pop,
-                    trailing: [
-                      Text(
-                        'Active',
-                        style: style.fonts.normal.regular.secondary,
-                      ),
-                    ],
-                    subtitle: [
-                      const SizedBox(height: 5),
-                      Text(
-                        'Online',
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                    ],
-                  ),
-                ),
-                for (int i = 0; i < router.accounts.value; ++i)
+                for (var e in accounts)
                   Padding(
                     padding: ModalPopup.padding(context),
                     child: ContactTile(
-                      myUser: c.myUser.value,
-                      selected: false,
-                      onTap: Navigator.of(context).pop,
+                      myUser: e.myUser,
+                      onTap: () {
+                        Navigator.of(context).pop();
+
+                        if (c.myUser.value?.id != e.myUser.id) {
+                          c.switchTo(e);
+                        }
+                      },
+                      trailing: [
+                        if (c.myUser.value?.id == e.myUser.id)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
+                            child: Text(
+                              'Active',
+                              style: style.fonts.normal.regular.secondary,
+                            ),
+                          )
+                        else
+                          AnimatedButton(
+                            decorator: (child) => Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                              child: child,
+                            ),
+                            onPressed: () async {
+                              final result = await MessagePopup.alert(
+                                'btn_logout'.l10n,
+                                description: [
+                                  TextSpan(
+                                    style: style.fonts.medium.regular.secondary,
+                                    children: [
+                                      TextSpan(
+                                        text:
+                                            'alert_are_you_sure_want_to_log_out1'
+                                                .l10n,
+                                      ),
+                                      TextSpan(
+                                        style: style
+                                            .fonts.medium.regular.onBackground,
+                                        text: e.myUser.name?.val ??
+                                            e.myUser.num.toString(),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'alert_are_you_sure_want_to_log_out2'
+                                                .l10n,
+                                      ),
+                                      if (!e.myUser.hasPassword) ...[
+                                        const TextSpan(text: '\n\n'),
+                                        TextSpan(
+                                          text:
+                                              'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
+                                                  .l10n,
+                                        ),
+                                      ],
+                                      if (e
+                                          .myUser.emails.confirmed.isEmpty) ...[
+                                        const TextSpan(text: '\n\n'),
+                                        TextSpan(
+                                          text:
+                                              'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
+                                                  .l10n,
+                                        ),
+                                      ],
+                                    ],
+                                  )
+                                ],
+                              );
+
+                              if (result == true) {
+                                c.delete(e);
+                              }
+                            },
+                            child: const SvgIcon(SvgIcons.logout),
+                          ),
+                      ],
                       subtitle: [
                         const SizedBox(height: 5),
-                        Text(
-                          '10 days ago',
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                      ],
-                      trailing: [
-                        AnimatedButton(
-                          decorator: (child) => Padding(
-                            padding: const EdgeInsets.fromLTRB(4, 8, 8, 8),
-                            child: child,
+                        if (c.myUser.value?.id == e.myUser.id)
+                          Text(
+                            'Online',
+                            style: style.fonts.small.regular.secondary,
+                          )
+                        else
+                          Text(
+                            'Offline',
+                            style: style.fonts.small.regular.secondary,
                           ),
-                          onPressed: () {
-                            // TODO: Add confirm modal.
-                            router.accounts.value--;
-                          },
-                          child: const SvgIcon(SvgIcons.delete19),
-                        ),
                       ],
                     ),
                   ),
@@ -381,7 +322,7 @@ class AccountsView extends StatelessWidget {
                     physics: const ClampingScrollPhysics(),
                     children: [
                       ...children,
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),

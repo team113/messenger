@@ -21,6 +21,8 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/account.dart';
+import 'package:messenger/provider/hive/account.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -43,7 +45,11 @@ import '/util/web/web_utils.dart';
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
 class AuthService extends GetxService {
-  AuthService(this._authRepository, this._credentialsProvider);
+  AuthService(
+    this._authRepository,
+    this._credentialsProvider,
+    this._accountProvider,
+  );
 
   /// Currently authorized session's [Credentials].
   final Rx<Credentials?> credentials = Rx(null);
@@ -65,6 +71,8 @@ class AuthService extends GetxService {
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
 
+  final AccountHiveProvider _accountProvider;
+
   /// [Timer] used to periodically check the [Session.expireAt] and refresh it
   /// if necessary.
   Timer? _refreshTimer;
@@ -83,6 +91,8 @@ class AuthService extends GetxService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
+  StreamSubscription? _accountsSubscription;
+
   /// [AwaitableTimer] for [renewSession] awaiting being done in a separate tab.
   AwaitableTimer? _credentialsTimer;
 
@@ -96,11 +106,15 @@ class AuthService extends GetxService {
           .isBefore(PreciseDateTime.now().toUtc()) ==
       true;
 
+  late final RxList<Account> accounts =
+      RxList(_accountProvider.valuesSafe.toList());
+
   @override
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
+    _accountsSubscription?.cancel();
     _credentialsSubscription?.cancel();
     _refreshTimer?.cancel();
   }
@@ -112,6 +126,8 @@ class AuthService extends GetxService {
   /// from the server to be up-to-date with it.
   String? init() {
     Log.debug('init()', '$runtimeType');
+
+    _initAccountsSubscription();
 
     // Try to refresh session, otherwise just force logout.
     _authRepository.authExceptionHandler = (e) async {
@@ -278,8 +294,9 @@ class AuthService extends GetxService {
     return WebUtils.protect(() async {
       try {
         var data = await _authRepository.signUp();
-        _authorized(data);
-        _credentialsProvider.set(data);
+        _authorized(data.$1);
+        _credentialsProvider.set(data.$1);
+        _accountProvider.put(Account(data.$1, data.$2));
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -353,15 +370,16 @@ class AuthService extends GetxService {
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
     await WebUtils.protect(() async {
       try {
-        final Credentials data = await _authRepository.signIn(
+        final (Credentials, MyUser) data = await _authRepository.signIn(
           password,
           login: login,
           num: num,
           email: email,
           phone: phone,
         );
-        _authorized(data);
-        _credentialsProvider.set(data);
+        _authorized(data.$1);
+        _accountProvider.put(Account(data.$1, data.$2));
+        _credentialsProvider.set(data.$1);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -495,6 +513,10 @@ class AuthService extends GetxService {
     }
   }
 
+  Future<void> deleteAccount(Account account) async {
+    await _accountProvider.remove(account.myUser.id);
+  }
+
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
@@ -524,11 +546,32 @@ class AuthService extends GetxService {
   String _unauthorized() {
     Log.debug('_unauthorized()', '$runtimeType');
 
+    if (credentials.value != null) {
+      _accountProvider.remove(credentials.value!.userId);
+    }
+
     _credentialsProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();
     _refreshTimer?.cancel();
     return Routes.auth;
+  }
+
+  void _initAccountsSubscription() {
+    _accountsSubscription = _accountProvider.boxEvents.listen((e) {
+      if (e.deleted) {
+        accounts.removeWhere((m) => m.myUser.id.val == e.key);
+      } else {
+        final existing = accounts.indexOf((m) => m.myUser.id.val == e.key);
+        if (existing == -1) {
+          accounts.add(e.value);
+        } else {
+          accounts[existing] = e.value;
+        }
+
+        accounts.refresh();
+      }
+    });
   }
 }

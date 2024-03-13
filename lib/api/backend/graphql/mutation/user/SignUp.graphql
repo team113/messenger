@@ -18,9 +18,8 @@
 mutation SignUp {
     createUser {
         user {
-            id
-            num
-            ver
+            __typename
+            ...MyUser
         }
         session {
             token

@@ -290,14 +290,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             return child;
           }
 
-          return Builder(
-            builder: (context) {
-              return Listener(
-                onPointerUp: (_) => Navigator.of(context).pop(),
-                child: child,
-              );
-            },
-          );
+          return child;
         },
         itemBuilder: (b) {
           if (b is ContextMenuButton) {

@@ -51,155 +51,96 @@ class MenuTabView extends StatelessWidget {
         return Scaffold(
           extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
-            title: Row(
-              children: [
-                Material(
-                  elevation: 6,
-                  type: MaterialType.circle,
-                  shadowColor: style.colors.onBackgroundOpacity27,
-                  color: style.colors.onPrimary,
-                  child: Center(
-                    child: Obx(() {
-                      return AvatarWidget.fromMyUser(
-                        c.myUser.value,
-                        key: c.profileKey,
-                        radius: AvatarRadius.medium,
-                      );
-                    }),
+            title: ContextMenuRegion(
+              selector: c.profileKey,
+              alignment: Alignment.topLeft,
+              margin: const EdgeInsets.only(top: 15, right: 32),
+              enablePrimaryTap: true,
+              enableLongTap: false,
+              actions: [
+                ContextMenuButton(
+                  label: 'label_presence_present'.l10n,
+                  onPressed: () => c.setPresence(Presence.present),
+                  trailing: Container(
+                    width: 13,
+                    height: 13,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.acceptAuxiliary,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Flexible(
-                  child: DefaultTextStyle.merge(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    child: Obx(() {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            c.myUser.value?.name?.val ??
-                                c.myUser.value?.num.toString() ??
-                                'dot'.l10n * 3,
-                            style: style.fonts.big.regular.onBackground,
-                          ),
-                          Text(
-                            // c.myUser.value?.status?.val ??
-                            'Настройки'.l10n,
-                            style: style.fonts.small.regular.secondary,
-                          ),
-                          // Obx(() {
-                          //   return Text(
-                          //     // c.myUser.value?.status?.val ??
-                          //     'label_online'.l10n,
-                          //     style: style.fonts.small.regular.secondary,
-                          //   );
-                          // }),
-                        ],
-                      );
-                    }),
+                ContextMenuButton(
+                  label: 'label_presence_away'.l10n,
+                  onPressed: () => c.setPresence(Presence.away),
+                  trailing: Container(
+                    width: 13,
+                    height: 13,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: style.colors.warning,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10),
               ],
+              child: Row(
+                children: [
+                  Material(
+                    elevation: 6,
+                    type: MaterialType.circle,
+                    shadowColor: style.colors.onBackgroundOpacity27,
+                    color: style.colors.onPrimary,
+                    child: Center(
+                      child: Obx(() {
+                        return AvatarWidget.fromMyUser(
+                          c.myUser.value,
+                          key: c.profileKey,
+                          radius: AvatarRadius.medium,
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: DefaultTextStyle.merge(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      child: Obx(() {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              c.myUser.value?.name?.val ??
+                                  c.myUser.value?.num.toString() ??
+                                  'dot'.l10n * 3,
+                              style: style.fonts.big.regular.onBackground,
+                            ),
+                            Text(
+                              // c.myUser.value?.status?.val ??
+                              // 'label_online'.l10n,
+                              switch (c.myUser.value?.presence) {
+                                Presence.away => 'label_presence_away'.l10n,
+                                (_) => 'label_presence_present'.l10n,
+                              },
+                              style: style.fonts.small.regular.secondary,
+                            ),
+                            // Obx(() {
+                            //   return Text(
+                            //     // c.myUser.value?.status?.val ??
+                            //     'label_online'.l10n,
+                            //     style: style.fonts.small.regular.secondary,
+                            //   );
+                            // }),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
             ),
-
-            // title: Row(
-            //   children: [
-            //     SvgIcon(SvgIcons.menuSettings),
-            //     SizedBox(width: 16),
-            //     Text('Настройки'),
-            //   ],
-            // ),
-            // title: ContextMenuRegion(
-            //   selector: c.profileKey,
-            //   alignment: Alignment.topLeft,
-            //   margin: const EdgeInsets.only(top: 7, right: 32),
-            //   enablePrimaryTap: true,
-            //   actions: [
-            //     ContextMenuButton(
-            //       label: 'label_presence_present'.l10n,
-            //       onPressed: () => c.setPresence(Presence.present),
-            //       trailing: Container(
-            //         width: 10,
-            //         height: 10,
-            //         decoration: BoxDecoration(
-            //           borderRadius: BorderRadius.circular(8),
-            //           color: style.colors.acceptAuxiliary,
-            //         ),
-            //       ),
-            //     ),
-            //     ContextMenuButton(
-            //       label: 'label_presence_away'.l10n,
-            //       onPressed: () => c.setPresence(Presence.away),
-            //       trailing: Container(
-            //         width: 10,
-            //         height: 10,
-            //         decoration: BoxDecoration(
-            //           borderRadius: BorderRadius.circular(8),
-            //           color: style.colors.warning,
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            //   child: Row(
-            //     children: [
-            //       Material(
-            //         elevation: 6,
-            //         type: MaterialType.circle,
-            //         shadowColor: style.colors.onBackgroundOpacity27,
-            //         color: style.colors.onPrimary,
-            //         child: Center(
-            //           child: Obx(() {
-            //             return AvatarWidget.fromMyUser(
-            //               c.myUser.value,
-            //               key: c.profileKey,
-            //               radius: AvatarRadius.medium,
-            //             );
-            //           }),
-            //         ),
-            //       ),
-            //       const SizedBox(width: 10),
-            //       Flexible(
-            //         child: DefaultTextStyle.merge(
-            //           maxLines: 1,
-            //           overflow: TextOverflow.ellipsis,
-            //           child: Obx(() {
-            //             return Column(
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: [
-            //                 Text(
-            //                   c.myUser.value?.name?.val ??
-            //                       c.myUser.value?.num.toString() ??
-            //                       'dot'.l10n * 3,
-            //                   style: style.fonts.big.regular.onBackground,
-            //                 ),
-            //                 Text(
-            //                   // c.myUser.value?.status?.val ??
-            //                   'label_online'.l10n,
-            //                   style: style.fonts.small.regular.secondary,
-            //                 ),
-            //                 // Obx(() {
-            //                 //   return Text(
-            //                 //     // c.myUser.value?.status?.val ??
-            //                 //     'label_online'.l10n,
-            //                 //     style: style.fonts.small.regular.secondary,
-            //                 //   );
-            //                 // }),
-            //               ],
-            //             );
-            //           }),
-            //         ),
-            //       ),
-            //       const SizedBox(width: 10),
-            //     ],
-            //   ),
-            // ),
-            // leading: context.isNarrow
-            //     ? const [StyledBackButton()]
-            //     : [const SizedBox(width: 20)],
             leading: const [SizedBox(width: 21)],
             actions: [
               WidgetButton(
@@ -209,17 +150,6 @@ class MenuTabView extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
                     if (router.accounts.value == 0) {
-                      // return AnimatedButton(
-                      //   decorator: (child) => Padding(
-                      //     padding: const EdgeInsets.fromLTRB(0, 12, 3, 12),
-                      //     child: child,
-                      //   ),
-                      //   child: Transform.translate(
-                      //     offset: const Offset(0, 1),
-                      //     child: const SvgIcon(SvgIcons.addAccount),
-                      //   ),
-                      // );
-
                       return WidgetButton(
                         child: Text(
                           'Добавить\nаккаунт',
