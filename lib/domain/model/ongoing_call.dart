@@ -2258,6 +2258,14 @@ class CallMemberId {
   /// [ChatCallDeviceId] part of this [CallMemberId].
   final ChatCallDeviceId? deviceId;
 
+  static CallMemberId? tryParse(String val) {
+    try {
+      return CallMemberId.fromString(val);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   int get hashCode => '$userId.$deviceId'.hashCode;
 

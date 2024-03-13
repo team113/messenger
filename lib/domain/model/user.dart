@@ -234,6 +234,14 @@ class UserLogin extends NewType<String> {
 
   /// Regular expression for basic [UserLogin] validation.
   static final RegExp _regExp = RegExp(r'^[a-z0-9][a-z0-9_-]{1,18}[a-z0-9]$');
+
+  static UserLogin? tryParse(String val) {
+    try {
+      return UserLogin(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Name of an [User].
@@ -254,6 +262,14 @@ class UserName extends NewType<String> {
 
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+
+  static UserName? tryParse(String val) {
+    try {
+      return UserName(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Password of an [User].
@@ -278,6 +294,14 @@ class UserPassword extends NewType<String> {
 
   /// Regular expression for basic [UserPassword] validation.
   static final RegExp _regExp = RegExp(r'^[^\s](.{0,248}[^\s])?$');
+
+  static UserPassword? tryParse(String val) {
+    try {
+      return UserPassword(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Email address of an [User].
@@ -293,6 +317,14 @@ class UserEmail extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
+
+  static UserEmail? tryParse(String val) {
+    try {
+      return UserEmail(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Arbitrary descriptive information about a [User].
@@ -312,6 +344,14 @@ class UserBio extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserBio.unchecked(String val) = UserBio._;
+
+  static UserBio? tryParse(String val) {
+    try {
+      return UserBio(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Phone number of an [User].
@@ -340,6 +380,14 @@ class UserPhone extends NewType<String> {
   static final RegExp _regExp = RegExp(
     r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
   );
+
+  static UserPhone? tryParse(String val) {
+    try {
+      return UserPhone(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Direct link to a `Chat`.
@@ -377,22 +425,6 @@ class ChatDirectLinkSlug extends NewType<String> {
   /// Creates an object without any validation.
   const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
 
-  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
-  /// validation, or returns `null` otherwise.
-  ///
-  /// If [val] starts with [Config.link], then that part is omitted.
-  static ChatDirectLinkSlug? tryParse(String val) {
-    if (val.startsWith('${Config.link}/')) {
-      val = val.substring(Config.link.length + 1);
-    }
-
-    try {
-      return ChatDirectLinkSlug(val);
-    } catch (_) {
-      return null;
-    }
-  }
-
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
   factory ChatDirectLinkSlug.generate([int length = 10]) {
     final Random r = Random();
@@ -415,6 +447,22 @@ class ChatDirectLinkSlug extends NewType<String> {
 
   /// Regular expression for basic [ChatDirectLinkSlug] validation.
   static final RegExp _regExp = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
+
+  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  ///
+  /// If [val] starts with [Config.link], then that part is omitted.
+  static ChatDirectLinkSlug? tryParse(String val) {
+    if (val.startsWith('${Config.link}/')) {
+      val = val.substring(Config.link.length + 1);
+    }
+
+    try {
+      return ChatDirectLinkSlug(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Status of an [User].
@@ -432,6 +480,14 @@ class UserTextStatus extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
+
+  static UserTextStatus? tryParse(String val) {
+    try {
+      return UserTextStatus(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].

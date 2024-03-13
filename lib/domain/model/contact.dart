@@ -119,7 +119,7 @@ class ChatContactFavoritePosition extends NewType<double>
     implements Comparable<ChatContactFavoritePosition> {
   const ChatContactFavoritePosition(super.val);
 
-  static  ChatContactFavoritePosition parse(String val) =>
+  static ChatContactFavoritePosition parse(String val) =>
       ChatContactFavoritePosition(double.parse(val));
 
   static ChatContactFavoritePosition? tryParse(String val) {
