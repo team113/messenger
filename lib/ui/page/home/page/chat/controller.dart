@@ -309,7 +309,7 @@ class ChatController extends GetxController {
   Worker? _readWorker;
 
   /// Worker performing a [readChat] when [router.obscuring] becomes empty.
-  Worker? _obscuredReadWorker;
+  Worker? _readObscuredWorker;
 
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
@@ -798,7 +798,7 @@ class ChatController extends GetxController {
       }
 
       _readWorker ??= ever(_lastSeenItem, readChat);
-      _obscuredReadWorker ??= ever(router.obscuring, (modals) {
+      _readObscuredWorker ??= ever(router.obscuring, (modals) {
         if (modals.isEmpty) {
           readChat(_lastSeenItem.value);
         }
