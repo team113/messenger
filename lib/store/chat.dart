@@ -1263,6 +1263,10 @@ class ChatRepository extends DisposableInterface
   Future<void> unfavoriteChat(ChatId id) async {
     Log.debug('unfavoriteChat($id)', '$runtimeType');
 
+    if (id.isLocal) {
+      return;
+    }
+
     final HiveRxChat? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
 
