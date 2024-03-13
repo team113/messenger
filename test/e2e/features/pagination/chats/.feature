@@ -48,6 +48,7 @@ Feature: Chats pagination
 
     When I have Internet without delay
     Then chats fetched are indeed remote
+    And I pause for 2 seconds
 
   Scenario: Favorite chats pagination works correctly
     Given user Alice
