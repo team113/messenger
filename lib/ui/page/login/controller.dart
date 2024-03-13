@@ -303,10 +303,12 @@ class LoginController extends GetxController {
   ///
   /// Username is [login]'s text and the password is [password]'s text.
   Future<void> signIn() async {
-    UserLogin? userLogin;
-    UserNum? num;
-    UserEmail? email;
-    UserPhone? phone;
+    final String input = login.text;
+
+    final UserLogin? userLogin = UserLogin.tryParse(input.toLowerCase());
+    final UserNum? num = UserNum.tryParse(input);
+    final UserEmail? email = UserEmail.tryParse(input);
+    final UserPhone? phone = UserPhone.tryParse(input);
 
     login.error.value = null;
     password.error.value = null;
@@ -315,30 +317,6 @@ class LoginController extends GetxController {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;
-    }
-
-    try {
-      userLogin = UserLogin(login.text.toLowerCase());
-    } catch (e) {
-      // No-op.
-    }
-
-    try {
-      num = UserNum(login.text);
-    } catch (e) {
-      // No-op.
-    }
-
-    try {
-      email = UserEmail(login.text.toLowerCase());
-    } catch (e) {
-      // No-op.
-    }
-
-    try {
-      phone = UserPhone(login.text);
-    } catch (e) {
-      // No-op.
     }
 
     if (password.text.isEmpty) {
@@ -535,16 +513,12 @@ class LoginController extends GetxController {
       return;
     }
 
-    try {
-      UserPassword(newPassword.text);
-    } catch (e) {
+    if (UserPassword.tryParse(newPassword.text) == null) {
       newPassword.error.value = 'err_incorrect_input'.l10n;
       return;
     }
 
-    try {
-      UserPassword(repeatPassword.text);
-    } catch (e) {
+    if (UserPassword.tryParse(repeatPassword.text) == null) {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
       return;
     }

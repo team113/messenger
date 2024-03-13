@@ -218,6 +218,7 @@ class ChatItemKey implements Comparable<ChatItemKey> {
   /// [PreciseDateTime] part of this [ChatItemKey].
   final PreciseDateTime at;
 
+  // TODO: А надо ли?
   static ChatItemKey? tryParse(String value) {
     try {
       return ChatItemKey.fromString(value);

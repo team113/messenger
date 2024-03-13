@@ -439,30 +439,10 @@ class SearchController extends GetxController {
     _usersSearchWorker = null;
 
     if (query.isNotEmpty) {
-      UserNum? num;
-      UserName? name;
-      UserLogin? login;
-      ChatDirectLinkSlug? link;
-
-      try {
-        num = UserNum(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        name = UserName(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        login = UserLogin(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      link = ChatDirectLinkSlug.tryParse(query);
+      final UserNum? num = UserNum.tryParse(query);
+      final UserName? name = UserName.tryParse(query);
+      final UserLogin? login = UserLogin.tryParse(query);
+      final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {
         searchStatus.value = searchStatus.value.isSuccess

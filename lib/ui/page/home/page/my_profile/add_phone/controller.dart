@@ -136,30 +136,26 @@ class AddPhoneController extends GetxController {
 
     phoneCode = TextFieldState(
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            ConfirmationCode(s.text.toLowerCase());
-          }
+        final code = ConfirmationCode.tryParse(s.text);
 
+        if (s.text.isNotEmpty && code != null) {
           s.error.value = null;
-        } on FormatException {
+        } else {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
-        }
+        final code = ConfirmationCode.tryParse(s.text);
 
-        if (s.error.value == null) {
+        if (code == null) {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        } else {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
             await _myUserService.confirmPhoneCode(ConfirmationCode(s.text));
             pop?.call();
             s.clear();
-          } on FormatException {
-            s.error.value = 'err_wrong_recovery_code'.l10n;
           } on ConfirmUserPhoneException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {

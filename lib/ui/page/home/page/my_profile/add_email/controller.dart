@@ -134,30 +134,26 @@ class AddEmailController extends GetxController {
 
     emailCode = TextFieldState(
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            ConfirmationCode(s.text);
-          }
+        final code = ConfirmationCode.tryParse(s.text);
 
-          s.error.value = null;
-        } on FormatException {
+        if (s.text.isNotEmpty && code == null) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
+        } else {
+          s.error.value = null;
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
-        }
+        final code = ConfirmationCode.tryParse(s.text);
 
-        if (s.error.value == null) {
+        if (code == null) {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        } else {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
+            await _myUserService.confirmEmailCode(code);
             pop?.call();
             s.clear();
-          } on FormatException {
-            s.error.value = 'err_wrong_recovery_code'.l10n;
           } on ConfirmUserEmailException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {

@@ -59,9 +59,9 @@ class _UserLoginFieldState extends State<UserLoginField> {
         return;
       }
 
-      try {
-        UserLogin(s.text.toLowerCase());
-      } on FormatException catch (_) {
+      final UserLogin? login = UserLogin.tryParse(s.text.toLowerCase());
+
+      if (login == null) {
         s.error.value = 'err_incorrect_login_input'.l10n;
       }
 
@@ -70,11 +70,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
         s.status.value = RxStatus.loading();
 
         try {
-          if (s.text.isEmpty) {
-            await widget.onSubmit?.call(null);
-          } else {
-            await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
-          }
+          await widget.onSubmit?.call(login);
 
           if (mounted) {
             setState(() => _editing = false);
