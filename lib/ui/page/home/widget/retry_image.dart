@@ -315,11 +315,19 @@ class _RetryImageState extends State<RetryImage> {
 
     if (!_imageInitialized) {
       if (widget.thumbhash != null) {
+        double? width = widget.width;
+
+        if (widget.height != null &&
+            widget.aspectRatio != null &&
+            widget.fit != BoxFit.contain) {
+          width ??= widget.height! * widget.aspectRatio!;
+        }
+
         Widget thumbhash = Image(
           image: CacheWorker.instance.getThumbhashProvider(widget.thumbhash!),
           key: const Key('Thumbhash'),
           height: widget.height,
-          width: widget.width,
+          width: width,
           fit: BoxFit.cover,
         );
 
@@ -328,26 +336,29 @@ class _RetryImageState extends State<RetryImage> {
               AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
         }
 
-        return SizedBox(
-          height: widget.height,
-          width: widget.width,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (widget.loadingBuilder != null) widget.loadingBuilder!(),
-              thumbhash,
-              Positioned.fill(
-                child: Center(
-                  child: SafeAnimatedSwitcher(
-                    duration: const Duration(milliseconds: 150),
-                    child: KeyedSubtree(
-                      key: Key('Image_${widget.url}'),
-                      child: child,
+        return ConstrainedBox(
+          constraints: BoxConstraints(minWidth: widget.minWidth ?? 0),
+          child: SizedBox(
+            height: widget.height,
+            width: widget.width,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (widget.loadingBuilder != null) widget.loadingBuilder!(),
+                thumbhash,
+                Positioned.fill(
+                  child: Center(
+                    child: SafeAnimatedSwitcher(
+                      duration: const Duration(milliseconds: 150),
+                      child: KeyedSubtree(
+                        key: Key('Image_${widget.url}'),
+                        child: child,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       } else if (widget.loadingBuilder != null) {
