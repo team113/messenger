@@ -1238,9 +1238,16 @@ class ChatRepository extends DisposableInterface
 
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
+      } else if (id.isLocal) {
+        final HiveRxChat? chat = await ensureRemoteDialog(id);
+        if (chat != null) {
+          id = chat.id;
+        }
       }
 
-      await _graphQlProvider.favoriteChat(id, newPosition);
+      if (!id.isLocal) {
+        await _graphQlProvider.favoriteChat(id, newPosition);
+      }
     } catch (e) {
       if (chat?.chat.value.isMonolog == true) {
         _localMonologFavoritePosition = null;
@@ -1255,6 +1262,10 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> unfavoriteChat(ChatId id) async {
     Log.debug('unfavoriteChat($id)', '$runtimeType');
+
+    if (id.isLocal) {
+      return;
+    }
 
     final HiveRxChat? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
