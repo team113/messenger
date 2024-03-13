@@ -317,7 +317,7 @@ class HiveRxChat extends RxChat {
     switch (chat.value.kind) {
       case ChatKind.dialog:
         final RxUser? rxUser =
-            members.items.values.firstWhereOrNull((u) => u.user.id != me)?.user;
+            members.values.firstWhereOrNull((u) => u.user.id != me)?.user;
 
         if (rxUser != null) {
           users.add(rxUser);
@@ -326,7 +326,7 @@ class HiveRxChat extends RxChat {
 
       case ChatKind.group:
         if (chat.value.name == null) {
-          users.addAll(members.items.values.take(3).map((e) => e.user));
+          users.addAll(members.values.take(3).map((e) => e.user));
         }
         break;
 
@@ -1124,7 +1124,7 @@ class HiveRxChat extends RxChat {
         _putMember(HiveChatMember(member, null), ignoreBounds: true);
       }
 
-      if (members.pagination?.items.length == chat.value.membersCount) {
+      if (members.rawLength == chat.value.membersCount) {
         members.pagination?.hasNext.value = false;
         members.pagination?.hasPrevious.value = false;
         members.status.value = RxStatus.success();
@@ -1856,7 +1856,7 @@ class HiveRxChat extends RxChat {
                           .removeWhere((e) => e.user.id == action.user.id);
 
                       if (chatEntity.value.members.length < 3) {
-                        if (members.pagination!.items.length < 3) {
+                        if (members.rawLength < 3) {
                           await members.next();
                         }
 

@@ -282,7 +282,7 @@ class ChatInfoView extends StatelessWidget {
         Obx(() {
           final List<RxUser> members = [];
 
-          for (var u in c.chat!.members.items.values) {
+          for (var u in c.chat!.members.values) {
             if (u.user.id != c.me) {
               members.add(u.user);
             }

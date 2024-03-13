@@ -179,7 +179,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
 class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   RxPaginatedImpl({
     required this.transform,
-    required super.pagination,
+    required Pagination<V, C, K> super.pagination,
     super.initial,
     super.initialKey,
     super.initialCursor,
@@ -215,6 +215,11 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
   /// Callback, called to transform the [V] to [T].
   final FutureOr<T?> Function({T? previous, required V data}) transform;
+
+  /// Returns count of [V] items kept in [pagination].
+  ///
+  /// Should be used to get real [length] as [transform] may take some time.
+  int get rawLength => pagination!.items.length;
 
   @override
   Future<void> ensureInitialized() async {
