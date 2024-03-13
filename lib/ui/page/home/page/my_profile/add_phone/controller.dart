@@ -184,6 +184,7 @@ class AddPhoneController extends GetxController {
   @override
   void onClose() {
     _setResendPhoneTimer(false);
+    scrollController.dispose();
     super.onClose();
   }
 
