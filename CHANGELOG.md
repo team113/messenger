@@ -37,6 +37,8 @@ All user visible changes to this project will be documented in this file. This p
         - Missing bottom mobile paddings. ([#886], [#821])
     - Media panel:
         - Missing bottom mobile paddings in panel. ([#886], [#821])
+    - Chat page:
+        - Images displayed with vertical gaps on narrow screens. ([#901], [#888])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
@@ -49,8 +51,10 @@ All user visible changes to this project will be documented in this file. This p
 [#877]: /../../pull/877
 [#880]: /../../pull/880
 [#886]: /../../pull/886
+[#888]: /../../issues/888
 [#890]: /../../pull/890
 [#891]: /../../pull/891
+[#901]: /../../pull/901
 
 
 
