@@ -175,7 +175,6 @@ class ParticipantController extends GetxController {
     _membersSubscription?.cancel();
     _stateWorker?.dispose();
     _chatWorker?.dispose();
-    scrollController.removeListener(_scrollListener);
     scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {

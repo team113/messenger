@@ -123,6 +123,12 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
