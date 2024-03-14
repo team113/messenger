@@ -90,7 +90,7 @@ class MessageFieldView extends StatelessWidget {
   /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
 
-  /// Callback, called on an [Attachment] fetching errors.
+  /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function(ChatItem)? onAttachmentError;
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.

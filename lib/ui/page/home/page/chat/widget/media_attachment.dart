@@ -110,13 +110,11 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               final Size? dimensions = attachment.file.dimensions.value;
               final double ratio =
                   (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
+              final bool narrow = ratio > 3 || ratio < 0.33;
 
               return Image.memory(
                 attachment.file.bytes.value!,
-                fit: widget.fit ??
-                    ((ratio > 3 || ratio < 0.33)
-                        ? BoxFit.contain
-                        : BoxFit.cover),
+                fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
                 height: widget.height ??
                     max(100, min(dimensions?.height ?? 300, 300)),
@@ -127,11 +125,11 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       } else {
         final ImageFile file = attachment.original as ImageFile;
         final double ratio = (file.width ?? 300) / (file.height ?? 300);
+        final bool narrow = ratio > 3 || ratio < 0.33;
 
         child = RetryImage.attachment(
           attachment as ImageAttachment,
-          fit: widget.fit ??
-              ((ratio > 3 || ratio < 0.33) ? BoxFit.contain : BoxFit.cover),
+          fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
           minWidth: 75,
           height: widget.height ??

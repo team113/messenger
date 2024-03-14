@@ -344,8 +344,10 @@ class _RetryImageState extends State<RetryImage> {
               maxWidth: width ?? double.infinity,
               maxHeight: widget.height ?? double.infinity,
             ),
-            child:
-                AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash),
+            child: AspectRatio(
+              aspectRatio: widget.aspectRatio!,
+              child: thumbhash,
+            ),
           );
         }
 
