@@ -202,8 +202,10 @@ class ChatsTabController extends GetxController {
           .id;
 
       if (userId != null) {
-        RxUser? rxUser =
-            chat.members.values.toList().firstWhereOrNull((u) => u.id != me);
+        RxUser? rxUser = chat.members.values
+            .toList()
+            .firstWhereOrNull((u) => u.user.id != me)
+            ?.user;
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
           _userSubscriptions.remove(userId)?.cancel();
@@ -483,8 +485,9 @@ class ChatsTabController extends GetxController {
     }
 
     return chat.members.values
-            .firstWhereOrNull((e) => e.id != me)
+            .firstWhereOrNull((e) => e.user.id != me)
             ?.user
+            .user
             .value
             .contacts
             .isNotEmpty ==
@@ -500,8 +503,11 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user =
-        chat.members.values.firstWhereOrNull((e) => e.id != me)?.user.value;
+    final User? user = chat.members.values
+        .firstWhereOrNull((e) => e.user.id != me)
+        ?.user
+        .user
+        .value;
     if (user == null) {
       return;
     }
@@ -525,8 +531,9 @@ class ChatsTabController extends GetxController {
 
     try {
       final ChatContactId? contactId = chat.members.values
-          .firstWhereOrNull((e) => e.id != me)
+          .firstWhereOrNull((e) => e.user.id != me)
           ?.user
+          .user
           .value
           .contacts
           .firstOrNull
@@ -915,7 +922,7 @@ class ChatEntry implements Comparable<ChatEntry> {
   RxObsList<Rx<ChatItem>> get messages => _chat.messages;
 
   /// Reactive map of [User]s being members of this [chat].
-  RxObsMap<UserId, RxUser> get members => _chat.members.items;
+  RxSortedObsMap<UserId, RxChatMember> get members => _chat.members.items;
 
   /// Disposes this [ChatEntry].
   void dispose() => _worker.dispose();
