@@ -268,6 +268,11 @@ class RouterState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Replaces the provided [from] with the specified [to] in the [routes].
+  void replace(String from, String to) {
+    routes.value = routes.map((e) => e.replaceAll(from, to)).toList();
+  }
+
   /// Returns guarded route based on [_auth] status.
   ///
   /// - [Routes.home] is allowed always.
