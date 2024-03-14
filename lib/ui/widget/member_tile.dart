@@ -102,7 +102,7 @@ class MemberTile extends StatelessWidget {
             ),
           ),
         ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 41 + 16),
+          constraints: const BoxConstraints(minWidth: 41),
           child: Align(
             alignment: Alignment.centerRight,
             child: AnimatedButton(

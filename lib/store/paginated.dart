@@ -216,9 +216,11 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   /// Callback, called to transform the [V] to [T].
   final FutureOr<T?> Function({T? previous, required V data}) transform;
 
-  /// Returns count of [V] items kept in [pagination].
+  /// Returns the raw count of [V] items kept in [pagination].
   ///
-  /// Should be used to get real [length] as [transform] may take some time.
+  /// Note, that this count may __not__ be equal to [length], as [transform] is
+  /// applied to every item in [pagination] before appending to the [items],
+  /// which may take some time.
   int get rawLength => pagination!.items.length;
 
   @override
