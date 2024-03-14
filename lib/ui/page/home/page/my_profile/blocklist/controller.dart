@@ -115,6 +115,7 @@ class BlocklistController extends GetxController {
   @override
   void onClose() {
     _blocklistSubscription.cancel();
+    scrollController.dispose();
     super.onClose();
   }
 

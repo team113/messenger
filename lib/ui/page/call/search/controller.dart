@@ -225,7 +225,7 @@ class SearchController extends GetxController {
 
   @override
   void onClose() {
-    scrollController.removeListener(_updateScrollPosition);
+    scrollController.dispose();
     _nextInterval?.dispose();
     _searchDebounce?.dispose();
     _searchWorker?.dispose();

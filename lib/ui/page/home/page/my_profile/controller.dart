@@ -306,7 +306,7 @@ class MyProfileController extends GetxController {
   void onClose() {
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
-    scrollController.removeListener(_ensureNameDisplayed);
+    scrollController.dispose();
     super.onClose();
   }
 

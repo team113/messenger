@@ -542,9 +542,9 @@ class WebUtils {
     ChatId newChatId, {
     WebStoredCall? newState,
   }) {
-    newState ??= WebUtils.getCall(chatId);
-    WebUtils.removeCall(chatId);
-    WebUtils.setCall(newState!);
+    newState ??= getCall(chatId);
+    removeCall(chatId);
+    setCall(newState!);
     replaceState(chatId.val, newChatId.val);
   }
 
@@ -666,6 +666,7 @@ class WebUtils {
 
   /// Replaces the provided [from] with the specified [to] in the current URL.
   static void replaceState(String from, String to) {
+    router.replace(from, to);
     html.window.history.replaceState(
       null,
       html.document.title,
