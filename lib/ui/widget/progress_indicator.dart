@@ -27,7 +27,7 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 /// busy.
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({super.key, this.value})
-      : size = 32,
+      : size = defaultSize,
         padding = const EdgeInsets.all(6),
         blur = true,
         backgroundColor = null,
@@ -36,9 +36,11 @@ class CustomProgressIndicator extends StatelessWidget {
         strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `primary` style.
-  const CustomProgressIndicator.primary({super.key, this.value})
-      : size = 40,
-        padding = const EdgeInsets.all(4),
+  const CustomProgressIndicator.primary({
+    super.key,
+    this.value,
+    this.size = primarySize,
+  })  : padding = const EdgeInsets.all(4),
         blur = false,
         backgroundColor = null,
         valueColor = null,
@@ -47,13 +49,22 @@ class CustomProgressIndicator extends StatelessWidget {
 
   /// Constructs a [CustomProgressIndicator] with a `big` style.
   const CustomProgressIndicator.big({super.key, this.value})
-      : size = 64,
+      : size = bigSize,
         padding = const EdgeInsets.all(6),
         blur = true,
         backgroundColor = null,
         valueColor = null,
         primary = false,
         strokeWidth = 2.0;
+
+  /// Default size of this [CustomProgressIndicator].
+  static const double defaultSize = 32;
+
+  /// Primary size of this [CustomProgressIndicator].
+  static const double primarySize = 40;
+
+  /// Big size of this [CustomProgressIndicator].
+  static const double bigSize = 64;
 
   /// Value of this [CustomProgressIndicator].
   final double? value;

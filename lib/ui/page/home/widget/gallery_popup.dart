@@ -59,6 +59,7 @@ class GalleryItem {
     required this.size,
     this.width,
     this.height,
+    this.aspectRatio,
     this.checksum,
     this.thumbhash,
     this.isVideo = false,
@@ -75,18 +76,26 @@ class GalleryItem {
     String? checksum,
     ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
-  }) =>
-      GalleryItem(
-        link: link,
-        name: name,
-        size: size,
-        width: width,
-        height: height,
-        checksum: checksum,
-        thumbhash: thumbhash,
-        isVideo: false,
-        onError: onError,
-      );
+  }) {
+    double? aspectRatio;
+
+    if (width != null && height != null) {
+      aspectRatio = width / height;
+    }
+
+    return GalleryItem(
+      link: link,
+      name: name,
+      size: size,
+      width: width,
+      height: height,
+      aspectRatio: aspectRatio,
+      checksum: checksum,
+      thumbhash: thumbhash,
+      isVideo: false,
+      onError: onError,
+    );
+  }
 
   /// Constructs a [GalleryItem] treated as a video.
   factory GalleryItem.video(
@@ -128,6 +137,9 @@ class GalleryItem {
 
   /// Height of the image this [GalleryItem] represents.
   final int? height;
+
+  /// Aspect ratio of the image this [GalleryItem] represents.
+  final double? aspectRatio;
 
   /// Callback, called on the fetch errors of this [GalleryItem].
   final FutureOr<void> Function()? onError;
@@ -546,9 +558,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                         e.link,
                         width: e.width?.toDouble(),
                         height: e.height?.toDouble(),
+                        aspectRatio: e.aspectRatio,
                         checksum: e.checksum,
                         thumbhash: e.thumbhash,
                         onForbidden: e.onError,
+                        fit: BoxFit.contain,
                       ),
               ),
             );
@@ -643,35 +657,36 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: FittedBox(
-                      fit: _isFullscreen.isTrue
-                          ? BoxFit.contain
-                          : BoxFit.scaleDown,
-                      child: ConstrainedBox(
-                        constraints:
-                            const BoxConstraints(minWidth: 1, minHeight: 1),
-                        child: PlatformUtils.isWeb
-                            ? WebImage(
-                                e.link,
-                                width: e.width?.toDouble(),
-                                height: e.height?.toDouble(),
-                                thumbhash: e.thumbhash,
-                                onForbidden: e.onError,
+                    child: ConstrainedBox(
+                      constraints:
+                          const BoxConstraints(minWidth: 1, minHeight: 1),
+                      child: PlatformUtils.isWeb
+                          ? WebImage(
+                              e.link,
+                              width: e.width?.toDouble(),
+                              height: e.height?.toDouble(),
+                              thumbhash: e.thumbhash,
+                              onForbidden: e.onError,
 
-                                // TODO: Wait for HTML to support specifying
-                                //       download name:
-                                //       https://github.com/whatwg/html/issues/2722
-                                // name: e.name,
-                              )
-                            : RetryImage(
-                                e.link,
-                                width: e.width?.toDouble(),
-                                height: e.height?.toDouble(),
-                                checksum: e.checksum,
-                                thumbhash: e.thumbhash,
-                                onForbidden: e.onError,
-                              ),
-                      ),
+                              // TODO: Wait for HTML to support specifying
+                              //       download name:
+                              //       https://github.com/whatwg/html/issues/2722
+                              // name: e.name,
+                            )
+                          : RetryImage(
+                              e.link,
+                              width: _isFullscreen.isTrue
+                                  ? double.infinity
+                                  : e.width?.toDouble(),
+                              height: _isFullscreen.isTrue
+                                  ? double.infinity
+                                  : e.height?.toDouble(),
+                              aspectRatio: e.aspectRatio,
+                              checksum: e.checksum,
+                              thumbhash: e.thumbhash,
+                              onForbidden: e.onError,
+                              fit: BoxFit.contain,
+                            ),
                     ),
                   ),
           ),

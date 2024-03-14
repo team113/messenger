@@ -218,6 +218,7 @@ class ChatItemWidget extends StatefulWidget {
         key: key,
         attachment: e,
         width: filled ? double.infinity : null,
+        height: filled ? double.infinity : null,
         onError: onError,
       );
 

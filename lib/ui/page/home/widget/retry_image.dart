@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
@@ -254,6 +255,18 @@ class _RetryImageState extends State<RetryImage> {
 
       child = image;
     } else {
+      double loader = CustomProgressIndicator.primarySize;
+
+      if ((widget.width != null && widget.width!.isFinite) ||
+          (widget.height != null && widget.height!.isFinite)) {
+        double size = min(
+          widget.width ?? double.infinity,
+          widget.height ?? double.infinity,
+        );
+
+        loader = min(loader, size * 0.6);
+      }
+
       child = WidgetButton(
         onPressed: widget.cancelable
             ? () {
@@ -274,40 +287,33 @@ class _RetryImageState extends State<RetryImage> {
           height: widget.height,
           constraints: const BoxConstraints(minWidth: 200),
           alignment: Alignment.center,
-          child: Container(
-            constraints: const BoxConstraints(
-              maxHeight: 46,
-              maxWidth: 46,
-              minWidth: 10,
-              minHeight: 10,
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                if (!_canceled && widget.displayProgress)
-                  CustomProgressIndicator.primary(
-                    value: _progress == 0 ? null : _progress.clamp(0, 1),
-                  ),
-                if (widget.cancelable)
-                  Center(
-                    child: _canceled
-                        ? Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: style.colors.onBackgroundOpacity20,
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer.workaround,
-                                ),
-                              ],
-                            ),
-                            child: const SvgIcon(SvgIcons.download),
-                          )
-                        : const SvgIcon(SvgIcons.closePrimary),
-                  ),
-              ],
-            ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (!_canceled && widget.displayProgress)
+                CustomProgressIndicator.primary(
+                  value: _progress == 0 ? null : _progress.clamp(0, 1),
+                  size: loader,
+                ),
+              if (widget.cancelable)
+                Center(
+                  child: _canceled
+                      ? Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: style.colors.onBackgroundOpacity20,
+                                blurRadius: 8,
+                                blurStyle: BlurStyle.outer.workaround,
+                              ),
+                            ],
+                          ),
+                          child: const SvgIcon(SvgIcons.download),
+                        )
+                      : const SvgIcon(SvgIcons.closePrimary),
+                ),
+            ],
           ),
         ),
       );
@@ -318,6 +324,7 @@ class _RetryImageState extends State<RetryImage> {
         double? width = widget.width;
 
         if (widget.height != null &&
+            width == null &&
             widget.aspectRatio != null &&
             widget.fit != BoxFit.contain) {
           width ??= widget.height! * widget.aspectRatio!;
@@ -332,8 +339,14 @@ class _RetryImageState extends State<RetryImage> {
         );
 
         if (widget.aspectRatio != null && widget.fit == BoxFit.contain) {
-          thumbhash =
-              AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
+          thumbhash = ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: width ?? double.infinity,
+              maxHeight: widget.height ?? double.infinity,
+            ),
+            child:
+                AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash),
+          );
         }
 
         return ConstrainedBox(
