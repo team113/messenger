@@ -1223,7 +1223,7 @@ class ChatView extends StatelessWidget {
                                 .sort((a, b) => b.item.at.compareTo(a.item.at));
 
                             final result = await ChatForwardView.show(
-                              router.context!,
+                              context,
                               c.id,
                               items,
                             );
