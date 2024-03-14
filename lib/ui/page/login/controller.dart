@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/native_file.dart';
 import 'package:messenger/domain/model/session.dart';
@@ -172,19 +173,7 @@ class LoginController extends GetxController {
 
       try {
         final response = await graphQlProvider.signUp();
-
-        creds = Credentials(
-          Session(
-            response.createUser.session.token,
-            response.createUser.session.expireAt,
-          ),
-          RememberedSession(
-            response.createUser.remembered!.token,
-            response.createUser.remembered!.expireAt,
-          ),
-          response.createUser.user.id,
-        );
-
+        creds = response.toModel();
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.addUserEmail(UserEmail(email.text));
         graphQlProvider.token = null;
@@ -305,19 +294,7 @@ class LoginController extends GetxController {
 
       try {
         final response = await graphQlProvider.signUp();
-
-        creds = Credentials(
-          Session(
-            response.createUser.session.token,
-            response.createUser.session.expireAt,
-          ),
-          RememberedSession(
-            response.createUser.remembered!.token,
-            response.createUser.remembered!.expireAt,
-          ),
-          response.createUser.user.id,
-        );
-
+        creds = response.toModel();
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.addUserPhone(
           UserPhone(phone.controller2.value!.international.toLowerCase()),
@@ -833,6 +810,9 @@ class LoginController extends GetxController {
 
   LoginViewStage fallbackStage = LoginViewStage.signUp;
 
+  UserCredential? credential;
+  OAuthProvider? oAuthProvider;
+
   Future<void> continueWithGoogle() async {
     fallbackStage = stage.value;
     oAuthProvider = OAuthProvider.google;
@@ -881,9 +861,6 @@ class LoginController extends GetxController {
       stage.value = fallbackStage;
     }
   }
-
-  UserCredential? credential;
-  OAuthProvider? oAuthProvider;
 
   Future<void> continueWithApple() async {
     fallbackStage = stage.value;

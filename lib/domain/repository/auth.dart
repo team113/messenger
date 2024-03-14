@@ -89,7 +89,7 @@ abstract class AbstractAuthRepository {
   /// The renewed [Session] has its own expiration after renewal, so to renew it
   /// again use this method with the new returned [RefreshToken] (omit using
   /// old ones).
-  Future<Credentials> renewSession(RefreshToken token);
+  Future<(Credentials, MyUser)> renewSession(RefreshToken token);
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
@@ -102,7 +102,7 @@ abstract class AbstractAuthRepository {
   /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
   /// hour.
   Future<void> recoverUserPassword(
-      {UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone});
+      {UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone,});
 
   /// Validates the provided password recovery [ConfirmationCode] for a [MyUser]
   /// identified by the provided [num]/[login]/[email]/[phone] (exactly one of

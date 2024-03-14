@@ -24,7 +24,7 @@ import 'session.dart';
 part 'account.g.dart';
 
 @HiveType(typeId: ModelTypeId.account)
-class Account extends HiveObject {
+class Account extends HiveObject implements Comparable<Account> {
   Account(this.credentials, this.myUser);
 
   @HiveField(0)
@@ -32,4 +32,17 @@ class Account extends HiveObject {
 
   @HiveField(1)
   final MyUser myUser;
+
+  @override
+  int compareTo(Account other) {
+    if (myUser.name != null && other.myUser.name == null) {
+      return -1;
+    } else if (myUser.name == null && other.myUser.name != null) {
+      return 1;
+    } else if (myUser.name == null && other.myUser.name == null) {
+      return myUser.num.val.compareTo(other.myUser.num.val);
+    } else {
+      return myUser.name!.val.compareTo(other.myUser.name!.val);
+    }
+  }
 }

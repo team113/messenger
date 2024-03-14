@@ -26,6 +26,8 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/account.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/blocklist.dart';
 import 'package:messenger/domain/service/user.dart';
@@ -302,6 +304,8 @@ class MyProfileController extends GetxController {
         // UserPhone('+1234567890'),
         // UserPhone('+0234567890'),
       ];
+
+  RxList<Account> get accounts => _authService.accounts;
 
   final RxBool expanded = RxBool(false);
 

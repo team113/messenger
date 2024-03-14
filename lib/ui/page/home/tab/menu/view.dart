@@ -149,7 +149,7 @@ class MenuTabView extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
-                    if (router.accounts.value == 0) {
+                    if (c.accounts.length <= 1) {
                       return WidgetButton(
                         child: Text(
                           'Добавить\nаккаунт',
@@ -575,8 +575,7 @@ class MenuTabView extends StatelessWidget {
                       ),
                       onPressed: () async {
                         if (await c.confirmLogout()) {
-                          router.go(await c.logout());
-                          router.tab = HomeTab.chats;
+                          await c.logout();
                         }
                       },
                     );

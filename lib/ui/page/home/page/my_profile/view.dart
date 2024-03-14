@@ -2303,7 +2303,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Obx(() {
-                if (router.accounts.value == 0) {
+                if (c.accounts.length <= 1) {
                   return WidgetButton(
                     child: Text(
                       'Добавить\nаккаунт',

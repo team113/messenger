@@ -19,6 +19,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/account.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
@@ -48,6 +50,8 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  RxList<Account> get accounts => _authService.accounts;
+
   /// Determines whether the [logout] action may be invoked or not.
   ///
   /// Shows a confirmation popup if there's any ongoing calls.
@@ -61,7 +65,38 @@ class MenuTabController extends GetxController {
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _authService.logout();
+  Future<void> logout() async {
+    if (accounts.length <= 1) {
+      router.go(await _authService.logout());
+      router.tab = HomeTab.chats;
+    } else {
+      final active =
+          accounts.firstWhereOrNull((e) => e.myUser.id == myUser.value?.id);
+      if (active != null) {
+        await _authService.deleteAccount(active);
+      }
+
+      final List<Account> allowed = accounts.where((e) => e != active).toList()
+        ..sort();
+
+      final Account? next = allowed.firstOrNull;
+      if (next != null) {
+        router.go(Routes.nowhere);
+
+        try {
+          await _authService.signInWith(next.credentials);
+        } catch (e) {
+          Future.delayed(const Duration(milliseconds: 1000)).then((v) {
+            MessagePopup.error(e);
+          });
+        }
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        router.home();
+      }
+    }
+  }
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>

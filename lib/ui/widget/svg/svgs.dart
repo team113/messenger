@@ -2295,4 +2295,10 @@ class SvgIcons {
     width: 16.28,
     height: 19,
   );
+
+  static const SvgData logoutWhite = SvgData(
+    'assets/icons/logout_white.svg',
+    width: 16.28,
+    height: 19,
+  );
 }

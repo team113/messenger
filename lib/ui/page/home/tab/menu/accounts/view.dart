@@ -15,16 +15,25 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/account.dart';
+import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
+import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
+import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
+import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
 
 import '/l10n/l10n.dart';
@@ -62,11 +71,11 @@ class AccountsView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('AccountsView'),
-      init: AccountsController(Get.find(), Get.find()),
+      init: AccountsController(Get.find(), Get.find(), Get.find()),
       builder: (AccountsController c) {
         return Obx(() {
           final Widget header;
-          final List<Widget> children;
+          List<Widget> children;
 
           switch (c.stage.value) {
             case AccountsViewStage.signIn:
@@ -109,7 +118,7 @@ class AccountsView extends StatelessWidget {
               ];
               break;
 
-            case AccountsViewStage.signUp:
+            case AccountsViewStage.oauth:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
                 onBack: () => c.stage.value = AccountsViewStage.add,
@@ -117,6 +126,286 @@ class AccountsView extends StatelessWidget {
               children = [
                 const SizedBox(height: 50 - 12 - 13),
               ];
+              break;
+
+            case AccountsViewStage.signInWithPhone:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.signInWithPhoneCode:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.signUpWithPhoneCode:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.signUpWithEmailCode:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                Text.rich(
+                  'label_sign_up_code_email_sent'
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.medium.regular.primary,
+                  ),
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'label_did_not_receive_code'.l10n,
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: WidgetButton(
+                    onPressed: () {},
+                    child: Text(
+                      'btn_resend_code'.l10n,
+                      style: style.fonts.medium.regular.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('EmailCodeField'),
+                  state: c.emailCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled = !c.emailCode.isEmpty.value;
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_send'.l10n,
+                    onPressed: enabled ? c.emailCode.submit : null,
+                  );
+                }),
+              ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
+              break;
+
+            case AccountsViewStage.signInWithEmailCode:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.signInWithEmail:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.oauthNoUser:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.oauthOccupied:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                const SizedBox(height: 50 - 12 - 13),
+              ];
+              break;
+
+            case AccountsViewStage.signUpWithEmail:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () {
+                  c.stage.value = AccountsViewStage.signUp;
+                  c.email.unsubmit();
+                },
+              );
+              children = [
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  hint: 'example@domain.com',
+                  style: style.fonts.normal.regular.onBackground,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.email.isEmpty.value;
+
+                    return OutlinedRoundedButton(
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
+                        'btn_proceed'.l10n,
+                        style: style.fonts.medium.regular.onBackground.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.fonts.medium.regular.onBackground.color,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
+              break;
+
+            case AccountsViewStage.signUpWithPhone:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.signUp,
+              );
+              children = [
+                ReactivePhoneField(
+                  state: c.phone,
+                  label: 'label_phone_number'.l10n,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.phone.isEmpty.value;
+
+                    return OutlinedRoundedButton(
+                      onPressed: enabled ? c.phone.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
+                        'btn_proceed'.l10n,
+                        style: style.fonts.medium.regular.onBackground.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.fonts.medium.regular.onBackground.color,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 25 / 2),
+              ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
+              break;
+
+            case AccountsViewStage.signUp:
+              header = ModalPopupHeader(
+                text: 'label_sign_up'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+              children = [
+                SignButton(
+                  title: 'btn_email'.l10n,
+                  icon: const SvgIcon(SvgIcons.email),
+                  onPressed: () =>
+                      c.stage.value = AccountsViewStage.signUpWithEmail,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'btn_phone_number'.l10n,
+                  icon: const SvgIcon(SvgIcons.phone),
+                  padding: const EdgeInsets.only(left: 2),
+                  onPressed: () =>
+                      c.stage.value = AccountsViewStage.signUpWithPhone,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'Google'.l10n,
+                  icon: const SvgIcon(SvgIcons.google),
+                  padding: const EdgeInsets.only(left: 1),
+                  onPressed: c.continueWithGoogle,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'Apple'.l10n,
+                  icon: const SvgIcon(SvgIcons.apple),
+                  padding: const EdgeInsets.only(left: 1.5, bottom: 1),
+                  onPressed: c.continueWithApple,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'GitHub'.l10n,
+                  icon: const SvgIcon(SvgIcons.github),
+                  onPressed: c.continueWithGitHub,
+                ),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: StyledCupertinoButton(
+                    label: 'btn_terms_and_conditions'.l10n,
+                    onPressed: () {},
+                  ),
+                ),
+              ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.add:
@@ -137,6 +426,9 @@ class AccountsView extends StatelessWidget {
                         offset: const Offset(3, 0),
                         child: const SvgIcon(SvgIcons.register),
                       ),
+                      // onPressed: () {
+
+                      // },
                       onPressed: () => c.stage.value = AccountsViewStage.signUp,
                       child: Text('btn_sign_up'.l10n),
                     ),
@@ -190,111 +482,124 @@ class AccountsView extends StatelessWidget {
                   .firstWhereOrNull((e) => c.myUser.value?.id == e.myUser.id);
 
               final List<Account> accounts =
-                  c.accounts.where((e) => e != active).toList();
-              accounts.sort(
-                (a, b) => '${a.myUser.name ?? a.myUser.num}'
-                    .compareTo('${b.myUser.name ?? b.myUser.num}'),
-              );
+                  c.accounts.where((e) => e != active).toList()..sort();
 
               if (active != null) {
                 accounts.insert(0, active);
               }
 
-              children = [
-                for (var e in accounts)
+              final List<Widget> tiles = [];
+              for (var e in accounts) {
+                final FutureOr<RxUser?> futureOrUser = c.getUser(e.myUser.id);
+
+                tiles.add(
                   Padding(
                     padding: ModalPopup.padding(context),
-                    child: ContactTile(
-                      myUser: e.myUser,
-                      onTap: () {
-                        Navigator.of(context).pop();
+                    child: FutureBuilder(
+                      initialData:
+                          futureOrUser is RxUser? ? futureOrUser : null,
+                      future: futureOrUser is RxUser? ? null : futureOrUser,
+                      builder: (context, snapshot) {
+                        return ContactTile(
+                          myUser: e.myUser,
+                          user: snapshot.data,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            if (c.myUser.value?.id != e.myUser.id) {
+                              c.switchTo(e);
+                            }
+                          },
+                          trailing: [
+                            AnimatedButton(
+                              decorator: (child) => Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                                child: child,
+                              ),
+                              onPressed: () async {
+                                final result = await MessagePopup.alert(
+                                  'btn_logout'.l10n,
+                                  description: [
+                                    TextSpan(
+                                      style:
+                                          style.fonts.medium.regular.secondary,
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              'alert_are_you_sure_want_to_log_out1'
+                                                  .l10n,
+                                        ),
+                                        TextSpan(
+                                          style: style.fonts.medium.regular
+                                              .onBackground,
+                                          text: e.myUser.name?.val ??
+                                              e.myUser.num.toString(),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              'alert_are_you_sure_want_to_log_out2'
+                                                  .l10n,
+                                        ),
+                                        if (!e.myUser.hasPassword) ...[
+                                          const TextSpan(text: '\n\n'),
+                                          TextSpan(
+                                            text:
+                                                'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
+                                                    .l10n,
+                                          ),
+                                        ],
+                                        if (e.myUser.emails.confirmed
+                                            .isEmpty) ...[
+                                          const TextSpan(text: '\n\n'),
+                                          TextSpan(
+                                            text:
+                                                'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
+                                                    .l10n,
+                                          ),
+                                        ],
+                                      ],
+                                    )
+                                  ],
+                                );
 
-                        if (c.myUser.value?.id != e.myUser.id) {
-                          c.switchTo(e);
-                        }
+                                if (result == true) {
+                                  c.delete(e);
+                                }
+                              },
+                              child: c.myUser.value?.id == e.myUser.id
+                                  ? const SvgIcon(SvgIcons.logoutWhite)
+                                  : const SvgIcon(SvgIcons.logout),
+                            ),
+                          ],
+                          selected: c.myUser.value?.id == e.myUser.id,
+                          subtitle: [
+                            const SizedBox(height: 5),
+                            if (c.myUser.value?.id == e.myUser.id)
+                              Text(
+                                'Active',
+                                style: style.fonts.small.regular.onPrimary,
+                              )
+                            else if (snapshot.data != null)
+                              Obx(() {
+                                return Text(
+                                  '${snapshot.data?.user.value.getStatus()}',
+                                  style: style.fonts.small.regular.secondary,
+                                );
+                              })
+                            else
+                              Text(
+                                'label_offline'.l10n,
+                                style: style.fonts.small.regular.secondary,
+                              ),
+                          ],
+                        );
                       },
-                      trailing: [
-                        if (c.myUser.value?.id == e.myUser.id)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 6, 0),
-                            child: Text(
-                              'Active',
-                              style: style.fonts.normal.regular.secondary,
-                            ),
-                          )
-                        else
-                          AnimatedButton(
-                            decorator: (child) => Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                              child: child,
-                            ),
-                            onPressed: () async {
-                              final result = await MessagePopup.alert(
-                                'btn_logout'.l10n,
-                                description: [
-                                  TextSpan(
-                                    style: style.fonts.medium.regular.secondary,
-                                    children: [
-                                      TextSpan(
-                                        text:
-                                            'alert_are_you_sure_want_to_log_out1'
-                                                .l10n,
-                                      ),
-                                      TextSpan(
-                                        style: style
-                                            .fonts.medium.regular.onBackground,
-                                        text: e.myUser.name?.val ??
-                                            e.myUser.num.toString(),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            'alert_are_you_sure_want_to_log_out2'
-                                                .l10n,
-                                      ),
-                                      if (!e.myUser.hasPassword) ...[
-                                        const TextSpan(text: '\n\n'),
-                                        TextSpan(
-                                          text:
-                                              'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
-                                                  .l10n,
-                                        ),
-                                      ],
-                                      if (e
-                                          .myUser.emails.confirmed.isEmpty) ...[
-                                        const TextSpan(text: '\n\n'),
-                                        TextSpan(
-                                          text:
-                                              'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
-                                                  .l10n,
-                                        ),
-                                      ],
-                                    ],
-                                  )
-                                ],
-                              );
-
-                              if (result == true) {
-                                c.delete(e);
-                              }
-                            },
-                            child: const SvgIcon(SvgIcons.logout),
-                          ),
-                      ],
-                      subtitle: [
-                        const SizedBox(height: 5),
-                        if (c.myUser.value?.id == e.myUser.id)
-                          Text(
-                            'Online',
-                            style: style.fonts.small.regular.secondary,
-                          )
-                        else
-                          Text(
-                            'Offline',
-                            style: style.fonts.small.regular.secondary,
-                          ),
-                      ],
                     ),
                   ),
+                );
+              }
+
+              children = [
+                ...tiles,
                 const SizedBox(height: 10),
                 Padding(
                   padding: ModalPopup.padding(context),

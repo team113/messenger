@@ -44,7 +44,7 @@ class ConfirmLogoutView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
-      init: ConfirmLogoutController(Get.find()),
+      init: ConfirmLogoutController(Get.find(), Get.find()),
       builder: (ConfirmLogoutController c) {
         return Obx(() {
           final Widget header;

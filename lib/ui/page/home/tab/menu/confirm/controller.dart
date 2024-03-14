@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/auth.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -33,7 +34,7 @@ enum ConfirmLogoutViewStage {
 
 /// Controller of a [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {
-  ConfirmLogoutController(this._myUser);
+  ConfirmLogoutController(this._myUser, this._authService);
 
   /// [ConfirmLogoutViewStage] currently being displayed.
   final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
@@ -58,6 +59,8 @@ class ConfirmLogoutController extends GetxController {
 
   /// [MyUserService] setting the password.
   final MyUserService _myUser;
+
+  final AuthService _authService;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;

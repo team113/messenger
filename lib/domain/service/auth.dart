@@ -106,8 +106,7 @@ class AuthService extends GetxService {
           .isBefore(PreciseDateTime.now().toUtc()) ==
       true;
 
-  late final RxList<Account> accounts =
-      RxList(_accountProvider.valuesSafe.toList());
+  late final RxList<Account> accounts;
 
   @override
   void onClose() {
@@ -127,6 +126,8 @@ class AuthService extends GetxService {
   String? init() {
     Log.debug('init()', '$runtimeType');
 
+    accounts = RxList(_accountProvider.valuesSafe.toList());
+    print('[debug2] accounts: ${accounts.map((e) => e.credentials.userId)}');
     _initAccountsSubscription();
 
     // Try to refresh session, otherwise just force logout.
@@ -389,18 +390,21 @@ class AuthService extends GetxService {
   }
 
   /// Authorizes the current [Session] from the provided [credentials].
-  @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
     Log.debug('signInWith($credentials)', '$runtimeType');
 
-    // Check if the [credentials] are valid.
-    credentials =
-        await _authRepository.renewSession(credentials.rememberedSession.token);
-
-    status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
-      _authorized(credentials);
-      _credentialsProvider.set(credentials);
+      _authRepository.token = null;
+
+      // Check if the [credentials] are valid.
+      final data = await _authRepository
+          .renewSession(credentials.rememberedSession.token);
+
+      status.value = RxStatus.loadingMore();
+
+      _authorized(data.$1);
+      _credentialsProvider.set(data.$1);
+      _accountProvider.put(Account(data.$1, data.$2));
       status.value = RxStatus.success();
     });
   }
@@ -491,11 +495,12 @@ class AuthService extends GetxService {
         }
 
         try {
-          final Credentials data = await _authRepository
+          final data = await _authRepository
               .renewSession(credentials.value!.rememberedSession.token);
-          _authorized(data);
+          _authorized(data.$1);
 
-          _credentialsProvider.set(data);
+          _credentialsProvider.set(data.$1);
+          _accountProvider.put(Account(data.$1, data.$2));
           status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());
@@ -563,7 +568,10 @@ class AuthService extends GetxService {
       if (e.deleted) {
         accounts.removeWhere((m) => m.myUser.id.val == e.key);
       } else {
-        final existing = accounts.indexOf((m) => m.myUser.id.val == e.key);
+        final existing = accounts.indexWhere((Account m) {
+          return m.myUser.id.val == e.key;
+        });
+
         if (existing == -1) {
           accounts.add(e.value);
         } else {

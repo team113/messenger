@@ -156,7 +156,7 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> renewSession(RefreshToken token) {
+  Future<(Credentials, MyUser)> renewSession(RefreshToken token) {
     Log.debug('renewSession($token)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
@@ -164,7 +164,7 @@ class AuthRepository implements AbstractAuthRepository {
           as RenewSession$Mutation$RenewSession$RenewSessionOk;
       _graphQlProvider.token = response.session.token;
       _graphQlProvider.reconnect();
-      return response.toModel();
+      return (response.toModel(), response.user.toModel());
     });
   }
 
