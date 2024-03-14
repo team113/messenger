@@ -54,6 +54,12 @@ class MessageInfoController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   /// Fetches the [users] from the [UserService].
   Future<void> _fetchUsers() async {
     final List<Future<void>> futures = reads

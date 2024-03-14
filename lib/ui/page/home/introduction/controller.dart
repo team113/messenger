@@ -59,6 +59,18 @@ class IntroductionController extends GetxController {
   late final String _origin =
       '${Config.link.substring(Config.link.indexOf(':') + 3)}/';
 
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   /// Creates a [ChatDirectLink] from the [link].
   Future<void> createLink() async {
     final String text = link.text.replaceFirst(_origin, '');
@@ -80,10 +92,4 @@ class IntroductionController extends GetxController {
       rethrow;
     }
   }
-
-  /// [MyUserService] maintaining the [myUser].
-  final MyUserService _myUserService;
-
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUserService.myUser;
 }
