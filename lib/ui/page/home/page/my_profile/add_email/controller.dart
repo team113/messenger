@@ -85,27 +85,22 @@ class AddEmailController extends GetxController {
     email = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            UserEmail(s.text);
-          }
+        final UserEmail? userEmail = UserEmail.tryParse(s.text);
 
-          s.error.value = null;
-        } on FormatException {
+        if (s.text.isNotEmpty && userEmail == null) {
           s.error.value = 'err_incorrect_email'.l10n;
+        } else {
+          s.error.value = null;
         }
       },
       onSubmitted: (s) async {
-        UserEmail? email;
-        try {
-          email = UserEmail(s.text.toLowerCase());
+        final UserEmail? email = UserEmail.tryParse(s.text);
 
-          if (myUser.value!.emails.confirmed.contains(email) ||
-              myUser.value?.emails.unconfirmed == email) {
-            s.error.value = 'err_you_already_add_this_email'.l10n;
-          }
-        } on FormatException {
+        if (email == null) {
           s.error.value = 'err_incorrect_email'.l10n;
+        } else if (myUser.value!.emails.confirmed.contains(email) ||
+            myUser.value?.emails.unconfirmed == email) {
+          s.error.value = 'err_you_already_add_this_email'.l10n;
         }
 
         if (s.error.value == null) {

@@ -45,14 +45,12 @@ class _UserBioFieldState extends State<UserBioField> {
   late final TextFieldState _state = TextFieldState(
     text: widget.bio?.val ?? '',
     onChanged: (s) {
-      s.error.value = null;
+      final UserBio? userBio = UserBio.tryParse(s.text);
 
-      try {
-        if (s.text.isNotEmpty) {
-          UserBio(s.text);
-        }
-      } on FormatException catch (_) {
+      if (s.text.isNotEmpty && userBio == null) {
         s.error.value = 'err_incorrect_input'.l10n;
+      } else {
+        s.error.value = null;
       }
 
       if (s.error.value == null) {
@@ -61,7 +59,7 @@ class _UserBioFieldState extends State<UserBioField> {
 
         try {
           widget.onSubmit?.call(
-            s.text.isNotEmpty ? UserBio(s.text) : null,
+            s.text.isNotEmpty ? userBio : null,
           );
           s.status.value = RxStatus.empty();
         } catch (e) {

@@ -94,30 +94,26 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       submitted: widget.link != null,
       debounce: true,
       onChanged: (s) {
-        s.error.value = null;
+        final ChatDirectLinkSlug? slug = ChatDirectLinkSlug.tryParse(s.text);
 
-        if (s.text.isNotEmpty) {
-          try {
-            ChatDirectLinkSlug(s.text);
-          } on FormatException {
-            s.error.value = 'err_invalid_symbols_in_link'.l10n;
-          }
+        if (s.text.isNotEmpty && slug == null) {
+          s.error.value = 'err_invalid_symbols_in_link'.l10n;
+        } else {
+          s.error.value = null;
         }
       },
       onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
+        final ChatDirectLinkSlug? slug = ChatDirectLinkSlug.tryParse(s.text);
 
         if (s.text.isNotEmpty) {
-          try {
-            slug = ChatDirectLinkSlug(s.text);
-          } on FormatException {
+          if (slug == null) {
             s.error.value = 'err_invalid_symbols_in_link'.l10n;
-          }
 
-          if (slug == null || slug == widget.link?.slug) {
-            setState(() => _editing = false);
-            widget.onEditing?.call(_editing);
-            return;
+            if (slug == widget.link?.slug) {
+              setState(() => _editing = false);
+              widget.onEditing?.call(_editing);
+              return;
+            }
           }
         }
 

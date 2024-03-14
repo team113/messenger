@@ -85,27 +85,22 @@ class AddPhoneController extends GetxController {
     phone = TextFieldState(
       text: initial?.val,
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            UserPhone(s.text);
-          }
+        final UserPhone? phone = UserPhone.tryParse(s.text.replaceAll(' ', ''));
 
-          s.error.value = null;
-        } on FormatException {
+        if (s.text.isNotEmpty && phone == null) {
           s.error.value = 'err_incorrect_phone'.l10n;
+        } else {
+          s.error.value = null;
         }
       },
       onSubmitted: (s) async {
-        UserPhone? phone;
-        try {
-          phone = UserPhone(s.text.replaceAll(' ', ''));
+        final UserPhone? phone = UserPhone.tryParse(s.text.replaceAll(' ', ''));
 
-          if (myUser.value!.phones.confirmed.contains(phone) ||
-              myUser.value?.phones.unconfirmed == phone) {
-            s.error.value = 'err_you_already_add_this_phone'.l10n;
-          }
-        } on FormatException {
+        if (phone == null) {
           s.error.value = 'err_incorrect_phone'.l10n;
+        } else if (myUser.value!.phones.confirmed.contains(phone) ||
+            myUser.value?.phones.unconfirmed == phone) {
+          s.error.value = 'err_you_already_add_this_phone'.l10n;
         }
 
         if (s.error.value == null) {
@@ -136,16 +131,16 @@ class AddPhoneController extends GetxController {
 
     phoneCode = TextFieldState(
       onChanged: (s) {
-        final code = ConfirmationCode.tryParse(s.text);
+        final ConfirmationCode? code = ConfirmationCode.tryParse(s.text);
 
-        if (s.text.isNotEmpty && code != null) {
+        if (s.text.isNotEmpty && code == null) {
           s.error.value = null;
         } else {
           s.error.value = 'err_incorrect_input'.l10n;
         }
       },
       onSubmitted: (s) async {
-        final code = ConfirmationCode.tryParse(s.text);
+        final ConfirmationCode? code = ConfirmationCode.tryParse(s.text);
 
         if (code == null) {
           s.error.value = 'err_wrong_recovery_code'.l10n;

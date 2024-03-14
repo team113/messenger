@@ -70,22 +70,18 @@ class StatusController extends GetxController {
       text: myUser.value?.status?.val ?? '',
       approvable: true,
       onChanged: (s) {
-        s.error.value = null;
+        final UserTextStatus? status = UserTextStatus.tryParse(s.text);
 
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
+        if (s.text.isNotEmpty && status == null) {
           s.error.value = 'err_incorrect_input'.l10n;
+        } else {
+          s.error.value = null;
         }
       },
       onSubmitted: (s) async {
-        try {
-          if (s.text.isNotEmpty) {
-            UserTextStatus(s.text);
-          }
-        } on FormatException catch (_) {
+        final UserTextStatus? status = UserTextStatus.tryParse(s.text);
+
+        if (s.text.isNotEmpty && status == null) {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
@@ -95,7 +91,7 @@ class StatusController extends GetxController {
           s.status.value = RxStatus.loading();
           try {
             await _myUserService.updateUserStatus(
-              s.text.isNotEmpty ? UserTextStatus(s.text) : null,
+              s.text.isNotEmpty ? status : null,
             );
             s.status.value = RxStatus.success();
             _statusTimer = Timer(

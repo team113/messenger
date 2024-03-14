@@ -214,14 +214,12 @@ class LoginController extends GetxController {
 
     email = TextFieldState(
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            UserEmail(s.text.toLowerCase());
-          }
+        final UserEmail? userEmail = UserEmail.tryParse(s.text);
 
-          s.error.value = null;
-        } on FormatException {
+        if (s.text.isNotEmpty && userEmail == null) {
           s.error.value = 'err_incorrect_email'.l10n;
+        } else {
+          s.error.value = null;
         }
       },
       onSubmitted: (s) async {

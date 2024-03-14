@@ -32,12 +32,7 @@ export 'view.dart';
 /// [Routes.chatDirectLink] page controller.
 class ChatDirectLinkController extends GetxController {
   ChatDirectLinkController(String url, this._auth) {
-    ChatDirectLinkSlug? link;
-    try {
-      link = ChatDirectLinkSlug(url);
-    } on FormatException catch (_) {
-      // No-op.
-    }
+    final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(url);
 
     slug = Rx<ChatDirectLinkSlug?>(link);
   }
