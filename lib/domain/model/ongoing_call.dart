@@ -2258,6 +2258,8 @@ class CallMemberId {
   /// [ChatCallDeviceId] part of this [CallMemberId].
   final ChatCallDeviceId? deviceId;
 
+  /// Parses the provided [val] as a [CallMemberId], if [val] meets the
+  /// validation, or returns `null` otherwise.
   static CallMemberId? tryParse(String val) {
     try {
       return CallMemberId.fromString(val);
