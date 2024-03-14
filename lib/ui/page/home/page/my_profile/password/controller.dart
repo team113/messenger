@@ -75,7 +75,7 @@ class ChangePasswordController extends GetxController {
       onChanged: (s) {
         final UserPassword? password = UserPassword.tryParse(s.text);
 
-        if (s.text.isNotEmpty && password == null) {
+        if (password == null) {
           s.error.value = 'err_incorrect_input'.l10n;
         } else {
           s.error.value = null;
@@ -94,7 +94,7 @@ class ChangePasswordController extends GetxController {
       onChanged: (s) {
         final UserPassword? password = UserPassword.tryParse(s.text);
 
-        if (s.text.isNotEmpty && password == null) {
+        if (password == null) {
           s.error.value = 'err_incorrect_input'.l10n;
         } else {
           s.error.value = null;

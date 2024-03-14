@@ -214,7 +214,7 @@ class LoginController extends GetxController {
 
     email = TextFieldState(
       onChanged: (s) {
-        final UserEmail? userEmail = UserEmail.tryParse(s.text);
+        final UserEmail? userEmail = UserEmail.tryParse(s.text.toLowerCase());
 
         if (s.text.isNotEmpty && userEmail == null) {
           s.error.value = 'err_incorrect_email'.l10n;
@@ -223,24 +223,29 @@ class LoginController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        emailCode.clear();
-        stage.value = LoginViewStage.signUpWithEmailCode;
-        try {
-          await _authService
-              .signUpWithEmail(UserEmail(email.text.toLowerCase()));
-          s.unsubmit();
-        } on AddUserEmailException catch (e) {
-          s.error.value = e.toMessage();
-          _setResendEmailTimer(false);
+        final UserEmail? userEmail = UserEmail.tryParse(s.text.toLowerCase());
 
-          stage.value = LoginViewStage.signUpWithEmail;
-        } catch (_) {
-          s.error.value = 'err_data_transfer'.l10n;
-          _setResendEmailTimer(false);
-          s.unsubmit();
+        if (userEmail == null) {
+          s.error.value = 'err_incorrect_email'.l10n;
+        } else {
+          emailCode.clear();
+          stage.value = LoginViewStage.signUpWithEmailCode;
+          try {
+            await _authService.signUpWithEmail(userEmail);
+            s.unsubmit();
+          } on AddUserEmailException catch (e) {
+            s.error.value = e.toMessage();
+            _setResendEmailTimer(false);
 
-          stage.value = LoginViewStage.signUpWithEmail;
-          rethrow;
+            stage.value = LoginViewStage.signUpWithEmail;
+          } catch (_) {
+            s.error.value = 'err_data_transfer'.l10n;
+            _setResendEmailTimer(false);
+            s.unsubmit();
+
+            stage.value = LoginViewStage.signUpWithEmail;
+            rethrow;
+          }
         }
       },
     );
@@ -302,32 +307,23 @@ class LoginController extends GetxController {
   ///
   /// Username is [login]'s text and the password is [password]'s text.
   Future<void> signIn() async {
-    final String input = login.text;
+    final String input = login.text.toLowerCase();
 
-    final UserLogin? userLogin = UserLogin.tryParse(input.toLowerCase());
+    final UserLogin? userLogin = UserLogin.tryParse(input);
     final UserNum? num = UserNum.tryParse(input);
     final UserEmail? email = UserEmail.tryParse(input);
     final UserPhone? phone = UserPhone.tryParse(input);
 
+    final UserPassword? userPassword = UserPassword.tryParse(password.text);
+
     login.error.value = null;
     password.error.value = null;
 
-    if (login.text.isEmpty) {
-      password.error.value = 'err_incorrect_login_or_password'.l10n;
-      password.unsubmit();
-      return;
-    }
+    final bool invalidCredentials =
+        userLogin == null && num == null && email == null && phone == null;
+    final bool invalidPassword = userPassword == null;
 
-    final UserPassword? userPassword = UserPassword.tryParse(password.text);
-
-    if (password.text.isEmpty) {
-      password.error.value = 'err_incorrect_login_or_password'.l10n;
-      password.unsubmit();
-      return;
-    }
-
-    if (userLogin == null && num == null && email == null && phone == null ||
-        userPassword == null) {
+    if (invalidCredentials || invalidPassword) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;
@@ -406,7 +402,6 @@ class LoginController extends GetxController {
       return;
     }
 
-    // TODO: better way???
     // Parse the [recovery] input.
     try {
       _recoveryNum = UserNum(recovery.text);
@@ -418,7 +413,7 @@ class LoginController extends GetxController {
           _recoveryLogin = UserLogin(recovery.text.toLowerCase());
         } catch (_) {
           try {
-            _recoveryEmail = UserEmail(recovery.text);
+            _recoveryEmail = UserEmail(recovery.text.toLowerCase());
           } catch (_) {
             // No-op.
           }

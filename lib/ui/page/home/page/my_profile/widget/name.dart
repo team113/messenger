@@ -53,9 +53,7 @@ class _UserNameFieldState extends State<UserNameField> {
         s.error.value = 'err_incorrect_input'.l10n;
       } else {
         s.error.value = null;
-      }
 
-      if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {

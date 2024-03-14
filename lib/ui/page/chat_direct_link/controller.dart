@@ -31,14 +31,11 @@ export 'view.dart';
 
 /// [Routes.chatDirectLink] page controller.
 class ChatDirectLinkController extends GetxController {
-  ChatDirectLinkController(String url, this._auth) {
-    final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(url);
-
-    slug = Rx<ChatDirectLinkSlug?>(link);
-  }
+  ChatDirectLinkController(String url, this._auth)
+      : slug = Rx<ChatDirectLinkSlug?>(ChatDirectLinkSlug.tryParse(url));
 
   /// [ChatDirectLinkSlug] of this controller.
-  late final Rx<ChatDirectLinkSlug?> slug;
+  final Rx<ChatDirectLinkSlug?> slug;
 
   /// Authorization service used for signing up.
   final AuthService _auth;

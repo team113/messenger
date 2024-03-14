@@ -51,16 +51,12 @@ class _UserBioFieldState extends State<UserBioField> {
         s.error.value = 'err_incorrect_input'.l10n;
       } else {
         s.error.value = null;
-      }
 
-      if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
 
         try {
-          widget.onSubmit?.call(
-            s.text.isNotEmpty ? userBio : null,
-          );
+          widget.onSubmit?.call(userBio);
           s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;

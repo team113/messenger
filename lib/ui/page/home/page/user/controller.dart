@@ -166,10 +166,7 @@ class UserController extends GetxController {
           s.status.value = RxStatus.empty();
           s.error.value = 'err_incorrect_input'.l10n;
           s.unsubmit();
-          return;
-        }
-
-        if (s.error.value == null) {
+        } else {
           s.status.value = RxStatus.loading();
           s.editable.value = false;
 

@@ -123,17 +123,6 @@ class ChatContactFavoritePosition extends NewType<double>
   static ChatContactFavoritePosition parse(String val) =>
       ChatContactFavoritePosition(double.parse(val));
 
-  // TODO: А надо ли?
-  /// Parses the provided [val] as a [ChatContactFavoritePosition], if [val]
-  /// meets the validation, or returns `null` otherwise.
-  static ChatContactFavoritePosition? tryParse(String val) {
-    try {
-      return parse(val);
-    } catch (_) {
-      return null;
-    }
-  }
-
   @override
   int compareTo(ChatContactFavoritePosition other) => val.compareTo(other.val);
 }

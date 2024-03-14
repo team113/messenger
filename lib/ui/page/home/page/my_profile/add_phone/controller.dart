@@ -101,19 +101,15 @@ class AddPhoneController extends GetxController {
         } else if (myUser.value!.phones.confirmed.contains(phone) ||
             myUser.value?.phones.unconfirmed == phone) {
           s.error.value = 'err_you_already_add_this_phone'.l10n;
-        }
-
-        if (s.error.value == null) {
+        } else {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
 
           try {
-            await _myUserService.addUserPhone(phone!);
+            await _myUserService.addUserPhone(phone);
             _setResendPhoneTimer(true);
             stage.value = AddPhoneFlowStage.code;
           } on InvalidScalarException<UserPhone> {
-            s.error.value = 'err_incorrect_phone'.l10n;
-          } on FormatException {
             s.error.value = 'err_incorrect_phone'.l10n;
           } on AddUserPhoneException catch (e) {
             s.error.value = e.toMessage();
@@ -148,7 +144,7 @@ class AddPhoneController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.confirmPhoneCode(ConfirmationCode(s.text));
+            await _myUserService.confirmPhoneCode(code);
             pop?.call();
             s.clear();
           } on ConfirmUserPhoneException catch (e) {

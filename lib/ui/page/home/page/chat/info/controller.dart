@@ -145,15 +145,13 @@ class ChatInfoController extends GetxController {
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
       onChanged: (s) async {
-        final ChatName? name = ChatName.tryParse(s.text);
-        if (s.text.isNotEmpty && name == null) {
-          s.status.value = RxStatus.error();
+        final ChatName? chatName = ChatName.tryParse(s.text);
+
+        if (s.text.isNotEmpty && chatName == null) {
+          s.status.value = RxStatus.empty();
           s.error.value = 'err_incorrect_input'.l10n;
           s.unsubmit();
-          return;
-        }
-
-        if ((s.text.isEmpty && chat?.chat.value.name?.val == null) ||
+        } else if ((s.text.isEmpty && chat?.chat.value.name?.val == null) ||
             s.text == chat?.chat.value.name?.val) {
           s.unsubmit();
           return;
@@ -164,7 +162,7 @@ class ChatInfoController extends GetxController {
           s.editable.value = false;
 
           try {
-            await _chatService.renameChat(chat!.chat.value.id, name);
+            await _chatService.renameChat(chat!.chat.value.id, chatName);
             s.status.value = RxStatus.empty();
             s.unsubmit();
           } on RenameChatException catch (e) {

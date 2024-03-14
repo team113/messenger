@@ -191,6 +191,8 @@ class UserNum extends NewType<String> {
 
   /// Parses the provided [val] as a [UserNum], if [val] meets the validation,
   /// or returns `null` otherwise.
+  ///
+  /// If [val] contains any spaces, they are omitted.
   static UserNum? tryParse(String val) {
     try {
       return UserNum(val);

@@ -101,14 +101,12 @@ class AddEmailController extends GetxController {
         } else if (myUser.value!.emails.confirmed.contains(email) ||
             myUser.value?.emails.unconfirmed == email) {
           s.error.value = 'err_you_already_add_this_email'.l10n;
-        }
-
-        if (s.error.value == null) {
+        } else {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
 
           try {
-            await _myUserService.addUserEmail(email!);
+            await _myUserService.addUserEmail(email);
             _setResendEmailTimer(true);
             stage.value = AddEmailFlowStage.code;
           } on FormatException {
@@ -129,7 +127,7 @@ class AddEmailController extends GetxController {
 
     emailCode = TextFieldState(
       onChanged: (s) {
-        final code = ConfirmationCode.tryParse(s.text);
+        final ConfirmationCode? code = ConfirmationCode.tryParse(s.text);
 
         if (s.text.isNotEmpty && code == null) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
