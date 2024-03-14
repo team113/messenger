@@ -219,7 +219,7 @@ class UserController extends GetxController {
     _userSubscription?.cancel();
     _contactWorker?.dispose();
     _worker?.dispose();
-    scrollController.removeListener(_ensureNameDisplayed);
+    scrollController.dispose();
     super.onClose();
   }
 

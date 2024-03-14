@@ -44,6 +44,12 @@ class LanguageSelectionController extends GetxController {
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   /// Sets the provided [language] to be [L10n.chosen].
   Future<void> setLocalization(Language language) async {
     await Future.wait([

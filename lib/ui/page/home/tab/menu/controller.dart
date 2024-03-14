@@ -48,6 +48,12 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
   /// Determines whether the [logout] action may be invoked or not.
   ///
   /// Shows a confirmation popup if there's any ongoing calls.

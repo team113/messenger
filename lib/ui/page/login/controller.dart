@@ -296,6 +296,7 @@ class LoginController extends GetxController {
     _setSignInTimer(false);
     _setResendEmailTimer(false);
     _setCodeTimer(false);
+    scrollController.dispose();
     super.onClose();
   }
 

@@ -178,6 +178,7 @@ class AddEmailController extends GetxController {
   @override
   void onClose() {
     _setResendEmailTimer(false);
+    scrollController.dispose();
     super.onClose();
   }
 
