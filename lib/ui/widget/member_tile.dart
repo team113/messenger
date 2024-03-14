@@ -96,12 +96,12 @@ class MemberTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          if (!me) const SizedBox(width: 4),
         ],
         AnimatedButton(
           enabled: !me,
           decorator: (child) => Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
             child: child,
           ),
           onPressed: me
