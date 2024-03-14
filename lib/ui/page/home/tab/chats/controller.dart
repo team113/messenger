@@ -271,7 +271,7 @@ class ChatsTabController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
-    scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);

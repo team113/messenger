@@ -19,6 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
@@ -175,6 +176,9 @@ class RouterState extends ChangeNotifier {
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
 
+  /// [ModalRoute]s obscuring any [Navigator] being built.
+  final RxList<ModalRoute> obscuring = RxList();
+
   /// Dynamic arguments of the [route].
   Map<String, dynamic>? arguments;
 
@@ -262,6 +266,11 @@ class RouterState extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  /// Replaces the provided [from] with the specified [to] in the [routes].
+  void replace(String from, String to) {
+    routes.value = routes.map((e) => e.replaceAll(from, to)).toList();
   }
 
   /// Returns guarded route based on [_auth] status.
@@ -806,6 +815,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
+            observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
             onPopPage: (Route<dynamic> route, dynamic result) {
               final bool success = route.didPop(result);
@@ -928,5 +938,46 @@ extension AppLifecycleStateExtension on AppLifecycleState {
       case AppLifecycleState.hidden:
         return false;
     }
+  }
+}
+
+/// [NavigatorObserver] tracking [ModalRoute]s opened and closed via
+/// [RouterState.obscuring].
+class ModalNavigatorObserver extends NavigatorObserver {
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    if (route is ModalRoute && _isObscuring(route)) {
+      router.obscuring.add(route);
+    }
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    if (route is ModalRoute && _isObscuring(route)) {
+      router.obscuring.remove(route);
+    }
+  }
+
+  @override
+  void didRemove(Route route, Route? previousRoute) {
+    if (route is ModalRoute && _isObscuring(route)) {
+      router.obscuring.remove(route);
+    }
+  }
+
+  @override
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    if (newRoute != null &&
+        _isObscuring(newRoute) &&
+        (oldRoute == null || !_isObscuring(oldRoute))) {
+      router.obscuring.remove(newRoute);
+    }
+  }
+
+  /// Indicates whether the [route] should be considered as one obscuring the
+  /// content.
+  bool _isObscuring(Route route) {
+    return (route is RawDialogRoute && route is! DialogRoute) ||
+        route is ModalBottomSheetRoute;
   }
 }

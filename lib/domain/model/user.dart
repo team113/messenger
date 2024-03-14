@@ -149,7 +149,8 @@ class User extends HiveObject {
   set dialog(ChatId dialog) => _dialog = dialog;
 
   /// Returns text representing the title of this [User].
-  String get title => contacts.firstOrNull?.name.val ?? name?.val ?? num.val;
+  String get title =>
+      contacts.firstOrNull?.name.val ?? name?.val ?? num.toString();
 
   @override
   String toString() => '$runtimeType($id)';

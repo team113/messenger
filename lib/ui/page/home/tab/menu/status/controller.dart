@@ -115,6 +115,7 @@ class StatusController extends GetxController {
   @override
   void onClose() {
     _worker?.dispose();
+    scrollController.dispose();
     super.onClose();
   }
 
