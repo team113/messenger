@@ -460,7 +460,7 @@ class OngoingCall {
         // Dialed [User]s should be added, if [membersCount] is less than a page
         // of [Chat.members].
         if (membersCount <= chat.members.perPage && shouldAddDialed) {
-          if (chat.members.items.length < membersCount) {
+          if (chat.members.length < membersCount) {
             await chat.members.around();
           }
 
@@ -592,17 +592,19 @@ class OngoingCall {
                 // Add the redialed members of the call to the [members].
                 if (dialed is ChatMembersDialedAll &&
                     v.chat.value.membersCount <= v.members.perPage) {
-                  if (v.members.items.length < v.chat.value.membersCount) {
+                  if (v.members.length < v.chat.value.membersCount) {
                     await v.members.around();
                   }
 
                   // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
                   if (call.value?.dialed is ChatMembersDialedAll) {
-                    final Iterable<RxUser> dialings = v.members.values.where(
-                      (e) =>
-                          e.id != me.id.userId &&
-                          dialed.answeredMembers.none((a) => a.user.id == e.id),
-                    );
+                    final Iterable<RxUser> dialings =
+                        v.members.values.map((e) => e.user).where(
+                              (e) =>
+                                  e.id != me.id.userId &&
+                                  dialed.answeredMembers
+                                      .none((a) => a.user.id == e.id),
+                            );
 
                     // Remove the members, who are not connected and still
                     // redialing, that are missing from the [dialings].
