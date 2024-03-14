@@ -308,6 +308,10 @@ class ChatController extends GetxController {
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
+  /// Worker performing a [readChat] when the [RouterState.obscuring] becomes
+  /// empty.
+  Worker? _obscuredWorker;
+
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
@@ -501,6 +505,7 @@ class ChatController extends GetxController {
     _readWorker?.dispose();
     _chatWorker?.dispose();
     _selectingWorker?.dispose();
+    _obscuredWorker?.dispose();
     _typingSubscription?.cancel();
     _chatSubscription?.cancel();
     _userSubscription?.cancel();
@@ -796,6 +801,11 @@ class ChatController extends GetxController {
       }
 
       _readWorker ??= ever(_lastSeenItem, readChat);
+      _obscuredWorker ??= ever(router.obscuring, (modals) {
+        if (modals.isEmpty) {
+          readChat(_lastSeenItem.value);
+        }
+      });
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list
@@ -901,7 +911,8 @@ class ChatController extends GetxController {
         !chat!.chat.value.isReadBy(item, me) &&
         status.value.isSuccess &&
         !status.value.isLoadingMore &&
-        item.status.value == SendingStatus.sent) {
+        item.status.value == SendingStatus.sent &&
+        router.obscuring.isEmpty) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
       } on ReadChatException catch (e) {
