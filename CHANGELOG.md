@@ -39,12 +39,14 @@ All user visible changes to this project will be documented in this file. This p
         - Missing bottom mobile paddings in panel. ([#886], [#821])
     - Chat page:
         - Images displayed with vertical gaps on narrow screens. ([#901], [#888])
+        - Messages marked as read when gallery is opened. ([#897], [#854])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
 [#809]: /../../issues/809
 [#821]: /../../issues/821
 [#851]: /../../issues/851
+[#854]: /../../issues/854
 [#864]: /../../pull/864
 [#868]: /../../pull/868
 [#874]: /../../issues/874
@@ -54,6 +56,7 @@ All user visible changes to this project will be documented in this file. This p
 [#888]: /../../issues/888
 [#890]: /../../pull/890
 [#891]: /../../pull/891
+[#897]: /../../pull/897
 [#901]: /../../pull/901
 
 

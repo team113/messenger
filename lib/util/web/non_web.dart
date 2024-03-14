@@ -33,6 +33,7 @@ import 'package:win32/win32.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/routes.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
 import 'web_utils.dart';
@@ -231,7 +232,7 @@ class WebUtils {
 
   /// Replaces the provided [from] with the specified [to] in the current URL.
   static void replaceState(String from, String to) {
-    // No-op.
+    router.replace(from, to);
   }
 
   /// Sets the favicon being used to an alert style.

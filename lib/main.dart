@@ -325,7 +325,6 @@ class App extends StatelessWidget {
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,
         routeInformationProvider: router.provider,
-        navigatorObservers: [SentryNavigatorObserver()],
         onGenerateTitle: (context) => 'Gapopa',
         theme: Themes.light(),
         themeMode: ThemeMode.light,
