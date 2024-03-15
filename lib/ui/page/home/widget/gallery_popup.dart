@@ -59,7 +59,6 @@ class GalleryItem {
     required this.size,
     this.width,
     this.height,
-    this.aspectRatio,
     this.checksum,
     this.thumbhash,
     this.isVideo = false,
@@ -76,26 +75,17 @@ class GalleryItem {
     String? checksum,
     ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
-  }) {
-    double? aspectRatio;
-
-    if (width != null && height != null) {
-      aspectRatio = width / height;
-    }
-
-    return GalleryItem(
+  }) => GalleryItem(
       link: link,
       name: name,
       size: size,
       width: width,
       height: height,
-      aspectRatio: aspectRatio,
       checksum: checksum,
       thumbhash: thumbhash,
       isVideo: false,
       onError: onError,
     );
-  }
 
   /// Constructs a [GalleryItem] treated as a video.
   factory GalleryItem.video(
@@ -138,11 +128,17 @@ class GalleryItem {
   /// Height of the image this [GalleryItem] represents.
   final int? height;
 
-  /// Aspect ratio of the image this [GalleryItem] represents.
-  final double? aspectRatio;
-
   /// Callback, called on the fetch errors of this [GalleryItem].
   final FutureOr<void> Function()? onError;
+
+  /// Returns aspect ratio of the image this [GalleryItem] represents.
+  double?  get _aspectRatio {
+    if (width != null && height != null) {
+      return width! / height!;
+    }
+
+    return null;
+  }
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -558,7 +554,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         e.link,
                         width: e.width?.toDouble(),
                         height: e.height?.toDouble(),
-                        aspectRatio: e.aspectRatio,
+                        aspectRatio: e._aspectRatio,
                         checksum: e.checksum,
                         thumbhash: e.thumbhash,
                         onForbidden: e.onError,
@@ -681,7 +677,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                               height: _isFullscreen.isTrue
                                   ? double.infinity
                                   : e.height?.toDouble(),
-                              aspectRatio: e.aspectRatio,
+                              aspectRatio: e._aspectRatio,
                               checksum: e.checksum,
                               thumbhash: e.thumbhash,
                               onForbidden: e.onError,
