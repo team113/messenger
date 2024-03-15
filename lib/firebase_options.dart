@@ -44,40 +44,39 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc',
-    appId: '1:985927661367:web:c604073ecefcacd15c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    authDomain: 'messenger-3872c.firebaseapp.com',
-    storageBucket: 'messenger-3872c.appspot.com',
-    measurementId: 'G-HVQ9H888X8',
+    apiKey: 'AIzaSyCZx-XVNlW1Gg4DGhCG_aXDWIVrIq3OqKU',
+    appId: '1:311946098564:web:021f17b0fe4b89f192cfd1',
+    messagingSenderId: '311946098564',
+    projectId: 'gapopa-17fe9',
+    authDomain: 'gapopa-17fe9.firebaseapp.com',
+    storageBucket: 'gapopa-17fe9.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBkNVpSsgni558eAtkMtmB6NVqJW8zFgJg',
-    appId: '1:985927661367:android:2f4015706b53ae9f5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
+    apiKey: 'AIzaSyAorXWOyLVpX22RjxXQGlJJTp6um6C1-3Y',
+    appId: '1:311946098564:android:a0b14a54744bf0b092cfd1',
+    messagingSenderId: '311946098564',
+    projectId: 'gapopa-17fe9',
+    storageBucket: 'gapopa-17fe9.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBYimRBTaBbC1YjRmgyJC8r00RK-rkWYFg',
-    appId: '1:985927661367:ios:7eebd61d36a1318a5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId: '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
+    apiKey: 'AIzaSyDclPUBjoBbAm4d0vUil0JCzOYI6OTqcAM',
+    appId: '1:311946098564:ios:cdf515f23f62c5aa92cfd1',
+    messagingSenderId: '311946098564',
+    projectId: 'gapopa-17fe9',
+    storageBucket: 'gapopa-17fe9.appspot.com',
+    iosClientId: '311946098564-7camofj5j86kdkbnsqni297b1ua7rov0.apps.googleusercontent.com',
     iosBundleId: 'com.team113.messenger',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBYimRBTaBbC1YjRmgyJC8r00RK-rkWYFg',
-    appId: '1:985927661367:ios:7eebd61d36a1318a5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId: '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
+    apiKey: 'AIzaSyDclPUBjoBbAm4d0vUil0JCzOYI6OTqcAM',
+    appId: '1:311946098564:ios:cdf515f23f62c5aa92cfd1',
+    messagingSenderId: '311946098564',
+    projectId: 'gapopa-17fe9',
+    storageBucket: 'gapopa-17fe9.appspot.com',
+    iosClientId: '311946098564-7camofj5j86kdkbnsqni297b1ua7rov0.apps.googleusercontent.com',
     iosBundleId: 'com.team113.messenger',
   );
 }

@@ -64,6 +64,9 @@ enum AccountsViewStage {
   signUpWithEmailCode,
   signInWithEmailCode,
   signInWithEmail,
+  signInWithPassword,
+  signInWithQrShow,
+  signInWithQrScan,
 }
 
 /// Controller of an [AccountsView].
@@ -156,11 +159,12 @@ class AccountsController extends GetxController {
 
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
-        await _authService.authorizeWith(creds!);
 
         router.noIntroduction = false;
         router.signUp = true;
-        _redirect();
+        await switchTo(Account(creds!, myUser.value!));
+
+        // _redirect();
       } on FormatException catch (_) {
         graphQlProvider.token = null;
         s.error.value = 'err_wrong_recovery_code'.l10n;
@@ -239,10 +243,11 @@ class AccountsController extends GetxController {
       try {
         if (ConfirmationCode(s.text).val == '1111') {
           if (stage.value.registering) {
-            await _authService.authorizeWith(creds!);
             router.noIntroduction = false;
             router.signUp = true;
-            _redirect();
+
+            await switchTo(Account(creds!, myUser.value!));
+            // _redirect();
           }
         } else if (ConfirmationCode(s.text).val == '2222') {
           throw const ConfirmUserPhoneException(
@@ -498,12 +503,13 @@ class AccountsController extends GetxController {
       }
     }
 
-    await _authService.register();
     router.directLink = false;
     router.validateEmail = false;
     router.noIntroduction = false;
     router.signUp = true;
-    _redirect();
+
+    await switchTo(null);
+    // _redirect();
 
     while (!Get.isRegistered<MyUserService>()) {
       await Future.delayed(const Duration(milliseconds: 20));
@@ -566,9 +572,9 @@ class AccountsController extends GetxController {
     }
   }
 
-  void _redirect() {
-    router.home();
-  }
+  // void _redirect() {
+  //   router.home();
+  // }
 }
 
 enum OAuthProvider {
@@ -580,17 +586,16 @@ enum OAuthProvider {
 extension on AccountsViewStage {
   bool get registering => switch (this) {
         AccountsViewStage.signIn ||
-        // AccountsViewStage.signInWithPassword ||
-        // AccountsViewStage.signInWithEmail ||
-        // AccountsViewStage.signInWithEmailCode ||
+        AccountsViewStage.signInWithPassword ||
+        AccountsViewStage.signInWithEmail ||
+        AccountsViewStage.signInWithEmailCode ||
         // AccountsViewStage.signInWithEmailOccupied ||
-        // AccountsViewStage.signInWithPhone ||
-        // AccountsViewStage.signInWithPhoneCode ||
+        AccountsViewStage.signInWithPhone ||
+        AccountsViewStage.signInWithPhoneCode ||
         // AccountsViewStage.signInWithPhoneOccupied ||
-        // AccountsViewStage.signInWithQrScan ||
-        // AccountsViewStage.signInWithQrShow =>
-        //   false,
-        (_) =>
-          true,
+        AccountsViewStage.signInWithQrScan ||
+        AccountsViewStage.signInWithQrShow =>
+          false,
+        (_) => true,
       };
 }

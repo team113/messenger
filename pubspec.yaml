@@ -24,9 +24,9 @@ dependencies:
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^6.1.1
-  firebase_auth:
-  firebase_core: ^2.25.4
-  firebase_messaging: ^14.7.16
+  firebase_auth: ^4.17.9
+  firebase_core: ^2.27.1
+  firebase_messaging: ^14.7.20
   google_sign_in: 6.1.6 # TODO: Updating to `6.2.1` bumps up macOS from 10.14 to 10.15
   fluent:
     git: https://github.com/sagudev/fluent-dart.git

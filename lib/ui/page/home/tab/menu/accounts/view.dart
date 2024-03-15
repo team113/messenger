@@ -21,6 +21,8 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/account.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
@@ -28,6 +30,7 @@ import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/page/login/qr_code/view.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
@@ -35,6 +38,7 @@ import 'package:messenger/ui/widget/phone_field.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/l10n/l10n.dart';
 import '/ui/widget/modal_popup.dart';
@@ -74,15 +78,36 @@ class AccountsView extends StatelessWidget {
       init: AccountsController(Get.find(), Get.find(), Get.find()),
       builder: (AccountsController c) {
         return Obx(() {
+          Widget Function(Widget, List<Widget>) builder = (header, children) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                header,
+                const SizedBox(height: 13),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    children: [
+                      ...children,
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          };
+
           final Widget header;
           List<Widget> children;
 
           switch (c.stage.value) {
-            case AccountsViewStage.signIn:
+            case AccountsViewStage.signInWithPassword:
               header = ModalPopupHeader(
-                text: 'label_sign_in'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                text: 'label_sign_in_with_password'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.signIn,
               );
+
               children = [
                 const SizedBox(height: 12),
                 ReactiveTextField(
@@ -116,36 +141,231 @@ class AccountsView extends StatelessWidget {
                   );
                 }),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
+              break;
+
+            case AccountsViewStage.signInWithQrScan:
+            case AccountsViewStage.signInWithQrShow:
+              builder = (_, __) {
+                return QrCodeView(
+                  onBack: () => c.stage.value = AccountsViewStage.signIn,
+                );
+              };
+
+              header = const SizedBox();
+              children = [];
+              break;
+
+            case AccountsViewStage.signIn:
+              header = ModalPopupHeader(
+                text: 'label_sign_in'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.add,
+              );
+
+              children = [
+                SignButton(
+                  title: 'btn_password'.l10n,
+                  onPressed: () =>
+                      c.stage.value = AccountsViewStage.signInWithPassword,
+                  icon: const SvgIcon(SvgIcons.password),
+                  padding: const EdgeInsets.only(left: 1),
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'btn_email'.l10n,
+                  icon: const SvgIcon(SvgIcons.email),
+                  onPressed: () =>
+                      c.stage.value = AccountsViewStage.signInWithEmail,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  onPressed: () =>
+                      c.stage.value = AccountsViewStage.signInWithPhone,
+                  title: 'btn_phone_number'.l10n,
+                  icon: const SvgIcon(SvgIcons.phone),
+                  padding: const EdgeInsets.only(left: 2),
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'btn_qr_code'.l10n,
+                  onPressed: () => c.stage.value = PlatformUtils.isMobile
+                      ? AccountsViewStage.signInWithQrShow
+                      : AccountsViewStage.signInWithQrScan,
+                  icon: const SvgIcon(SvgIcons.qrCode),
+                  padding: const EdgeInsets.only(left: 1),
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'Google',
+                  icon: const SvgIcon(SvgIcons.google),
+                  padding: const EdgeInsets.only(left: 1),
+                  onPressed: c.continueWithGoogle,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'Apple',
+                  icon: const SvgIcon(SvgIcons.apple),
+                  padding: const EdgeInsets.only(left: 1.5, bottom: 1),
+                  onPressed: c.continueWithApple,
+                ),
+                const SizedBox(height: 25 / 2),
+                SignButton(
+                  title: 'GitHub',
+                  icon: const SvgIcon(SvgIcons.github),
+                  onPressed: c.continueWithGitHub,
+                ),
+                const SizedBox(height: 25 / 2),
+              ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.oauth:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                onBack: () => c.stage.value = c.fallbackStage,
               );
+
+              final (String, SvgData?) provider = switch (c.oAuthProvider) {
+                OAuthProvider.apple => ('Apple', SvgIcons.appleBig),
+                OAuthProvider.google => ('Google', SvgIcons.googleBig),
+                OAuthProvider.github => ('GitHub', SvgIcons.githubBig),
+                _ => ('', null),
+              };
+
               children = [
-                const SizedBox(height: 50 - 12 - 13),
+                const SizedBox(height: 12),
+                if (provider.$2 != null) SvgIcon(provider.$2!),
+                const SizedBox(height: 25 + 5),
+                Center(
+                  child: Text(
+                    'label_waiting_response_from'
+                        .l10nfmt({'from': provider.$1}),
+                    style: style.fonts.medium.regular.onBackground,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.signInWithPhone:
               header = ModalPopupHeader(
-                text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                text: 'label_sign_in'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.signIn,
               );
               children = [
-                const SizedBox(height: 50 - 12 - 13),
+                ReactivePhoneField(
+                  state: c.phone,
+                  label: 'label_phone_number'.l10n,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.phone.isEmpty.value;
+
+                    return OutlinedRoundedButton(
+                      onPressed: enabled ? c.phone.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
+                        'btn_proceed'.l10n,
+                        style: style.fonts.medium.regular.onBackground.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.fonts.medium.regular.onBackground.color,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 25 / 2),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.signInWithPhoneCode:
               header = ModalPopupHeader(
-                text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                text: 'label_sign_in'.l10n,
+                onBack: () => c.stage.value = AccountsViewStage.signIn,
               );
               children = [
-                const SizedBox(height: 50 - 12 - 13),
+                Text.rich(
+                  'label_sign_up_code_phone_sent'.l10nfmt({
+                    'text': c.phone.phone?.international,
+                  }).parseLinks([], style.fonts.medium.regular.primary),
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'label_did_not_receive_code'.l10n,
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+                WidgetButton(
+                  onPressed: () {},
+                  child: Text(
+                    'btn_resend_code'.l10n,
+                    style: style.fonts.medium.regular.primary,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('EmailCodeField'),
+                  state: c.phoneCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled = !c.phoneCode.isEmpty.value;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_send'.l10n,
+                    onPressed: enabled ? c.phoneCode.submit : null,
+                  );
+                }),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.signUpWithPhoneCode:
@@ -230,32 +450,154 @@ class AccountsView extends StatelessWidget {
 
             case AccountsViewStage.signInWithEmail:
               header = ModalPopupHeader(
-                text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                text: 'label_sign_in'.l10n,
+                onBack: () {
+                  c.stage.value = AccountsViewStage.signIn;
+                  c.email.unsubmit();
+                },
               );
               children = [
-                const SizedBox(height: 50 - 12 - 13),
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  hint: 'example@domain.com',
+                  style: style.fonts.normal.regular.onBackground,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.email.isEmpty.value;
+
+                    return OutlinedRoundedButton(
+                      onPressed: enabled ? c.email.submit : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
+                        'btn_proceed'.l10n,
+                        style: style.fonts.medium.regular.onBackground.copyWith(
+                          color: enabled
+                              ? style.colors.onPrimary
+                              : style.fonts.medium.regular.onBackground.color,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.oauthNoUser:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                onBack: () => c.stage.value = AccountsViewStage.signUp,
               );
+
+              final String provider = switch (c.oAuthProvider) {
+                OAuthProvider.apple => 'Apple',
+                OAuthProvider.google => 'Google',
+                OAuthProvider.github => 'GitHub',
+                _ => '',
+              };
+
               children = [
-                const SizedBox(height: 50 - 12 - 13),
+                Text(
+                  'label_sign_in_oauth_already_occupied'.l10nfmt({
+                    'provider': provider,
+                    'text': c.credential?.user?.email ??
+                        c.credential?.user?.phoneNumber,
+                  }),
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  title: 'btn_create'.l10n,
+                  onPressed: () =>
+                      c.registerWithCredentials(c.credential!, true),
+                ),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.oauthOccupied:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.add,
+                onBack: () => c.stage.value = AccountsViewStage.signUp,
               );
+
+              final String provider = switch (c.oAuthProvider) {
+                OAuthProvider.apple => 'Apple',
+                OAuthProvider.google => 'Google',
+                OAuthProvider.github => 'GitHub',
+                _ => '',
+              };
+
               children = [
-                const SizedBox(height: 50 - 12 - 13),
+                Text(
+                  'label_sign_up_oauth_already_occupied'.l10nfmt({
+                    'provider': provider,
+                    'text': c.credential?.user?.email ??
+                        c.credential?.user?.phoneNumber,
+                  }),
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+                const SizedBox(height: 25),
+                ContactTile(
+                  title: 'Name', // name ?? login ?? email/phone used to login
+                  myUser: MyUser(
+                    id: const UserId('123412'),
+                    num: UserNum('1234123412341234'),
+                    emails: MyUserEmails(confirmed: []),
+                    phones: MyUserPhones(confirmed: []),
+                    presenceIndex: 0,
+                    online: false,
+                  ),
+                  darken: 0.03,
+                  subtitle: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Text(
+                        'Gapopa ID: 1234 1234 1234 1234',
+                        style: style.fonts.small.regular.onBackground.copyWith(
+                          color: style.colors.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('SignIn'),
+                  title: 'btn_sign_in'.l10n,
+                  onPressed: () {},
+                ),
               ];
+
+              children = children
+                  .map(
+                    (e) => Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(child: e),
+                    ),
+                  )
+                  .toList();
               break;
 
             case AccountsViewStage.signUpWithEmail:
@@ -615,23 +957,9 @@ class AccountsView extends StatelessWidget {
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: KeyedSubtree(
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-              children: [
-                header,
-                const SizedBox(height: 13),
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    children: [
-                      ...children,
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ],
+              child: builder(header, children),
             ),
           );
         });
