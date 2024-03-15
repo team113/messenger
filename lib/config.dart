@@ -53,6 +53,9 @@ class Config {
   /// Domain considered as an origin of the application.
   static String origin = '';
 
+  /// Domain considered as the URL to download artifacts from.
+  static String artifacts = '';
+
   /// [ChatDirectLink] prefix.
   ///
   /// If empty, then [origin] is used.
@@ -105,7 +108,8 @@ class Config {
   /// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28
   ///
   /// If `null` is specified, then no releases should be fetched at all.
-  static String? releasesUrl = 'https://api.github.com/repos/team113/messenger/releases?perPage=5';
+  static String? releasesUrl =
+      'https://api.github.com/repos/team113/messenger/releases?perPage=5';
 
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
@@ -194,6 +198,10 @@ class Config {
 
     origin = url;
 
+    artifacts = const bool.hasEnvironment('SOCAPP_ARTIFACTS_URL')
+        ? const String.fromEnvironment('SOCAPP_ARTIFACTS_URL')
+        : (document['artifacts']?['url'] ?? '');
+
     link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
         ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
         : (document['link']?['prefix'] ?? '');
@@ -257,6 +265,7 @@ class Config {
             wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
             wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
             files = remote['files']?['url'] ?? files;
+            artifacts = remote['artifacts']?['url'] ?? artifacts;
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
             userAgentProduct =
