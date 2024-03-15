@@ -296,7 +296,7 @@ err_contact_unknown_user = User with the provided ID doesn\'t exist
 err_could_not_download = An error occurred while downloading. Please, try again.
 err_data_transfer =
     Data transfer error. Please, check your network connection.
-err_dialog = Can't perfom this action in a dialog
+err_dialog = Can't perform this action in a dialog
 err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels.
 err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
 err_incorrect_chat_name = Incorrect name
@@ -314,7 +314,7 @@ err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
 err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
-err_monolog = Can't perfom this action in a monolog
+err_monolog = Can't perform this action in a monolog
 err_network = Connection to the server refused
 err_no_access_to_gallery = Access to the gallery denied. Please, make sure the application has permissions to access the gallery.
 err_no_filename = File should have a name
