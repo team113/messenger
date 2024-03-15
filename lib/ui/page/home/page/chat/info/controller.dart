@@ -169,16 +169,15 @@ class ChatInfoController extends GetxController {
 
           try {
             await _chatService.renameChat(chat!.chat.value.id, chatName);
-            s.status.value = RxStatus.empty();
+
             s.unsubmit();
           } on RenameChatException catch (e) {
-            s.status.value = RxStatus.empty();
             s.error.value = e.toString();
           } catch (e) {
-            s.status.value = RxStatus.empty();
             MessagePopup.error(e.toString());
             rethrow;
           } finally {
+            s.status.value = RxStatus.empty();
             s.editable.value = true;
           }
         }

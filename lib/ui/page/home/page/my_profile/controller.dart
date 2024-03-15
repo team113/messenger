@@ -189,8 +189,9 @@ class MyProfileController extends GetxController {
 
         if (s.text.isNotEmpty && phone == null) {
           s.error.value = 'err_incorrect_phone'.l10n;
-        } else if (myUser.value!.phones.confirmed.contains(phone) ||
-            myUser.value?.phones.unconfirmed == phone) {
+        } else if (phone != null &&
+            (myUser.value!.phones.confirmed.contains(phone) ||
+                myUser.value?.phones.unconfirmed == phone)) {
           s.error.value = 'err_you_already_add_this_phone'.l10n;
         }
       },
@@ -241,12 +242,13 @@ class MyProfileController extends GetxController {
         s.error.value = null;
         s.resubmitOnError.value = false;
 
-        final UserEmail? email = UserEmail.tryParse(s.text);
+        final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
 
         if (s.text.isNotEmpty && email == null) {
           s.error.value = 'err_incorrect_email'.l10n;
-        } else if (myUser.value!.emails.confirmed.contains(email) ||
-            myUser.value?.emails.unconfirmed == email) {
+        } else if (email != null &&
+            (myUser.value!.emails.confirmed.contains(email) ||
+                myUser.value?.emails.unconfirmed == email)) {
           s.error.value = 'err_you_already_add_this_email'.l10n;
         }
       },
@@ -256,7 +258,7 @@ class MyProfileController extends GetxController {
           return;
         }
 
-        final email = UserEmail(s.text);
+        final email = UserEmail(s.text.toLowerCase());
 
         s.clear();
 

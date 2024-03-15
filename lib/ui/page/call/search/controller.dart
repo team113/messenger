@@ -367,7 +367,7 @@ class SearchController extends GetxController {
 
     if (query.isNotEmpty) {
       final UserName? name = UserName.tryParse(query);
-      final UserEmail? email = UserEmail.tryParse(query);
+      final UserEmail? email = UserEmail.tryParse(query.toLowerCase());
       final UserPhone? phone = UserPhone.tryParse(query);
 
       if (name != null || email != null || phone != null) {
@@ -423,7 +423,7 @@ class SearchController extends GetxController {
     if (query.isNotEmpty) {
       final UserNum? num = UserNum.tryParse(query);
       final UserName? name = UserName.tryParse(query);
-      final UserLogin? login = UserLogin.tryParse(query);
+      final UserLogin? login = UserLogin.tryParse(query.toLowerCase());
       final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {

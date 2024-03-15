@@ -53,17 +53,13 @@ class _UserLoginFieldState extends State<UserLoginField> {
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
     onChanged: (s) async {
-      s.error.value = null;
-
-      if (s.text.isEmpty) {
-        return;
-      }
-
       final UserLogin? login = UserLogin.tryParse(s.text.toLowerCase());
 
-      if (login == null) {
+      if (s.text.isNotEmpty && login == null) {
         s.error.value = 'err_incorrect_login_input'.l10n;
       } else {
+        s.error.value = null;
+
         s.editable.value = false;
         s.status.value = RxStatus.loading();
 
@@ -73,16 +69,13 @@ class _UserLoginFieldState extends State<UserLoginField> {
           if (mounted) {
             setState(() => _editing = false);
           }
-
-          s.status.value = RxStatus.empty();
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
-          s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;
-          s.status.value = RxStatus.empty();
           rethrow;
         } finally {
+          s.status.value = RxStatus.empty();
           s.editable.value = true;
         }
       }
