@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
@@ -36,6 +37,7 @@ import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -53,6 +55,7 @@ class ChatInfoController extends GetxController {
     this._chatService,
     this._authService,
     this._callService,
+    this._myUserService,
     this._settingsRepo,
   );
 
@@ -86,9 +89,6 @@ class ChatInfoController extends GetxController {
   /// enabled.
   final RxBool profileEditing = RxBool(false);
 
-  /// List of [UserId]s that are being removed from the [chat].
-  final RxList<UserId> membersOnRemoval = RxList([]);
-
   /// [Chat.name] field state.
   late final TextFieldState name;
 
@@ -110,6 +110,9 @@ class ChatInfoController extends GetxController {
   /// [CallService] used to start a call in the [chat].
   final CallService _callService;
 
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
+
   /// Settings repository, used to retrieve the [background].
   final AbstractSettingsRepository _settingsRepo;
 
@@ -128,6 +131,9 @@ class ChatInfoController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
@@ -219,7 +225,6 @@ class ChatInfoController extends GetxController {
 
   /// Removes [User] identified by the provided [userId] from the [chat].
   Future<void> removeChatMember(UserId userId) async {
-    membersOnRemoval.add(userId);
     try {
       await _chatService.removeChatMember(chatId, userId);
       if (userId == me && router.route.startsWith('${Routes.chats}/$chatId')) {
@@ -230,8 +235,6 @@ class ChatInfoController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
-    } finally {
-      membersOnRemoval.remove(userId);
     }
   }
 

@@ -72,6 +72,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
+
     if (_futures.isEmpty && !status.value.isSuccess) {
       for (var f in initial) {
         if (f is Future<Map<K, T>>) {
@@ -178,7 +179,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
 class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   RxPaginatedImpl({
     required this.transform,
-    required super.pagination,
+    required Pagination<V, C, K> super.pagination,
     super.initial,
     super.initialKey,
     super.initialCursor,
@@ -215,6 +216,13 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   /// Callback, called to transform the [V] to [T].
   final FutureOr<T?> Function({T? previous, required V data}) transform;
 
+  /// Returns the raw count of [V] items kept in [pagination].
+  ///
+  /// Note, that this count may __not__ be equal to [length], as [transform] is
+  /// applied to every item in [pagination] before appending to the [items],
+  /// which may take some time.
+  int get rawLength => pagination!.items.length;
+
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
@@ -228,8 +236,6 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
         }
       }
 
-      _futures.add(pagination!.around(key: initialKey, cursor: initialCursor));
-
       await Future.wait(_futures);
       status.value = RxStatus.success();
       _futures.clear();
@@ -239,8 +245,23 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   }
 
   @override
+  Future<void> around() async {
+    Log.debug('around()', '$runtimeType');
+
+    if (!status.value.isSuccess) {
+      await ensureInitialized();
+    }
+
+    await pagination?.around(key: initialKey, cursor: initialCursor);
+  }
+
+  @override
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
+
+    if (!status.value.isSuccess) {
+      await ensureInitialized();
+    }
 
     if (nextLoading.isFalse) {
       await pagination?.next();
@@ -250,6 +271,10 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   @override
   Future<void> previous() async {
     Log.debug('previous()', '$runtimeType');
+
+    if (!status.value.isSuccess) {
+      await ensureInitialized();
+    }
 
     if (previousLoading.isFalse) {
       await pagination?.previous();

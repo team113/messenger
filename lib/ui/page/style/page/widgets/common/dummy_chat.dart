@@ -25,7 +25,6 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
-import '/domain/repository/user.dart';
 import '/store/paginated.dart';
 import '/util/obs/obs.dart';
 
@@ -63,7 +62,7 @@ class DummyRxChat extends RxChat {
   UserId? get me => null;
 
   @override
-  Paginated<UserId, RxUser> get members => PaginatedImpl();
+  Paginated<UserId, RxChatMember> get members => PaginatedImpl();
 
   @override
   RxObsList<Rx<ChatItem>> get messages => RxObsList();

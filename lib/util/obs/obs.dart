@@ -17,6 +17,7 @@
 
 export 'list.dart';
 export 'map.dart';
+export 'rx_sorted_map.dart';
 export 'rxlist.dart';
 export 'rxmap.dart';
 export 'rxsplay.dart';

@@ -15,9 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mutex/mutex.dart';
+import 'package:hive/hive.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/util/log.dart';
@@ -25,15 +25,17 @@ import 'base.dart';
 
 /// [Hive] storage for [UserId]s sorted by the [PreciseDateTime]s and secondary
 /// by [UserId].
-class BlocklistSortingHiveProvider extends HiveBaseProvider<UserId> {
-  /// [Mutex] guarding synchronized access to the [put] and [remove].
-  final Mutex _mutex = Mutex();
+class ChatMemberSortingHiveProvider extends HiveBaseProvider<UserId> {
+  ChatMemberSortingHiveProvider(this.id);
+
+  /// ID of a [Chat] this provider is bound to.
+  final ChatId id;
 
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
-  String get boxName => 'blocklist_sorting';
+  String get boxName => 'members_sorting_$id';
 
   @override
   void registerAdapters() {
@@ -41,36 +43,22 @@ class BlocklistSortingHiveProvider extends HiveBaseProvider<UserId> {
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
-  /// Returns a list of [UserId]s from [Hive].
+  /// Returns the list of [UserId]s from [Hive].
   Iterable<UserId> get values => valuesSafe;
 
-  /// Puts the provided [UserId] by the provided [key] to [Hive].
-  Future<void> put(PreciseDateTime key, UserId item) async {
-    Log.debug('put($key, $item)', '$runtimeType');
-
-    final String i = '${key.toUtc().toString()}_$item';
-
-    if (getSafe(i) != item) {
-      await _mutex.protect(() async {
-        final int index = values.toList().indexOf(item);
-        if (index != -1) {
-          await deleteAtSafe(index);
-        }
-
-        await putSafe(i, item);
-      });
-    }
+  /// Puts the provided [UserId] by the provided [time] to [Hive].
+  Future<void> put(PreciseDateTime time, UserId id) async {
+    Log.debug('put($time, $id)', '$runtimeType');
+    await putSafe('${time.toUtc().toString()}_$id', id);
   }
 
   /// Removes the provided [UserId] from [Hive].
-  Future<void> remove(UserId item) async {
-    Log.debug('remove($item)', '$runtimeType');
+  Future<void> remove(UserId id) async {
+    Log.debug('remove($id)', '$runtimeType');
 
-    await _mutex.protect(() async {
-      final int index = values.toList().indexOf(item);
-      if (index != -1) {
-        await deleteAtSafe(index);
-      }
-    });
+    final int index = valuesSafe.toList().indexOf(id);
+    if (index != -1) {
+      await deleteAtSafe(index);
+    }
   }
 }
