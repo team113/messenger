@@ -614,7 +614,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                     ? CustomMouseCursors.grab
                     : c.isCursorHidden.value
                         ? SystemMouseCursors.none
-                        : c.cursor.value ?? SystemMouseCursors.basic,
+                        : c.hoveredParticipant.value != null
+                            ? SystemMouseCursors.basic
+                            : MouseCursor.defer,
           );
         }),
 
@@ -745,23 +747,27 @@ Widget desktopCall(CallController c, BuildContext context) {
                               ),
                             ],
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: c.layoutAsPrimary,
                               child: const SvgIcon(SvgIcons.callGallery),
                             ),
                             const SizedBox(width: 16),
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: () =>
                                   c.layoutAsSecondary(floating: true),
                               child: const SvgIcon(SvgIcons.callFloating),
                             ),
                             const SizedBox(width: 16),
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: () =>
                                   c.layoutAsSecondary(floating: false),
                               child: const SvgIcon(SvgIcons.callSide),
                             ),
                             const SizedBox(width: 16),
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: c.toggleFullscreen,
                               child: SvgIcon(
                                 c.fullscreen.value
@@ -1397,21 +1403,19 @@ Widget _secondaryView(CallController c, BuildContext context) {
           double? width,
           double? height,
         }) {
-          return MouseRegion(
-            onEnter: (_) {
-              if (c.draggedRenderer.value == null) {
-                c.cursor.value = cursor;
-              }
-            },
-            onExit: (_) => c.cursor.value = null,
-            child: Scaler(
-              key: key,
-              onDragUpdate: onDrag,
-              onDragEnd: (_) => c.updateSecondaryAttach(),
-              width: width ?? Scaler.size,
-              height: height ?? Scaler.size,
-            ),
-          );
+          return Obx(() {
+            return MouseRegion(
+              cursor:
+                  c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
+              child: Scaler(
+                key: key,
+                onDragUpdate: onDrag,
+                onDragEnd: (_) => c.updateSecondaryAttach(),
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          });
         }
 
         Widget widget = Container();
@@ -1848,12 +1852,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child: SizedBox(
                       height: 30,
                       child: MouseRegion(
-                        onEnter: (_) {
-                          if (!isAnyDrag) {
-                            c.cursor.value = CustomMouseCursors.grab;
-                          }
-                        },
-                        onExit: (_) => c.cursor.value = null,
+                        cursor: isAnyDrag
+                            ? MouseCursor.defer
+                            : c.secondaryDragged.isTrue
+                                ? CustomMouseCursors.grabbing
+                                : CustomMouseCursors.grab,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;

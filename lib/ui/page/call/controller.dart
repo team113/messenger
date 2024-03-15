@@ -184,9 +184,6 @@ class CallController extends GetxController {
   /// all participant's space.
   final Rx<Participant?> hoveredRenderer = Rx<Participant?>(null);
 
-  /// [MouseCursor] should be displayed over [CallView].
-  final Rx<MouseCursor?> cursor = Rx<MouseCursor?>(null);
-
   /// Timeout of a [hoveredParticipant] used to hide it.
   int hoveredParticipantTimeout = 0;
 
