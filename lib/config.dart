@@ -95,6 +95,18 @@ class Config {
   /// mismatch is detected.
   static String? credentials;
 
+  /// URL to fetch releases and its notes from.
+  ///
+  /// Intended to be used in [UpgradeWorker] to notify users about new releases
+  /// available.
+  ///
+  /// Response must be a valid JSON format representing the GitHub REST API
+  /// response for releases:
+  /// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28
+  ///
+  /// If `null` is specified, then no releases should be fetched at all.
+  static String? releasesUrl = 'https://api.github.com/repos/team113/messenger/releases?perPage=5';
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
