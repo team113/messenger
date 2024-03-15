@@ -83,16 +83,12 @@ class StatusController extends GetxController {
 
         if (s.text.isNotEmpty && status == null) {
           s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
+        } else {
           _statusTimer?.cancel();
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.updateUserStatus(
-              s.text.isNotEmpty ? status : null,
-            );
+            await _myUserService.updateUserStatus(status);
             s.status.value = RxStatus.success();
             _statusTimer = Timer(
               const Duration(milliseconds: 1500),
