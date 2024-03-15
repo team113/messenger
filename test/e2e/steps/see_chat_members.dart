@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,7 +38,7 @@ final StepDefinitionGeneric seeChatMembers = then1<int, CustomWorld>(
         final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-        return chat?.members.items.length == count;
+        return chat?.members.length == count;
       },
     );
   },

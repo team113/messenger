@@ -46,6 +46,7 @@ import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat_item_sorting.dart';
 import '/provider/hive/chat_member.dart';
+import '/provider/hive/chat_member_sorting.dart';
 import '/provider/hive/draft.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
@@ -69,7 +70,7 @@ typedef MessagesPaginated
     = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, HiveChatItem, ChatItemsCursor>;
 
 typedef MembersPaginated
-    = RxPaginatedImpl<UserId, RxUser, HiveChatMember, ChatMembersCursor>;
+    = RxPaginatedImpl<UserId, RxChatMember, HiveChatMember, ChatMembersCursor>;
 
 /// [RxChat] implementation backed by local [Hive] storage.
 class HiveRxChat extends RxChat {
@@ -82,6 +83,8 @@ class HiveRxChat extends RxChat {
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
         _local = ChatItemHiveProvider(hiveChat.value.id),
         _sorting = ChatItemSortingHiveProvider(hiveChat.value.id),
+        _membersLocal = ChatMemberHiveProvider(hiveChat.value.id),
+        _membersSorting = ChatMemberSortingHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
         ver = hiveChat.ver;
@@ -135,6 +138,13 @@ class HiveRxChat extends RxChat {
   /// [Hive] storage for [ChatItemId]s sorted by [ChatItem.at].
   ChatItemSortingHiveProvider _sorting;
 
+  /// [ChatMember]s local [Hive] storage.
+  final ChatMemberHiveProvider _membersLocal;
+
+  /// [Hive] storage of [UserId]s sorted by [PreciseDateTime] used for sorting
+  /// [ChatMember]s from [_membersLocal].
+  final ChatMemberSortingHiveProvider _membersSorting;
+
   /// [Pagination] loading [messages] with pagination.
   late final Pagination<HiveChatItem, ChatItemsCursor, ChatItemId> _pagination;
 
@@ -154,6 +164,9 @@ class HiveRxChat extends RxChat {
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
+
+  /// [ChatMemberHiveProvider.boxEvents] subscription.
+  StreamIterator? _membersSubscription;
 
   /// [Timer] unmuting the muted [chat] when its [MuteDuration.until] expires.
   Timer? _muteTimer;
@@ -233,13 +246,14 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.monolog:
-        callCover = members.values.firstOrNull?.user.value.callCover;
+        callCover = members.values.firstOrNull?.user.user.value.callCover;
         break;
 
       case ChatKind.dialog:
         callCover = members.values
-            .firstWhereOrNull((e) => e.id != me)
+            .firstWhereOrNull((e) => e.user.id != me)
             ?.user
+            .user
             .value
             .callCover;
         break;
@@ -303,7 +317,7 @@ class HiveRxChat extends RxChat {
     switch (chat.value.kind) {
       case ChatKind.dialog:
         final RxUser? rxUser =
-            members.items.values.firstWhereOrNull((u) => u.id != me);
+            members.values.firstWhereOrNull((u) => u.user.id != me)?.user;
 
         if (rxUser != null) {
           users.add(rxUser);
@@ -312,7 +326,7 @@ class HiveRxChat extends RxChat {
 
       case ChatKind.group:
         if (chat.value.name == null) {
-          users.addAll(members.items.values.take(3));
+          users.addAll(members.values.take(3).map((e) => e.user));
         }
         break;
 
@@ -405,6 +419,7 @@ class HiveRxChat extends RxChat {
     _pagination.dispose();
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
+    _membersSubscription?.cancel();
     await _local.close();
     await _sorting.close();
     status.value = RxStatus.empty();
@@ -1040,37 +1055,65 @@ class HiveRxChat extends RxChat {
   /// Initializes the [members] pagination.
   Future<void> _initMembersPagination() async {
     members = MembersPaginated(
-      transform: ({required HiveChatMember data, RxUser? previous}) {
-        return _chatRepository.getUser(data.value.user.id);
+      transform: ({
+        required HiveChatMember data,
+        RxChatMember? previous,
+      }) {
+        final FutureOr<RxUser?> userOrFuture =
+            _chatRepository.getUser(data.value.user.id);
+
+        if (userOrFuture is RxUser) {
+          return RxChatMember(userOrFuture, data.value.joinedAt);
+        } else {
+          return Future(() async {
+            final RxUser? user = await userOrFuture;
+
+            if (user != null) {
+              return RxChatMember(user, data.value.joinedAt);
+            }
+
+            return null;
+          });
+        }
       },
       pagination: Pagination(
         onKey: (e) => e.value.user.id,
         perPage: 15,
-        provider:
-            GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
-          fetch: ({after, before, first, last}) {
-            return _chatRepository.members(
-              chat.value.id,
-              after: after,
-              first: first,
-              before: before,
-              last: last,
-            );
-          },
+        provider: HiveGraphQlPageProvider(
+          hiveProvider: HivePageProvider(
+            _membersLocal,
+            getCursor: (HiveChatMember? item) => item?.cursor,
+            getKey: (HiveChatMember item) => item.value.user.id,
+            orderBy: (_) => _membersSorting.values,
+            isFirst: (_) =>
+                _membersSorting.values.length >= chat.value.membersCount,
+            isLast: (_) =>
+                _membersSorting.values.length >= chat.value.membersCount,
+          ),
+          graphQlProvider:
+              GraphQlPageProvider<HiveChatMember, ChatMembersCursor, UserId>(
+            fetch: ({after, before, first, last}) async {
+              return _chatRepository.members(
+                chat.value.id,
+                after: after,
+                first: first,
+                before: before,
+                last: last,
+              );
+            },
+          ),
         ),
         compare: (a, b) => a.value.compareTo(b.value),
       ),
       initial: [
+        // Ensure [_membersLocal] and [_membersSorting] storages are
+        // initialized.
         Future(() async {
-          final Map<UserId, RxUser> initial = {};
+          await _membersLocal.init(userId: me);
+          await _membersSorting.init(userId: me);
 
-          final RxUser? myUser = await _chatRepository.getUser(me!);
-          if (myUser != null) {
-            initial[me!] = myUser;
-          }
-
-          return initial;
-        })
+          return {};
+        }),
       ],
     );
 
@@ -1081,12 +1124,17 @@ class HiveRxChat extends RxChat {
         _putMember(HiveChatMember(member, null), ignoreBounds: true);
       }
 
-      if (members.items.length == chat.value.membersCount) {
+      if (members.rawLength == chat.value.membersCount) {
         members.pagination?.hasNext.value = false;
         members.pagination?.hasPrevious.value = false;
         members.status.value = RxStatus.success();
       }
     }
+
+    await _membersLocal.init(userId: me);
+    await _membersSorting.init(userId: me);
+
+    _initMembersLocalSubscription();
   }
 
   /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
@@ -1255,7 +1303,7 @@ class HiveRxChat extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.dialog:
-        member = members.values.firstWhereOrNull((e) => e.id != me);
+        member = members.values.firstWhereOrNull((e) => e.user.id != me)?.user;
         break;
 
       case ChatKind.group:
@@ -1379,6 +1427,24 @@ class HiveRxChat extends RxChat {
 
       stored.value = item;
       put(stored);
+    }
+  }
+
+  /// Initializes [ChatMemberHiveProvider.boxEvents] subscription.
+  Future<void> _initMembersLocalSubscription() async {
+    Log.debug('_initMembersLocalSubscription()', '$runtimeType');
+
+    _membersSubscription = StreamIterator(_membersLocal.boxEvents);
+    while (await _membersSubscription!.moveNext()) {
+      final BoxEvent event = _membersSubscription!.current;
+      final UserId userId = UserId(event.key);
+
+      if (event.deleted) {
+        _membersSorting.remove(userId);
+      } else {
+        final HiveChatMember value = event.value;
+        _membersSorting.put(value.value.joinedAt, userId);
+      }
     }
   }
 
@@ -1790,7 +1856,7 @@ class HiveRxChat extends RxChat {
                           .removeWhere((e) => e.user.id == action.user.id);
 
                       if (chatEntity.value.members.length < 3) {
-                        if (members.items.length < 3) {
+                        if (members.rawLength < 3) {
                           await members.next();
                         }
 

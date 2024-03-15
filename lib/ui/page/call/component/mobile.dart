@@ -239,7 +239,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               if (isDialog) {
                 final RxUser? user = c.chat.value?.members.values
-                    .firstWhereOrNull((e) => e.id != c.me.id.userId);
+                    .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
+                    ?.user;
 
                 return CallCoverWidget(c.chat.value?.callCover, user: user);
               } else {

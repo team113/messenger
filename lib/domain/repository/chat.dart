@@ -29,6 +29,7 @@ import '/domain/model/chat_message_input.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/user.dart';
@@ -237,7 +238,7 @@ abstract class RxChat implements Comparable<RxChat> {
   RxList<User> get typingUsers;
 
   /// [Paginated] of [User]s being members of this [chat].
-  Paginated<UserId, RxUser> get members;
+  Paginated<UserId, RxChatMember> get members;
 
   /// Text representing the title of this [chat].
   String get title;
@@ -277,8 +278,9 @@ abstract class RxChat implements Comparable<RxChat> {
   bool get blocked =>
       chat.value.isDialog &&
       members.values
-              .firstWhereOrNull((e) => e.id != me)
+              .firstWhereOrNull((e) => e.user.id != me)
               ?.user
+              .user
               .value
               .isBlocked !=
           null;
@@ -340,4 +342,26 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
+}
+
+/// Reactive [ChatMember] entity.
+class RxChatMember implements Comparable<RxChatMember> {
+  RxChatMember(this.user, this.joinedAt);
+
+  /// [RxUser] itself.
+  final RxUser user;
+
+  /// [PreciseDateTime] when the [User] became a [ChatMember].
+  final PreciseDateTime joinedAt;
+
+  @override
+  int compareTo(RxChatMember other) {
+    int result = joinedAt.compareTo(other.joinedAt);
+
+    if (result == 0) {
+      result = user.id.compareTo(other.user.id);
+    }
+
+    return result;
+  }
 }
