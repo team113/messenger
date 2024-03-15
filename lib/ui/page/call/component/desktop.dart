@@ -606,13 +606,14 @@ Widget desktopCall(CallController c, BuildContext context) {
           return MouseRegion(
             opaque: false,
             cursor: c.draggedRenderer.value != null ||
-                    c.doughDraggedRenderer.value != null
+                    c.doughDraggedRenderer.value != null ||
+                    c.secondaryDragged.isTrue
                 ? CustomMouseCursors.grabbing
                 : c.hoveredRenderer.value != null
                     ? CustomMouseCursors.grab
                     : c.isCursorHidden.value
                         ? SystemMouseCursors.none
-                        : MouseCursor.defer,
+                        : c.cursor.value ?? SystemMouseCursors.basic,
           );
         }),
 
@@ -868,18 +869,21 @@ Widget desktopCall(CallController c, BuildContext context) {
           double? width,
           double? height,
         }) {
-          return MouseRegion(
-            cursor: cursor,
-            child: Scaler(
-              key: key,
-              onDragUpdate: onDrag,
-              onDragEnd: (_) {
-                c.updateSecondaryAttach();
-              },
-              width: width ?? Scaler.size,
-              height: height ?? Scaler.size,
-            ),
-          );
+          return Obx(() {
+            return MouseRegion(
+              cursor:
+                  c.draggedRenderer.value != null ? MouseCursor.defer : cursor,
+              child: Scaler(
+                key: key,
+                onDragUpdate: onDrag,
+                onDragEnd: (_) {
+                  c.updateSecondaryAttach();
+                },
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          });
         }
 
         // Returns a stack of draggable [Scaler]s on each of the sides:
@@ -1091,8 +1095,9 @@ Widget _primaryView(CallController c) {
     c.primaryDrags.value = 0;
     c.draggedRenderer.value = null;
     c.doughDraggedRenderer.value = null;
-    c.hoveredRenderer.value = d.participant;
-    c.hoveredRendererTimeout = 5;
+    c.hoveredParticipant.value = null;
+    c.hoveredRenderer.value = null;
+    c.hoveredParticipantTimeout = 5;
     c.isCursorHidden.value = false;
   }
 
@@ -1144,7 +1149,7 @@ Widget _primaryView(CallController c) {
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered = c.hoveredRenderer.value == participant &&
+                bool isHovered = c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
                 BoxFit? fit = participant.video.value?.renderer.value == null
@@ -1164,21 +1169,21 @@ Widget _primaryView(CallController c) {
                   opaque: false,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onHover: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onExit: (d) {
-                    c.hoveredRendererTimeout = 0;
-                    c.hoveredRenderer.value = null;
+                    c.hoveredParticipantTimeout = 0;
+                    c.hoveredParticipant.value = null;
                     c.isCursorHidden.value = false;
                   },
                   child: AnimatedOpacity(
@@ -1301,6 +1306,11 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
                     participant.video.value?.renderer.value?.track.id() ?? ''],
+                onHover: (v) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = v ? participant : null;
+                  }
+                },
               );
             });
           },
@@ -1386,19 +1396,21 @@ Widget _secondaryView(CallController c, BuildContext context) {
           double? width,
           double? height,
         }) {
-          return Obx(() {
-            return MouseRegion(
-              cursor:
-                  c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
-              child: Scaler(
-                key: key,
-                onDragUpdate: onDrag,
-                onDragEnd: (_) => c.updateSecondaryAttach(),
-                width: width ?? Scaler.size,
-                height: height ?? Scaler.size,
-              ),
-            );
-          });
+          return MouseRegion(
+            onEnter: (_) {
+              if (c.draggedRenderer.value == null) {
+                c.cursor.value = cursor;
+              }
+            },
+            onExit: (_) => c.cursor.value = null,
+            child: Scaler(
+              key: key,
+              onDragUpdate: onDrag,
+              onDragEnd: (_) => c.updateSecondaryAttach(),
+              width: width ?? Scaler.size,
+              height: height ?? Scaler.size,
+            ),
+          );
         }
 
         Widget widget = Container();
@@ -1541,8 +1553,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
         c.secondaryDrags.value = 0;
         c.draggedRenderer.value = null;
         c.doughDraggedRenderer.value = null;
-        c.hoveredRenderer.value = d.participant;
-        c.hoveredRendererTimeout = 5;
+        c.hoveredParticipant.value = null;
+        c.hoveredRenderer.value = null;
+        c.hoveredParticipantTimeout = 5;
         c.isCursorHidden.value = false;
       }
 
@@ -1677,28 +1690,28 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered = c.hoveredRenderer.value == participant &&
+                bool isHovered = c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
                 return MouseRegion(
                   opaque: false,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onHover: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onExit: (d) {
-                    c.hoveredRendererTimeout = 0;
-                    c.hoveredRenderer.value = null;
+                    c.hoveredParticipantTimeout = 0;
+                    c.hoveredParticipant.value = null;
                     c.isCursorHidden.value = false;
                   },
                   child: SafeAnimatedSwitcher(
@@ -1787,6 +1800,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
+                onHover: (v) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = v ? data.participant : null;
+                  }
+                },
               );
             },
             children:
@@ -1829,11 +1847,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child: SizedBox(
                       height: 30,
                       child: MouseRegion(
-                        cursor: isAnyDrag
-                            ? MouseCursor.defer
-                            : c.secondaryDragged.isTrue
-                                ? CustomMouseCursors.grabbing
-                                : CustomMouseCursors.grab,
+                        onEnter: (_) {
+                          if (!isAnyDrag) {
+                            c.cursor.value = CustomMouseCursors.grab;
+                          }
+                        },
+                        onExit: (_) => c.cursor.value = null,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;

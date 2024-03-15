@@ -176,10 +176,19 @@ class CallController extends GetxController {
   int downButtons = 0;
 
   /// [Participant] that is hovered right now.
+  final Rx<Participant?> hoveredParticipant = Rx<Participant?>(null);
+
+  /// [Participant] renderer that is hovered right now.
+  ///
+  /// Used to show [CustomMouseCursors.grab] over renderer as it may not take
+  /// all participant's space.
   final Rx<Participant?> hoveredRenderer = Rx<Participant?>(null);
 
-  /// Timeout of a [hoveredRenderer] used to hide it.
-  int hoveredRendererTimeout = 0;
+  /// [MouseCursor] should be displayed over [CallView].
+  final Rx<MouseCursor?> cursor = Rx<MouseCursor?>(null);
+
+  /// Timeout of a [hoveredParticipant] used to hide it.
+  int hoveredParticipantTimeout = 0;
 
   /// Minimized view current width.
   late final RxDouble width;
@@ -635,11 +644,11 @@ class CallController extends GetxController {
               const Duration(seconds: 1),
               (_) {
                 duration.value = DateTime.now().difference(begunAt);
-                if (hoveredRendererTimeout > 0 &&
+                if (hoveredParticipantTimeout > 0 &&
                     draggedRenderer.value == null) {
-                  --hoveredRendererTimeout;
-                  if (hoveredRendererTimeout == 0) {
-                    hoveredRenderer.value = null;
+                  --hoveredParticipantTimeout;
+                  if (hoveredParticipantTimeout == 0) {
+                    hoveredParticipant.value = null;
                     isCursorHidden.value = true;
                   }
                 }
@@ -676,7 +685,7 @@ class CallController extends GetxController {
 
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
       if (!e) {
-        hoveredRenderer.value = null;
+        hoveredParticipant.value = null;
         if (_uiTimer?.isActive != true) {
           if (displayMore.isTrue) {
             keepUi();
