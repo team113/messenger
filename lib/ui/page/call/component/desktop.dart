@@ -850,10 +850,18 @@ Widget desktopCall(CallController c, BuildContext context) {
                       chat: c.chat.value,
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
-                      toggleFullscreen: c.toggleFullscreen,
-                      onPrimary: c.layoutAsPrimary,
-                      onFloating: () => c.layoutAsSecondary(floating: true),
-                      onSecondary: () => c.layoutAsSecondary(floating: false),
+                      toggleFullscreen: c.draggedRenderer.value == null
+                          ? c.toggleFullscreen
+                          : null,
+                      onPrimary: c.draggedRenderer.value == null
+                          ? c.layoutAsPrimary
+                          : null,
+                      onFloating: c.draggedRenderer.value == null
+                          ? () => c.layoutAsSecondary(floating: true)
+                          : null,
+                      onSecondary: c.draggedRenderer.value == null
+                          ? () => c.layoutAsSecondary(floating: false)
+                          : null,
                     );
                   }),
                 ),
