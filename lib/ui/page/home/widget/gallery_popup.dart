@@ -75,17 +75,18 @@ class GalleryItem {
     String? checksum,
     ThumbHash? thumbhash,
     FutureOr<void> Function()? onError,
-  }) => GalleryItem(
-      link: link,
-      name: name,
-      size: size,
-      width: width,
-      height: height,
-      checksum: checksum,
-      thumbhash: thumbhash,
-      isVideo: false,
-      onError: onError,
-    );
+  }) =>
+      GalleryItem(
+        link: link,
+        name: name,
+        size: size,
+        width: width,
+        height: height,
+        checksum: checksum,
+        thumbhash: thumbhash,
+        isVideo: false,
+        onError: onError,
+      );
 
   /// Constructs a [GalleryItem] treated as a video.
   factory GalleryItem.video(
@@ -132,7 +133,7 @@ class GalleryItem {
   final FutureOr<void> Function()? onError;
 
   /// Returns aspect ratio of the image this [GalleryItem] represents.
-  double?  get _aspectRatio {
+  double? get _aspectRatio {
     if (width != null && height != null) {
       return width! / height!;
     }
