@@ -1827,7 +1827,7 @@ class DummyRxChat extends RxChat {
   Future<void> updateAvatar() async {}
 
   @override
-  Paginated<UserId, RxUser> get members => PaginatedImpl();
+  Paginated<UserId, RxChatMember> get members => PaginatedImpl();
 
   @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({

@@ -388,6 +388,10 @@ class ChatController extends GetxController {
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
+  /// Worker performing a [readChat] when the [RouterState.obscuring] becomes
+  /// empty.
+  Worker? _obscuredWorker;
+
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
@@ -458,7 +462,7 @@ class ChatController extends GetxController {
   ///
   /// Only meaningful, if the [chat] is a dialog.
   RxUser? get user => chat?.chat.value.isDialog == true
-      ? chat?.members.values.firstWhereOrNull((e) => e.id != me)
+      ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
       : null;
 
   /// Indicates whether the [listController] is scrolled to its bottom.
@@ -941,9 +945,9 @@ class ChatController extends GetxController {
       }
 
       paid = chat!.members.values.any((e) =>
-              e.user.value.name?.val.toLowerCase() == 'alex1' ||
-              e.user.value.name?.val.toLowerCase() == 'alex2' ||
-              e.user.value.name?.val.toLowerCase() == 'kirey') &&
+              e.user.user.value.name?.val.toLowerCase() == 'alex1' ||
+              e.user.user.value.name?.val.toLowerCase() == 'alex2' ||
+              e.user.user.value.name?.val.toLowerCase() == 'kirey') &&
           chat!.chat.value.isDialog;
       paidDisclaimer.value = paid;
       refresh();
@@ -1022,12 +1026,18 @@ class ChatController extends GetxController {
 
       if (chat?.chat.value.isDialog == true) {
         _userSubscription = chat?.members.values
-            .lastWhereOrNull((u) => u.id != me)
-            ?.updates
+            .lastWhereOrNull((u) => u.user.id != me)
+            ?.user
+            .updates
             .listen((_) {});
       }
 
       _readWorker ??= ever(_lastSeenItem, readChat);
+      _obscuredWorker ??= ever(router.obscuring, (modals) {
+        if (modals.isEmpty) {
+          readChat(_lastSeenItem.value);
+        }
+      });
 
       // If [RxChat.status] is not successful yet, populate the
       // [_messageInitializedWorker] to determine the initial messages list

@@ -1,4 +1,4 @@
-// Copyright © 2022-2023 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,8 @@ import 'base.dart';
 part 'chat_member.g.dart';
 
 /// [Hive] storage for [ChatMember]s.
-class ChatMemberHiveProvider extends HiveBaseProvider<HiveChatMember> {
+class ChatMemberHiveProvider extends HiveLazyProvider<HiveChatMember>
+    implements IterableHiveProvider<HiveChatMember, UserId> {
   ChatMemberHiveProvider(this.id);
 
   /// ID of a [Chat] this provider is bound to.
@@ -48,6 +49,7 @@ class ChatMemberHiveProvider extends HiveBaseProvider<HiveChatMember> {
 
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
+    Hive.maybeRegisterAdapter(ChatMembersCursorAdapter());
     Hive.maybeRegisterAdapter(HiveChatMemberAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
@@ -59,22 +61,25 @@ class ChatMemberHiveProvider extends HiveBaseProvider<HiveChatMember> {
     Hive.maybeRegisterAdapter(UserTextStatusAdapter());
   }
 
-  /// Returns a list of [ChatMember]s from [Hive].
-  Iterable<HiveChatMember> get users => valuesSafe;
+  @override
+  Iterable<UserId> get keys => keysSafe.map((e) => UserId(e));
 
-  /// Puts the provided [ChatMember] to [Hive].
+  @override
+  Future<Iterable<HiveChatMember>> get values => valuesSafe;
+
+  @override
   Future<void> put(HiveChatMember member) async {
     Log.debug('put($member)', '$runtimeType');
     await putSafe(member.value.user.id.val, member);
   }
 
-  /// Returns a [ChatMember] from [Hive] by its [id].
-  HiveChatMember? get(UserId id) {
+  @override
+  Future<HiveChatMember?> get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
-  /// Removes an [ChatMember] from [Hive] by its [id].
+  @override
   Future<void> remove(UserId id) async {
     Log.debug('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

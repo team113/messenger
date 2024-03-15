@@ -254,7 +254,8 @@ class SearchView extends StatelessWidget {
 
                             final RxUser? member = element.chat.value.isDialog
                                 ? element.members.values
-                                    .firstWhereOrNull((e) => e.id != c.me)
+                                    .firstWhereOrNull((e) => e.user.id != c.me)
+                                    ?.user
                                 : null;
 
                             final bool blocked =

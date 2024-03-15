@@ -56,7 +56,6 @@ import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'chat_item.dart';
-import 'conditional_intrinsic.dart';
 import 'donate.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';

@@ -142,6 +142,16 @@ class WebUtils {
   /// [Mutex] guarding the [protect] method.
   static final Mutex _guard = Mutex();
 
+  /// Indicator whether [cameraPermission] has finished successfully.
+  ///
+  /// Only populated and used, if [isFirefox] is `true`.
+  static bool _hasCameraPermission = false;
+
+  /// Indicator whether [microphonePermission] has finished successfully.
+  ///
+  /// Only populated and used, if [isFirefox] is `true`.
+  static bool _hasMicrophonePermission = false;
+
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
       _navigator.appVersion.contains('Mac') && !PlatformUtils.isIOS;
@@ -344,7 +354,10 @@ class WebUtils {
               (_) => callback()
                   .then((_) => completer.complete())
                   .onError(
-                    (e, _) => completer.completeError(e ?? Exception()),
+                    (e, stackTrace) => completer.completeError(
+                      e ?? Exception(),
+                      stackTrace,
+                    ),
                   )
                   .toJS,
             ),
@@ -535,9 +548,9 @@ class WebUtils {
     ChatId newChatId, {
     WebStoredCall? newState,
   }) {
-    newState ??= WebUtils.getCall(chatId);
-    WebUtils.removeCall(chatId);
-    WebUtils.setCall(newState!);
+    newState ??= getCall(chatId);
+    removeCall(chatId);
+    setCall(newState!);
     replaceState(chatId.val, newChatId.val);
   }
 
@@ -599,13 +612,11 @@ class WebUtils {
 
   /// Requests the permission to use a camera.
   static Future<void> cameraPermission() async {
-    bool granted = false;
+    bool granted = _hasCameraPermission;
 
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
-    if (isFirefox) {
-      granted = _hasCameraPermission ?? false;
-    } else {
+    if (!isFirefox) {
       final permission =
           await html.window.navigator.permissions?.query({'name': 'camera'});
       granted = permission?.state == 'granted';
@@ -631,13 +642,11 @@ class WebUtils {
 
   /// Requests the permission to use a microphone.
   static Future<void> microphonePermission() async {
-    bool granted = false;
+    bool granted = _hasMicrophonePermission;
 
-    // Firefox doesn't allow to check whether app has camera permission:
+    // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
-    if (isFirefox) {
-      granted = _hasMicrophonePermission ?? false;
-    } else {
+    if (!isFirefox) {
       final permission = await html.window.navigator.permissions
           ?.query({'name': 'microphone'});
       granted = permission?.state == 'granted';
@@ -651,7 +660,9 @@ class WebUtils {
         throw UnsupportedError('`window.navigator.mediaDevices` are `null`');
       }
 
-      _hasMicrophonePermission = true;
+      if (isFirefox) {
+        _hasMicrophonePermission = true;
+      }
 
       for (var e in stream.getTracks()) {
         e.stop();
@@ -661,6 +672,7 @@ class WebUtils {
 
   /// Replaces the provided [from] with the specified [to] in the current URL.
   static void replaceState(String from, String to) {
+    router.replace(from, to);
     html.window.history.replaceState(
       null,
       html.document.title,

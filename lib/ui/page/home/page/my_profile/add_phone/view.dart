@@ -38,6 +38,7 @@ class AddPhoneView extends StatelessWidget {
   /// Initial [UserPhone] to confirm.
   final UserPhone? phone;
 
+  /// Indicator whether the resend [Timer] should be started initially.
   final bool timeout;
 
   /// Displays a [AddPhoneView] wrapped in a [ModalPopup].

@@ -203,9 +203,9 @@ class RecentChatTile extends StatelessWidget {
 
       final bool paid = rxChat.members.values.any(
         (e) =>
-            e.user.value.id != myUser?.id &&
-            (e.user.value.name?.val.toLowerCase() == 'kirey' ||
-                e.user.value.name?.val.toLowerCase() == 'alex2'),
+            e.user.user.value.id != myUser?.id &&
+            (e.user.user.value.name?.val.toLowerCase() == 'kirey' ||
+                e.user.user.value.name?.val.toLowerCase() == 'alex2'),
       );
 
       final bool payee = price &&
@@ -354,7 +354,9 @@ class RecentChatTile extends StatelessWidget {
                 onPressed: () => GetPaidView.show(
                   context,
                   mode: GetPaidMode.user,
-                  user: rxChat.members.values.firstWhere((e) => e.id != me),
+                  user: rxChat.members.values
+                      .firstWhere((e) => e.user.id != me)
+                      .user,
                 ),
                 trailing: const SvgIcon(SvgIcons.gapopaCoin),
                 inverted: const SvgIcon(SvgIcons.gapopaCoinWhite),

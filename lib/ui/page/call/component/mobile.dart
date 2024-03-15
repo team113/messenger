@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/config.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../controller.dart';
@@ -36,6 +35,7 @@ import '../widget/participant/overlay.dart';
 import '../widget/participant/widget.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
+import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user_call_cover.dart';
@@ -239,7 +239,8 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               if (isDialog) {
                 final RxUser? user = c.chat.value?.members.values
-                    .firstWhereOrNull((e) => e.id != c.me.id.userId);
+                    .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
+                    ?.user;
 
                 return CallCoverWidget(c.chat.value?.callCover, user: user);
               } else {

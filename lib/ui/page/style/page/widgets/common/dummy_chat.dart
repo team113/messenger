@@ -63,7 +63,7 @@ class DummyRxChat extends RxChat {
   UserId? get me => null;
 
   @override
-  Paginated<UserId, RxUser> get members => PaginatedImpl();
+  Paginated<UserId, RxChatMember> get members => PaginatedImpl();
 
   @override
   RxObsList<Rx<ChatItem>> get messages => RxObsList();

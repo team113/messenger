@@ -18,14 +18,14 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/user.dart';
-import 'package:messenger/domain/service/user.dart';
 
 import '/api/backend/schema.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show AddChatMemberException;
 import '/util/message_popup.dart';

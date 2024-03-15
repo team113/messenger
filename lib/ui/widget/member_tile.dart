@@ -16,9 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -28,22 +27,24 @@ import 'animated_button.dart';
 import 'animated_switcher.dart';
 import 'svg/svg.dart';
 
-/// Styled [ContactTile] representing the provided [RxUser] as a member of some
-/// [Chat] or [OngoingCall].
+/// Styled [ContactTile] representing the provided [RxUser] or [MyUser] as a
+/// member of some [Chat] or [OngoingCall].
 class MemberTile extends StatelessWidget {
   const MemberTile({
     super.key,
-    required this.user,
+    this.user,
+    this.myUser,
     this.inCall,
     this.onTap,
-    this.me = false,
     this.onKick,
     this.onCall,
-    this.subtitle = const [],
   });
 
   /// [RxUser] this [MemberTile] is about.
-  final RxUser user;
+  final RxUser? user;
+
+  /// [MyUser] this [MemberTile] is about.
+  final MyUser? myUser;
 
   /// Indicator whether a call button should be active or not.
   ///
@@ -56,126 +57,103 @@ class MemberTile extends StatelessWidget {
   /// Callback, called when the call button is pressed.
   final void Function()? onCall;
 
-  /// Indicator whether this [user] is treated as [MyUser], meaning displaying
-  /// appropriate labels.
-  final bool me;
-
   /// Callback, called when the kick button is pressed.
   final Future<void> Function()? onKick;
 
-  final List<Widget> subtitle;
+  /// Indicates whether this [MemberTile] represents a [MyUser], meaning
+  /// displaying appropriate labels.
+  bool get _me => myUser != null;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final trailing = [
-      const SizedBox(width: 12),
-      if (inCall != null) ...[
-        SafeAnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: Material(
-            key: Key(inCall == true ? 'InCall' : 'NotInCall'),
-            color: inCall == true
-                ? onCall == null
-                    ? style.colors.primaryHighlightLightest
-                    : style.colors.danger
-                : style.colors.primary,
-            type: MaterialType.circle,
-            child: InkWell(
-              onTap: onCall,
-              borderRadius: BorderRadius.circular(60),
-              child: SizedBox(
-                width: 22,
-                height: 22,
-                child: Center(
-                  child: inCall == true
-                      ? const SvgIcon(SvgIcons.callEndSmall)
-                      : const SvgIcon(SvgIcons.callStartSmall),
+    final bool paid = user?.dialog.value?.chat.value.isDialog == true &&
+        user?.user.value.messageCost != 0;
+
+    return ContactTile(
+      height: 54,
+      user: user,
+      myUser: myUser,
+      dense: true,
+      onTap: _me ? null : onTap,
+      padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
+      trailing: [
+        if (paid) ...[
+          const SvgIcon(SvgIcons.faceSmile),
+          const SizedBox(width: 8),
+        ],
+        if (inCall != null)
+          SafeAnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Material(
+              key: Key(inCall == true ? 'InCall' : 'NotInCall'),
+              color: inCall == true
+                  ? onCall == null
+                      ? style.colors.primaryHighlightLightest
+                      : style.colors.danger
+                  : style.colors.primary,
+              type: MaterialType.circle,
+              child: InkWell(
+                onTap: onCall,
+                borderRadius: BorderRadius.circular(60),
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Center(
+                    child: inCall == true
+                        ? const SvgIcon(SvgIcons.callEndSmall)
+                        : const SvgIcon(SvgIcons.callStartSmall),
+                  ),
                 ),
               ),
             ),
           ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 41),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AnimatedButton(
+              enabled: !_me,
+              decorator: (child) => Padding(
+                padding: const EdgeInsets.all(12),
+                child: child,
+              ),
+              onPressed: _me
+                  ? null
+                  : () async {
+                      final bool? result = await MessagePopup.alert(
+                        'label_remove_member'.l10n,
+                        description: [
+                          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+                          TextSpan(
+                            text: myUser?.name?.val ??
+                                myUser?.num.val ??
+                                user?.title,
+                            style: style.fonts.normal.regular.onBackground,
+                          ),
+                          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+                        ],
+                      );
+
+                      if (result == true) {
+                        await onKick?.call();
+                      }
+                    },
+              child: _me
+                  ? Text(
+                      'label_you'.l10n,
+                      style: style.fonts.normal.regular.secondary,
+                    )
+                  : const SvgIcon(
+                      SvgIcons.delete,
+                      key: Key('DeleteMemberButton'),
+                    ),
+            ),
+          ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 6),
       ],
-      AnimatedButton(
-        enabled: !me,
-        decorator: (child) => Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
-          child: child,
-        ),
-        onPressed: me
-            ? null
-            : () async {
-                final bool? result = await MessagePopup.alert(
-                  me ? 'label_leave_group'.l10n : 'label_remove_member'.l10n,
-                  description: [
-                    if (me)
-                      TextSpan(text: 'alert_you_will_leave_group'.l10n)
-                    else ...[
-                      TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-                      TextSpan(
-                        text: user.title,
-                        style: style.fonts.normal.regular.onBackground,
-                      ),
-                      TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-                    ],
-                  ],
-                );
-
-                if (result == true) {
-                  await onKick?.call();
-                }
-              },
-        child: me
-            ? Text(
-                'label_you'.l10n,
-                style: style.fonts.normal.regular.secondary,
-              )
-            : const SvgIcon(SvgIcons.delete, key: Key('DeleteMemberButton')),
-      ),
-    ];
-
-    if (user.dialog.value != null && !me) {
-      return Obx(() {
-        final muted = user.dialog.value?.chat.value.muted != null;
-        final bool paid = !me &&
-            (user.user.value.name?.val.toLowerCase().contains('alex2') ==
-                    true ||
-                user.user.value.name?.val.toLowerCase().contains('kirey') ==
-                    true);
-
-        return ChatTile(
-          chat: user.dialog.value,
-          onTap: onTap,
-          trailing: trailing,
-          monolog: false,
-          height: 58,
-          avatarBuilder: (a) =>
-              Padding(padding: const EdgeInsets.all(4), child: a),
-          status: [
-            if (paid) ...[
-              const SizedBox(width: 8),
-              const SvgIcon(SvgIcons.faceSmile),
-            ],
-            if (muted) ...[
-              const SizedBox(width: 10),
-              const SvgIcon(SvgIcons.muted),
-            ],
-          ],
-          subtitle: subtitle,
-        );
-      });
-    }
-
-    return ContactTile(
-      user: user,
-      onTap: me ? null : onTap,
-      height: 58,
-      avatarBuilder: (a) => Padding(padding: const EdgeInsets.all(4), child: a),
-      trailing: trailing,
-      subtitle: subtitle,
     );
   }
 }

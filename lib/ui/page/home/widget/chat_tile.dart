@@ -257,6 +257,7 @@ class _ChatTileState extends State<ChatTile> {
                                                               .values
                                                               .firstOrNull
                                                               ?.user
+                                                              .user
                                                               .value
                                                               .name
                                                               ?.val ??
@@ -266,6 +267,7 @@ class _ChatTileState extends State<ChatTile> {
                                                               .values
                                                               .firstOrNull
                                                               ?.user
+                                                              .user
                                                               .value
                                                               .num
                                                               .toString() ??

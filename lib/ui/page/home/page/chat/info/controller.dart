@@ -27,6 +27,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
@@ -36,15 +37,18 @@ import '/domain/repository/call.dart'
         CallAlreadyJoinedException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
+import '/util/platform_utils.dart';
 
 export 'view.dart';
 
@@ -56,6 +60,7 @@ class ChatInfoController extends GetxController {
     this._authService,
     this._callService,
     this._userService,
+    this._myUserService,
     this._settingsRepo,
   );
 
@@ -120,6 +125,9 @@ class ChatInfoController extends GetxController {
 
   final UserService _userService;
 
+  /// [MyUserService] maintaining the [myUser].
+  final MyUserService _myUserService;
+
   /// Settings repository, used to retrieve the [background].
   final AbstractSettingsRepository _settingsRepo;
 
@@ -141,6 +149,9 @@ class ChatInfoController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
@@ -229,18 +240,17 @@ class ChatInfoController extends GetxController {
   }
 
   @override
-  onClose() {
+  void onClose() {
     _worker?.dispose();
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();
-    membersScrollController.removeListener(_scrollListener);
-    scrollController.removeListener(_ensureNameDisplayed);
+    membersScrollController.dispose();
+    scrollController.dispose();
     super.onClose();
   }
 
   /// Removes [User] identified by the provided [userId] from the [chat].
   Future<void> removeChatMember(UserId userId) async {
-    membersOnRemoval.add(userId);
     try {
       await _chatService.removeChatMember(chatId, userId);
       if (userId == me && router.route.startsWith('${Routes.chats}/$chatId')) {
@@ -251,8 +261,6 @@ class ChatInfoController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
-    } finally {
-      membersOnRemoval.remove(userId);
     }
   }
 

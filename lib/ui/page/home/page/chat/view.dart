@@ -441,8 +441,9 @@ class ChatView extends StatelessWidget {
                                               mode: GetPaidMode.user,
                                               user: c.chat!.members.values
                                                   .firstWhere(
-                                                (e) => e.id != c.me,
-                                              ),
+                                                    (e) => e.user.id != c.me,
+                                                  )
+                                                  .user,
                                             ),
                                             trailing: const SvgIcon(
                                               SvgIcons.gapopaCoin,
@@ -940,7 +941,10 @@ class ChatView extends StatelessWidget {
                                         final RxUser? user = c
                                             .chat?.members.values
                                             .firstWhereOrNull(
-                                                (e) => e.user.value.id != c.me);
+                                              (e) =>
+                                                  e.user.user.value.id != c.me,
+                                            )
+                                            ?.user;
 
                                         child = Padding(
                                           padding: EdgeInsets.only(

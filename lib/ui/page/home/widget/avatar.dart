@@ -289,8 +289,9 @@ class AvatarWidget extends StatefulWidget {
         );
       }
 
-      final RxUser? user =
-          chat.members.values.firstWhereOrNull((e) => e.id != chat.me);
+      final RxUser? user = chat.members.values
+          .firstWhereOrNull((e) => e.user.id != chat.me)
+          ?.user;
       final bool blocked =
           chat.chat.value.isDialog && user?.user.value.isBlocked != null;
       return AvatarWidget(
@@ -299,12 +300,8 @@ class AvatarWidget extends StatefulWidget {
         isAway: user?.user.value.presence == Presence.away,
         avatar: blocked ? null : chat.avatar.value,
         title: chat.title,
-        // title: chat.chat.value.isMonolog && !monolog
-        //     ? (chat.members.values.firstOrNull?.user.value.name?.val ??
-        //         chat.members.values.firstOrNull?.user.value.num.toString())
-        //     : chat.title.value,
         color: chat.chat.value.isMonolog && !monolog
-            ? chat.members.values.firstOrNull?.user.value.num.val.sum()
+            ? chat.members.values.firstOrNull?.user.user.value.num.val.sum()
             : chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,

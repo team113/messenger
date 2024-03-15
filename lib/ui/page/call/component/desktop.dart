@@ -49,7 +49,6 @@ import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -151,10 +150,11 @@ Widget desktopCall(CallController c, BuildContext context) {
                             child = _primaryView(c);
                           } else {
                             if (c.isDialog) {
-                              final RxUser? user =
-                                  c.chat.value?.members.values.firstWhereOrNull(
-                                (e) => e.id != c.me.id.userId,
-                              );
+                              final RxUser? user = c.chat.value?.members.values
+                                  .firstWhereOrNull(
+                                    (e) => e.user.id != c.me.id.userId,
+                                  )
+                                  ?.user;
 
                               child = CallCoverWidget(
                                 c.chat.value?.callCover,

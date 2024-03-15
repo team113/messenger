@@ -2225,7 +2225,7 @@ class CallController extends GetxController {
     } else {
       if (chat.value != null) {
         final List<User> members =
-            chat.value!.members.values.map((e) => e.user.value).toList();
+            chat.value!.members.values.map((e) => e.user.user.value).toList();
         for (var e in chat.value!.chat.value.members) {
           members.addIf(members.none((p) => p.id == e.user.id), e.user);
         }
