@@ -155,7 +155,7 @@ class AvatarWidget extends StatefulWidget {
         isOnline: badge && myUser?.online == true,
         isAway: myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
-        title: myUser?.name?.val ?? myUser?.num.val,
+        title: myUser?.name?.val ?? myUser?.num.toString(),
         color: myUser?.num.val.sum(),
         radius: radius,
         opacity: opacity,

@@ -110,6 +110,9 @@ class Config {
   static String? releasesUrl =
       'https://api.github.com/repos/team113/messenger/releases?perPage=5';
 
+  /// Domain considered as the URL to download artifacts from.
+  static String artifacts = '';
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
@@ -213,6 +216,10 @@ class Config {
           kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
     );
 
+    artifacts = const bool.hasEnvironment('SOCAPP_ARTIFACTS_URL')
+        ? const String.fromEnvironment('SOCAPP_ARTIFACTS_URL')
+        : (document['artifacts']?['url'] ?? '');
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -272,6 +279,7 @@ class Config {
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
+            artifacts = remote['artifacts']?['url'] ?? artifacts;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],

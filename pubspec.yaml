@@ -133,7 +133,7 @@ dependencies:
   # audioplayers_android: ^4.0.3
   # audioplayers_platform_interface: ^6.1.0
   # audioplayers_darwin: ^5.0.2
-  upgrader: ^10.0.0-alpha.3
+  xml: ^6.5.0
 
 dev_dependencies:
   artemis: ^7.13.1

@@ -1444,14 +1444,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.2"
-  os_detect:
-    dependency: transitive
-    description:
-      name: os_detect
-      sha256: faf3bcf39515e64da8ff76b2f2805b20a6ff47ae515393e535f8579ff91d6b7f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   package_config:
     dependency: transitive
     description:
@@ -2259,14 +2251,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0+1"
-  upgrader:
-    dependency: "direct main"
-    description:
-      name: upgrader
-      sha256: ee220a2b68c9573ee5b88fff20c947c04422c2e9b3d3cc125a21ccc9bddcac64
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.0.0-alpha.3"
   uri_parser:
     dependency: transitive
     description:
@@ -2379,14 +2363,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
-  version:
-    dependency: transitive
-    description:
-      name: version
-      sha256: "3d4140128e6ea10d83da32fef2fa4003fccbf6852217bb854845802f04191f94"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.2"
   vibration:
     dependency: "direct main"
     description:
@@ -2556,7 +2532,7 @@ packages:
     source: hosted
     version: "1.0.4"
   xml:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: xml
       sha256: b015a8ad1c488f66851d762d3090a21c600e479dc75e68328c52774040cf9226

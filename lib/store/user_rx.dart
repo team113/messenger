@@ -150,6 +150,16 @@ class HiveRxUser extends RxUser {
     _worker?.dispose();
   }
 
+  @override
+  Future<void> ensureRefreshed() async {
+    final user = await _userRepository.getUser(id);
+
+    if (user != null) {
+      await _userLocal.put(user);
+      await Future.delayed(Duration.zero);
+    }
+  }
+
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     _remoteSubscription?.close(immediate: true);

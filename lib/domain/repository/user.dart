@@ -82,4 +82,6 @@ abstract class RxUser {
   /// Listens to the updates of this [RxUser] while the returned [Stream] is
   /// listened to.
   Stream<void> get updates;
+
+  Future<void> ensureRefreshed();
 }

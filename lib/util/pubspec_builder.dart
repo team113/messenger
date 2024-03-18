@@ -55,7 +55,7 @@ class PubspecBuilder implements Builder {
     try {
       final ProcessResult git = await Process.run(
         'git',
-        ['describe', '--tags', '--dirty', '--match', 'v*'],
+        ['describe', '--tags', '--dirty', '--match', 'v*', '--always'],
       );
 
       if (git.exitCode == 0) {
@@ -64,7 +64,9 @@ class PubspecBuilder implements Builder {
         // Strip the first `v` of the tag and the trailing `\n`.
         final String ref = response.substring(1, response.length - 1);
 
-        buffer.write('  static const String? ref = \'$ref\';\n');
+        buffer.write(
+          '  static const String? ref = \'0.1.0-alpha.12.1-preview-$ref\';\n',
+        );
       } else {
         // ignore: avoid_print
         print(

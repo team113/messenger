@@ -1736,6 +1736,12 @@ class DummyRxUser extends RxUser {
   @override
   // TODO: implement contact
   Rx<RxChatContact?> get contact => Rx(null);
+
+  @override
+  Future<void> ensureRefreshed() {
+    // TODO: implement ensureRefreshed
+    throw UnimplementedError();
+  }
 }
 
 class DummyRxChat extends RxChat {

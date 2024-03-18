@@ -1553,7 +1553,7 @@ Widget _sections(BuildContext context, MyProfileController c) {
           final enabled = c.settings.value?.balanceTabEnabled == true;
 
           return SwitchField(
-            text: 'label_balance'.l10n,
+            text: 'label_wallet'.l10n,
             value: enabled,
             onChanged: c.setBalanceTabEnabled,
           );

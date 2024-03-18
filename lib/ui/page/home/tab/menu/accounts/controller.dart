@@ -90,6 +90,9 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
+  final Rx<RxStatus> status = Rx(RxStatus.empty());
+  final RxList<AccountWithUser> accounts = RxList();
+
   late final TextFieldState email = TextFieldState(
     revalidateOnUnfocus: true,
     onChanged: (s) {
@@ -278,7 +281,7 @@ class AccountsController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;
 
-  List<Account> get accounts => _authService.accounts;
+  List<Account> get _accounts => _authService.accounts;
 
   @override
   void onInit() {
@@ -325,15 +328,50 @@ class AccountsController extends GetxController {
   }
 
   void _initUsers() async {
-    for (var e in accounts) {
-      if (!_userSubscriptions.containsKey(e.myUser.id)) {
-        final user = await _userService.get(e.myUser.id);
-        if (user != null) {
-          _userSubscriptions[user.id]?.cancel();
-          _userSubscriptions[user.id] = user.updates.listen((event) {});
-        }
+    status.value = RxStatus.loading();
+
+    final List<Future> futures = [];
+
+    for (var e in _accounts) {
+      final user = await _userService.get(e.myUser.id);
+      if (user != null) {
+        accounts.add(AccountWithUser(e, user));
+        futures.add(user.ensureRefreshed());
       }
     }
+
+    await Future.wait(futures);
+
+    accounts.sort((a, b) {
+      if (_authService.credentials.value?.userId == a.id) {
+        return -1;
+      } else if (_authService.credentials.value?.userId == b.id) {
+        return 1;
+      } else if (a.user.user.value.online && !b.user.user.value.online) {
+        return -1;
+      } else if (!a.user.user.value.online && b.user.user.value.online) {
+        return 1;
+      } else if (a.user.user.value.lastSeenAt == null ||
+          b.user.user.value.lastSeenAt == null) {
+        return -1;
+      }
+
+      return -a.user.user.value.lastSeenAt!.compareTo(
+        b.user.user.value.lastSeenAt!,
+      );
+    });
+
+    status.value = RxStatus.success();
+
+    // for (var e in accounts) {
+    //   if (!_userSubscriptions.containsKey(e.id)) {
+    //     final user = await _userService.get(e.id);
+    //     if (user != null) {
+    //       _userSubscriptions[user.id]?.cancel();
+    //       _userSubscriptions[user.id] = user.updates.listen((event) {});
+    //     }
+    //   }
+    // }
   }
 
   @override
@@ -349,14 +387,13 @@ class AccountsController extends GetxController {
   Future<void> delete(Account account) async {
     await _authService.deleteAccount(account);
 
-    if (myUser.value?.id == account.myUser.id) {
-      final List<Account> allowed = accounts.where((e) => e != account).toList()
-        ..sort();
+    if (_authService.userId == account.myUser.id) {
+      final next = accounts.skip(1);
 
-      if (allowed.isEmpty) {
+      if (next.isEmpty) {
         router.go(await _authService.logout());
       } else {
-        await switchTo(allowed.first);
+        await switchTo(next.first.account);
       }
     }
   }
@@ -598,4 +635,14 @@ extension on AccountsViewStage {
           false,
         (_) => true,
       };
+}
+
+class AccountWithUser {
+  const AccountWithUser(this.account, this.user);
+
+  final Account account;
+  final RxUser user;
+
+  UserId get id => account.myUser.id;
+  MyUser get myUser => account.myUser;
 }

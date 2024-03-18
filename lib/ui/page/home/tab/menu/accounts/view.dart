@@ -820,124 +820,104 @@ class AccountsView extends StatelessWidget {
             case AccountsViewStage.accounts:
               header = ModalPopupHeader(text: 'Your accounts'.l10n);
 
-              final Account? active = c.accounts
-                  .firstWhereOrNull((e) => c.myUser.value?.id == e.myUser.id);
-
-              final List<Account> accounts =
-                  c.accounts.where((e) => e != active).toList()..sort();
-
-              if (active != null) {
-                accounts.insert(0, active);
-              }
-
               final List<Widget> tiles = [];
-              for (var e in accounts) {
-                final FutureOr<RxUser?> futureOrUser = c.getUser(e.myUser.id);
 
-                tiles.add(
-                  Padding(
-                    padding: ModalPopup.padding(context),
-                    child: FutureBuilder(
-                      initialData:
-                          futureOrUser is RxUser? ? futureOrUser : null,
-                      future: futureOrUser is RxUser? ? null : futureOrUser,
-                      builder: (context, snapshot) {
-                        return ContactTile(
-                          myUser: e.myUser,
-                          user: snapshot.data,
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            if (c.myUser.value?.id != e.myUser.id) {
-                              c.switchTo(e);
-                            }
-                          },
-                          trailing: [
-                            AnimatedButton(
-                              decorator: (child) => Padding(
-                                padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                                child: child,
-                              ),
-                              onPressed: () async {
-                                final result = await MessagePopup.alert(
-                                  'btn_logout'.l10n,
-                                  description: [
-                                    TextSpan(
-                                      style:
-                                          style.fonts.medium.regular.secondary,
-                                      children: [
-                                        TextSpan(
-                                          text:
-                                              'alert_are_you_sure_want_to_log_out1'
-                                                  .l10n,
-                                        ),
-                                        TextSpan(
-                                          style: style.fonts.medium.regular
-                                              .onBackground,
-                                          text: e.myUser.name?.val ??
-                                              e.myUser.num.toString(),
-                                        ),
-                                        TextSpan(
-                                          text:
-                                              'alert_are_you_sure_want_to_log_out2'
-                                                  .l10n,
-                                        ),
-                                        if (!e.myUser.hasPassword) ...[
-                                          const TextSpan(text: '\n\n'),
-                                          TextSpan(
-                                            text:
-                                                'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
-                                                    .l10n,
-                                          ),
-                                        ],
-                                        if (e.myUser.emails.confirmed
-                                            .isEmpty) ...[
-                                          const TextSpan(text: '\n\n'),
-                                          TextSpan(
-                                            text:
-                                                'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
-                                                    .l10n,
-                                          ),
-                                        ],
-                                      ],
-                                    )
-                                  ],
-                                );
-
-                                if (result == true) {
-                                  c.delete(e);
-                                }
-                              },
-                              child: c.myUser.value?.id == e.myUser.id
-                                  ? const SvgIcon(SvgIcons.logoutWhite)
-                                  : const SvgIcon(SvgIcons.logout),
+              if (c.status.value.isLoading) {
+                tiles.add(const Center(child: CircularProgressIndicator()));
+              } else {
+                for (var e in c.accounts) {
+                  tiles.add(
+                    Padding(
+                      padding: ModalPopup.padding(context),
+                      child: ContactTile(
+                        myUser: e.myUser,
+                        user: e.user,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          if (c.myUser.value?.id != e.myUser.id) {
+                            c.switchTo(e.account);
+                          }
+                        },
+                        trailing: [
+                          AnimatedButton(
+                            decorator: (child) => Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                              child: child,
                             ),
-                          ],
-                          selected: c.myUser.value?.id == e.myUser.id,
-                          subtitle: [
-                            const SizedBox(height: 5),
-                            if (c.myUser.value?.id == e.myUser.id)
-                              Text(
-                                'Active',
-                                style: style.fonts.small.regular.onPrimary,
-                              )
-                            else if (snapshot.data != null)
-                              Obx(() {
-                                return Text(
-                                  '${snapshot.data?.user.value.getStatus()}',
-                                  style: style.fonts.small.regular.secondary,
-                                );
-                              })
-                            else
-                              Text(
-                                'label_offline'.l10n,
+                            onPressed: () async {
+                              final result = await MessagePopup.alert(
+                                'btn_logout'.l10n,
+                                description: [
+                                  TextSpan(
+                                    style: style.fonts.medium.regular.secondary,
+                                    children: [
+                                      TextSpan(
+                                        text:
+                                            'alert_are_you_sure_want_to_log_out1'
+                                                .l10n,
+                                      ),
+                                      TextSpan(
+                                        style: style
+                                            .fonts.medium.regular.onBackground,
+                                        text: e.myUser.name?.val ??
+                                            e.myUser.num.toString(),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'alert_are_you_sure_want_to_log_out2'
+                                                .l10n,
+                                      ),
+                                      if (!e.myUser.hasPassword) ...[
+                                        const TextSpan(text: '\n\n'),
+                                        TextSpan(
+                                          text:
+                                              'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
+                                                  .l10n,
+                                        ),
+                                      ],
+                                      if (e
+                                          .myUser.emails.confirmed.isEmpty) ...[
+                                        const TextSpan(text: '\n\n'),
+                                        TextSpan(
+                                          text:
+                                              'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
+                                                  .l10n,
+                                        ),
+                                      ],
+                                    ],
+                                  )
+                                ],
+                              );
+
+                              if (result == true) {
+                                c.delete(e.account);
+                              }
+                            },
+                            child: c.myUser.value?.id == e.myUser.id
+                                ? const SvgIcon(SvgIcons.logoutWhite)
+                                : const SvgIcon(SvgIcons.logout),
+                          ),
+                        ],
+                        selected: c.myUser.value?.id == e.myUser.id,
+                        subtitle: [
+                          const SizedBox(height: 5),
+                          if (c.myUser.value?.id == e.myUser.id)
+                            Text(
+                              'Active',
+                              style: style.fonts.small.regular.onPrimary,
+                            )
+                          else
+                            Obx(() {
+                              return Text(
+                                '${e.user.user.value.getStatus()}',
                                 style: style.fonts.small.regular.secondary,
-                              ),
-                          ],
-                        );
-                      },
+                              );
+                            })
+                        ],
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               }
 
               children = [

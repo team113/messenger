@@ -164,6 +164,11 @@ class UserRepository extends DisposableInterface
     );
   }
 
+  Future<HiveUser?> getUser(UserId id) async {
+    final response = (await _graphQlProvider.getUser(id)).user;
+    return response?.toHive();
+  }
+
   @override
   FutureOr<RxUser?> get(UserId id) {
     // Return the stored user instance, if it exists.

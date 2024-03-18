@@ -1263,3 +1263,4 @@ label_payment_price_for_messages_and_calls_to_user = Установлена пл
 label_price_for_messages_and_calls_to_user = ¤ 50 за отправку сообщения и ¤ 150/мин за совершение звонка пользователю {$name}.
 label_payment_set = Установлена плата
 err_version_mismatch = Схема данных приложения была изменена, поэтому кэш был очищен, чтобы исключить сбои в работе локальных данных. Пожалуйста, авторизуйтесь снова.
+label_wallet = Кошелёк
