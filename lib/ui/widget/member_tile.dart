@@ -119,9 +119,7 @@ class MemberTile extends StatelessWidget {
                         description: [
                           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
                           TextSpan(
-                            text: myUser?.name?.val ??
-                                myUser?.num.val ??
-                                user?.title,
+                            text: user?.title,
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
