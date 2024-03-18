@@ -178,7 +178,7 @@ class CallController extends GetxController {
   /// [Participant] that is hovered right now.
   ///
   /// [hoveredParticipant] not being `null` means the whole space available for
-  /// [Participant] is being hovered, not accounts the possible paddings, etc.
+  /// [Participant] is being hovered, not accounting the possible paddings, etc.
   final Rx<Participant?> hoveredParticipant = Rx<Participant?>(null);
 
   /// [Participant], whose visible part is being hovered right now.
