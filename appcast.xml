@@ -18,13 +18,37 @@
 
 <h2>Исправлено</h2>
 - Тоже ничего.]]></description>
-        <pubDate>Wed, 6 Dec 2023 18:00:00 -0400</pubDate>
+        <pubDate>Wed, 6 Dec 2023 18:00:00</pubDate>
         <enclosure
+            sparkle:os="macos"
             url="https://gapopa.org/artifacts/messenger-macos.zip"
             sparkle:version="0.1.0-alpha.12.1-preview-aaaaaaaa"
             sparkle:shortVersionString="0.1.0-alpha.12.1-preview-aaaaaaaa"
-            type="application/octet-stream"
-        />
+            type="application/octet-stream" />
+        <enclosure
+            sparkle:os="windows"
+            url="https://gapopa.org/artifacts/messenger-windows.zip"
+            sparkle:version="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            sparkle:shortVersionString="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            type="application/octet-stream" />
+        <enclosure
+            sparkle:os="linux"
+            url="https://gapopa.org/artifacts/messenger-linux.zip"
+            sparkle:version="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            sparkle:shortVersionString="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            type="application/octet-stream" />
+        <enclosure
+            sparkle:os="android"
+            url="https://gapopa.org/artifacts/messenger-android.apk"
+            sparkle:version="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            sparkle:shortVersionString="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            type="application/octet-stream" />
+        <enclosure
+            sparkle:os="ios"
+            url="https://gapopa.org/artifacts/messenger-ios.zip"
+            sparkle:version="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            sparkle:shortVersionString="0.1.0-alpha.12.1-preview-aaaaaaaa"
+            type="application/octet-stream" />
     </item>
   </channel>
 </rss>
