@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  awesome_notifications
   desktop_drop
   flutter_custom_cursor
   medea_flutter_webrtc
