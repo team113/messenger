@@ -39,7 +39,7 @@ class ParticipantWidget extends StatelessWidget {
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
-    this.onHover,
+    this.onHovered,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
   });
@@ -61,8 +61,9 @@ class ParticipantWidget extends StatelessWidget {
   /// Callback, called when the [Participant.video]'s size is determined.
   final void Function()? onSizeDetermined;
 
-  /// Callback, called when this [ParticipantWidget] is hovered or not.
-  final void Function(bool)? onHover;
+  /// Callback, called when this [ParticipantWidget] is being hovered or stops
+  /// being hovered.
+  final void Function(bool)? onHovered;
 
   /// Optional outline of this video.
   final Color? outline;
@@ -92,9 +93,9 @@ class ParticipantWidget extends StatelessWidget {
 
       return Center(
         child: MouseRegion(
-          onEnter: (_) => onHover?.call(true),
-          onHover: (_) => onHover?.call(true),
-          onExit: (_) => onHover?.call(false),
+          onEnter: (_) => onHovered?.call(true),
+          onHover: (_) => onHovered?.call(true),
+          onExit: (_) => onHovered?.call(false),
           child: Stack(
             alignment: Alignment.center,
             children: [

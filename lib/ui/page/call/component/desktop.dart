@@ -609,10 +609,10 @@ Widget desktopCall(CallController c, BuildContext context) {
             cursor: c.draggedRenderer.value != null ||
                     c.doughDraggedRenderer.value != null
                 ? CustomMouseCursors.grabbing
-                : c.hoveredRenderer.value != null
-                    ? CustomMouseCursors.grab
-                    : c.isCursorHidden.value
-                        ? SystemMouseCursors.none
+                : c.isCursorHidden.value
+                    ? SystemMouseCursors.none
+                    : c.hoveredRenderer.value != null
+                        ? CustomMouseCursors.grab
                         : c.hoveredParticipant.value != null
                             ? SystemMouseCursors.basic
                             : MouseCursor.defer,
@@ -1320,7 +1320,7 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
                     participant.video.value?.renderer.value?.track.id() ?? ''],
-                onHover: (v) {
+                onHovered: (v) {
                   if (c.draggedRenderer.value == null) {
                     c.hoveredRenderer.value = v ? participant : null;
                   }
@@ -1812,7 +1812,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                onHover: (v) {
+                onHovered: (v) {
                   if (c.draggedRenderer.value == null) {
                     c.hoveredRenderer.value = v ? data.participant : null;
                   }

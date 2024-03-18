@@ -176,12 +176,15 @@ class CallController extends GetxController {
   int downButtons = 0;
 
   /// [Participant] that is hovered right now.
+  ///
+  /// [hoveredParticipant] not being `null` means the whole space available for
+  /// [Participant] is being hovered, not accounts the possible paddings, etc.
   final Rx<Participant?> hoveredParticipant = Rx<Participant?>(null);
 
-  /// [Participant] renderer that is hovered right now.
+  /// [Participant], whose visible part is being hovered right now.
   ///
-  /// Used to show [CustomMouseCursors.grab] over renderer as it may not take
-  /// all participant's space.
+  /// Used to show [CustomMouseCursors.grab] over [RtcVideoView], as it may not
+  /// take the whole [Participant]'s space.
   final Rx<Participant?> hoveredRenderer = Rx<Participant?>(null);
 
   /// Timeout of a [hoveredParticipant] used to hide it.
