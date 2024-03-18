@@ -40,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Images displayed with vertical gaps on narrow screens. ([#901], [#888])
         - Messages marked as read when gallery is opened. ([#897], [#854])
+    - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
@@ -58,6 +59,8 @@ All user visible changes to this project will be documented in this file. This p
 [#891]: /../../pull/891
 [#897]: /../../pull/897
 [#901]: /../../pull/901
+[#909]: /../../issues/909
+[#910]: /../../pull/910
 
 
 
