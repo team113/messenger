@@ -356,7 +356,7 @@ class UserBio extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserBio.unchecked(String val) = UserBio._;
 
-  /// Parses the provided [val] as a [UserBio], if [val] meets the  validation,
+  /// Parses the provided [val] as a [UserBio], if [val] meets the validation,
   /// or returns `null` otherwise.
   static UserBio? tryParse(String val) {
     try {

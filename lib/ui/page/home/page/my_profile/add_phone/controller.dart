@@ -118,7 +118,8 @@ class AddPhoneController extends GetxController {
     super.onClose();
   }
 
-  /// Resends a [ConfirmationCode] to the specified [phone].
+  /// Resends a [ConfirmationCode] to the unconfirmed phone of the authenticated
+  /// [MyUser].
   Future<void> resendPhone() async {
     try {
       await _myUserService.resendPhone();

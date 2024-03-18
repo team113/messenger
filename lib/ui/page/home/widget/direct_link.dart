@@ -108,12 +108,12 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         if (s.text.isNotEmpty) {
           if (slug == null) {
             s.error.value = 'err_invalid_symbols_in_link'.l10n;
+          }
 
-            if (slug == widget.link?.slug) {
-              setState(() => _editing = false);
-              widget.onEditing?.call(_editing);
-              return;
-            }
+          if (slug == null || slug == widget.link?.slug) {
+            setState(() => _editing = false);
+            widget.onEditing?.call(_editing);
+            return;
           }
         }
 

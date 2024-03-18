@@ -115,7 +115,8 @@ class AddEmailController extends GetxController {
     super.onClose();
   }
 
-  /// Resends a [ConfirmationCode] to the specified [email].
+  /// Resends a [ConfirmationCode] to the unconfirmed email of the authenticated
+  /// [MyUser].
   Future<void> resendEmail() async {
     try {
       await _myUserService.resendEmail();
