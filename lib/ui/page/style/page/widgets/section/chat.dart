@@ -32,7 +32,6 @@ import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/service/audio_player.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_forward.dart';
@@ -42,14 +41,6 @@ import '/ui/page/home/page/chat/widget/unread_label.dart';
 
 /// [Routes.style] chat section.
 class ChatSection {
-  ChatSection(
-      {
-      // super.key,
-      required this.audioPlayer});
-
-  /// [AudioPlayerService] to handle audio player in [ChatItem]'s.
-  final AudioPlayerService audioPlayer;
-
   /// Returns the [Widget]s of this [ChatSection].
   List<Widget> build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -153,7 +144,6 @@ class ChatSection {
           ),
         ),
         me: const UserId('me'),
-        audioPlayer: audioPlayer,
         reads: [
           if (read)
             LastChatRead(

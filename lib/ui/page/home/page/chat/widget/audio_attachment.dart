@@ -22,25 +22,25 @@ import 'package:path/path.dart' as p;
 import '/domain/model/audio_track.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/service/audio_player.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/audio_player.dart';
 
 /// Visual representation of an audio file [Attachment].
 class AudioAttachment extends StatelessWidget {
-  const AudioAttachment(this.attachment, this.audioPlayer, {super.key});
+  const AudioAttachment(this.attachment, {super.key});
 
   /// [Attachment] to display.
   final Attachment attachment;
 
-  /// [AudioPlayerService] to audio player.
-  final AudioPlayerService audioPlayer;
-
   @override
   Widget build(BuildContext context) {
     final Attachment e = attachment;
+
+    /// [AudioPlayerWorker] to audio player.
+    final AudioPlayerWorker audioPlayer = AudioPlayerWorker.instance;
 
     return Obx(() {
       final style = Theme.of(context).style;
@@ -61,7 +61,7 @@ class AudioAttachment extends StatelessWidget {
       // We fix it by first checking if bufferedPosition exceeds totalDuration and
       // if yes - setting bufferedPosition to zero.
       //
-      // fyi: manually resetting the position in the [AudioPlayerService] on
+      // fyi: manually resetting the position in the [AudioPlayerWorker] on
       // track change didn't work. Seems to be the problem either with
       // media_kit library or the way values come from the multiple streams.
       if (bufferedPosition > totalDuration) {

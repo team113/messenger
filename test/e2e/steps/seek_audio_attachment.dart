@@ -23,7 +23,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/audio_player.dart';
+import 'package:messenger/ui/worker/audio_player.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -57,7 +57,7 @@ final StepDefinitionGeneric pauseAudioAttachment = when1<String, CustomWorld>(
 final StepDefinitionGeneric checkAudioPaused = then1<String, CustomWorld>(
   'audio {string} is paused',
   (text, context) async {
-    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
+    final AudioPlayerWorker audioPlayer = AudioPlayerWorker.instance;
     var isPlaying = audioPlayer.playing.value;
 
     expect(isPlaying, false);

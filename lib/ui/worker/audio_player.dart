@@ -19,13 +19,19 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/audio_track.dart';
+import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/platform_utils.dart';
-import 'disposable_service.dart';
 
-/// Service implementing the [AudioPlayer] to manage audio player.
-/// Exposes properties and methods for interacting with the player.
-class AudioPlayerService extends DisposableService {
+/// Worker implementing the [AudioPlayer] to manage audio player.
+class AudioPlayerWorker extends DisposableService {
+  AudioPlayerWorker() {
+    instance = this;
+  }
+
+  /// [AudioPlayerWorker] singleton instance.
+  static late AudioPlayerWorker instance;
+
   /// Id of the currently selected playing audio. Later we will store some
   /// Song object here most likely.
   final RxnString currentAudio = RxnString(null);

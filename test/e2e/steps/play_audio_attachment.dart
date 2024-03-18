@@ -23,7 +23,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/domain/service/audio_player.dart';
+import 'package:messenger/ui/worker/audio_player.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -36,7 +36,7 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric playAudioAttachment = when1<String, CustomWorld>(
     'I play {string} audio file', (name, context) async {
   await context.world.appDriver.waitForAppToSettle();
-  final AudioPlayerService audioPlayer = Get.put(AudioPlayerService());
+  final AudioPlayerWorker audioPlayer = AudioPlayerWorker.instance;
 
   RxChat? chat =
       Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
@@ -69,12 +69,12 @@ final StepDefinitionGeneric checkAudioPlaying = then1<String, CustomWorld>(
   'audio {string} is playing',
   (name, context) async {
     /// 1. See [AudioPlayer] is playing.
-    final AudioPlayerService audioPlayer = Get.find<AudioPlayerService>();
+    final AudioPlayerWorker audioPlayer = AudioPlayerWorker.instance;
     var isPlaying = audioPlayer.playing.value;
 
     expect(isPlaying, true);
 
-    /// 2. See [AudioPlayerService] has correct [AudioTrack].id.
+    /// 2. See [AudioPlayerWorker] has correct [AudioTrack].id.
     RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
     Attachment attachment = chat!.messages

@@ -836,7 +836,6 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  audioPlayer: c.audioPlayer,
                   avatar: !previousSame,
                   reads: c.chat!.members.length > 10
                       ? []

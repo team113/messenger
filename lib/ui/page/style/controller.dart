@@ -18,15 +18,11 @@
 import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
 
-import '/domain/service/audio_player.dart';
-
 /// [StyleView] section.
 enum StyleTab { colors, typography, widgets, icons }
 
 /// Controller of a [StyleView].
 class StyleController extends GetxController {
-  StyleController(this.audioPlayer);
-
   /// Indicator whether the [Color]s of the [StyleView] should be inverted.
   ///
   /// Meant to be used as a light/dart theme switch.
@@ -37,13 +33,4 @@ class StyleController extends GetxController {
 
   /// [PageController] controlling the [PageView] of [StyleView].
   final PageController pages = PageController();
-
-  /// [AudioPlayerService] to handle audio player in [AudioAttachment]'s in [ChatItem]'s.
-  final AudioPlayerService audioPlayer;
-
-  @override
-  void onClose() {
-    audioPlayer.stop();
-    super.onClose();
-  }
 }

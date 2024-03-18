@@ -60,7 +60,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
-import '/domain/service/audio_player.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -89,6 +88,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/worker/audio_player.dart';
 import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -107,7 +107,6 @@ export 'view.dart';
 class ChatController extends GetxController {
   ChatController(
     this.id,
-    this.audioPlayer,
     this._chatService,
     this._callService,
     this._authService,
@@ -312,8 +311,8 @@ class ChatController extends GetxController {
   /// [ContactService] maintaining [ChatContact]s of this [me].
   final ContactService _contactService;
 
-  /// [AudioPlayerService] to handle audio player in [ChatItem]'s.
-  AudioPlayerService audioPlayer;
+  /// [AudioPlayerWorker] to stop audio when leaving the chat.
+  final AudioPlayerWorker audioPlayer = AudioPlayerWorker.instance;
 
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
