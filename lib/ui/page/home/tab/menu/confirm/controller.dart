@@ -69,14 +69,17 @@ class ConfirmLogoutController extends GetxController {
     password = TextFieldState(
       onChanged: (s) {
         password.error.value = null;
-        repeat.error.value = null;
 
         final UserPassword? userPassword = UserPassword.tryParse(s.text);
 
         if (s.text.isNotEmpty && userPassword == null) {
           s.error.value = 'err_password_incorrect'.l10n;
-        } else if (repeat.text.isNotEmpty && repeat.isValidated) {
-          repeat.error.value = null;
+        } else if (repeat.text.isNotEmpty) {
+          if (s.text == repeat.text) {
+            repeat.error.value = null;
+          } else {
+            repeat.error.value = 'err_passwords_mismatch'.l10n;
+          }
         }
       },
     );
@@ -90,7 +93,7 @@ class ConfirmLogoutController extends GetxController {
 
         if (s.text.isNotEmpty && userPassword == null) {
           s.error.value = 'err_password_incorrect'.l10n;
-        } else if (repeat.text != password.text && password.isValidated) {
+        } else if (s.text != password.text && password.isValidated) {
           repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },

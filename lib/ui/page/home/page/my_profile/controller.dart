@@ -230,7 +230,6 @@ class MyProfileController extends GetxController {
 
         await AddPhoneView.show(
           router.context!,
-          phone: phone,
           timeout: true,
         ).then((_) => modalVisible = false);
       },

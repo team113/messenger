@@ -100,8 +100,12 @@ class ChangePasswordController extends GetxController {
           s.error.value = null;
         }
 
-        repeatPassword.error.value = null;
-        repeatPassword.unsubmit();
+        if (repeatPassword.text == s.text) {
+          repeatPassword.error.value = null;
+          repeatPassword.unsubmit();
+        } else if (repeatPassword.text.isNotEmpty) {
+          repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
+        }
       },
       onSubmitted: (s) {
         repeatPassword.focus.requestFocus();

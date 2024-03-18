@@ -319,11 +319,10 @@ class LoginController extends GetxController {
     login.error.value = null;
     password.error.value = null;
 
-    final bool invalidCredentials =
+    final bool noCredentials =
         userLogin == null && num == null && email == null && phone == null;
-    final bool invalidPassword = userPassword == null;
 
-    if (invalidCredentials || invalidPassword) {
+    if (noCredentials || userPassword == null) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;

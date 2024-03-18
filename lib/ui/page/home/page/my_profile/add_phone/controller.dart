@@ -37,7 +37,6 @@ enum AddPhoneFlowStage { code }
 class AddPhoneController extends GetxController {
   AddPhoneController(
     this._myUserService, {
-    this.initial,
     this.pop,
     bool timeout = false,
   }) {
@@ -50,26 +49,17 @@ class AddPhoneController extends GetxController {
   /// be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Initial [UserPhone] to confirm.
-  final UserPhone? initial;
-
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [UserPhone] field state.
-  late final TextFieldState phone;
-
   /// [TextFieldState] for the [UserPhone] confirmation code.
-  late final TextFieldState phoneCode;
+  late final TextFieldState code;
 
   /// Indicator whether [UserPhone] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
   /// Timeout of a [resendPhone].
   final RxInt resendPhoneTimeout = RxInt(0);
-
-  /// [AddPhoneFlowStage] currently being displayed.
-  final Rx<AddPhoneFlowStage?> stage = Rx(null);
 
   /// [MyUserService] used for confirming an [UserPhone].
   final MyUserService _myUserService;
@@ -82,50 +72,7 @@ class AddPhoneController extends GetxController {
 
   @override
   void onInit() {
-    phone = TextFieldState(
-      text: initial?.val,
-      onChanged: (s) {
-        final UserPhone? phone = UserPhone.tryParse(s.text.replaceAll(' ', ''));
-
-        if (s.text.isNotEmpty && phone == null) {
-          s.error.value = 'err_incorrect_phone'.l10n;
-        } else {
-          s.error.value = null;
-        }
-      },
-      onSubmitted: (s) async {
-        final UserPhone? phone = UserPhone.tryParse(s.text.replaceAll(' ', ''));
-
-        if (phone == null) {
-          s.error.value = 'err_incorrect_phone'.l10n;
-        } else if (myUser.value!.phones.confirmed.contains(phone) ||
-            myUser.value?.phones.unconfirmed == phone) {
-          s.error.value = 'err_you_already_add_this_phone'.l10n;
-        } else {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await _myUserService.addUserPhone(phone);
-            _setResendPhoneTimer(true);
-            stage.value = AddPhoneFlowStage.code;
-          } on InvalidScalarException<UserPhone> {
-            s.error.value = 'err_incorrect_phone'.l10n;
-          } on AddUserPhoneException catch (e) {
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-    );
-
-    phoneCode = TextFieldState(
+    code = TextFieldState(
       onChanged: (s) {
         final ConfirmationCode? code = ConfirmationCode.tryParse(s.text);
 
@@ -161,10 +108,6 @@ class AddPhoneController extends GetxController {
       },
     );
 
-    if (initial != null) {
-      stage.value = AddPhoneFlowStage.code;
-    }
-
     super.onInit();
   }
 
@@ -182,7 +125,7 @@ class AddPhoneController extends GetxController {
       resent.value = true;
       _setResendPhoneTimer(true);
     } on ResendUserPhoneConfirmationException catch (e) {
-      phoneCode.error.value = e.toMessage();
+      code.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
