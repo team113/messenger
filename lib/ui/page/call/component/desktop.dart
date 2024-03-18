@@ -607,8 +607,7 @@ Widget desktopCall(CallController c, BuildContext context) {
           return MouseRegion(
             opaque: false,
             cursor: c.draggedRenderer.value != null ||
-                    c.doughDraggedRenderer.value != null ||
-                    c.secondaryDragged.isTrue
+                    c.doughDraggedRenderer.value != null
                 ? CustomMouseCursors.grabbing
                 : c.hoveredRenderer.value != null
                     ? CustomMouseCursors.grab
