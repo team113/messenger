@@ -8,7 +8,7 @@
     <pubDate>Wed, 6 Dec 2023 18:00:00 -0400</pubDate>
     <item>
         <title>0.1.0-alpha.12.1-preview-aaaaaaaa</title>
-        <description><![CDATA[
+        <description xml:lang="en"><![CDATA[
             <h2>Added</h2>
             - Nothing.
 
@@ -16,24 +16,7 @@
             - Nothing as well.
         ]]>
         </description>
-        <pubDate>Wed, 6 Dec 2023 18:00:00 -0400</pubDate>
-        <enclosure
-            url="https://gapopa.org/artifacts/messenger-macos.zip"
-            sparkle:version="0.1.0-alpha.12.1-preview-aaaaaaaa"
-            sparkle:shortVersionString="0.1.0-alpha.12.1-preview-aaaaaaaa"
-            type="application/octet-stream"
-        />
-    </item>
-  </channel>
-  <channel>
-    <title>Messenger Appcast (ru-RU)</title>
-    <link>https://raw.githubusercontent.com/team113/messenger/new-design-preview/appcast.xml</link>
-    <description>Наиболее актуальные версии.</description>
-    <language>ru</language>
-    <pubDate>Wed, 6 Dec 2023 18:00:00 -0400</pubDate>
-    <item>
-        <title>0.1.0-alpha.12.1-preview-aaaaaaaa</title>
-        <description><![CDATA[
+        <description xml:lang="ru"><![CDATA[
             <h2>Добавлено</h2>
             - Ничего.
 
