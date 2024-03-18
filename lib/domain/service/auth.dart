@@ -78,7 +78,7 @@ class AuthService extends GetxService {
   Timer? _refreshTimer;
 
   /// [_refreshTimer] interval.
-  final Duration _refreshTaskInterval = const Duration(seconds: 30);
+  final Duration _refreshTaskInterval = const Duration(minutes: 10);
 
   /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
