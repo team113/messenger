@@ -42,7 +42,7 @@ import '/ui/page/home/page/chat/widget/unread_label.dart';
 /// [Routes.style] chat section.
 class ChatSection {
   /// Returns the [Widget]s of this [ChatSection].
-  List<Widget> build(BuildContext context) {
+  static List<Widget> build(BuildContext context) {
     final style = Theme.of(context).style;
 
     // Returns a [ChatMessage] built locally with the provided parameters.

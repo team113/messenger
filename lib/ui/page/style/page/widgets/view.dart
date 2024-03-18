@@ -41,7 +41,7 @@ class WidgetsView extends StatelessWidget {
       cacheExtent: 3000,
       children: [
         ...ImagesSection.build(),
-        ...ChatSection().build(context),
+        ...ChatSection.build(context),
         ...AnimationsSection.build(),
         ...AvatarsSection.build(),
         ...FieldsSection.build(context),

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
