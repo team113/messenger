@@ -81,7 +81,6 @@ class ChangePasswordController extends GetxController {
           s.error.value = null;
         }
 
-        repeatPassword.error.value = null;
         repeatPassword.unsubmit();
       },
       onSubmitted: (s) {
