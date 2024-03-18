@@ -255,33 +255,33 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.link:
                       return block(
                         title: 'label_your_direct_link'.l10n,
-                        overlay: [
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Center(
-                              child: SelectionContainer.disabled(
-                                child: AnimatedButton(
-                                  onPressed: c.linkEditing.toggle,
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(6, 6, 0, 6),
-                                    child: Obx(() {
-                                      return c.linkEditing.value
-                                          ? const Padding(
-                                              padding: EdgeInsets.all(2),
-                                              child: SvgIcon(
-                                                SvgIcons.closeSmallPrimary,
-                                              ),
-                                            )
-                                          : const SvgIcon(SvgIcons.editSmall);
-                                    }),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        // overlay: [
+                        //   Positioned(
+                        //     right: 0,
+                        //     top: 0,
+                        //     child: Center(
+                        //       child: SelectionContainer.disabled(
+                        //         child: AnimatedButton(
+                        //           onPressed: c.linkEditing.toggle,
+                        //           child: Padding(
+                        //             padding:
+                        //                 const EdgeInsets.fromLTRB(6, 6, 0, 6),
+                        //             child: Obx(() {
+                        //               return c.linkEditing.value
+                        //                   ? const Padding(
+                        //                       padding: EdgeInsets.all(2),
+                        //                       child: SvgIcon(
+                        //                         SvgIcons.closeSmallPrimary,
+                        //                       ),
+                        //                     )
+                        //                   : const SvgIcon(SvgIcons.editSmall);
+                        //             }),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ],
                         children: [
                           Obx(() {
                             return DirectLinkField(
@@ -297,7 +297,17 @@ class MyProfileView extends StatelessWidget {
                               },
                               background: c.background.value,
                               editing: c.linkEditing.value,
-                              onEditing: (b) => c.linkEditing.value = b,
+                              onEditing: (b) {
+                                if (b) {
+                                  c.itemScrollController.scrollTo(
+                                    index: i,
+                                    curve: Curves.ease,
+                                    duration: const Duration(milliseconds: 600),
+                                  );
+                                }
+
+                                c.linkEditing.value = b;
+                              },
                             );
                           }),
                         ],
@@ -307,15 +317,13 @@ class MyProfileView extends StatelessWidget {
                       return block(
                         title: 'label_background'.l10n,
                         children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return BackgroundPreview(
-                                c.background.value,
-                                onPick: c.pickBackground,
-                                onRemove: c.removeBackground,
-                              );
-                            }),
-                          )
+                          Obx(() {
+                            return BackgroundPreview(
+                              c.background.value,
+                              onPick: c.pickBackground,
+                              onRemove: c.removeBackground,
+                            );
+                          }),
                         ],
                       );
 
@@ -457,39 +465,39 @@ class MyProfileView extends StatelessWidget {
                         children: [
                           block(
                             title: 'Монетизация (донаты)'.l10n,
-                            overlay: [
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Center(
-                                  child: SelectionContainer.disabled(
-                                    child: AnimatedButton(
-                                      onPressed: c.donateEditing.toggle,
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          6,
-                                          6,
-                                          0,
-                                          6,
-                                        ),
-                                        child: Obx(() {
-                                          return c.donateEditing.value
-                                              ? const Padding(
-                                                  padding: EdgeInsets.all(2),
-                                                  child: SvgIcon(
-                                                    SvgIcons.closeSmallPrimary,
-                                                  ),
-                                                )
-                                              : const SvgIcon(
-                                                  SvgIcons.editSmall,
-                                                );
-                                        }),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            // overlay: [
+                            //   Positioned(
+                            //     right: 0,
+                            //     top: 0,
+                            //     child: Center(
+                            //       child: SelectionContainer.disabled(
+                            //         child: AnimatedButton(
+                            //           onPressed: c.donateEditing.toggle,
+                            //           child: Padding(
+                            //             padding: const EdgeInsets.fromLTRB(
+                            //               6,
+                            //               6,
+                            //               0,
+                            //               6,
+                            //             ),
+                            //             child: Obx(() {
+                            //               return c.donateEditing.value
+                            //                   ? const Padding(
+                            //                       padding: EdgeInsets.all(2),
+                            //                       child: SvgIcon(
+                            //                         SvgIcons.closeSmallPrimary,
+                            //                       ),
+                            //                     )
+                            //                   : const SvgIcon(
+                            //                       SvgIcons.editSmall,
+                            //                     );
+                            //             }),
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ],
                             children: [_donates(context, c)],
                           ),
                           Positioned.fill(
@@ -1810,7 +1818,16 @@ Widget _donates(BuildContext context, MyProfileController c) {
       children = [
         const SizedBox(height: 8),
         MoneyField(state: c.donateCost, label: 'Минимальная сумма'),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
+        WidgetButton(
+          onPressed: () {
+            c.donateEditing.value = false;
+          },
+          child: Text(
+            'Готово',
+            style: style.fonts.small.regular.primary,
+          ),
+        ),
       ];
     } else {
       children = [
@@ -1827,6 +1844,21 @@ Widget _donates(BuildContext context, MyProfileController c) {
         Text(
           'Пользователи не смогут отправить Вам донат на сумму менее указанной Вами.',
           style: style.fonts.small.regular.secondary,
+        ),
+        const SizedBox(height: 12),
+        WidgetButton(
+          onPressed: () {
+            c.itemScrollController.scrollTo(
+              index: ProfileTab.values.indexOf(ProfileTab.donates),
+              curve: Curves.ease,
+              duration: const Duration(milliseconds: 600),
+            );
+            c.donateEditing.value = true;
+          },
+          child: Text(
+            'Изменить',
+            style: style.fonts.small.regular.primary,
+          ),
         ),
       ];
     }

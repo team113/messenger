@@ -20,6 +20,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/background_preview.dart';
 import 'package:messenger/ui/page/home/page/user/widget/contact_info.dart';
@@ -207,23 +208,41 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       child = Padding(
         key: const Key('Editing'),
         padding: const EdgeInsets.only(top: 8.0),
-        child: Obx(() {
-          return ReactiveTextField(
-            key: const Key('LinkField'),
-            state: _state,
-            clearable: true,
-            onSuffixPressed: _state.isEmpty.value || _state.text.isEmpty
-                ? null
-                : () async {
-                    await widget.onSubmit?.call(null);
-                    setState(() => _editing = false);
-                  },
-            trailing: _state.isEmpty.value || _state.text.isEmpty
-                ? null
-                : const SvgIcon(SvgIcons.delete),
-            label: '${Config.link}/',
-          );
-        }),
+        child: Column(
+          children: [
+            Obx(() {
+              return ReactiveTextField(
+                key: const Key('LinkField'),
+                state: _state,
+                clearable: true,
+                onSuffixPressed: _state.isEmpty.value || _state.text.isEmpty
+                    ? null
+                    : () async {
+                        await widget.onSubmit?.call(null);
+                        setState(() => _editing = false);
+                      },
+                trailing: _state.isEmpty.value || _state.text.isEmpty
+                    ? null
+                    : const SvgIcon(SvgIcons.delete),
+                label: '${Config.link}/',
+              );
+            }),
+            const SizedBox(height: 8),
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: WidgetButton(
+                onPressed: () {
+                  setState(() => _editing = false);
+                  widget.onEditing?.call(_editing);
+                },
+                child: Text(
+                  'Готово',
+                  style: style.fonts.small.regular.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     } else if (widget.link == null) {
       child = Column(
@@ -407,30 +426,57 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             ],
           ),
           const SizedBox(height: 12),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: WidgetButton(
-              onUp: (d) {
-                final share = '${Config.link}/${_state.text}';
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: WidgetButton(
+                  onUp: (d) {
+                    final share = '${Config.link}/${_state.text}';
 
-                if (PlatformUtils.isMobile) {
-                  Share.share(share);
-                } else {
-                  PlatformUtils.copy(text: share);
-                  MessagePopup.success(
-                    'label_copied'.l10n,
-                    at: d.globalPosition,
-                  );
-                }
-              },
-              child: Text(
-                PlatformUtils.isMobile ? 'Поделиться' : 'Копировать',
-                style: style.fonts.small.regular.primary,
-                textAlign: widget.onSubmit == null // || !widget.canDelete
-                    ? TextAlign.center
-                    : TextAlign.left,
+                    if (PlatformUtils.isMobile) {
+                      Share.share(share);
+                    } else {
+                      PlatformUtils.copy(text: share);
+                      MessagePopup.success(
+                        'label_copied'.l10n,
+                        at: d.globalPosition,
+                      );
+                    }
+                  },
+                  child: Text(
+                    PlatformUtils.isMobile ? 'Поделиться' : 'Копировать',
+                    style: style.fonts.small.regular.primary,
+                    textAlign: widget.onSubmit == null // || !widget.canDelete
+                        ? TextAlign.center
+                        : TextAlign.left,
+                  ),
+                ),
               ),
-            ),
+              if (widget.canDelete) ...[
+                Text(
+                  ' или ',
+                  style: style.fonts.small.regular.secondary,
+                ),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: WidgetButton(
+                    onPressed: () {
+                      setState(() => _editing = true);
+                      widget.onEditing?.call(_editing);
+                    },
+                    child: Text(
+                      'изменить',
+                      style: style.fonts.small.regular.primary,
+                      // textAlign: widget.onSubmit == null // || !widget.canDelete
+                      //     ? TextAlign.center
+                      //     : TextAlign.left,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ],
       );

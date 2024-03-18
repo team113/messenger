@@ -74,10 +74,7 @@ class BackgroundPreview extends StatelessWidget {
                               height: double.infinity,
                               fit: BoxFit.cover,
                             )
-                          : Image.memory(
-                              background!,
-                              fit: BoxFit.cover,
-                            ),
+                          : Image.memory(background!, fit: BoxFit.cover),
                     ),
                     Center(
                       child: Column(
@@ -109,12 +106,28 @@ class BackgroundPreview extends StatelessWidget {
           const SizedBox(height: 10),
           Center(
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
               children: [
+                if (background != null) ...[
+                  WidgetButton(
+                    onPressed: onPick,
+                    child: Text(
+                      'btn_upload'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                  Text(
+                    ' или ',
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ],
                 WidgetButton(
                   onPressed: background == null ? onPick : onRemove,
                   child: Text(
-                    background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,
+                    background == null
+                        ? 'btn_upload'.l10n
+                        : 'btn_delete'.l10n.toLowerCase(),
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
