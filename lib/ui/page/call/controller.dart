@@ -1834,11 +1834,11 @@ class CallController extends GetxController {
         return;
     }
 
-    final double saved = sizeAxis.value;
+    final double previousSize = sizeAxis.value;
 
     sizeAxis.value = applyAxisSize(sizeAxis.value - delta);
     sideOffset.value =
-        applyOffset(sideOffset.value! + (saved - sizeAxis.value));
+        applyOffset(sideOffset.value! + (previousSize - sizeAxis.value));
   }
 
   /// Invokes [minimize], if not [minimized] already.

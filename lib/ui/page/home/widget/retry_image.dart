@@ -271,37 +271,43 @@ class _RetryImageState extends State<RetryImage> {
             : null,
         child: Container(
           key: const Key('Loading'),
+          height: widget.height,
           constraints: const BoxConstraints(minWidth: 200),
           alignment: Alignment.center,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (!_canceled && widget.displayProgress)
-                Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: CustomProgressIndicator.primary(
+          child: Container(
+            constraints: const BoxConstraints(
+              maxHeight: 46,
+              maxWidth: 46,
+              minWidth: 10,
+              minHeight: 10,
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (!_canceled && widget.displayProgress)
+                  CustomProgressIndicator.primary(
                     value: _progress == 0 ? null : _progress.clamp(0, 1),
                   ),
-                ),
-              if (widget.cancelable)
-                Center(
-                  child: _canceled
-                      ? Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: style.colors.onBackgroundOpacity20,
-                                blurRadius: 8,
-                                blurStyle: BlurStyle.outer.workaround,
-                              ),
-                            ],
-                          ),
-                          child: const SvgIcon(SvgIcons.download),
-                        )
-                      : const SvgIcon(SvgIcons.closePrimary),
-                ),
-            ],
+                if (widget.cancelable)
+                  Center(
+                    child: _canceled
+                        ? Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: style.colors.onBackgroundOpacity20,
+                                  blurRadius: 8,
+                                  blurStyle: BlurStyle.outer.workaround,
+                                ),
+                              ],
+                            ),
+                            child: const SvgIcon(SvgIcons.download),
+                          )
+                        : const SvgIcon(SvgIcons.closePrimary),
+                  ),
+              ],
+            ),
           ),
         ),
       );
@@ -326,23 +332,8 @@ class _RetryImageState extends State<RetryImage> {
         );
 
         if (widget.aspectRatio != null && widget.fit == BoxFit.contain) {
-          thumbhash = ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: width ?? double.infinity,
-              maxHeight: widget.height ?? double.infinity,
-            ),
-            child: AspectRatio(
-              aspectRatio: widget.aspectRatio!,
-              child: thumbhash,
-            ),
-          );
-        }
-
-        if (widget.borderRadius != null) {
-          thumbhash = ClipRRect(
-            borderRadius: widget.borderRadius!,
-            child: thumbhash,
-          );
+          thumbhash =
+              AspectRatio(aspectRatio: widget.aspectRatio!, child: thumbhash);
         }
 
         return ConstrainedBox(

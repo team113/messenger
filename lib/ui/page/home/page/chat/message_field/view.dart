@@ -60,7 +60,6 @@ class MessageFieldView extends StatelessWidget {
     this.controller,
     this.onChanged,
     this.onItemPressed,
-    this.onAttachmentError,
     this.fieldKey,
     this.sendKey,
     this.canForward = false,
@@ -89,9 +88,6 @@ class MessageFieldView extends StatelessWidget {
 
   /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
-
-  /// Callback, called on the [Attachment] fetching errors.
-  final Future<void> Function(ChatItem)? onAttachmentError;
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
@@ -308,31 +304,27 @@ class MessageFieldView extends StatelessWidget {
             },
             padding: const EdgeInsets.symmetric(horizontal: 1),
             children: c.replied.map((e) {
-              return Obx(
-                key: Key('Handle_${e.value.id}'),
-                () {
-                  return ReorderableDragStartListener(
-                    enabled: !PlatformUtils.isMobile,
-                    index: c.replied.indexOf(e),
-                    child: Dismissible(
-                      key: Key('${e.value.id}'),
-                      direction: DismissDirection.horizontal,
-                      onDismissed: (_) => c.replied.remove(e),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: WidgetButton(
-                          onPressed: () => onItemPressed?.call(e.value),
-                          child: _buildPreview(
-                            context,
-                            e.value,
-                            c,
-                            onClose: () => c.replied.remove(e),
-                          ),
-                        ),
+              return ReorderableDragStartListener(
+                key: Key('Handle_${e.id}'),
+                enabled: !PlatformUtils.isMobile,
+                index: c.replied.indexOf(e),
+                child: Dismissible(
+                  key: Key('${e.id}'),
+                  direction: DismissDirection.horizontal,
+                  onDismissed: (_) => c.replied.remove(e),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: WidgetButton(
+                      onPressed: () => onItemPressed?.call(e),
+                      child: _buildPreview(
+                        context,
+                        e,
+                        c,
+                        onClose: () => c.replied.remove(e),
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               );
             }).toList(),
           );
@@ -852,11 +844,9 @@ class MessageFieldView extends StatelessWidget {
                       checksum: image.small.checksum,
                       thumbhash: image.small.thumbhash,
                       fit: BoxFit.cover,
-                      height: 30,
-                      width: 30,
+                      height: double.infinity,
+                      width: double.infinity,
                       borderRadius: BorderRadius.circular(4),
-                      onForbidden: () async =>
-                          await onAttachmentError?.call(item),
                     ),
             );
           }).toList(),

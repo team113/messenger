@@ -851,11 +851,10 @@ class ChatView extends StatelessWidget {
                   onReply: () {
                     final field = c.edit.value ?? c.send;
 
-                    if (field.replied.any((i) => i.value.id == e.value.id)) {
-                      field.replied
-                          .removeWhere((i) => i.value.id == e.value.id);
+                    if (field.replied.any((i) => i.id == e.value.id)) {
+                      field.replied.removeWhere((i) => i.id == e.value.id);
                     } else {
-                      field.replied.add(e);
+                      field.replied.add(e.value);
                     }
                   },
                   onCopy: (text) {
@@ -955,30 +954,26 @@ class ChatView extends StatelessWidget {
                   onReply: () {
                     final MessageFieldController field = c.edit.value ?? c.send;
 
-                    if (element.forwards.any(
-                          (e) => field.replied
-                              .any((i) => i.value.id == e.value.id),
-                        ) ||
-                        field.replied.any(
-                          (i) => i.value.id == element.note.value?.value.id,
-                        )) {
-                      for (Rx<ChatItem> e in element.forwards) {
+                    if (element.forwards.any((e) =>
+                            field.replied.any((i) => i.id == e.value.id)) ||
                         field.replied
-                            .removeWhere((i) => i.value.id == e.value.id);
+                            .any((i) => i.id == element.note.value?.value.id)) {
+                      for (Rx<ChatItem> e in element.forwards) {
+                        field.replied.removeWhere((i) => i.id == e.value.id);
                       }
 
                       if (element.note.value != null) {
                         field.replied.removeWhere(
-                          (i) => i.value.id == element.note.value!.value.id,
+                          (i) => i.id == element.note.value!.value.id,
                         );
                       }
                     } else {
                       if (element.note.value != null) {
-                        field.replied.add(element.note.value!);
+                        field.replied.add(element.note.value!.value);
                       }
 
                       for (Rx<ChatItem> e in element.forwards) {
-                        field.replied.add(e);
+                        field.replied.add(e.value);
                       }
                     }
                   },
@@ -1397,7 +1392,6 @@ class ChatView extends StatelessWidget {
           onChanged:
               c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
           onItemPressed: (item) => c.animateTo(item, addToHistory: false),
-          onAttachmentError: c.chat?.updateAttachments,
         );
       }
 
@@ -1407,7 +1401,6 @@ class ChatView extends StatelessWidget {
         onChanged: c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
         onItemPressed: (item) => c.animateTo(item, addToHistory: false),
         canForward: true,
-        onAttachmentError: c.chat?.updateAttachments,
       );
     });
   }
