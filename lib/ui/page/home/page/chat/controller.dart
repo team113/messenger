@@ -1601,7 +1601,7 @@ class ChatController extends GetxController {
   void _add(Rx<ChatItem> e) {
     final ChatItem item = e.value;
 
-    if(chat?.chat.value.unreadCount != 0) {
+    if (chat?.chat.value.unreadCount != 0) {
       ListElementId elementId = ListElementId(item.at, item.id);
       final ListElement? previous = elements[elements.firstKeyAfter(elementId)];
       if (previous != null && previous.id.id == chat?.chat.value.lastReadItem) {
@@ -2005,36 +2005,27 @@ class ChatController extends GetxController {
     int index = 0;
     double offset = 0;
 
-    if (itemId != null) {
-      int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
-      if (i != -1) {
-        index = i;
-        offset = 50;
-        _highlight(elements.values.elementAt(index).id);
-      }
-    } else {
-      if (chat?.messages.isEmpty == false) {
-        if (chat!.chat.value.unreadCount == 0) {
-          index = 0;
-          offset = 0;
-        } else if (_firstUnread != null) {
-          int i = elements.values.toList().indexWhere((e) {
-            if (e is ChatForwardElement) {
-              if (e.note.value?.value.id == _firstUnread!.value.id) {
-                return true;
-              }
-
-              return e.forwards.firstWhereOrNull(
-                      (f) => f.value.id == _firstUnread!.value.id) !=
-                  null;
+    if (chat?.messages.isEmpty == false) {
+      if (chat!.chat.value.unreadCount == 0) {
+        index = 0;
+        offset = 0;
+      } else if (_firstUnread != null) {
+        int i = elements.values.toList().indexWhere((e) {
+          if (e is ChatForwardElement) {
+            if (e.note.value?.value.id == _firstUnread!.value.id) {
+              return true;
             }
 
-            return e.id.id == _firstUnread!.value.id;
-          });
-          if (i != -1) {
-            index = i;
-            offset = (MediaQuery.of(router.context!).size.height) / 3;
+            return e.forwards.firstWhereOrNull(
+                    (f) => f.value.id == _firstUnread!.value.id) !=
+                null;
           }
+
+          return e.id.id == _firstUnread!.value.id;
+        });
+        if (i != -1) {
+          index = i;
+          offset = (MediaQuery.of(router.context!).size.height) / 3;
         }
       }
     }
