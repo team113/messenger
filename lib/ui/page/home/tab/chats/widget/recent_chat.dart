@@ -792,9 +792,9 @@ class RecentChatTile extends StatelessWidget {
 
     if (e is ImageAttachment) {
       content = RetryImage(
-        e.medium.url,
-        checksum: e.medium.checksum,
-        thumbhash: e.medium.thumbhash,
+        e.small.url,
+        checksum: e.small.checksum,
+        thumbhash: e.small.thumbhash,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
