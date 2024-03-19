@@ -8,16 +8,26 @@
     <pubDate>Wed, 6 Dec 2023 18:00:00 -0400</pubDate>
     <item>
         <title>0.1.0-alpha.12.1-preview-aaaaaaaa</title>
-        <description xml:lang="en"><![CDATA[<h2>Added</h2>
-- Nothing.
-
-<h2>Fixed</h2>
-- Nothing as well.]]></description>
-        <description xml:lang="ru"><![CDATA[<h2>Добавлено</h2>
-- Ничего.
-
-<h2>Исправлено</h2>
-- Тоже ничего.]]></description>
+        <description xml:lang="en"><![CDATA[Changes:
+- Added "default" devices for microphone and speaker on Windows/macOS/Linux.
+- Added user search using his direct link.
+- Added the ability to specify a group name before creating it.
+- Updated interface of the welcome window after following a direct link.
+- Updated interface for incoming/outgoing calls.
+- Updated design of the context menu above the navigation bar.
+- Tablets now display the mobile call interface.
+- Fixed closing the keyboard after sending a message on the phone.
+- Fixed inability to view the list of media devices in Firefox.]]></description>
+        <description xml:lang="ru"><![CDATA[Изменения:
+- Добавлены устройства "по умолчанию" для микрофона и спикера на Windows/macOS/Linux.
+- Добавлен поиск пользователя по его прямой ссылке.
+- Добавлена возможность указать имя группы до её создания.
+- Обновлён интерфейс окна приветствия после перехода по прямой ссылке.
+- Обновлён интерфейс входящего/исходящего звонка.
+- Обновлён дизайн контекстного меню над панелью навигации.
+- На планшетах теперь отображается мобильный интерфейс звонка.
+- Исправлено закрытие клавиатуры после отправки сообщения на телефоне.
+- Исправлена невозможность просмотреть список медиа устройств в Firefox'е.]]></description>
         <pubDate>Wed, 6 Dec 2023 18:00:00</pubDate>
         <enclosure
             sparkle:os="macos"
