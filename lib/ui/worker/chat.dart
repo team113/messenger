@@ -60,6 +60,10 @@ class ChatWorker extends DisposableService {
   /// [DateTime.now] is small enough to show a new message notification.
   static const Duration newMessageThreshold = Duration(seconds: 30);
 
+  /// [Duration] indicating the time after which the push notification should be
+  /// considered as lost.
+  static const Duration _pushTimeout = Duration(seconds: 10);
+
   /// Subscription to the [ChatService.chats] map.
   late final StreamSubscription _subscription;
 
@@ -154,21 +158,26 @@ class ChatWorker extends DisposableService {
 
       if (newChat) {
         Future<void> showNotification() async {
-          await _notificationService.show(
-            c.title,
-            body: 'label_you_were_added_to_group'.l10n,
-            payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original,
-            tag: c.chat.value.id.val,
-          );
+          if (!_isMuted) {
+            await _notificationService.show(
+              c.title,
+              body: 'label_you_were_added_to_group'.l10n,
+              payload: '${Routes.chats}/${c.chat.value.id}',
+              icon: c.avatar.value?.original,
+              tag: c.chat.value.id.val,
+            );
 
-          await _flashTaskbarIcon();
+            await _flashTaskbarIcon();
+          }
         }
 
         if (_displayNotification) {
           showNotification();
         } else if (PlatformUtils.isWeb) {
-          Future.delayed(10.seconds, showNotification);
+          // Show a local notification with a [_pushTimeout] delay. If the push
+          // is received during this time, the local notification with the same
+          // tag will not be shown as it's handled by the [NotificationService].
+          Future.delayed(_pushTimeout, showNotification);
         }
       }
     }
@@ -192,7 +201,7 @@ class ChatWorker extends DisposableService {
         if (_displayNotification) {
           showNotification();
         } else if (PlatformUtils.isWeb) {
-          Future.delayed(10.seconds, showNotification);
+          Future.delayed(_pushTimeout, showNotification);
         }
       },
       me: () => _chatService.me,
