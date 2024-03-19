@@ -428,7 +428,9 @@ class ChatController extends GetxController {
             await ChatForwardView.show(
               router.context!,
               id,
-              send.replied.map((e) => ChatItemQuoteInput(item: e)).toList(),
+              send.replied
+                  .map((e) => ChatItemQuoteInput(item: e.value))
+                  .toList(),
               text: send.field.text,
               attachments: send.attachments.map((e) => e.value).toList(),
               onSent: send.clear,
@@ -444,7 +446,7 @@ class ChatController extends GetxController {
                   text: send.field.text.trim().isEmpty
                       ? null
                       : ChatMessageText(send.field.text.trim()),
-                  repliesTo: send.replied.toList(),
+                  repliesTo: send.replied.map((e) => e.value).toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
                 .then(
@@ -645,7 +647,7 @@ class ChatController extends GetxController {
                   edit.value!.attachments.map((e) => e.value).toList(),
                 ),
                 repliesTo: ChatMessageRepliesInput(
-                  edit.value!.replied.map((e) => e.id).toList(),
+                  edit.value!.replied.map((e) => e.value.id).toList(),
                 ),
               );
 
@@ -705,7 +707,7 @@ class ChatController extends GetxController {
     chat?.setDraft(
       text: send.field.text.isEmpty ? null : ChatMessageText(send.field.text),
       attachments: persisted.map((e) => e.value).toList(),
-      repliesTo: List.from(send.replied, growable: false),
+      repliesTo: List.from(send.replied.map((e) => e.value), growable: false),
     );
   }
 
@@ -734,7 +736,11 @@ class ChatController extends GetxController {
       send.inCall = chat!.inCall;
       send.field.unsubmit();
       send.replied.value = List.from(
-        draft?.repliesTo.map((e) => e.original).whereNotNull() ?? <ChatItem>[],
+        draft?.repliesTo
+                .map((e) => e.original)
+                .whereNotNull()
+                .map((e) => Rx(e)) ??
+            <Rx<ChatItem>>[],
       );
 
       for (Attachment e in draft?.attachments ?? []) {
