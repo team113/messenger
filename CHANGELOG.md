@@ -30,6 +30,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- Android:
+    - Sent or received message sound stopping music. ([#915], [#912])
 - UI:
     - Chats tab:
         - Chat not disappearing after being kicked from it. ([#864], [#851])
@@ -61,6 +63,8 @@ All user visible changes to this project will be documented in this file. This p
 [#901]: /../../pull/901
 [#909]: /../../issues/909
 [#910]: /../../pull/910
+[#912]: /../../issues/912
+[#915]: /../../pull/915
 
 
 
