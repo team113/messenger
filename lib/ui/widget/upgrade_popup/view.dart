@@ -4,7 +4,6 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '/config.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/login/widget/primary_button.dart';
@@ -42,18 +41,26 @@ class UpgradePopupView extends StatelessWidget {
                 onBack: () => c.screen.value = UpgradePopupScreen.notice,
               );
 
-              children = const [
-                DownloadButton.windows(),
-                SizedBox(height: 8),
-                DownloadButton.macos(),
-                SizedBox(height: 8),
-                DownloadButton.linux(),
-                SizedBox(height: 8),
-                DownloadButton.appStore(),
-                SizedBox(height: 8),
-                DownloadButton.googlePlay(),
-                SizedBox(height: 8),
-                DownloadButton.android(),
+              final windows =
+                  release.assets.firstWhereOrNull((e) => e.os == 'windows');
+              final macos =
+                  release.assets.firstWhereOrNull((e) => e.os == 'macos');
+              final linux =
+                  release.assets.firstWhereOrNull((e) => e.os == 'linux');
+              final android =
+                  release.assets.firstWhereOrNull((e) => e.os == 'android');
+              final ios = release.assets.firstWhereOrNull((e) => e.os == 'ios');
+
+              children = [
+                if (windows != null) DownloadButton.windows(link: windows.url),
+                const SizedBox(height: 8),
+                if (macos != null) DownloadButton.macos(link: macos.url),
+                const SizedBox(height: 8),
+                if (linux != null) DownloadButton.linux(link: linux.url),
+                const SizedBox(height: 8),
+                if (ios != null) DownloadButton.appStore(link: ios.url),
+                const SizedBox(height: 8),
+                if (android != null) DownloadButton.android(link: android.url),
               ]
                   .map(
                     (e) => Padding(
@@ -72,8 +79,10 @@ class UpgradePopupView extends StatelessWidget {
                     padding: ModalPopup.padding(context),
                     shrinkWrap: true,
                     children: [
-                      Text(release.name,
-                          style: style.fonts.medium.regular.onBackground),
+                      Text(
+                        release.name,
+                        style: style.fonts.medium.regular.onBackground,
+                      ),
                       const SizedBox(height: 8),
                       MarkdownBody(
                         data: release.body,
@@ -160,35 +169,4 @@ class UpgradePopupView extends StatelessWidget {
       },
     );
   }
-
-  String? _linkFor(_OperatingSystem system) {
-    final ReleaseAsset? artifact =
-        release.assets.firstWhereOrNull((e) => e.name == system.asFile);
-
-    if (artifact != null) {
-      if (artifact.url.startsWith('http')) {
-        return artifact.url;
-      } else {
-        return '${Config.artifacts}/${artifact.url}';
-      }
-    }
-
-    return null;
-  }
-}
-
-enum _OperatingSystem {
-  windows,
-  macos,
-  ios,
-  android,
-  linux;
-
-  String get asFile => switch (this) {
-        windows => 'messenger-windows.zip',
-        macos => 'messenger-macos.zip',
-        ios => 'messenger-ios.zip',
-        android => 'messenger-android.apk',
-        linux => 'messenger-linux.zip',
-      };
 }

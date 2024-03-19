@@ -1,9 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:xml/xml.dart';
 
 import '/config.dart';
 import '/domain/service/disposable_service.dart';
+import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/ui/widget/upgrade_popup/view.dart';
@@ -11,32 +13,45 @@ import '/util/log.dart';
 import '/util/platform_utils.dart';
 
 class UpgradeWorker extends DisposableService {
-  final List<Release> _releases = [];
-
   @override
   void onReady() {
-    _fetchUpdates();
+    if (!PlatformUtils.isWeb) {
+      _fetchUpdates();
+    }
     super.onReady();
   }
 
   Future<void> _fetchUpdates() async {
-    if (Config.releasesUrl == null) {
+    if (Config.appcast == null) {
       return;
     }
 
     try {
-      final Response response =
-          await (await PlatformUtils.dio).get(Config.releasesUrl!);
+      final response = await (await PlatformUtils.dio).get(Config.appcast!);
 
-      _releases.addAll(
-        (response.data as List).map((e) => Release.fromJson(e)).toList(),
-      );
+      if (response.statusCode != 200 || response.data == null) {
+        throw DioException.connectionError(
+          requestOptions: RequestOptions(),
+          reason: 'Status code ${response.statusCode}',
+        );
+      }
 
-      final Release? best =
-          _releases.firstWhereOrNull((e) => e.name != Pubspec.version);
+      final XmlDocument document = XmlDocument.parse(response.data);
+      final XmlElement? rss = document.findElements('rss').firstOrNull;
+      final XmlElement? channel = rss?.findElements('channel').firstOrNull;
 
-      if (best != null) {
-        _schedulePopup(best);
+      if (channel != null) {
+        final Iterable<XmlElement> items = channel.findElements('item');
+        if (items.isNotEmpty) {
+          final Release release = Release.fromXml(
+            items.first,
+            language: L10n.chosen.value,
+          );
+
+          if (release.name != Pubspec.version) {
+            _schedulePopup(release);
+          }
+        }
       }
     } catch (e) {
       Log.info('Failed to fetch releases: $e', '$runtimeType');
@@ -60,14 +75,32 @@ class Release {
     required this.assets,
   });
 
-  factory Release.fromJson(Map<String, dynamic> json) {
+  factory Release.fromXml(XmlElement xml, {Language? language}) {
+    language ??= L10n.languages.first;
+
+    final title = xml.findElements('title').first.innerText;
+    final description = xml
+            .findElements('description')
+            .firstWhereOrNull(
+              (e) => e.attributes.any(
+                (p) =>
+                    p.name.qualified == 'xml:lang' &&
+                    p.value == language?.locale.languageCode,
+              ),
+            )
+            ?.innerText ??
+        xml.findElements('description').first.innerText;
+    final date = xml.findElements('pubDate').first.innerText;
+    final List<ReleaseAsset> assets = xml
+        .findElements('enclosure')
+        .map((e) => ReleaseAsset.fromXml(e))
+        .toList();
+
     return Release(
-      name: json['name'],
-      body: json['body'],
-      publishedAt: DateTime.parse(json['published_at']),
-      assets: (json['assets'] as List)
-          .map((e) => ReleaseAsset.fromJson(e))
-          .toList(),
+      name: title,
+      body: description,
+      publishedAt: DateTimeRfc822.parse(date) ?? DateTime.now(),
+      assets: assets,
     );
   }
 
@@ -84,28 +117,68 @@ class Release {
 
 class ReleaseAsset {
   const ReleaseAsset({
+    required this.version,
     required this.url,
-    required this.name,
-    required this.contentType,
-    required this.size,
+    required this.os,
   });
 
-  factory ReleaseAsset.fromJson(Map<String, dynamic> json) {
+  factory ReleaseAsset.fromXml(XmlElement xml) {
+    final version = xml.getAttribute('sparkle:version')!;
+    final url = xml.getAttribute('url')!;
+    final os = xml.getAttribute('sparkle:os')!;
+
     return ReleaseAsset(
-      url: json['browser_download_url'],
-      name: json['name'],
-      contentType: json['content_type'],
-      size: json['size'],
+      version: version,
+      url: url,
+      os: os,
     );
   }
 
+  final String version;
   final String url;
-  final String name;
-  final String contentType;
-  final int size;
+  final String os;
 
   @override
   String toString() {
-    return 'ReleaseAsset(url: $url, name: $name, contentType: $contentType, size: $size)';
+    return 'ReleaseAsset(url: $url, version: $version, os: $os)';
+  }
+}
+
+extension DateTimeRfc822 on DateTime {
+  static const Map<String, String> _months = {
+    'Jan': '01',
+    'Feb': '02',
+    'Mar': '03',
+    'Apr': '04',
+    'May': '05',
+    'Jun': '06',
+    'Jul': '07',
+    'Aug': '08',
+    'Sep': '09',
+    'Oct': '10',
+    'Nov': '11',
+    'Dec': '12',
+  };
+
+  static DateTime? parse(String input) {
+    input = input.replaceFirst('GMT', '+0000');
+
+    final splits = input.split(' ');
+
+    final splitYear = splits[3];
+
+    final splitMonth = _months[splits[2]];
+    if (splitMonth == null) return null;
+
+    var splitDay = splits[1];
+    if (splitDay.length == 1) {
+      splitDay = '0$splitDay';
+    }
+
+    final splitTime = splits[4], splitZone = splits[5];
+    final reformatted =
+        '$splitYear-$splitMonth-$splitDay $splitTime $splitZone';
+
+    return DateTime.tryParse(reformatted);
   }
 }

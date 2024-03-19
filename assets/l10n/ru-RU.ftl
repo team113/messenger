@@ -712,6 +712,7 @@ label_enter_confirmation_code_hint = Введите проверочный ко�
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
+label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
 label_files_saved_to_gallery = Файлы добавлены в галерею
 label_forward_message = Переслать сообщение
