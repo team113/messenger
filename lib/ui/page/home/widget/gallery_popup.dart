@@ -131,6 +131,15 @@ class GalleryItem {
 
   /// Callback, called on the fetch errors of this [GalleryItem].
   final FutureOr<void> Function()? onError;
+
+  /// Returns aspect ratio of the image this [GalleryItem] represents.
+  double? get _aspectRatio {
+    if (width != null && height != null) {
+      return width! / height!;
+    }
+
+    return null;
+  }
 }
 
 /// Animated gallery of [GalleryItem]s.
@@ -546,9 +555,11 @@ class _GalleryPopupState extends State<GalleryPopup>
                         e.link,
                         width: e.width?.toDouble(),
                         height: e.height?.toDouble(),
+                        aspectRatio: e._aspectRatio,
                         checksum: e.checksum,
                         thumbhash: e.thumbhash,
                         onForbidden: e.onError,
+                        fit: BoxFit.contain,
                       ),
               ),
             );
@@ -643,35 +654,36 @@ class _GalleryPopupState extends State<GalleryPopup>
                       node.requestFocus();
                       _toggleFullscreen();
                     },
-                    child: FittedBox(
-                      fit: _isFullscreen.isTrue
-                          ? BoxFit.contain
-                          : BoxFit.scaleDown,
-                      child: ConstrainedBox(
-                        constraints:
-                            const BoxConstraints(minWidth: 1, minHeight: 1),
-                        child: PlatformUtils.isWeb
-                            ? WebImage(
-                                e.link,
-                                width: e.width?.toDouble(),
-                                height: e.height?.toDouble(),
-                                thumbhash: e.thumbhash,
-                                onForbidden: e.onError,
+                    child: ConstrainedBox(
+                      constraints:
+                          const BoxConstraints(minWidth: 1, minHeight: 1),
+                      child: PlatformUtils.isWeb
+                          ? WebImage(
+                              e.link,
+                              width: e.width?.toDouble(),
+                              height: e.height?.toDouble(),
+                              thumbhash: e.thumbhash,
+                              onForbidden: e.onError,
 
-                                // TODO: Wait for HTML to support specifying
-                                //       download name:
-                                //       https://github.com/whatwg/html/issues/2722
-                                // name: e.name,
-                              )
-                            : RetryImage(
-                                e.link,
-                                width: e.width?.toDouble(),
-                                height: e.height?.toDouble(),
-                                checksum: e.checksum,
-                                thumbhash: e.thumbhash,
-                                onForbidden: e.onError,
-                              ),
-                      ),
+                              // TODO: Wait for HTML to support specifying
+                              //       download name:
+                              //       https://github.com/whatwg/html/issues/2722
+                              // name: e.name,
+                            )
+                          : RetryImage(
+                              e.link,
+                              width: _isFullscreen.isTrue
+                                  ? double.infinity
+                                  : e.width?.toDouble(),
+                              height: _isFullscreen.isTrue
+                                  ? double.infinity
+                                  : e.height?.toDouble(),
+                              aspectRatio: e._aspectRatio,
+                              checksum: e.checksum,
+                              thumbhash: e.thumbhash,
+                              onForbidden: e.onError,
+                              fit: BoxFit.contain,
+                            ),
                     ),
                   ),
           ),
