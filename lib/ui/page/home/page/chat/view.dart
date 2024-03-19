@@ -866,7 +866,7 @@ class ChatView extends StatelessWidget {
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(e.value, reply: q);
+                      await c.animateTo(e.value.id, item: e.value, reply: q);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -989,7 +989,7 @@ class ChatView extends StatelessWidget {
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {
                       if (item.quote.original!.chatId == c.id) {
-                        c.animateTo(item, forward: item.quote);
+                        c.animateTo(item.id, item: item, forward: item.quote);
                       } else {
                         router.chat(
                           item.quote.original!.chatId,
@@ -1391,7 +1391,8 @@ class ChatView extends StatelessWidget {
           controller: c.edit.value,
           onChanged:
               c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-          onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+          onItemPressed: (item) =>
+              c.animateTo(item.id, item: item, addToHistory: false),
         );
       }
 
@@ -1399,7 +1400,8 @@ class ChatView extends StatelessWidget {
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-        onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+        onItemPressed: (item) =>
+            c.animateTo(item.id, item: item, addToHistory: false),
         canForward: true,
       );
     });
