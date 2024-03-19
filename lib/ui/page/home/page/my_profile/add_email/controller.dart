@@ -30,14 +30,10 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Possible [AddEmailView] flow stage.
-enum AddEmailFlowStage { code }
-
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
   AddEmailController(
     this._myUserService, {
-    this.initial,
     this.pop,
     bool timeout = false,
   }) {
@@ -50,26 +46,17 @@ class AddEmailController extends GetxController {
   /// be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Initial [UserEmail] to confirm.
-  final UserEmail? initial;
-
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [UserEmail] field state.
-  late final TextFieldState email;
-
   /// [TextFieldState] for the [UserEmail] confirmation code.
-  late final TextFieldState emailCode;
+  late final TextFieldState code;
 
   /// Indicator whether [UserEmail] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
   /// Timeout of a [resendEmail].
   final RxInt resendEmailTimeout = RxInt(0);
-
-  /// [AddEmailFlowStage] currently being displayed.
-  final Rx<AddEmailFlowStage?> stage = Rx(null);
 
   /// [MyUserService] used for confirming an [UserEmail].
   final MyUserService _myUserService;
@@ -82,82 +69,30 @@ class AddEmailController extends GetxController {
 
   @override
   void onInit() {
-    email = TextFieldState(
-      text: initial?.val,
+    code = TextFieldState(
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            UserEmail(s.text);
-          }
+        s.error.value = null;
 
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_incorrect_email'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        UserEmail? email;
-        try {
-          email = UserEmail(s.text.toLowerCase());
-
-          if (myUser.value!.emails.confirmed.contains(email) ||
-              myUser.value?.emails.unconfirmed == email) {
-            s.error.value = 'err_you_already_add_this_email'.l10n;
-          }
-        } on FormatException {
-          s.error.value = 'err_incorrect_email'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
+        if (s.text.isNotEmpty) {
           try {
-            await _myUserService.addUserEmail(email!);
-            _setResendEmailTimer(true);
-            stage.value = AddEmailFlowStage.code;
-          } on FormatException {
-            s.error.value = 'err_incorrect_email'.l10n;
-          } on AddUserEmailException catch (e) {
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
-          }
-        }
-      },
-    );
-
-    emailCode = TextFieldState(
-      onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
             ConfirmationCode(s.text);
-          }
-
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        if (s.text.isEmpty) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-          try {
-            await _myUserService.confirmEmailCode(ConfirmationCode(s.text));
-            pop?.call();
-            s.clear();
           } on FormatException {
             s.error.value = 'err_wrong_recovery_code'.l10n;
+          }
+        }
+      },
+      onSubmitted: (s) async {
+        final code = ConfirmationCode.tryParse(s.text);
+
+        if (code == null) {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        } else {
+          s.editable.value = false;
+          s.status.value = RxStatus.loading();
+          try {
+            await _myUserService.confirmEmailCode(code);
+            pop?.call();
+            s.clear();
           } on ConfirmUserEmailException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
@@ -172,10 +107,6 @@ class AddEmailController extends GetxController {
       },
     );
 
-    if (initial != null) {
-      stage.value = AddEmailFlowStage.code;
-    }
-
     super.onInit();
   }
 
@@ -186,14 +117,15 @@ class AddEmailController extends GetxController {
     super.onClose();
   }
 
-  /// Resends a [ConfirmationCode] to the specified [email].
+  /// Resends a [ConfirmationCode] to the unconfirmed email of the authenticated
+  /// [MyUser].
   Future<void> resendEmail() async {
     try {
       await _myUserService.resendEmail();
       resent.value = true;
       _setResendEmailTimer(true);
     } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
+      code.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

@@ -48,21 +48,20 @@ class _UserNameFieldState extends State<UserNameField> {
     text: widget.name?.val,
     onChanged: (s) async {
       s.error.value = null;
-      try {
-        if (s.text.isNotEmpty) {
+
+      if (s.text.isNotEmpty) {
+        try {
           UserName(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
         }
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_input'.l10n;
       }
 
       if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          await widget.onSubmit?.call(
-            s.text.isNotEmpty ? UserName(s.text) : null,
-          );
+          await widget.onSubmit?.call(UserName.tryParse(s.text));
           s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;

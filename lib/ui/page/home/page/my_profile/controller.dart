@@ -217,7 +217,8 @@ class MyProfileController extends GetxController {
             if (e is AddUserPhoneException) {
               s.error.value = e.toMessage();
               s.resubmitOnError.value =
-                  e.code == AddUserPhoneErrorCode.artemisUnknown;
+                  e.code == AddUserPhoneErrorCode.artemisUnknown ||
+                      e.code == AddUserPhoneErrorCode.busy;
             } else {
               s.error.value = 'err_data_transfer'.l10n;
               s.resubmitOnError.value = true;
@@ -233,7 +234,6 @@ class MyProfileController extends GetxController {
 
         await AddPhoneView.show(
           router.context!,
-          phone: phone,
           timeout: true,
         ).then((_) => modalVisible = false);
       },
@@ -264,7 +264,7 @@ class MyProfileController extends GetxController {
           return;
         }
 
-        final email = UserEmail(s.text);
+        final email = UserEmail(s.text.toLowerCase());
 
         s.clear();
 
