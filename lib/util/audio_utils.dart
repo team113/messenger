@@ -62,7 +62,9 @@ class AudioUtilsImpl {
   void ensureInitialized() {
     try {
       if (_isMobile) {
-        _jaPlayer ??= ja.AudioPlayer();
+        // Set [handleAudioSessionActivation] to `false` to avoid stopping
+        // background audio on [once].
+        _jaPlayer ??= ja.AudioPlayer(handleAudioSessionActivation: false);
       } else {
         _player ??= Player();
       }
