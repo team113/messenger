@@ -214,24 +214,26 @@ class LoginController extends GetxController {
 
     email = TextFieldState(
       onChanged: (s) {
-        final UserEmail? userEmail = UserEmail.tryParse(s.text.toLowerCase());
+        s.error.value = null;
 
-        if (s.text.isNotEmpty && userEmail == null) {
-          s.error.value = 'err_incorrect_email'.l10n;
-        } else {
-          s.error.value = null;
+        if (s.text.isNotEmpty) {
+          try {
+            UserEmail(s.text.toLowerCase());
+          } on FormatException {
+            s.error.value = 'err_incorrect_email'.l10n;
+          }
         }
       },
       onSubmitted: (s) async {
-        final UserEmail? userEmail = UserEmail.tryParse(s.text.toLowerCase());
+        final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
 
-        if (userEmail == null) {
+        if (email == null) {
           s.error.value = 'err_incorrect_email'.l10n;
         } else {
           emailCode.clear();
           stage.value = LoginViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(userEmail);
+            await _authService.signUpWithEmail(email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -310,17 +312,18 @@ class LoginController extends GetxController {
     final String input = login.text.toLowerCase();
 
     final UserLogin? userLogin = UserLogin.tryParse(input);
-    final UserNum? num = UserNum.tryParse(input);
-    final UserEmail? email = UserEmail.tryParse(input);
-    final UserPhone? phone = UserPhone.tryParse(input);
-
+    final UserNum? userNum = UserNum.tryParse(input);
+    final UserEmail? userEmail = UserEmail.tryParse(input);
+    final UserPhone? userPhone = UserPhone.tryParse(input);
     final UserPassword? userPassword = UserPassword.tryParse(password.text);
 
     login.error.value = null;
     password.error.value = null;
 
-    final bool noCredentials =
-        userLogin == null && num == null && email == null && phone == null;
+    final bool noCredentials = userLogin == null &&
+        userNum == null &&
+        userEmail == null &&
+        userPhone == null;
 
     if (noCredentials || userPassword == null) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
@@ -334,9 +337,9 @@ class LoginController extends GetxController {
       await _authService.signIn(
         userPassword,
         login: userLogin,
-        num: num,
-        email: email,
-        phone: phone,
+        num: userNum,
+        email: userEmail,
+        phone: userPhone,
       );
 
       (onSuccess ?? router.home)();

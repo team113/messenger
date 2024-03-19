@@ -69,17 +69,21 @@ class ConfirmLogoutController extends GetxController {
     password = TextFieldState(
       onChanged: (s) {
         password.error.value = null;
+        repeat.error.value = null;
 
-        final UserPassword? userPassword = UserPassword.tryParse(s.text);
-
-        if (s.text.isNotEmpty && userPassword == null) {
-          s.error.value = 'err_password_incorrect'.l10n;
-        } else if (repeat.text.isNotEmpty) {
-          if (s.text == repeat.text) {
-            repeat.error.value = null;
-          } else {
-            repeat.error.value = 'err_passwords_mismatch'.l10n;
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
+          } on FormatException {
+            s.error.value = 'err_password_incorrect'.l10n;
           }
+        }
+
+        if (s.error.value == null &&
+            repeat.text.isNotEmpty &&
+            password.text.isNotEmpty &&
+            password.text != repeat.text) {
+          repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
     );
@@ -89,11 +93,18 @@ class ConfirmLogoutController extends GetxController {
         password.error.value = null;
         repeat.error.value = null;
 
-        final UserPassword? userPassword = UserPassword.tryParse(s.text);
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
+          } on FormatException {
+            s.error.value = 'err_password_incorrect'.l10n;
+          }
+        }
 
-        if (s.text.isNotEmpty && userPassword == null) {
-          s.error.value = 'err_password_incorrect'.l10n;
-        } else if (s.text != password.text && password.isValidated) {
+        if (s.error.value == null &&
+            repeat.text.isNotEmpty &&
+            password.text.isNotEmpty &&
+            password.text != repeat.text) {
           repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },

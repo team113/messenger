@@ -185,14 +185,17 @@ class MyProfileController extends GetxController {
         s.error.value = null;
         s.resubmitOnError.value = false;
 
-        final UserPhone? phone = UserPhone.tryParse(s.text.replaceAll(' ', ''));
+        if (s.text.isNotEmpty) {
+          try {
+            final phone = UserPhone(s.text.replaceAll(' ', ''));
 
-        if (s.text.isNotEmpty && phone == null) {
-          s.error.value = 'err_incorrect_phone'.l10n;
-        } else if (phone != null &&
-            (myUser.value!.phones.confirmed.contains(phone) ||
-                myUser.value?.phones.unconfirmed == phone)) {
-          s.error.value = 'err_you_already_add_this_phone'.l10n;
+            if (myUser.value!.phones.confirmed.contains(phone) ||
+                myUser.value?.phones.unconfirmed == phone) {
+              s.error.value = 'err_you_already_add_this_phone'.l10n;
+            }
+          } on FormatException {
+            s.error.value = 'err_incorrect_phone'.l10n;
+          }
         }
       },
       onSubmitted: (s) async {
@@ -214,7 +217,8 @@ class MyProfileController extends GetxController {
             if (e is AddUserPhoneException) {
               s.error.value = e.toMessage();
               s.resubmitOnError.value =
-                  e.code == AddUserPhoneErrorCode.artemisUnknown;
+                  e.code == AddUserPhoneErrorCode.artemisUnknown ||
+                      e.code == AddUserPhoneErrorCode.busy;
             } else {
               s.error.value = 'err_data_transfer'.l10n;
               s.resubmitOnError.value = true;
@@ -241,14 +245,17 @@ class MyProfileController extends GetxController {
         s.error.value = null;
         s.resubmitOnError.value = false;
 
-        final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
+        if (s.text.isNotEmpty) {
+          try {
+            final email = UserEmail(s.text);
 
-        if (s.text.isNotEmpty && email == null) {
-          s.error.value = 'err_incorrect_email'.l10n;
-        } else if (email != null &&
-            (myUser.value!.emails.confirmed.contains(email) ||
-                myUser.value?.emails.unconfirmed == email)) {
-          s.error.value = 'err_you_already_add_this_email'.l10n;
+            if (myUser.value!.emails.confirmed.contains(email) ||
+                myUser.value?.emails.unconfirmed == email) {
+              s.error.value = 'err_you_already_add_this_email'.l10n;
+            }
+          } catch (e) {
+            s.error.value = 'err_incorrect_email'.l10n;
+          }
         }
       },
       onSubmitted: (s) async {

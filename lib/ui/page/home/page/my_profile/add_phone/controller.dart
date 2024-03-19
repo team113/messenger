@@ -74,12 +74,14 @@ class AddPhoneController extends GetxController {
   void onInit() {
     code = TextFieldState(
       onChanged: (s) {
-        final ConfirmationCode? code = ConfirmationCode.tryParse(s.text);
+        s.error.value = null;
 
-        if (s.text.isNotEmpty && code == null) {
-          s.error.value = null;
-        } else {
-          s.error.value = 'err_incorrect_input'.l10n;
+        if (s.text.isNotEmpty) {
+          try {
+            ConfirmationCode(s.text);
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
+          }
         }
       },
       onSubmitted: (s) async {

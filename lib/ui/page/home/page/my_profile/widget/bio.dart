@@ -45,18 +45,24 @@ class _UserBioFieldState extends State<UserBioField> {
   late final TextFieldState _state = TextFieldState(
     text: widget.bio?.val ?? '',
     onChanged: (s) {
-      final UserBio? userBio = UserBio.tryParse(s.text);
+      s.error.value = null;
 
-      if (s.text.isNotEmpty && userBio == null) {
-        s.error.value = 'err_incorrect_input'.l10n;
-      } else {
-        s.error.value = null;
+      if (s.text.isNotEmpty) {
+        try {
+          if (s.text.isNotEmpty) {
+            UserBio(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+        }
+      }
 
+      if (s.error.value == null) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
 
         try {
-          widget.onSubmit?.call(userBio);
+          widget.onSubmit?.call(UserBio.tryParse(s.text));
           s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;

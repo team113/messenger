@@ -73,15 +73,16 @@ class ChangePasswordController extends GetxController {
   void onInit() {
     oldPassword = TextFieldState(
       onChanged: (s) {
-        final UserPassword? password = UserPassword.tryParse(s.text);
-
-        if (password == null) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        } else {
-          s.error.value = null;
-        }
-
+        oldPassword.error.value = null;
         repeatPassword.unsubmit();
+
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
+          } on FormatException {
+            s.error.value = 'err_password_incorrect'.l10n;
+          }
+        }
       },
       onSubmitted: (s) {
         newPassword.focus.requestFocus();
@@ -91,18 +92,21 @@ class ChangePasswordController extends GetxController {
 
     newPassword = TextFieldState(
       onChanged: (s) {
-        final UserPassword? password = UserPassword.tryParse(s.text);
+        newPassword.error.value = null;
+        repeatPassword.error.value = null;
 
-        if (password == null) {
-          s.error.value = 'err_incorrect_input'.l10n;
-        } else {
-          s.error.value = null;
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
+          } on FormatException {
+            s.error.value = 'err_password_incorrect'.l10n;
+          }
         }
 
-        if (repeatPassword.text == s.text) {
-          repeatPassword.error.value = null;
-          repeatPassword.unsubmit();
-        } else if (repeatPassword.text.isNotEmpty) {
+        if (s.error.value == null &&
+            repeatPassword.text.isNotEmpty &&
+            newPassword.text.isNotEmpty &&
+            newPassword.text != repeatPassword.text) {
           repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
@@ -114,11 +118,22 @@ class ChangePasswordController extends GetxController {
 
     repeatPassword = TextFieldState(
       onChanged: (s) {
-        s.error.value = null;
         newPassword.error.value = null;
+        repeatPassword.error.value = null;
 
-        if (s.text != newPassword.text && newPassword.isValidated) {
-          s.error.value = 'err_passwords_mismatch'.l10n;
+        if (s.text.isNotEmpty) {
+          try {
+            UserPassword(s.text);
+          } on FormatException {
+            s.error.value = 'err_password_incorrect'.l10n;
+          }
+        }
+
+        if (s.error.value == null &&
+            repeatPassword.text.isNotEmpty &&
+            newPassword.text.isNotEmpty &&
+            newPassword.text != repeatPassword.text) {
+          repeatPassword.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
       onSubmitted: (s) => changePassword(),
