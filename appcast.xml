@@ -28,7 +28,7 @@
 - На планшетах теперь отображается мобильный интерфейс звонка.
 - Исправлено закрытие клавиатуры после отправки сообщения на телефоне.
 - Исправлена невозможность просмотреть список медиа устройств в Firefox'е.]]></description>
-        <pubDate>Wed, 6 Dec 2023 18:00:00</pubDate>
+        <pubDate>Wed, 6 Dec 2023 18:00:00 +0000</pubDate>
         <enclosure
             sparkle:os="macos"
             url="https://gapopa.org/artifacts/messenger-macos.zip"
