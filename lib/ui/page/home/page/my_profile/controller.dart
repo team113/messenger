@@ -341,7 +341,7 @@ class MyProfileController extends GetxController {
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
 
-          _highlight(tab);
+          highlight(tab);
         }
       },
     );
@@ -897,7 +897,7 @@ class MyProfileController extends GetxController {
   }
 
   /// Highlights the provided [tab].
-  Future<void> _highlight(ProfileTab? tab) async {
+  Future<void> highlight(ProfileTab? tab) async {
     highlightIndex.value = tab?.index;
 
     _highlightTimer?.cancel();

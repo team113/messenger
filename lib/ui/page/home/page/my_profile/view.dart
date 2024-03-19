@@ -305,7 +305,7 @@ class MyProfileView extends StatelessWidget {
                                     duration: const Duration(milliseconds: 600),
                                   );
                                 }
-
+                                c.highlight(ProfileTab.link);
                                 c.linkEditing.value = b;
                               },
                             );
@@ -1853,6 +1853,7 @@ Widget _donates(BuildContext context, MyProfileController c) {
               curve: Curves.ease,
               duration: const Duration(milliseconds: 600),
             );
+            c.highlight(ProfileTab.donates);
             c.donateEditing.value = true;
           },
           child: Text(
