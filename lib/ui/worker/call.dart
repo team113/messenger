@@ -101,10 +101,6 @@ class CallWorker extends DisposableService {
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
-  /// [Duration] indicating the time after which the push notification should be
-  /// considered as lost.
-  static const Duration _pushTimeout = Duration(seconds: 10);
-
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
@@ -207,37 +203,35 @@ class CallWorker extends DisposableService {
                 final FutureOr<RxChat?> chat = _chatService.get(c.chatId.value);
 
                 void showIncomingCallNotification(RxChat? chat) {
-                  if (_myUser.value?.muted == null &&
-                      chat?.chat.value.muted == null) {
-                    String? title = chat?.title ?? c.caller?.title;
+                  void showNotification() {
+                    if (_myUser.value?.muted == null &&
+                        chat?.chat.value.muted == null) {
+                      String? title = chat?.title ?? c.caller?.title;
 
-                    _notificationService.show(
-                      title ?? 'label_incoming_call'.l10n,
-                      body: title == null ? null : 'label_incoming_call'.l10n,
-                      payload: '${Routes.chats}/${c.chatId}',
-                      icon: chat?.avatar.value?.original,
-                      tag: '${c.chatId}_${c.call.value?.id}',
+                      _notificationService.show(
+                        title ?? 'label_incoming_call'.l10n,
+                        body: title == null ? null : 'label_incoming_call'.l10n,
+                        payload: '${Routes.chats}/${c.chatId}',
+                        icon: chat?.avatar.value?.original,
+                        tag: '${c.chatId}_${c.call.value?.id}',
+                      );
+                    }
+                  }
+
+                  if (_displayNotification) {
+                    showNotification();
+                  } else if (PlatformUtils.isWeb) {
+                    Future.delayed(
+                      NotificationService.pushTimeout,
+                      showNotification,
                     );
                   }
                 }
 
                 if (chat is RxChat?) {
-                  if (_displayNotification) {
-                    showIncomingCallNotification(chat);
-                  } else if (PlatformUtils.isWeb) {
-                    Future.delayed(_pushTimeout, () {
-                      showIncomingCallNotification(chat);
-                    });
-                  }
+                  showIncomingCallNotification(chat);
                 } else {
-                  if (_displayNotification) {
-                    chat.then(showIncomingCallNotification);
-                  } else if (PlatformUtils.isWeb) {
-                    chat.then((c) => Future.delayed(
-                          _pushTimeout,
-                          () => showIncomingCallNotification(c),
-                        ));
-                  }
+                  chat.then(showIncomingCallNotification);
                 }
               }
             }

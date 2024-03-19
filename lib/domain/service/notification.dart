@@ -44,6 +44,12 @@ import 'disposable_service.dart';
 class NotificationService extends DisposableService {
   NotificationService(this._graphQlProvider);
 
+  /// [Duration] indicating the time after which the push notification should be
+  /// considered as lost.
+  ///
+  /// Used in [ChatWorker] and [CallWorker] to display local notifications.
+  static const Duration pushTimeout = Duration(seconds: 10);
+
   /// GraphQL API provider for registering and un-registering current device for
   /// receiving Firebase Cloud Messaging notifications.
   final GraphQlProvider _graphQlProvider;
@@ -456,10 +462,6 @@ class NotificationService extends DisposableService {
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // On Web push notifications don't support playing any sounds, it's up to
-      // operating system to decide, whether to play sound at all. Thus this
-      // listens to `BroadcastChannel` fired from FCM Service Worker to play a
-      // sound by ourselves.
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((m) {
         final String? chatId = m['data']['chatId'];
         final String? chatItemId = m['data']['chatItemId'];
@@ -468,6 +470,10 @@ class NotificationService extends DisposableService {
             ? '${chatId}_$chatItemId'
             : null;
 
+        // On Web we display a local notification, if a push notification with
+        // the corresponding [tag] is not received for too long, thus this keeps
+        // track of the displayed notifications [tag]s to prevent local
+        // notifications from duplicating the received push notifications.
         if (tag != null) {
           if (_tags.contains(tag)) {
             _tags.remove(tag);
@@ -477,6 +483,10 @@ class NotificationService extends DisposableService {
           }
         }
 
+        // On Web push notifications don't support playing any sounds, it's up
+        // to operating system to decide, whether to play sound at all. Thus
+        // this listens to `BroadcastChannel` fired from FCM Service Worker to
+        // play a sound by ourselves.
         AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
       });
 
