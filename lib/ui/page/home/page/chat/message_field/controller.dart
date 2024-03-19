@@ -140,8 +140,11 @@ class MessageFieldController extends GetxController {
         field.text = item.text?.val ?? '';
         this.attachments.value =
             item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
-        replied.value =
-            item.repliesTo.map((e) => e.original).whereNotNull().toList();
+        replied.value = item.repliesTo
+            .map((e) => e.original)
+            .whereNotNull()
+            .map((e) => Rx(e))
+            .toList();
       } else {
         field.text = '';
         this.attachments.clear();
@@ -169,7 +172,7 @@ class MessageFieldController extends GetxController {
   late final RxList<MapEntry<GlobalKey, Attachment>> attachments;
 
   /// [ChatItem] being quoted to reply onto.
-  final RxList<ChatItem> replied = RxList<ChatItem>();
+  final RxList<Rx<ChatItem>> replied = RxList<Rx<ChatItem>>();
 
   /// [ChatItemQuoteInput]s to be forwarded.
   late final RxList<ChatItemQuoteInput> quotes;
