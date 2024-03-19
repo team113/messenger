@@ -83,7 +83,9 @@ class ChatWorker extends DisposableService {
   /// notification.
   bool get _displayNotification =>
       _myUser.value?.muted == null &&
-      (_focused || !_notificationService.pushNotifications);
+      (PlatformUtils.isWeb ||
+          _focused ||
+          !_notificationService.pushNotifications);
 
   @override
   void onReady() {

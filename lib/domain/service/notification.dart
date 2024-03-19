@@ -265,7 +265,8 @@ class NotificationService extends DisposableService {
         // On Android notifications are replaced when ID and tag are the same,
         // and FCM notifications always have ID of zero, so in order for push
         // notifications to replace local, we set its ID as zero as well.
-        PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
+        // PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
+        0,
         title,
         body,
         NotificationDetails(
@@ -460,7 +461,23 @@ class NotificationService extends DisposableService {
       // operating system to decide, whether to play sound at all. Thus this
       // listens to `BroadcastChannel` fired from FCM Service Worker to play a
       // sound by ourselves.
-      _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((_) {
+      _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((m) {
+        final String? chatId = m['data']['chatId'];
+        final String? chatItemId = m['data']['chatItemId'];
+
+        final String? tag = (chatId != null && chatItemId != null)
+            ? '${chatId}_$chatItemId'
+            : null;
+
+        if (tag != null) {
+          if (_tags.contains(tag)) {
+            _tags.remove(tag);
+            return;
+          } else {
+            _tags.add(tag);
+          }
+        }
+
         AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
       });
 
