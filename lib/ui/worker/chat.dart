@@ -82,10 +82,11 @@ class ChatWorker extends DisposableService {
   /// Indicates whether the [_notificationService] should display a
   /// notification.
   bool get _displayNotification =>
-      _myUser.value?.muted == null &&
-      (PlatformUtils.isWeb ||
-          _focused ||
-          !_notificationService.pushNotifications);
+      _focused || !_notificationService.pushNotifications;
+
+  /// Indicates whether the currently authenticated [MyUser] has muted their
+  /// chats.
+  bool get _isMuted => _myUser.value?.muted != null;
 
   @override
   void onReady() {
@@ -129,7 +130,7 @@ class ChatWorker extends DisposableService {
   /// react on its [Chat.lastItem] changes to show a notification.
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
     // Display a new group chat notification.
-    if (viaSubscription && c.chat.value.isGroup && _displayNotification) {
+    if (viaSubscription && c.chat.value.isGroup && !_isMuted) {
       bool newChat = false;
 
       if (c.chat.value.lastItem is ChatInfo) {
@@ -152,8 +153,8 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        if (_myUser.value?.muted == null) {
-          _notificationService.show(
+        Future<void> showNotification() async {
+          await _notificationService.show(
             c.title,
             body: 'label_you_were_added_to_group'.l10n,
             payload: '${Routes.chats}/${c.chat.value.id}',
@@ -161,7 +162,13 @@ class ChatWorker extends DisposableService {
             tag: c.chat.value.id.val,
           );
 
-          _flashTaskbarIcon();
+          await _flashTaskbarIcon();
+        }
+
+        if (_displayNotification) {
+          showNotification();
+        } else if (PlatformUtils.isWeb) {
+          Future.delayed(10.seconds, showNotification);
         }
       }
     }
@@ -169,7 +176,7 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onNotification: (body, tag, image) async {
-        if (_displayNotification) {
+        Future<void> showNotification() async {
           await _notificationService.show(
             c.title,
             body: body,
@@ -180,6 +187,12 @@ class ChatWorker extends DisposableService {
           );
 
           await _flashTaskbarIcon();
+        }
+
+        if (_displayNotification) {
+          showNotification();
+        } else if (PlatformUtils.isWeb) {
+          Future.delayed(10.seconds, showNotification);
         }
       },
       me: () => _chatService.me,

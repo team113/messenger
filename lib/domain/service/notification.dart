@@ -265,8 +265,7 @@ class NotificationService extends DisposableService {
         // On Android notifications are replaced when ID and tag are the same,
         // and FCM notifications always have ID of zero, so in order for push
         // notifications to replace local, we set its ID as zero as well.
-        // PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
-        0,
+        PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
         title,
         body,
         NotificationDetails(
