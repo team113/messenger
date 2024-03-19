@@ -37,35 +37,9 @@ class _ChatBioFieldState extends State<ChatBioField> {
   void initState() {
     _state = TextFieldState(
       text: widget.bio,
-      // approvable: true,
       submitted: widget.bio != null,
       onChanged: (s) async {
         s.error.value = null;
-
-        // if (s.text.isNotEmpty) {
-        //   try {
-        //     ChatDirectLinkSlug(s.text);
-        //   } on FormatException {
-        //     s.error.value = 'err_incorrect_input'.l10n;
-        //   }
-        // }
-        // },
-        // onSubmitted: (s) async {
-        // if (s.text.isNotEmpty) {
-        //   try {
-        //     slug = ChatDirectLinkSlug(s.text);
-        //   } on FormatException {
-        //     s.error.value = 'err_incorrect_input'.l10n;
-        //   }
-
-        //   if (widget.editing != true) {
-        //     setState(() => _editing = false);
-        //   }
-
-        //   if (slug == null || slug == widget.link?.slug) {
-        //     return;
-        //   }
-        // }
 
         if (s.error.value == null) {
           s.editable.value = false;
@@ -132,27 +106,37 @@ class _ChatBioFieldState extends State<ChatBioField> {
     final Widget child;
 
     if (_editing) {
-      child = Padding(
-        key: const Key('Editing'),
-        padding: const EdgeInsets.only(top: 8.0),
-        child: SelectionContainer.disabled(
-          child: ReactiveTextField(
-            key: const Key('LinkField'),
-            state: _state,
-            clearable: true,
-            // onSuffixPressed: _state.isEmpty.value || _state.text.isEmpty
-            //     ? null
-            //     : () async {
-            //         await widget.onSubmit?.call(null);
-            //         setState(() => _editing = false);
-            //       },
-            // trailing: _state.isEmpty.value || _state.text.isEmpty
-            //     ? null
-            //     : const SvgIcon(SvgIcons.delete),
-            maxLines: null,
-            label: 'Описание',
+      child = Column(
+        key: const Key('Profile'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            key: const Key('Editing'),
+            padding: const EdgeInsets.only(top: 8.0),
+            child: SelectionContainer.disabled(
+              child: ReactiveTextField(
+                key: const Key('LinkField'),
+                state: _state,
+                clearable: true,
+                maxLines: null,
+                label: 'Описание',
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 12),
+          WidgetButton(
+            onPressed: () {
+              setState(() => _editing = false);
+              widget.onEditing?.call(_editing);
+            },
+            child: SelectionContainer.disabled(
+              child: Text(
+                'Готово',
+                style: style.fonts.small.regular.primary,
+              ),
+            ),
+          ),
+        ],
       );
     } else if (_state.isEmpty.value || widget.bio == null) {
       child = SelectionContainer.disabled(
@@ -178,6 +162,7 @@ class _ChatBioFieldState extends State<ChatBioField> {
       );
     } else {
       child = Column(
+        key: const Key('Edit'),
         mainAxisSize: MainAxisSize.min,
         children: [
           Align(
@@ -185,6 +170,19 @@ class _ChatBioFieldState extends State<ChatBioField> {
             child: Text(
               _state.text,
               style: style.fonts.normal.regular.secondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          WidgetButton(
+            onPressed: () {
+              setState(() => _editing = true);
+              widget.onEditing?.call(_editing);
+            },
+            child: SelectionContainer.disabled(
+              child: Text(
+                'Изменить',
+                style: style.fonts.small.regular.primary,
+              ),
             ),
           ),
         ],

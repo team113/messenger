@@ -41,18 +41,26 @@ class UpgradePopupView extends StatelessWidget {
                 onBack: () => c.screen.value = UpgradePopupScreen.notice,
               );
 
-              children = const [
-                DownloadButton.windows(),
-                SizedBox(height: 8),
-                DownloadButton.macos(),
-                SizedBox(height: 8),
-                DownloadButton.linux(),
-                SizedBox(height: 8),
-                DownloadButton.appStore(),
-                SizedBox(height: 8),
-                DownloadButton.googlePlay(),
-                SizedBox(height: 8),
-                DownloadButton.android(),
+              final windows =
+                  release.assets.firstWhereOrNull((e) => e.os == 'windows');
+              final macos =
+                  release.assets.firstWhereOrNull((e) => e.os == 'macos');
+              final linux =
+                  release.assets.firstWhereOrNull((e) => e.os == 'linux');
+              final android =
+                  release.assets.firstWhereOrNull((e) => e.os == 'android');
+              final ios = release.assets.firstWhereOrNull((e) => e.os == 'ios');
+
+              children = [
+                if (windows != null) DownloadButton.windows(link: windows.url),
+                const SizedBox(height: 8),
+                if (macos != null) DownloadButton.macos(link: macos.url),
+                const SizedBox(height: 8),
+                if (linux != null) DownloadButton.linux(link: linux.url),
+                const SizedBox(height: 8),
+                if (ios != null) DownloadButton.appStore(link: ios.url),
+                const SizedBox(height: 8),
+                if (android != null) DownloadButton.android(link: android.url),
               ]
                   .map(
                     (e) => Padding(
@@ -76,38 +84,32 @@ class UpgradePopupView extends StatelessWidget {
                         style: style.fonts.medium.regular.onBackground,
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        release.body,
-                        style: style.fonts.normal.regular.onBackground,
+                      MarkdownBody(
+                        data: release.body,
+                        onTapLink: (_, href, __) async =>
+                            await launchUrlString(href!),
+                        styleSheet: MarkdownStyleSheet(
+                          h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
+
+                          // TODO: Exception.
+                          h2: style.fonts.largest.bold.onBackground
+                              .copyWith(fontSize: 20),
+
+                          p: style.fonts.normal.regular.onBackground,
+                          code: style.fonts.small.regular.onBackground.copyWith(
+                            letterSpacing: 1.2,
+                            backgroundColor: style.colors.secondaryHighlight,
+                          ),
+                          codeblockDecoration: BoxDecoration(
+                            color: style.colors.secondaryHighlight,
+                          ),
+                          codeblockPadding: const EdgeInsets.all(16),
+                          blockquoteDecoration: BoxDecoration(
+                            color: style.colors.secondaryHighlight,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      // MarkdownBody(
-                      //   data: release.body,
-                      //   onTapLink: (_, href, __) async =>
-                      //       await launchUrlString(href!),
-                      //   styleSheet: MarkdownStyleSheet(
-                      //     h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
-
-                      //     // TODO: Exception.
-                      //     h2: style.fonts.largest.bold.onBackground
-                      //         .copyWith(fontSize: 20),
-
-                      //     p: style.fonts.normal.regular.onBackground,
-                      //     code: style.fonts.small.regular.onBackground.copyWith(
-                      //       letterSpacing: 1.2,
-                      //       backgroundColor: style.colors.secondaryHighlight,
-                      //     ),
-                      //     codeblockDecoration: BoxDecoration(
-                      //       color: style.colors.secondaryHighlight,
-                      //     ),
-                      //     codeblockPadding: const EdgeInsets.all(16),
-                      //     blockquoteDecoration: BoxDecoration(
-                      //       color: style.colors.secondaryHighlight,
-                      //     ),
-                      //   ),
-                      // ),
-
-                      // const SizedBox(height: 8),
                       Text(
                         release.publishedAt.toRelative(),
                         style: style.fonts.small.regular.secondary,
@@ -166,60 +168,5 @@ class UpgradePopupView extends StatelessWidget {
         });
       },
     );
-  }
-}
-
-enum _OperatingSystem {
-  windows,
-  macos,
-  ios,
-  android,
-  linux;
-
-  String get asFile => switch (this) {
-        windows => 'messenger-windows.zip',
-        macos => 'messenger-macos.zip',
-        ios => 'messenger-ios.zip',
-        android => 'messenger-android.apk',
-        linux => 'messenger-linux.zip',
-      };
-}
-
-extension DateTimeRfc822 on DateTime {
-  static const Map<String, String> _months = {
-    'Jan': '01',
-    'Feb': '02',
-    'Mar': '03',
-    'Apr': '04',
-    'May': '05',
-    'Jun': '06',
-    'Jul': '07',
-    'Aug': '08',
-    'Sep': '09',
-    'Oct': '10',
-    'Nov': '11',
-    'Dec': '12',
-  };
-
-  static DateTime? parse(String input) {
-    input = input.replaceFirst('GMT', '+0000');
-
-    final splits = input.split(' ');
-
-    final splitYear = splits[3];
-
-    final splitMonth = _months[splits[2]];
-    if (splitMonth == null) return null;
-
-    var splitDay = splits[1];
-    if (splitDay.length == 1) {
-      splitDay = '0$splitDay';
-    }
-
-    final splitTime = splits[4], splitZone = splits[5];
-
-    var reformatted = '$splitYear-$splitMonth-$splitDay $splitTime $splitZone';
-
-    return DateTime.tryParse(reformatted);
   }
 }

@@ -371,11 +371,27 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
-                  case ProfileTab.getPaid:
+                  case ProfileTab.money:
                     child = card(
                       icon: Icons.paid,
                       title: 'label_get_paid_for_incoming'.l10n,
-                      subtitle: 'label_message_and_call_cost'.l10n,
+                      subtitle: 'От пользователей и контактов'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[7],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    );
+                    break;
+
+                  case ProfileTab.moneylist:
+                    child = card(
+                      icon: Icons.paid,
+                      title: 'label_get_paid_for_incoming'.l10n,
+                      subtitle: 'От индивидуальных пользователей'.l10n,
                       child: Container(
                         width: 34,
                         height: 34,

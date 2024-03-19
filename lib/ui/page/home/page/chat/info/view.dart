@@ -19,6 +19,8 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -87,28 +89,50 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
+          Widget highlighted({
+            required int index,
+            required Widget child,
+          }) {
+            return HighlightedContainer(
+              highlight: c.highlighted.value == index,
+              child: child,
+            );
+          }
+
+          final List<Widget> blocks = [
+            const SizedBox(height: 8),
+            highlighted(index: 0, child: _profile(c, context)),
+            _quick(c, context),
+            highlighted(index: 1, child: _status(c, context)),
+            if (!c.isMonolog) ...[
+              highlighted(
+                index: 2,
+                child: SelectionContainer.disabled(child: _link(c, context)),
+              ),
+              SelectionContainer.disabled(child: _members(c, context)),
+            ],
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
+            const SizedBox(height: 8),
+          ];
+
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
               child: SelectionArea(
-                child: ListView(
-                  controller: c.scrollController,
+                child: ScrollablePositionedList.builder(
                   key: const Key('ChatInfoScrollable'),
-                  children: [
-                    const SizedBox(height: 8),
-                    _profile(c, context),
-                    _quick(c, context),
-                    _status(c, context),
-                    if (!c.isMonolog) ...[
-                      SelectionContainer.disabled(child: _link(c, context)),
-                      SelectionContainer.disabled(child: _members(c, context)),
-                    ],
-                    SelectionContainer.disabled(
-                      child: Block(children: [_actions(c, context)]),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  initialScrollIndex: 0,
+                  // controller: c.scrollController,
+                  // key: const Key('ChatInfoScrollable'),
+                  // children: blocks,
                 ),
               ),
             ),
@@ -123,13 +147,14 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Block(
-      overlay: [
-        EditBlockButton(
-          key: const Key('EditProfileButton'),
-          onPressed: c.profileEditing.toggle,
-          editing: c.profileEditing.value,
-        ),
-      ],
+      // overlay: [
+      //   EditBlockButton(
+      //     key: const Key('EditProfileButton'),
+      //     onPressed: c.profileEditing.toggle,
+      //     editing: c.profileEditing.value,
+      //   ),
+      // ],
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
         SelectionContainer.disabled(
           child: BigAvatarWidget.chat(
@@ -185,6 +210,18 @@ class ChatInfoView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
+              const SizedBox(height: 12),
+              WidgetButton(
+                onPressed: () {
+                  c.profileEditing.value = false;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'Готово',
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
             ];
           } else {
             children = [
@@ -195,6 +232,24 @@ class ChatInfoView extends StatelessWidget {
                 child: Text(
                   c.chat?.title ?? c.name.text,
                   style: style.fonts.large.regular.onBackground,
+                ),
+              ),
+              const SizedBox(height: 12),
+              WidgetButton(
+                onPressed: () {
+                  c.itemScrollController.scrollTo(
+                    index: 0,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 600),
+                  );
+                  c.highlight(0);
+                  c.profileEditing.value = true;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'Изменить',
+                    style: style.fonts.small.regular.primary,
+                  ),
                 ),
               ),
             ];
@@ -220,13 +275,13 @@ class ChatInfoView extends StatelessWidget {
     return Block(
       title: 'label_direct_chat_link'.l10n,
       padding: Block.defaultPadding.copyWith(bottom: 10),
-      overlay: [
-        EditBlockButton(
-          key: const Key('EditLinkButton'),
-          onPressed: c.linkEditing.toggle,
-          editing: c.linkEditing.value,
-        ),
-      ],
+      // overlay: [
+      //   EditBlockButton(
+      //     key: const Key('EditLinkButton'),
+      //     onPressed: c.linkEditing.toggle,
+      //     editing: c.linkEditing.value,
+      //   ),
+      // ],
       children: [
         Obx(() {
           return Column(
@@ -252,7 +307,18 @@ class ChatInfoView extends StatelessWidget {
                 },
                 background: c.background.value,
                 editing: c.linkEditing.value,
-                onEditing: (b) => c.linkEditing.value = b,
+                onEditing: (b) {
+                  if (b) {
+                    c.itemScrollController.scrollTo(
+                      index: 4,
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                    );
+                    c.highlight(2);
+                  }
+
+                  c.linkEditing.value = b;
+                },
               ),
             ],
           );
@@ -263,25 +329,27 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the [Block] displaying the [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Block(
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
       title: 'label_participants'
           .l10nfmt({'count': c.chat!.chat.value.membersCount}),
-      overlay: [
-        Positioned(
-          top: 0,
-          right: 0,
-          child: AnimatedButton(
-            key: const Key('AddMemberButton'),
-            decorator: (child) => Padding(
-              padding: const EdgeInsets.fromLTRB(2, 4, 2, 2),
-              child: child,
-            ),
-            onPressed: () => AddChatMemberView.show(context, chatId: id),
-            child: const SvgIcon(SvgIcons.addMemberSmall),
-          ),
-        ),
-      ],
+      // overlay: [
+      //   Positioned(
+      //     top: 0,
+      //     right: 0,
+      //     child: AnimatedButton(
+      //       key: const Key('AddMemberButton'),
+      //       decorator: (child) => Padding(
+      //         padding: const EdgeInsets.fromLTRB(2, 4, 2, 2),
+      //         child: child,
+      //       ),
+      //       onPressed: () => AddChatMemberView.show(context, chatId: id),
+      //       child: const SvgIcon(SvgIcons.addMemberSmall),
+      //     ),
+      //   ),
+      // ],
       children: [
         Obx(() {
           final List<RxUser> members = [];
@@ -375,44 +443,64 @@ class ChatInfoView extends StatelessWidget {
             ],
           );
         }),
+        const SizedBox(height: 16),
+        WidgetButton(
+          onPressed: () => AddChatMemberView.show(context, chatId: id),
+          child: Text(
+            'Добавить участника',
+            style: style.fonts.small.regular.primary,
+          ),
+        ),
       ],
     );
   }
 
   Widget _status(ChatInfoController c, BuildContext context) {
     return Block(
-      overlay: [
-        Positioned(
-          right: 0,
-          top: 0,
-          child: Center(
-            child: SelectionContainer.disabled(
-              child: AnimatedButton(
-                onPressed: () {
-                  c.bioEditing.toggle();
-                  c.textStatus.unsubmit();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-                  child: c.bioEditing.value
-                      ? const Padding(
-                          padding: EdgeInsets.all(2),
-                          child: SvgIcon(SvgIcons.closeSmallPrimary),
-                        )
-                      : const SvgIcon(SvgIcons.editSmall),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+      // overlay: [
+      //   Positioned(
+      //     right: 0,
+      //     top: 0,
+      //     child: Center(
+      //       child: SelectionContainer.disabled(
+      //         child: AnimatedButton(
+      //           onPressed: () {
+      //             c.bioEditing.toggle();
+      //             c.textStatus.unsubmit();
+      //           },
+      //           child: Padding(
+      //             padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+      //             child: c.bioEditing.value
+      //                 ? const Padding(
+      //                     padding: EdgeInsets.all(2),
+      //                     child: SvgIcon(SvgIcons.closeSmallPrimary),
+      //                   )
+      //                 : const SvgIcon(SvgIcons.editSmall),
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      // ],
       title: 'О группе',
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
         Obx(() {
           return ChatBioField(
             c.bio.value,
             editing: c.bioEditing.value,
-            onEditing: (b) => c.bioEditing.value = b,
+            onEditing: (b) {
+              if (b) {
+                c.itemScrollController.scrollTo(
+                  index: 3,
+                  curve: Curves.ease,
+                  duration: const Duration(milliseconds: 600),
+                );
+                c.highlight(1);
+              }
+
+              c.bioEditing.value = b;
+            },
             onSubmit: (s) async {
               c.bio.value = s?.isNotEmpty == true ? s : null;
               c.bioEditing.value = false;

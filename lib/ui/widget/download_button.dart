@@ -16,12 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/util/message_popup.dart';
+import 'package:messenger/util/platform_utils.dart';
 
 import '/config.dart';
 import '/themes.dart';
 import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/web/web_utils.dart';
 
 /// [PrefixButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
@@ -34,41 +36,37 @@ class DownloadButton extends StatelessWidget {
   });
 
   /// Constructs a [DownloadButton] for downloading the Windows application.
-  const DownloadButton.windows({super.key})
+  const DownloadButton.windows({super.key, this.link = 'messenger-windows.zip'})
       : asset = SvgIcons.windows,
-        title = 'Windows',
-        link = 'messenger-windows.zip';
+        title = 'Windows';
 
   /// Constructs a [DownloadButton] for downloading the macOS application.
-  const DownloadButton.macos({super.key})
+  const DownloadButton.macos({super.key, this.link = 'messenger-macos.zip'})
       : asset = SvgIcons.apple,
-        title = 'macOS',
-        link = 'messenger-macos.zip';
+        title = 'macOS';
 
   /// Constructs a [DownloadButton] for downloading the Linux application.
-  const DownloadButton.linux({super.key})
+  const DownloadButton.linux({super.key, this.link = 'messenger-linux.zip'})
       : asset = SvgIcons.linux,
-        title = 'Linux',
-        link = 'messenger-linux.zip';
+        title = 'Linux';
 
   /// Constructs a [DownloadButton] for downloading the iOS application.
-  const DownloadButton.appStore({super.key})
+  const DownloadButton.appStore({super.key, this.link = 'messenger-ios.zip'})
       : asset = SvgIcons.appStore,
-        title = 'App Store',
-        link = 'messenger-ios.zip';
+        title = 'App Store';
 
   /// Constructs a [DownloadButton] for downloading the Android application from
   /// Google Play.
-  const DownloadButton.googlePlay({super.key})
-      : asset = SvgIcons.googlePlay,
-        title = 'Google Play',
-        link = 'messenger-android.apk';
+  const DownloadButton.googlePlay({
+    super.key,
+    this.link = 'messenger-android.apk',
+  })  : asset = SvgIcons.googlePlay,
+        title = 'Google Play';
 
   /// Constructs a [DownloadButton] for downloading the Android application.
-  const DownloadButton.android({super.key})
+  const DownloadButton.android({super.key, this.link = 'messenger-android.apk'})
       : asset = SvgIcons.android,
-        title = 'Android',
-        link = 'messenger-android.apk';
+        title = 'Android';
 
   /// Asset to display as a prefix to this [DownloadButton].
   final SvgData? asset;
@@ -87,7 +85,18 @@ class DownloadButton extends StatelessWidget {
       title: title,
       onPressed: link == null
           ? null
-          : () => WebUtils.download('${Config.origin}/artifacts/$link', link!),
+          : () async {
+              String url = link!;
+
+              if (!url.startsWith('http')) {
+                url = '${Config.origin}/artifacts/$url';
+              }
+
+              final file = await PlatformUtils.saveTo(url);
+              if (file != null) {
+                MessagePopup.success('label_file_downloaded'.l10n);
+              }
+            },
       prefix: asset == null
           ? null
           : Padding(

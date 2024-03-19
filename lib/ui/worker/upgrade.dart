@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:messenger/l10n/l10n.dart';
@@ -14,7 +15,9 @@ import '/util/platform_utils.dart';
 class UpgradeWorker extends DisposableService {
   @override
   void onReady() {
-    // _fetchUpdates();
+    if (!PlatformUtils.isWeb) {
+      // _fetchUpdates();
+    }
     super.onReady();
   }
 
@@ -79,13 +82,17 @@ class Release {
 
     final title = xml.findElements('title').first.innerText;
     final description = xml
-        .findElements('description')
-        .firstWhere(
-          (e) => e.attributes.any((p) =>
-              p.name.qualified == 'xml:lang' &&
-              p.value == language?.locale.languageCode),
-        )
-        .innerText;
+            .findElements('description')
+            .firstWhereOrNull(
+              (e) => e.attributes.any(
+                (p) =>
+                    p.name.qualified == 'xml:lang' &&
+                    p.value == language?.locale.languageCode,
+              ),
+            )
+            ?.innerText ??
+        xml.findElements('description').first.innerText;
+    final date = xml.findElements('pubDate').first.innerText;
     final List<ReleaseAsset> assets = xml
         .findElements('enclosure')
         .map((e) => ReleaseAsset.fromXml(e))
@@ -94,7 +101,7 @@ class Release {
     return Release(
       name: title,
       body: description,
-      publishedAt: DateTime.now(),
+      publishedAt: DateTimeRfc822.parse(date) ?? DateTime.now(),
       assets: assets,
     );
   }
@@ -136,5 +143,44 @@ class ReleaseAsset {
   @override
   String toString() {
     return 'ReleaseAsset(url: $url, version: $version, os: $os)';
+  }
+}
+
+extension DateTimeRfc822 on DateTime {
+  static const Map<String, String> _months = {
+    'Jan': '01',
+    'Feb': '02',
+    'Mar': '03',
+    'Apr': '04',
+    'May': '05',
+    'Jun': '06',
+    'Jul': '07',
+    'Aug': '08',
+    'Sep': '09',
+    'Oct': '10',
+    'Nov': '11',
+    'Dec': '12',
+  };
+
+  static DateTime? parse(String input) {
+    input = input.replaceFirst('GMT', '+0000');
+
+    final splits = input.split(' ');
+
+    final splitYear = splits[3];
+
+    final splitMonth = _months[splits[2]];
+    if (splitMonth == null) return null;
+
+    var splitDay = splits[1];
+    if (splitDay.length == 1) {
+      splitDay = '0$splitDay';
+    }
+
+    final splitTime = splits[4], splitZone = splits[5];
+    final reformatted =
+        '$splitYear-$splitMonth-$splitDay $splitTime $splitZone';
+
+    return DateTime.tryParse(reformatted);
   }
 }

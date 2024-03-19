@@ -360,46 +360,13 @@ class MyProfileView extends StatelessWidget {
                         children: [_welcome(context, c)],
                       );
 
-                    case ProfileTab.getPaid:
+                    case ProfileTab.money:
                       return Stack(
                         children: [
                           block(
                             title: 'Монетизация (входящие)'.l10n,
                             padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-                            overlay: [
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Center(
-                                  child: SelectionContainer.disabled(
-                                    child: AnimatedButton(
-                                      onPressed: c.moneyEditing.toggle,
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          6,
-                                          6,
-                                          0,
-                                          6,
-                                        ),
-                                        child: Obx(() {
-                                          return c.moneyEditing.value
-                                              ? const Padding(
-                                                  padding: EdgeInsets.all(2),
-                                                  child: SvgIcon(
-                                                    SvgIcons.closeSmallPrimary,
-                                                  ),
-                                                )
-                                              : const SvgIcon(
-                                                  SvgIcons.editSmall,
-                                                );
-                                        }),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            children: [_getPaid(context, c)],
+                            children: [_money(context, c)],
                           ),
                           Positioned.fill(
                             child: Obx(() {
@@ -460,44 +427,22 @@ class MyProfileView extends StatelessWidget {
                         ],
                       );
 
+                    case ProfileTab.moneylist:
+                      return Stack(
+                        children: [
+                          block(
+                            title: 'Монетизация (входящие)'.l10n,
+                            padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
+                            children: [_moneylist(context, c)],
+                          ),
+                        ],
+                      );
+
                     case ProfileTab.donates:
                       return Stack(
                         children: [
                           block(
                             title: 'Монетизация (донаты)'.l10n,
-                            // overlay: [
-                            //   Positioned(
-                            //     right: 0,
-                            //     top: 0,
-                            //     child: Center(
-                            //       child: SelectionContainer.disabled(
-                            //         child: AnimatedButton(
-                            //           onPressed: c.donateEditing.toggle,
-                            //           child: Padding(
-                            //             padding: const EdgeInsets.fromLTRB(
-                            //               6,
-                            //               6,
-                            //               0,
-                            //               6,
-                            //             ),
-                            //             child: Obx(() {
-                            //               return c.donateEditing.value
-                            //                   ? const Padding(
-                            //                       padding: EdgeInsets.all(2),
-                            //                       child: SvgIcon(
-                            //                         SvgIcons.closeSmallPrimary,
-                            //                       ),
-                            //                     )
-                            //                   : const SvgIcon(
-                            //                       SvgIcons.editSmall,
-                            //                     );
-                            //             }),
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ],
                             children: [_donates(context, c)],
                           ),
                           Positioned.fill(
@@ -1580,7 +1525,7 @@ Widget _sections(BuildContext context, MyProfileController c) {
   );
 }
 
-Widget _getPaid(BuildContext context, MyProfileController c) {
+Widget _money(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Obx(() {
@@ -1615,6 +1560,16 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
         MoneyField(
           state: c.contactCallCost,
           label: 'Входящие звонки, за 1 минуту',
+        ),
+        const SizedBox(height: 12),
+        WidgetButton(
+          onPressed: () {
+            c.moneyEditing.value = false;
+          },
+          child: Text(
+            'Готово',
+            style: style.fonts.small.regular.primary,
+          ),
         ),
       ];
     } else {
@@ -1658,10 +1613,23 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
             c.contactCallCost.focus.requestFocus();
           },
         ),
-        const SizedBox(height: 24),
-        const LineDivider('От индивидуальных пользователей'),
-        const SizedBox(height: 8),
-        _blocklist(context, c),
+        const SizedBox(height: 12),
+        WidgetButton(
+          onPressed: () {
+            c.itemScrollController.scrollTo(
+              index: ProfileTab.values.indexOf(ProfileTab.money),
+              curve: Curves.ease,
+              duration: const Duration(milliseconds: 600),
+            );
+
+            c.highlight(ProfileTab.money);
+            c.moneyEditing.value = true;
+          },
+          child: Text(
+            'Изменить',
+            style: style.fonts.small.regular.primary,
+          ),
+        ),
       ];
     }
 
@@ -1674,6 +1642,36 @@ Widget _getPaid(BuildContext context, MyProfileController c) {
       ),
     );
   });
+}
+
+Widget _moneylist(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return AnimatedSizeAndFade(
+    sizeDuration: const Duration(milliseconds: 300),
+    fadeDuration: const Duration(milliseconds: 300),
+    child: Column(
+      children: [
+        // Text(
+        //   'Пользователи платят Вам за отправку Вам сообщений и совершение звонков.',
+        //   style: style.fonts.small.regular.secondary,
+        // ),
+        Text(
+          'В профиле каждого пользователя Вы можете установить индивидуальные настройки оплаты входящих сообщений и звонков.'
+              .l10n,
+          style: style.fonts.small.regular.secondary,
+        ),
+        Obx(() {
+          if (!c.blocklistStatus.value.isLoading && c.blocklist.isEmpty) {
+            return const SizedBox();
+          }
+
+          return const SizedBox(height: 16);
+        }),
+        _blocklist(context, c),
+      ],
+    ),
+  );
 }
 
 Widget _blocklist(BuildContext context, MyProfileController c) {
@@ -1695,6 +1693,7 @@ Widget _blocklist(BuildContext context, MyProfileController c) {
         ),
       );
     } else if (blocklist.isEmpty) {
+      return const SizedBox();
       return Text(
         'В профиле каждого пользователя Вы можете установить индивидуальные настройки оплаты входящих сообщений и звонков.'
             .l10n,
@@ -1851,8 +1850,10 @@ Widget _donates(BuildContext context, MyProfileController c) {
             c.itemScrollController.scrollTo(
               index: ProfileTab.values.indexOf(ProfileTab.donates),
               curve: Curves.ease,
+              alignment: 0.01,
               duration: const Duration(milliseconds: 600),
             );
+
             c.highlight(ProfileTab.donates);
             c.donateEditing.value = true;
           },
@@ -2272,7 +2273,8 @@ Widget _bar(MyProfileController c, BuildContext context) {
       ProfileTab.calls => 'label_calls'.l10n,
       ProfileTab.media => 'label_media'.l10n,
       ProfileTab.welcome => 'label_welcome_message'.l10n,
-      ProfileTab.getPaid => 'Монетизация (входящие)'.l10n,
+      ProfileTab.money => 'Монетизация (входящие)'.l10n,
+      ProfileTab.moneylist => 'Монетизация (входящие)'.l10n,
       ProfileTab.donates => 'Монетизация (донаты)'.l10n,
       ProfileTab.notifications => 'label_notifications'.l10n,
       ProfileTab.storage => 'label_storage'.l10n,

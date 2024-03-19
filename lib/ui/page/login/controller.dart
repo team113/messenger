@@ -217,7 +217,7 @@ class LoginController extends GetxController {
         graphQlProvider.token = creds!.session.token;
         await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
 
-        await _authService.authorizeWith(creds!);
+        await _authService.signInWith(creds!);
 
         router.noIntroduction = false;
         router.signUp = true;
@@ -329,7 +329,7 @@ class LoginController extends GetxController {
       try {
         if (ConfirmationCode(s.text).val == '1111') {
           if (stage.value.registering) {
-            await _authService.authorizeWith(creds!);
+            await _authService.signInWith(creds!);
             router.noIntroduction = false;
             router.signUp = true;
             _redirect();
@@ -1152,7 +1152,7 @@ class LoginController extends GetxController {
       // await graphQlProvider.confirmEmailCode(ConfirmationCode(emailCode.text));
     } else if (stage.value == LoginViewStage.signInWithPhoneOccupied) {}
 
-    await _authService.authorizeWith(creds!);
+    await _authService.signInWith(creds!);
 
     router.noIntroduction = false;
     router.signUp = true;

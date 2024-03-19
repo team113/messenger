@@ -713,6 +713,7 @@ label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
 label_file = File
+label_file_downloaded = File downloaded
 label_files_downloaded = Files are downloaded
 label_files_saved_to_gallery = Files are saved to the gallery
 label_forward_message = Forward message

@@ -149,6 +149,8 @@ class UserController extends GetxController {
   final RxBool moneyEditing = RxBool(false);
   final RxBool linkEditing = RxBool(false);
 
+  final RxnInt highlighted = RxnInt();
+
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
 
@@ -178,6 +180,13 @@ class UserController extends GetxController {
   /// [Worker] reacting on the [RxChatContact.contact] or [user] changes
   /// updating the [name].
   Worker? _worker;
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   /// Subscription for the [user] changes.
   StreamSubscription? _userSubscription;
@@ -322,6 +331,7 @@ class UserController extends GetxController {
     _userSubscription?.cancel();
     _contactWorker?.dispose();
     _worker?.dispose();
+    _highlightTimer?.cancel();
     scrollController.removeListener(_ensureNameDisplayed);
     super.onClose();
   }
@@ -543,6 +553,15 @@ class UserController extends GetxController {
     const userId = UserId('18ff6b4f-1a81-47f9-a8ed-bf69a51bdae6');
     final user = await _userService.get(userId);
     router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
+  }
+
+  void highlight(int i) {
+    highlighted.value = i;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlighted.value = null;
+    });
   }
 
   /// Fetches the [user] value from the [_userService].

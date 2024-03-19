@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
@@ -96,8 +97,17 @@ class ChatInfoController extends GetxController {
 
   final RxBool bioEditing = RxBool(false);
 
+  final RxnInt highlighted = RxnInt();
+
   /// List of [UserId]s that are being removed from the [chat].
   final RxList<UserId> membersOnRemoval = RxList([]);
+
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
 
   /// [Chat.name] field state.
   late final TextFieldState name;
@@ -130,6 +140,13 @@ class ChatInfoController extends GetxController {
 
   /// Settings repository, used to retrieve the [background].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   late final TextFieldState textStatus;
   final RxnString bio = RxnString('Ретроспектива: 00:00 UTC');
@@ -242,6 +259,7 @@ class ChatInfoController extends GetxController {
   @override
   void onClose() {
     _worker?.dispose();
+    _highlightTimer?.cancel();
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();
     membersScrollController.dispose();
@@ -446,6 +464,15 @@ class ChatInfoController extends GetxController {
     const userId = UserId('18ff6b4f-1a81-47f9-a8ed-bf69a51bdae6');
     final user = await _userService.get(userId);
     router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
+  }
+
+  void highlight(int i) {
+    highlighted.value = i;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlighted.value = null;
+    });
   }
 
   /// Fetches the [chat].

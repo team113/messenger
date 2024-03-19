@@ -30,6 +30,7 @@ import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/chat_tile.dart';
 import 'package:messenger/ui/page/home/widget/direct_link.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
+import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
@@ -113,19 +114,26 @@ class UserView extends StatelessWidget {
             );
           }
 
+          Widget highlighted({
+            required int index,
+            required Widget child,
+          }) {
+            return HighlightedContainer(
+              highlight: c.highlighted.value == index,
+              child: child,
+            );
+          }
+
           final List<Widget> blocks = [
             const SizedBox(height: 8),
             if (c.isBlocked != null)
               Block(
                 title: 'label_user_is_blocked'.l10n,
                 children: [
-                  BlocklistRecordWidget(
-                    c.isBlocked!,
-                    onUnblock: c.unblock,
-                  ),
+                  BlocklistRecordWidget(c.isBlocked!, onUnblock: c.unblock),
                 ],
               ),
-            _profile(c, context),
+            highlighted(index: 0, child: _profile(c, context)),
             if (c.isBlocked == null) _quick(c, context),
             if (c.paid) _price(c, context),
             _bio(c, context),
@@ -138,6 +146,7 @@ class UserView extends StatelessWidget {
                     ChatDirectLink(
                       slug: ChatDirectLinkSlug('dqwdqwdqwd'),
                     ),
+                    canDelete: false,
                     editing: false,
                     transitions: false,
                     background: c.background.value,
@@ -145,7 +154,7 @@ class UserView extends StatelessWidget {
                 ],
               ),
             ),
-            _money(c, context),
+            highlighted(index: 1, child: _money(c, context)),
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
             ),
@@ -180,14 +189,15 @@ class UserView extends StatelessWidget {
 
     return Obx(() {
       return Block(
-        overlay: [
-          if (c.contact.value != null)
-            EditBlockButton(
-              key: const Key('EditProfileButton'),
-              onPressed: c.profileEditing.toggle,
-              editing: c.profileEditing.value,
-            ),
-        ],
+        // overlay: [
+        //   if (c.contact.value != null)
+        //     EditBlockButton(
+        //       key: const Key('EditProfileButton'),
+        //       onPressed: c.profileEditing.toggle,
+        //       editing: c.profileEditing.value,
+        //     ),
+        // ],
+        padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
         children: [
           SelectionContainer.disabled(
             child: BigAvatarWidget.user(
@@ -229,7 +239,19 @@ class UserView extends StatelessWidget {
                     formatters: [LengthLimitingTextInputFormatter(100)],
                   ),
                 ),
+                const SizedBox(height: 12),
                 const SizedBox(height: 4),
+                WidgetButton(
+                  onPressed: () {
+                    c.profileEditing.value = false;
+                  },
+                  child: SelectionContainer.disabled(
+                    child: Text(
+                      'Готово',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
               ];
             } else {
               children = [
@@ -250,6 +272,24 @@ class UserView extends StatelessWidget {
                         ? 'Вы заблокированы'
                         : c.user?.user.value.getStatus() ?? '',
                     style: style.fonts.small.regular.secondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                WidgetButton(
+                  onPressed: () {
+                    c.itemScrollController.scrollTo(
+                      index: c.isBlocked != null ? 1 : 0,
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                    );
+                    c.highlight(0);
+                    c.profileEditing.value = true;
+                  },
+                  child: SelectionContainer.disabled(
+                    child: Text(
+                      'Изменить',
+                      style: style.fonts.small.regular.primary,
+                    ),
                   ),
                 ),
               ];
@@ -798,33 +838,32 @@ class UserView extends StatelessWidget {
       child: Stack(
         children: [
           Block(
-            // title:
-            //     'Установить цену за сообщения и звонки от ${c.user!.user.value.name?.val ?? c.user!.user.value.num.toString()}',
             title: 'Монетизация (входящие)',
-            overlay: [
-              Positioned(
-                right: 0,
-                top: 0,
-                child: Center(
-                  child: SelectionContainer.disabled(
-                    child: AnimatedButton(
-                      onPressed: c.moneyEditing.toggle,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-                        child: c.moneyEditing.value
-                            ? const Padding(
-                                padding: EdgeInsets.all(2),
-                                child: SvgIcon(
-                                  SvgIcons.closeSmallPrimary,
-                                ),
-                              )
-                            : const SvgIcon(SvgIcons.editSmall),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+            // overlay: [
+            //   Positioned(
+            //     right: 0,
+            //     top: 0,
+            //     child: Center(
+            //       child: SelectionContainer.disabled(
+            //         child: AnimatedButton(
+            //           onPressed: c.moneyEditing.toggle,
+            //           child: Padding(
+            //             padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+            //             child: c.moneyEditing.value
+            //                 ? const Padding(
+            //                     padding: EdgeInsets.all(2),
+            //                     child: SvgIcon(
+            //                       SvgIcons.closeSmallPrimary,
+            //                     ),
+            //                   )
+            //                 : const SvgIcon(SvgIcons.editSmall),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ],
             children: [_paid(c, context)],
           ),
           Positioned.fill(
@@ -902,6 +941,21 @@ class UserView extends StatelessWidget {
                 state: c.callsCost,
                 label: 'Входящие звонки, за 1 минуту',
               ),
+              const SizedBox(height: 12),
+              const SizedBox(height: 4),
+              Center(
+                child: WidgetButton(
+                  onPressed: () {
+                    c.moneyEditing.value = false;
+                  },
+                  child: SelectionContainer.disabled(
+                    child: Text(
+                      'Готово',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -933,6 +987,27 @@ class UserView extends StatelessWidget {
               '${c.user?.user.value.name ?? c.user?.user.value.num} платит Вам за отправку Вам сообщений и совершение звонков.',
               style: style.fonts.small.regular.secondary,
             ),
+            const SizedBox(height: 12),
+            Center(
+              child: WidgetButton(
+                onPressed: () {
+                  c.itemScrollController.scrollTo(
+                    index: c.isBlocked != null ? 7 : 6,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 600),
+                  );
+                  c.highlight(1);
+                  c.moneyEditing.value = true;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'Изменить',
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
           ],
         );
       }

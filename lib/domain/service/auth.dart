@@ -306,19 +306,19 @@ class AuthService extends GetxService {
     });
   }
 
-  Future<void> authorizeWith(Credentials creds) {
-    status.value = RxStatus.loading();
-    return WebUtils.protect(() async {
-      try {
-        _authorized(creds);
-        _credentialsProvider.set(creds);
-        status.value = RxStatus.success();
-      } catch (e) {
-        _unauthorized();
-        rethrow;
-      }
-    });
-  }
+  // Future<void> authorizeWith(Credentials creds) {
+  //   status.value = RxStatus.loading();
+  //   return WebUtils.protect(() async {
+  //     try {
+  //       _authorized(creds);
+  //       _credentialsProvider.set(creds);
+  //       status.value = RxStatus.success();
+  //     } catch (e) {
+  //       _unauthorized();
+  //       rethrow;
+  //     }
+  //   });
+  // }
 
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
   ///
