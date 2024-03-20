@@ -47,12 +47,14 @@ class _UserBioFieldState extends State<UserBioField> {
     onChanged: (s) {
       s.error.value = null;
 
-      try {
-        if (s.text.isNotEmpty) {
-          UserBio(s.text);
+      if (s.text.isNotEmpty) {
+        try {
+          if (s.text.isNotEmpty) {
+            UserBio(s.text);
+          }
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
         }
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_input'.l10n;
       }
 
       if (s.error.value == null) {
@@ -60,9 +62,7 @@ class _UserBioFieldState extends State<UserBioField> {
         s.status.value = RxStatus.loading();
 
         try {
-          widget.onSubmit?.call(
-            s.text.isNotEmpty ? UserBio(s.text) : null,
-          );
+          widget.onSubmit?.call(UserBio.tryParse(s.text));
           s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;

@@ -366,27 +366,9 @@ class SearchController extends GetxController {
     _contactsSearchWorker = null;
 
     if (query.isNotEmpty) {
-      UserName? name;
-      UserEmail? email;
-      UserPhone? phone;
-
-      try {
-        name = UserName(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        email = UserEmail(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        phone = UserPhone(query);
-      } catch (e) {
-        // No-op.
-      }
+      final UserName? name = UserName.tryParse(query);
+      final UserEmail? email = UserEmail.tryParse(query.toLowerCase());
+      final UserPhone? phone = UserPhone.tryParse(query);
 
       if (name != null || email != null || phone != null) {
         searchStatus.value = searchStatus.value.isSuccess
@@ -439,30 +421,10 @@ class SearchController extends GetxController {
     _usersSearchWorker = null;
 
     if (query.isNotEmpty) {
-      UserNum? num;
-      UserName? name;
-      UserLogin? login;
-      ChatDirectLinkSlug? link;
-
-      try {
-        num = UserNum(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        name = UserName(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      try {
-        login = UserLogin(query);
-      } catch (e) {
-        // No-op.
-      }
-
-      link = ChatDirectLinkSlug.tryParse(query);
+      final UserNum? num = UserNum.tryParse(query);
+      final UserName? name = UserName.tryParse(query);
+      final UserLogin? login = UserLogin.tryParse(query.toLowerCase());
+      final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {
         searchStatus.value = searchStatus.value.isSuccess

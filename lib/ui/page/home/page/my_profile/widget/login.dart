@@ -54,15 +54,12 @@ class _UserLoginFieldState extends State<UserLoginField> {
     text: widget.login?.val,
     onChanged: (s) async {
       s.error.value = null;
-
-      if (s.text.isEmpty) {
-        return;
-      }
-
-      try {
-        UserLogin(s.text.toLowerCase());
-      } on FormatException catch (_) {
-        s.error.value = 'err_incorrect_login_input'.l10n;
+      if (s.text.isNotEmpty) {
+        try {
+          UserLogin(s.text.toLowerCase());
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_login_input'.l10n;
+        }
       }
 
       if (s.error.value == null) {
@@ -70,25 +67,18 @@ class _UserLoginFieldState extends State<UserLoginField> {
         s.status.value = RxStatus.loading();
 
         try {
-          if (s.text.isEmpty) {
-            await widget.onSubmit?.call(null);
-          } else {
-            await widget.onSubmit?.call(UserLogin(s.text.toLowerCase()));
-          }
+          await widget.onSubmit?.call(UserLogin.tryParse(s.text.toLowerCase()));
 
           if (mounted) {
             setState(() => _editing = false);
           }
-
-          s.status.value = RxStatus.empty();
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
-          s.status.value = RxStatus.empty();
         } catch (e) {
           s.error.value = 'err_data_transfer'.l10n;
-          s.status.value = RxStatus.empty();
           rethrow;
         } finally {
+          s.status.value = RxStatus.empty();
           s.editable.value = true;
         }
       }
