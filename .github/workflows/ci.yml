@@ -70,8 +70,9 @@ jobs:
         with:
           # Unshallow the repository in order for `git describe` to work.
           fetch-depth: 0
+      - run: git describe --tags --dirty --match "v*" --always
 
-      - run: make git.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
+      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
 
       - uses: actions/upload-artifact@v4
         with:
@@ -101,6 +102,7 @@ jobs:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
+      - run: git describe --tags --dirty --match "v*" --always
       - uses: subosito/flutter-action@v2.12.0
         with:
           flutter-version: ${{ env.FLUTTER_VER }}

@@ -317,6 +317,27 @@ endif
 
 
 
+###########################
+# Sparke appcast commands #
+###########################
+
+# Echoes Sparkle appcast XML.
+#
+# Usage:
+#	make appcast.notes [notes=<notes>] [link=<artifcats-url>]
+
+appcast-notes-title = $(shell git describe --tags --dirty --match "v*" --always)
+appcast-notes-description = $(notes)
+
+appcast.notes:
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(appcast-notes-title)</title><description>$(appcast-notes-description)</description><pubDate>$(shell date -R)</pubDate>$(call appcast.notes.release,"macos","messenger-macos.zip")$(call appcast.notes.release,"windows","messenger-windows.zip")$(call appcast.notes.release,"linux","messenger-linux.zip")$(call appcast.notes.release,"android","messenger-android.zip")$(call appcast.notes.release,"ios","messenger-ios.zip")</item></channel></rss>"
+define appcast.notes.release
+<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
+endef
+
+
+
+
 ##########################
 # Documentation commands #
 ##########################
@@ -830,32 +851,6 @@ endif
 	git push origin refs/tags/$(git-release-tag)
 
 
-# Prepares the release notes of current commit in JSON format.
-#
-# Usage:
-#	make git.notes [notes=(<notes>|"Release notes")] [link=(<origin>)]
-
-git-notes-title = $(shell git describe --tags --dirty --match "v*" --always)
-git-notes-description = $(or $(notes),Release notes)
-
-git.notes:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(git-notes-title)</title><description>$(git-notes-description)</description><pubDate>$(shell date -R)</pubDate>$(call git.notes.release,"macos","messenger-macos.zip")$(call git.notes.release,"windows","messenger-windows.zip")$(call git.notes.release,"linux","messenger-linux.zip")$(call git.notes.release,"android","messenger-android.zip")$(call git.notes.release,"ios","messenger-ios.zip")</item></channel></rss>"
-define git.notes.release
-<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
-endef
-
-# git-commit-message = $(strip $(shell git log --format=%s -1)) # TODO: This doesn't escape backticks.
-
-# git.notes:
-# 	echo "[{$(call git.notes.notes),\"assets\":[$(call git.notes.release,"messenger-macos.zip"),$(call git.notes.release,"messenger-windows.zip"),$(call git.notes.release,"messenger-linux.zip"),$(call git.notes.release,"messenger-android.apk"),$(call git.notes.release,"messenger-ios.zip")]}]" > releases.json
-# define git.notes.notes
-# 	"\"name\":\"$(shell git describe --tags --dirty --match "v*" --always)\",\"body\":\"$(git-commit-message)\",\"published_at\":\"$(shell date -u '+%Y-%m-%dT%H:%M:%SZ')\""
-# endef
-# define git.notes.release
-# 	"{\"name\":\"$(1)\"\,\"content_type\":\"application/zip\"\,\"size\":\"0\"\,\"browser_download_url\":\"$(link)$(1)\"}"
-# endef
-
-
 
 
 ###################
@@ -906,16 +901,17 @@ deploy:
 ##################
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
+        appcast.notes \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
-		deploy \
+        deploy \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
-        git.release git.notes \
+        git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
         minikube.boot \
