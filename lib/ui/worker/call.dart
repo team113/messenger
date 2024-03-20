@@ -221,6 +221,8 @@ class CallWorker extends DisposableService {
                   if (_displayNotification) {
                     showNotification();
                   } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+                    // Schedule a local notification. [NotificationService] will
+                    // not show it if a push with the same tag was received.
                     Future.delayed(
                       NotificationService.pushTimeout,
                       showNotification,

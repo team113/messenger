@@ -471,9 +471,9 @@ class NotificationService extends DisposableService {
             : null;
 
         // On Web we display a local notification, if a push notification with
-        // the corresponding [tag] is not received for too long, thus this keeps
-        // track of the displayed notifications [tag]s to prevent local
-        // notifications from duplicating the received push notifications.
+        // the corresponding [tag] is not received during [pushTimeout], thus
+        // this keeps track of the displayed notifications [tag]s to prevent
+        // local notifications from duplicating the received push notifications.
         if (tag != null) {
           if (_tags.contains(tag)) {
             _tags.remove(tag);
