@@ -13,15 +13,25 @@ import '/util/log.dart';
 import '/util/platform_utils.dart';
 
 class UpgradeWorker extends DisposableService {
+  /// [Duration] to display the [UpgradePopupView], when [_schedulePopup] is
+  /// triggered.
+  static const Duration _popupDelay = Duration(seconds: 1);
+
   @override
   void onReady() {
-    if (!PlatformUtils.isWeb) {
+    // Web gets its updates out of the box with a simple page refresh.
+    //
+    // iOS gets its via App Store or TestFlight updates mechanisms.
+    if (!PlatformUtils.isWeb && !PlatformUtils.isIOS) {
       _fetchUpdates();
     }
+
     super.onReady();
   }
 
   Future<void> _fetchUpdates() async {
+    Log.debug('_fetchUpdates()', '$runtimeType');
+
     if (Config.appcast.isEmpty) {
       return;
     }
@@ -42,13 +52,17 @@ class UpgradeWorker extends DisposableService {
 
       if (channel != null) {
         final Iterable<XmlElement> items = channel.findElements('item');
+
         if (items.isNotEmpty) {
-          final Release release = Release.fromXml(
-            items.first,
-            language: L10n.chosen.value,
+          final Release release =
+              Release.fromXml(items.first, language: L10n.chosen.value);
+
+          Log.debug(
+            'Comparing `${release.name}` to `${Pubspec.ref}`',
+            '$runtimeType',
           );
 
-          if (release.name != Pubspec.version) {
+          if (release.name != Pubspec.ref) {
             _schedulePopup(release);
           }
         }
@@ -58,8 +72,11 @@ class UpgradeWorker extends DisposableService {
     }
   }
 
+  /// Schedules an [UpgradePopupView] prompt displaying.
   void _schedulePopup(Release release) {
-    Future.delayed(const Duration(seconds: 1), () {
+    Log.debug('_schedulePopup($release)', '$runtimeType');
+
+    Future.delayed(_popupDelay, () {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         await UpgradePopupView.show(router.context!, release: release);
       });
@@ -99,7 +116,7 @@ class Release {
     return Release(
       name: title,
       body: description,
-      publishedAt: DateTimeRfc822.parse(date) ?? DateTime.now(),
+      publishedAt: Rfc822ToDateTime.tryParse(date) ?? DateTime.now(),
       assets: assets,
     );
   }
@@ -129,12 +146,12 @@ class ReleaseAsset {
   final String os;
 
   @override
-  String toString() {
-    return 'ReleaseAsset(url: $url, os: $os)';
-  }
+  String toString() => 'ReleaseAsset(url: $url, os: $os)';
 }
 
-extension DateTimeRfc822 on DateTime {
+/// Extension adding parsing on RFC-822 date format to [DateTime].
+extension Rfc822ToDateTime on DateTime {
+  /// Map of month abbreviations to their respective numbers.
   static const Map<String, String> _months = {
     'Jan': '01',
     'Feb': '02',
@@ -150,24 +167,17 @@ extension DateTimeRfc822 on DateTime {
     'Dec': '12',
   };
 
-  static DateTime? parse(String input) {
+  static DateTime? tryParse(String input) {
     input = input.replaceFirst('GMT', '+0000');
 
-    final splits = input.split(' ');
+    final List<String> splits = input.split(' ');
 
-    final splitYear = splits[3];
-
-    final splitMonth = _months[splits[2]];
-    if (splitMonth == null) return null;
-
-    var splitDay = splits[1];
-    if (splitDay.length == 1) {
-      splitDay = '0$splitDay';
-    }
-
-    final splitTime = splits[4], splitZone = splits[5];
-    final reformatted =
-        '$splitYear-$splitMonth-$splitDay $splitTime $splitZone';
+    final String year = splits[3];
+    final String month = _months[splits[2]]!;
+    final String day = splits[1].padLeft(2, '0');
+    final String time = splits[4];
+    final String zone = splits.elementAtOrNull(5) ?? '+0000';
+    final reformatted = '$year-$month-$day $time $zone';
 
     return DateTime.tryParse(reformatted);
   }
