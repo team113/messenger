@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/hive/skipped_version.dart';
 import 'package:messenger/pubspec.g.dart';
 import 'package:xml/xml.dart';
 
@@ -13,6 +14,11 @@ import '/util/log.dart';
 import '/util/platform_utils.dart';
 
 class UpgradeWorker extends DisposableService {
+  UpgradeWorker(this._skippedLocal);
+
+  /// [SkippedVersionHiveProvider] for maintaining the skipped [Release.name]s.
+  final SkippedVersionHiveProvider? _skippedLocal;
+
   /// [Duration] to display the [UpgradePopupView], when [_schedulePopup] is
   /// triggered.
   static const Duration _popupDelay = Duration(seconds: 1);
@@ -29,7 +35,16 @@ class UpgradeWorker extends DisposableService {
     super.onReady();
   }
 
+  /// Skips the [release], meaning no popups will be prompted for this one.
+  Future<void> skip(Release release) async {
+    await _skippedLocal?.set(release.name);
+  }
+
+  /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
+  /// detected.
   Future<void> _fetchUpdates() async {
+    print('_skippedLocal: $_skippedLocal');
+
     Log.debug('_fetchUpdates()', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
@@ -62,7 +77,8 @@ class UpgradeWorker extends DisposableService {
             '$runtimeType',
           );
 
-          if (release.name != Pubspec.ref) {
+          final bool skipped = _skippedLocal?.get() == release.name;
+          if (release.name != Pubspec.ref && !skipped) {
             _schedulePopup(release);
           }
         }
@@ -84,6 +100,7 @@ class UpgradeWorker extends DisposableService {
   }
 }
 
+/// Application release information.
 class Release {
   const Release({
     required this.name,
@@ -92,11 +109,15 @@ class Release {
     required this.assets,
   });
 
+  /// Constructs a [Release] from the provided [XmlElement].
+  ///
+  /// If [xml] contains language attributes specified for `description`, then
+  /// this will try to use the [language] specified (or English, if `null`).
   factory Release.fromXml(XmlElement xml, {Language? language}) {
     language ??= L10n.languages.first;
 
-    final title = xml.findElements('title').first.innerText;
-    final description = xml
+    final String title = xml.findElements('title').first.innerText;
+    final String description = xml
             .findElements('description')
             .firstWhereOrNull(
               (e) => e.attributes.any(
@@ -107,10 +128,10 @@ class Release {
             )
             ?.innerText ??
         xml.findElements('description').first.innerText;
-    final date = xml.findElements('pubDate').first.innerText;
-    final List<ReleaseAsset> assets = xml
+    final String date = xml.findElements('pubDate').first.innerText;
+    final List<ReleaseArtifact> assets = xml
         .findElements('enclosure')
-        .map((e) => ReleaseAsset.fromXml(e))
+        .map((e) => ReleaseArtifact.fromXml(e))
         .toList();
 
     return Release(
@@ -121,10 +142,17 @@ class Release {
     );
   }
 
+  /// Title of this [Release] (usually a version).
   final String name;
+
+  /// Release notes of this [Release].
   final String body;
+
+  /// [DateTime] when this [Release] was published.
   final DateTime publishedAt;
-  final List<ReleaseAsset> assets;
+
+  /// [ReleaseArtifact] attached to this [Release].
+  final List<ReleaseArtifact> assets;
 
   @override
   String toString() {
@@ -132,26 +160,31 @@ class Release {
   }
 }
 
-class ReleaseAsset {
-  const ReleaseAsset({required this.url, required this.os});
+/// Artifact of the [Release], usually in a binary form.
+class ReleaseArtifact {
+  const ReleaseArtifact({required this.url, required this.os});
 
-  factory ReleaseAsset.fromXml(XmlElement xml) {
-    final url = xml.getAttribute('url')!;
-    final os = xml.getAttribute('sparkle:os')!;
+  /// Constructs a [ReleaseArtifact] from the provided [xml].
+  factory ReleaseArtifact.fromXml(XmlElement xml) {
+    final String url = xml.getAttribute('url')!;
+    final String os = xml.getAttribute('sparkle:os')!;
 
-    return ReleaseAsset(url: url, os: os);
+    return ReleaseArtifact(url: url, os: os);
   }
 
+  /// URL the binary of this [ReleaseArtifact] is located.
   final String url;
+
+  /// Operating system this [ReleaseArtifact] is for.
   final String os;
 
   @override
-  String toString() => 'ReleaseAsset(url: $url, os: $os)';
+  String toString() => 'ReleaseArtifact(url: $url, os: $os)';
 }
 
-/// Extension adding parsing on RFC-822 date format to [DateTime].
+/// Extension adding parsing of RFC-822 date format to [DateTime].
 extension Rfc822ToDateTime on DateTime {
-  /// Map of month abbreviations to their respective numbers.
+  /// Month abbreviations to their respective numbers.
   static const Map<String, String> _months = {
     'Jan': '01',
     'Feb': '02',
@@ -167,18 +200,45 @@ extension Rfc822ToDateTime on DateTime {
     'Dec': '12',
   };
 
+  /// Possible days of the week.
+  static const List<String> _days = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
+  ];
+
+  /// Tries parsing the [input] being a RFC-822 date to the [DateTime].
+  ///
+  /// If fails to do so, then returns `null`.
+  ///
+  /// Examples of valid [input]s:
+  /// - `Wed, 20 Mar 2024 12:00:03 +0300`
+  /// - `Sun, 1 Jun 2024 15:10:51 +0000`
+  /// - `Tue, 5 Dec 2000 01:02:03 GMT`
+  /// - `1 Sep 2007 23:23:59 +0100`
   static DateTime? tryParse(String input) {
+    // Replace the possible GMT to the +0000.
     input = input.replaceFirst('GMT', '+0000');
 
     final List<String> splits = input.split(' ');
 
-    final String year = splits[3];
-    final String month = _months[splits[2]]!;
-    final String day = splits[1].padLeft(2, '0');
-    final String time = splits[4];
-    final String zone = splits.elementAtOrNull(5) ?? '+0000';
-    final reformatted = '$year-$month-$day $time $zone';
+    // Completely ignore the day of the week part.
+    final int i = _days.any((e) => splits[0].startsWith(e)) ? 1 : 0;
 
-    return DateTime.tryParse(reformatted);
+    final String day = splits[i].padLeft(2, '0');
+    final String? month = _months[splits[i + 1]];
+    if (month == null) {
+      return null;
+    }
+
+    final String year = splits[i + 2];
+    final String time = splits[i + 3];
+    final String zone = splits.elementAtOrNull(i + 4) ?? '+0000';
+
+    return DateTime.tryParse('$year-$month-$day $time $zone');
   }
 }

@@ -2,7 +2,6 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/worker/upgrade.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/l10n/l10n.dart';
@@ -11,11 +10,14 @@ import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/worker/upgrade.dart';
 import 'controller.dart';
 
+/// Upgrade to [Release] prompt modal.
 class UpgradePopupView extends StatelessWidget {
   const UpgradePopupView(this.release, {super.key});
 
+  /// [Release] to prompt to upgrade to.
   final Release release;
 
   /// Displays an [UpgradePopupView] wrapped in a [ModalPopup].
@@ -28,7 +30,7 @@ class UpgradePopupView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: UpgradePopupController(),
+      init: UpgradePopupController(Get.find()),
       builder: (UpgradePopupController c) {
         return Obx(() {
           final Widget header;
@@ -37,7 +39,7 @@ class UpgradePopupView extends StatelessWidget {
           switch (c.screen.value) {
             case UpgradePopupScreen.download:
               header = ModalPopupHeader(
-                text: 'Downloads',
+                text: 'label_download'.l10n,
                 onBack: () => c.screen.value = UpgradePopupScreen.notice,
               );
 
@@ -72,7 +74,7 @@ class UpgradePopupView extends StatelessWidget {
               break;
 
             case UpgradePopupScreen.notice:
-              header = const ModalPopupHeader(text: 'Доступно обновление');
+              header = ModalPopupHeader(text: 'label_update_is_available'.l10n);
               children = [
                 Flexible(
                   child: ListView(
@@ -129,7 +131,7 @@ class UpgradePopupView extends StatelessWidget {
                           onPressed: () => Navigator.of(context).pop(false),
                           color: style.colors.onBackgroundOpacity7,
                           child: Text(
-                            'Пропустить'.l10n,
+                            'btn_skip'.l10n,
                             style: style.fonts.medium.regular.onBackground,
                           ),
                         ),

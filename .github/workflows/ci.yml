@@ -59,6 +59,20 @@ jobs:
   # Building #
   ############
 
+  appcast-edge:
+    name: appcast (edge)
+    env:
+      NOTES: ${{ secrets.APPCAST_NOTES }}
+      ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Unshallow the repository in order for `git describe` to work.
+          fetch-depth: 0
+
+      - run: make git.notes link=$ARTIFACTS notes=$NOTES > build/web/appcast.xml
+
+
   build:
     strategy:
       fail-fast: false
@@ -537,24 +551,6 @@ jobs:
                   tags=${{ 'new-design-preview' }}
                   image=review
         if: ${{ steps.skip.outputs.no == 'true' }}
-
-  # TODO: Should we really do a separate job for single `make git.notes`?
-  appcast-edge:
-    name: appcast (edge)
-    runs-on: ubuntu-latest
-    env:
-      NOTES: ${{ secrets.APPCAST_NOTES }}
-      ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - run: make git.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
-      - uses: actions/upload-artifact@v4
-        with:
-          name: appcast-${{ github.run_number }}
-          path: appcast.xml
-          if-no-files-found: error
-          retention-days: 1
 
   #############
   # Deploying #

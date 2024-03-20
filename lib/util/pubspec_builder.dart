@@ -65,7 +65,7 @@ class PubspecBuilder implements Builder {
         final String ref = response.substring(1, response.length - 1);
 
         buffer.write(
-          '  static const String? ref = \'0.1.0-alpha.12.1-preview-$ref\';\n',
+          '  static const String? ref = \'$ref\';\n',
         );
       } else {
         // ignore: avoid_print
