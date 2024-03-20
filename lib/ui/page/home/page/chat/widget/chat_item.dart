@@ -1311,7 +1311,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         call?.finishReason == null && call?.conversationStartedAt != null;
 
     if (isOngoing && !Config.disableInfiniteAnimations) {
-      _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+      _ongoingCallTimer ??= Timer.periodic(300.milliseconds, (_) {
         if (mounted) {
           setState(() {});
         }
@@ -1330,7 +1330,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           .difference(DateTime.now())
           .localizedString();
     } else if (call != null && call.finishReason != null) {
-      title = call.finishReason!.localizedString(_fromMe) ?? title;
+      title = call.finishReason!.localizedString(call.author.id == widget.me) ??
+          title;
       isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
           (call.finishReason == ChatCallFinishReason.unanswered);
 
