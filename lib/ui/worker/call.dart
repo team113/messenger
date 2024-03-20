@@ -220,7 +220,7 @@ class CallWorker extends DisposableService {
 
                   if (_displayNotification) {
                     showNotification();
-                  } else if (PlatformUtils.isWeb) {
+                  } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
                     Future.delayed(
                       NotificationService.pushTimeout,
                       showNotification,

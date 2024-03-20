@@ -169,7 +169,7 @@ class ChatWorker extends DisposableService {
 
         if (_displayNotification) {
           showNotification();
-        } else if (PlatformUtils.isWeb) {
+        } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
           // Show a local notification with a delay. If the push is received
           // during this time, the local notification with the same tag will not
           // be shown as it's handled by the [NotificationService].
@@ -198,7 +198,7 @@ class ChatWorker extends DisposableService {
 
         if (_displayNotification) {
           showNotification();
-        } else if (PlatformUtils.isWeb) {
+        } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
           // Show a local notification with a delay. If the push is received
           // during this time, the local notification with the same tag will not
           // be shown as it's handled by the [NotificationService].
