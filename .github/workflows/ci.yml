@@ -546,6 +546,8 @@ jobs:
       NOTES: ${{ secrets.APPCAST_NOTES }}
       ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
     steps:
+      - uses: actions/checkout@v4
+
       - run: |
           make git.notes link=$(ARTIFACTS) notes=$(NOTES) > appcast.xml
       - uses: actions/upload-artifact@v4
