@@ -24,8 +24,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../../../domain/repository/chat.dart';
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -1013,18 +1015,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final style = Theme.of(context).style;
 
     var message = widget.item.value as ChatCall;
-    bool isOngoing =
-        message.finishReason == null && message.conversationStartedAt != null;
+    // bool isOngoing =
+    //     message.finishReason == null && message.conversationStartedAt != null;
 
-    if (isOngoing && !Config.disableInfiniteAnimations) {
-      _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    } else {
-      _ongoingCallTimer?.cancel();
-    }
+    // if (isOngoing && !Config.disableInfiniteAnimations) {
+    //   _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+    //     if (mounted) {
+    //       setState(() {});
+    //     }
+    //   });
+    // } else {
+    //   _ongoingCallTimer?.cancel();
+    // }
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -1295,11 +1297,28 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Returns the visual representation of the provided [call].
-  Widget _call(ChatCall? call) {
+  Widget _call(ChatCall? _) {
     final style = Theme.of(context).style;
+
+    // test if it's working at all
+    final ChatService service = Get.find<ChatService>();
+    final RxChat chat = service.chats[widget.chat.value!.id]!;
+    final call = chat.messages
+        .firstWhereOrNull((e) => e.value.id == _?.id)
+        ?.value as ChatCall?;
 
     final bool isOngoing =
         call?.finishReason == null && call?.conversationStartedAt != null;
+
+    if (isOngoing && !Config.disableInfiniteAnimations) {
+      _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } else {
+      _ongoingCallTimer?.cancel();
+    }
 
     bool isMissed = false;
     String title = 'label_chat_call_ended'.l10n;
