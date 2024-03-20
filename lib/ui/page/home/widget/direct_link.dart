@@ -105,12 +105,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         }
       },
       onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
+        final ChatDirectLinkSlug? slug = ChatDirectLinkSlug.tryParse(s.text);
 
         if (s.text.isNotEmpty) {
-          try {
-            slug = ChatDirectLinkSlug(s.text);
-          } on FormatException {
+          if (slug == null) {
             s.error.value = 'err_invalid_symbols_in_link'.l10n;
           }
 

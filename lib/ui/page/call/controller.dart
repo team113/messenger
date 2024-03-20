@@ -1826,19 +1826,16 @@ class CallController extends GetxController {
     required Axis axis,
   }) {
     late RxDouble sizeAxis;
-    late double parentAxisSize;
     late double Function(double) applyAxisSize;
 
     switch (axis) {
       case Axis.horizontal:
         sizeAxis = secondaryWidth;
-        parentAxisSize = size.width;
         applyAxisSize = _applySWidth;
         break;
 
       case Axis.vertical:
         sizeAxis = secondaryHeight;
-        parentAxisSize = size.height;
         applyAxisSize = _applySHeight;
         break;
 
@@ -1846,20 +1843,11 @@ class CallController extends GetxController {
         return;
     }
 
-    final double newSize = applyAxisSize(sizeAxis.value - delta);
+    final double previousSize = sizeAxis.value;
 
-    if (sizeAxis.value - delta == newSize) {
-      double? offset =
-          applyOffset(sideOffset.value! + (sizeAxis.value - newSize));
-
-      if (sideOffset.value! + (sizeAxis.value - newSize) == offset) {
-        sideOffset.value = offset;
-        sizeAxis.value = newSize;
-      } else if (offset == parentAxisSize - sizeAxis.value) {
-        sideOffset.value = parentAxisSize - newSize;
-        sizeAxis.value = newSize;
-      }
-    }
+    sizeAxis.value = applyAxisSize(sizeAxis.value - delta);
+    sideOffset.value =
+        applyOffset(sideOffset.value! + (previousSize - sizeAxis.value));
   }
 
   /// Invokes [minimize], if not [minimized] already.

@@ -74,17 +74,16 @@ class ConfirmLogoutController extends GetxController {
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
-
-            if (repeat.text != password.text && repeat.isValidated) {
-              repeat.error.value = 'err_passwords_mismatch'.l10n;
-            }
           } on FormatException {
-            if (s.text.isEmpty) {
-              s.error.value = 'err_password_empty'.l10n;
-            } else {
-              s.error.value = 'err_password_incorrect'.l10n;
-            }
+            s.error.value = 'err_password_incorrect'.l10n;
           }
+        }
+
+        if (s.error.value == null &&
+            repeat.text.isNotEmpty &&
+            password.text.isNotEmpty &&
+            password.text != repeat.text) {
+          repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
     );
@@ -97,17 +96,16 @@ class ConfirmLogoutController extends GetxController {
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
-
-            if (repeat.text != password.text && password.isValidated) {
-              repeat.error.value = 'err_passwords_mismatch'.l10n;
-            }
           } on FormatException {
-            if (s.text.isEmpty) {
-              s.error.value = 'err_repeat_password_empty'.l10n;
-            } else {
-              s.error.value = 'err_password_incorrect'.l10n;
-            }
+            s.error.value = 'err_password_incorrect'.l10n;
           }
+        }
+
+        if (s.error.value == null &&
+            repeat.text.isNotEmpty &&
+            password.text.isNotEmpty &&
+            password.text != repeat.text) {
+          repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
     );

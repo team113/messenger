@@ -200,16 +200,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserLogin(UserLogin login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
-    final UserLogin? oldLogin = myUser.value?.login;
-
-    myUser.update((u) => u?.login = login);
-
-    try {
-      await _graphQlProvider.updateUserLogin(login);
-    } catch (_) {
-      myUser.update((u) => u?.login = oldLogin);
-      rethrow;
-    }
+    // Don't do optimism, as [login] might be occupied, thus shouldn't set the
+    // login right away.
+    await _graphQlProvider.updateUserLogin(login);
   }
 
   @override
