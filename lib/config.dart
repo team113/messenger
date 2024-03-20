@@ -208,7 +208,7 @@ class Config {
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
-        : (document['appcast']?['url'] ?? '');
+        : (document['appcast']?['url'] ?? appcast);
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

@@ -116,31 +116,21 @@ class Release {
 }
 
 class ReleaseAsset {
-  const ReleaseAsset({
-    required this.version,
-    required this.url,
-    required this.os,
-  });
+  const ReleaseAsset({required this.url, required this.os});
 
   factory ReleaseAsset.fromXml(XmlElement xml) {
-    final version = xml.getAttribute('sparkle:version')!;
     final url = xml.getAttribute('url')!;
     final os = xml.getAttribute('sparkle:os')!;
 
-    return ReleaseAsset(
-      version: version,
-      url: url,
-      os: os,
-    );
+    return ReleaseAsset(url: url, os: os);
   }
 
-  final String version;
   final String url;
   final String os;
 
   @override
   String toString() {
-    return 'ReleaseAsset(url: $url, version: $version, os: $os)';
+    return 'ReleaseAsset(url: $url, os: $os)';
   }
 }
 
