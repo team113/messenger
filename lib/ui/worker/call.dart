@@ -114,11 +114,6 @@ class CallWorker extends DisposableService {
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
 
-  /// Indicates whether the [_notificationService] should display a
-  /// notification.
-  bool get _displayNotification =>
-      _focused || !_notificationService.pushNotifications;
-
   @override
   void onInit() {
     AudioUtils.ensureInitialized();
@@ -203,7 +198,7 @@ class CallWorker extends DisposableService {
                 final FutureOr<RxChat?> chat = _chatService.get(c.chatId.value);
 
                 void showIncomingCallNotification(RxChat? chat) {
-                  void showNotification() {
+                  void showLocalNotification() {
                     if (_myUser.value?.muted == null &&
                         chat?.chat.value.muted == null) {
                       String? title = chat?.title ?? c.caller?.title;
@@ -218,14 +213,16 @@ class CallWorker extends DisposableService {
                     }
                   }
 
-                  if (_displayNotification) {
-                    showNotification();
+                  if (!_notificationService.pushNotifications) {
+                    // If FCM was not initialized, show a local notification
+                    // immediately.
+                    showLocalNotification();
                   } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
                     // Schedule a local notification. [NotificationService] will
                     // not show it if a push with the same tag was received.
                     Future.delayed(
                       NotificationService.pushTimeout,
-                      showNotification,
+                      showLocalNotification,
                     );
                   }
                 }
