@@ -199,7 +199,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     // Wait for the size to be determined if necessary.
     if (widget.offstageUntilDetermined) {
       return Obx(() {
-        if (widget.renderer.height.value == 0) {
+        if (!widget.renderer.canPlay.value) {
           _waitTilSizeDetermined();
           return Stack(
             children: [
@@ -233,7 +233,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
     Widget aspected(BoxFit? fit) {
       if (widget.respectAspectRatio && fit != BoxFit.cover) {
         return Obx(() {
-          if (widget.renderer.height.value == 0) {
+          if (!widget.renderer.canPlay.value) {
             _waitTilSizeDetermined();
             if (widget.framelessBuilder != null) {
               return widget.framelessBuilder!();
@@ -245,6 +245,12 @@ class _RtcVideoViewState extends State<RtcVideoView> {
                 const Center(child: CustomProgressIndicator.big())
               ],
             );
+          }
+
+          if (widget.renderer.width.value == 0 ||
+              widget.renderer.height.value == 0) {
+            _waitTilSizeDetermined();
+            return video;
           }
 
           return AspectRatio(

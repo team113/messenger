@@ -2228,6 +2228,16 @@ class RtcVideoRenderer extends RtcRenderer {
       '$runtimeType',
     );
 
+    // Listen for video to start having frames to be displayed.
+    _delegate.onCanPlay = () {
+      Log.debug(
+        '[${track.kind()} ${track.mediaSourceKind()}] canPlay',
+        '$runtimeType',
+      );
+
+      canPlay.value = true;
+    };
+
     // Listen for resizes to update [width] and [height].
     _delegate.onResize = () {
       Log.debug(
@@ -2235,8 +2245,12 @@ class RtcVideoRenderer extends RtcRenderer {
         '$runtimeType',
       );
 
-      width.value = _delegate.videoWidth;
-      height.value = _delegate.videoHeight;
+      width.value =
+          _delegate.videoWidth == 0 ? width.value : _delegate.videoWidth;
+      height.value =
+          _delegate.videoHeight == 0 ? height.value : _delegate.videoHeight;
+
+      canPlay.value = canPlay.value || _delegate.videoHeight != 0;
     };
   }
 
@@ -2248,6 +2262,10 @@ class RtcVideoRenderer extends RtcRenderer {
 
   /// Actual [webrtc.VideoRenderer].
   final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
+
+  /// Indicator whether this [RtcVideoRenderer] has visible frames, meaning it
+  /// may be rendered.
+  final RxBool canPlay = RxBool(false);
 
   /// Reactive width of this [RtcVideoRenderer].
   late final RxInt width = RxInt(_delegate.videoWidth);

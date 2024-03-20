@@ -74,7 +74,7 @@ jobs:
 
       - id: appcast
         run: |
-          echo "notes=$(make appcast.notes link=$ARTIFACTS notes=$NOTES)"
+          echo "notes=$(make appcast.notes link=$ARTIFACTS notes=$NOTES)" \
           >> GITHUB_OUTPUT
       - run: git describe --tags --dirty --match "v*" --always
 
