@@ -915,7 +915,7 @@ deploy:
         fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
         flutter.pub flutter.run \
-        git.release \
+        git.release git.notes \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
         minikube.boot \
