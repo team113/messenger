@@ -126,7 +126,7 @@ jobs:
           # Unshallow the repository in order for `git describe` to work.
           fetch-depth: 0
 
-      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > build/web/appcast.xml
+      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
 
       - uses: actions/upload-artifact@v4
         with:
@@ -169,6 +169,11 @@ jobs:
           channel: stable
           cache: true
 
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
+        if: ${{ contains('macos windows', matrix.platform) }}
+
+      - run: make flutter.pub
+
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
@@ -189,9 +194,6 @@ jobs:
              > web/firebase-messaging-sw.js
         if: ${{ matrix.platform == 'web' }}
 
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ contains('macos windows', matrix.platform) }}
-
       - name: Parse semver versions from Git tag
         id: semver
         uses: actions-ecosystem/action-regex-match@v2
@@ -199,8 +201,6 @@ jobs:
           text: ${{ github.ref }}
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-
-      - run: make flutter.pub
 
       # TODO: Remove `profile=yes`, when self-hosted Sentry supports source
       #       maps reading.
