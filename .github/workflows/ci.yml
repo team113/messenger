@@ -74,11 +74,8 @@ jobs:
 
       - id: appcast
         run: |
-          echo "notes=$(make appcast.notes link=$ARTIFACTS notes=$NOTES)" \
-          >> GITHUB_OUTPUT
-      - run: git describe --tags --dirty --match "v*" --always
-
-      - run: echo "${{ steps.appcast.outputs.notes }}" > appcast.xml
+          APPCAST=$(make appcast.notes link=$ARTIFACTS notes=$NOTES)
+          echo "$APPCAST" > appcast.xml
 
       - run: git describe --tags --dirty --match "v*" --always
 
