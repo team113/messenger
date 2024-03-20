@@ -86,31 +86,33 @@ class UpgradePopupView extends StatelessWidget {
                         style: style.fonts.medium.regular.onBackground,
                       ),
                       const SizedBox(height: 8),
-                      MarkdownBody(
-                        data: release.body,
-                        onTapLink: (_, href, __) async =>
-                            await launchUrlString(href!),
-                        styleSheet: MarkdownStyleSheet(
-                          h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
+                      if (release.description != null)
+                        MarkdownBody(
+                          data: release.description!,
+                          onTapLink: (_, href, __) async =>
+                              await launchUrlString(href!),
+                          styleSheet: MarkdownStyleSheet(
+                            h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
 
-                          // TODO: Exception.
-                          h2: style.fonts.largest.bold.onBackground
-                              .copyWith(fontSize: 20),
+                            // TODO: Exception.
+                            h2: style.fonts.largest.bold.onBackground
+                                .copyWith(fontSize: 20),
 
-                          p: style.fonts.normal.regular.onBackground,
-                          code: style.fonts.small.regular.onBackground.copyWith(
-                            letterSpacing: 1.2,
-                            backgroundColor: style.colors.secondaryHighlight,
-                          ),
-                          codeblockDecoration: BoxDecoration(
-                            color: style.colors.secondaryHighlight,
-                          ),
-                          codeblockPadding: const EdgeInsets.all(16),
-                          blockquoteDecoration: BoxDecoration(
-                            color: style.colors.secondaryHighlight,
+                            p: style.fonts.normal.regular.onBackground,
+                            code:
+                                style.fonts.small.regular.onBackground.copyWith(
+                              letterSpacing: 1.2,
+                              backgroundColor: style.colors.secondaryHighlight,
+                            ),
+                            codeblockDecoration: BoxDecoration(
+                              color: style.colors.secondaryHighlight,
+                            ),
+                            codeblockPadding: const EdgeInsets.all(16),
+                            blockquoteDecoration: BoxDecoration(
+                              color: style.colors.secondaryHighlight,
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 8),
                       Text(
                         release.publishedAt.toRelative(),

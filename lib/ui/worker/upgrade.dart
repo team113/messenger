@@ -104,7 +104,7 @@ class UpgradeWorker extends DisposableService {
 class Release {
   const Release({
     required this.name,
-    required this.body,
+    required this.description,
     required this.publishedAt,
     required this.assets,
   });
@@ -117,7 +117,7 @@ class Release {
     language ??= L10n.languages.first;
 
     final String title = xml.findElements('title').first.innerText;
-    final String description = xml
+    final String? description = xml
             .findElements('description')
             .firstWhereOrNull(
               (e) => e.attributes.any(
@@ -127,7 +127,7 @@ class Release {
               ),
             )
             ?.innerText ??
-        xml.findElements('description').first.innerText;
+        xml.findElements('description').firstOrNull?.innerText;
     final String date = xml.findElements('pubDate').first.innerText;
     final List<ReleaseArtifact> assets = xml
         .findElements('enclosure')
@@ -136,7 +136,7 @@ class Release {
 
     return Release(
       name: title,
-      body: description,
+      description: (description?.isEmpty ?? true) ? null : description,
       publishedAt: Rfc822ToDateTime.tryParse(date) ?? DateTime.now(),
       assets: assets,
     );
@@ -146,7 +146,7 @@ class Release {
   final String name;
 
   /// Release notes of this [Release].
-  final String body;
+  final String? description;
 
   /// [DateTime] when this [Release] was published.
   final DateTime publishedAt;
@@ -156,7 +156,7 @@ class Release {
 
   @override
   String toString() {
-    return 'Release(name: $name, body: $body, publishedAt: $publishedAt, assets: $assets)';
+    return 'Release(name: $name, description: $description, publishedAt: $publishedAt, assets: $assets)';
   }
 }
 

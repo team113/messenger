@@ -71,7 +71,14 @@ jobs:
           # Unshallow the repository in order for `git describe` to work.
           fetch-depth: 0
 
-      - run: make git.notes link=$ARTIFACTS notes=$NOTES > build/web/appcast.xml
+      - run: make git.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appcast-${{ github.run_number }}
+          path: appcast.xml
+          if-no-files-found: error
+          retention-days: 1
 
 
   build:
