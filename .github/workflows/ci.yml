@@ -72,7 +72,10 @@ jobs:
           fetch-depth: 0
       - run: git describe --tags --dirty --match "v*" --always
 
-      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
+      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > $APPCAST
+      - run: git describe --tags --dirty --match "v*" --always
+
+      - run: $APPCAST > appcast.xml
 
       - run: git describe --tags --dirty --match "v*" --always
 
