@@ -17,6 +17,7 @@ class DonateWidget extends StatelessWidget {
     this.title = '',
     this.onTitlePressed,
     this.height = _defaultHeight,
+    this.tag = 'DONATION',
   });
 
   static const double _defaultHeight = 104;
@@ -31,6 +32,8 @@ class DonateWidget extends StatelessWidget {
 
   final String title;
   final void Function()? onTitlePressed;
+
+  final String tag;
 
   static const Color font = Color.fromRGBO(243, 205, 1, 1);
 
@@ -48,6 +51,10 @@ class DonateWidget extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
+            // Color.fromARGB(255, 17, 185, 56),
+            // Color.fromARGB(255, 14, 158, 48),
+            // Color.fromARGB(255, 19, 224, 67),
+            // Color.fromARGB(255, 27, 204, 68),
             Color(0xFFF9C924),
             Color(0xFFE4AF18),
             Color(0xFFFFF98C),
@@ -58,10 +65,28 @@ class DonateWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          Positioned.fill(
+          const Positioned.fill(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: const SvgImage.asset(
+              // borderRadius: BorderRadius.circular(8),
+              // child: Container(
+              //   width: double.infinity,
+              //   height: double.infinity,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(8),
+              //     gradient: const LinearGradient(
+              //       begin: Alignment.centerLeft,
+              //       end: Alignment.centerRight,
+              //       colors: [
+              //         Color.fromARGB(255, 17, 185, 56),
+              //         Color.fromARGB(255, 14, 158, 48),
+              //         Color.fromARGB(255, 19, 224, 67),
+              //         Color.fromARGB(255, 27, 204, 68),
+              //       ],
+              //       stops: [0, 0.32, 0.68, 1],
+              //     ),
+              //   ),
+              // ),
+              child: SvgImage.asset(
                 'assets/images/bar2.svg',
                 fit: BoxFit.cover,
                 height: double.infinity,
@@ -121,7 +146,8 @@ class DonateWidget extends StatelessWidget {
                               style: style.fonts.medium.regular.onBackground
                                   .copyWith(
                                 fontSize: 32 * (height / _defaultHeight),
-                                color: font,
+                                // color: font,
+                                color: Color.fromARGB(255, 17, 185, 56),
                               ),
                             ),
                           ),
@@ -129,7 +155,8 @@ class DonateWidget extends StatelessWidget {
                                 style: style.fonts.medium.regular.onBackground
                                     .copyWith(
                                   fontSize: 32 * (height / _defaultHeight),
-                                  color: font,
+                                  // color: font,
+                                  color: Color.fromARGB(255, 17, 185, 56),
                                 ),
                               ),
                         ],
@@ -144,7 +171,7 @@ class DonateWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4, bottom: 4),
                 child: timestamp ??
                     EmbossedText(
-                      'DONATION',
+                      tag,
                       small: true,
                       style: style.systemMessageStyle.copyWith(
                         color: DonateWidget.font,

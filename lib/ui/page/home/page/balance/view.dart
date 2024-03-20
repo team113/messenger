@@ -24,6 +24,8 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/embossed_text.dart';
 import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -32,6 +34,7 @@ import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -118,21 +121,39 @@ class BalanceProviderView extends StatelessWidget {
                     return Block(
                       title: e.name,
                       children: [
-                        MenuButton(
-                          leading: const SvgIcon(SvgIcons.paypal),
-                          title: 'G99',
-                          subtitle: 'Buy for \$0.99',
-                          onPressed: () {},
+                        _bar(
+                          context,
+                          price: 99,
+                          label: 'Buy for \$0.99',
                         ),
-                        const SizedBox(height: 3),
-                        MenuButton(
-                          leading: const SvgIcon(SvgIcons.paypal),
-                          title: 'G499',
-                          subtitle: 'Buy for \$4.99',
-                          onPressed: () {},
+                        const SizedBox(height: 16),
+                        _bar(
+                          context,
+                          price: 529,
+                          label: 'Buy for \$4.99',
                         ),
-                        const SizedBox(height: 8),
-                        const PayPalButton(),
+                        const SizedBox(height: 16),
+                        _bar(
+                          context,
+                          price: 1049,
+                          label: 'Buy for \$9.99',
+                        ),
+                        const SizedBox(height: 4),
+                        // MenuButton(
+                        //   leading: const SvgIcon(SvgIcons.paypal),
+                        //   title: 'G99',
+                        //   subtitle: 'Buy for \$0.99',
+                        //   onPressed: () {},
+                        // ),
+                        // const SizedBox(height: 3),
+                        // MenuButton(
+                        //   leading: const SvgIcon(SvgIcons.paypal),
+                        //   title: 'G499',
+                        //   subtitle: 'Buy for \$4.99',
+                        //   onPressed: () {},
+                        // ),
+                        // const SizedBox(height: 8),
+                        // const PayPalButton(),
                       ],
                     );
                   }
@@ -326,6 +347,46 @@ class BalanceProviderView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+
+  Widget _bar(
+    BuildContext context, {
+    int price = 0,
+    required String label,
+  }) {
+    final style = Theme.of(context).style;
+
+    return WidgetButton(
+      onPressed: () {},
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
+            child: DonateWidget(
+              donate: price,
+              timestamp: const SizedBox(),
+            ),
+          ),
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: style.colors.primary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                child: Text(
+                  label,
+                  style: style.fonts.small.regular.onPrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
