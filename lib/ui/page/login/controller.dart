@@ -214,35 +214,40 @@ class LoginController extends GetxController {
 
     email = TextFieldState(
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            UserEmail(s.text.toLowerCase());
-          }
+        s.error.value = null;
 
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_incorrect_email'.l10n;
+        if (s.text.isNotEmpty) {
+          try {
+            UserEmail(s.text.toLowerCase());
+          } on FormatException {
+            s.error.value = 'err_incorrect_email'.l10n;
+          }
         }
       },
       onSubmitted: (s) async {
-        emailCode.clear();
-        stage.value = LoginViewStage.signUpWithEmailCode;
-        try {
-          await _authService
-              .signUpWithEmail(UserEmail(email.text.toLowerCase()));
-          s.unsubmit();
-        } on AddUserEmailException catch (e) {
-          s.error.value = e.toMessage();
-          _setResendEmailTimer(false);
+        final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
 
-          stage.value = LoginViewStage.signUpWithEmail;
-        } catch (_) {
-          s.error.value = 'err_data_transfer'.l10n;
-          _setResendEmailTimer(false);
-          s.unsubmit();
+        if (email == null) {
+          s.error.value = 'err_incorrect_email'.l10n;
+        } else {
+          emailCode.clear();
+          stage.value = LoginViewStage.signUpWithEmailCode;
+          try {
+            await _authService.signUpWithEmail(email);
+            s.unsubmit();
+          } on AddUserEmailException catch (e) {
+            s.error.value = e.toMessage();
+            _setResendEmailTimer(false);
 
-          stage.value = LoginViewStage.signUpWithEmail;
-          rethrow;
+            stage.value = LoginViewStage.signUpWithEmail;
+          } catch (_) {
+            s.error.value = 'err_data_transfer'.l10n;
+            _setResendEmailTimer(false);
+            s.unsubmit();
+
+            stage.value = LoginViewStage.signUpWithEmail;
+            rethrow;
+          }
         }
       },
     );
@@ -304,51 +309,23 @@ class LoginController extends GetxController {
   ///
   /// Username is [login]'s text and the password is [password]'s text.
   Future<void> signIn() async {
-    UserLogin? userLogin;
-    UserNum? num;
-    UserEmail? email;
-    UserPhone? phone;
+    final String input = login.text.toLowerCase();
+
+    final UserLogin? userLogin = UserLogin.tryParse(input);
+    final UserNum? userNum = UserNum.tryParse(input);
+    final UserEmail? userEmail = UserEmail.tryParse(input);
+    final UserPhone? userPhone = UserPhone.tryParse(input);
+    final UserPassword? userPassword = UserPassword.tryParse(password.text);
 
     login.error.value = null;
     password.error.value = null;
 
-    if (login.text.isEmpty) {
-      password.error.value = 'err_incorrect_login_or_password'.l10n;
-      password.unsubmit();
-      return;
-    }
+    final bool noCredentials = userLogin == null &&
+        userNum == null &&
+        userEmail == null &&
+        userPhone == null;
 
-    try {
-      userLogin = UserLogin(login.text.toLowerCase());
-    } catch (e) {
-      // No-op.
-    }
-
-    try {
-      num = UserNum(login.text);
-    } catch (e) {
-      // No-op.
-    }
-
-    try {
-      email = UserEmail(login.text.toLowerCase());
-    } catch (e) {
-      // No-op.
-    }
-
-    try {
-      phone = UserPhone(login.text);
-    } catch (e) {
-      // No-op.
-    }
-
-    if (password.text.isEmpty) {
-      password.error.value = 'err_incorrect_login_or_password'.l10n;
-      password.unsubmit();
-      return;
-    }
-
-    if (userLogin == null && num == null && email == null && phone == null) {
+    if (noCredentials || userPassword == null) {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
       password.unsubmit();
       return;
@@ -358,16 +335,14 @@ class LoginController extends GetxController {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
       await _authService.signIn(
-        UserPassword(password.text),
+        userPassword,
         login: userLogin,
-        num: num,
-        email: email,
-        phone: phone,
+        num: userNum,
+        email: userEmail,
+        phone: userPhone,
       );
 
       (onSuccess ?? router.home)();
-    } on FormatException {
-      password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
@@ -432,16 +407,16 @@ class LoginController extends GetxController {
     // Parse the [recovery] input.
     try {
       _recoveryNum = UserNum(recovery.text);
-    } catch (e) {
+    } catch (_) {
       try {
         _recoveryPhone = UserPhone(recovery.text);
-      } catch (e) {
+      } catch (_) {
         try {
           _recoveryLogin = UserLogin(recovery.text.toLowerCase());
-        } catch (e) {
+        } catch (_) {
           try {
-            _recoveryEmail = UserEmail(recovery.text);
-          } catch (e) {
+            _recoveryEmail = UserEmail(recovery.text.toLowerCase());
+          } catch (_) {
             // No-op.
           }
         }
@@ -536,16 +511,12 @@ class LoginController extends GetxController {
       return;
     }
 
-    try {
-      UserPassword(newPassword.text);
-    } catch (e) {
+    if (UserPassword.tryParse(newPassword.text) == null) {
       newPassword.error.value = 'err_incorrect_input'.l10n;
       return;
     }
 
-    try {
-      UserPassword(repeatPassword.text);
-    } catch (e) {
+    if (UserPassword.tryParse(repeatPassword.text) == null) {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
       return;
     }

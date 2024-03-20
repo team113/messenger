@@ -174,6 +174,9 @@ class UserId extends NewType<String> implements Comparable<UserId> {
 class UserNum extends NewType<String> {
   const UserNum._(super.val);
 
+  /// Creates an object without any validation.
+  const factory UserNum.unchecked(String val) = UserNum._;
+
   factory UserNum(String val) {
     val = val.replaceAll(' ', '');
 
@@ -184,6 +187,18 @@ class UserNum extends NewType<String> {
     }
 
     return UserNum._(val);
+  }
+
+  /// Parses the provided [val] as a [UserNum], if [val] meets the validation,
+  /// or returns `null` otherwise.
+  ///
+  /// If [val] contains any spaces, they are omitted.
+  static UserNum? tryParse(String val) {
+    try {
+      return UserNum(val);
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Returns [UserNum] as [String] formatted in quartets.
@@ -199,9 +214,6 @@ class UserNum extends NewType<String> {
     }
     return formattedUserNum.trim();
   }
-
-  /// Creates an object without any validation.
-  const factory UserNum.unchecked(String val) = UserNum._;
 }
 
 /// Unique login of an [User].
@@ -225,6 +237,16 @@ class UserLogin extends NewType<String> {
 
   /// Regular expression for basic [UserLogin] validation.
   static final RegExp _regExp = RegExp(r'^[a-z0-9][a-z0-9_-]{1,18}[a-z0-9]$');
+
+  /// Parses the provided [val] as a [UserLogin], if [val] meets the validation,
+  /// or returns `null` otherwise.
+  static UserLogin? tryParse(String val) {
+    try {
+      return UserLogin(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Name of an [User].
@@ -245,6 +267,16 @@ class UserName extends NewType<String> {
 
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+
+  /// Parses the provided [val] as a [UserName], if [val] meets the validation,
+  /// or returns `null` otherwise.
+  static UserName? tryParse(String val) {
+    try {
+      return UserName(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Password of an [User].
@@ -269,6 +301,16 @@ class UserPassword extends NewType<String> {
 
   /// Regular expression for basic [UserPassword] validation.
   static final RegExp _regExp = RegExp(r'^[^\s](.{0,248}[^\s])?$');
+
+  /// Parses the provided [val] as a [UserPassword], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  static UserPassword? tryParse(String val) {
+    try {
+      return UserPassword(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Email address of an [User].
@@ -284,6 +326,16 @@ class UserEmail extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
+
+  /// Parses the provided [val] as a [UserEmail], if [val] meets the validation,
+  /// or returns `null` otherwise.
+  static UserEmail? tryParse(String val) {
+    try {
+      return UserEmail(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Arbitrary descriptive information about a [User].
@@ -303,6 +355,16 @@ class UserBio extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserBio.unchecked(String val) = UserBio._;
+
+  /// Parses the provided [val] as a [UserBio], if [val] meets the validation,
+  /// or returns `null` otherwise.
+  static UserBio? tryParse(String val) {
+    try {
+      return UserBio(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Phone number of an [User].
@@ -331,6 +393,16 @@ class UserPhone extends NewType<String> {
   static final RegExp _regExp = RegExp(
     r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
   );
+
+  /// Parses the provided [val] as a [UserPhone], if [val] meets the validation,
+  /// or returns `null` otherwise.
+  static UserPhone? tryParse(String val) {
+    try {
+      return UserPhone(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Direct link to a `Chat`.
@@ -368,22 +440,6 @@ class ChatDirectLinkSlug extends NewType<String> {
   /// Creates an object without any validation.
   const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
 
-  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
-  /// validation, or returns `null` otherwise.
-  ///
-  /// If [val] starts with [Config.link], then that part is omitted.
-  static ChatDirectLinkSlug? tryParse(String val) {
-    if (val.startsWith('${Config.link}/')) {
-      val = val.substring(Config.link.length + 1);
-    }
-
-    try {
-      return ChatDirectLinkSlug(val);
-    } catch (_) {
-      return null;
-    }
-  }
-
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
   factory ChatDirectLinkSlug.generate([int length = 10]) {
     final Random r = Random();
@@ -406,6 +462,22 @@ class ChatDirectLinkSlug extends NewType<String> {
 
   /// Regular expression for basic [ChatDirectLinkSlug] validation.
   static final RegExp _regExp = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
+
+  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  ///
+  /// If [val] starts with [Config.link], then that part is omitted.
+  static ChatDirectLinkSlug? tryParse(String val) {
+    if (val.startsWith('${Config.link}/')) {
+      val = val.substring(Config.link.length + 1);
+    }
+
+    try {
+      return ChatDirectLinkSlug(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Status of an [User].
@@ -423,6 +495,16 @@ class UserTextStatus extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
+
+  /// Parses the provided [val] as a [UserTextStatus], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  static UserTextStatus? tryParse(String val) {
+    try {
+      return UserTextStatus(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].

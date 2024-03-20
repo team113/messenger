@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -60,153 +59,95 @@ class AddEmailView extends StatelessWidget {
     return GetBuilder(
       init: AddEmailController(
         Get.find(),
-        initial: email,
         timeout: timeout,
         pop: context.popModal,
       ),
       builder: (AddEmailController c) {
-        return Obx(() {
-          final Widget child;
-
-          switch (c.stage.value) {
-            case AddEmailFlowStage.code:
-              child = Scrollbar(
-                controller: c.scrollController,
-                child: ListView(
-                  controller: c.scrollController,
-                  shrinkWrap: true,
+        final Widget child = Scrollbar(
+          controller: c.scrollController,
+          child: ListView(
+            controller: c.scrollController,
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Obx(() {
+                  return Text(
+                    c.resent.value
+                        ? 'label_add_email_confirmation_sent_again'.l10n
+                        : 'label_add_email_confirmation_sent'.l10n,
+                    style: style.fonts.normal.regular.secondary,
+                  );
+                }),
+              ),
+              const SizedBox(height: 25),
+              ReactiveTextField(
+                key: const Key('ConfirmationCode'),
+                state: c.code,
+                label: 'label_confirmation_code'.l10n,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+              const SizedBox(height: 25),
+              Obx(() {
+                return Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Obx(() {
-                        return Text(
-                          c.resent.value
-                              ? 'label_add_email_confirmation_sent_again'.l10n
-                              : 'label_add_email_confirmation_sent'.l10n,
-                          style: style.fonts.normal.regular.secondary,
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 25),
-                    ReactiveTextField(
-                      key: const Key('ConfirmationCode'),
-                      state: c.emailCode,
-                      label: 'label_confirmation_code'.l10n,
-                      formatters: [FilteringTextInputFormatter.digitsOnly],
-                    ),
-                    const SizedBox(height: 25),
-                    Obx(() {
-                      return Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedRoundedButton(
-                              key: const Key('Resend'),
-                              maxWidth: double.infinity,
-                              onPressed: c.resendEmailTimeout.value == 0
-                                  ? c.resendEmail
-                                  : null,
-                              color: style.colors.primary,
-                              child: Text(
-                                c.resendEmailTimeout.value == 0
-                                    ? 'label_resend'.l10n
-                                    : 'label_resend_timeout'.l10nfmt(
-                                        {'timeout': c.resendEmailTimeout.value},
-                                      ),
-                                style: c.resendEmailTimeout.value == 0
-                                    ? style.fonts.normal.regular.onPrimary
-                                    : style.fonts.normal.regular.onBackground,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: OutlinedRoundedButton(
-                              key: const Key('Proceed'),
-                              maxWidth: double.infinity,
-                              onPressed: c.emailCode.isEmpty.value
-                                  ? null
-                                  : c.emailCode.submit,
-                              color: style.colors.primary,
-                              child: Text(
-                                'btn_proceed'.l10n,
-                                style: c.emailCode.isEmpty.value
-                                    ? style.fonts.normal.regular.onBackground
-                                    : style.fonts.normal.regular.onPrimary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
-                  ],
-                ),
-              );
-              break;
-
-            default:
-              child = Scrollbar(
-                controller: c.scrollController,
-                child: ListView(
-                  controller: c.scrollController,
-                  shrinkWrap: true,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        'label_add_email_description'.l10n,
-                        style: style.fonts.normal.regular.secondary,
+                    Expanded(
+                      child: OutlinedRoundedButton(
+                        key: const Key('Resend'),
+                        maxWidth: double.infinity,
+                        onPressed: c.resendEmailTimeout.value == 0
+                            ? c.resendEmail
+                            : null,
+                        color: style.colors.primary,
+                        child: Text(
+                          c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt(
+                                  {'timeout': c.resendEmailTimeout.value},
+                                ),
+                          style: c.resendEmailTimeout.value == 0
+                              ? style.fonts.normal.regular.onPrimary
+                              : style.fonts.normal.regular.onBackground,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 25),
-                    ReactiveTextField(
-                      key: const Key('Email'),
-                      state: c.email,
-                      label: 'label_email'.l10n,
-                      hint: 'label_email_example'.l10n,
-                    ),
-                    const SizedBox(height: 25),
-                    Obx(() {
-                      return OutlinedRoundedButton(
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedRoundedButton(
                         key: const Key('Proceed'),
                         maxWidth: double.infinity,
-                        onPressed:
-                            c.email.isEmpty.value ? null : c.email.submit,
+                        onPressed: c.code.isEmpty.value ? null : c.code.submit,
                         color: style.colors.primary,
                         child: Text(
                           'btn_proceed'.l10n,
-                          style: c.email.isEmpty.value
+                          style: c.code.isEmpty.value
                               ? style.fonts.normal.regular.onBackground
                               : style.fonts.normal.regular.onPrimary,
                         ),
-                      );
-                    }),
+                      ),
+                    ),
                   ],
-                ),
-              );
-              break;
-          }
+                );
+              }),
+            ],
+          ),
+        );
 
-          return AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 250),
-            sizeDuration: const Duration(milliseconds: 250),
-            child: Column(
-              key: Key('${c.stage.value}'),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 4),
-                ModalPopupHeader(text: 'label_add_email'.l10n),
-                const SizedBox(height: 13),
-                Flexible(
-                  child: Padding(
-                    padding: ModalPopup.padding(context),
-                    child: child,
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 4),
+            ModalPopupHeader(text: 'label_add_email'.l10n),
+            const SizedBox(height: 13),
+            Flexible(
+              child: Padding(
+                padding: ModalPopup.padding(context),
+                child: child,
+              ),
             ),
-          );
-        });
+            const SizedBox(height: 16),
+          ],
+        );
       },
     );
   }

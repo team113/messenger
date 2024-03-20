@@ -161,17 +161,12 @@ class UserController extends GetxController {
           return;
         }
 
-        UserName? name;
-        try {
-          name = UserName(s.text);
-        } on FormatException catch (_) {
+        final UserName? name = UserName.tryParse(s.text);
+        if (name == null) {
           s.status.value = RxStatus.empty();
           s.error.value = 'err_incorrect_input'.l10n;
           s.unsubmit();
-          return;
-        }
-
-        if (s.error.value == null) {
+        } else {
           s.status.value = RxStatus.loading();
           s.editable.value = false;
 

@@ -598,7 +598,7 @@ class ChatsTabController extends GetxController {
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: groupName.text.isEmpty ? null : ChatName(groupName.text),
+        name: ChatName.tryParse(groupName.text),
       );
 
       router.chat(chat.chat.value.id);
