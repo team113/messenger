@@ -154,7 +154,7 @@ class ChatWorker extends DisposableService {
 
       if (newChat) {
         Future<void> showNotification() async {
-          if (_myUser.value?.muted == null && c.chat.value.muted == null) {
+          if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
               c.title,
               body: 'label_you_were_added_to_group'.l10n,
@@ -182,7 +182,7 @@ class ChatWorker extends DisposableService {
       c.chat,
       onNotification: (body, tag, image) async {
         Future<void> showNotification() async {
-          if (_myUser.value?.muted == null && c.chat.value.muted == null) {
+          if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
               c.title,
               body: body,
