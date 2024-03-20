@@ -78,7 +78,7 @@ jobs:
           >> GITHUB_OUTPUT
       - run: git describe --tags --dirty --match "v*" --always
 
-      - run: ${{ steps.appcast.outputs.notes }} > appcast.xml
+      - run: echo "${{ steps.appcast.outputs.notes }}" > appcast.xml
 
       - run: git describe --tags --dirty --match "v*" --always
 
