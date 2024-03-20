@@ -627,7 +627,8 @@ class ChatView extends StatelessWidget {
                               ),
                             );
                           }
-                          if (c.chat!.status.value.isLoading) {
+
+                          if (c.status.value.isLoading) {
                             return const Center(
                               child: CustomProgressIndicator(),
                             );
