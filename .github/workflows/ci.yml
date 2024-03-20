@@ -548,8 +548,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: |
-          make git.notes link=$(ARTIFACTS) notes=$(NOTES) > appcast.xml
+      - run: make git.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
       - uses: actions/upload-artifact@v4
         with:
           name: appcast-${{ github.run_number }}

@@ -839,7 +839,7 @@ git-notes-title = $(shell git describe --tags --dirty --match "v*" --always)
 git-notes-description = $(or $(notes),Release notes)
 
 git.notes:
-	echo "<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><item><title>$(git-notes-title)</title><description>$(git-notes-description)</description><pubDate>$(shell date -R)</pubDate>$(call git.notes.release,"macos","messenger-macos.zip")$(call git.notes.release,"windows","messenger-windows.zip")$(call git.notes.release,"linux","messenger-linux.zip")$(call git.notes.release,"android","messenger-android.zip")$(call git.notes.release,"ios","messenger-ios.zip")</item></channel></rss>"
+	@echo "<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><item><title>$(git-notes-title)</title><description>$(git-notes-description)</description><pubDate>$(shell date -R)</pubDate>$(call git.notes.release,"macos","messenger-macos.zip")$(call git.notes.release,"windows","messenger-windows.zip")$(call git.notes.release,"linux","messenger-linux.zip")$(call git.notes.release,"android","messenger-android.zip")$(call git.notes.release,"ios","messenger-ios.zip")</item></channel></rss>"
 define git.notes.release
 <enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
 endef
