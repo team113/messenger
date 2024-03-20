@@ -41,9 +41,9 @@ FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d '"'))
 
-FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
-FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
-FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
+FCM_PROJECT = $(or $(FCM_PROJECT_ID),$(strip $(shell grep 'FCM_PROJECT_ID=' .env | cut -d'=' -f2)),messenger-3872c)
+FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),$(strip $(shell grep 'FCM_BUNDLE_ID=' .env | cut -d'=' -f2)),com.team113.messenger)
+FCM_WEB = $(or $(FCM_WEB_ID),$(strip $(shell grep 'FCM_WEB_ID=' .env | cut -d'=' -f2)),1:985927661367:web:c604073ecefcacd15c0cb2)
 
 SENTRY_RELEASE ?= $(strip \
 	$(shell grep -m1 'ref = ' lib/pubspec.g.dart | cut -d"'" -f2))
@@ -777,7 +777,6 @@ endif
 			--values=$(helm-chart-vals-dir)/$(helm-cluster).vals.yaml \
 			--values=my.$(helm-cluster).vals.yaml \
 			$(if $(call eq,$(helm-cluster),review),\
-				--set ingress.hosts={"$(helm-review-app-domain)"} \
 				--set image.tag="$(CURRENT_BRANCH)" )\
 			--set deployment.revision=$(shell date +%s) \
 			$(if $(call eq,$(force),yes),--force,)\
@@ -829,6 +828,32 @@ ifeq ($(shell git rev-parse $(git-release-tag) >/dev/null 2>&1 && echo "ok"),ok)
 endif
 	git tag $(git-release-tag) main
 	git push origin refs/tags/$(git-release-tag)
+
+
+# Prepares the release notes of current commit in JSON format.
+#
+# Usage:
+#	make git.notes [notes=(<notes>|"Release notes")] [link=(<origin>)]
+
+git-notes-title = $(shell git describe --tags --dirty --match "v*" --always)
+git-notes-description = $(or $(notes),Release notes)
+
+git.notes:
+	echo "<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><item><title>$(git-notes-title)</title><description>$(git-notes-description)</description><pubDate>$(shell date -R)</pubDate>$(call git.notes.release,"macos","messenger-macos.zip")$(call git.notes.release,"windows","messenger-windows.zip")$(call git.notes.release,"linux","messenger-linux.zip")$(call git.notes.release,"android","messenger-android.zip")$(call git.notes.release,"ios","messenger-ios.zip")</item></channel></rss>"
+define git.notes.release
+<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
+endef
+
+# git-commit-message = $(strip $(shell git log --format=%s -1)) # TODO: This doesn't escape backticks.
+
+# git.notes:
+# 	echo "[{$(call git.notes.notes),\"assets\":[$(call git.notes.release,"messenger-macos.zip"),$(call git.notes.release,"messenger-windows.zip"),$(call git.notes.release,"messenger-linux.zip"),$(call git.notes.release,"messenger-android.apk"),$(call git.notes.release,"messenger-ios.zip")]}]" > releases.json
+# define git.notes.notes
+# 	"\"name\":\"$(shell git describe --tags --dirty --match "v*" --always)\",\"body\":\"$(git-commit-message)\",\"published_at\":\"$(shell date -u '+%Y-%m-%dT%H:%M:%SZ')\""
+# endef
+# define git.notes.release
+# 	"{\"name\":\"$(1)\"\,\"content_type\":\"application/zip\"\,\"size\":\"0\"\,\"browser_download_url\":\"$(link)$(1)\"}"
+# endef
 
 
 

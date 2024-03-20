@@ -235,6 +235,7 @@ jobs:
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_LINK_PREFIX=${{ secrets.LINK_PREFIX2 }}
+                            SOCAPP_APPCAST_URL=${{ secrets.APPCAST_EDGE }}
                             SOCAPP_SENTRY_DSN=${{ secrets.SENTRY_DSN }}
                             SOCAPP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -406,7 +407,7 @@ jobs:
 
 
   docker:
-    needs: ["build", "build-linux"]
+    needs: ["build", "build-linux", "appcast-edge"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -443,6 +444,11 @@ jobs:
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: appcast-${{ github.run_number }}
+          path: build/web/
 
       - run: cp -r web/.well-known/ build/web/.well-known/
 
@@ -531,6 +537,23 @@ jobs:
                   tags=${{ 'new-design-preview' }}
                   image=review
         if: ${{ steps.skip.outputs.no == 'true' }}
+
+  # TODO: Should we really do a separate job for single `make git.notes`?
+  appcast-edge:
+    name: appcast (edge)
+    runs-on: ubuntu-latest
+    env:
+      NOTES: ${{ secrets.APPCAST_NOTES }}
+      ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
+    steps:
+      - run: |
+          make git.notes link=$(ARTIFACTS) notes=$(NOTES) > appcast.xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appcast-${{ github.run_number }}
+          path: appcast.xml
+          if-no-files-found: error
+          retention-days: 1
 
   #############
   # Deploying #

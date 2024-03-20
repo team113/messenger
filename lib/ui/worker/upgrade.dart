@@ -16,20 +16,18 @@ class UpgradeWorker extends DisposableService {
   @override
   void onReady() {
     if (!PlatformUtils.isWeb) {
-      // _fetchUpdates();
+      _fetchUpdates();
     }
     super.onReady();
   }
 
   Future<void> _fetchUpdates() async {
-    if (Config.releasesUrl == null) {
+    if (Config.appcast.isEmpty) {
       return;
     }
 
     try {
-      final response = await (await PlatformUtils.dio).get(
-        'https://raw.githubusercontent.com/team113/messenger/new-design-preview/appcast.xml',
-      );
+      final response = await (await PlatformUtils.dio).get(Config.appcast);
 
       if (response.statusCode != 200 || response.data == null) {
         throw DioException.connectionError(

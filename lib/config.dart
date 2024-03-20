@@ -97,21 +97,11 @@ class Config {
   /// mismatch is detected.
   static String? credentials;
 
-  /// URL to fetch releases and its notes from.
+  /// Domain considered as the URL to download `appcast.xml` from.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
   /// available.
-  ///
-  /// Response must be a valid JSON format representing the GitHub REST API
-  /// response for releases:
-  /// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28
-  ///
-  /// If `null` is specified, then no releases should be fetched at all.
-  static String? releasesUrl =
-      'https://api.github.com/repos/team113/messenger/releases?perPage=5';
-
-  /// Domain considered as the URL to download artifacts from.
-  static String artifacts = '';
+  static String appcast = '';
 
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
@@ -216,9 +206,9 @@ class Config {
           kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
     );
 
-    artifacts = const bool.hasEnvironment('SOCAPP_ARTIFACTS_URL')
-        ? const String.fromEnvironment('SOCAPP_ARTIFACTS_URL')
-        : (document['artifacts']?['url'] ?? '');
+    appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
+        ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
+        : (document['appcast']?['url'] ?? '');
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
@@ -279,7 +269,7 @@ class Config {
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
-            artifacts = remote['artifacts']?['url'] ?? artifacts;
+            appcast = remote['appcast']?['url'] ?? appcast;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],
@@ -301,6 +291,10 @@ class Config {
       } else {
         origin = '${Uri.base.scheme}://${Uri.base.host}';
       }
+    }
+
+    if (appcast.isEmpty) {
+      appcast = '$origin/appcast.xml';
     }
 
     if (link.isEmpty) {
