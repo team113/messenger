@@ -241,6 +241,7 @@ btn_settings = Settings
 btn_share = Share
 btn_sign_in = Sign in
 btn_sign_up = Sign up
+btn_skip = Skip
 btn_start = Start
 btn_sticker = Sticker
 btn_submit = Submit
@@ -898,6 +899,7 @@ label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
+label_update_is_available = Update is available
 label_use_search = Use search to find a user
 label_user = User
 label_user_added_user = {$author} added {$user}

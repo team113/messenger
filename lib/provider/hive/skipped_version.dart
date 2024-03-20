@@ -15,24 +15,33 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:hive_flutter/adapters.dart';
 
-import '/ui/worker/upgrade.dart';
+import '/util/log.dart';
+import 'base.dart';
 
-/// Possible [UpgradePopupView] screens.
-enum UpgradePopupScreen { notice, download }
+/// [Hive] storage for a skipped [Release] version.
+class SkippedVersionHiveProvider extends HiveBaseProvider<String> {
+  @override
+  Stream<BoxEvent> get boxEvents => box.watch(key: 0);
 
-class UpgradePopupController extends GetxController {
-  UpgradePopupController(this._upgradeWorker);
+  @override
+  String get boxName => 'skipped_version';
 
-  /// [UpgradePopupScreen] to display currently.
-  final Rx<UpgradePopupScreen> screen = Rx(UpgradePopupScreen.notice);
+  @override
+  void registerAdapters() {
+    Log.debug('registerAdapters()', '$runtimeType');
+  }
 
-  /// [UpgradeWorker] to skip the [Release]s.
-  final UpgradeWorker _upgradeWorker;
+  /// Returns the skipped version from [Hive].
+  String? get() {
+    Log.debug('get()', '$runtimeType');
+    return getSafe(0);
+  }
 
-  /// Skips the provided [release].
-  Future<void> skip(Release release) async {
-    await _upgradeWorker.skip(release);
+  /// Stores the new skipped version to [Hive].
+  Future<void> set(String version) async {
+    Log.debug('set($version)', '$runtimeType');
+    await putSafe(0, version);
   }
 }

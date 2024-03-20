@@ -1,3 +1,20 @@
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -13,9 +30,11 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/worker/upgrade.dart';
 import 'controller.dart';
 
+/// Upgrade to [Release] prompt modal.
 class UpgradePopupView extends StatelessWidget {
   const UpgradePopupView(this.release, {super.key});
 
+  /// [Release] to prompt to upgrade to.
   final Release release;
 
   /// Displays an [UpgradePopupView] wrapped in a [ModalPopup].
@@ -28,7 +47,7 @@ class UpgradePopupView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: UpgradePopupController(),
+      init: UpgradePopupController(Get.find()),
       builder: (UpgradePopupController c) {
         return Obx(() {
           final Widget header;
@@ -37,7 +56,7 @@ class UpgradePopupView extends StatelessWidget {
           switch (c.screen.value) {
             case UpgradePopupScreen.download:
               header = ModalPopupHeader(
-                text: 'Downloads',
+                text: 'label_download'.l10n,
                 onBack: () => c.screen.value = UpgradePopupScreen.notice,
               );
 
@@ -72,7 +91,7 @@ class UpgradePopupView extends StatelessWidget {
               break;
 
             case UpgradePopupScreen.notice:
-              header = const ModalPopupHeader(text: 'Доступно обновление');
+              header = ModalPopupHeader(text: 'label_update_is_available'.l10n);
               children = [
                 Flexible(
                   child: ListView(
@@ -84,31 +103,33 @@ class UpgradePopupView extends StatelessWidget {
                         style: style.fonts.medium.regular.onBackground,
                       ),
                       const SizedBox(height: 8),
-                      MarkdownBody(
-                        data: release.body,
-                        onTapLink: (_, href, __) async =>
-                            await launchUrlString(href!),
-                        styleSheet: MarkdownStyleSheet(
-                          h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
+                      if (release.description != null)
+                        MarkdownBody(
+                          data: release.description!,
+                          onTapLink: (_, href, __) async =>
+                              await launchUrlString(href!),
+                          styleSheet: MarkdownStyleSheet(
+                            h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
 
-                          // TODO: Exception.
-                          h2: style.fonts.largest.bold.onBackground
-                              .copyWith(fontSize: 20),
+                            // TODO: Exception.
+                            h2: style.fonts.largest.bold.onBackground
+                                .copyWith(fontSize: 20),
 
-                          p: style.fonts.normal.regular.onBackground,
-                          code: style.fonts.small.regular.onBackground.copyWith(
-                            letterSpacing: 1.2,
-                            backgroundColor: style.colors.secondaryHighlight,
-                          ),
-                          codeblockDecoration: BoxDecoration(
-                            color: style.colors.secondaryHighlight,
-                          ),
-                          codeblockPadding: const EdgeInsets.all(16),
-                          blockquoteDecoration: BoxDecoration(
-                            color: style.colors.secondaryHighlight,
+                            p: style.fonts.normal.regular.onBackground,
+                            code:
+                                style.fonts.small.regular.onBackground.copyWith(
+                              letterSpacing: 1.2,
+                              backgroundColor: style.colors.secondaryHighlight,
+                            ),
+                            codeblockDecoration: BoxDecoration(
+                              color: style.colors.secondaryHighlight,
+                            ),
+                            codeblockPadding: const EdgeInsets.all(16),
+                            blockquoteDecoration: BoxDecoration(
+                              color: style.colors.secondaryHighlight,
+                            ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 8),
                       Text(
                         release.publishedAt.toRelative(),
@@ -129,7 +150,7 @@ class UpgradePopupView extends StatelessWidget {
                           onPressed: () => Navigator.of(context).pop(false),
                           color: style.colors.onBackgroundOpacity7,
                           child: Text(
-                            'Пропустить'.l10n,
+                            'btn_skip'.l10n,
                             style: style.fonts.medium.regular.onBackground,
                           ),
                         ),

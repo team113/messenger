@@ -15,24 +15,31 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:messenger/ui/worker/upgrade.dart';
 
-import '/ui/worker/upgrade.dart';
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-/// Possible [UpgradePopupView] screens.
-enum UpgradePopupScreen { notice, download }
+  test('Rfc822ToDateTime.tryParse() returns correct results', () async {
+    expect(
+      Rfc822ToDateTime.tryParse('Wed, 20 Mar 2024 12:00:03 +0300')?.toUtc(),
+      DateTime.utc(2024, 03, 20, 12 - 03, 00, 03),
+    );
 
-class UpgradePopupController extends GetxController {
-  UpgradePopupController(this._upgradeWorker);
+    expect(
+      Rfc822ToDateTime.tryParse('Sun, 1 Jun 2024 15:10:51 +0000')?.toUtc(),
+      DateTime.utc(2024, 06, 01, 15, 10, 51),
+    );
 
-  /// [UpgradePopupScreen] to display currently.
-  final Rx<UpgradePopupScreen> screen = Rx(UpgradePopupScreen.notice);
+    expect(
+      Rfc822ToDateTime.tryParse('Tue, 5 Dec 2000 01:02:03 GMT')?.toUtc(),
+      DateTime.utc(2000, 12, 05, 01, 02, 03),
+    );
 
-  /// [UpgradeWorker] to skip the [Release]s.
-  final UpgradeWorker _upgradeWorker;
-
-  /// Skips the provided [release].
-  Future<void> skip(Release release) async {
-    await _upgradeWorker.skip(release);
-  }
+    expect(
+      Rfc822ToDateTime.tryParse('1 Sep 2007 23:23:59 +0100')?.toUtc(),
+      DateTime.utc(2007, 09, 01, 22, 23, 59),
+    );
+  });
 }

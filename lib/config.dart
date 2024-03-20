@@ -95,25 +95,11 @@ class Config {
   /// mismatch is detected.
   static String? credentials;
 
-  /// URL to fetch releases and its notes from.
-  ///
-  /// Intended to be used in [UpgradeWorker] to notify users about new releases
-  /// available.
-  ///
-  /// Response must be a valid JSON format representing the GitHub REST API
-  /// response for releases:
-  /// https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28
-  ///
-  /// If `null` is specified, then no releases should be fetched at all.
-  static String? releasesUrl =
-      'https://api.github.com/repos/team113/messenger/releases?perPage=5';
-
   /// Domain considered as the URL to download `appcast.xml` from.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
   /// available.
-  static String? appcast =
-      'https://raw.githubusercontent.com/team113/messenger/new-design-preview/appcast.xml';
+  static String appcast = '';
 
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
@@ -216,7 +202,7 @@ class Config {
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
-        : (document['appcast']?['url'] ?? '');
+        : (document['appcast']?['url'] ?? appcast);
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

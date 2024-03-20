@@ -241,6 +241,7 @@ btn_settings = Настройки
 btn_share = Поделиться
 btn_sign_in = Вход
 btn_sign_up = Регистрация
+btn_skip = Пропустить
 btn_start = Начать
 btn_sticker = Стикер
 btn_submit = Применить
@@ -928,6 +929,7 @@ label_unread_messages = {$quantity ->
     [1] {$quantity} непрочитанное сообщение
     *[other] {$quantity} непрочитанных сообщения
 }
+label_update_is_available = Доступно обновление
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}

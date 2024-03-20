@@ -114,6 +114,28 @@ jobs:
   # Building #
   ############
 
+  appcast-edge:
+    name: appcast (edge)
+    runs-on: ubuntu-latest
+    env:
+      NOTES: ${{ secrets.APPCAST_NOTES }}
+      ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Unshallow the repository in order for `git describe` to work.
+          fetch-depth: 0
+
+      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > build/web/appcast.xml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appcast-${{ github.run_number }}
+          path: appcast.xml
+          if-no-files-found: error
+          retention-days: 1
+
+
   build:
     strategy:
       fail-fast: false
@@ -199,7 +221,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
-                            SOCAPP_ARTIFACTS_URL=${{ secrets.ARTIFACTS_URL }}
+                            SOCAPP_APPCAST_URL=${{ secrets.APPCAST_MAIN }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -393,7 +415,7 @@ jobs:
              || startsWith(github.ref, 'refs/tags/v') }}
 
   docker:
-    needs: ["build", "build-linux"]
+    needs: ["build", "build-linux", "appcast-edge"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -430,6 +452,12 @@ jobs:
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: appcast-${{ github.run_number }}
+          path: build/web/
+        if: ${{ github.ref == 'refs/heads/main' }}
 
       - run: make docker.image no-cache=yes
                   tag=build-${{ github.run_number }}
