@@ -1602,8 +1602,9 @@ class ChatController extends GetxController {
     final ChatItem item = e.value;
 
     if (chat?.chat.value.unreadCount != 0) {
-      ListElementId elementId = ListElementId(item.at, item.id);
+      final ListElementId elementId = ListElementId(item.at, item.id);
       final ListElement? previous = elements[elements.firstKeyAfter(elementId)];
+
       if (previous != null && previous.id.id == chat?.chat.value.lastReadItem) {
         _unreadElement = UnreadMessagesElement(
           e.value.at.subtract(const Duration(microseconds: 1)),
