@@ -61,6 +61,7 @@ jobs:
 
   appcast-edge:
     name: appcast (edge)
+    runs-on: ubuntu-latest
     env:
       NOTES: ${{ secrets.APPCAST_NOTES }}
       ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
