@@ -22,10 +22,7 @@ import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
-import '/themes.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Real-time WebRTC video stream representation of its [renderer].
@@ -39,8 +36,6 @@ class RtcVideoView extends StatefulWidget {
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
-    this.label,
-    this.muted = false,
     this.border,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
@@ -56,12 +51,6 @@ class RtcVideoView extends StatefulWidget {
 
   /// [BoxFit] mode of this video.
   final BoxFit? fit;
-
-  /// Indicator whether this video should display `muted` icon or not.
-  final bool muted;
-
-  /// Optional label of this video.
-  final String? label;
 
   /// Border radius of this video.
   final BorderRadius? borderRadius;
@@ -182,8 +171,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     if (widget.renderer.height.value == 0) {
       _waitTilSizeDetermined();
     }
@@ -293,54 +280,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           context,
         );
 
-        return Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            outlined(fit),
-            SafeAnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
-              child: widget.muted || widget.label != null
-                  ? Container(
-                      height: 25,
-                      padding: const EdgeInsets.symmetric(horizontal: 6.3),
-                      margin: const EdgeInsets.only(bottom: 7),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: style.colors.secondaryOpacity87,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.muted) const SizedBox(width: 1),
-                          if (widget.muted)
-                            const SvgIcon(SvgIcons.microphoneOffSmall),
-                          Flexible(
-                            child: AnimatedSize(
-                              duration: const Duration(milliseconds: 200),
-                              child: widget.label != null
-                                  ? Padding(
-                                      padding: EdgeInsets.only(
-                                        left: widget.muted ? 6 : 1,
-                                      ),
-                                      child: Text(
-                                        widget.label!,
-                                        style:
-                                            style.fonts.small.regular.onPrimary,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.clip,
-                                      ),
-                                    )
-                                  : const SizedBox(width: 1, height: 25),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : const SizedBox(width: 1, height: 1),
-            ),
-          ],
-        );
+        return outlined(fit);
       },
     );
   }
