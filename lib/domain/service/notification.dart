@@ -44,12 +44,6 @@ import 'disposable_service.dart';
 class NotificationService extends DisposableService {
   NotificationService(this._graphQlProvider);
 
-  /// [Duration] indicating the time after which the push notification should be
-  /// considered as lost.
-  ///
-  /// Used in [ChatWorker] and [CallWorker] to display local notifications.
-  static const Duration pushTimeout = Duration(seconds: 10);
-
   /// GraphQL API provider for registering and un-registering current device for
   /// receiving Firebase Cloud Messaging notifications.
   final GraphQlProvider _graphQlProvider;

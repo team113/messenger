@@ -76,6 +76,10 @@ class ChatWorker extends DisposableService {
   /// Indicator whether the icon in the taskbar has a flash effect applied.
   bool _flashed = false;
 
+  /// [Duration] indicating the time after which the push notification should be
+  /// considered as lost.
+  static const Duration _pushTimeout = Duration(seconds: 10);
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
@@ -84,8 +88,8 @@ class ChatWorker extends DisposableService {
   bool get _displayNotification =>
       _focused || !_notificationService.pushNotifications;
 
-  /// Indicates whether the currently authenticated [MyUser] has muted their
-  /// chats.
+  /// Indicates whether the currently authenticated [MyUser] has any
+  /// [MuteDuration] specified.
   bool get _isMuted => _myUser.value?.muted != null;
 
   @override
@@ -153,7 +157,8 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        Future<void> showNotification() async {
+        // Displays a local notification via [NotificationService].
+        Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
               c.title,
@@ -168,11 +173,11 @@ class ChatWorker extends DisposableService {
         }
 
         if (_displayNotification) {
-          showNotification();
+          notify();
         } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
-          // Schedule a local notification. [NotificationService] will not show
-          // it if a push with the same tag was received.
-          Future.delayed(NotificationService.pushTimeout, showNotification);
+          // [NotificationService] will not show the scheduled local
+          // notification, if a push with the same tag was already received.
+          Future.delayed(_pushTimeout, notify);
         }
       }
     }
@@ -180,7 +185,8 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onNotification: (body, tag, image) async {
-        Future<void> showNotification() async {
+        // Displays a local notification via [NotificationService].
+        Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
               c.title,
@@ -196,11 +202,11 @@ class ChatWorker extends DisposableService {
         }
 
         if (_displayNotification) {
-          showNotification();
+          notify();
         } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
-          // Schedule a local notification. [NotificationService] will not show
-          // it if a push with the same tag was received.
-          Future.delayed(NotificationService.pushTimeout, showNotification);
+          // [NotificationService] will not show the scheduled local
+          // notification, if a push with the same tag was already received.
+          Future.delayed(_pushTimeout, notify);
         }
       },
       me: () => _chatService.me,

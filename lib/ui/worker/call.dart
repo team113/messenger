@@ -94,12 +94,16 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] for canceling the [_incoming] sound playing.
   StreamSubscription? _incomingAudio;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
+
+  /// [Duration] indicating the time after which the push notification should be
+  /// considered as lost.
+  static const Duration _pushTimeout = Duration(seconds: 10);
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
@@ -198,10 +202,11 @@ class CallWorker extends DisposableService {
                 final FutureOr<RxChat?> chat = _chatService.get(c.chatId.value);
 
                 void showIncomingCallNotification(RxChat? chat) {
-                  void showLocalNotification() {
+                  // Displays a local notification via [NotificationService].
+                  void notify() {
                     if (_myUser.value?.muted == null &&
                         chat?.chat.value.muted == null) {
-                      String? title = chat?.title ?? c.caller?.title;
+                      final String? title = chat?.title ?? c.caller?.title;
 
                       _notificationService.show(
                         title ?? 'label_incoming_call'.l10n,
@@ -213,17 +218,15 @@ class CallWorker extends DisposableService {
                     }
                   }
 
+                  // If FCM wasn't initialized, show a local notification
+                  // immediately.
                   if (!_notificationService.pushNotifications) {
-                    // If FCM was not initialized, show a local notification
-                    // immediately.
-                    showLocalNotification();
+                    notify();
                   } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
-                    // Schedule a local notification. [NotificationService] will
-                    // not show it if a push with the same tag was received.
-                    Future.delayed(
-                      NotificationService.pushTimeout,
-                      showLocalNotification,
-                    );
+                    // [NotificationService] will not show the scheduled local
+                    // notification, if a push with the same tag was already
+                    // received.
+                    Future.delayed(_pushTimeout, notify);
                   }
                 }
 
