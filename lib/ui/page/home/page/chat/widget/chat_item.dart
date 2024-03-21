@@ -1298,100 +1298,106 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     //     .firstWhereOrNull((e) => e.value.id == _?.id)
     //     ?.value as ChatCall?;
 
-    ChatCall? call;
-    if (c != null) {
-      final item = widget.getItem?.call(c.id);
-    }
+    final FutureOr<Rx<ChatItem>?>? item = widget.getItem?.call(c!.id);
 
-    final bool isOngoing =
-        call?.finishReason == null && call?.conversationStartedAt != null;
+    return FutureBuilder(
+      future: item is Rx<ChatItem>? ? null : item,
+      initialData: item is Rx<ChatItem>? ? item : null,
+      builder: (_, snapshot) {
+        final ChatCall? call = snapshot.data?.value as ChatCall?;
 
-    if (isOngoing && !Config.disableInfiniteAnimations) {
-      _ongoingCallTimer ??= Timer.periodic(50.milliseconds, (_) {
-        if (mounted) {
-          setState(() {});
+        final bool isOngoing =
+            call?.finishReason == null && call?.conversationStartedAt != null;
+
+        if (isOngoing && !Config.disableInfiniteAnimations) {
+          _ongoingCallTimer ??= Timer.periodic(50.milliseconds, (_) {
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        } else {
+          _ongoingCallTimer?.cancel();
         }
-      });
-    } else {
-      _ongoingCallTimer?.cancel();
-    }
 
-    bool isMissed = false;
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
+        bool isMissed = false;
+        String title = 'label_chat_call_ended'.l10n;
+        String? time;
 
-    if (isOngoing) {
-      title = 'label_chat_call_ongoing'.l10n;
-      time = call!.conversationStartedAt!.val
-          .difference(DateTime.now())
-          .localizedString();
-    } else if (call != null && call.finishReason != null) {
-      title = call.finishReason!.localizedString(call.author.id == widget.me) ??
-          title;
-      isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
-          (call.finishReason == ChatCallFinishReason.unanswered);
+        if (isOngoing) {
+          title = 'label_chat_call_ongoing'.l10n;
+          time = call!.conversationStartedAt!.val
+              .difference(DateTime.now())
+              .localizedString();
+        } else if (call != null && call.finishReason != null) {
+          title =
+              call.finishReason!.localizedString(call.author.id == widget.me) ??
+                  title;
+          isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
+              (call.finishReason == ChatCallFinishReason.unanswered);
 
-      if (call.finishedAt != null && call.conversationStartedAt != null) {
-        time = call.finishedAt!.val
-            .difference(call.conversationStartedAt!.val)
-            .localizedString();
-      }
-    } else {
-      title = call?.author.id == widget.me
-          ? 'label_outgoing_call'.l10n
-          : 'label_incoming_call'.l10n;
-    }
+          if (call.finishedAt != null && call.conversationStartedAt != null) {
+            time = call.finishedAt!.val
+                .difference(call.conversationStartedAt!.val)
+                .localizedString();
+          }
+        } else {
+          title = call?.author.id == widget.me
+              ? 'label_outgoing_call'.l10n
+              : 'label_incoming_call'.l10n;
+        }
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: SvgIcon(
-            (call?.withVideo ?? false)
-                ? isMissed
-                    ? SvgIcons.callVideoMissed
-                    : SvgIcons.callVideo
-                : isMissed
-                    ? SvgIcons.callAudioMissed
-                    : SvgIcons.callAudio,
-          ),
-        ),
-        Flexible(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.fonts.medium.regular.onBackground,
-                ),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SvgIcon(
+                (call?.withVideo ?? false)
+                    ? isMissed
+                        ? SvgIcons.callVideoMissed
+                        : SvgIcons.callVideo
+                    : isMissed
+                        ? SvgIcons.callAudioMissed
+                        : SvgIcons.callAudio,
               ),
-              if (time != null) ...[
-                const SizedBox(width: 8),
-                Padding(
-                  padding: const EdgeInsets.only(top: 2.5),
-                  child: Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Text(
-                        time,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: style.fonts.normal.regular.secondary,
-                      ).fixedDigits(),
-                    ],
+            ),
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
                   ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(width: 2),
-      ],
+                  if (time != null) ...[
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.5),
+                      child: Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Text(
+                            time,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.fonts.normal.regular.secondary,
+                          ).fixedDigits(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+        );
+      },
     );
   }
 
