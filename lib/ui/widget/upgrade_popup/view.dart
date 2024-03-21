@@ -147,7 +147,10 @@ class UpgradePopupView extends StatelessWidget {
                         child: OutlinedRoundedButton(
                           key: const Key('Skip'),
                           maxWidth: double.infinity,
-                          onPressed: () => Navigator.of(context).pop(false),
+                          onPressed: () {
+                            c.skip(release);
+                            Navigator.of(context).pop(false);
+                          },
                           color: style.colors.onBackgroundOpacity7,
                           child: Text(
                             'btn_skip'.l10n,
