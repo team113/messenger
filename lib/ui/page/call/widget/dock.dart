@@ -84,6 +84,9 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// [_DraggedItem]s of this [Dock].
   List<_DraggedItem<T>> _items = [];
 
+  /// [GlobalKey]s of the expanding [AnimatedContainer]s.
+  List<GlobalKey> _expandedKeys = [];
+
   /// Current [Duration] of the [AnimatedContainer]s.
   Duration _animateDuration = animateDuration;
 
@@ -154,6 +157,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       widget.items.map((e) => e.runtimeType).toList(),
     )) {
       _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+      _populateExpandedKeys();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -162,6 +166,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   @override
   void initState() {
     _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+    _expandedKeys = List.generate(_items.length + 10, (_) => GlobalKey());
     super.initState();
   }
 
@@ -195,23 +200,22 @@ class _DockState<T extends Object> extends State<Dock<T>> {
             if (i == 0) ...[
               const Flexible(flex: 1, child: SizedBox(width: 10)),
               AnimatedContainer(
+                key: _expandedKeys[0],
                 duration: _animateDuration,
-                width: _expanded == 0 && _expanded == i
-                    ? _rect == null
-                        ? _size
-                        : _rect!.width
+                width: _expanded == 0
+                    ? _items.firstOrNull?.key.globalPaintBounds?.width ?? _size
                     : 0,
               ),
-              if (_compressed == 0 && _compressed == i)
+              if (_compressed == 0)
                 AnimatedDelayedWidth(
                   beginWidth: _size,
                   endWidth: 0,
                   duration: jumpDuration,
                 ),
               Flexible(
-                flex: _expanded == 0 && _expanded == i ? 1 : 0,
+                flex: _expanded == 0 ? 1 : 0,
                 child: SizedBox(
-                  width: _expanded == 0 && _expanded == i ? 10 : 0,
+                  width: _expanded == 0 ? 10 : 0,
                 ),
               ),
             ],
@@ -279,6 +283,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                                 _resetAnimations();
                                 _expanded = -1;
                                 _items.insert(index, dragged);
+                                _populateExpandedKeys();
                                 widget.onDragEnded?.call(_items[index].item);
                               });
                             }
@@ -309,11 +314,10 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               child: SizedBox(width: _expanded - 1 == i ? 10 : 0),
             ),
             AnimatedContainer(
+              key: _expandedKeys[i + 1],
               duration: _animateDuration,
               width: _expanded - 1 == i
-                  ? _rect == null
-                      ? _size
-                      : _rect!.width
+                  ? _items.firstOrNull?.key.globalPaintBounds?.width ?? _size
                   : 0,
             ),
             if (_compressed - 1 == i)
@@ -358,68 +362,73 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     if (i == -1) {
       int to = _expanded;
 
-      data.hidden = true;
-      _items.insert(to, data);
-
-      // Set the animations to [Duration.zero], as we're gonna do sorting.
-      _resetAnimations();
+      Rect? rect = _rect ?? _items.firstOrNull?.key.globalPaintBounds;
 
       Offset dragOffset = Offset(
         item.offset.dx -
-            (_rect != null && _dragged != null ? _rect!.width : _size) / 2,
+            (rect != null && _dragged != null ? rect.width : _size) / 2,
         item.offset.dy -
-            (_rect != null && _dragged != null ? _rect!.height : _size) / 2,
+            (rect != null && _dragged != null ? rect.height : _size) / 2,
       );
 
-      // Keep the provided [data] in the overlay for one frame.
-      Rect? rect = _rect;
-      _entry = OverlayEntry(
-        builder: (context) => Positioned(
-          left: dragOffset.dx,
-          top: dragOffset.dy,
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: rect?.width ?? _size,
-              maxHeight: rect?.height ?? _size,
-            ),
-            child: widget.itemBuilder(data.item),
-          ),
-        ),
-      );
-      Overlay.of(context).insert(_entry!);
+      Rect begin;
+      if (rect != null) {
+        begin = Rect.fromLTWH(
+          dragOffset.dx,
+          dragOffset.dy,
+          rect.width,
+          rect.height,
+        );
+      } else {
+        begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _size, _size);
+      }
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _removeOverlay();
+      Rect endRect = _expandedKeys[_expanded].globalPaintBounds!;
 
-        Rect begin;
-        if (rect != null) {
-          begin = Rect.fromLTWH(
-            dragOffset.dx,
-            dragOffset.dy,
-            rect.width,
-            rect.height,
+      // Compensate another [_expandedKeys].
+      for (var e in _expandedKeys) {
+        if (_expandedKeys.indexOf(e) < _expanded) {
+          endRect = endRect.translate(
+            -(e.globalPaintBounds ?? Rect.zero).width / 2,
+            0,
           );
-        } else {
-          begin = Rect.fromLTWH(dragOffset.dx, dragOffset.dy, _size, _size);
         }
 
-        // Display the appropriate sliding animation of the new item.
-        _animate(
-          item: data,
-          context: context,
-          beginRect: begin,
-          endRect: _items[to].key.globalPaintBounds!,
-          onEnd: () {
-            if (mounted) {
-              setState(() {
-                _dragged = null;
-                _items[to].hidden = false;
-                widget.onDragEnded?.call(_items[to].item);
-              });
-            }
-          },
+        if (_expandedKeys.indexOf(e) > _expanded) {
+          endRect = endRect.translate(
+            (e.globalPaintBounds ?? Rect.zero).width / 2,
+            0,
+          );
+        }
+      }
+
+      final double size = rect?.width ?? _size;
+      if (endRect.height < size) {
+        endRect = Rect.fromCenter(
+          center: endRect.center,
+          width: size,
+          height: size,
         );
-      });
+      }
+
+      _animate(
+        item: data,
+        context: context,
+        beginRect: begin,
+        endRect: endRect,
+        onEnd: () {
+          if (mounted) {
+            setState(() {
+              _resetAnimations();
+              _expanded = -1;
+              _dragged = null;
+              _items.insert(to, data);
+              _populateExpandedKeys();
+              widget.onDragEnded?.call(_items[to].item);
+            });
+          }
+        },
+      );
     } else {
       if (i == _expanded || i + 1 == _expanded) {
         // If this position is already expanded, then the item is at this
@@ -428,13 +437,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         return;
       }
 
-      // Set the animations to [Duration.zero], as we're gonna do sorting.
-      _resetAnimations();
+      if (_expanded > i) {
+        setState(() => _expanded--);
+      }
 
       int to = _expanded;
-      if (to > i) {
-        to--;
-      }
       if (to > _items.length) {
         to = _items.length;
       }
@@ -442,16 +449,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       Rect begin = _items[i].key.globalPaintBounds!;
       Rect end = _items[to].paintBounds!;
 
-      data.hidden = true;
       _items.removeAt(i);
-      _items.insert(to, data);
+      _expandedKeys.removeAt(i);
 
       // Add compressing animation to the previous position.
-      if (to < i) {
-        _compressed = i + 1;
-      } else {
-        _compressed = i;
-      }
+      _compressed = i;
 
       // Display the [data] moving from the previous to its new position.
       _animate(
@@ -462,8 +464,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         onEnd: () {
           if (mounted) {
             setState(() {
-              data.hidden = false;
+              _resetAnimations();
+              _expanded = -1;
               widget.onDragEnded?.call(data.item);
+              _items.insert(to, data);
+              _populateExpandedKeys();
               _compressed = -1;
             });
           }
@@ -471,7 +476,6 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       );
     }
 
-    _expanded = -1;
     widget.onReorder?.call(_items.map((e) => e.item).toList());
   }
 
@@ -549,6 +553,19 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       _entry?.remove();
     }
     _entry = null;
+  }
+
+  /// Populates the [_expandedKeys] according to the [_items].
+  _populateExpandedKeys() {
+    final int length = _items.length + 1;
+
+    if (_expandedKeys.length > length) {
+      _expandedKeys.removeRange(length, _expandedKeys.length);
+    } else if (_expandedKeys.length < length) {
+      _expandedKeys.addAll(
+        List.generate(length - _expandedKeys.length, (_) => GlobalKey()),
+      );
+    }
   }
 }
 
