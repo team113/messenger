@@ -35,18 +35,20 @@ import '/util/platform_utils.dart';
 class UpgradeWorker extends DisposableService {
   UpgradeWorker(this._skippedLocal);
 
-  /// [SkippedVersionHiveProvider] for maintaining the skipped [Release.name]s.
+  /// [SkippedVersionHiveProvider] for maintaining the skipped [Release]s.
   final SkippedVersionHiveProvider? _skippedLocal;
 
-  /// [Duration] to display the [UpgradePopupView], when [_schedulePopup] is
-  /// triggered.
+  /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
+  /// is triggered.
   static const Duration _popupDelay = Duration(seconds: 1);
 
   @override
   void onReady() {
+    Log.debug('onReady()', '$runtimeType');
+
     // Web gets its updates out of the box with a simple page refresh.
     //
-    // iOS gets its via App Store or TestFlight updates mechanisms.
+    // iOS gets its updates via App Store or TestFlight updates mechanisms.
     if (!PlatformUtils.isWeb && !PlatformUtils.isIOS) {
       _fetchUpdates();
     }
@@ -56,6 +58,7 @@ class UpgradeWorker extends DisposableService {
 
   /// Skips the [release], meaning no popups will be prompted for this one.
   Future<void> skip(Release release) async {
+    Log.debug('skip($release)', '$runtimeType');
     await _skippedLocal?.set(release.name);
   }
 
@@ -177,7 +180,7 @@ class Release {
   }
 }
 
-/// Artifact of the [Release], usually in a binary form.
+/// Artifact of the [Release].
 class ReleaseArtifact {
   const ReleaseArtifact({required this.url, required this.os});
 
@@ -189,7 +192,7 @@ class ReleaseArtifact {
     return ReleaseArtifact(url: url, os: os);
   }
 
-  /// URL the binary of this [ReleaseArtifact] is located.
+  /// URL of the binary this [ReleaseArtifact] is about.
   final String url;
 
   /// Operating system this [ReleaseArtifact] is for.
@@ -232,7 +235,7 @@ extension Rfc822ToDateTime on DateTime {
   ///
   /// If fails to do so, then returns `null`.
   ///
-  /// Examples of valid [input]s:
+  /// Examples of the valid [input]s:
   /// - `Wed, 20 Mar 2024 12:00:03 +0300`
   /// - `Sun, 1 Jun 2024 15:10:51 +0000`
   /// - `Tue, 5 Dec 2000 01:02:03 GMT`

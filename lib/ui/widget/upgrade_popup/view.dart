@@ -60,15 +60,16 @@ class UpgradePopupView extends StatelessWidget {
                 onBack: () => c.screen.value = UpgradePopupScreen.notice,
               );
 
-              final windows =
+              final ReleaseArtifact? windows =
                   release.assets.firstWhereOrNull((e) => e.os == 'windows');
-              final macos =
+              final ReleaseArtifact? macos =
                   release.assets.firstWhereOrNull((e) => e.os == 'macos');
-              final linux =
+              final ReleaseArtifact? linux =
                   release.assets.firstWhereOrNull((e) => e.os == 'linux');
-              final android =
+              final ReleaseArtifact? android =
                   release.assets.firstWhereOrNull((e) => e.os == 'android');
-              final ios = release.assets.firstWhereOrNull((e) => e.os == 'ios');
+              final ReleaseArtifact? ios =
+                  release.assets.firstWhereOrNull((e) => e.os == 'ios');
 
               children = [
                 if (windows != null) DownloadButton.windows(link: windows.url),
@@ -147,7 +148,10 @@ class UpgradePopupView extends StatelessWidget {
                         child: OutlinedRoundedButton(
                           key: const Key('Skip'),
                           maxWidth: double.infinity,
-                          onPressed: () => Navigator.of(context).pop(false),
+                          onPressed: () {
+                            c.skip(release);
+                            Navigator.of(context).pop(false);
+                          },
                           color: style.colors.onBackgroundOpacity7,
                           child: Text(
                             'btn_skip'.l10n,

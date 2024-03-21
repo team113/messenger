@@ -22,6 +22,7 @@ import '/ui/worker/upgrade.dart';
 /// Possible [UpgradePopupView] screens.
 enum UpgradePopupScreen { notice, download }
 
+/// Controller of an [UpgradePopupView].
 class UpgradePopupController extends GetxController {
   UpgradePopupController(this._upgradeWorker);
 

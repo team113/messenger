@@ -95,7 +95,7 @@ class Config {
   /// mismatch is detected.
   static String? credentials;
 
-  /// Domain considered as the URL to download `appcast.xml` from.
+  /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
   /// available.
@@ -255,7 +255,6 @@ class Config {
             wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
             wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
             files = remote['files']?['url'] ?? files;
-
             sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
             downloads = remote['downloads']?['directory'] ?? downloads;
             userAgentProduct =
