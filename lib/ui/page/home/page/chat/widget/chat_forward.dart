@@ -1073,7 +1073,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                       .add(ChatController.editMessageTimeout)
                                       .isAfter(PreciseDateTime.now()) ||
                                   !widget.chat.value!.isRead(
-                                      widget.note.value!.value, widget.me)))
+                                    widget.note.value!.value,
+                                    widget.me,
+                                  )))
                             ContextMenuButton(
                               key: const Key('EditButton'),
                               label: 'btn_edit'.l10n,
