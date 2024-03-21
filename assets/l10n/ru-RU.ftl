@@ -909,7 +909,7 @@ label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = {$count} {$count ->
-    [1] участник
+    [one] участник
     [few] участника
     *[other] участников
 }
@@ -924,8 +924,9 @@ label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
 label_unread_messages = {$quantity ->
-    [1] {$quantity} непрочитанное сообщение
-    *[other] {$quantity} непрочитанных сообщения
+    [one] {$quantity} непрочитанное сообщение
+    [few] {$quantity} непрочитанных сообщения
+    *[other] {$quantity} непрочитанных сообщений
 }
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь

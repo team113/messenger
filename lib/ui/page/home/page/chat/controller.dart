@@ -1564,11 +1564,7 @@ class ChatController extends GetxController {
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
         final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
-            await chat!.around(
-          item: item,
-          reply: reply,
-          forward: forward,
-        );
+            await chat!.around(item: item, reply: reply, forward: forward);
 
         StreamSubscription? subscription;
         subscription = fragment!.updates.listen(
