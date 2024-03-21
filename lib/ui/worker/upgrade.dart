@@ -47,9 +47,7 @@ class UpgradeWorker extends DisposableService {
     Log.debug('onReady()', '$runtimeType');
 
     // Web gets its updates out of the box with a simple page refresh.
-    //
-    // iOS gets its updates via App Store or TestFlight updates mechanisms.
-    if (!PlatformUtils.isWeb && !PlatformUtils.isIOS) {
+    if (!PlatformUtils.isWeb) {
       _fetchUpdates();
     }
 
