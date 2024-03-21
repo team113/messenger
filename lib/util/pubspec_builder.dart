@@ -61,8 +61,17 @@ class PubspecBuilder implements Builder {
       if (git.exitCode == 0) {
         final String response = git.stdout.toString();
 
-        // Strip the first `v` of the tag and the trailing `\n`.
-        final String ref = response.substring(1, response.length - 1);
+        String ref = response.substring(1, response.length - 1);
+
+        // Strip the first `v` of the tag.
+        if (ref.startsWith('v')) {
+          ref = ref.substring(1);
+        }
+
+        // Strip the trailing `\n`.
+        if (ref.endsWith('\n')) {
+          ref = ref.substring(0, ref.length - 1);
+        }
 
         buffer.write(
           '  static const String? ref = \'$ref\';\n',
