@@ -119,14 +119,16 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NOTES: ${{ secrets.APPCAST_NOTES }}
-      ARTIFACTS: ${{ secrets.ARTIFACTS_EDGE }}
+      ARTIFACTS: ${{ secrets.ARTIFACTS_MAIN }}
     steps:
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `git describe` to work.
           fetch-depth: 0
 
-      - run: make appcast.notes link=$ARTIFACTS notes=$NOTES > appcast.xml
+      - run: |
+          APPCAST=$(make appcast.notes link=$ARTIFACTS notes=$NOTES)
+          echo "$APPCAST" > appcast.xml
 
       - uses: actions/upload-artifact@v4
         with:
