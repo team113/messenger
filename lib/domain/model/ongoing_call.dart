@@ -927,8 +927,14 @@ class OngoingCall {
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied')) {
-              addError('enableScreenShare() call failed with $e');
-              rethrow;
+              if (e.message().contains('NotAllowedError')) {
+                addError(
+                  'Display sharing is not allowed. To allow it, please, go to the website settings and enable the screen share prompt.',
+                );
+              } else {
+                addError('enableScreenShare() call failed with $e');
+                rethrow;
+              }
             }
           } catch (e) {
             screenShareState.value = LocalTrackState.disabled;
@@ -1302,7 +1308,8 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.getDisplayMediaFailed:
-              if (e.message().contains('Permission denied')) {
+              if (e.message().contains('Permission denied') ||
+                  e.message().contains('NotAllowedError')) {
                 break;
               }
 
