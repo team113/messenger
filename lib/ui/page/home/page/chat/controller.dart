@@ -909,6 +909,13 @@ class ChatController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
+  FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
+    final Rx<ChatItem>? item =
+        chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+
+    return item;
+  }
+
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
   Future<void> readChat(ChatItem? item) async {

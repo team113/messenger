@@ -24,10 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/chat.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../../../domain/repository/chat.dart';
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -78,6 +76,7 @@ class ChatItemWidget extends StatefulWidget {
     this.avatar = true,
     this.reads = const [],
     this.getUser,
+    this.getItem,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -115,6 +114,10 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final FutureOr<RxUser?> Function(UserId userId)? getUser;
+
+  /// Callback, called when a reactive [ChatItem] identified by the provided
+  /// [ChatItemId] is required.
+  final FutureOr<Rx<ChatItem>?> Function(ChatItemId itemId)? getItem;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final void Function()? onHide;
@@ -1014,19 +1017,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatCall(BuildContext context) {
     final style = Theme.of(context).style;
 
-    var message = widget.item.value as ChatCall;
-    // bool isOngoing =
-    //     message.finishReason == null && message.conversationStartedAt != null;
-
-    // if (isOngoing && !Config.disableInfiniteAnimations) {
-    //   _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
-    //     if (mounted) {
-    //       setState(() {});
-    //     }
-    //   });
-    // } else {
-    //   _ongoingCallTimer?.cancel();
-    // }
+    final message = widget.item.value as ChatCall;
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -1297,21 +1288,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Returns the visual representation of the provided [call].
-  Widget _call(ChatCall? _) {
+  Widget _call(ChatCall? c) {
     final style = Theme.of(context).style;
 
     // test if it's working at all
-    final ChatService service = Get.find<ChatService>();
-    final RxChat chat = service.chats[widget.chat.value!.id]!;
-    final call = chat.messages
-        .firstWhereOrNull((e) => e.value.id == _?.id)
-        ?.value as ChatCall?;
+    // final ChatService service = Get.find<ChatService>();
+    // final RxChat chat = service.chats[widget.chat.value!.id]!;
+    // final call = chat.messages
+    //     .firstWhereOrNull((e) => e.value.id == _?.id)
+    //     ?.value as ChatCall?;
+
+    ChatCall? call;
+    if (c != null) {
+      final item = widget.getItem?.call(c.id);
+    }
 
     final bool isOngoing =
         call?.finishReason == null && call?.conversationStartedAt != null;
 
     if (isOngoing && !Config.disableInfiniteAnimations) {
-      _ongoingCallTimer ??= Timer.periodic(300.milliseconds, (_) {
+      _ongoingCallTimer ??= Timer.periodic(50.milliseconds, (_) {
         if (mounted) {
           setState(() {});
         }
