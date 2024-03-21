@@ -119,41 +119,102 @@ class BalanceProviderView extends StatelessWidget {
                     .mapIndexed((i, e) {
                   if (e == BalanceProvider.paypal) {
                     return Block(
-                      title: e.name,
+                      // padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                      // title: e.name,
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
                       children: [
-                        _bar(
-                          context,
-                          price: 99,
-                          label: 'Buy for \$0.99',
-                        ),
-                        const SizedBox(height: 16),
-                        _bar(
-                          context,
-                          price: 529,
-                          label: 'Buy for \$4.99',
-                        ),
-                        const SizedBox(height: 16),
-                        _bar(
-                          context,
-                          price: 1049,
-                          label: 'Buy for \$9.99',
-                        ),
-                        const SizedBox(height: 4),
-                        // MenuButton(
-                        //   leading: const SvgIcon(SvgIcons.paypal),
-                        //   title: 'G99',
-                        //   subtitle: 'Buy for \$0.99',
-                        //   onPressed: () {},
-                        // ),
-                        // const SizedBox(height: 3),
-                        // MenuButton(
-                        //   leading: const SvgIcon(SvgIcons.paypal),
-                        //   title: 'G499',
-                        //   subtitle: 'Buy for \$4.99',
-                        //   onPressed: () {},
-                        // ),
                         // const SizedBox(height: 8),
-                        // const PayPalButton(),
+                        // Text(
+                        //   'PayPal',
+                        //   style: style.fonts.big.regular.onBackground,
+                        // ),
+                        const SizedBox(height: 8),
+                        // Padding(
+                        //   padding: const EdgeInsets.all(8.0),
+                        //   child: SvgImage.asset(
+                        //     'assets/images/paypal.svg',
+                        //     height: 28,
+                        //   ),
+                        // ),
+                        _card(
+                          width: 96,
+                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                          child: const SvgImage.asset(
+                            'assets/images/paypal.svg',
+                            width: 64,
+                            height: 32,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _cell(
+                          context,
+                          amount: 99,
+                          button: _paypal(context, 0.99),
+                        ),
+                        const SizedBox(height: 32),
+                        _cell(
+                          context,
+                          amount: 549,
+                          button: _paypal(context, 4.99),
+                        ),
+                        const SizedBox(height: 32),
+                        _cell(
+                          context,
+                          amount: 1109,
+                          button: _paypal(context, 9.99),
+                        ),
+                      ],
+                    );
+                  } else if (e == BalanceProvider.paymentCard) {
+                    return Block(
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          'Платёжные карты',
+                          style: style.fonts.big.regular.onBackground,
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _card(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                child: const SvgImage.asset(
+                                  'assets/images/visa.svg',
+                                  height: 32,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              _card(
+                                child: const SvgImage.asset(
+                                  'assets/images/mastercard.svg',
+                                  height: 36,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _cell(
+                          context,
+                          amount: 99,
+                          button: _paymentCard(context, 0.99),
+                        ),
+                        const SizedBox(height: 32),
+                        _cell(
+                          context,
+                          amount: 549,
+                          button: _paymentCard(context, 4.99),
+                        ),
+                        const SizedBox(height: 32),
+                        _cell(
+                          context,
+                          amount: 1109,
+                          button: _paymentCard(context, 9.99),
+                        ),
                       ],
                     );
                   }
@@ -187,166 +248,25 @@ class BalanceProviderView extends StatelessWidget {
             ),
           ),
         );
-
-        switch (provider) {
-          case BalanceProvider.creditCard:
-            return Scaffold(
-              appBar: const CustomAppBar(
-                title: Text('Пополнить счёт'),
-                leading: [StyledBackButton()],
-                actions: [SizedBox(width: 36)],
-              ),
-              body: Center(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  children: [
-                    Block(
-                      children: [
-                        const SizedBox(height: 8),
-                        MoneyField(state: TextFieldState(), label: 'Amount'),
-                        const SizedBox(height: 8),
-                        const SizedBox(height: 8),
-                        const Text('Total: \$12.42'),
-                      ],
-                    ),
-                    Block(
-                      title: 'Card',
-                      children: [
-                        ReactiveTextField(
-                          state: TextFieldState(),
-                          hint: 'Card number',
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ReactiveTextField(
-                                state: TextFieldState(),
-                                hint: 'Expiry date',
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: ReactiveTextField(
-                                state: TextFieldState(),
-                                hint: 'CVV',
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        ReactiveTextField(
-                          state: TextFieldState(),
-                          hint: 'Card holder',
-                        ),
-                        const SizedBox(height: 8),
-                        const SizedBox(height: 8),
-                        PrimaryButton(
-                          title: 'Proceed',
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-
-          case BalanceProvider.paypal:
-            return Scaffold(
-              appBar: const CustomAppBar(
-                title: Text('Пополнить счёт'),
-                leading: [StyledBackButton()],
-                actions: [SizedBox(width: 36)],
-              ),
-              body: Center(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  children: [
-                    Block(
-                      children: [
-                        const SizedBox(height: 8),
-                        MoneyField(state: TextFieldState(), label: 'Amount'),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Total: \$12.42',
-                          style: style.fonts.small.regular.secondary,
-                          textAlign: TextAlign.left,
-                        ),
-                        const SizedBox(height: 8),
-                        PrimaryButton(
-                          title: 'Proceed',
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-
-          default:
-            break;
-        }
-
-        return Obx(() {
-          if (c.webController.value != null) {
-            return Scaffold(
-              appBar: CustomAppBar(
-                title: Text(provider.toString()),
-                leading: const [StyledBackButton()],
-                actions: [
-                  IconButton(
-                    onPressed: () => c.add(
-                      OutgoingTransaction(
-                        amount: -100,
-                        at: DateTime.now(),
-                      ),
-                    ),
-                    icon: const Icon(Icons.remove),
-                  ),
-                  IconButton(
-                    onPressed: () => c.add(
-                      IncomingTransaction(
-                        amount: 100,
-                        at: DateTime.now(),
-                      ),
-                    ),
-                    icon: const Icon(Icons.add),
-                  ),
-                ],
-              ),
-              body: WebViewWidget(controller: c.webController.value!),
-            );
-          }
-
-          return Scaffold(
-            appBar: CustomAppBar(
-              title: Text(provider.toString()),
-              leading: const [StyledBackButton()],
-              actions: [
-                IconButton(
-                  onPressed: () => c.add(
-                    OutgoingTransaction(amount: -1000, at: DateTime.now()),
-                  ),
-                  icon: const Icon(Icons.remove),
-                ),
-                IconButton(
-                  onPressed: () => c.add(
-                    IncomingTransaction(amount: 10000, at: DateTime.now()),
-                  ),
-                  icon: const Icon(Icons.add),
-                ),
-              ],
-            ),
-            body: Center(
-              child: Text(provider.toString()),
-            ),
-          );
-        });
       },
+    );
+  }
+
+  Widget _card({
+    double width = 64,
+    required Widget child,
+    EdgeInsets padding = const EdgeInsets.fromLTRB(0, 1, 0, 1),
+  }) {
+    return Container(
+      width: width,
+      // constraints: BoxConstraints(minWidth: 64),
+      height: 36,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F0F0),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: child,
     );
   }
 
@@ -386,6 +306,136 @@ class BalanceProviderView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _cell(
+    BuildContext context, {
+    int amount = 0,
+    required Widget button,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 85.6 / 53.98,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: style.colors.acceptPrimary,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: Container(
+                    width: 150,
+                    height: 150,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFF0F0F0),
+                    ),
+                    child: const Center(
+                      child: SvgIcon(
+                        SvgIcons.logo,
+                        width: 48,
+                        height: 48,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '¤$amount',
+                  style: style.fonts.largest.regular.onBackground.copyWith(
+                    color: style.colors.onPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        button,
+      ],
+    );
+  }
+
+  Widget _paypal(BuildContext context, double price) {
+    final style = Theme.of(context).style;
+
+    return WidgetButton(
+      onPressed: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAC335),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Buy with ',
+                style: style.fonts.small.regular.onBackground,
+              ),
+              TextSpan(
+                text: 'Pay',
+                style: style.fonts.medium.regular.onBackground.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF164EA1),
+                ),
+              ),
+              TextSpan(
+                text: 'Pal',
+                style: style.fonts.medium.regular.onBackground.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF5A9CFF),
+                ),
+              ),
+              TextSpan(
+                text: ' for \$$price',
+                style: style.fonts.small.regular.onBackground,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _paymentCard(BuildContext context, double price) {
+    final style = Theme.of(context).style;
+
+    return WidgetButton(
+      onPressed: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          // color: const Color(0xFFFAC335),
+          color: style.colors.primary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Buy with payment card',
+                style: style.fonts.small.regular.onPrimary,
+              ),
+              TextSpan(
+                text: ' for \$$price',
+                style: style.fonts.small.regular.onPrimary,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

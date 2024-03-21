@@ -102,7 +102,6 @@ class Block extends StatelessWidget {
     final InputBorder border = OutlineInputBorder(
       borderSide: BorderSide(
         color: style.primaryBorder.top.color,
-        // color: style.colors.secondary,
         width: style.primaryBorder.top.width,
       ),
       borderRadius: BorderRadius.circular(15),

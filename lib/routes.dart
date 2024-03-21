@@ -157,7 +157,7 @@ enum BalanceProvider {
   paypal,
   applePay,
   googlePay,
-  creditCard,
+  paymentCard,
   sepa,
   swift,
 }

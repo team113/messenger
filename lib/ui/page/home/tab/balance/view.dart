@@ -21,7 +21,6 @@ import 'package:intl/intl.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/wallet.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/util/platform_utils.dart';
 
 import '/routes.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -103,10 +102,10 @@ class BalanceTabView extends StatelessWidget {
                       }
 
                       switch (e) {
-                        case BalanceProvider.creditCard:
+                        case BalanceProvider.paymentCard:
                           return button(
                             asset: SvgIcons.creditCard,
-                            title: 'Credit card',
+                            title: 'Payment card',
                             bonus: 5,
                           );
 
