@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Call ended sound and left alone in group call sound. ([#877], [#809])
+    - Update available popup. ([#907], [#896])
 
 ### Changed
 
@@ -59,8 +60,10 @@ All user visible changes to this project will be documented in this file. This p
 [#888]: /../../issues/888
 [#890]: /../../pull/890
 [#891]: /../../pull/891
+[#896]: /../../issues/896
 [#897]: /../../pull/897
 [#901]: /../../pull/901
+[#907]: /../../pull/907
 [#909]: /../../issues/909
 [#910]: /../../pull/910
 [#912]: /../../issues/912
