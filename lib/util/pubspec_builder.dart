@@ -59,9 +59,7 @@ class PubspecBuilder implements Builder {
       );
 
       if (git.exitCode == 0) {
-        final String response = git.stdout.toString();
-
-        String ref = response.substring(1, response.length - 1);
+        String ref = git.stdout.toString();
 
         // Strip the first `v` of the tag.
         if (ref.startsWith('v')) {
