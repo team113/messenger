@@ -37,7 +37,6 @@ enum AddPhoneFlowStage { code }
 class AddPhoneController extends GetxController {
   AddPhoneController(
     this._myUserService, {
-    this.initial,
     this.pop,
     bool timeout = false,
   }) {
@@ -50,26 +49,17 @@ class AddPhoneController extends GetxController {
   /// be popped from the [Navigator].
   final void Function()? pop;
 
-  /// Initial [UserPhone] to confirm.
-  final UserPhone? initial;
-
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [UserPhone] field state.
-  late final TextFieldState phone;
-
   /// [TextFieldState] for the [UserPhone] confirmation code.
-  late final TextFieldState phoneCode;
+  late final TextFieldState code;
 
   /// Indicator whether [UserPhone] confirmation code has been resent.
   final RxBool resent = RxBool(false);
 
   /// Timeout of a [resendPhone].
   final RxInt resendPhoneTimeout = RxInt(0);
-
-  /// [AddPhoneFlowStage] currently being displayed.
-  final Rx<AddPhoneFlowStage?> stage = Rx(null);
 
   /// [MyUserService] used for confirming an [UserPhone].
   final MyUserService _myUserService;
@@ -82,84 +72,30 @@ class AddPhoneController extends GetxController {
 
   @override
   void onInit() {
-    phone = TextFieldState(
-      text: initial?.val,
+    code = TextFieldState(
       onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            UserPhone(s.text);
-          }
+        s.error.value = null;
 
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_incorrect_phone'.l10n;
-        }
-      },
-      onSubmitted: (s) async {
-        UserPhone? phone;
-        try {
-          phone = UserPhone(s.text.replaceAll(' ', ''));
-
-          if (myUser.value!.phones.confirmed.contains(phone) ||
-              myUser.value?.phones.unconfirmed == phone) {
-            s.error.value = 'err_you_already_add_this_phone'.l10n;
-          }
-        } on FormatException {
-          s.error.value = 'err_incorrect_phone'.l10n;
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
+        if (s.text.isNotEmpty) {
           try {
-            await _myUserService.addUserPhone(phone!);
-            _setResendPhoneTimer(true);
-            stage.value = AddPhoneFlowStage.code;
-          } on InvalidScalarException<UserPhone> {
-            s.error.value = 'err_incorrect_phone'.l10n;
+            ConfirmationCode(s.text);
           } on FormatException {
-            s.error.value = 'err_incorrect_phone'.l10n;
-          } on AddUserPhoneException catch (e) {
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-            s.status.value = RxStatus.empty();
+            s.error.value = 'err_incorrect_input'.l10n;
           }
-        }
-      },
-    );
-
-    phoneCode = TextFieldState(
-      onChanged: (s) {
-        try {
-          if (s.text.isNotEmpty) {
-            ConfirmationCode(s.text.toLowerCase());
-          }
-
-          s.error.value = null;
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
-        }
+        final ConfirmationCode? code = ConfirmationCode.tryParse(s.text);
 
-        if (s.error.value == null) {
+        if (code == null) {
+          s.error.value = 'err_wrong_recovery_code'.l10n;
+        } else {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.confirmPhoneCode(ConfirmationCode(s.text));
+            await _myUserService.confirmPhoneCode(code);
             pop?.call();
             s.clear();
-          } on FormatException {
-            s.error.value = 'err_wrong_recovery_code'.l10n;
           } on ConfirmUserPhoneException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
@@ -174,10 +110,6 @@ class AddPhoneController extends GetxController {
       },
     );
 
-    if (initial != null) {
-      stage.value = AddPhoneFlowStage.code;
-    }
-
     super.onInit();
   }
 
@@ -188,14 +120,15 @@ class AddPhoneController extends GetxController {
     super.onClose();
   }
 
-  /// Resends a [ConfirmationCode] to the specified [phone].
+  /// Resends a [ConfirmationCode] to the unconfirmed phone of the authenticated
+  /// [MyUser].
   Future<void> resendPhone() async {
     try {
       await _myUserService.resendPhone();
       resent.value = true;
       _setResendPhoneTimer(true);
     } on ResendUserPhoneConfirmationException catch (e) {
-      phoneCode.error.value = e.toMessage();
+      code.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

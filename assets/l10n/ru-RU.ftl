@@ -719,8 +719,8 @@ label_files_saved_to_gallery = Файлы добавлены в галерею
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
 label_forwarded_messages = {$count ->
-    [1] Forwarded message
-   *[other] Forwarded messages
+    [1] Пересланное сообщение
+   *[other] Пересланные сообщения
 }
 label_gb_occupied = Занято {$count} ГБ
 label_gb_of_gb_occupied = Занято {$a} из {$b} ГБ

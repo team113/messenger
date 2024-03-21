@@ -217,4 +217,14 @@ class ConfirmationCode extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory ConfirmationCode.unchecked(String val) = ConfirmationCode._;
+
+  /// Parses the provided [val] as a [ConfirmationCode], if [val] meets the
+  /// validation, or returns `null` otherwise.
+  static ConfirmationCode? tryParse(String val) {
+    try {
+      return ConfirmationCode(val);
+    } catch (_) {
+      return null;
+    }
+  }
 }

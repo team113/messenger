@@ -1000,7 +1000,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: azure/setup-kubectl@v3
+      - uses: azure/setup-kubectl@v4
       - name: Login to Kubernetes cluster
         run: |
           set -ex

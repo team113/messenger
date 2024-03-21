@@ -549,6 +549,8 @@ class TextFieldState extends ReactiveFieldState {
       _previousSubmit = text;
     }
 
+    _previousText = text;
+
     changed.value = _previousSubmit != text;
 
     String prev = controller.text;

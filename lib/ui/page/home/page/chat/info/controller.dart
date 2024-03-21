@@ -151,51 +151,35 @@ class ChatInfoController extends GetxController {
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
       onChanged: (s) async {
+        s.error.value = null;
+
         try {
           if (s.text.isNotEmpty) {
             ChatName(s.text);
           }
-
-          s.error.value = null;
         } on FormatException {
           s.error.value = 'err_incorrect_input'.l10n;
         }
 
-        s.error.value = null;
-        s.focus.unfocus();
-
-        if ((s.text.isEmpty && chat?.chat.value.name?.val == null) ||
-            s.text == chat?.chat.value.name?.val) {
-          s.unsubmit();
-          return;
-        }
-
-        ChatName? name;
-        try {
-          name = s.text.isEmpty ? null : ChatName(s.text);
-        } on FormatException catch (_) {
-          s.status.value = RxStatus.empty();
-          s.error.value = 'err_incorrect_input'.l10n;
-          s.unsubmit();
-          return;
-        }
-
         if (s.error.value == null) {
+          final ChatName? name = ChatName.tryParse(s.text);
+          if (chat?.chat.value.name == name) {
+            return;
+          }
+
           s.status.value = RxStatus.loading();
           s.editable.value = false;
 
           try {
             await _chatService.renameChat(chat!.chat.value.id, name);
-            s.status.value = RxStatus.empty();
             s.unsubmit();
           } on RenameChatException catch (e) {
-            s.status.value = RxStatus.empty();
             s.error.value = e.toString();
           } catch (e) {
-            s.status.value = RxStatus.empty();
             MessagePopup.error(e.toString());
             rethrow;
           } finally {
+            s.status.value = RxStatus.empty();
             s.editable.value = true;
           }
         }
