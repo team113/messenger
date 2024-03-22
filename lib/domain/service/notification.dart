@@ -75,16 +75,18 @@ class NotificationService extends DisposableService {
   StreamSubscription? _onActivityChanged;
 
   /// Subscription to the [WebUtils.onBroadcastMessage] playing the notification
-  /// sound on web platforms.
+  /// sound on web platforms and updating the [_tags] when push notifications
+  /// are received.
   StreamSubscription? _onBroadcastMessage;
 
   /// Indicator whether the application is active.
   bool _active = true;
 
-  /// Tags of the local notifications that were displayed.
+  /// Tags of the notifications that were displayed.
   ///
-  /// Used to discard displaying a local notification second time when it is
-  /// received via the [_foregroundSubscription].
+  /// Used to discard displaying a local notification when another notification
+  /// with the same tag has already been received, for example, via the
+  /// [_foregroundSubscription].
   final List<String> _tags = [];
 
   /// Indicator whether the Firebase Cloud Messaging notifications are
@@ -464,10 +466,9 @@ class NotificationService extends DisposableService {
             ? '${chatId}_$chatItemId'
             : null;
 
-        // On Web we display a local notification, if a push notification with
-        // the corresponding [tag] is not received during [pushTimeout], thus
-        // this keeps track of the displayed notifications [tag]s to prevent
-        // local notifications from duplicating the received push notifications.
+        // Keep track of the shown notifications' [tag]s to prevent duplication.
+        // Don't play a sound if the notification with the same [tag] has
+        // already been shown.
         if (tag != null) {
           if (_tags.contains(tag)) {
             _tags.remove(tag);
@@ -478,9 +479,8 @@ class NotificationService extends DisposableService {
         }
 
         // On Web push notifications don't support playing any sounds, it's up
-        // to operating system to decide, whether to play sound at all. Thus
-        // this listens to `BroadcastChannel` fired from FCM Service Worker to
-        // play a sound by ourselves.
+        // to operating system to decide, whether to play sound at all, so we
+        // play a sound manually.
         AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
       });
 
