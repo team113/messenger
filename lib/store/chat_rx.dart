@@ -1503,7 +1503,7 @@ class HiveRxChat extends RxChat {
               versioned.ver < chatEntity.ver ||
               !subscribed) {
             Log.debug(
-              '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+              '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}, cuz chatEntity($chatEntity) subscribed($subscribed), versioned.ver < chatEntity.ver (${versioned.ver < chatEntity?.ver}): versioned.ver(${versioned.ver}) vs chatEntity?.ver(${chatEntity?.ver})',
               '$runtimeType($id)',
             );
 
