@@ -238,9 +238,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
       }
     }
 
-    return lastReads.firstWhereOrNull(
-            (e) => !e.at.isBefore(item.at) && e.memberId != me) !=
-        null;
+    return lastReads.any((e) => !e.at.isBefore(item.at) && e.memberId != me);
   }
 
   /// Indicates whether the provided [ChatItem] was read only partially by some
