@@ -76,14 +76,21 @@ class ChatWorker extends DisposableService {
   /// Indicator whether the icon in the taskbar has a flash effect applied.
   bool _flashed = false;
 
+  /// [Duration] indicating the time after which the push notification should be
+  /// considered as lost.
+  static const Duration _pushTimeout = Duration(seconds: 10);
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
   /// Indicates whether the [_notificationService] should display a
   /// notification.
   bool get _displayNotification =>
-      _myUser.value?.muted == null &&
-      (_focused || !_notificationService.pushNotifications);
+      _focused || !_notificationService.pushNotifications;
+
+  /// Indicates whether the currently authenticated [MyUser] has any
+  /// [MuteDuration] specified.
+  bool get _isMuted => _myUser.value?.muted != null;
 
   @override
   void onReady() {
@@ -127,7 +134,7 @@ class ChatWorker extends DisposableService {
   /// react on its [Chat.lastItem] changes to show a notification.
   void _onChatAdded(RxChat c, [bool viaSubscription = false]) {
     // Display a new group chat notification.
-    if (viaSubscription && c.chat.value.isGroup && _displayNotification) {
+    if (viaSubscription && c.chat.value.isGroup && !_isMuted) {
       bool newChat = false;
 
       if (c.chat.value.lastItem is ChatInfo) {
@@ -150,16 +157,27 @@ class ChatWorker extends DisposableService {
       }
 
       if (newChat) {
-        if (_myUser.value?.muted == null) {
-          _notificationService.show(
-            c.title,
-            body: 'label_you_were_added_to_group'.l10n,
-            payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original,
-            tag: c.chat.value.id.val,
-          );
+        // Displays a local notification via [NotificationService].
+        Future<void> notify() async {
+          if (!_isMuted && c.chat.value.muted == null) {
+            await _notificationService.show(
+              c.title,
+              body: 'label_you_were_added_to_group'.l10n,
+              payload: '${Routes.chats}/${c.chat.value.id}',
+              icon: c.avatar.value?.original,
+              tag: c.chat.value.id.val,
+            );
 
-          _flashTaskbarIcon();
+            await _flashTaskbarIcon();
+          }
+        }
+
+        if (_displayNotification) {
+          notify();
+        } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+          // [NotificationService] will not show the scheduled local
+          // notification, if a push with the same tag was already received.
+          Future.delayed(_pushTimeout, notify);
         }
       }
     }
@@ -167,17 +185,28 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onNotification: (body, tag, image) async {
-        if (_displayNotification) {
-          await _notificationService.show(
-            c.title,
-            body: body,
-            payload: '${Routes.chats}/${c.chat.value.id}',
-            icon: c.avatar.value?.original,
-            tag: tag,
-            image: image,
-          );
+        // Displays a local notification via [NotificationService].
+        Future<void> notify() async {
+          if (!_isMuted && c.chat.value.muted == null) {
+            await _notificationService.show(
+              c.title,
+              body: body,
+              payload: '${Routes.chats}/${c.chat.value.id}',
+              icon: c.avatar.value?.original,
+              tag: tag,
+              image: image,
+            );
 
-          await _flashTaskbarIcon();
+            await _flashTaskbarIcon();
+          }
+        }
+
+        if (_displayNotification) {
+          notify();
+        } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+          // [NotificationService] will not show the scheduled local
+          // notification, if a push with the same tag was already received.
+          Future.delayed(_pushTimeout, notify);
         }
       },
       me: () => _chatService.me,
