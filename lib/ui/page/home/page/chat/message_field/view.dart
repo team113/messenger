@@ -337,30 +337,33 @@ class MessageFieldView extends StatelessWidget {
                 child: child,
               );
             },
-            reverse: true,
             padding: const EdgeInsets.symmetric(horizontal: 1),
             children: c.replied.map((e) {
-              return ReorderableDragStartListener(
-                key: Key('Handle_${e.id}'),
-                enabled: !PlatformUtils.isMobile,
-                index: c.replied.indexOf(e),
-                child: Dismissible(
-                  key: Key('${e.id}'),
-                  direction: DismissDirection.horizontal,
-                  onDismissed: (_) => c.replied.remove(e),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: WidgetButton(
-                      onPressed: () => onItemPressed?.call(e),
-                      child: _buildPreview(
-                        context,
-                        e,
-                        c,
-                        onClose: () => c.replied.remove(e),
+              return Obx(
+                key: Key('Handle_${e.value.id}'),
+                () {
+                  return ReorderableDragStartListener(
+                    enabled: !PlatformUtils.isMobile,
+                    index: c.replied.indexOf(e),
+                    child: Dismissible(
+                      key: Key('${e.value.id}'),
+                      direction: DismissDirection.horizontal,
+                      onDismissed: (_) => c.replied.remove(e),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: WidgetButton(
+                          onPressed: () => onItemPressed?.call(e.value),
+                          child: _buildPreview(
+                            context,
+                            e.value,
+                            c,
+                            onClose: () => c.replied.remove(e),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             }).toList(),
           );

@@ -477,7 +477,7 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
-    ChatItem? item,
+    ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
@@ -1116,17 +1116,17 @@ class HiveRxChat extends RxChat {
   /// Constructs a [MessagesPaginated] around the specified [item], [reply] or
   /// [forward].
   Future<MessagesPaginated> _paginateAround(
-    ChatItem item, {
+    ChatItemId item, {
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
     Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
     // Retrieve the [item] itself pointed around.
-    final HiveChatItem? hiveItem = await get(item.id);
+    final HiveChatItem? hiveItem = await get(item);
 
     final ChatItemsCursor? cursor;
-    final ChatItemId key = forward ?? reply ?? item.id;
+    final ChatItemId key = forward ?? reply ?? item;
 
     // If [reply] or [forward] is provided, then the [item] should contain it,
     // let's try to retrieve the key and cursor to paginate around it.
@@ -1873,10 +1873,6 @@ class HiveRxChat extends RxChat {
                         }
                       }
 
-                      // TODO: https://github.com/team113/messenger/issues/627
-                      chatEntity.value.lastReads
-                          .removeWhere((e) => e.memberId == action.user.id);
-                      reads.removeWhere((e) => e.memberId == action.user.id);
                       _chatRepository.onMemberRemoved(id, action.user.id);
                       break;
 

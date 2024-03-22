@@ -122,7 +122,7 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
-    ChatItem? item,
+    ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
   }) async =>

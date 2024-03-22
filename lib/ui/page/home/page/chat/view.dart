@@ -671,7 +671,8 @@ class ChatView extends StatelessWidget {
                                               }
 
                                               c.animateTo(
-                                                c.pinned[c.displayPinned.value],
+                                                c.pinned[c.displayPinned.value]
+                                                    .id,
                                               );
                                             },
                                             child: Padding(
@@ -1216,11 +1217,12 @@ class ChatView extends StatelessWidget {
                       ? () {
                           final field = c.edit.value ?? c.send;
 
-                          if (field.replied.any((i) => i.id == e.value.id)) {
+                          if (field.replied
+                              .any((i) => i.value.id == e.value.id)) {
                             field.replied
-                                .removeWhere((i) => i.id == e.value.id);
+                                .removeWhere((i) => i.value.id == e.value.id);
                           } else {
-                            field.replied.insert(0, e.value);
+                            field.replied.insert(0, e);
                           }
                         }
                       : null,
@@ -1233,7 +1235,7 @@ class ChatView extends StatelessWidget {
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(e.value, reply: q);
+                      await c.animateTo(e.value.id, reply: q);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -1329,26 +1331,27 @@ class ChatView extends StatelessWidget {
                   onReply: () {
                     final MessageFieldController field = c.edit.value ?? c.send;
 
-                    if (element.forwards.any((e) =>
-                            field.replied.any((i) => i.id == e.value.id)) ||
-                        field.replied
-                            .any((i) => i.id == element.note.value?.value.id)) {
+                    if (element.forwards.any((e) => field.replied
+                            .any((i) => i.value.id == e.value.id)) ||
+                        field.replied.any((i) =>
+                            i.value.id == element.note.value?.value.id)) {
                       for (Rx<ChatItem> e in element.forwards) {
-                        field.replied.removeWhere((i) => i.id == e.value.id);
+                        field.replied
+                            .removeWhere((i) => i.value.id == e.value.id);
                       }
 
                       if (element.note.value != null) {
                         field.replied.removeWhere(
-                          (i) => i.id == element.note.value!.value.id,
+                          (i) => i.value.id == element.note.value!.value.id,
                         );
                       }
                     } else {
                       if (element.note.value != null) {
-                        field.replied.insert(0, element.note.value!.value);
+                        field.replied.insert(0, element.note.value!);
                       }
 
                       for (Rx<ChatItem> e in element.forwards) {
-                        c.send.replied.insert(0, e.value);
+                        c.send.replied.insert(0, e);
                       }
                     }
                   },
@@ -1364,7 +1367,7 @@ class ChatView extends StatelessWidget {
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {
                       if (item.quote.original!.chatId == c.id) {
-                        c.animateTo(item, forward: item.quote);
+                        c.animateTo(item.id, forward: item.quote);
                       } else {
                         router.chat(
                           item.quote.original!.chatId,
@@ -1805,7 +1808,7 @@ class ChatView extends StatelessWidget {
                             c.unpin();
 
                             if (c.pinned.isNotEmpty) {
-                              c.animateTo(c.pinned[c.displayPinned.value]);
+                              c.animateTo(c.pinned[c.displayPinned.value].id);
                             }
                           }
                         : null,
@@ -2190,7 +2193,8 @@ class ChatView extends StatelessWidget {
               controller: c.edit.value,
               onChanged:
                   c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-              onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+              onItemPressed: (item) =>
+                  c.animateTo(item.id, addToHistory: false),
             ),
           ),
         );
@@ -2204,7 +2208,7 @@ class ChatView extends StatelessWidget {
             controller: c.send,
             onChanged:
                 c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-            onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+            onItemPressed: (item) => c.animateTo(item.id, addToHistory: false),
             canForward: true,
           ),
         ),
