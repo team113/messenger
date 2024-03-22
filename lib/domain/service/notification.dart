@@ -467,6 +467,7 @@ class NotificationService extends DisposableService {
             : null;
 
         // Keep track of the shown notifications' [tag]s to prevent duplication.
+        //
         // Don't play a sound if the notification with the same [tag] has
         // already been shown.
         if (tag != null) {
