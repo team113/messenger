@@ -19,9 +19,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
@@ -484,20 +486,46 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', '$runtimeType');
+    myUser.update((u) => u?.muted = mute);
 
-    final MuteDuration? muted = myUser.value?.muted;
+    return _toggleMute();
+  }
 
-    final Muting? muting = mute == null
-        ? null
-        : Muting(duration: mute.forever == true ? null : mute.until);
+  /// Invokes a [GraphQlProvider.toggleMyUserMute] method, updating the
+  /// [MyUser.muted].
+  Future<void> _toggleMute() async {
+    if (!_toggleMuteGuard.isLocked) {
+      final MuteDuration? muted = myUser.value?.muted;
+      MyUserEventsVersionedMixin? response;
 
-    myUser.update((u) => u?.muted = muting?.toModel());
+      await _toggleMuteGuard.protect(() async {
+        final Muting? muting = muted == null
+            ? null
+            : Muting(duration: muted.forever == true ? null : muted.until);
 
-    try {
-      await _graphQlProvider.toggleMyUserMute(muting);
-    } catch (e) {
-      myUser.update((u) => u?.muted = muted);
-      rethrow;
+        try {
+          response = await _graphQlProvider.toggleMyUserMute(muting);
+        } catch (_) {
+          myUser.update((u) => u?.muted = _myUserLocal.myUser?.value.muted);
+          rethrow;
+        }
+
+      });
+
+      if (myUser.value?.muted != muted) {
+        print('_toggleMute1');
+
+        _toggleMute();
+      }
+
+      if (response != null) {
+        final event = MyUserEventsVersioned(
+          response!.events.map((e) => _myUserEvent(e)).toList(),
+          response!.ver,
+        );
+
+        _myUserRemoteEvent(event, updateVersion: false);
+      }
     }
   }
 
@@ -580,7 +608,14 @@ class MyUserRepository implements AbstractMyUserRepository {
         myUser.value = null;
         _remoteSubscription?.close(immediate: true);
       } else {
+        MuteDuration? muted = myUser.value?.muted;
+
         myUser.value = event.value?.value;
+
+        // Don't update currently updating fields.
+        if (_toggleMuteGuard.isLocked) {
+          myUser.value?.muted = muted;
+        }
 
         // Refresh the value since [event.value] is the same [MyUser] stored in
         // [_myUser] (so `==` operator fails to distinguish them).
@@ -648,7 +683,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
-  Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
+  Future<void> _myUserRemoteEvent(
+    MyUserEventsVersioned versioned, {
+    bool updateVersion = true,
+  }) async {
     final HiveMyUser? userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver < userEntity.ver) {
@@ -658,7 +696,22 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
       return;
     }
-    userEntity.ver = versioned.ver;
+
+    if (updateVersion) {
+      userEntity.ver = versioned.ver;
+
+      versioned.events.removeWhere((e) {
+        final int i = _ignore.indexWhere((i) => i == e);
+        if (i != -1) {
+          _ignore.removeAt(i);
+          return true;
+        }
+
+        return false;
+      });
+    } else {
+      _ignore.addAll(versioned.events);
+    }
 
     Log.debug(
       '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',

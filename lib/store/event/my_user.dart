@@ -239,6 +239,13 @@ class EventUserMuted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.userMuted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserMuted && until == other.until;
+
+  @override
+  int get hashCode => until.hashCode;
 }
 
 /// Event of an [UserName] being deleted.
@@ -337,6 +344,12 @@ class EventUserUnmuted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unmuted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserUnmuted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s unread `Chat`s count being updated.
