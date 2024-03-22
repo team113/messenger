@@ -135,20 +135,11 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: ChatInfoView(ChatId(id)),
           ));
         }
-      } else if (route == Routes.balance) {
+      } else if (route == Routes.topUp) {
         pages.add(const CustomPage(
           key: ValueKey('BalancePage'),
-          name: Routes.balance,
-          child: BalanceProviderView(null),
-        ));
-      } else if (route.startsWith('${Routes.balance}/')) {
-        final provider = route.replaceFirst('${Routes.balance}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('BalancePage$provider'),
-          name: '${Routes.balance}/$provider',
-          child: BalanceProviderView(
-            BalanceProvider.values.firstWhere((e) => e.name == provider),
-          ),
+          name: Routes.topUp,
+          child: BalanceProviderView(),
         ));
       } else if (route.startsWith('${Routes.transaction}/')) {
         final id = route.replaceFirst('${Routes.transaction}/', '');

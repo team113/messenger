@@ -86,8 +86,8 @@ class BalanceTabView extends StatelessWidget {
                         required SvgData asset,
                         double? bonus,
                       }) {
-                        final bool selected = router.route
-                            .startsWith('${Routes.balance}/${e.name}');
+                        final bool selected = router.route == Routes.topUp &&
+                            router.balanceSection.value == e;
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 1.5),
@@ -96,13 +96,13 @@ class BalanceTabView extends StatelessWidget {
                             leading: [SvgIcon(asset)],
                             selected: selected,
                             bonus: bonus,
-                            onPressed: () => router.balance(e),
+                            onPressed: () => router.topUp(e),
                           ),
                         );
                       }
 
                       switch (e) {
-                        case BalanceProvider.paymentCard:
+                        case BalanceProvider.card:
                           return button(
                             asset: SvgIcons.creditCard,
                             title: 'Payment card',
@@ -130,19 +130,19 @@ class BalanceTabView extends StatelessWidget {
                             bonus: -5,
                           );
 
-                        case BalanceProvider.applePay:
-                          return button(
-                            asset: SvgIcons.menuNav,
-                            title: 'Apple Pay',
-                            bonus: -30,
-                          );
+                        // case BalanceProvider.applePay:
+                        //   return button(
+                        //     asset: SvgIcons.menuNav,
+                        //     title: 'Apple Pay',
+                        //     bonus: -30,
+                        //   );
 
-                        case BalanceProvider.googlePay:
-                          return button(
-                            asset: SvgIcons.menuDevices,
-                            title: 'Google Pay',
-                            bonus: -30,
-                          );
+                        // case BalanceProvider.googlePay:
+                        //   return button(
+                        //     asset: SvgIcons.menuDevices,
+                        //     title: 'Google Pay',
+                        //     bonus: -30,
+                        //   );
 
                         default:
                           return const SizedBox();
@@ -186,9 +186,10 @@ extension on int {
 
 extension on Iterable<BalanceProvider> {
   Iterable<BalanceProvider> get filtered {
-    return where(
-      (e) => e != BalanceProvider.googlePay && e != BalanceProvider.applePay,
-    );
+    return this;
+    // return where(
+    //   (e) => e != BalanceProvider.googlePay && e != BalanceProvider.applePay,
+    // );
 
     // if (PlatformUtils.isAndroid) {
     //   return where((e) => e == BalanceProvider.googlePay);

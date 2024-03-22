@@ -31,20 +31,20 @@ import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'controller.dart';
 import 'widget/paypal_button/paypal_button.dart';
 
 class BalanceProviderView extends StatelessWidget {
-  const BalanceProviderView(this.provider, {super.key});
-
-  final BalanceProvider? provider;
+  const BalanceProviderView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -107,35 +107,30 @@ class BalanceProviderView extends StatelessWidget {
                   leading: [StyledBackButton()],
                   actions: [SizedBox(width: 36)],
                 ),
-          body: Center(
-            child: ListView(
-              shrinkWrap: true,
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              children: [
-                ...BalanceProvider.values
-                    .where((e) =>
-                        e != BalanceProvider.applePay &&
-                        e != BalanceProvider.googlePay)
-                    .mapIndexed((i, e) {
-                  if (e == BalanceProvider.paypal) {
+          body: ScrollablePositionedList.builder(
+            initialScrollIndex: c.listInitIndex,
+            scrollController: c.scrollController,
+            itemScrollController: c.itemScrollController,
+            itemPositionsListener: c.positionsListener,
+            itemCount: BalanceProvider.values.length,
+            physics: const ClampingScrollPhysics(),
+            itemBuilder: (context, i) {
+              return Obx(() {
+                final e = BalanceProvider.values[i];
+
+                switch (e) {
+                  case BalanceProvider.paypal:
                     return Block(
-                      // padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-                      // title: e.name,
+                      margin: EdgeInsets.fromLTRB(
+                        8,
+                        4,
+                        8,
+                        i == BalanceProvider.values.length - 1 ? 4 : 32,
+                      ),
                       padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
+                      highlight: c.highlightIndex.value == i,
                       children: [
-                        // const SizedBox(height: 8),
-                        // Text(
-                        //   'PayPal',
-                        //   style: style.fonts.big.regular.onBackground,
-                        // ),
                         const SizedBox(height: 8),
-                        // Padding(
-                        //   padding: const EdgeInsets.all(8.0),
-                        //   child: SvgImage.asset(
-                        //     'assets/images/paypal.svg',
-                        //     height: 28,
-                        //   ),
-                        // ),
                         _card(
                           width: 96,
                           padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
@@ -165,9 +160,17 @@ class BalanceProviderView extends StatelessWidget {
                         ),
                       ],
                     );
-                  } else if (e == BalanceProvider.paymentCard) {
+
+                  case BalanceProvider.card:
                     return Block(
+                      margin: EdgeInsets.fromLTRB(
+                        8,
+                        4,
+                        8,
+                        i == BalanceProvider.values.length ? 4 : 32,
+                      ),
                       padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
+                      highlight: c.highlightIndex.value == i,
                       children: [
                         const SizedBox(height: 8),
                         Text(
@@ -217,36 +220,148 @@ class BalanceProviderView extends StatelessWidget {
                         ),
                       ],
                     );
-                  }
 
-                  return Block(
-                    title: e.name,
-                    children: [
-                      const SizedBox(height: 8),
-                      MoneyField(
-                        state: c.states[i],
-                        label: 'Amount',
-                        onChanged: (s) => c.prices[i].value = s,
+                  case BalanceProvider.sepa:
+                  case BalanceProvider.swift:
+                    return Block(
+                      margin: EdgeInsets.fromLTRB(
+                        8,
+                        4,
+                        8,
+                        i == BalanceProvider.values.length ? 4 : 32,
                       ),
-                      const SizedBox(height: 8),
-                      Obx(() {
-                        return Text(
-                          'Total: \$${(c.prices[i].value / 100).withSpaces()}',
-                          style: style.fonts.small.regular.secondary,
-                          textAlign: TextAlign.left,
-                        );
-                      }),
-                      const SizedBox(height: 8),
-                      PrimaryButton(
-                        title: 'Proceed',
-                        onPressed: () {},
+                      title: e.name,
+                      highlight: c.highlightIndex.value == i,
+                      children: [
+                        const SizedBox(height: 8),
+                        MoneyField(
+                          state: c.states[i],
+                          label: 'Amount',
+                          onChanged: (s) => c.prices[i].value = s,
+                        ),
+                        const SizedBox(height: 8),
+                        Obx(() {
+                          return Text(
+                            'Total: \$${(c.prices[i].value / 100).withSpaces()}',
+                            style: style.fonts.small.regular.secondary,
+                            textAlign: TextAlign.left,
+                          );
+                        }),
+                        const SizedBox(height: 8),
+                        PrimaryButton(
+                          title: 'Proceed',
+                          onPressed: () {},
+                        ),
+                      ],
+                    );
+                }
+              });
+            },
+          ),
+          // body: Center(
+          //   child: ListView(
+          //     shrinkWrap: true,
+          //     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          //     children: [
+          //       ...BalanceProvider.values.mapIndexed((i, e) {
+
+          //       }),
+          //     ],
+          //   ),
+          // ),
+          bottomNavigationBar: context.isNarrow
+              ? Container(
+                  margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      CustomBoxShadow(
+                        blurRadius: 8,
+                        color: style.colors.onBackgroundOpacity13,
+                        blurStyle: BlurStyle.outer.workaround,
                       ),
                     ],
-                  );
-                }),
-              ],
-            ),
-          ),
+                    borderRadius: style.cardRadius,
+                    border: style.cardBorder,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: style.cardColor,
+                      borderRadius: style.cardRadius,
+                    ),
+                    height: 56,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ...BalanceProvider.values.mapIndexed(
+                            (i, e) {
+                              return Obx(() {
+                                final bool selected =
+                                    router.balanceSection.value == e;
+
+                                return AnimatedButton(
+                                  onPressed: () =>
+                                      router.balanceSection.value = e,
+                                  decorator: (child) => AnimatedOpacity(
+                                    duration: const Duration(milliseconds: 150),
+                                    opacity: selected ? 1 : 0.7,
+                                    child: AnimatedScale(
+                                      duration:
+                                          const Duration(milliseconds: 150),
+                                      scale: selected ? 1.1 : 1,
+                                      child: Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                          i == 0 ? 8 : 12,
+                                          6,
+                                          12 + 4,
+                                          4,
+                                        ),
+                                        child: child,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SvgIcon(
+                                        switch (e) {
+                                          BalanceProvider.paypal =>
+                                            SvgIcons.paypalLogo,
+                                          BalanceProvider.card =>
+                                            SvgIcons.paymentCard,
+                                          BalanceProvider.sepa =>
+                                            SvgIcons.sepaLogo,
+                                          BalanceProvider.swift =>
+                                            SvgIcons.swiftLogo,
+                                        },
+                                        height: 23,
+                                      ),
+                                      const SizedBox(height: 1),
+                                      Text(
+                                        switch (e) {
+                                          BalanceProvider.paypal => 'PayPal',
+                                          BalanceProvider.card =>
+                                            'Payment card',
+                                          BalanceProvider.sepa => 'SEPA',
+                                          BalanceProvider.swift => 'SWIFT',
+                                        },
+                                        style: style.fonts.smallest.regular
+                                            .onBackground,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              : null,
         );
       },
     );

@@ -96,7 +96,8 @@ late RouterState router;
 /// Application routes names.
 class Routes {
   static const auth = '/';
-  static const balance = '/top_up';
+  static const balance = '/balance';
+  static const topUp = '/top_up';
   static const call = '/call';
   static const chatDirectLink = '/d';
   static const chatInfo = '/info';
@@ -155,9 +156,7 @@ enum ProfileTab {
 
 enum BalanceProvider {
   paypal,
-  applePay,
-  googlePay,
-  paymentCard,
+  card,
   sepa,
   swift,
 }
@@ -232,6 +231,7 @@ class RouterState extends ChangeNotifier {
 
   /// Current [Routes.me] page section.
   final Rx<ProfileTab?> profileSection = Rx(null);
+  final Rx<BalanceProvider?> balanceSection = Rx(null);
 
   final RxBool muted = RxBool(false);
   final RxInt accounts = RxInt(0);
@@ -298,6 +298,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.funds ||
             routes.last == Routes.user ||
             routes.last == Routes.balance ||
+            routes.last == Routes.topUp ||
             routes.last == Routes.transaction ||
             routes.last == Routes.faq ||
             routes.last == Routes.terms ||
@@ -393,6 +394,8 @@ class AppRouteInformationParser
     if (route.startsWith(Routes.work) || route == Routes.faq) {
       tab = HomeTab.work;
     } else if (route.startsWith(Routes.balance)) {
+      tab = HomeTab.balance;
+    } else if (route.startsWith(Routes.topUp)) {
       tab = HomeTab.balance;
     } else if (route.startsWith(Routes.chats)) {
       tab = HomeTab.chats;
@@ -886,6 +889,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.public) ||
         _state.route.startsWith(Routes.balance) ||
+        _state.route.startsWith(Routes.topUp) ||
         _state.route.startsWith(Routes.faq) ||
         _state.route.startsWith(Routes.terms) ||
         _state.route.startsWith(Routes.transaction) ||
@@ -1032,9 +1036,10 @@ extension RouteLinks on RouterState {
     }
   }
 
-  void balance(BalanceProvider provider, {bool push = false}) => push
-      ? this.push('${Routes.balance}/${provider.name}')
-      : go(Routes.balance);
+  void topUp(BalanceProvider provider, {bool push = false}) {
+    push ? this.push(Routes.topUp) : go(Routes.topUp);
+    balanceSection.value = provider;
+  }
 
   void transaction(String id, {bool push = false}) => push
       ? this.push('${Routes.transaction}/$id')

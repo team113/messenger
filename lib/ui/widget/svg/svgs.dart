@@ -2301,4 +2301,28 @@ class SvgIcons {
     width: 16.28,
     height: 19,
   );
+
+  static const SvgData paypalLogo = SvgData(
+    'assets/icons/paypal_logo.svg',
+    width: 18.68,
+    height: 23,
+  );
+
+  static const SvgData paymentCard = SvgData(
+    'assets/icons/payment_card.svg',
+    width: 28.75,
+    height: 23,
+  );
+
+  static const SvgData sepaLogo = SvgData(
+    'assets/icons/sepa_logo.svg',
+    width: 22.89,
+    height: 22.47,
+  );
+
+  static const SvgData swiftLogo = SvgData(
+    'assets/icons/swift_logo.svg',
+    width: 23,
+    height: 23,
+  );
 }

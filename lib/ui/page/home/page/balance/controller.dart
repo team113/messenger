@@ -15,6 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/transaction.dart';
@@ -22,6 +25,7 @@ import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class BalanceProviderController extends GetxController {
@@ -34,29 +38,95 @@ class BalanceProviderController extends GetxController {
   final List<RxInt> prices =
       BalanceProvider.values.map((e) => RxInt(0)).toList();
 
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
+  final RxnInt highlightIndex = RxnInt(null);
+
+  int listInitIndex = 0;
+
   final BalanceService _balanceService;
   final MyUserService _myUserService;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
+  /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
+  /// has passed.
+  Timer? _highlightTimer;
+  Worker? _balanceWorker;
 
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
-  void onReady() async {
-    // try {
-    //   final WebViewController controller =
-    //       WebViewController.fromPlatformCreationParams(
-    //     const PlatformWebViewControllerCreationParams(),
-    //   );
+  void onInit() {
+    listInitIndex = router.balanceSection.value?.index ?? 0;
 
-    //   controller.loadRequest(Uri.parse('https://flutter.dev'));
+    bool ignoreWorker = false;
+    bool ignorePositions = false;
 
-    //   webController.value = controller;
-    // } catch (e) {
-    //   print(e);
-    //   webController.value = null;
-    // }
+    _balanceWorker = ever(
+      router.balanceSection,
+      (BalanceProvider? tab) async {
+        if (ignoreWorker) {
+          ignoreWorker = false;
+        } else {
+          ignorePositions = true;
+          await itemScrollController.scrollTo(
+            index: tab?.index ?? 0,
+            duration: 200.milliseconds,
+            curve: Curves.ease,
+          );
+          Future.delayed(Duration.zero, () => ignorePositions = false);
+
+          highlight(tab);
+        }
+      },
+    );
+
+    positionsListener.itemPositions.addListener(() {
+      if (!ignorePositions) {
+        final ItemPosition? position =
+            positionsListener.itemPositions.value.firstOrNull;
+
+        if (position != null) {
+          final BalanceProvider tab = BalanceProvider.values[position.index];
+          if (router.balanceSection.value != tab) {
+            ignoreWorker = true;
+            router.balanceSection.value = tab;
+            Future.delayed(Duration.zero, () => ignoreWorker = false);
+          }
+        }
+      }
+    });
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _balanceWorker?.dispose();
+    _highlightTimer?.cancel();
   }
 
   void add(Transaction transaction) {
     _balanceService.add(transaction);
+  }
+
+  /// Highlights the provided [provider].
+  Future<void> highlight(BalanceProvider? provider) async {
+    highlightIndex.value = provider?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
   }
 }
