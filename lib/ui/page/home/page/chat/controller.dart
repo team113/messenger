@@ -910,14 +910,13 @@ class ChatController extends GetxController {
     _ignorePositionChanges = false;
   }
 
-  /// Returns an [User] from [UserService] by the provided [id].
+  /// Returns a reactive [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
-    final Rx<ChatItem>? item = _chatService.chats[chat!.id]?.messages
+  /// Returns a reactive [ChatItem] by the provided [id].
+  Rx<ChatItem>? getItem(ChatItemId id) {
+    return _chatService.chats[chat!.id]?.messages
         .firstWhereOrNull((e) => e.value.id == id);
-
-    return item;
   }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
