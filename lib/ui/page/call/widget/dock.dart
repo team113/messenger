@@ -556,7 +556,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   }
 
   /// Populates the [_expandedKeys] according to the [_items].
-  _populateExpandedKeys() {
+  void _populateExpandedKeys() {
     final int length = _items.length + 1;
 
     if (_expandedKeys.length > length) {
