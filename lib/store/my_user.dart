@@ -19,13 +19,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
-import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -515,7 +513,6 @@ class MyUserRepository implements AbstractMyUserRepository {
           myUser.update((u) => u?.muted = _myUserLocal.myUser?.value.muted);
           rethrow;
         }
-
       });
 
       if (myUser.value?.muted != muted) {
