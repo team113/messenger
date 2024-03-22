@@ -516,8 +516,6 @@ class MyUserRepository implements AbstractMyUserRepository {
       });
 
       if (myUser.value?.muted != muted) {
-        print('_toggleMute1');
-
         _toggleMute();
       }
 
