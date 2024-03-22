@@ -1672,8 +1672,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 (item.at
                                         .add(ChatController.editMessageTimeout)
                                         .isAfter(PreciseDateTime.now()) ||
-                                    !_isRead ||
-                                    widget.chat.value?.isMonolog == true))
+                                    !widget.chat.value!.isRead(
+                                      widget.item.value,
+                                      widget.me,
+                                    )))
                               ContextMenuButton(
                                 key: const Key('EditButton'),
                                 label: 'btn_edit'.l10n,
