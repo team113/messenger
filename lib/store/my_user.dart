@@ -100,6 +100,12 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// requests should be made.
   bool _disposed = false;
 
+  /// Mutex guarding [toggleMute].
+  final Mutex _toggleMuteGuard = Mutex();
+
+  /// [MyUserEvent]s should be ignored.
+  final List<MyUserEvent> _ignore = [];
+
   @override
   Future<void> init({
     required Function() onUserDeleted,
