@@ -492,6 +492,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } исключил Вас из группы
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
@@ -964,6 +965,13 @@ label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blocklist = Ваш чёрный список
 label_your_direct_link = Прямая ссылка на чат с Вами
+password_recovery =
+    Код восстановления {$domain}: {$token}
+    Действителен до {$expiresAt}.
+
+    С наилучшими пожеланиями,
+    Администрация {$domain}
+password_recovery_subject = Код восстановления {$domain}
 plus = +
 space = {" "}
 space_or_space = {" "}или{" "}
