@@ -37,6 +37,7 @@ class MenuButton extends StatelessWidget {
     this.trailing,
     this.reversed = false,
     this.dense = false,
+    this.child,
   });
 
   MenuButton.tab(
@@ -49,6 +50,7 @@ class MenuButton extends StatelessWidget {
   })  : reversed = false,
         dense = false,
         icon = null,
+        child = null,
         title = switch (tab) {
           ProfileTab.public => 'label_profile'.l10n,
           ProfileTab.signing => 'label_login_options'.l10n,
@@ -170,6 +172,8 @@ class MenuButton extends StatelessWidget {
   final bool reversed;
   final bool dense;
 
+  final Widget? child;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -226,12 +230,14 @@ class MenuButton extends StatelessWidget {
                             ? style.colors.onPrimary
                             : style.colors.primary,
                       ),
-                    const SizedBox(width: 18),
+                    if (leading != null || icon != null)
+                      const SizedBox(width: 18),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (child != null) child!,
                           if (title != null)
                             DefaultTextStyle(
                               overflow: TextOverflow.ellipsis,
@@ -256,6 +262,7 @@ class MenuButton extends StatelessWidget {
                         ],
                       ),
                     ),
+                    if (subtitle == null && trailing != null) trailing!,
                   ],
                 ),
               ),

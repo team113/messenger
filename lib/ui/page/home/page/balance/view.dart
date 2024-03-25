@@ -19,13 +19,11 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
-import 'package:messenger/ui/page/home/page/chat/widget/embossed_text.dart';
 import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
@@ -33,15 +31,13 @@ import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
+import 'package:messenger/ui/widget/selected_dot.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import 'controller.dart';
-import 'widget/paypal_button/paypal_button.dart';
 
 class BalanceProviderView extends StatelessWidget {
   const BalanceProviderView({super.key});
@@ -120,6 +116,8 @@ class BalanceProviderView extends StatelessWidget {
 
                 switch (e) {
                   case BalanceProvider.paypal:
+                    final nominals = [499, 999, 4999, 9999];
+
                     return Block(
                       margin: EdgeInsets.fromLTRB(
                         8,
@@ -141,27 +139,45 @@ class BalanceProviderView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _cell(
+                        ...nominals.mapIndexed((i, n) {
+                          return Obx(() {
+                            final bool selected = c.nominal[e]!.value == i;
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 1.5),
+                              child: PickVariantButton(
+                                amount: n,
+                                price: n,
+                                onPressed: () => c.nominal[e]!.value = i,
+                                selected: selected,
+                              ),
+                            );
+                          });
+                        }),
+                        const SizedBox(height: 16),
+                        Obx(() {
+                          return _nominal(
+                            context,
+                            price: (nominals
+                                        .elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first) +
+                                1,
+                          );
+                        }),
+                        const SizedBox(height: 16),
+                        _paypal(
                           context,
-                          amount: 99,
-                          button: _paypal(context, 0.99),
-                        ),
-                        const SizedBox(height: 32),
-                        _cell(
-                          context,
-                          amount: 549,
-                          button: _paypal(context, 4.99),
-                        ),
-                        const SizedBox(height: 32),
-                        _cell(
-                          context,
-                          amount: 1109,
-                          button: _paypal(context, 9.99),
+                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                  nominals.first) /
+                              100,
                         ),
                       ],
                     );
 
                   case BalanceProvider.card:
+                    final nominals = [499, 999, 4999, 9999];
+
                     return Block(
                       margin: EdgeInsets.fromLTRB(
                         8,
@@ -201,30 +217,44 @@ class BalanceProviderView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _cell(
+                        ...nominals.mapIndexed((i, n) {
+                          return Obx(() {
+                            final bool selected = c.nominal[e]!.value == i;
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 1.5),
+                              child: PickVariantButton(
+                                amount: n,
+                                price: n,
+                                onPressed: () => c.nominal[e]!.value = i,
+                                selected: selected,
+                              ),
+                            );
+                          });
+                        }),
+                        const SizedBox(height: 16),
+                        Obx(() {
+                          return _nominal(
+                            context,
+                            price: (nominals
+                                        .elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first) +
+                                1,
+                          );
+                        }),
+                        const SizedBox(height: 16),
+                        _paymentCard(
                           context,
-                          amount: 99,
-                          button: _paymentCard(context, 0.99),
-                        ),
-                        const SizedBox(height: 32),
-                        _cell(
-                          context,
-                          amount: 549,
-                          button: _paymentCard(context, 4.99),
-                        ),
-                        const SizedBox(height: 32),
-                        _cell(
-                          context,
-                          amount: 1109,
-                          button: _paymentCard(context, 9.99),
+                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                  nominals.first) /
+                              100,
                         ),
                       ],
                     );
 
                   case BalanceProvider.sepa:
                   case BalanceProvider.swift:
-                  case BalanceProvider.bitcoin:
-                  case BalanceProvider.usdt:
                     return Block(
                       margin: EdgeInsets.fromLTRB(
                         8,
@@ -242,17 +272,137 @@ class BalanceProviderView extends StatelessWidget {
                           onChanged: (s) => c.prices[i].value = s,
                         ),
                         const SizedBox(height: 8),
+                        Text(
+                          'Минимум: ¤10 000',
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                        const SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Obx(() {
-                          return Text(
-                            'Total: \$${(c.prices[i].value / 100).withSpaces()}',
-                            style: style.fonts.small.regular.secondary,
-                            textAlign: TextAlign.left,
+                          return _nominal(
+                            context,
+                            price: c.prices[i].value,
+                            custom: true,
                           );
                         }),
                         const SizedBox(height: 8),
-                        PrimaryButton(
-                          title: 'Proceed',
-                          onPressed: () {},
+                        Obx(() {
+                          final bool enabled = c.prices[i].value >= 10000;
+
+                          return PrimaryButton(
+                            title: 'Proceed',
+                            onPressed: enabled ? () {} : null,
+                          );
+                        }),
+                      ],
+                    );
+
+                  case BalanceProvider.bitcoin:
+                    final nominals = [499, 999, 4999, 9999];
+
+                    return Block(
+                      margin: EdgeInsets.fromLTRB(
+                        8,
+                        4,
+                        8,
+                        i == BalanceProvider.values.length ? 4 : 32,
+                      ),
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
+                      highlight: c.highlightIndex.value == i,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          'Bitcoin',
+                          style: style.fonts.big.regular.onBackground,
+                        ),
+                        const SizedBox(height: 16),
+                        ...nominals.mapIndexed((i, n) {
+                          return Obx(() {
+                            final bool selected = c.nominal[e]!.value == i;
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 1.5),
+                              child: PickVariantButton(
+                                amount: n,
+                                price: n,
+                                onPressed: () => c.nominal[e]!.value = i,
+                                selected: selected,
+                              ),
+                            );
+                          });
+                        }),
+                        const SizedBox(height: 16),
+                        Obx(() {
+                          return _nominal(
+                            context,
+                            price: (nominals
+                                        .elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first) +
+                                1,
+                          );
+                        }),
+                        const SizedBox(height: 16),
+                        _crypto(
+                          context,
+                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                  nominals.first) /
+                              100,
+                        ),
+                      ],
+                    );
+
+                  case BalanceProvider.usdt:
+                    final nominals = [99, 499, 999, 4999, 9999];
+
+                    return Block(
+                      margin: EdgeInsets.fromLTRB(
+                        8,
+                        4,
+                        8,
+                        i == BalanceProvider.values.length ? 4 : 32,
+                      ),
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
+                      highlight: c.highlightIndex.value == i,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          'USDT',
+                          style: style.fonts.big.regular.onBackground,
+                        ),
+                        const SizedBox(height: 16),
+                        ...nominals.mapIndexed((i, n) {
+                          return Obx(() {
+                            final bool selected = c.nominal[e]!.value == i;
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 1.5),
+                              child: PickVariantButton(
+                                amount: n,
+                                price: n,
+                                onPressed: () => c.nominal[e]!.value = i,
+                                selected: selected,
+                              ),
+                            );
+                          });
+                        }),
+                        const SizedBox(height: 16),
+                        Obx(() {
+                          return _nominal(
+                            context,
+                            price: (nominals
+                                        .elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first) +
+                                1,
+                          );
+                        }),
+                        const SizedBox(height: 16),
+                        _crypto(
+                          context,
+                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                  nominals.first) /
+                              100,
                         ),
                       ],
                     );
@@ -260,17 +410,6 @@ class BalanceProviderView extends StatelessWidget {
               });
             },
           ),
-          // body: Center(
-          //   child: ListView(
-          //     shrinkWrap: true,
-          //     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-          //     children: [
-          //       ...BalanceProvider.values.mapIndexed((i, e) {
-
-          //       }),
-          //     ],
-          //   ),
-          // ),
           bottomNavigationBar: context.isNarrow
               ? Container(
                   margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
@@ -315,9 +454,9 @@ class BalanceProviderView extends StatelessWidget {
                                       scale: selected ? 1.1 : 1,
                                       child: Padding(
                                         padding: EdgeInsets.fromLTRB(
-                                          i == 0 ? 8 : 12,
+                                          i == 0 ? 8 : 15,
                                           6,
-                                          12 + 4,
+                                          15 + 4,
                                           4,
                                         ),
                                         child: child,
@@ -390,6 +529,52 @@ class BalanceProviderView extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: child,
+    );
+  }
+
+  Widget _nominal(
+    BuildContext context, {
+    int price = 0,
+    bool custom = false,
+  }) {
+    final style = Theme.of(context).style;
+
+    final String asset = custom
+        ? 'card_custom'
+        : switch (price) {
+            <= 100 => 'card_100',
+            <= 500 => 'card_500',
+            <= 1000 => 'card_1000',
+            <= 5000 => 'card_5000',
+            <= 10000 => 'card_10000',
+            (_) => 'card_100',
+          };
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      switchInCurve: Curves.ease,
+      switchOutCurve: Curves.ease,
+      child: Stack(
+        key: Key(asset),
+        children: [
+          AspectRatio(
+            aspectRatio: 32.27 / 20.26,
+            child: SvgImage.asset('assets/images/$asset.svg'),
+          ),
+          Positioned.fill(
+            child: Center(
+              child: Text(
+                '¤${price.withSpaces(false)}',
+                style: style.fonts.largest.regular.onBackground.copyWith(
+                  color: custom
+                      ? style.colors.onBackground
+                      : style.colors.onPrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -562,8 +747,88 @@ class BalanceProviderView extends StatelessWidget {
       ),
     );
   }
+
+  Widget _crypto(BuildContext context, double price) {
+    final style = Theme.of(context).style;
+
+    return WidgetButton(
+      onPressed: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          color: style.colors.primary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Buy with crypto',
+                style: style.fonts.small.regular.onPrimary,
+              ),
+              TextSpan(
+                text: ' for \$$price',
+                style: style.fonts.small.regular.onPrimary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 extension on num {
-  String withSpaces() => NumberFormat('#,##0.00').format(this);
+  String withSpaces([bool zeros = false]) {
+    if (!zeros) {
+      return NumberFormat('#,##0').format(this);
+    }
+
+    return NumberFormat('#,##0.00').format(this);
+  }
+}
+
+class PickVariantButton extends StatelessWidget {
+  const PickVariantButton({
+    super.key,
+    this.price = 0,
+    this.amount = 0,
+    this.onPressed,
+    this.selected = false,
+  });
+
+  final num price;
+  final num amount;
+  final void Function()? onPressed;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return MenuButton(
+      dense: true,
+      inverted: selected,
+      onPressed: onPressed,
+      trailing: SelectedDot(size: 21, selected: selected),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: '\$${(price / 100).toStringAsFixed(2)}',
+              style: selected
+                  ? style.fonts.big.regular.onPrimary
+                  : style.fonts.big.regular.onBackground,
+            ),
+            TextSpan(
+              text: ' to get ¤${amount + 1}',
+              style: selected
+                  ? style.fonts.big.regular.onPrimary
+                  : style.fonts.big.regular.secondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

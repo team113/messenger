@@ -50,6 +50,10 @@ class BalanceProviderController extends GetxController {
 
   final RxnInt highlightIndex = RxnInt(null);
 
+  late final Map<BalanceProvider, RxInt> nominal = {
+    for (var e in BalanceProvider.values) e: RxInt(0)
+  };
+
   int listInitIndex = 0;
 
   final BalanceService _balanceService;
