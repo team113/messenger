@@ -30,7 +30,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/store/chat_rx.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -349,6 +348,14 @@ class ChatController extends GetxController {
 
   /// [Paginated]es used by this [ChatController].
   final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
+
+  // TODO: Should we even use this?
+  /// Single item [Paginated]es used by this [ChatController].
+  ///
+  /// In contrast to [_fragments], this is used to store items that are
+  /// unreachable from the current pagination view and thus should not be
+  /// animated to.
+  final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _singleItems = HashSet();
 
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
@@ -916,22 +923,36 @@ class ChatController extends GetxController {
 
   /// Returns a reactive [ChatItem] by the provided [id].
   FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
-    final Rx<ChatItem>? fromMessages =
-        chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+    Rx<ChatItem>? item;
 
-    final Rx<ChatItem>? fromFragments = _fragments
+    item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+
+    item ??= _fragments
         .firstWhereOrNull((e) => e.items.keys.contains(id))
         ?.items[id];
 
-    if (fromMessages == null && fromFragments == null) {
-      final Future<Rx<ChatItem>?> item = (chat as HiveRxChat).get(id).then((e) {
-        return e?.value.obs;
+    item ??= _singleItems
+        .firstWhereOrNull((e) => e.items.keys.contains(id))
+        ?.items[id];
+
+    if (item == null) {
+      final Future<Rx<ChatItem>?>? future =
+          chat?.around(item: id, perPage: 1).then((fragment) async {
+        if (fragment != null) {
+          await fragment.around();
+          _fragments.add(fragment);
+
+          item = fragment.items[id];
+          return item;
+        }
+
+        return null;
       });
 
-      return item;
+      return future;
     }
 
-    return fromMessages ?? fromFragments;
+    return item;
   }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
@@ -1578,7 +1599,7 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.contains(itemId),
+        (e) => e.items.keys.contains(itemId) && e.items.length > 1,
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],

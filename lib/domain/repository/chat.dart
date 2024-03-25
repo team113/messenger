@@ -308,6 +308,7 @@ abstract class RxChat implements Comparable<RxChat> {
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
+    int? perPage,
   });
 
   /// Fetches the next [messages] page.
