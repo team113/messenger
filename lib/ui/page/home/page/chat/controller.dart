@@ -940,7 +940,7 @@ class ChatController extends GetxController {
           chat?.around(item: id, perPage: 1).then((fragment) async {
         if (fragment != null) {
           await fragment.around();
-          _fragments.add(fragment);
+          _singleItems.add(fragment);
 
           item = fragment.items[id];
           return item;
