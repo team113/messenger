@@ -313,6 +313,28 @@ endif
 
 
 
+############################
+# Sparkle Appcast commands #
+############################
+
+# Create Sparkle Appcast XML.
+#
+# Usage:
+#	make appcast.xml notes=<notes> link=<artifacts-url>
+#	                 [out=(appcast.xml|<output-file>)
+
+appcast-xml-ver = $(shell git describe --tags --dirty --match "v*" --always)
+
+appcast.xml:
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(appcast-notes-ver)</title><description>$(notes)</description><pubDate>$(shell date -R)</pubDate>$(call xml,"macos","messenger-macos.zip")$(call xml,"windows","messenger-windows.zip")$(call xml,"linux","messenger-linux.zip")$(call xml,"android","messenger-android.zip")$(call xml,"ios","messenger-ios.zip")</item></channel></rss>" \
+	> $(or $(out),appcast.xml)
+define appcast.xml.release
+<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
+endef
+
+
+
+
 ##########################
 # Documentation commands #
 ##########################
@@ -870,6 +892,7 @@ sentry.upload:
 ##################
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
+        appcast.xml \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \

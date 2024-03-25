@@ -109,3 +109,11 @@
 #
 # Default:
 #   prefix = ""
+
+[appcast]
+# URL of a Sparkle Appcast XML file.
+#
+# Used to notify users about the application updates available.
+#
+# Default:
+#   url = ""
