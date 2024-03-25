@@ -52,6 +52,7 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
+import 'provider/hive/skipped_version.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -59,6 +60,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
+import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/log.dart';
@@ -115,6 +117,7 @@ Future<void> main() async {
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
+    Get.put(UpgradeWorker(Get.findOrNull()));
 
     WebUtils.deleteLoader();
 
@@ -373,6 +376,7 @@ Future<void> _initHive() async {
   await Get.put(WindowPreferencesHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {
+    await Get.put(SkippedVersionHiveProvider()).init();
     await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }

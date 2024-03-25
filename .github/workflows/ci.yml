@@ -23,6 +23,7 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
+      - appcast-edge
       - build
       - build-linux
       - copyright
@@ -114,6 +115,31 @@ jobs:
   # Building #
   ############
 
+  appcast-edge:
+    name: appcast (edge)
+    # Despite this CI job is not always needed, we intentionally keep it running
+    # always, because we want the `docker` CI job to depend on it, and GitHub
+    # Actions doesn't provide any conditional depending at the moment.
+    #if: ${{ github.ref == 'refs/heads/main'
+    #     || github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # for correct versioning via `git describe --tags`
+
+      - run: make appcast.xml
+        env:
+          link: ${{ secrets.ARTIFACTS_MAIN }}
+          notes: ${{ secrets.APPCAST_NOTES }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: appcast-edge-${{ github.run_number }}
+          path: appcast.xml
+          if-no-files-found: error
+          retention-days: 1
+
   build:
     strategy:
       fail-fast: false
@@ -146,6 +172,10 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
+      - run: flutter config --enable-${{ matrix.platform }}-desktop
+        if: ${{ contains('macos windows', matrix.platform) }}
+
+      - run: make flutter.pub
 
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
@@ -167,9 +197,6 @@ jobs:
              > web/firebase-messaging-sw.js
         if: ${{ matrix.platform == 'web' }}
 
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ contains('macos windows', matrix.platform) }}
-
       - name: Parse semver versions from Git tag
         id: semver
         uses: actions-ecosystem/action-regex-match@v2
@@ -177,8 +204,6 @@ jobs:
           text: ${{ github.ref }}
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-
-      - run: make flutter.pub
 
       # TODO: Remove `profile=yes`, when self-hosted Sentry supports source
       #       maps reading.
@@ -199,6 +224,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_APPCAST_URL=${{ secrets.APPCAST_MAIN }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -338,6 +364,7 @@ jobs:
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_APPCAST_URL=${{ secrets.APPCAST_MAIN }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -392,7 +419,7 @@ jobs:
              || startsWith(github.ref, 'refs/tags/v') }}
 
   docker:
-    needs: ["build", "build-linux"]
+    needs: ["appcast-edge", "build", "build-linux"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -429,6 +456,12 @@ jobs:
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: appcast-edge-${{ github.run_number }}
+          path: build/web/
+        if: ${{ github.ref == 'refs/heads/main' }}
 
       - run: make docker.image no-cache=yes
                   tag=build-${{ github.run_number }}
