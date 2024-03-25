@@ -2316,13 +2316,13 @@ class SvgIcons {
 
   static const SvgData sepaLogo = SvgData(
     'assets/icons/sepa_logo.svg',
-    width: 22.89,
-    height: 22.47,
+    width: 23.44,
+    height: 23,
   );
 
   static const SvgData swiftLogo = SvgData(
     'assets/icons/swift_logo.svg',
-    width: 23,
-    height: 23,
+    width: 22,
+    height: 22,
   );
 }
