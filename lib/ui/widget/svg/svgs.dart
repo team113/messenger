@@ -2325,4 +2325,16 @@ class SvgIcons {
     width: 22,
     height: 22,
   );
+
+  static const SvgData bitcoin = SvgData(
+    'assets/icons/bitcoin.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData bitcoinLogo = SvgData(
+    'assets/icons/bitcoin_logo.svg',
+    width: 18.41,
+    height: 23,
+  );
 }

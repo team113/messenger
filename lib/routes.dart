@@ -159,6 +159,7 @@ enum BalanceProvider {
   card,
   sepa,
   swift,
+  bitcoin,
 }
 
 enum WidgetsTab {

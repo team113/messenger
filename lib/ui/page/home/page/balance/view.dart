@@ -223,6 +223,7 @@ class BalanceProviderView extends StatelessWidget {
 
                   case BalanceProvider.sepa:
                   case BalanceProvider.swift:
+                  case BalanceProvider.bitcoin:
                     return Block(
                       margin: EdgeInsets.fromLTRB(
                         8,
@@ -335,6 +336,8 @@ class BalanceProviderView extends StatelessWidget {
                                             SvgIcons.sepaLogo,
                                           BalanceProvider.swift =>
                                             SvgIcons.swiftLogo,
+                                          BalanceProvider.bitcoin =>
+                                            SvgIcons.bitcoinLogo,
                                         },
                                         height: 23,
                                       ),
@@ -346,6 +349,7 @@ class BalanceProviderView extends StatelessWidget {
                                             'Payment card',
                                           BalanceProvider.sepa => 'SEPA',
                                           BalanceProvider.swift => 'SWIFT',
+                                          BalanceProvider.bitcoin => 'Bitcoin',
                                         },
                                         style: style.fonts.smallest.regular
                                             .onBackground,

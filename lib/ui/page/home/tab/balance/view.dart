@@ -130,6 +130,13 @@ class BalanceTabView extends StatelessWidget {
                             bonus: -5,
                           );
 
+                        case BalanceProvider.bitcoin:
+                          return button(
+                            asset: SvgIcons.bitcoin,
+                            title: 'Bitcoin',
+                            bonus: 5,
+                          );
+
                         // case BalanceProvider.applePay:
                         //   return button(
                         //     asset: SvgIcons.menuNav,
@@ -144,8 +151,8 @@ class BalanceTabView extends StatelessWidget {
                         //     bonus: -30,
                         //   );
 
-                        default:
-                          return const SizedBox();
+                        // default:
+                        //   return const SizedBox();
                       }
                     }),
                   ],
