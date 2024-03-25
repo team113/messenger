@@ -329,12 +329,6 @@ class ChatItemWidget extends StatefulWidget {
 
 /// State of a [ChatItemWidget] used to update an active call [Timer].
 class _ChatItemWidgetState extends State<ChatItemWidget> {
-  /// [Timer] rebuilding this widget every second if the [widget.item]
-  /// represents an ongoing [ChatCall].
-  Timer? _ongoingCallTimer;
-
-  FutureOr<Rx<ChatItem>?>? _futureOrCall;
-
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -410,23 +404,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void initState() {
     _populateWorker();
 
-    final ChatItem item = widget.item.value;
-    if (item is ChatMessage && item.repliesTo.isNotEmpty) {
-      if (item.repliesTo.first.original != null) {
-        _futureOrCall = widget.getItem?.call(item.repliesTo.first.original!.id);
-      } else {
-        _futureOrCall = null;
-      }
-    }
-
     super.initState();
   }
 
   @override
   void dispose() {
-    _ongoingCallTimer?.cancel();
-    _ongoingCallTimer = null;
-
     _worker?.dispose();
     for (var r in _recognizers) {
       r.dispose();
@@ -1075,7 +1057,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           WidgetSpan(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 4),
-                              child: _call(message),
+                              child: ChatCallWidget(
+                                me: widget.me,
+                                chatCall: message,
+                                getItem: widget.getItem,
+                              ),
                             ),
                           ),
                           WidgetSpan(
@@ -1229,7 +1215,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         );
       }
     } else if (item is ChatCallQuote) {
-      content = _call(item.original as ChatCall?);
+      content = ChatCallWidget(
+        me: widget.me,
+        chatCall: item.original as ChatCall?,
+        getItem: widget.getItem,
+      );
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
       content = Text(
@@ -1294,118 +1284,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ],
             ),
           ),
-        );
-      },
-    );
-  }
-
-  /// Returns the visual representation of the provided [call].
-  Widget _call(ChatCall? chatCall) {
-    final style = Theme.of(context).style;
-    final Rx<ChatItem>? initialData =
-        _futureOrCall is Rx<ChatItem>? ? _futureOrCall as Rx<ChatItem>? : null;
-    final Future<Rx<ChatItem>?>? future = _futureOrCall is Rx<ChatItem>?
-        ? null
-        : _futureOrCall as Future<Rx<ChatItem>?>;
-
-    return FutureBuilder<Rx<ChatItem>?>(
-      future: chatCall != null ? future : null,
-      initialData: chatCall != null ? initialData : null,
-      builder: (context, snapshot) {
-        final ChatCall? call = snapshot.data?.value as ChatCall? ?? chatCall;
-
-        final bool isOngoing =
-            call?.finishReason == null && call?.conversationStartedAt != null;
-
-        bool isMissed = false;
-        String title = 'label_chat_call_ended'.l10n;
-        String? time;
-
-        if (isOngoing) {
-          title = 'label_chat_call_ongoing'.l10n;
-          time = call!.conversationStartedAt!.val
-              .difference(DateTime.now())
-              .localizedString();
-        } else if (call != null && call.finishReason != null) {
-          title =
-              call.finishReason!.localizedString(call.author.id == widget.me) ??
-                  title;
-          isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
-              (call.finishReason == ChatCallFinishReason.unanswered);
-
-          if (call.finishedAt != null && call.conversationStartedAt != null) {
-            time = call.finishedAt!.val
-                .difference(call.conversationStartedAt!.val)
-                .localizedString();
-          }
-        } else {
-          title = call == null
-              ? title
-              : call.author.id == widget.me
-                  ? 'label_outgoing_call'.l10n
-                  : 'label_incoming_call'.l10n;
-        }
-
-        if (isOngoing && !Config.disableInfiniteAnimations) {
-          _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
-            if (mounted) {
-              setState(() {});
-            }
-          });
-        } else {
-          _ongoingCallTimer?.cancel();
-        }
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: SvgIcon(
-                (call?.withVideo ?? false)
-                    ? isMissed
-                        ? SvgIcons.callVideoMissed
-                        : SvgIcons.callVideo
-                    : isMissed
-                        ? SvgIcons.callAudioMissed
-                        : SvgIcons.callAudio,
-              ),
-            ),
-            Flexible(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: style.fonts.medium.regular.onBackground,
-                    ),
-                  ),
-                  if (time != null) ...[
-                    const SizedBox(width: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2.5),
-                      child: Stack(
-                        alignment: Alignment.topRight,
-                        children: [
-                          Text(
-                            time,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.fonts.normal.regular.secondary,
-                          ).fixedDigits(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 2),
-          ],
         );
       },
     );
@@ -1926,6 +1804,162 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         'Use `ChatForward` widget for rendering `ChatForward`s instead',
       );
     }
+  }
+}
+
+class ChatCallWidget extends StatefulWidget {
+  const ChatCallWidget({
+    super.key,
+    this.chatCall,
+    this.getItem,
+    required this.me,
+  });
+
+  /// [UserId] of the authenticated [MyUser].
+  final UserId me;
+
+  final ChatCall? chatCall;
+
+  /// Callback, called when a reactive [ChatItem] identified by the provided
+  /// [ChatItemId] is required.
+  final FutureOr<Rx<ChatItem>?> Function(ChatItemId itemId)? getItem;
+
+  @override
+  State<ChatCallWidget> createState() => ChatCallWidgetState();
+}
+
+class ChatCallWidgetState extends State<ChatCallWidget> {
+  FutureOr<Rx<ChatItem>?>? _futureOrCall;
+
+  /// [Timer] rebuilding this widget every second if the [widget.item]
+  /// represents an ongoing [ChatCall].
+  Timer? _ongoingCallTimer;
+
+  @override
+  initState() {
+    super.initState();
+
+    if (widget.getItem != null && widget.chatCall != null) {
+      _futureOrCall = widget.getItem!.call(widget.chatCall!.id);
+    }
+  }
+
+  @override
+  dispose() {
+    _ongoingCallTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+    final Rx<ChatItem>? initialData =
+        _futureOrCall is Rx<ChatItem>? ? _futureOrCall as Rx<ChatItem>? : null;
+    final Future<Rx<ChatItem>?>? future = _futureOrCall is Rx<ChatItem>?
+        ? null
+        : _futureOrCall as Future<Rx<ChatItem>?>;
+
+    return FutureBuilder<Rx<ChatItem>?>(
+      future: future,
+      initialData: initialData,
+      builder: (context, snapshot) {
+        final ChatCall? call = snapshot.data?.value as ChatCall?;
+
+        final bool isOngoing =
+            call?.finishReason == null && call?.conversationStartedAt != null;
+
+        bool isMissed = false;
+        String title = 'label_chat_call_ended'.l10n;
+        String? time;
+
+        if (isOngoing) {
+          title = 'label_chat_call_ongoing'.l10n;
+          time = call!.conversationStartedAt!.val
+              .difference(DateTime.now())
+              .localizedString();
+        } else if (call != null && call.finishReason != null) {
+          title =
+              call.finishReason!.localizedString(call.author.id == widget.me) ??
+                  title;
+          isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
+              (call.finishReason == ChatCallFinishReason.unanswered);
+
+          if (call.finishedAt != null && call.conversationStartedAt != null) {
+            time = call.finishedAt!.val
+                .difference(call.conversationStartedAt!.val)
+                .localizedString();
+          }
+        } else {
+          title = call == null
+              ? title
+              : call.author.id == widget.me
+                  ? 'label_outgoing_call'.l10n
+                  : 'label_incoming_call'.l10n;
+        }
+
+        if (isOngoing && !Config.disableInfiniteAnimations) {
+          _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        } else {
+          _ongoingCallTimer?.cancel();
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SvgIcon(
+                (call?.withVideo ?? false)
+                    ? isMissed
+                        ? SvgIcons.callVideoMissed
+                        : SvgIcons.callVideo
+                    : isMissed
+                        ? SvgIcons.callAudioMissed
+                        : SvgIcons.callAudio,
+              ),
+            ),
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
+                  ),
+                  if (time != null) ...[
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.5),
+                      child: Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Text(
+                            time,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.fonts.normal.regular.secondary,
+                          ).fixedDigits(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+        );
+      },
+    );
   }
 }
 
