@@ -333,6 +333,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// represents an ongoing [ChatCall].
   Timer? _ongoingCallTimer;
 
+  FutureOr<Rx<ChatItem>?>? _futureOrCall;
+
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -407,6 +409,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateWorker();
+
+    final ChatItem item = widget.item.value;
+    if (item is ChatMessage && item.repliesTo.isNotEmpty) {
+      if (item.repliesTo.first.original != null) {
+        _futureOrCall = widget.getItem?.call(item.repliesTo.first.original!.id);
+      } else {
+        _futureOrCall = null;
+      }
+    }
+
     super.initState();
   }
 
@@ -1288,16 +1300,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   /// Returns the visual representation of the provided [call].
-  Widget _call(ChatCall? c) {
+  Widget _call(ChatCall? chatCall) {
     final style = Theme.of(context).style;
-    final FutureOr<Rx<ChatItem>?>? item =
-        c != null ? widget.getItem?.call(c.id) : null;
+    final Rx<ChatItem>? initialData =
+        _futureOrCall is Rx<ChatItem>? ? _futureOrCall as Rx<ChatItem>? : null;
+    final Future<Rx<ChatItem>?>? future = _futureOrCall is Rx<ChatItem>?
+        ? null
+        : _futureOrCall as Future<Rx<ChatItem>?>;
 
     return FutureBuilder<Rx<ChatItem>?>(
-      future: item is Rx<ChatItem>? ? null : item,
-      initialData: item is Rx<ChatItem>? ? item : null,
+      future: chatCall != null ? future : null,
+      initialData: chatCall != null ? initialData : null,
       builder: (context, snapshot) {
-        final ChatCall? call = snapshot.data?.value as ChatCall?;
+        final ChatCall? call = snapshot.data?.value as ChatCall? ?? chatCall;
 
         final bool isOngoing =
             call?.finishReason == null && call?.conversationStartedAt != null;
