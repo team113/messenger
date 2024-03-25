@@ -30,6 +30,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/store/chat_rx.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -914,9 +915,23 @@ class ChatController extends GetxController {
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Returns a reactive [ChatItem] by the provided [id].
-  Rx<ChatItem>? getItem(ChatItemId id) {
-    return _chatService.chats[chat!.id]?.messages
-        .firstWhereOrNull((e) => e.value.id == id);
+  FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
+    final Rx<ChatItem>? fromMessages =
+        chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+
+    final Rx<ChatItem>? fromFragments = _fragments
+        .firstWhereOrNull((e) => e.items.keys.contains(id))
+        ?.items[id];
+
+    if (fromMessages == null && fromFragments == null) {
+      final Future<Rx<ChatItem>?> item = (chat as HiveRxChat).get(id).then((e) {
+        return e?.value.obs;
+      });
+
+      return item;
+    }
+
+    return fromMessages ?? fromFragments;
   }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
