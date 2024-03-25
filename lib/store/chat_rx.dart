@@ -485,13 +485,19 @@ class HiveRxChat extends RxChat {
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
+    int? perPage,
   }) async {
     Log.debug('around()', '$runtimeType($id)');
 
     // Even if the [item] is within [_local], still create a [MessageFragment],
     // at it handles such cases as well.
     if (item != null) {
-      return _paginateAround(item, reply: reply, forward: forward);
+      return _paginateAround(
+        item,
+        reply: reply,
+        forward: forward,
+        perPage: perPage,
+      );
     }
 
     if (id.isLocal ||
@@ -800,11 +806,12 @@ class HiveRxChat extends RxChat {
         .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
         ?.pagination
         ?.items[itemId];
-    item ??= await _local.get(itemId);
 
     if (item == null) {
       try {
-        item = await _chatRepository.message(itemId);
+        item = await _local.get(itemId);
+
+        item ??= await _chatRepository.message(itemId);
       } catch (_) {
         // No-op.
       }
@@ -1022,6 +1029,7 @@ class HiveRxChat extends RxChat {
         case OperationKind.added:
         case OperationKind.updated:
           final ChatItem item = event.value!.value;
+          print('[_pagination.changes] ${event.op} ${item.id}');
           _add(item);
 
           if (!_sorting.keys.contains(item.key)) {
@@ -1143,6 +1151,7 @@ class HiveRxChat extends RxChat {
     ChatItemId item, {
     ChatItemId? reply,
     ChatItemId? forward,
+    int? perPage,
   }) async {
     Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
@@ -1216,6 +1225,7 @@ class HiveRxChat extends RxChat {
         pagination: Pagination(
           onKey: (e) => e.value.id,
           provider: _provider,
+          perPage: perPage,
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
         onDispose: () {

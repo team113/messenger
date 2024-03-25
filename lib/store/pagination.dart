@@ -31,11 +31,11 @@ import 'model/page_info.dart';
 /// key identifying those items and their [C] cursor.
 class Pagination<T, C, K> {
   Pagination({
-    this.perPage = 50,
+    int? perPage,
     required this.provider,
     required this.onKey,
     this.compare,
-  });
+  }) : perPage = perPage ?? 50;
 
   /// Items per [Page] to fetch.
   final int perPage;
