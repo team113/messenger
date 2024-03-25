@@ -1029,7 +1029,6 @@ class HiveRxChat extends RxChat {
         case OperationKind.added:
         case OperationKind.updated:
           final ChatItem item = event.value!.value;
-          print('[_pagination.changes] ${event.op} ${item.id}');
           _add(item);
 
           if (!_sorting.keys.contains(item.key)) {

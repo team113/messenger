@@ -349,7 +349,6 @@ class ChatController extends GetxController {
   /// [Paginated]es used by this [ChatController].
   final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
 
-  // TODO: Should we even use this?
   /// Single item [Paginated]es used by this [ChatController].
   ///
   /// In contrast to [_fragments], this is used to store items that are
@@ -1599,7 +1598,7 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.contains(itemId) && e.items.length > 1,
+        (e) => e.items.keys.contains(itemId),
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],
