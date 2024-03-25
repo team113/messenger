@@ -488,7 +488,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> toggleMute(MuteDuration? mute) async {
+  Future<void> toggleMute(MuteDuration? mute) {
     Log.debug('toggleMute($mute)', '$runtimeType');
     myUser.update((u) => u?.muted = mute);
 
@@ -609,18 +609,12 @@ class MyUserRepository implements AbstractMyUserRepository {
         myUser.value = null;
         _remoteSubscription?.close(immediate: true);
       } else {
-        MuteDuration? muted = myUser.value?.muted;
-
-        myUser.value = event.value?.value;
-
         // Don't update currently updating fields.
         if (_toggleMuteGuard.isLocked) {
-          myUser.value?.muted = muted;
+          event.value?.value.muted = myUser.value?.muted;
         }
 
-        // Refresh the value since [event.value] is the same [MyUser] stored in
-        // [_myUser] (so `==` operator fails to distinguish them).
-        myUser.refresh();
+        myUser.value = event.value?.value.copyWith();
       }
     }
   }
@@ -701,15 +695,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     if (updateVersion) {
       userEntity.ver = versioned.ver;
 
-      versioned.events.removeWhere((e) {
-        final int i = _ignore.indexWhere((i) => i == e);
-        if (i != -1) {
-          _ignore.removeAt(i);
-          return true;
-        }
-
-        return false;
-      });
+      versioned.events.removeWhere((e) => _ignore.remove(e));
     } else {
       _ignore.addAll(versioned.events);
     }
