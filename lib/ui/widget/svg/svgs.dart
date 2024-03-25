@@ -2337,4 +2337,16 @@ class SvgIcons {
     width: 18.41,
     height: 23,
   );
+
+  static const SvgData usdt = SvgData(
+    'assets/icons/usdt.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData usdtLogo = SvgData(
+    'assets/icons/usdt_logo.svg',
+    width: 23.89,
+    height: 22,
+  );
 }

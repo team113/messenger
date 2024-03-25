@@ -33,6 +33,7 @@ import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -647,7 +648,7 @@ class ChatController extends GetxController {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
-    _fetchChat();
+    Log.transaction('_fetchChat', 'ChatController', _fetchChat);
     super.onReady();
   }
 
@@ -923,236 +924,285 @@ class ChatController extends GetxController {
 
   FeeElement? feeElement;
 
+  final RxnString fetchStatus = RxnString();
+
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
-    _ignorePositionChanges = true;
+    try {
+      final ISentrySpan? span = Sentry.getSpan();
+      final Stopwatch watch = Stopwatch()..start();
 
-    status.value = RxStatus.loading();
+      _ignorePositionChanges = true;
 
-    final FutureOr<RxChat?> fetched = _chatService.get(id);
-    chat = fetched is RxChat? ? fetched : await fetched;
+      status.value = RxStatus.loading();
+      fetchStatus.value = 'Getting chat...';
 
-    if (chat == null) {
-      status.value = RxStatus.empty();
-    } else {
-      joinWall.value =
-          chat?.chat.value.isGroup == true && router.joinByLink != null;
-      send.hasCall.value = chat!.inCall.value;
+      final FutureOr<RxChat?> fetched = _chatService.get(id);
 
-      _chatSubscription = chat!.updates.listen((_) {});
-
-      unreadMessages = chat!.chat.value.unreadCount;
-
-      final ChatMessage? draft = chat!.draft.value;
-
-      if (send.field.text.isEmpty) {
-        send.field.unchecked = draft?.text?.val ?? send.field.text;
-      }
-
-      send.inCall = chat!.inCall;
-      send.field.unsubmit();
-      send.replied.value = List.from(
-        draft?.repliesTo
-                .map((e) => e.original)
-                .whereNotNull()
-                .map((e) => Rx(e)) ??
-            <Rx<ChatItem>>[],
+      span?.setMeasurement(
+        'duration_startup',
+        watch.elapsedMilliseconds,
+        unit: DurationSentryMeasurementUnit.milliSecond,
       );
 
-      for (Attachment e in draft?.attachments ?? []) {
-        send.attachments.add(MapEntry(GlobalKey(), e));
-      }
+      chat = fetched is RxChat? ? fetched : await fetched;
 
-      paid = chat!.members.values.any((e) =>
-              e.user.user.value.name?.val.toLowerCase() == 'alex1' ||
-              e.user.user.value.name?.val.toLowerCase() == 'alex2' ||
-              e.user.user.value.name?.val.toLowerCase() == 'kirey') &&
-          chat!.chat.value.isDialog;
-      paidDisclaimer.value = paid;
-      refresh();
+      fetchStatus.value = 'Getting chat... done';
 
-      _chatWorker = ever(chat!.chat, (Chat e) {
-        if (e.id != id) {
-          WebUtils.replaceState(id.val, e.id.val);
-          id = e.id;
+      span?.setMeasurement(
+        'duration_chatService.get',
+        watch.elapsedMilliseconds,
+        unit: DurationSentryMeasurementUnit.milliSecond,
+      );
+
+      if (chat == null) {
+        status.value = RxStatus.empty();
+      } else {
+        joinWall.value =
+            chat?.chat.value.isGroup == true && router.joinByLink != null;
+        send.hasCall.value = chat!.inCall.value;
+
+        _chatSubscription = chat!.updates.listen((_) {});
+
+        unreadMessages = chat!.chat.value.unreadCount;
+
+        final ChatMessage? draft = chat!.draft.value;
+
+        if (send.field.text.isEmpty) {
+          send.field.unchecked = draft?.text?.val ?? send.field.text;
         }
 
-        send.hasCall.value = e.ongoingCall != null;
-      });
+        send.inCall = chat!.inCall;
+        send.field.unsubmit();
+        send.replied.value = List.from(
+          draft?.repliesTo
+                  .map((e) => e.original)
+                  .whereNotNull()
+                  .map((e) => Rx(e)) ??
+              <Rx<ChatItem>>[],
+        );
 
-      listController.sliverController.onPaintItemPositionsCallback =
-          (height, positions) {
-        if (positions.isNotEmpty) {
-          _topVisibleItem = positions.last;
+        for (Attachment e in draft?.attachments ?? []) {
+          send.attachments.add(MapEntry(GlobalKey(), e));
+        }
 
-          final Map<ChatItemId, double> items = {};
+        paid = chat!.members.values.any((e) =>
+                e.user.user.value.name?.val.toLowerCase() == 'alex1' ||
+                e.user.user.value.name?.val.toLowerCase() == 'alex2' ||
+                e.user.user.value.name?.val.toLowerCase() == 'kirey') &&
+            chat!.chat.value.isDialog;
+        paidDisclaimer.value = paid;
+        refresh();
 
-          for (var e in positions) {
-            final ListElement? element =
-                elements.values.elementAtOrNull(e.index);
-
-            if (element is ChatMessageElement) {
-              items[element.id.id] = e.offset;
-            } else if (element is ChatCallElement) {
-              items[element.id.id] = e.offset;
-            } else if (element is ChatInfoElement) {
-              items[element.id.id] = e.offset;
-            } else if (element is ChatForwardElement) {
-              items[element.id.id] = e.offset;
-            }
+        _chatWorker = ever(chat!.chat, (Chat e) {
+          if (e.id != id) {
+            WebUtils.replaceState(id.val, e.id.val);
+            id = e.id;
           }
 
-          visible.value = items;
+          send.hasCall.value = e.ongoingCall != null;
+        });
 
-          _lastVisibleItem = positions.firstWhereOrNull((e) {
-            ListElement? element = elements.values.elementAtOrNull(e.index);
-            return element is ChatMessageElement ||
-                element is ChatInfoElement ||
-                element is ChatCallElement ||
-                element is ChatForwardElement;
-          });
+        listController.sliverController.onPaintItemPositionsCallback =
+            (height, positions) {
+          if (positions.isNotEmpty) {
+            _topVisibleItem = positions.last;
 
-          if (_lastVisibleItem != null &&
-              status.value.isSuccess &&
-              !status.value.isLoadingMore) {
-            ListElement element =
-                elements.values.elementAt(_lastVisibleItem!.index);
+            final Map<ChatItemId, double> items = {};
 
-            // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
-            // then set the [_lastSeenItem] to this item.
-            if (!element.id.id.isLocal &&
-                (_lastSeenItem.value == null ||
-                    element.id.at.isAfter(_lastSeenItem.value!.at))) {
+            for (var e in positions) {
+              final ListElement? element =
+                  elements.values.elementAtOrNull(e.index);
+
               if (element is ChatMessageElement) {
-                _lastSeenItem.value = element.item.value;
-              } else if (element is ChatInfoElement) {
-                _lastSeenItem.value = element.item.value;
+                items[element.id.id] = e.offset;
               } else if (element is ChatCallElement) {
-                _lastSeenItem.value = element.item.value;
+                items[element.id.id] = e.offset;
+              } else if (element is ChatInfoElement) {
+                items[element.id.id] = e.offset;
               } else if (element is ChatForwardElement) {
-                _lastSeenItem.value = element.forwards.last.value;
+                items[element.id.id] = e.offset;
+              }
+            }
+
+            visible.value = items;
+
+            _lastVisibleItem = positions.firstWhereOrNull((e) {
+              ListElement? element = elements.values.elementAtOrNull(e.index);
+              return element is ChatMessageElement ||
+                  element is ChatInfoElement ||
+                  element is ChatCallElement ||
+                  element is ChatForwardElement;
+            });
+
+            if (_lastVisibleItem != null &&
+                status.value.isSuccess &&
+                !status.value.isLoadingMore) {
+              ListElement element =
+                  elements.values.elementAt(_lastVisibleItem!.index);
+
+              // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
+              // then set the [_lastSeenItem] to this item.
+              if (!element.id.id.isLocal &&
+                  (_lastSeenItem.value == null ||
+                      element.id.at.isAfter(_lastSeenItem.value!.at))) {
+                if (element is ChatMessageElement) {
+                  _lastSeenItem.value = element.item.value;
+                } else if (element is ChatInfoElement) {
+                  _lastSeenItem.value = element.item.value;
+                } else if (element is ChatCallElement) {
+                  _lastSeenItem.value = element.item.value;
+                } else if (element is ChatForwardElement) {
+                  _lastSeenItem.value = element.forwards.last.value;
+                }
               }
             }
           }
+        };
+
+        if (chat?.chat.value.isDialog == true) {
+          _userSubscription = chat?.members.values
+              .lastWhereOrNull((u) => u.user.id != me)
+              ?.user
+              .updates
+              .listen((_) {});
         }
-      };
 
-      if (chat?.chat.value.isDialog == true) {
-        _userSubscription = chat?.members.values
-            .lastWhereOrNull((u) => u.user.id != me)
-            ?.user
-            .updates
-            .listen((_) {});
-      }
+        _readWorker ??= ever(_lastSeenItem, readChat);
+        _obscuredWorker ??= ever(router.obscuring, (modals) {
+          if (modals.isEmpty) {
+            readChat(_lastSeenItem.value);
+          }
+        });
 
-      _readWorker ??= ever(_lastSeenItem, readChat);
-      _obscuredWorker ??= ever(router.obscuring, (modals) {
-        if (modals.isEmpty) {
+        // If [RxChat.status] is not successful yet, populate the
+        // [_messageInitializedWorker] to determine the initial messages list
+        // index and offset.
+        if (!chat!.status.value.isSuccess) {
+          _messageInitializedWorker =
+              ever(chat!.status, (RxStatus status) async {
+            if (_messageInitializedWorker != null) {
+              if (status.isSuccess) {
+                _messageInitializedWorker?.dispose();
+                _messageInitializedWorker = null;
+
+                await Future.delayed(Duration.zero);
+
+                if (!this.status.value.isSuccess) {
+                  this.status.value = RxStatus.loadingMore();
+                }
+
+                _determineFirstUnread();
+                var result = _calculateListViewIndex();
+                initIndex = result.index;
+                initOffset = result.offset;
+              }
+            }
+          });
+        } else {
+          _determineFirstUnread();
+          final result = _calculateListViewIndex();
+          initIndex = result.index;
+          initOffset = result.offset;
+
+          status.value = RxStatus.loadingMore();
+        }
+
+        _bottomLoaderStartTimer = Timer(
+          const Duration(seconds: 2),
+          () {
+            if ((!status.value.isSuccess || status.value.isLoadingMore) &&
+                elements.isNotEmpty) {
+              _bottomLoader = LoaderElement.bottom(
+                (chat?.messages.lastOrNull?.value.at
+                        .add(const Duration(microseconds: 1)) ??
+                    PreciseDateTime.now()),
+              );
+
+              elements[_bottomLoader!.id] = _bottomLoader!;
+            }
+          },
+        );
+
+        span?.setMeasurement(
+          'duration_fetching',
+          watch.elapsedMilliseconds,
+          unit: DurationSentryMeasurementUnit.milliSecond,
+        );
+
+        if (itemId == null) {
+          for (Rx<ChatItem> e in chat!.messages) {
+            _add(e);
+          }
+
+          _subscribeFor(chat: chat);
+
+          fetchStatus.value = 'Fetching messages...';
+          await chat!.around();
+          fetchStatus.value = 'Fetching messages... done';
+
+          // Required in order for [Hive.boxEvents] to add the messages.
+          await Future.delayed(Duration.zero);
+
+          Rx<ChatItem>? firstUnread = _firstUnread;
+          _determineFirstUnread();
+
+          // Scroll to the last read message if [_firstUnread] was updated.
+          // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
+          // last read item is already in the list.
+          if (firstUnread?.value.id != _firstUnread?.value.id) {
+            _scrollToLastRead();
+          }
+        } else {
+          fetchStatus.value = 'Fetching around...';
+          await animateTo(itemId!);
+          fetchStatus.value = 'Fetching around... done';
+        }
+
+        span?.setMeasurement(
+          'duration_around',
+          watch.elapsedMilliseconds,
+          unit: DurationSentryMeasurementUnit.milliSecond,
+        );
+
+        if (welcome != null) {
+          chat!.addMessage(welcome!);
+        }
+
+        status.value = RxStatus.success();
+
+        if (_bottomLoader != null) {
+          showLoaders.value = false;
+
+          _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
+            if (_bottomLoader != null) {
+              elements.remove(_bottomLoader!.id);
+              _bottomLoader = null;
+              showLoaders.value = true;
+            }
+          });
+        }
+
+        if (_lastSeenItem.value != null) {
           readChat(_lastSeenItem.value);
         }
+      }
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _ensureScrollable();
       });
 
-      // If [RxChat.status] is not successful yet, populate the
-      // [_messageInitializedWorker] to determine the initial messages list
-      // index and offset.
-      if (!chat!.status.value.isSuccess) {
-        _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
-          if (_messageInitializedWorker != null) {
-            if (status.isSuccess) {
-              _messageInitializedWorker?.dispose();
-              _messageInitializedWorker = null;
+      _ignorePositionChanges = false;
 
-              await Future.delayed(Duration.zero);
-
-              if (!this.status.value.isSuccess) {
-                this.status.value = RxStatus.loadingMore();
-              }
-
-              _determineFirstUnread();
-              var result = _calculateListViewIndex();
-              initIndex = result.index;
-              initOffset = result.offset;
-            }
-          }
-        });
-      } else {
-        _determineFirstUnread();
-        final result = _calculateListViewIndex();
-        initIndex = result.index;
-        initOffset = result.offset;
-
-        status.value = RxStatus.loadingMore();
-      }
-
-      _bottomLoaderStartTimer = Timer(
-        const Duration(seconds: 2),
-        () {
-          if ((!status.value.isSuccess || status.value.isLoadingMore) &&
-              elements.isNotEmpty) {
-            _bottomLoader = LoaderElement.bottom(
-              (chat?.messages.lastOrNull?.value.at
-                      .add(const Duration(microseconds: 1)) ??
-                  PreciseDateTime.now()),
-            );
-
-            elements[_bottomLoader!.id] = _bottomLoader!;
-          }
-        },
+      span?.setMeasurement(
+        'duration_finish',
+        watch.elapsedMilliseconds,
+        unit: DurationSentryMeasurementUnit.milliSecond,
       );
-
-      if (itemId == null) {
-        for (Rx<ChatItem> e in chat!.messages) {
-          _add(e);
-        }
-
-        _subscribeFor(chat: chat);
-
-        await chat!.around();
-
-        // Required in order for [Hive.boxEvents] to add the messages.
-        await Future.delayed(Duration.zero);
-
-        Rx<ChatItem>? firstUnread = _firstUnread;
-        _determineFirstUnread();
-
-        // Scroll to the last read message if [_firstUnread] was updated.
-        // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
-        // last read item is already in the list.
-        if (firstUnread?.value.id != _firstUnread?.value.id) {
-          _scrollToLastRead();
-        }
-      } else {
-        await animateTo(itemId!);
-      }
-
-      if (welcome != null) {
-        chat!.addMessage(welcome!);
-      }
-
-      status.value = RxStatus.success();
-
-      if (_bottomLoader != null) {
-        showLoaders.value = false;
-
-        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
-          if (_bottomLoader != null) {
-            elements.remove(_bottomLoader!.id);
-            _bottomLoader = null;
-            showLoaders.value = true;
-          }
-        });
-      }
-
-      if (_lastSeenItem.value != null) {
-        readChat(_lastSeenItem.value);
-      }
+    } catch (e, stackTrace) {
+      fetchStatus.value = 'Error: $e\nat$stackTrace';
+      rethrow;
     }
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _ensureScrollable();
-    });
-
-    _ignorePositionChanges = false;
   }
 
   /// Returns an [User] from [UserService] by the provided [id].

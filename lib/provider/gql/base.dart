@@ -473,23 +473,7 @@ class GraphQlClient {
     String? operation,
     Future<T> Function() fn,
   ) async {
-    if (operation == null) {
-      return await fn();
-    }
-
-    final ISentrySpan transaction =
-        Sentry.startTransaction('$operation()', 'GraphQL');
-    print('[debug] Operation $operation()');
-
-    try {
-      return await fn();
-    } catch (e) {
-      transaction.throwable = e;
-      transaction.status = const SpanStatus.internalError();
-      rethrow;
-    } finally {
-      transaction.finish();
-    }
+    return await Log.transaction(operation, 'GraphQL', fn);
   }
 }
 

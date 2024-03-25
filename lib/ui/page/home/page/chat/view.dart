@@ -24,7 +24,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/application_settings.dart';
@@ -40,10 +39,8 @@ import 'package:messenger/ui/widget/selected_dot.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/util/message_popup.dart';
 
-import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -53,21 +50,15 @@ import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
-import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'forward/view.dart';
@@ -78,11 +69,9 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
-import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/paid_notification.dart';
 import 'widget/square_button.dart';
-import 'widget/swipeable_status.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 
@@ -154,7 +143,18 @@ class ChatView extends StatelessWidget {
                 padding: EdgeInsets.only(left: 4, right: 20),
                 leading: [StyledBackButton()],
               ),
-              body: const Center(child: CustomProgressIndicator.primary()),
+              body: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CustomProgressIndicator.primary(),
+                    if (c.fetchStatus.value != null) ...[
+                      const SizedBox(height: 16),
+                      Text(c.fetchStatus.value ?? ''),
+                    ],
+                  ],
+                ),
+              ),
               bottomNavigationBar: Padding(
                 padding: Insets.dense.copyWith(top: 0),
                 child: _bottomBar(c, context),
@@ -892,9 +892,19 @@ class ChatView extends StatelessWidget {
 
                                       if (c.chat?.status.value.isLoading !=
                                           false) {
-                                        return const Center(
-                                          child:
-                                              CustomProgressIndicator.primary(),
+                                        return Center(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const CustomProgressIndicator
+                                                  .primary(),
+                                              if (c.fetchStatus.value !=
+                                                  null) ...[
+                                                const SizedBox(height: 16),
+                                                Text(c.fetchStatus.value ?? ''),
+                                              ],
+                                            ],
+                                          ),
                                         );
                                       }
 

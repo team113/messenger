@@ -137,6 +137,13 @@ class BalanceTabView extends StatelessWidget {
                             bonus: 5,
                           );
 
+                        case BalanceProvider.usdt:
+                          return button(
+                            asset: SvgIcons.usdt,
+                            title: 'USDT',
+                            bonus: 5,
+                          );
+
                         // case BalanceProvider.applePay:
                         //   return button(
                         //     asset: SvgIcons.menuNav,
