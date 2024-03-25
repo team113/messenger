@@ -472,7 +472,7 @@ class ReactiveTextField extends StatelessWidget {
                       : null,
               controller: state.controller,
               style: this.style,
-              focusNode: focusNode ?? state.focus,
+              focusNode: state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
                 onChanged?.call();
@@ -601,21 +601,6 @@ class ReactiveTextField extends StatelessWidget {
                 );
               },
             ),
-            //     if (dense != true && withTrailing)
-            //       Positioned.fill(
-            //         child: Align(
-            //           alignment: Alignment.bottomRight,
-            //           child: Padding(
-            //             padding: const EdgeInsets.only(
-            //               right: 8,
-            //               bottom: 16,
-            //             ),
-            //             child: buildSuffix(),
-            //           ),
-            //         ),
-            //       ),
-            //   ],
-            // ),
 
             // Displays the [subtitle] or an error, if any.
             AnimatedSize(
@@ -727,6 +712,8 @@ class TextFieldState extends ReactiveFieldState {
       _previousSubmit = text;
     }
 
+    _previousText = text;
+
     changed.value = _previousSubmit != text;
 
     String prev = controller.text;
@@ -753,10 +740,6 @@ class TextFieldState extends ReactiveFieldState {
     this.focus.addListener(() {
       isFocused.value = this.focus.hasFocus;
       print('[listener] ${this.focus.hasFocus}');
-
-      // if (!isFocused.value) {
-      //   hasAllowance.value = false;
-      // }
 
       if (onChanged != null) {
         if (controller.text != _previousText &&
@@ -816,6 +799,7 @@ class TextFieldState extends ReactiveFieldState {
   /// was modified since the last [submit] action.
   String? _previousSubmit;
 
+  /// [Timer] debouncing [onChanged], if enabled.
   Timer? _debounce;
 
   /// Returns the text of the [TextEditingController].
@@ -862,7 +846,7 @@ class TextFieldState extends ReactiveFieldState {
         onSubmitted?.call(this);
         changed.value = false;
 
-        focus.unfocus();
+        // focus.unfocus();
       }
     }
   }

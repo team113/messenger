@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -40,6 +41,12 @@ class AuthController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  @override
+  void onReady() {
+    SentryFlutter.reportFullyDisplayed();
+    super.onReady();
+  }
 
   @override
   void onClose() {

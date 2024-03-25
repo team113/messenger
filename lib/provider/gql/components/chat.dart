@@ -862,6 +862,7 @@ mixin ChatGraphQlMixin {
           'map': '{ "file": ["variables.upload"] }',
           'file': attachment,
         }),
+        operationName: query.operationName,
         options: dio.Options(contentType: 'multipart/form-data'),
         onSendProgress: onSendProgress,
         onException: (data) => UploadAttachmentException((UploadAttachment$Mutation
@@ -1301,6 +1302,7 @@ mixin ChatGraphQlMixin {
           'map': '{ "file": ["variables.upload"] }',
           'file': file,
         }),
+        operationName: query.operationName,
         options: dio.Options(contentType: 'multipart/form-data'),
         onSendProgress: onSendProgress,
         onException: (data) => UpdateChatAvatarException(

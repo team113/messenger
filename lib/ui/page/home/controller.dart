@@ -25,6 +25,7 @@ import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/partner.dart';
 import 'package:messenger/util/message_popup.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/application_settings.dart';
@@ -209,6 +210,8 @@ class HomeController extends GetxController {
         );
       }
     }
+
+    SentryFlutter.reportFullyDisplayed();
   }
 
   @override

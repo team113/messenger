@@ -54,8 +54,12 @@ mixin AuthGraphQlMixin {
   Future<SignUp$Mutation> signUp() async {
     Log.debug('signUp()', '$runtimeType');
 
-    final QueryResult result = await client
-        .mutate(MutationOptions(document: SignUpMutation().document));
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'SignUp',
+        document: SignUpMutation().document,
+      ),
+    );
     return SignUp$Mutation.fromJson(result.data!);
   }
 
@@ -79,6 +83,7 @@ mixin AuthGraphQlMixin {
     if (token != null) {
       final variables = DeleteSessionArguments(token: token!);
       final QueryResult result = await client.query(QueryOptions(
+        operationName: 'DeleteSession',
         document: DeleteSessionMutation(variables: variables).document,
         variables: variables.toJson(),
       ));
@@ -122,6 +127,7 @@ mixin AuthGraphQlMixin {
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
+        operationName: 'SignIn',
         document: SignInMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -143,8 +149,12 @@ mixin AuthGraphQlMixin {
   Future<ValidateToken$Query> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    final QueryResult res = await client
-        .query(QueryOptions(document: ValidateTokenQuery().document));
+    final QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'ValidateToken',
+        document: ValidateTokenQuery().document,
+      ),
+    );
     return ValidateToken$Query.fromJson(res.data!);
   }
 
@@ -176,6 +186,7 @@ mixin AuthGraphQlMixin {
     final variables = RenewSessionArguments(token: token);
     final QueryResult result = await client.mutate(
       MutationOptions(
+        operationName: 'RenewSession',
         document: RenewSessionMutation(variables: variables).document,
         variables: variables.toJson(),
       ),

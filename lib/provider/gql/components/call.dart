@@ -233,8 +233,10 @@ mixin CallGraphQlMixin {
   /// in this [Chat] already and the authenticated [MyUser] is a member of it.
   /// Joins it if the authenticated [MyUser] is not a member yet.
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
-      ChatId chatId, ChatCallCredentials creds,
-      [bool? withVideo]) async {
+    ChatId chatId,
+    ChatCallCredentials creds, [
+    bool? withVideo,
+  ]) async {
     Log.debug('startChatCall($chatId, $creds)', '$runtimeType');
 
     final variables = StartCallArguments(
@@ -242,16 +244,17 @@ mixin CallGraphQlMixin {
       creds: creds,
       withVideo: withVideo,
     );
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'StartCall',
         document: StartCallMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => StartChatCallException(
-          (StartCall$Mutation.fromJson(data).startChatCall
-                  as StartCall$Mutation$StartChatCall$StartChatCallError)
-              .code),
+      onException: (data) => StartChatCallException(
+        (StartCall$Mutation.fromJson(data).startChatCall
+                as StartCall$Mutation$StartChatCall$StartChatCallError)
+            .code,
+      ),
     );
     return (StartCall$Mutation.fromJson(result.data!).startChatCall
         as StartCall$Mutation$StartChatCall$StartChatCallOk);
@@ -287,15 +290,17 @@ mixin CallGraphQlMixin {
     Log.debug('joinChatCall($chatId, $creds)', '$runtimeType');
 
     final variables = JoinCallArguments(chatId: chatId, creds: creds);
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'JoinCall',
         document: JoinCallMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => JoinChatCallException((JoinCall$Mutation.fromJson(data)
-              .joinChatCall as JoinCall$Mutation$JoinChatCall$JoinChatCallError)
-          .code),
+      onException: (data) => JoinChatCallException(
+        (JoinCall$Mutation.fromJson(data).joinChatCall
+                as JoinCall$Mutation$JoinChatCall$JoinChatCallError)
+            .code,
+      ),
     );
     return (JoinCall$Mutation.fromJson(result.data!).joinChatCall
         as JoinCall$Mutation$JoinChatCall$JoinChatCallOk);
@@ -329,16 +334,17 @@ mixin CallGraphQlMixin {
     Log.debug('leaveChatCall($chatId, $deviceId)', '$runtimeType');
 
     final variables = LeaveCallArguments(chatId: chatId, deviceId: deviceId);
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'LeaveCall',
         document: LeaveCallMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => LeaveChatCallException(
-          (LeaveCall$Mutation.fromJson(data).leaveChatCall
-                  as LeaveCall$Mutation$LeaveChatCall$LeaveChatCallError)
-              .code),
+      onException: (data) => LeaveChatCallException(
+        (LeaveCall$Mutation.fromJson(data).leaveChatCall
+                as LeaveCall$Mutation$LeaveChatCall$LeaveChatCallError)
+            .code,
+      ),
     );
     return (LeaveCall$Mutation.fromJson(result.data!).leaveChatCall
         as ChatEventsVersionedMixin?);
@@ -369,16 +375,15 @@ mixin CallGraphQlMixin {
     Log.debug('declineChatCall($chatId)', '$runtimeType');
 
     final variables = DeclineCallArguments(chatId: chatId);
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'DeclineCall',
         document: DeclineCallMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => DeclineChatCallException(
+      onException: (data) => DeclineChatCallException(
           (DeclineCall$Mutation.fromJson(data).declineChatCall
-                  as DeclineCall$Mutation$DeclineChatCall$DeclineChatCallError)
-              .code),
+                  as DeclineCall$Mutation$DeclineChatCall$DeclineChatCallError).code),
     );
     return (DeclineCall$Mutation.fromJson(result.data!).declineChatCall
         as ChatEventsVersionedMixin?);

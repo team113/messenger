@@ -46,8 +46,12 @@ mixin UserGraphQlMixin {
   Future<GetMyUser$Query> getMyUser() async {
     Log.debug('getMyUser()', '$runtimeType');
 
-    QueryResult res =
-        await client.query(QueryOptions(document: GetMyUserQuery().document));
+    QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'GetMyUser',
+        document: GetMyUserQuery().document,
+      ),
+    );
     return GetMyUser$Query.fromJson(res.data!);
   }
 
@@ -128,6 +132,7 @@ mixin UserGraphQlMixin {
       before: before,
     );
     QueryResult res = await client.query(QueryOptions(
+      operationName: 'SearchUsers',
       document: SearchUsersQuery(variables: variables).document,
       variables: variables.toJson(),
     ));
@@ -156,6 +161,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserNameArguments(name: name);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserName',
         document: UpdateUserNameMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -185,6 +191,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserBioArguments(bio: bio);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserBio',
         document: UpdateUserBioMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -216,6 +223,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserStatusArguments(text: text);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserStatus',
         document: UpdateUserStatusMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -244,6 +252,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserLoginArguments(login: login);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserLogin',
         document: UpdateUserLoginMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -280,6 +289,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserPresenceArguments(presence: presence);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserPresence',
         document: UpdateUserPresenceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -318,6 +328,7 @@ mixin UserGraphQlMixin {
     );
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserPassword',
         document: UpdateUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -352,8 +363,12 @@ mixin UserGraphQlMixin {
   Future<MyUserEventsVersionedMixin> deleteMyUser() async {
     Log.debug('deleteMyUser()', '$runtimeType');
 
-    QueryResult res = await client
-        .mutate(MutationOptions(document: DeleteMyUserMutation().document));
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        operationName: 'DeleteMyUser',
+        document: DeleteMyUserMutation().document,
+      ),
+    );
     return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser;
   }
 
@@ -922,6 +937,7 @@ mixin UserGraphQlMixin {
                 'map': '{ "file": ["variables.upload"] }',
                 'file': file,
               }),
+        operationName: query.operationName,
         options: file == null
             ? null
             : dio.Options(contentType: 'multipart/form-data'),
@@ -1004,6 +1020,7 @@ mixin UserGraphQlMixin {
                 'map': '{ "file": ["variables.upload"] }',
                 'file': file,
               }),
+        operationName: query.operationName,
         options: file == null
             ? null
             : dio.Options(contentType: 'multipart/form-data'),
@@ -1288,6 +1305,7 @@ mixin UserGraphQlMixin {
         'map': '{ "token": ["variables.token"] }',
         'token': token,
       }),
+      operationName: query.operationName,
       options: dio.Options(
         headers: {
           if (locale != null) 'Accept-Language': locale,

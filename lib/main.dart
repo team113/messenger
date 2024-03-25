@@ -185,20 +185,21 @@ Future<void> main() async {
   // TODO: Enable Sentry.
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
   // messages are printed to the console every time the application starts.
-  if (true || Config.sentryDsn.isEmpty || (kDebugMode && !kProfileMode)) {
+  if (Config.sentryDsn.isEmpty || kDebugMode) {
     return appRunner();
   }
 
-  return SentryFlutter.init(
-    (options) => {
-      options.dsn = Config.sentryDsn,
-      options.tracesSampleRate = 1.0,
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = Config.sentryDsn;
+      options.tracesSampleRate = 1.0;
       options.release =
-          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}',
-      options.debug = true,
-      options.diagnosticLevel = SentryLevel.info,
-      options.enablePrintBreadcrumbs = true,
-      options.maxBreadcrumbs = 512,
+          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
+      options.debug = true;
+      options.diagnosticLevel = SentryLevel.info;
+      options.enablePrintBreadcrumbs = true;
+      options.maxBreadcrumbs = 512;
+      options.enableTimeToFullDisplayTracing = true;
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 
@@ -221,7 +222,7 @@ Future<void> main() async {
         }
 
         return event;
-      },
+      };
       options.logger = (
         SentryLevel level,
         String message, {
@@ -230,21 +231,51 @@ Future<void> main() async {
         StackTrace? stackTrace,
       }) {
         if (exception != null) {
-          final StringBuffer buf = StringBuffer('$exception');
-
-          if (stackTrace != null) {
-            buf.write(
-              '\n\nWhen the exception was thrown, this was the stack:\n',
-            );
-            buf.write(stackTrace.toString().replaceAll('\n', '\t\n'));
+          if (stackTrace == null) {
+            stackTrace = StackTrace.current;
+          } else {
+            stackTrace = FlutterError.demangleStackTrace(stackTrace);
           }
 
-          Log.error(buf.toString(), 'SentryFlutter');
+          final Iterable<String> lines =
+              stackTrace.toString().trimRight().split('\n').take(100);
+
+          Log.error(
+            [
+              exception.toString(),
+              if (lines.where((e) => e.isNotEmpty).isNotEmpty)
+                FlutterError.defaultStackFilter(lines).join('\n')
+            ].join('\n'),
+          );
         }
-      },
+      };
     },
     appRunner: appRunner,
   );
+
+  final ISentrySpan firstFrameRasterized =
+      Sentry.startTransaction('FirstFrameRasterized', 'UI');
+  WidgetsBinding.instance.waitUntilFirstFrameRasterized.whenComplete(() {
+    firstFrameRasterized.finish();
+  });
+
+  SchedulerBinding.instance.addTimingsCallback((timings) {
+    if (timings.isEmpty) {
+      return;
+    }
+
+    final Duration sum =
+        timings.fold(Duration.zero, (p, e) => p + e.buildDuration);
+    final Duration average =
+        Duration(milliseconds: sum.inMilliseconds ~/ timings.length);
+
+    final transaction = Sentry.getSpan();
+    transaction?.setMeasurement(
+      'buildDuration',
+      average.inMilliseconds,
+      unit: DurationSentryMeasurementUnit.milliSecond,
+    );
+  });
 }
 
 /// Initializes the [FlutterCallkeep] and displays an incoming call
