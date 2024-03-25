@@ -61,6 +61,7 @@ import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
+import 'audio_attachment.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
@@ -181,7 +182,7 @@ class ChatItemWidget extends StatefulWidget {
     if (isLocal) {
       isVideo = e.file.isVideo;
     } else {
-      isVideo = e is FileAttachment;
+      isVideo = (e is FileAttachment && e.isVideo);
     }
 
     Widget attachment;
@@ -319,6 +320,11 @@ class ChatItemWidget extends StatefulWidget {
         }
       },
     );
+  }
+
+  /// Returns a visual representation of the provided audio-[Attachment].
+  static Widget audioAttachment(Attachment e) {
+    return AudioAttachment(e);
   }
 }
 
@@ -759,9 +765,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final Iterable<GalleryAttachment> galleries =
         media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
 
+    final List<Attachment> audio = msg.attachments.where((e) {
+      return ((e is FileAttachment && e.isAudio) ||
+          (e is LocalAttachment && e.file.isAudio));
+    }).toList();
+
     final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+      return ((e is FileAttachment && !e.isVideo && !e.isAudio) ||
+          (e is LocalAttachment &&
+              !e.file.isImage &&
+              !e.file.isVideo &&
+              !e.file.isAudio));
     }).toList();
 
     final Color color = _fromMe
@@ -896,6 +910,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
             ),
             SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
+          ],
+          if (audio.isNotEmpty) ...[
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _isRead || !_fromMe ? 1 : 0.55,
+              child: SelectionContainer.disabled(
+                child: Column(
+                  children: [
+                    ...audio.expand(
+                      (e) => [
+                        ChatItemWidget.audioAttachment(e),
+                        if (audio.last != e) const SizedBox(height: 6),
+                      ],
+                    ),
+                    if (_text == null)
+                      Opacity(opacity: 0, child: _timestamp(msg)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
           ],
           if (files.isNotEmpty) ...[
             AnimatedOpacity(

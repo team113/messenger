@@ -15,24 +15,18 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:gherkin/gherkin.dart';
-import 'package:messenger/config.dart';
+import '/util/audio_utils.dart';
 
-import 'configuration.dart';
+/// Audio attachment in a [ChatItem]
+/// transformed from [FileAttachment] or [LocalAttachment].
+class AudioTrack {
+  final String id;
+  final String title;
+  final AudioSource audioSource;
 
-part 'suite.g.dart';
-
-/// Entry point of E2E tests.
-@GherkinTestSuite(
-  featurePaths: ['test/e2e/features/chat/audio_player/**.feature'],
-  // featurePaths: ['test/e2e/features/**.feature'],
-  executionOrder: ExecutionOrder.alphabetical,
-)
-void main() async {
-  Config.disableInfiniteAnimations = true;
-  executeTestSuite(
-    gherkinTestConfiguration,
-    appInitializationFn,
-  );
+  AudioTrack({
+    required this.id,
+    required this.title,
+    required this.audioSource,
+  });
 }

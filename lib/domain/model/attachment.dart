@@ -24,8 +24,10 @@ import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/ui/worker/cache.dart';
+import '/util/audio_utils.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
+import 'audio_track.dart';
 import 'file.dart';
 import 'native_file.dart';
 import 'sending_status.dart';
@@ -103,6 +105,23 @@ class FileAttachment extends Attachment {
 
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
+
+  /// Indicates whether this [FileAttachment] represents an audio.
+  bool get isAudio {
+    final String file = filename.toLowerCase();
+    // In case we ever need to support more formats, see this:
+    // https://pub.dev/packages/media_kit#supported-formats
+    // https://github.com/ryanheise/just_audio/blob/minor/just_audio/README.md#audio-file-formatsencodings
+    //
+    // Right now only most popular are included.
+    return file.endsWith('.mp3') ||
+        file.endsWith('.wav') ||
+        file.endsWith('.aac') ||
+        file.endsWith('.ogg') ||
+        file.endsWith('.flac') ||
+        file.endsWith('.aiff') ||
+        file.endsWith('.m4a');
+  }
 
   /// Indicates whether this [FileAttachment] represents a video.
   bool get isVideo {
@@ -191,4 +210,33 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+}
+
+/// Extension on [Attachment] to transform to [AudioTrack].
+///
+/// Used to have a common interface for audio files, both coming from
+/// [LocalAttachment] and [FileAttachment].
+extension ConvertToAudioTrack on Attachment {
+  /// If it's a [LocalAttachment], then constructs the [AudioSource] from the
+  /// local path.
+  /// If it's a [FileAttachment], then constructs the [AudioSource] from the
+  /// remote url.
+  /// Also takes id and filename of the [Attachment].
+  AudioTrack toAudioTrack() {
+    if (this is LocalAttachment) {
+      String path = (this as LocalAttachment).file.path!;
+      AudioSource audioSource = AudioSource.file(path);
+
+      return AudioTrack(
+          id: id.toString(), title: filename, audioSource: audioSource);
+    } else if (this is FileAttachment) {
+      String path = (this as FileAttachment).original.url;
+      AudioSource audioSource = AudioSource.url(path);
+
+      return AudioTrack(
+          id: id.toString(), title: filename, audioSource: audioSource);
+    } else {
+      throw ArgumentError('Attachment type not supported');
+    }
+  }
 }

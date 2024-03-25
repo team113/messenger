@@ -88,6 +88,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/worker/audio_player.dart';
 import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -304,6 +305,9 @@ class ChatController extends GetxController {
 
   /// [ContactService] maintaining [ChatContact]s of this [me].
   final ContactService _contactService;
+
+  /// [AudioPlayerWorker] to stop audio when leaving the chat.
+  final AudioPlayerWorker audioPlayer = AudioPlayerWorker.instance;
 
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
@@ -534,6 +538,8 @@ class ChatController extends GetxController {
     for (final s in _fragmentSubscriptions) {
       s.cancel();
     }
+
+    audioPlayer.stop();
 
     super.onClose();
   }

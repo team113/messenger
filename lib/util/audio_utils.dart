@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:media_kit/media_kit.dart' hide AudioDevice;
+import 'package:media_kit/media_kit.dart' as mk;
 import 'package:mutex/mutex.dart';
 
 import '/util/media_utils.dart';
@@ -34,15 +34,15 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
-  /// [Player] lazily initialized to play sounds [once].
-  Player? _player;
+  /// [mk.Player] lazily initialized to play sounds [once].
+  mk.Player? _player;
 
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ///
   /// [ja.AudioPlayer] is used on mobile platforms due to it accounting
   /// [AudioSession] preferences (e.g. switching audio output for mobiles),
-  /// which [Player] doesn't do.
+  /// which [mk.Player] doesn't do.
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
@@ -66,10 +66,10 @@ class AudioUtilsImpl {
         // background audio on [once].
         _jaPlayer ??= ja.AudioPlayer(handleAudioSessionActivation: false);
       } else {
-        _player ??= Player();
+        _player ??= mk.Player();
       }
     } catch (e) {
-      // If [Player] isn't available on the current platform, this throws a
+      // If [mk.Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
       if (e is! TypeError) {
         Log.error(
@@ -104,7 +104,7 @@ class AudioUtilsImpl {
 
     if (controller == null) {
       ja.AudioPlayer? jaPlayer;
-      Player? player;
+      mk.Player? player;
       Timer? timer;
 
       controller = StreamController.broadcast(
@@ -113,7 +113,7 @@ class AudioUtilsImpl {
             if (_isMobile) {
               jaPlayer = ja.AudioPlayer();
             } else {
-              player = Player();
+              player = mk.Player();
             }
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
@@ -133,14 +133,14 @@ class AudioUtilsImpl {
           } else {
             await player?.open(music.media);
 
-            // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
+            // TODO: Wait for `media_kit` to improve [mk.PlaylistMode.loop] in Web.
             if (PlatformUtils.isWeb) {
               position = player?.stream.completed.listen((e) async {
                 await player?.seek(Duration.zero);
                 await player?.play();
               });
             } else {
-              await player?.setPlaylistMode(PlaylistMode.loop);
+              await player?.setPlaylistMode(mk.PlaylistMode.loop);
             }
           }
 
@@ -317,6 +317,177 @@ class AudioUtilsImpl {
   }
 }
 
+/// Common audio player interface to interact both
+/// with [ja.AudioPlayer] and [mk.Player].
+abstract class AudioPlayer {
+  /// Sets the [AudioSource] to play.
+  void setTrack(AudioSource song);
+
+  /// Sets [AudioSource] and triggers play.
+  void play(AudioSource song);
+
+  /// Resumes currently loaded track.
+  void resume();
+
+  /// Triggers pause.
+  void pause();
+
+  /// Seeks to specified position of the [AudioSource].
+  void seek(Duration position);
+
+  /// Triggers stop.
+  void stop();
+
+  /// Disposes the player.
+  void dispose();
+
+  /// Stream indicating whether the player is currently playing.
+  Stream<bool> get playingStream;
+
+  /// Stream indicating whether the player is currently buffering.
+  Stream<bool> get bufferingStream;
+
+  /// Stream indicating whether the player has completed playing.
+  Stream<bool> get completedStream;
+
+  /// Stream providing the current playback position.
+  Stream<Duration> get positionStream;
+
+  /// Stream providing the total duration of the current track.
+  Stream<Duration> get durationStream;
+
+  /// Stream providing the buffered position of the current track.
+  Stream<Duration> get bufferedPositionStream;
+}
+
+/// Adapter class for just_audio library that implements
+/// the common [AudioPlayer] interface.
+class JustAudioPlayerAdapter implements AudioPlayer {
+  /// Initializes just_audio [ja.AudioPlayer] instance.
+  final ja.AudioPlayer _player = ja.AudioPlayer();
+
+  @override
+  void setTrack(AudioSource song) async {
+    _player.setAudioSource(song.source);
+  }
+
+  @override
+  void play(AudioSource song) async {
+    _player.setAudioSource(song.source);
+    _player.play();
+  }
+
+  @override
+  void resume() {
+    _player.play();
+  }
+
+  @override
+  void pause() {
+    _player.pause();
+  }
+
+  @override
+  void seek(Duration position) {
+    _player.seek(position);
+  }
+
+  @override
+  void stop() {
+    _player.stop();
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+  }
+
+  @override
+  Stream<bool> get playingStream => _player.playingStream;
+
+  @override
+  Stream<bool> get bufferingStream => _player.processingStateStream
+      .map((state) => state == ja.ProcessingState.buffering);
+
+  @override
+  Stream<bool> get completedStream => _player.processingStateStream
+      .map((state) => state == ja.ProcessingState.completed);
+
+  @override
+  Stream<Duration> get positionStream => _player.positionStream;
+
+  @override
+  Stream<Duration> get durationStream => _player.durationStream
+      .where((duration) => duration != null)
+      .map((duration) => duration!);
+
+  @override
+  Stream<Duration> get bufferedPositionStream => _player.bufferedPositionStream;
+}
+
+/// Adapter class for media_kit library that implements
+/// the common [AudioPlayer] interface.
+class MediaKitPlayerAdapter implements AudioPlayer {
+  /// Initializes media_kit [mk.Player] instance.
+  final mk.Player _player = mk.Player();
+
+  @override
+  void setTrack(AudioSource song) async {
+    await _player.open(
+      song.media,
+      play: false,
+    );
+  }
+
+  @override
+  void play(AudioSource song) async {
+    _player.open(song.media);
+  }
+
+  @override
+  void resume() async {
+    _player.play();
+  }
+
+  @override
+  void pause() {
+    _player.pause();
+  }
+
+  @override
+  void seek(Duration position) {
+    _player.seek(position);
+  }
+
+  @override
+  void stop() {
+    _player.stop();
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+  }
+
+  @override
+  Stream<bool> get playingStream => _player.stream.playing;
+
+  @override
+  Stream<bool> get bufferingStream => _player.stream.buffering;
+
+  @override
+  Stream<bool> get completedStream => _player.stream.completed;
+
+  @override
+  Stream<Duration> get positionStream => _player.stream.position;
+
+  @override
+  Stream<Duration> get durationStream => _player.stream.duration;
+
+  @override
+  Stream<Duration> get bufferedPositionStream => _player.stream.buffer;
+}
+
 /// Possible [AudioSource] kind.
 enum AudioSourceKind { asset, file, url }
 
@@ -390,17 +561,17 @@ class UrlAudioSource extends AudioSource {
   bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
 }
 
-/// Extension adding conversion from an [AudioSource] to a [Media] or
+/// Extension adding conversion from an [AudioSource] to a [mk.Media] or
 /// [ja.AudioSource].
 extension on AudioSource {
   /// Returns a [Media] corresponding to this [AudioSource].
-  Media get media => switch (kind) {
-        AudioSourceKind.asset => Media(
+  mk.Media get media => switch (kind) {
+        AudioSourceKind.asset => mk.Media(
             'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
           ),
         AudioSourceKind.file =>
-          Media('file:///${(this as FileAudioSource).file}'),
-        AudioSourceKind.url => Media((this as UrlAudioSource).url),
+          mk.Media('file:///${(this as FileAudioSource).file}'),
+        AudioSourceKind.url => mk.Media((this as UrlAudioSource).url),
       };
 
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].

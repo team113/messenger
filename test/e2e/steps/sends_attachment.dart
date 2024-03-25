@@ -16,9 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:math';
 
 import 'package:dio/dio.dart' as dio;
+import 'package:flutter/services.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:messenger/api/backend/extension/chat.dart';
@@ -34,6 +35,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then Bob sends "test.txt" attachment to me
 /// - Then Bob sends "test.jpg" attachment to me
+/// - Then Bob sends "test.mp3" attachment to me
 final StepDefinitionGeneric sendsAttachmentToMe =
     and2<TestUser, String, CustomWorld>(
   '{user} sends {string} attachment to me',
@@ -43,14 +45,26 @@ final StepDefinitionGeneric sendsAttachmentToMe =
 
     final String? type = MimeResolver.lookup(filename);
     final MediaType? mime = type != null ? MediaType.parse(type) : null;
+    Uint8List fileBytes;
+
+    if (mime?.type == 'image') {
+      fileBytes = base64Decode(
+          '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==');
+    } else if (mime?.type == 'audio') {
+      // fileBytes = generateAudioFile(durationSeconds: 20);
+
+      ByteData data = await rootBundle.load('assets/audio/sample_audio.mp3');
+      final buffer = data.buffer;
+      var list = buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+      fileBytes = list;
+    } else {
+      fileBytes = Uint8List.fromList([1, 1]);
+    }
 
     final response = await provider.uploadAttachment(
       dio.MultipartFile.fromBytes(
-        mime?.type == 'image'
-            ? base64Decode(
-                '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
-              )
-            : Uint8List.fromList([1, 1]),
+        fileBytes,
         filename: filename,
         contentType: type != null ? MediaType.parse(type) : null,
       ),
@@ -67,3 +81,28 @@ final StepDefinitionGeneric sendsAttachmentToMe =
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
+
+Uint8List generateAudioFile({int durationSeconds = 10}) {
+  // Set some basic parameters
+  const int sampleRate = 44100;
+  const int bitDepth = 16;
+  const double frequency = 440.0; // Hz
+
+  // Calculate the number of samples based on the duration
+  int numSamples = durationSeconds * sampleRate;
+
+  // Prepare the byte buffer for the audio data
+  Uint8List audioBytes = Uint8List(numSamples * bitDepth ~/ 8);
+
+  // Generate audio data
+  for (int i = 0; i < numSamples; i++) {
+    double t = i / sampleRate;
+    double value = sin(2 * pi * frequency * t);
+    int intValue = (value * (pow(2, bitDepth) / 2 - 1)).round();
+    for (int j = 0; j < bitDepth ~/ 8; j++) {
+      audioBytes[i * bitDepth ~/ 8 + j] = (intValue >> (8 * j)) & 0xff;
+    }
+  }
+
+  return audioBytes;
+}
