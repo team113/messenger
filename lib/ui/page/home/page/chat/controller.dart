@@ -349,13 +349,6 @@ class ChatController extends GetxController {
   /// [Paginated]es used by this [ChatController].
   final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
 
-  /// Single item [Paginated]es used by this [ChatController].
-  ///
-  /// In contrast to [_fragments], this is used to store items that are
-  /// unreachable from the current pagination view and thus should not be
-  /// animated to.
-  final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _singleItems = HashSet();
-
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
@@ -930,16 +923,12 @@ class ChatController extends GetxController {
         .firstWhereOrNull((e) => e.items.keys.contains(id))
         ?.items[id];
 
-    item ??= _singleItems
-        .firstWhereOrNull((e) => e.items.keys.contains(id))
-        ?.items[id];
-
     if (item == null) {
       final Future<Rx<ChatItem>?>? future =
           chat?.around(item: id, perPage: 1).then((fragment) async {
         if (fragment != null) {
           await fragment.around();
-          _singleItems.add(fragment);
+          _fragments.add(fragment);
 
           item = fragment.items[id];
           return item;

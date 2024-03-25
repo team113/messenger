@@ -1807,6 +1807,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 }
 
+/// [ChatCall] visual representation.
 class ChatCallWidget extends StatefulWidget {
   const ChatCallWidget({
     super.key,
@@ -1818,10 +1819,11 @@ class ChatCallWidget extends StatefulWidget {
   /// [UserId] of the authenticated [MyUser].
   final UserId me;
 
+  /// [ChatCall] this widget represents.
   final ChatCall? chatCall;
 
-  /// Callback, called when a reactive [ChatItem] identified by the provided
-  /// [ChatItemId] is required.
+  /// Callback, called when a reactive [ChatItem] with relevant information
+  /// about [chatCall] identified by the provided [ChatItemId] is required.
   final FutureOr<Rx<ChatItem>?> Function(ChatItemId itemId)? getItem;
 
   @override
@@ -1829,9 +1831,10 @@ class ChatCallWidget extends StatefulWidget {
 }
 
 class ChatCallWidgetState extends State<ChatCallWidget> {
+  /// [FutureOr] used in [FutureBuilder].
   FutureOr<Rx<ChatItem>?>? _futureOrCall;
 
-  /// [Timer] rebuilding this widget every second if the [widget.item]
+  /// [Timer] rebuilding this widget every second if the [widget.chatCall]
   /// represents an ongoing [ChatCall].
   Timer? _ongoingCallTimer;
 

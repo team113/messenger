@@ -806,12 +806,11 @@ class HiveRxChat extends RxChat {
         .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
         ?.pagination
         ?.items[itemId];
+    item ??= await _local.get(itemId);
 
     if (item == null) {
       try {
-        item = await _local.get(itemId);
-
-        item ??= await _chatRepository.message(itemId);
+        item = await _chatRepository.message(itemId);
       } catch (_) {
         // No-op.
       }
@@ -1195,6 +1194,9 @@ class HiveRxChat extends RxChat {
 
     // Try to find any [MessagesPaginated] already containing the item requested.
     MessagesPaginated? fragment = _fragments.firstWhereOrNull(
+      // Single-item fragments should not be used to display messages in
+      // pagination views. They are used to fetch relevant information about
+      // items instead.
       (e) => e.items[key] != null && e.items.length > 1,
     );
 
