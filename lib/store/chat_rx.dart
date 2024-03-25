@@ -1195,7 +1195,7 @@ class HiveRxChat extends RxChat {
 
     // Try to find any [MessagesPaginated] already containing the item requested.
     MessagesPaginated? fragment = _fragments.firstWhereOrNull(
-      (e) => e.items[key] != null,
+      (e) => e.items[key] != null && e.items.length > 1,
     );
 
     // If found, then return it, or otherwise construct a new one.
