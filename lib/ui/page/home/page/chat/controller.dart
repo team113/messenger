@@ -918,7 +918,6 @@ class ChatController extends GetxController {
     Rx<ChatItem>? item;
 
     item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
-
     item ??= _fragments
         .firstWhereOrNull((e) => e.items.keys.contains(id))
         ?.items[id];
@@ -1587,6 +1586,9 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
+        // Single-item fragments should not be used to display messages in
+        // pagination views. They are used to fetch relevant information about
+        // items instead.
         (e) => e.items.keys.contains(itemId) && e.items.length > 1,
       );
 

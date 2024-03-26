@@ -327,7 +327,7 @@ class ChatItemWidget extends StatefulWidget {
   }
 }
 
-/// State of a [ChatItemWidget] used to update an active call [Timer].
+/// State of a [ChatItemWidget].
 class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
@@ -1830,6 +1830,9 @@ class ChatCallWidget extends StatefulWidget {
   State<ChatCallWidget> createState() => ChatCallWidgetState();
 }
 
+/// [ChatCallWidget]'s state, used to initialize the [FutureOr] with the actual
+/// information about the [widget.chatCall] and update the widget every second
+/// if it represents an ongoing call.
 class ChatCallWidgetState extends State<ChatCallWidget> {
   /// [FutureOr] used in [FutureBuilder].
   FutureOr<Rx<ChatItem>?>? _futureOrCall;
@@ -1856,6 +1859,7 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
     final Rx<ChatItem>? initialData =
         _futureOrCall is Rx<ChatItem>? ? _futureOrCall as Rx<ChatItem>? : null;
     final Future<Rx<ChatItem>?>? future = _futureOrCall is Rx<ChatItem>?
