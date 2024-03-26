@@ -326,7 +326,7 @@ endif
 appcast-xml-ver = $(shell git describe --tags --dirty --match "v*" --always)
 
 appcast.xml:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(appcast-notes-ver)</title><description>$(notes)</description><pubDate>$(shell date -R)</pubDate>$(call xml,"macos","messenger-macos.zip")$(call xml,"windows","messenger-windows.zip")$(call xml,"linux","messenger-linux.zip")$(call xml,"android","messenger-android.zip")$(call xml,"ios","messenger-ios.zip")</item></channel></rss>" \
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(appcast-xml-ver)</title><description>$(notes)</description><pubDate>$(shell date -R)</pubDate>$(call appcast.xml.release,"macos","messenger-macos.zip")$(call appcast.xml.release,"windows","messenger-windows.zip")$(call appcast.xml.release,"linux","messenger-linux.zip")$(call appcast.xml.release,"android","messenger-android.zip")$(call appcast.xml.release,"ios","messenger-ios.zip")</item></channel></rss>" \
 	> $(or $(out),appcast.xml)
 define appcast.xml.release
 <enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
