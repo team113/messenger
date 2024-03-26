@@ -143,6 +143,7 @@ Future<void> main() async {
       options.diagnosticLevel = SentryLevel.info;
       options.enablePrintBreadcrumbs = true;
       options.maxBreadcrumbs = 512;
+      options.enableTimeToFullDisplayTracing = true;
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 

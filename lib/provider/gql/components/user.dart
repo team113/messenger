@@ -46,8 +46,12 @@ mixin UserGraphQlMixin {
   Future<GetMyUser$Query> getMyUser() async {
     Log.debug('getMyUser()', '$runtimeType');
 
-    QueryResult res =
-        await client.query(QueryOptions(document: GetMyUserQuery().document));
+    QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'GetMyUser',
+        document: GetMyUserQuery().document,
+      ),
+    );
     return GetMyUser$Query.fromJson(res.data!);
   }
 
