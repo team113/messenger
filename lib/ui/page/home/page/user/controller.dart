@@ -27,6 +27,7 @@ import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -190,6 +191,14 @@ class UserController extends GetxController {
 
   /// Subscription for the [user] changes.
   StreamSubscription? _userSubscription;
+
+  /// [ISentrySpan] being a [Sentry] transaction monitoring this
+  /// [UserController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'Ready',
+    'UI.UserController',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
 
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
@@ -612,7 +621,10 @@ class UserController extends GetxController {
       }
 
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
+
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
     } catch (e) {
+      _ready.finish(status: const SpanStatus.internalError());
       await MessagePopup.error(e);
       router.pop();
       rethrow;

@@ -438,6 +438,7 @@ class AuthService extends GetxService {
     } catch (e) {
       printError(info: e.toString());
     }
+
     return _unauthorized();
   }
 

@@ -432,6 +432,14 @@ class ChatController extends GetxController {
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
+  /// [ISentrySpan] being a [Sentry] transaction monitoring this
+  /// [ChatController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'Ready',
+    'UI.ChatController',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -648,7 +656,7 @@ class ChatController extends GetxController {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
-    Log.transaction('_fetchChat', 'ChatController', _fetchChat);
+    _fetchChat();
     super.onReady();
   }
 
@@ -928,10 +936,9 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
-    try {
-      final ISentrySpan? span = Sentry.getSpan();
-      final Stopwatch watch = Stopwatch()..start();
+    final Stopwatch watch = Stopwatch()..start();
 
+    try {
       _ignorePositionChanges = true;
 
       status.value = RxStatus.loading();
@@ -939,8 +946,8 @@ class ChatController extends GetxController {
 
       final FutureOr<RxChat?> fetched = _chatService.get(id);
 
-      span?.setMeasurement(
-        'duration_startup',
+      _ready.setMeasurement(
+        'duration_start',
         watch.elapsedMilliseconds,
         unit: DurationSentryMeasurementUnit.milliSecond,
       );
@@ -949,8 +956,8 @@ class ChatController extends GetxController {
 
       fetchStatus.value = 'Getting chat... done';
 
-      span?.setMeasurement(
-        'duration_chatService.get',
+      _ready.setMeasurement(
+        'duration_get',
         watch.elapsedMilliseconds,
         unit: DurationSentryMeasurementUnit.milliSecond,
       );
@@ -1124,11 +1131,14 @@ class ChatController extends GetxController {
           },
         );
 
-        span?.setMeasurement(
+        _ready.setMeasurement(
           'duration_fetching',
           watch.elapsedMilliseconds,
           unit: DurationSentryMeasurementUnit.milliSecond,
         );
+
+        _ready.setTag('messages', '${chat!.messages.isNotEmpty}');
+        _ready.setTag('local', '${id.isLocal}');
 
         if (itemId == null) {
           for (Rx<ChatItem> e in chat!.messages) {
@@ -1159,7 +1169,7 @@ class ChatController extends GetxController {
           fetchStatus.value = 'Fetching around... done';
         }
 
-        span?.setMeasurement(
+        _ready.setMeasurement(
           'duration_around',
           watch.elapsedMilliseconds,
           unit: DurationSentryMeasurementUnit.milliSecond,
@@ -1194,12 +1204,18 @@ class ChatController extends GetxController {
 
       _ignorePositionChanges = false;
 
-      span?.setMeasurement(
+      _ready.setMeasurement(
         'duration_finish',
         watch.elapsedMilliseconds,
         unit: DurationSentryMeasurementUnit.milliSecond,
       );
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _ready.finish();
+        print('[debug] _ready.finish()');
+      });
     } catch (e, stackTrace) {
+      _ready.finish(status: const SpanStatus.internalError());
       fetchStatus.value = 'Error: $e\nat$stackTrace';
       rethrow;
     }
