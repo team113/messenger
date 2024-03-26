@@ -134,7 +134,13 @@ class Release {
   factory Release.fromXml(XmlElement xml, {Language? language}) {
     language ??= L10n.languages.first;
 
-    final String title = xml.findElements('title').first.innerText;
+    String title = xml.findElements('title').first.innerText;
+
+    // Omit the leading `v` of the release version, if any.
+    if (title.startsWith('v')) {
+      title = title.substring(1);
+    }
+
     final String? description = xml
             .findElements('description')
             .firstWhereOrNull(
