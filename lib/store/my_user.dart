@@ -22,7 +22,6 @@ import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -40,6 +39,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
@@ -98,11 +98,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// requests should be made.
   bool _disposed = false;
 
-  /// Mutex guarding [toggleMute].
-  final Mutex _toggleMuteGuard = Mutex();
-
-  /// [MyUserEvent]s should be ignored.
-  final List<MyUserEvent> _ignore = [];
+  final EventPool<MyUserField> _eventPool = EventPool();
 
   @override
   Future<void> init({
@@ -490,43 +486,60 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   Future<void> toggleMute(MuteDuration? mute) {
     Log.debug('toggleMute($mute)', '$runtimeType');
+
+    final MuteDuration? muted = myUser.value?.muted;
+
     myUser.update((u) => u?.muted = mute);
 
-    return _toggleMute();
+    return _toggleMute(muted);
   }
 
   /// Invokes a [GraphQlProvider.toggleMyUserMute] method, updating the
   /// [MyUser.muted].
-  Future<void> _toggleMute() async {
-    if (!_toggleMuteGuard.isLocked) {
-      final MuteDuration? muted = myUser.value?.muted;
-      MyUserEventsVersionedMixin? response;
-
-      await _toggleMuteGuard.protect(() async {
+  Future<void> _toggleMute(MuteDuration? rollback) async {
+    MuteDuration? muted = myUser.value?.muted;
+    await _eventPool.protect(
+      MyUserField.muted,
+      () async {
         final Muting? muting = muted == null
             ? null
-            : Muting(duration: muted.forever == true ? null : muted.until);
+            : Muting(duration: muted!.forever == true ? null : muted!.until);
 
         try {
-          response = await _graphQlProvider.toggleMyUserMute(muting);
+          await _mutation(() => _graphQlProvider.toggleMyUserMute(muting));
+
+          rollback = muted;
         } catch (_) {
-          myUser.update((u) => u?.muted = _myUserLocal.myUser?.value.muted);
+          // User [_myUserLocal] as [myUser] already updated in [toggleMute].
+          myUser.update((u) => u?.muted = rollback);
           rethrow;
         }
-      });
+      },
+      repeat: () {
+        if (myUser.value?.muted != muted) {
+          muted = myUser.value?.muted;
 
-      if (myUser.value?.muted != muted) {
-        _toggleMute();
-      }
+          return true;
+        }
 
-      if (response != null) {
-        final event = MyUserEventsVersioned(
-          response!.events.map((e) => _myUserEvent(e)).toList(),
-          response!.ver,
-        );
+        return false;
+      },
+    );
+  }
 
-        _myUserRemoteEvent(event, updateVersion: false);
-      }
+  /// Executes the provided [mutation].
+  Future<void> _mutation(
+    Future<MyUserEventsVersionedMixin?> Function() mutation,
+  ) async {
+    final MyUserEventsVersionedMixin? response = await mutation();
+
+    if (response != null) {
+      final event = MyUserEventsVersioned(
+        response.events.map((e) => _myUserEvent(e)).toList(),
+        response.ver,
+      );
+
+      _myUserRemoteEvent(event, updateVersion: false);
     }
   }
 
@@ -610,7 +623,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         _remoteSubscription?.close(immediate: true);
       } else {
         // Don't update currently updating fields.
-        if (_toggleMuteGuard.isLocked) {
+        if (_eventPool.locked(MyUserField.muted)) {
           event.value?.value.muted = myUser.value?.muted;
         }
 
@@ -678,10 +691,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
-  Future<void> _myUserRemoteEvent(
+  void _myUserRemoteEvent(
     MyUserEventsVersioned versioned, {
     bool updateVersion = true,
-  }) async {
+  }) {
     final HiveMyUser? userEntity = _myUserLocal.myUser;
 
     if (userEntity == null || versioned.ver < userEntity.ver) {
@@ -695,9 +708,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     if (updateVersion) {
       userEntity.ver = versioned.ver;
 
-      versioned.events.removeWhere((e) => _ignore.remove(e));
+      versioned.events.removeWhere((e) => _eventPool.processed(e));
     } else {
-      _ignore.addAll(versioned.events);
+      versioned.events.forEach(_eventPool.add);
     }
 
     Log.debug(
@@ -1080,4 +1093,11 @@ class MyUserRepository implements AbstractMyUserRepository {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }
   }
+}
+
+/// Fields of [MyUser].
+///
+/// Used to update the [MyUser] fields through [EventPool].
+enum MyUserField {
+  muted,
 }
