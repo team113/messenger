@@ -156,9 +156,9 @@ enum ProfileTab {
 
 enum BalanceProvider {
   usdt,
+  bitcoin,
   paypal,
   card,
-  bitcoin,
   swift,
   sepa,
 }

@@ -1351,7 +1351,7 @@ class OngoingCall {
         connectionLost.value = true;
 
         _notifications.add(ConnectionLostNotification());
-        await e.reconnectWithBackoff(500, 2, 5000);
+        await e.reconnectWithBackoff(500, 2, 1000);
         _notifications.add(ConnectionRestoredNotification());
 
         connectionLost.value = false;

@@ -189,7 +189,6 @@ class MenuButton extends StatelessWidget {
       padding: padding,
       child: SizedBox(
         height: dense ? 54 : 73,
-        // height: 73,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
@@ -210,18 +209,6 @@ class MenuButton extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(width: 6.5),
-                    // ConstrainedBox(
-                    //   constraints: const BoxConstraints(minWidth: 64),
-                    //   child: Center(
-                    //     child: leading ??
-                    //         Icon(
-                    //           icon,
-                    //           color: inverted
-                    //               ? style.colors.onPrimary
-                    //               : style.colors.primary,
-                    //         ),
-                    //   ),
-                    // ),
                     if (leading != null) leading!,
                     if (icon != null)
                       Icon(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -9,7 +8,6 @@ import 'package:messenger/util/platform_utils.dart';
 import 'package:phone_form_field/phone_form_field.dart' hide CountrySelector;
 import 'package:circle_flags/circle_flags.dart';
 
-import 'animated_size_and_fade.dart';
 import 'country_selector2.dart';
 import 'text_field.dart';
 
@@ -65,107 +63,6 @@ class ReactivePhoneField extends StatelessWidget {
         ),
       ),
     );
-
-    EdgeInsets? contentPadding;
-
-    bool isFilled = Theme.of(context).inputDecorationTheme.filled;
-    bool isDense = PlatformUtils.isMobile;
-    if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
-      if (isFilled) {
-        contentPadding = isDense
-            ? const EdgeInsets.fromLTRB(20, 8, 20, 8)
-            : const EdgeInsets.fromLTRB(12, 12, 12, 12);
-      } else {
-        contentPadding = isDense
-            ? const EdgeInsets.fromLTRB(8, 8, 8, 8)
-            : const EdgeInsets.fromLTRB(0, 12, 0, 12);
-      }
-    } else {
-      contentPadding = isDense
-          ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
-          : const EdgeInsets.fromLTRB(12, 24, 12, 16);
-    }
-
-    return Obx(() {
-      return Column(
-        children: [
-          Theme(
-            data: Theme.of(context).copyWith(
-              inputDecorationTheme: Theme.of(context)
-                  .inputDecorationTheme
-                  .copyWith(
-                    floatingLabelStyle: state.error.value?.isNotEmpty == true
-                        ? Theme.of(context)
-                            .inputDecorationTheme
-                            .floatingLabelStyle
-                            ?.copyWith(color: style.colors.danger)
-                        : state.isFocused.value
-                            ? Theme.of(context)
-                                .inputDecorationTheme
-                                .floatingLabelStyle
-                                ?.copyWith(color: style.colors.primary)
-                            : null,
-                  ),
-            ),
-            child: PhoneFormField(
-              controller: state.controller2,
-              shouldFormat: true,
-              autofocus: false,
-              autofillHints: const [AutofillHints.telephoneNumber],
-              countrySelectorNavigator: const _CountrySelectorNavigator(),
-              defaultCountry: IsoCode.US,
-              style: style.fonts.medium.regular.onBackground,
-              decoration: InputDecoration(
-                contentPadding: contentPadding?.copyWith(left: 8),
-                label: label == null
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.only(left: 12.0),
-                        child: Text(label!),
-                      ),
-                alignLabelWithHint: false,
-                border: const OutlineInputBorder(),
-                errorStyle: const TextStyle(fontSize: 0),
-                errorText: state.error.value,
-                labelStyle: style.fonts.normal.regular.onBackground,
-              ),
-              focusNode: state.focus,
-              enabled: true,
-              showFlagInInput: true,
-              validator: PhoneValidator.compose([PhoneValidator.valid()]),
-              autovalidateMode: AutovalidateMode.disabled,
-              countryCodeStyle: style.fonts.medium.regular.onBackground,
-              onSaved: (p) => print('saved $p'),
-              onSubmitted: (s) => state.submit(),
-              onChanged: (s) {
-                state.isEmpty.value = s?.nsn.isEmpty != false;
-              },
-              isCountryChipPersistent: true,
-            ),
-          ),
-
-          // Displays an error, if any.
-          AnimatedSizeAndFade(
-            fadeDuration: 200.milliseconds,
-            sizeDuration: 200.milliseconds,
-            child: state.error.value == null
-                ? const SizedBox(width: double.infinity, height: 0)
-                : Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                      child: Text(
-                        state.error.value ?? '',
-                        style: style.fonts.small.regular.onBackground.copyWith(
-                          color: style.colors.danger,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-        ],
-      );
-    });
   }
 }
 

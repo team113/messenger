@@ -28,6 +28,8 @@ import 'package:messenger/ui/widget/text_field.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'widget/currency_field.dart';
+
 class BalanceProviderController extends GetxController {
   BalanceProviderController(this._balanceService, this._myUserService);
 
@@ -55,6 +57,10 @@ class BalanceProviderController extends GetxController {
   };
 
   int listInitIndex = 0;
+
+  final Rx<CurrencyKind> swiftCurrency = Rx(CurrencyKind.usd);
+  final RxInt swiftPrice = RxInt(0);
+  final RxInt sepaPrice = RxInt(0);
 
   final BalanceService _balanceService;
   final MyUserService _myUserService;

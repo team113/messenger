@@ -1219,3 +1219,4 @@ label_price_for_messages_and_calls_to_user = ¤ 50 for a message and ¤ 150/
 label_payment_set = Payment set
 err_version_mismatch = The application's data schema has been changed, so the cache is cleared to prevent disruptions to local data. Please, log in again.
 label_wallet = Wallet
+label_swift_transfer_description = To topup your account by a bank transfer (SWIFT), please, submit the name of the payment sender, complete address (street address, city, ZIP/postal code, state/region, country), e-mail, alongside with the the amount and currency of the payment. Based on the information provided by you, we will send you a proforma-invoice with the details necessary to make the bank transfer, by chat and to your e-mail.

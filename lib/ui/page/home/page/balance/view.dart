@@ -30,14 +30,15 @@ import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/selected_dot.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
+import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'controller.dart';
+import 'widget/currency_field.dart';
 
 class BalanceProviderView extends StatelessWidget {
   const BalanceProviderView({super.key});
@@ -116,7 +117,7 @@ class BalanceProviderView extends StatelessWidget {
 
                 switch (e) {
                   case BalanceProvider.paypal:
-                    final nominals = [499, 999, 4999, 9999];
+                    final nominals = [500, 1000, 5000, 10000];
 
                     return Block(
                       margin: EdgeInsets.fromLTRB(
@@ -148,7 +149,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: n,
+                                price: '\$${(n / 100).round()}',
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
                               ),
@@ -157,13 +158,10 @@ class BalanceProviderView extends StatelessWidget {
                         }),
                         const SizedBox(height: 16),
                         Obx(() {
-                          return _nominal(
-                            context,
-                            price: (nominals
-                                        .elementAtOrNull(c.nominal[e]!.value) ??
-                                    nominals.first) +
-                                1,
-                          );
+                          return _nominal(context,
+                              price: nominals
+                                      .elementAtOrNull(c.nominal[e]!.value) ??
+                                  nominals.first);
                         }),
                         const SizedBox(height: 16),
                         _paypal(
@@ -176,7 +174,7 @@ class BalanceProviderView extends StatelessWidget {
                     );
 
                   case BalanceProvider.card:
-                    final nominals = [499, 999, 4999, 9999];
+                    final nominals = [500, 1000, 5000, 10000];
 
                     return Block(
                       margin: EdgeInsets.fromLTRB(
@@ -226,7 +224,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: n,
+                                price: '\$${(n / 100).round()}',
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
                               ),
@@ -237,10 +235,9 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           return _nominal(
                             context,
-                            price: (nominals
-                                        .elementAtOrNull(c.nominal[e]!.value) ??
-                                    nominals.first) +
-                                1,
+                            price:
+                                nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first,
                           );
                         }),
                         const SizedBox(height: 16),
@@ -262,15 +259,47 @@ class BalanceProviderView extends StatelessWidget {
                         8,
                         i == BalanceProvider.values.length ? 4 : 32,
                       ),
-                      title: e.name,
+                      title: e.name.toUpperCase(),
                       highlight: c.highlightIndex.value == i,
                       children: [
-                        const SizedBox(height: 8),
-                        MoneyField(
-                          state: c.states[i],
-                          label: 'Amount',
-                          onChanged: (s) => c.prices[i].value = s,
+                        Text(
+                          'label_swift_transfer_description'.l10n,
+                          style: style.fonts.small.regular.secondary,
                         ),
+                        const SizedBox(height: 21),
+                        ReactiveTextField(
+                          state: TextFieldState(),
+                          label: 'Имя или название',
+                        ),
+                        const SizedBox(height: 16),
+                        ReactiveTextField(
+                          state: TextFieldState(),
+                          label: 'Адрес',
+                        ),
+                        const SizedBox(height: 16),
+                        ReactiveTextField(
+                          state: TextFieldState(),
+                          label: 'E-mail',
+                        ),
+                        const SizedBox(height: 16),
+                        if (e == BalanceProvider.swift)
+                          Obx(() {
+                            return CurrencyField(
+                              currency: c.swiftCurrency.value,
+                              onCurrency: (s) => c.swiftCurrency.value = s,
+                              onChanged: (s) => c.swiftPrice.value = s,
+                            );
+                          })
+                        else
+                          CurrencyField(
+                            currency: CurrencyKind.eur,
+                            onChanged: (s) => c.sepaPrice.value = s,
+                          ),
+                        // MoneyField(
+                        //   state: c.states[i],
+                        //   label: 'Сумма',
+                        //   onChanged: (s) => c.prices[i].value = s,
+                        // ),
                         const SizedBox(height: 8),
                         Text(
                           'Минимум: ¤10 000',
@@ -279,9 +308,16 @@ class BalanceProviderView extends StatelessWidget {
                         const SizedBox(height: 8),
                         const SizedBox(height: 8),
                         Obx(() {
+                          final currency = e == BalanceProvider.swift
+                              ? c.swiftCurrency.value
+                              : CurrencyKind.eur;
+                          final price = e == BalanceProvider.swift
+                              ? c.swiftPrice.value
+                              : c.sepaPrice.value;
+
                           return _nominal(
                             context,
-                            price: c.prices[i].value,
+                            price: currency.toCoins(price),
                             custom: true,
                           );
                         }),
@@ -298,7 +334,7 @@ class BalanceProviderView extends StatelessWidget {
                     );
 
                   case BalanceProvider.bitcoin:
-                    final nominals = [499, 999, 4999, 9999];
+                    final nominals = [100, 500, 1000, 5000, 10000];
 
                     return Block(
                       margin: EdgeInsets.fromLTRB(
@@ -325,7 +361,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: n,
+                                price: '${n / 100 * 0.000014} BTC',
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
                               ),
@@ -336,24 +372,24 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           return _nominal(
                             context,
-                            price: (nominals
-                                        .elementAtOrNull(c.nominal[e]!.value) ??
-                                    nominals.first) +
-                                1,
+                            price:
+                                nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first,
                           );
                         }),
                         const SizedBox(height: 16),
-                        _crypto(
+                        _bitcoin(
                           context,
                           (nominals.elementAtOrNull(c.nominal[e]!.value) ??
                                   nominals.first) /
-                              100,
+                              100 *
+                              0.000014,
                         ),
                       ],
                     );
 
                   case BalanceProvider.usdt:
-                    final nominals = [99, 499, 999, 4999, 9999];
+                    final nominals = [100, 500, 1000, 5000, 10000];
 
                     return Block(
                       margin: EdgeInsets.fromLTRB(
@@ -380,7 +416,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: n,
+                                price: '${(n / 100).round()} USDT',
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
                               ),
@@ -391,14 +427,13 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           return _nominal(
                             context,
-                            price: (nominals
-                                        .elementAtOrNull(c.nominal[e]!.value) ??
-                                    nominals.first) +
-                                1,
+                            price:
+                                nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first,
                           );
                         }),
                         const SizedBox(height: 16),
-                        _crypto(
+                        _usdt(
                           context,
                           (nominals.elementAtOrNull(c.nominal[e]!.value) ??
                                   nominals.first) /
@@ -411,99 +446,102 @@ class BalanceProviderView extends StatelessWidget {
             },
           ),
           bottomNavigationBar: context.isNarrow
-              ? Container(
-                  margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      CustomBoxShadow(
-                        blurRadius: 8,
-                        color: style.colors.onBackgroundOpacity13,
-                        blurStyle: BlurStyle.outer.workaround,
-                      ),
-                    ],
-                    borderRadius: style.cardRadius,
-                    border: style.cardBorder,
-                  ),
+              ? SafeArea(
                   child: Container(
+                    margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
                     decoration: BoxDecoration(
-                      color: style.cardColor,
+                      boxShadow: [
+                        CustomBoxShadow(
+                          blurRadius: 8,
+                          color: style.colors.onBackgroundOpacity13,
+                          blurStyle: BlurStyle.outer.workaround,
+                        ),
+                      ],
                       borderRadius: style.cardRadius,
+                      border: style.cardBorder,
                     ),
-                    height: 56,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          ...BalanceProvider.values.mapIndexed(
-                            (i, e) {
-                              return Obx(() {
-                                final bool selected =
-                                    router.balanceSection.value == e;
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: style.cardColor,
+                        borderRadius: style.cardRadius,
+                      ),
+                      height: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            ...BalanceProvider.values.mapIndexed(
+                              (i, e) {
+                                return Obx(() {
+                                  final bool selected =
+                                      router.balanceSection.value == e;
 
-                                return AnimatedButton(
-                                  onPressed: () =>
-                                      router.balanceSection.value = e,
-                                  decorator: (child) => AnimatedOpacity(
-                                    duration: const Duration(milliseconds: 150),
-                                    opacity: selected ? 1 : 0.7,
-                                    child: AnimatedScale(
+                                  return AnimatedButton(
+                                    onPressed: () =>
+                                        router.balanceSection.value = e,
+                                    decorator: (child) => AnimatedOpacity(
                                       duration:
                                           const Duration(milliseconds: 150),
-                                      scale: selected ? 1.1 : 1,
-                                      child: Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                          i == 0 ? 8 : 15,
-                                          6,
-                                          15 + 4,
-                                          4,
+                                      opacity: selected ? 1 : 0.7,
+                                      child: AnimatedScale(
+                                        duration:
+                                            const Duration(milliseconds: 150),
+                                        scale: selected ? 1.1 : 1,
+                                        child: Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                            i == 0 ? 8 : 15,
+                                            6,
+                                            15 + 4,
+                                            4,
+                                          ),
+                                          child: child,
                                         ),
-                                        child: child,
                                       ),
                                     ),
-                                  ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SvgIcon(
-                                        switch (e) {
-                                          BalanceProvider.paypal =>
-                                            SvgIcons.paypalLogo,
-                                          BalanceProvider.card =>
-                                            SvgIcons.paymentCard,
-                                          BalanceProvider.sepa =>
-                                            SvgIcons.sepaLogo,
-                                          BalanceProvider.swift =>
-                                            SvgIcons.swiftLogo,
-                                          BalanceProvider.bitcoin =>
-                                            SvgIcons.bitcoinLogo,
-                                          BalanceProvider.usdt =>
-                                            SvgIcons.usdtLogo,
-                                        },
-                                        height: 23,
-                                      ),
-                                      const SizedBox(height: 1),
-                                      Text(
-                                        switch (e) {
-                                          BalanceProvider.paypal => 'PayPal',
-                                          BalanceProvider.card =>
-                                            'Payment card',
-                                          BalanceProvider.sepa => 'SEPA',
-                                          BalanceProvider.swift => 'SWIFT',
-                                          BalanceProvider.bitcoin => 'Bitcoin',
-                                          BalanceProvider.usdt => 'USDT',
-                                        },
-                                        style: style.fonts.smallest.regular
-                                            .onBackground,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              });
-                            },
-                          ),
-                        ],
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SvgIcon(
+                                          switch (e) {
+                                            BalanceProvider.paypal =>
+                                              SvgIcons.paypalLogo,
+                                            BalanceProvider.card =>
+                                              SvgIcons.paymentCard,
+                                            BalanceProvider.sepa =>
+                                              SvgIcons.sepaLogo,
+                                            BalanceProvider.swift =>
+                                              SvgIcons.swiftLogo,
+                                            BalanceProvider.bitcoin =>
+                                              SvgIcons.bitcoinLogo,
+                                            BalanceProvider.usdt =>
+                                              SvgIcons.usdtLogo,
+                                          },
+                                          height: 23,
+                                        ),
+                                        const SizedBox(height: 1),
+                                        Text(
+                                          switch (e) {
+                                            BalanceProvider.paypal => 'PayPal',
+                                            BalanceProvider.card =>
+                                              'Payment card',
+                                            BalanceProvider.sepa => 'SEPA',
+                                            BalanceProvider.swift => 'SWIFT',
+                                            BalanceProvider.bitcoin =>
+                                              'Bitcoin',
+                                            BalanceProvider.usdt => 'USDT',
+                                          },
+                                          style: style.fonts.smallest.regular
+                                              .onBackground,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -708,7 +746,7 @@ class BalanceProviderView extends StatelessWidget {
                 ),
               ),
               TextSpan(
-                text: ' for \$$price',
+                text: ' for \$${price.round()}',
                 style: style.fonts.small.regular.onBackground,
               ),
             ],
@@ -725,7 +763,6 @@ class BalanceProviderView extends StatelessWidget {
       onPressed: () {},
       child: Container(
         decoration: BoxDecoration(
-          // color: const Color(0xFFFAC335),
           color: style.colors.primary,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -738,7 +775,7 @@ class BalanceProviderView extends StatelessWidget {
                 style: style.fonts.small.regular.onPrimary,
               ),
               TextSpan(
-                text: ' for \$$price',
+                text: ' for \$${price.round()}',
                 style: style.fonts.small.regular.onPrimary,
               ),
             ],
@@ -748,7 +785,7 @@ class BalanceProviderView extends StatelessWidget {
     );
   }
 
-  Widget _crypto(BuildContext context, double price) {
+  Widget _usdt(BuildContext context, double price) {
     final style = Theme.of(context).style;
 
     return WidgetButton(
@@ -763,11 +800,40 @@ class BalanceProviderView extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(
-                text: 'Buy with crypto',
+                text: 'Buy',
                 style: style.fonts.small.regular.onPrimary,
               ),
               TextSpan(
-                text: ' for \$$price',
+                text: ' for ${price.round()} USDT',
+                style: style.fonts.small.regular.onPrimary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _bitcoin(BuildContext context, double price) {
+    final style = Theme.of(context).style;
+
+    return WidgetButton(
+      onPressed: () {},
+      child: Container(
+        decoration: BoxDecoration(
+          color: style.colors.primary,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: 'Buy with Bitcoin',
+                style: style.fonts.small.regular.onPrimary,
+              ),
+              TextSpan(
+                text: ' for ${price} BTC',
                 style: style.fonts.small.regular.onPrimary,
               ),
             ],
@@ -791,13 +857,13 @@ extension on num {
 class PickVariantButton extends StatelessWidget {
   const PickVariantButton({
     super.key,
-    this.price = 0,
+    required this.price,
     this.amount = 0,
     this.onPressed,
     this.selected = false,
   });
 
-  final num price;
+  final String price;
   final num amount;
   final void Function()? onPressed;
   final bool selected;
@@ -806,27 +872,93 @@ class PickVariantButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return MenuButton(
-      dense: true,
-      inverted: selected,
-      onPressed: onPressed,
-      trailing: SelectedDot(size: 21, selected: selected),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            TextSpan(
-              text: '\$${(price / 100).toStringAsFixed(2)}',
-              style: selected
-                  ? style.fonts.big.regular.onPrimary
-                  : style.fonts.big.regular.onBackground,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: SizedBox(
+        height: 73, //dense ? 54 : 73,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            border: style.cardBorder,
+            color: style.colors.transparent,
+          ),
+          child: Material(
+            type: MaterialType.card,
+            borderRadius: style.cardRadius,
+            color: selected ? style.colors.primary : style.cardColor,
+            child: InkWell(
+              borderRadius: style.cardRadius,
+              onTap: onPressed,
+              hoverColor:
+                  selected ? style.colors.primary : style.cardHoveredColor,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 6.5),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '¤$amount',
+                                  style: selected
+                                      ? style.fonts.big.regular.onPrimary
+                                      : style.fonts.big.regular.onBackground
+                                          .copyWith(
+                                          color: style.colors.acceptPrimary,
+                                        ),
+                                ),
+                                TextSpan(
+                                  text: ' for ',
+                                  style: selected
+                                      ? style.fonts.big.regular.onPrimary
+                                      : style.fonts.big.regular.secondary,
+                                ),
+                                TextSpan(
+                                  text: price,
+                                  style: selected
+                                      ? style.fonts.big.regular.onPrimary
+                                      : style.fonts.big.regular.onBackground,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Bonus: ',
+                                  style: selected
+                                      ? style.fonts.small.regular.onPrimary
+                                      : style.fonts.small.regular.secondary,
+                                ),
+                                TextSpan(
+                                  text: '¤${(amount * 0.05).round()}',
+                                  style: selected
+                                      ? style.fonts.small.regular.onPrimary
+                                      : style.fonts.small.regular.onBackground
+                                          .copyWith(
+                                          color: style.colors.acceptPrimary,
+                                        ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SelectedDot(size: 21, selected: selected),
+                  ],
+                ),
+              ),
             ),
-            TextSpan(
-              text: ' to get ¤${amount + 1}',
-              style: selected
-                  ? style.fonts.big.regular.onPrimary
-                  : style.fonts.big.regular.secondary,
-            ),
-          ],
+          ),
         ),
       ),
     );
