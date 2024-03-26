@@ -199,6 +199,10 @@ Future<void> main() async {
     },
     appRunner: appRunner,
   );
+
+  final ISentrySpan ready = Sentry.startTransaction('Ready', 'UI');
+  WidgetsBinding.instance.waitUntilFirstFrameRasterized
+      .then((_) => ready.finish());
 }
 
 /// Initializes the [FlutterCallkeep] and displays an incoming call
