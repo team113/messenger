@@ -1831,7 +1831,7 @@ class ChatCallWidget extends StatefulWidget {
 }
 
 /// [ChatCallWidget]'s state, used to initialize the [FutureOr] with the actual
-/// information about the [widget.chatCall] and update the widget every second
+/// information about the widget's [ChatCall] and update the widget every second
 /// if it represents an ongoing call.
 class ChatCallWidgetState extends State<ChatCallWidget> {
   /// [FutureOr] used in [FutureBuilder].
