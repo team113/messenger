@@ -435,8 +435,8 @@ class ChatController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [ChatController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.chat',
+    'ui.chat.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
   );
 

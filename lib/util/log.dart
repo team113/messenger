@@ -58,34 +58,6 @@ class Log {
     _breadcrumb(message, tag, SentryLevel.debug);
   }
 
-  static Future<T> transaction<T>(
-    String? name,
-    String? operation,
-    Future<T> Function() fn,
-  ) async {
-    if (name == null || operation == null) {
-      return await fn();
-    }
-
-    final ISentrySpan transaction = Sentry.startTransaction(
-      '$name()',
-      operation,
-      autoFinishAfter: const Duration(minutes: 1),
-    );
-
-    print('[debug] Operation $name()');
-
-    try {
-      return await fn();
-    } catch (e) {
-      transaction.throwable = e;
-      transaction.status = const SpanStatus.internalError();
-      rethrow;
-    } finally {
-      transaction.finish();
-    }
-  }
-
   /// Reports a [Breadcrumb] with the provided details to the [Sentry], if
   /// enabled.
   static Future<void> _breadcrumb(

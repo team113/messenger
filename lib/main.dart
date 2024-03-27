@@ -270,15 +270,15 @@ Future<void> main() async {
     ),
   );
 
-  final ISentrySpan firstFrameRasterized = Sentry.startTransaction(
-    'Ready',
+  // Transaction indicating Flutter engine has rasterized the first frame.
+  final ISentrySpan ready = Sentry.startTransaction(
+    'ui.app.ready',
     'ui',
-    autoFinishAfter: const Duration(minutes: 5),
+    autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
-  WidgetsBinding.instance.waitUntilFirstFrameRasterized.whenComplete(() {
-    firstFrameRasterized.finish();
-  });
+  WidgetsBinding.instance.waitUntilFirstFrameRasterized
+      .then((_) => ready.finish());
 
   SchedulerBinding.instance.addTimingsCallback((timings) {
     if (timings.isEmpty) {

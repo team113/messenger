@@ -195,8 +195,8 @@ class UserController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [UserController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'UI.UserController',
+    'ui.user.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
   );
 

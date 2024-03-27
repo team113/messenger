@@ -150,6 +150,7 @@ class BalanceProviderView extends StatelessWidget {
                               child: PickVariantButton(
                                 amount: n,
                                 price: '\$${(n / 100).round()}',
+                                bonus: 0,
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
                               ),
@@ -262,10 +263,16 @@ class BalanceProviderView extends StatelessWidget {
                       title: e.name.toUpperCase(),
                       highlight: c.highlightIndex.value == i,
                       children: [
-                        Text(
-                          'label_swift_transfer_description'.l10n,
-                          style: style.fonts.small.regular.secondary,
-                        ),
+                        if (e == BalanceProvider.swift)
+                          Text(
+                            'label_swift_transfer_description'.l10n,
+                            style: style.fonts.small.regular.secondary,
+                          )
+                        else
+                          Text(
+                            'label_sepa_transfer_description'.l10n,
+                            style: style.fonts.small.regular.secondary,
+                          ),
                         const SizedBox(height: 21),
                         ReactiveTextField(
                           state: TextFieldState(),
@@ -861,12 +868,14 @@ class PickVariantButton extends StatelessWidget {
     this.amount = 0,
     this.onPressed,
     this.selected = false,
+    this.bonus = 0.05,
   });
 
   final String price;
   final num amount;
   final void Function()? onPressed;
   final bool selected;
+  final double bonus;
 
   @override
   Widget build(BuildContext context) {
@@ -928,28 +937,30 @@ class PickVariantButton extends StatelessWidget {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 3),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'Bonus: ',
-                                  style: selected
-                                      ? style.fonts.small.regular.onPrimary
-                                      : style.fonts.small.regular.secondary,
-                                ),
-                                TextSpan(
-                                  text: '¤${(amount * 0.05).round()}',
-                                  style: selected
-                                      ? style.fonts.small.regular.onPrimary
-                                      : style.fonts.small.regular.onBackground
-                                          .copyWith(
-                                          color: style.colors.acceptPrimary,
-                                        ),
-                                ),
-                              ],
+                          if (bonus != 0) ...[
+                            const SizedBox(height: 3),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Bonus: ',
+                                    style: selected
+                                        ? style.fonts.small.regular.onPrimary
+                                        : style.fonts.small.regular.secondary,
+                                  ),
+                                  TextSpan(
+                                    text: '¤${(amount * bonus).round()}',
+                                    style: selected
+                                        ? style.fonts.small.regular.onPrimary
+                                        : style.fonts.small.regular.onBackground
+                                            .copyWith(
+                                            color: style.colors.acceptPrimary,
+                                          ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
