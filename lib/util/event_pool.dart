@@ -25,7 +25,9 @@ class EventPool<T> {
   /// List of events that have been processed.
   final List<Object> _processed = [];
 
-  /// Protects the provided [callback] with a [Mutex] with the provided [tag].
+  /// Protects the provided [callback] by a [Mutex] with the provided [tag].
+  ///
+  /// Does nothing if [Mutex] is already locked.
   Future<void> protect(
     T tag,
     Future<void> Function() callback, {
@@ -39,9 +41,7 @@ class EventPool<T> {
 
     if (!mutex.isLocked) {
       do {
-        await mutex.protect(() async {
-          await callback();
-        });
+        await mutex.protect(callback);
       } while (repeat());
     }
   }
@@ -49,9 +49,9 @@ class EventPool<T> {
   /// Adds the provided [event] to the list of processed events.
   void add(Object event) => _processed.add(event);
 
-  /// Indicates whether the [event] has been processed.
+  /// Indicates whether the provided [event] has been processed.
   bool processed(Object event) => _processed.remove(event);
 
-  /// Indicates whether [Mutex] by the provided [tag] is locked.
+  /// Indicates whether [Mutex] with the provided [tag] is locked.
   bool locked(T tag) => _mutexes[tag]?.isLocked == true;
 }

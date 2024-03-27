@@ -98,6 +98,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// requests should be made.
   bool _disposed = false;
 
+  /// [EventPool] of this [MyUserRepository].
   final EventPool<MyUserField> _eventPool = EventPool();
 
   @override
@@ -1257,7 +1258,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
 /// Fields of [MyUser].
 ///
-/// Used to update the [MyUser] fields through [EventPool].
+/// Used to update [MyUser] through [EventPool].
 enum MyUserField {
   muted,
   name,
