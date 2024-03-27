@@ -39,10 +39,10 @@ class StyleController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [StyleController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.style',
+    'ui.style.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
-  );
+  )..startChild('ready');
 
   @override
   void onReady() {

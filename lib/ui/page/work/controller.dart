@@ -30,10 +30,10 @@ class WorkController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [WorkController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.work',
+    'ui.work.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
-  );
+  )..startChild('ready');
 
   @override
   void onReady() {

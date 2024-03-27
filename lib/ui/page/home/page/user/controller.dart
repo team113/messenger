@@ -137,10 +137,10 @@ class UserController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [UserController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.user',
+    'ui.user.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
-  );
+  )..startChild('ready');
 
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;

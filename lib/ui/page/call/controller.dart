@@ -396,8 +396,8 @@ class CallController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [CallController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.call',
+    'ui.call.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
   );
 
@@ -563,6 +563,8 @@ class CallController extends GetxController {
 
   @override
   void onInit() {
+    ISentrySpan span = _ready.startChild('init');
+
     super.onInit();
 
     _currentCall.value.init(getChat: _chatService.get);
@@ -827,6 +829,8 @@ class CallController extends GetxController {
       }
     }
 
+    span.finish();
+    span = _ready.startChild('chat');
     _initChat();
   }
 

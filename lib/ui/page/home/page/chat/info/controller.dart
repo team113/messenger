@@ -133,8 +133,8 @@ class ChatInfoController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [ChatInfoController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.chat_info',
+    'ui.chat_info.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
   );
 
@@ -383,6 +383,8 @@ class ChatInfoController extends GetxController {
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
 
+    ISentrySpan span = _ready.startChild('fetch');
+
     try {
       final FutureOr<RxChat?> fetched = _chatService.get(chatId);
       chat = fetched is RxChat? ? fetched : await fetched;
@@ -420,12 +422,17 @@ class ChatInfoController extends GetxController {
 
         status.value = RxStatus.success();
 
+        span.finish();
+        span = _ready.startChild('members.around');
+
         _ready.setTag(
           'members',
           '${chat!.members.length >= chat!.members.perPage}',
         );
 
         await chat!.members.around();
+
+        span.finish();
 
         SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
       }

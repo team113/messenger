@@ -478,10 +478,10 @@ class GraphQlClient {
     }
 
     final ISentrySpan transaction = Sentry.startTransaction(
-      '$operation()',
+      'graphql.$operation()',
       'graphql',
       autoFinishAfter: const Duration(minutes: 1),
-    );
+    )..startChild('query');
 
     try {
       return await fn();

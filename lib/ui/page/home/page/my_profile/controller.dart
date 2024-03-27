@@ -124,10 +124,10 @@ class MyProfileController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [MyProfileController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.my_profile',
+    'ui.my_profile.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
-  );
+  )..startChild('ready');
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;

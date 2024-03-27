@@ -88,10 +88,10 @@ class _HomeViewState extends State<HomeView> {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this [HomeView]
   /// readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.home',
+    'ui.home.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
-  );
+  )..startChild('ready');
 
   @override
   void initState() {

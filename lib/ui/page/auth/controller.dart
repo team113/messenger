@@ -43,10 +43,10 @@ class AuthController extends GetxController {
   /// [ISentrySpan] being a [Sentry] transaction monitoring this
   /// [AuthController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
-    'Ready',
-    'ui.auth',
+    'ui.auth.ready',
+    'ui',
     autoFinishAfter: const Duration(minutes: 2),
-  );
+  )..startChild('ready');
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
