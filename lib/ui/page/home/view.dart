@@ -19,7 +19,9 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -83,10 +85,22 @@ class _HomeViewState extends State<HomeView> {
   /// [ChildBackButtonDispatcher] to get "Back" button in the nested [Router].
   late ChildBackButtonDispatcher _backButtonDispatcher;
 
+  /// [ISentrySpan] being a [Sentry] transaction monitoring this [HomeView]
+  /// readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'Ready',
+    'ui.home',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
+
   @override
   void initState() {
     super.initState();
-    widget._depsFactory().then((v) => setState(() => _deps = v));
+
+    widget._depsFactory().then((v) {
+      setState(() => _deps = v);
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    });
   }
 
   @override

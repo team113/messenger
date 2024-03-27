@@ -19,9 +19,11 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
     show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
@@ -118,6 +120,14 @@ class MyProfileController extends GetxController {
   /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
+
+  /// [ISentrySpan] being a [Sentry] transaction monitoring this
+  /// [MyProfileController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'Ready',
+    'ui.my_profile',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -300,6 +310,12 @@ class MyProfileController extends GetxController {
     scrollController.addListener(_ensureNameDisplayed);
 
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    super.onReady();
   }
 
   @override

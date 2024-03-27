@@ -158,6 +158,7 @@ Future<void> main() async {
             exception is HttpException ||
             exception is ClientException ||
             exception is DioException ||
+            exception is TimeoutException ||
             exception is ResubscriptionRequiredException) {
           return null;
         }

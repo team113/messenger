@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -391,6 +392,14 @@ class CallController extends GetxController {
   /// [Timer]s removing items from the [notifications] after the
   /// [_notificationDuration].
   final List<Timer> _notificationTimers = [];
+
+  /// [ISentrySpan] being a [Sentry] transaction monitoring this
+  /// [CallController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'Ready',
+    'ui.call',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -2072,7 +2081,13 @@ class CallController extends GetxController {
       } else {
         _updateChat(await chatOrFuture);
       }
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+      rethrow;
     } finally {
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
       void onTracksChanged(
         CallMember member,
         ListChangeNotification<Track> track,

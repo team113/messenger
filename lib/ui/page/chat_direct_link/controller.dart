@@ -17,7 +17,9 @@
 
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -40,6 +42,14 @@ class ChatDirectLinkController extends GetxController {
   /// Authorization service used for signing up.
   final AuthService _auth;
 
+  /// [ISentrySpan] being a [Sentry] transaction monitoring this
+  /// [ChatDirectLinkController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'Ready',
+    'ui.direct_link',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
+
   @override
   void onReady() async {
     if (_auth.status.value.isSuccess) {
@@ -50,6 +60,8 @@ class ChatDirectLinkController extends GetxController {
         await _useChatDirectLink();
       }
     }
+
+    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
 
     super.onReady();
   }
