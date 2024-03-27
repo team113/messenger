@@ -130,6 +130,7 @@ class MockGraphQlClient extends GraphQlClient {
   Future<dio.Response<T>> post<T>(
     dynamic data, {
     dio.Options? options,
+    String? operationName,
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
   }) async {

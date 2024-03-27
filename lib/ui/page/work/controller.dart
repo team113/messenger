@@ -15,8 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 export 'view.dart';
 
@@ -24,6 +26,19 @@ export 'view.dart';
 class WorkController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [Sentry] transaction monitoring this [WorkController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.work.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
+
+  @override
+  void onReady() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    super.onReady();
+  }
 
   @override
   void onClose() {

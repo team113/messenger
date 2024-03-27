@@ -17,7 +17,9 @@
 
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -40,15 +42,30 @@ class ChatDirectLinkController extends GetxController {
   /// Authorization service used for signing up.
   final AuthService _auth;
 
+  /// [Sentry] transaction monitoring this [ChatDirectLinkController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.direct_link.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
+
   @override
   void onReady() async {
-    if (_auth.status.value.isSuccess) {
-      await _useChatDirectLink();
-    } else if (_auth.status.value.isEmpty) {
-      await _register();
+    try {
       if (_auth.status.value.isSuccess) {
         await _useChatDirectLink();
+      } else if (_auth.status.value.isEmpty) {
+        await _register();
+        if (_auth.status.value.isSuccess) {
+          await _useChatDirectLink();
+        }
       }
+
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+      rethrow;
     }
 
     super.onReady();
@@ -56,29 +73,46 @@ class ChatDirectLinkController extends GetxController {
 
   /// Creates a new [MyUser].
   Future<void> _register() async {
+    final ISentrySpan span = _ready.startChild('register');
+
     try {
       await _auth.register();
     } catch (e) {
+      span.throwable = e;
+      span.status = const SpanStatus.internalError();
+
       MessagePopup.error(e);
       rethrow;
+    } finally {
+      span.finish();
     }
   }
 
   /// Uses the [slug] and redirects to the fetched [Routes.chats] page on
   /// success.
   Future<void> _useChatDirectLink() async {
+    final ISentrySpan span = _ready.startChild('use');
+
     try {
       ChatId chatId = await _auth.useChatDirectLink(slug.value!);
       router.chat(chatId, link: slug.value);
     } on UseChatDirectLinkException catch (e) {
+      span.throwable = e;
+      span.status = const SpanStatus.internalError();
+
       if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {
         slug.value = null;
       } else {
         MessagePopup.error(e);
       }
     } catch (e) {
+      span.throwable = e;
+      span.status = const SpanStatus.internalError();
+
       MessagePopup.error(e);
       rethrow;
+    } finally {
+      span.finish();
     }
   }
 }

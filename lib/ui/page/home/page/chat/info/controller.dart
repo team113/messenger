@@ -22,6 +22,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
@@ -128,6 +129,13 @@ class ChatInfoController extends GetxController {
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
   bool _scrollIsInvoked = false;
+
+  /// [Sentry] transaction monitoring this [ChatInfoController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.chat_info.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -374,43 +382,63 @@ class ChatInfoController extends GetxController {
   Future<void> _fetchChat() async {
     status.value = RxStatus.loading();
 
-    final FutureOr<RxChat?> fetched = _chatService.get(chatId);
-    chat = fetched is RxChat? ? fetched : await fetched;
+    ISentrySpan span = _ready.startChild('fetch');
 
-    if (chat == null) {
-      status.value = RxStatus.empty();
-    } else {
-      _chatSubscription = chat!.updates.listen((_) {});
+    try {
+      final FutureOr<RxChat?> fetched = _chatService.get(chatId);
+      chat = fetched is RxChat? ? fetched : await fetched;
 
-      name.unchecked = chat!.chat.value.name?.val;
+      if (chat == null) {
+        status.value = RxStatus.empty();
+      } else {
+        _chatSubscription = chat!.updates.listen((_) {});
 
-      _worker = ever(
-        chat!.chat,
-        (Chat chat) {
-          if (!name.focus.hasFocus &&
-              !name.changed.value &&
-              name.editable.value) {
-            name.unchecked = chat.name?.val;
+        name.unchecked = chat!.chat.value.name?.val;
+
+        _worker = ever(
+          chat!.chat,
+          (Chat chat) {
+            if (!name.focus.hasFocus &&
+                !name.changed.value &&
+                name.editable.value) {
+              name.unchecked = chat.name?.val;
+            }
+          },
+        );
+
+        _membersSubscription = chat!.members.items.changes.listen((event) {
+          switch (event.op) {
+            case OperationKind.added:
+            case OperationKind.updated:
+              // No-op.
+              break;
+
+            case OperationKind.removed:
+              _scrollListener();
+              break;
           }
-        },
-      );
+        });
 
-      _membersSubscription = chat!.members.items.changes.listen((event) {
-        switch (event.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            // No-op.
-            break;
+        status.value = RxStatus.success();
 
-          case OperationKind.removed:
-            _scrollListener();
-            break;
-        }
-      });
+        span.finish();
+        span = _ready.startChild('members.around');
 
-      status.value = RxStatus.success();
+        _ready.setTag(
+          'members',
+          '${chat!.members.length >= chat!.members.perPage}',
+        );
 
-      await chat!.members.around();
+        await chat!.members.around();
+
+        span.finish();
+
+        SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+      }
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+      rethrow;
     }
   }
 

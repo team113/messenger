@@ -15,8 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart' show PageController;
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// [StyleView] section.
 enum StyleTab { colors, typography, widgets, icons }
@@ -33,4 +35,17 @@ class StyleController extends GetxController {
 
   /// [PageController] controlling the [PageView] of [StyleView].
   final PageController pages = PageController();
+
+  /// [Sentry] transaction monitoring this [StyleController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.style.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
+
+  @override
+  void onReady() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    super.onReady();
+  }
 }

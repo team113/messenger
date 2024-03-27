@@ -114,7 +114,7 @@ class NotificationService extends DisposableService {
     Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
     Log.debug(
-      'init($language, $firebaseOptions, onResponse, onBackground)',
+      'init($language, firebaseOptions, onResponse, onBackground)',
       '$runtimeType',
     );
 
