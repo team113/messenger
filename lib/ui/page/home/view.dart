@@ -85,8 +85,7 @@ class _HomeViewState extends State<HomeView> {
   /// [ChildBackButtonDispatcher] to get "Back" button in the nested [Router].
   late ChildBackButtonDispatcher _backButtonDispatcher;
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this [HomeView]
-  /// readiness.
+  /// [Sentry] transaction monitoring this [HomeView] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.home.ready',
     'ui',

@@ -134,8 +134,7 @@ class UserController extends GetxController {
   /// Subscription for the [user] changes.
   StreamSubscription? _userSubscription;
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [UserController] readiness.
+  /// [Sentry] transaction monitoring this [UserController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.user.ready',
     'ui',

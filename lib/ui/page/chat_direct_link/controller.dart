@@ -42,8 +42,7 @@ class ChatDirectLinkController extends GetxController {
   /// Authorization service used for signing up.
   final AuthService _auth;
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [ChatDirectLinkController] readiness.
+  /// [Sentry] transaction monitoring this [ChatDirectLinkController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.direct_link.ready',
     'ui',

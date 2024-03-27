@@ -130,8 +130,7 @@ class ChatInfoController extends GetxController {
   /// current frame.
   bool _scrollIsInvoked = false;
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [ChatInfoController] readiness.
+  /// [Sentry] transaction monitoring this [ChatInfoController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.chat_info.ready',
     'ui',

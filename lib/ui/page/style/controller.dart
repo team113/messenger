@@ -36,8 +36,7 @@ class StyleController extends GetxController {
   /// [PageController] controlling the [PageView] of [StyleView].
   final PageController pages = PageController();
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [StyleController] readiness.
+  /// [Sentry] transaction monitoring this [StyleController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.style.ready',
     'ui',

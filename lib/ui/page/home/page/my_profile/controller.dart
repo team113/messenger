@@ -121,8 +121,7 @@ class MyProfileController extends GetxController {
   /// has passed.
   Timer? _highlightTimer;
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [MyProfileController] readiness.
+  /// [Sentry] transaction monitoring this [MyProfileController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.my_profile.ready',
     'ui',

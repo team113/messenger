@@ -393,8 +393,7 @@ class CallController extends GetxController {
   /// [_notificationDuration].
   final List<Timer> _notificationTimers = [];
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [CallController] readiness.
+  /// [Sentry] transaction monitoring this [CallController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.call.ready',
     'ui',

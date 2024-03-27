@@ -353,8 +353,7 @@ class ChatController extends GetxController {
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [ChatController] readiness.
+  /// [Sentry] transaction monitoring this [ChatController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.chat.ready',
     'ui',

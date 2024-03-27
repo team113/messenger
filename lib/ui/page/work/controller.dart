@@ -27,8 +27,7 @@ class WorkController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [WorkController] readiness.
+  /// [Sentry] transaction monitoring this [WorkController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.work.ready',
     'ui',

@@ -40,8 +40,7 @@ class AuthController extends GetxController {
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
-  /// [ISentrySpan] being a [Sentry] transaction monitoring this
-  /// [AuthController] readiness.
+  /// [Sentry] transaction monitoring this [AuthController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.auth.ready',
     'ui',
