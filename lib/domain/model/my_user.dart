@@ -24,6 +24,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'mute_duration.dart';
+import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
 part 'my_user.g.dart';
@@ -48,6 +49,7 @@ class MyUser extends HiveObject {
     required this.presenceIndex,
     required this.online,
     this.muted,
+    this.lastSeenAt,
     this.blocklistCount,
   });
 
@@ -149,6 +151,10 @@ class MyUser extends HiveObject {
   /// Total count of blocked users.
   @HiveField(16)
   int? blocklistCount;
+
+  /// [PreciseDateTime] when this [User] was seen online last time.
+  @HiveField(17)
+  PreciseDateTime? lastSeenAt;
 }
 
 /// List of [UserPhone]s associated with [MyUser].

@@ -38,6 +38,7 @@ import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/active_account.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
@@ -49,17 +50,18 @@ import 'event/my_user.dart';
 import 'model/my_user.dart';
 import 'user.dart';
 
-/// [MyUser] repository.
+/// [MyUser]s repository.
 class MyUserRepository implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._myUserLocal,
     this._blocklistRepo,
     this._userRepo,
+    this._activeAccountLocal,
   );
 
   @override
-  late final Rx<MyUser?> myUser;
+  final Rx<MyUser?> myUser = Rx(null);
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -70,8 +72,11 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [MyUser] local [Hive] storage.
+  /// [MyUser]s local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
+
+  /// [Hive] storage for the currently active [MyUser]'s [UserId].
+  final ActiveAccountHiveProvider _activeAccountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -98,6 +103,20 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// requests should be made.
   bool _disposed = false;
 
+  /// Sets [myUser]'s value if it's `null` and returns the stored value of the
+  /// currently active [MyUser], if any.
+  HiveMyUser? _ensureMyUserSet() {
+    final UserId? myUserId = _activeAccountLocal.userId;
+    final HiveMyUser? model =
+        myUserId != null ? _myUserLocal.get(myUserId) : null;
+
+    if (myUser.value == null && model != null) {
+      myUser.value = model.value;
+    }
+
+    return model;
+  }
+
   @override
   Future<void> init({
     required Function() onUserDeleted,
@@ -108,7 +127,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    myUser = Rx<MyUser?>(_myUserLocal.myUser?.value);
+    _ensureMyUserSet();
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -600,13 +619,15 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
       _myUserRemoteEvents(() {
+        final HiveMyUser? myUserEntity = _ensureMyUserSet();
+
         // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
         // is `null`, to retrieve it.
-        if (_myUserLocal.myUser?.value.blocklistCount == null) {
+        if (myUserEntity?.value.blocklistCount == null) {
           return null;
         }
 
-        return _myUserLocal.myUser?.ver;
+        return myUserEntity?.ver;
       }),
     );
 
@@ -635,21 +656,25 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Saves the provided [user] in [Hive].
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
+    final HiveMyUser? myUserEntity = _ensureMyUserSet();
 
     // Update the stored [MyUser], if the provided [user] has non-`null`
     // blocklist count, which is different from the stored one.
     final bool blocklist = user.value.blocklistCount != null &&
-        user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
+        user.value.blocklistCount != myUserEntity?.value.blocklistCount;
 
-    if (user.ver >= _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
-      user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
-      _myUserLocal.set(user);
+    if (user.ver >= myUserEntity?.ver || blocklist || ignoreVersion) {
+      user.value.blocklistCount ??= myUserEntity?.value.blocklistCount;
+      _myUserLocal.put(user);
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    final HiveMyUser? userEntity = _myUserLocal.myUser;
+    // TODO: Shouldn't be done this way mybe?
+    final HiveMyUser? userEntity = versioned.events.isNotEmpty
+        ? _myUserLocal.get(versioned.events.first.userId)
+        : null;
 
     if (userEntity == null || versioned.ver < userEntity.ver) {
       Log.debug(
@@ -877,7 +902,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    _myUserLocal.set(userEntity);
+    _myUserLocal.put(userEntity);
   }
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].

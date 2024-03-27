@@ -40,7 +40,7 @@ import '/util/web/web_utils.dart';
 /// Authentication service exposing [credentials] of the authenticated session.
 ///
 /// It contains all the required methods to do the authentication process and
-/// exposes [credentials] (a session and an user) of the authorized session.
+/// exposes [credentials] (a session and a user) of the authorized session.
 class AuthService extends GetxService {
   AuthService(this._authRepository, this._credentialsProvider);
 

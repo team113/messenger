@@ -32,10 +32,10 @@ import 'base.dart';
 
 part 'my_user.g.dart';
 
-/// [Hive] storage for [MyUser].
+/// [Hive] storage for [MyUser]s.
 class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   @override
-  Stream<BoxEvent> get boxEvents => box.watch(key: 0);
+  Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
   String get boxName => 'my_user';
@@ -71,13 +71,19 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(UserTextStatusAdapter());
   }
 
+  /// Returns a list of [MyUser]s from [Hive].
+  Iterable<HiveMyUser> get values => valuesSafe;
+
   /// Returns the stored [MyUser] from [Hive].
-  HiveMyUser? get myUser => getSafe(0);
+  HiveMyUser? get(UserId id) {
+    Log.debug('get($id)', '$runtimeType');
+    return getSafe(id);
+  }
 
   /// Saves the provided [MyUser] in [Hive].
-  Future<void> set(HiveMyUser user) async {
+  Future<void> put(HiveMyUser user) {
     Log.debug('set($user)', '$runtimeType');
-    await putSafe(0, user);
+    return putSafe(user.value.id, user);
   }
 }
 

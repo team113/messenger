@@ -43,6 +43,7 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
 import 'provider/gql/graphql.dart';
+import 'provider/hive/active_account.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
@@ -493,6 +494,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
+                deps.put(ActiveAccountHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -588,6 +590,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   blocklistRepository,
                   userRepository,
+                  Get.find(),
                 ),
               );
 
@@ -624,6 +627,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
+              deps.put(ActiveAccountHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -741,6 +745,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
+                Get.find(),
               ),
             );
 

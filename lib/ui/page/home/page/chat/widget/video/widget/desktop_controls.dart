@@ -63,7 +63,7 @@ class DesktopControls extends StatefulWidget {
   /// Reactive indicator of whether this video is in fullscreen mode.
   final RxBool? isFullscreen;
 
-  /// [Duration] to initially show an user interface for.
+  /// [Duration] to initially show a user interface for.
   final Duration? showInterfaceFor;
 
   /// [Size] of the video these [DesktopControls] are used for.
