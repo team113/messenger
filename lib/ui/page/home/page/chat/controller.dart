@@ -436,7 +436,7 @@ class ChatController extends GetxController {
   /// [ChatController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'Ready',
-    'UI.ChatController',
+    'ui.chat',
     autoFinishAfter: const Duration(minutes: 2),
   );
 
@@ -936,31 +936,21 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
-    final Stopwatch watch = Stopwatch()..start();
-
     try {
+      ISentrySpan transaction = _ready.startChild('start');
+
       _ignorePositionChanges = true;
 
       status.value = RxStatus.loading();
       fetchStatus.value = 'Getting chat...';
 
       final FutureOr<RxChat?> fetched = _chatService.get(id);
-
-      _ready.setMeasurement(
-        'duration_start',
-        watch.elapsedMilliseconds,
-        unit: DurationSentryMeasurementUnit.milliSecond,
-      );
-
       chat = fetched is RxChat? ? fetched : await fetched;
 
       fetchStatus.value = 'Getting chat... done';
 
-      _ready.setMeasurement(
-        'duration_get',
-        watch.elapsedMilliseconds,
-        unit: DurationSentryMeasurementUnit.milliSecond,
-      );
+      transaction.finish();
+      transaction = _ready.startChild('get');
 
       if (chat == null) {
         status.value = RxStatus.empty();
@@ -1131,11 +1121,8 @@ class ChatController extends GetxController {
           },
         );
 
-        _ready.setMeasurement(
-          'duration_fetching',
-          watch.elapsedMilliseconds,
-          unit: DurationSentryMeasurementUnit.milliSecond,
-        );
+        transaction.finish();
+        transaction = _ready.startChild('fetch');
 
         _ready.setTag('messages', '${chat!.messages.isNotEmpty}');
         _ready.setTag('local', '${id.isLocal}');
@@ -1169,11 +1156,8 @@ class ChatController extends GetxController {
           fetchStatus.value = 'Fetching around... done';
         }
 
-        _ready.setMeasurement(
-          'duration_around',
-          watch.elapsedMilliseconds,
-          unit: DurationSentryMeasurementUnit.milliSecond,
-        );
+        transaction.finish();
+        transaction = _ready.startChild('around');
 
         if (welcome != null) {
           chat!.addMessage(welcome!);
@@ -1204,15 +1188,11 @@ class ChatController extends GetxController {
 
       _ignorePositionChanges = false;
 
-      _ready.setMeasurement(
-        'duration_finish',
-        watch.elapsedMilliseconds,
-        unit: DurationSentryMeasurementUnit.milliSecond,
-      );
+      transaction.finish();
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _ready.finish();
-        print('[debug] _ready.finish()');
+        print('[debug] finish()');
       });
     } catch (e, stackTrace) {
       _ready.finish(status: const SpanStatus.internalError());

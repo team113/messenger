@@ -41,6 +41,8 @@ import 'package:messenger/util/get.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -77,6 +79,8 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
+  final Stopwatch watch = Stopwatch()..start();
+
   await Config.init();
 
   me.Log.options = me.LogOptions(
@@ -199,6 +203,7 @@ Future<void> main() async {
       options.diagnosticLevel = SentryLevel.info;
       options.enablePrintBreadcrumbs = true;
       options.maxBreadcrumbs = 512;
+      options.autoAppStart = false;
       options.enableTimeToFullDisplayTracing = true;
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
@@ -247,17 +252,29 @@ Future<void> main() async {
                 FlutterError.defaultStackFilter(lines).join('\n')
             ].join('\n'),
           );
+        } else {
+          print('[$level] $message');
         }
       };
     },
     appRunner: appRunner,
   );
 
+  // TODO: Remove, when Sentry supports app start measurement for all platforms.
+  // ignore: invalid_use_of_internal_member
+  NativeAppStartIntegration.setAppStartInfo(
+    AppStartInfo(
+      AppStartType.cold,
+      start: DateTime.now().subtract(watch.elapsed),
+      end: DateTime.now(),
+    ),
+  );
+
   final ISentrySpan firstFrameRasterized = Sentry.startTransaction(
     'Ready',
-    'UI',
+    'ui',
     autoFinishAfter: const Duration(minutes: 5),
-  );
+  )..startChild('ready');
 
   WidgetsBinding.instance.waitUntilFirstFrameRasterized.whenComplete(() {
     firstFrameRasterized.finish();

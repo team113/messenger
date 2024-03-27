@@ -469,11 +469,28 @@ class GraphQlClient {
     );
   }
 
-  Future<T> _transaction<T>(
-    String? operation,
-    Future<T> Function() fn,
-  ) async {
-    return await Log.transaction(operation, 'GraphQL', fn);
+  /// Completes the [fn] wrapped around [Sentry.startTransaction], meaning the
+  /// [fn] will be recorded as a transaction.
+  Future<T> _transaction<T>(String? operation, Future<T> Function() fn) async {
+    if (operation == null || Config.sentryDsn.isEmpty /*|| kDebugMode*/) {
+      return await fn();
+    }
+
+    final ISentrySpan transaction = Sentry.startTransaction(
+      '$operation()',
+      'graphql',
+      autoFinishAfter: const Duration(minutes: 1),
+    )..startChild('query');
+
+    try {
+      return await fn();
+    } catch (e) {
+      transaction.throwable = e;
+      transaction.status = const SpanStatus.internalError();
+      rethrow;
+    } finally {
+      transaction.finish();
+    }
   }
 }
 
