@@ -9,7 +9,32 @@ class EmbossedText extends StatelessWidget {
     this.overflow,
     this.maxLines,
     this.small = false,
-  }) : span = null;
+    this.color,
+    List<Shadow>? shadows,
+  })  : shadows = shadows ??
+            const [
+              Shadow(
+                offset: Offset(1, 1),
+                blurRadius: 3,
+                color: Color.fromRGBO(172, 146, 0, 0.9),
+              ),
+              Shadow(
+                offset: Offset(-1, -1),
+                blurRadius: 2,
+                color: Color.fromRGBO(255, 255, 0, 0.9),
+              ),
+              Shadow(
+                offset: Offset(1, -1),
+                blurRadius: 2,
+                color: Color.fromRGBO(172, 146, 0, 0.2),
+              ),
+              Shadow(
+                offset: Offset(-1, 1),
+                blurRadius: 2,
+                color: Color.fromRGBO(172, 146, 0, 0.2),
+              ),
+            ],
+        span = null;
 
   const EmbossedText.rich(
     InlineSpan this.span, {
@@ -19,6 +44,29 @@ class EmbossedText extends StatelessWidget {
     this.overflow,
     this.maxLines,
     this.small = false,
+    this.color,
+    this.shadows = const [
+      Shadow(
+        offset: Offset(1, 1),
+        blurRadius: 3,
+        color: Color.fromRGBO(172, 146, 0, 0.9),
+      ),
+      Shadow(
+        offset: Offset(-1, -1),
+        blurRadius: 2,
+        color: Color.fromRGBO(255, 255, 0, 0.9),
+      ),
+      Shadow(
+        offset: Offset(1, -1),
+        blurRadius: 2,
+        color: Color.fromRGBO(172, 146, 0, 0.2),
+      ),
+      Shadow(
+        offset: Offset(-1, 1),
+        blurRadius: 2,
+        color: Color.fromRGBO(172, 146, 0, 0.2),
+      ),
+    ],
   }) : text = null;
 
   final TextStyle? style;
@@ -26,6 +74,8 @@ class EmbossedText extends StatelessWidget {
   final TextOverflow? overflow;
   final int? maxLines;
 
+  final List<Shadow> shadows;
+  final Color? color;
   final bool small;
 
   /// Text to be selected.
@@ -67,38 +117,16 @@ class EmbossedText extends StatelessWidget {
     ),
   ];
 
-  static const List<Shadow> shadows = [
-    Shadow(
-      offset: Offset(1, 1),
-      blurRadius: 3,
-      color: Color.fromRGBO(172, 146, 0, 0.9),
-    ),
-    Shadow(
-      offset: Offset(-1, -1),
-      blurRadius: 2,
-      color: Color.fromRGBO(255, 255, 0, 0.9),
-    ),
-    Shadow(
-      offset: Offset(1, -1),
-      blurRadius: 2,
-      color: Color.fromRGBO(172, 146, 0, 0.2),
-    ),
-    Shadow(
-      offset: Offset(-1, 1),
-      blurRadius: 2,
-      color: Color.fromRGBO(172, 146, 0, 0.2),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final textStyle = (style ?? const TextStyle()).copyWith();
 
     final shadows = textStyle.copyWith(
-      color: small
-          ? const Color.fromRGBO(255, 215, 0, 1)
-          : const Color.fromRGBO(243, 205, 1, 1),
-      shadows: small ? EmbossedText.smallShadows : EmbossedText.shadows,
+      color: color ??
+          (small
+              ? const Color.fromRGBO(255, 215, 0, 1)
+              : const Color.fromRGBO(243, 205, 1, 1)),
+      shadows: small ? EmbossedText.smallShadows : this.shadows,
     );
 
     if (span != null) {

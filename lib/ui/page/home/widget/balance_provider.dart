@@ -43,55 +43,37 @@ class BalanceProviderWidget extends StatelessWidget {
     var secondaryStyle = style.fonts.small.regular.secondary;
 
     Widget? subtitle;
-    if (bonus != null) {
-      if (bonus! > 0) {
-        subtitle = Text.rich(
+    subtitle = Text.rich(
+      TextSpan(
+        children: [
           TextSpan(
-            children: [
-              TextSpan(
-                text: 'Пополнить счёт, бонус: ',
-                style: selected
-                    ? style.fonts.small.regular.onPrimary
-                    : style.fonts.small.regular.secondary,
-              ),
-              TextSpan(
-                text: '+$bonus%',
-                style: selected
-                    ? style.fonts.small.regular.onPrimary
-                    : style.fonts.small.regular.secondary
-                        .copyWith(color: style.colors.acceptPrimary),
-              ),
-            ],
+            text: 'Пополнить счёт',
+            style: selected
+                ? style.fonts.small.regular.onPrimary
+                : style.fonts.small.regular.secondary,
           ),
-        );
+          if (bonus != null && bonus != 0) ...[
+            TextSpan(
+              text: ', бонус: ',
+              style: selected
+                  ? style.fonts.small.regular.onPrimary
+                  : style.fonts.small.regular.secondary,
+            ),
+            TextSpan(
+              text: '+$bonus%',
+              style: selected
+                  ? style.fonts.small.regular.onPrimary
+                  : style.fonts.small.regular.secondary
+                      .copyWith(color: style.colors.acceptPrimary),
+            ),
+          ],
+        ],
+      ),
+    );
 
-        secondaryStyle = style.fonts.small.regular.secondary.copyWith(
-          color: style.colors.acceptPrimary,
-        );
-      } else {
-        subtitle = Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Пополнить счёт, комиссия: ',
-                style: selected
-                    ? style.fonts.small.regular.onPrimary
-                    : style.fonts.small.regular.secondary,
-              ),
-              TextSpan(
-                text: '$bonus%',
-                style: selected
-                    ? style.fonts.small.regular.onPrimary
-                    : style.fonts.small.regular.danger,
-              ),
-            ],
-          ),
-        );
-        secondaryStyle = style.fonts.small.regular.secondary.copyWith(
-          color: style.colors.danger,
-        );
-      }
-    }
+    secondaryStyle = style.fonts.small.regular.secondary.copyWith(
+      color: style.colors.acceptPrimary,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),

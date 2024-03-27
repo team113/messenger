@@ -159,8 +159,8 @@ enum BalanceProvider {
   bitcoin,
   paypal,
   card,
-  swift,
   sepa,
+  swift,
 }
 
 enum WidgetsTab {

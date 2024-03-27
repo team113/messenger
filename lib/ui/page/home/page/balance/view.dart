@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,6 +41,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'controller.dart';
 import 'widget/currency_field.dart';
+import 'widget/nominal_card.dart';
 
 class BalanceProviderView extends StatelessWidget {
   const BalanceProviderView({super.key});
@@ -226,6 +229,7 @@ class BalanceProviderView extends StatelessWidget {
                               child: PickVariantButton(
                                 amount: n,
                                 price: '\$${(n / 100).round()}',
+                                bonus: 0,
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
                               ),
@@ -252,6 +256,71 @@ class BalanceProviderView extends StatelessWidget {
                     );
 
                   case BalanceProvider.sepa:
+                    return Block(
+                      margin: EdgeInsets.fromLTRB(
+                        8,
+                        4,
+                        8,
+                        i == BalanceProvider.values.length ? 4 : 32,
+                      ),
+                      title: e.name.toUpperCase(),
+                      highlight: c.highlightIndex.value == i,
+                      children: [
+                        Text(
+                          'label_sepa_transfer_description'.l10n,
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                        const SizedBox(height: 21),
+                        ReactiveTextField(
+                          state: TextFieldState(),
+                          label: 'Имя или название',
+                        ),
+                        const SizedBox(height: 16),
+                        ReactiveTextField(
+                          state: TextFieldState(),
+                          label: 'Адрес',
+                        ),
+                        const SizedBox(height: 16),
+                        ReactiveTextField(
+                          state: TextFieldState(),
+                          label: 'E-mail',
+                        ),
+                        const SizedBox(height: 16),
+                        CurrencyField(
+                          currency: CurrencyKind.eur,
+                          onChanged: (s) => c.sepaPrice.value = s,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Минимум: ${CurrencyKind.eur.toSymbol()}5.00',
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                        const SizedBox(height: 8),
+                        const SizedBox(height: 8),
+                        Obx(() {
+                          final price = c.sepaPrice.value;
+
+                          return _nominal(
+                            context,
+                            price: max(
+                              0,
+                              CurrencyKind.eur.toCoins(price) -
+                                  CurrencyKind.eur.toCoins(5),
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 8),
+                        Obx(() {
+                          final bool enabled = c.sepaPrice >= 5;
+
+                          return PrimaryButton(
+                            title: 'Proceed',
+                            onPressed: enabled ? () {} : null,
+                          );
+                        }),
+                      ],
+                    );
+
                   case BalanceProvider.swift:
                     return Block(
                       margin: EdgeInsets.fromLTRB(
@@ -266,11 +335,6 @@ class BalanceProviderView extends StatelessWidget {
                         if (e == BalanceProvider.swift)
                           Text(
                             'label_swift_transfer_description'.l10n,
-                            style: style.fonts.small.regular.secondary,
-                          )
-                        else
-                          Text(
-                            'label_sepa_transfer_description'.l10n,
                             style: style.fonts.small.regular.secondary,
                           ),
                         const SizedBox(height: 21),
@@ -296,41 +360,33 @@ class BalanceProviderView extends StatelessWidget {
                               onCurrency: (s) => c.swiftCurrency.value = s,
                               onChanged: (s) => c.swiftPrice.value = s,
                             );
-                          })
-                        else
-                          CurrencyField(
-                            currency: CurrencyKind.eur,
-                            onChanged: (s) => c.sepaPrice.value = s,
-                          ),
-                        // MoneyField(
-                        //   state: c.states[i],
-                        //   label: 'Сумма',
-                        //   onChanged: (s) => c.prices[i].value = s,
-                        // ),
+                          }),
                         const SizedBox(height: 8),
-                        Text(
-                          'Минимум: ¤10 000',
-                          style: style.fonts.small.regular.secondary,
-                        ),
+                        Obx(() {
+                          final currency = c.swiftCurrency.value;
+                          final price =
+                              currency.fromCoins(10000).toStringAsFixed(2);
+
+                          return Text(
+                            'Минимум: ${currency.toSymbol()}$price',
+                            style: style.fonts.small.regular.secondary,
+                          );
+                        }),
                         const SizedBox(height: 8),
                         const SizedBox(height: 8),
                         Obx(() {
-                          final currency = e == BalanceProvider.swift
-                              ? c.swiftCurrency.value
-                              : CurrencyKind.eur;
-                          final price = e == BalanceProvider.swift
-                              ? c.swiftPrice.value
-                              : c.sepaPrice.value;
+                          final currency = c.swiftCurrency.value;
+                          final price = c.swiftPrice.value;
 
                           return _nominal(
                             context,
-                            price: currency.toCoins(price),
-                            custom: true,
+                            price: max(0, currency.toCoins(price) - 10000),
                           );
                         }),
                         const SizedBox(height: 8),
                         Obx(() {
-                          final bool enabled = c.prices[i].value >= 10000;
+                          final bool enabled = c.swiftPrice.value >=
+                              c.swiftCurrency.value.fromCoins(10000);
 
                           return PrimaryButton(
                             title: 'Proceed',
@@ -580,45 +636,14 @@ class BalanceProviderView extends StatelessWidget {
   Widget _nominal(
     BuildContext context, {
     int price = 0,
-    bool custom = false,
   }) {
-    final style = Theme.of(context).style;
-
-    final String asset = custom
-        ? 'card_custom'
-        : switch (price) {
-            <= 100 => 'card_100',
-            <= 500 => 'card_500',
-            <= 1000 => 'card_1000',
-            <= 5000 => 'card_5000',
-            <= 10000 => 'card_10000',
-            (_) => 'card_100',
-          };
-
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       switchInCurve: Curves.ease,
-      switchOutCurve: Curves.ease,
-      child: Stack(
-        key: Key(asset),
-        children: [
-          AspectRatio(
-            aspectRatio: 32.27 / 20.26,
-            child: SvgImage.asset('assets/images/$asset.svg'),
-          ),
-          Positioned.fill(
-            child: Center(
-              child: Text(
-                '¤${price.withSpaces(false)}',
-                style: style.fonts.largest.regular.onBackground.copyWith(
-                  color: custom
-                      ? style.colors.onBackground
-                      : style.colors.onPrimary,
-                ),
-              ),
-            ),
-          ),
-        ],
+      switchOutCurve: Curves.linearToEaseOut,
+      child: NominalCard(
+        key: Key(price.toString()),
+        amount: price,
       ),
     );
   }

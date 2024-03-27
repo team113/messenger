@@ -21,6 +21,13 @@ enum CurrencyKind {
       eur => (amount * 100 * 1.08).round(),
     };
   }
+
+  double fromCoins(int amount) {
+    return switch (this) {
+      usd => amount / 100,
+      eur => (amount / 100 / 1.08),
+    };
+  }
 }
 
 /// Reactive stylized [TextField] wrapper.
@@ -75,15 +82,17 @@ class _CurrencyFieldState extends State<CurrencyField> {
       },
       hint: '0',
       prefixIcon: WidgetButton(
-        onPressed: () async {
-          final selected = await const _CountrySelectorNavigator()
-              .show(context, widget.currency);
-          if (selected != null) {
-            widget.onCurrency?.call(selected);
-          }
+        onPressed: widget.onCurrency == null
+            ? null
+            : () async {
+                final selected = await const _CountrySelectorNavigator()
+                    .show(context, widget.currency);
+                if (selected != null) {
+                  widget.onCurrency?.call(selected);
+                }
 
-          state.focus.requestFocus();
-        },
+                state.focus.requestFocus();
+              },
         child: Center(
           widthFactor: 0,
           child: Padding(

@@ -26,7 +26,7 @@ extension FixedDigitsExtension on Text {
   static final RegExp _regex = RegExp(r'\d');
 
   /// Returns a [Text] guaranteed to have fixed width of digits in it.
-  Widget fixedDigits({bool all = false}) {
+  Widget fixedDigits({bool all = false, int? size}) {
     Text copyWith(String string) {
       return Text(
         string,
@@ -46,11 +46,12 @@ extension FixedDigitsExtension on Text {
     }
 
     return Stack(
+      alignment: Alignment.center,
       children: [
         Opacity(
           opacity: 0,
           child: copyWith(
-            all ? '0' * data!.length : data!.replaceAll(_regex, '0'),
+            all ? '0' * (size ?? data!.length) : data!.replaceAll(_regex, '0'),
           ),
         ),
         copyWith(data!),

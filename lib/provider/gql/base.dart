@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
+import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -472,7 +473,7 @@ class GraphQlClient {
   /// Completes the [fn] wrapped around [Sentry.startTransaction], meaning the
   /// [fn] will be recorded as a transaction.
   Future<T> _transaction<T>(String? operation, Future<T> Function() fn) async {
-    if (operation == null || Config.sentryDsn.isEmpty /*|| kDebugMode*/) {
+    if (operation == null || Config.sentryDsn.isEmpty || kDebugMode) {
       return await fn();
     }
 

@@ -106,28 +106,28 @@ class BalanceTabView extends StatelessWidget {
                           return button(
                             asset: SvgIcons.creditCard,
                             title: 'Payment card',
-                            bonus: 5,
+                            bonus: 0,
                           );
 
                         case BalanceProvider.swift:
                           return button(
                             asset: SvgIcons.swift,
                             title: 'SWIFT transfer',
-                            bonus: 2,
+                            bonus: 0,
                           );
 
                         case BalanceProvider.sepa:
                           return button(
                             asset: SvgIcons.sepa,
                             title: 'SEPA transfer',
-                            bonus: 2,
+                            bonus: 0,
                           );
 
                         case BalanceProvider.paypal:
                           return button(
                             asset: SvgIcons.paypal,
                             title: 'PayPal',
-                            bonus: -5,
+                            bonus: 0,
                           );
 
                         case BalanceProvider.bitcoin:

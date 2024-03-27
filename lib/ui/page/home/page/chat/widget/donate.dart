@@ -147,7 +147,7 @@ class DonateWidget extends StatelessWidget {
                                   .copyWith(
                                 fontSize: 32 * (height / _defaultHeight),
                                 // color: font,
-                                color: Color.fromARGB(255, 17, 185, 56),
+                                // color: Color.fromARGB(255, 17, 185, 56),
                               ),
                             ),
                           ),
@@ -155,8 +155,6 @@ class DonateWidget extends StatelessWidget {
                                 style: style.fonts.medium.regular.onBackground
                                     .copyWith(
                                   fontSize: 32 * (height / _defaultHeight),
-                                  // color: font,
-                                  color: Color.fromARGB(255, 17, 185, 56),
                                 ),
                               ),
                         ],
@@ -227,7 +225,11 @@ class DonateWidget extends StatelessWidget {
 }
 
 extension EmbossedDigits on String {
-  List<Widget> embossedDigits({TextStyle? style}) {
+  List<Widget> embossedDigits({
+    TextStyle? style,
+    Color? color,
+    List<Shadow>? shadows,
+  }) {
     final List<Widget> list = [];
     for (int i = length - 1; i >= 0; --i) {
       int j = length - 1 - i;
@@ -240,6 +242,8 @@ extension EmbossedDigits on String {
         EmbossedText(
           this[i],
           style: style,
+          color: color,
+          shadows: shadows,
         ),
       );
     }
