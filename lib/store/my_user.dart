@@ -151,51 +151,36 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> updateUserName(UserName? name) async {
+  Future<void> updateUserName(UserName? name) {
     Log.debug('updateUserName($name)', '$runtimeType');
 
     final UserName? oldName = myUser.value?.name;
 
     myUser.update((u) => u?.name = name);
 
-    try {
-      await _graphQlProvider.updateUserName(name);
-    } catch (_) {
-      myUser.update((u) => u?.name = oldName);
-      rethrow;
-    }
+    return _updateUserName(oldName);
   }
 
   @override
-  Future<void> updateUserStatus(UserTextStatus? status) async {
+  Future<void> updateUserStatus(UserTextStatus? status) {
     Log.debug('updateUserStatus($status)', '$runtimeType');
 
     final UserTextStatus? oldStatus = myUser.value?.status;
 
     myUser.update((u) => u?.status = status);
 
-    try {
-      await _graphQlProvider.updateUserStatus(status);
-    } catch (_) {
-      myUser.update((u) => u?.status = oldStatus);
-      rethrow;
-    }
+    return _updateUserStatus(oldStatus);
   }
 
   @override
-  Future<void> updateUserBio(UserBio? bio) async {
+  Future<void> updateUserBio(UserBio? bio) {
     Log.debug('updateUserBio($bio)', '$runtimeType');
 
     final UserBio? oldBio = myUser.value?.bio;
 
     myUser.update((u) => u?.bio = bio);
 
-    try {
-      await _graphQlProvider.updateUserBio(bio);
-    } catch (_) {
-      myUser.update((u) => u?.bio = oldBio);
-      rethrow;
-    }
+    return _updateUserBio(oldBio);
   }
 
   @override
@@ -211,16 +196,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserPresence(Presence presence) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
 
-    final Presence? oldPresence = myUser.value?.presence;
+    if (myUser.value == null) {
+      return;
+    }
+
+    final Presence oldPresence = myUser.value!.presence;
 
     myUser.update((u) => u?.presence = presence);
 
-    try {
-      await _graphQlProvider.updateUserPresence(presence);
-    } catch (_) {
-      myUser.update((u) => u?.presence = oldPresence!);
-      rethrow;
-    }
+    return _updateUserPresence(oldPresence);
   }
 
   @override
@@ -260,12 +244,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
       myUser.update((u) => u?.emails.unconfirmed = null);
 
-      try {
-        await _graphQlProvider.deleteUserEmail(email);
-      } catch (_) {
-        myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
-        rethrow;
-      }
+      return _updateUnconfirmedEmail(unconfirmed);
     } else {
       int i = myUser.value?.emails.confirmed.indexOf(email) ?? -1;
 
@@ -294,12 +273,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
       myUser.update((u) => u?.phones.unconfirmed = null);
 
-      try {
-        await _graphQlProvider.deleteUserPhone(phone);
-      } catch (_) {
-        myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
-        rethrow;
-      }
+      return _updateUnconfirmedPhone(unconfirmed);
     } else {
       int i = myUser.value?.phones.confirmed.indexOf(phone) ?? -1;
 
@@ -327,12 +301,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser.update((u) => u?.emails.unconfirmed = email);
 
-    try {
-      await _graphQlProvider.addUserEmail(email);
-    } catch (_) {
-      myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
-      rethrow;
-    }
+    return _updateUnconfirmedEmail(unconfirmed);
   }
 
   @override
@@ -343,12 +312,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser.update((u) => u?.phones.unconfirmed = phone);
 
-    try {
-      await _graphQlProvider.addUserPhone(phone);
-    } catch (_) {
-      myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
-      rethrow;
-    }
+    return _updateUnconfirmedPhone(unconfirmed);
   }
 
   @override
@@ -494,9 +458,185 @@ class MyUserRepository implements AbstractMyUserRepository {
     return _toggleMute(muted);
   }
 
+  /// Invokes a [GraphQlProvider.updateUserName] method, updating the
+  /// [MyUser.name].
+  Future<void> _updateUserName(UserName? oldValue) async {
+    UserName? name = myUser.value?.name;
+    await _eventPool.protect(
+      MyUserField.name,
+      () async {
+        try {
+          await _mutation(() => _graphQlProvider.updateUserName(name));
+
+          oldValue = name;
+        } catch (_) {
+          myUser.update((u) => u?.name = oldValue);
+          rethrow;
+        }
+      },
+      repeat: () {
+        if (myUser.value?.name != name) {
+          name = myUser.value?.name;
+
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+
+  /// Invokes a [GraphQlProvider.updateUserStatus] method, updating the
+  /// [MyUser.status].
+  Future<void> _updateUserStatus(UserTextStatus? oldValue) async {
+    UserTextStatus? status = myUser.value?.status;
+    await _eventPool.protect(
+      MyUserField.status,
+      () async {
+        try {
+          await _mutation(() => _graphQlProvider.updateUserStatus(status));
+
+          oldValue = status;
+        } catch (_) {
+          myUser.update((u) => u?.status = oldValue);
+          rethrow;
+        }
+      },
+      repeat: () {
+        if (myUser.value?.status != status) {
+          status = myUser.value?.status;
+
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+
+  /// Invokes a [GraphQlProvider.updateUserBio] method, updating the
+  /// [MyUser.bio].
+  Future<void> _updateUserBio(UserBio? oldValue) async {
+    UserBio? bio = myUser.value?.bio;
+    await _eventPool.protect(
+      MyUserField.bio,
+      () async {
+        try {
+          await _mutation(() => _graphQlProvider.updateUserBio(bio));
+
+          oldValue = bio;
+        } catch (_) {
+          myUser.update((u) => u?.bio = oldValue);
+          rethrow;
+        }
+      },
+      repeat: () {
+        if (myUser.value?.bio != bio) {
+          bio = myUser.value?.bio;
+
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+
+  /// Invokes a [GraphQlProvider.updateUserPresence] method, updating the
+  /// [MyUser.presence].
+  Future<void> _updateUserPresence(Presence oldValue) async {
+    Presence presence = myUser.value!.presence;
+    await _eventPool.protect(
+      MyUserField.presence,
+      () async {
+        try {
+          await _mutation(() => _graphQlProvider.updateUserPresence(presence));
+
+          oldValue = presence;
+        } catch (_) {
+          myUser.update((u) => u?.presence = oldValue);
+          rethrow;
+        }
+      },
+      repeat: () {
+        if (myUser.value?.presence != presence) {
+          presence = myUser.value!.presence;
+
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+
+  /// Invokes a [GraphQlProvider.deleteUserEmail] or
+  /// [GraphQlProvider.addUserEmail] method, updating the [MyUser.emails].
+  Future<void> _updateUnconfirmedEmail(UserEmail? oldValue) async {
+    UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+    await _eventPool.protect(
+      MyUserField.unconfirmedEmail,
+      () async {
+        try {
+          if (oldValue != null) {
+            await _mutation(() => _graphQlProvider.deleteUserEmail(oldValue!));
+          } else if (unconfirmed != null) {
+            await _mutation(() => _graphQlProvider.addUserEmail(unconfirmed!));
+          }
+
+          oldValue = unconfirmed;
+        } catch (_) {
+          myUser.update((u) => u?.emails.unconfirmed = oldValue);
+          rethrow;
+        }
+      },
+      repeat: () {
+        if (myUser.value?.emails.unconfirmed != unconfirmed) {
+          unconfirmed = myUser.value?.emails.unconfirmed;
+
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+
+  /// Invokes a [GraphQlProvider.deleteUserPhone] or
+  /// [GraphQlProvider.addUserPhone] method, updating the [MyUser.phones].
+  Future<void> _updateUnconfirmedPhone(UserPhone? oldValue) async {
+    UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+    await _eventPool.protect(
+      MyUserField.unconfirmedPhone,
+      () async {
+        try {
+          if (oldValue != null) {
+            await _mutation(() => _graphQlProvider.deleteUserPhone(oldValue!));
+          } else if (unconfirmed != null) {
+            await _mutation(() => _graphQlProvider.addUserPhone(unconfirmed!));
+          }
+
+          oldValue = unconfirmed;
+        } catch (_) {
+          myUser.update((u) => u?.phones.unconfirmed = oldValue);
+          rethrow;
+        }
+      },
+      repeat: () {
+        if (myUser.value?.phones.unconfirmed != unconfirmed) {
+          unconfirmed = myUser.value?.phones.unconfirmed;
+
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+
   /// Invokes a [GraphQlProvider.toggleMyUserMute] method, updating the
   /// [MyUser.muted].
-  Future<void> _toggleMute(MuteDuration? rollback) async {
+  Future<void> _toggleMute(MuteDuration? oldValue) async {
     MuteDuration? muted = myUser.value?.muted;
     await _eventPool.protect(
       MyUserField.muted,
@@ -508,10 +648,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         try {
           await _mutation(() => _graphQlProvider.toggleMyUserMute(muting));
 
-          rollback = muted;
+          oldValue = muted;
         } catch (_) {
-          // User [_myUserLocal] as [myUser] already updated in [toggleMute].
-          myUser.update((u) => u?.muted = rollback);
+          myUser.update((u) => u?.muted = oldValue);
           rethrow;
         }
       },
@@ -622,12 +761,33 @@ class MyUserRepository implements AbstractMyUserRepository {
         myUser.value = null;
         _remoteSubscription?.close(immediate: true);
       } else {
+        MyUser? value = event.value?.value;
+
         // Don't update currently updating fields.
+        if (_eventPool.locked(MyUserField.name)) {
+          value?.name = myUser.value?.name;
+        }
+        if (_eventPool.locked(MyUserField.status)) {
+          value?.status = myUser.value?.status;
+        }
+        if (_eventPool.locked(MyUserField.bio)) {
+          value?.bio = myUser.value?.bio;
+        }
+        if (_eventPool.locked(MyUserField.presence)) {
+          value?.presence = myUser.value?.presence ?? value.presence;
+        }
+        if (_eventPool.locked(MyUserField.unconfirmedEmail)) {
+          value?.emails.unconfirmed = myUser.value?.emails.unconfirmed;
+        }
+        if (_eventPool.locked(MyUserField.unconfirmedPhone)) {
+          value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
+        }
         if (_eventPool.locked(MyUserField.muted)) {
-          event.value?.value.muted = myUser.value?.muted;
+          value?.muted = myUser.value?.muted;
         }
 
-        myUser.value = event.value?.value.copyWith();
+        // Copy [event.value] as it always contains the same [MyUser].
+        myUser.value = value?.copyWith();
       }
     }
   }
@@ -1100,4 +1260,10 @@ class MyUserRepository implements AbstractMyUserRepository {
 /// Used to update the [MyUser] fields through [EventPool].
 enum MyUserField {
   muted,
+  name,
+  status,
+  bio,
+  presence,
+  unconfirmedEmail,
+  unconfirmedPhone,
 }
