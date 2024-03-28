@@ -924,13 +924,11 @@ class ChatController extends GetxController {
 
     if (item == null) {
       final Future<Rx<ChatItem>?>? future =
-          chat?.around(item: id, perPage: 1).then((fragment) async {
+          chat?.single(id).then((fragment) async {
         if (fragment != null) {
           await fragment.around();
           _fragments.add(fragment);
-
-          item = fragment.items[id];
-          return item;
+          return fragment.items.values.firstOrNull;
         }
 
         return null;
@@ -1586,9 +1584,8 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        // Single-item fragments should not be used to display messages in
-        // pagination views. They are used to fetch relevant information about
-        // items instead.
+        // Single-item fragments shouldn't be used to display messages in
+        // pagination, as such fragments used only for [RxChat.single]s.
         (e) => e.items.keys.contains(itemId) && e.items.length > 1,
       );
 

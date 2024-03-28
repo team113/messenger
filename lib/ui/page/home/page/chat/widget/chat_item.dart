@@ -327,7 +327,8 @@ class ChatItemWidget extends StatefulWidget {
   }
 }
 
-/// State of a [ChatItemWidget].
+/// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
+/// machinery for a swipe gesture.
 class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
@@ -1058,8 +1059,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             child: Padding(
                               padding: const EdgeInsets.only(left: 4),
                               child: ChatCallWidget(
+                                message,
                                 me: widget.me,
-                                chatCall: message,
                                 getItem: widget.getItem,
                               ),
                             ),
@@ -1216,8 +1217,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       }
     } else if (item is ChatCallQuote) {
       content = ChatCallWidget(
+        item.original as ChatCall?,
         me: widget.me,
-        chatCall: item.original as ChatCall?,
         getItem: widget.getItem,
       );
     } else if (item is ChatInfoQuote) {
@@ -1809,9 +1810,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
 /// [ChatCall] visual representation.
 class ChatCallWidget extends StatefulWidget {
-  const ChatCallWidget({
+  const ChatCallWidget(
+    this.call, {
     super.key,
-    this.chatCall,
     this.getItem,
     required this.me,
   });
@@ -1820,7 +1821,7 @@ class ChatCallWidget extends StatefulWidget {
   final UserId me;
 
   /// [ChatCall] this widget represents.
-  final ChatCall? chatCall;
+  final ChatCall? call;
 
   /// Callback, called when a reactive [ChatItem] with relevant information
   /// about [chatCall] identified by the provided [ChatItemId] is required.
@@ -1830,9 +1831,8 @@ class ChatCallWidget extends StatefulWidget {
   State<ChatCallWidget> createState() => ChatCallWidgetState();
 }
 
-/// [ChatCallWidget]'s state, used to initialize the [FutureOr] with the actual
-/// information about the widget's [ChatCall] and update the widget every second
-/// if it represents an ongoing call.
+/// State of a [ChatCallWidget] maintaining the [FutureOr] retrieving the
+/// [ChatCall] and [Timer] for its periodic updates.
 class ChatCallWidgetState extends State<ChatCallWidget> {
   /// [FutureOr] used in [FutureBuilder].
   FutureOr<Rx<ChatItem>?>? _futureOrCall;
@@ -1842,16 +1842,16 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
   Timer? _ongoingCallTimer;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
 
-    if (widget.getItem != null && widget.chatCall != null) {
-      _futureOrCall = widget.getItem!.call(widget.chatCall!.id);
+    if (widget.getItem != null && widget.call != null) {
+      _futureOrCall = widget.getItem!.call(widget.call!.id);
     }
   }
 
   @override
-  dispose() {
+  void dispose() {
     _ongoingCallTimer?.cancel();
     super.dispose();
   }
@@ -1860,15 +1860,13 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Rx<ChatItem>? initialData =
-        _futureOrCall is Rx<ChatItem>? ? _futureOrCall as Rx<ChatItem>? : null;
-    final Future<Rx<ChatItem>?>? future = _futureOrCall is Rx<ChatItem>?
-        ? null
-        : _futureOrCall as Future<Rx<ChatItem>?>;
-
     return FutureBuilder<Rx<ChatItem>?>(
-      future: future,
-      initialData: initialData,
+      initialData: _futureOrCall is Rx<ChatItem>?
+          ? _futureOrCall as Rx<ChatItem>?
+          : null,
+      future: _futureOrCall is Rx<ChatItem>?
+          ? null
+          : _futureOrCall as Future<Rx<ChatItem>?>,
       builder: (context, snapshot) {
         final ChatCall? call = snapshot.data?.value as ChatCall?;
 
@@ -1888,8 +1886,8 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
           title =
               call.finishReason!.localizedString(call.author.id == widget.me) ??
                   title;
-          isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
-              (call.finishReason == ChatCallFinishReason.unanswered);
+          isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+              call.finishReason == ChatCallFinishReason.unanswered;
 
           if (call.finishedAt != null && call.conversationStartedAt != null) {
             time = call.finishedAt!.val

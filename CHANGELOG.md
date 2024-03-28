@@ -43,7 +43,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Images displayed with vertical gaps on narrow screens. ([#901], [#888])
         - Messages marked as read when gallery is opened. ([#897], [#854])
-        - Calls displaying incorrectly in replies. ([#919], [#455])
+        - Replied calls displaying irrelevant information. ([#919], [#455])
     - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
     - Incoming call notification duplicating. ([#914])
 - Web:
