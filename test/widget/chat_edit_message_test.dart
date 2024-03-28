@@ -368,7 +368,7 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();
-  credentialsProvider.set(
+  credentialsProvider.put(
     Credentials(
       Session(
         const AccessToken('token'),

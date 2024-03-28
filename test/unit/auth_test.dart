@@ -101,7 +101,7 @@ void main() async {
   });
 
   test('AuthService successfully logins with saved session', () async {
-    provider.set(
+    provider.put(
       Credentials(
         Session(
           const AccessToken('token'),

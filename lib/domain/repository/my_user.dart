@@ -25,7 +25,7 @@ import '/domain/model/user.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
-  /// Returns stored [MyUser] value.
+  /// Returns currently active authenticated [MyUser].
   Rx<MyUser?> get myUser;
 
   /// Initializes the repository.

@@ -70,7 +70,7 @@ class VideoView extends StatefulWidget {
   /// Callback, called on the [VideoController] initialization errors.
   final FutureOr<void> Function()? onError;
 
-  /// [Duration] to initially show an user interface for.
+  /// [Duration] to initially show a user interface for.
   final Duration? showInterfaceFor;
 
   @override

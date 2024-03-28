@@ -233,6 +233,7 @@ void main() async {
     myUserProvider,
     blocklistRepository,
     userRepository,
+    Get.find(),
   );
   MyUserService myUserService =
       Get.put(MyUserService(authService, myUserRepository));

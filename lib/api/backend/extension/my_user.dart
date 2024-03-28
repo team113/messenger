@@ -30,12 +30,15 @@ extension MyUserConversion on MyUserMixin {
   MyUser toModel() => MyUser(
         id: id,
         num: this.num,
-        online: online.$$typename == 'UserOnline',
         login: login,
         name: name,
         bio: bio,
         hasPassword: hasPassword,
         unreadChatsCount: unreadChatsCount,
+        online: online.$$typename == 'UserOnline',
+        lastSeenAt: online.$$typename == 'UserOffline'
+            ? (online as UserMixin$Online$UserOffline).lastSeenAt
+            : null,
         chatDirectLink: chatDirectLink != null
             ? ChatDirectLink(
                 slug: chatDirectLink!.slug,
