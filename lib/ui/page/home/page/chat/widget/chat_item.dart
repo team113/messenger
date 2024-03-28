@@ -1824,7 +1824,7 @@ class ChatCallWidget extends StatefulWidget {
   final ChatCall? call;
 
   /// Callback, called when a reactive [ChatItem] with relevant information
-  /// about [chatCall] identified by the provided [ChatItemId] is required.
+  /// about [call] identified by the provided [ChatItemId] is required.
   final FutureOr<Rx<ChatItem>?> Function(ChatItemId itemId)? getItem;
 
   @override
