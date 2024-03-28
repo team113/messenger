@@ -17,32 +17,36 @@
 
 import 'package:mutex/mutex.dart';
 
-/// Helper for managing processed events.
+/// Helper for managing processed [T] objects.
 class EventPool<T> {
   /// [Mutex]es guarding access to the [protect] method.
   final Map<T, Mutex> _mutexes = {};
 
-  /// List of events that have been processed.
+  /// List of [T] events that have been processed.
   final List<Object> _processed = [];
 
-  /// Protects the provided [callback] by a [Mutex] with the provided [tag].
+  /// Executes the provided [callback], locking its execution with the provided
+  /// [tag].
   ///
-  /// Does nothing if [Mutex] is already locked.
+  /// Does nothing, if [tag] is already locked, meaning being executed by
+  /// another [callback].
+  ///
+  /// If [repeat] is provided, then the [callback] will be invoked in loop,
+  /// while [repeat] returns `true`.
   Future<void> protect(
     T tag,
     Future<void> Function() callback, {
-    required bool Function() repeat,
+    bool Function()? repeat,
   }) async {
     if (_mutexes[tag] == null) {
       _mutexes[tag] = Mutex();
     }
 
-    Mutex mutex = _mutexes[tag]!;
-
+    final Mutex mutex = _mutexes[tag]!;
     if (!mutex.isLocked) {
       do {
         await mutex.protect(callback);
-      } while (repeat());
+      } while (repeat?.call() ?? false);
     }
   }
 
@@ -52,6 +56,6 @@ class EventPool<T> {
   /// Indicates whether the provided [event] has been processed.
   bool processed(Object event) => _processed.remove(event);
 
-  /// Indicates whether [Mutex] with the provided [tag] is locked.
+  /// Indicates whether an event with the provided [tag] is being executed.
   bool locked(T tag) => _mutexes[tag]?.isLocked == true;
 }
