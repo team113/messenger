@@ -166,7 +166,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   @override
   void initState() {
     _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
-    _expandedKeys = List.generate(_items.length + 10, (_) => GlobalKey());
+    _expandedKeys = List.generate(_items.length + 1, (_) => GlobalKey());
     super.initState();
   }
 

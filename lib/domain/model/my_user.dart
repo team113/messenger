@@ -149,6 +149,27 @@ class MyUser extends HiveObject {
   /// Total count of blocked users.
   @HiveField(16)
   int? blocklistCount;
+
+  /// Returns a copy of this [MyUser].
+  MyUser copyWith() => MyUser(
+        id: id,
+        num: num,
+        login: login,
+        name: name,
+        bio: bio,
+        hasPassword: hasPassword,
+        emails: emails,
+        phones: phones,
+        chatDirectLink: chatDirectLink,
+        unreadChatsCount: unreadChatsCount,
+        status: status,
+        callCover: callCover,
+        avatar: avatar,
+        presenceIndex: presenceIndex,
+        online: online,
+        muted: muted,
+        blocklistCount: blocklistCount,
+      );
 }
 
 /// List of [UserPhone]s associated with [MyUser].

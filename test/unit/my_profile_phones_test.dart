@@ -284,18 +284,19 @@ void main() async {
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
+    await Future.delayed(Duration.zero);
 
-    expect(
+    await expectLater(
       () async => await myUserService.addUserPhone(UserPhone('+380999999999')),
       throwsA(isA<AddUserPhoneException>()),
     );
 
-    expect(
+    await expectLater(
       () async => await myUserService.resendPhone(),
       throwsA(isA<ResendUserPhoneConfirmationException>()),
     );
 
-    expect(
+    await expectLater(
         () async =>
             await myUserService.confirmPhoneCode(ConfirmationCode('1234')),
         throwsA(isA<ConfirmUserPhoneException>()));
