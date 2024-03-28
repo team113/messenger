@@ -310,6 +310,10 @@ abstract class RxChat implements Comparable<RxChat> {
     ChatItemId? forward,
   });
 
+  /// Fetches a single [ChatItem] in the [Paginated] page identified by the
+  /// provided [id].
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item);
+
   /// Fetches the next [messages] page.
   Future<void> next();
 

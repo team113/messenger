@@ -486,7 +486,10 @@ class HiveRxChat extends RxChat {
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
-    Log.debug('around()', '$runtimeType($id)');
+    Log.debug(
+      'around(item: $item, reply: $reply, forward: $forward)',
+      '$runtimeType($id)',
+    );
 
     // Even if the [item] is within [_local], still create a [MessageFragment],
     // at it handles such cases as well.
@@ -521,6 +524,12 @@ class HiveRxChat extends RxChat {
     Future.delayed(Duration.zero, updateReads);
 
     return null;
+  }
+
+  @override
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async {
+    Log.debug('single($item)', '$runtimeType($id)');
+    return await _paginateAround(item, perPage: 1);
   }
 
   @override
@@ -1143,6 +1152,7 @@ class HiveRxChat extends RxChat {
     ChatItemId item, {
     ChatItemId? reply,
     ChatItemId? forward,
+    int perPage = 50,
   }) async {
     Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
@@ -1187,7 +1197,9 @@ class HiveRxChat extends RxChat {
 
     // Try to find any [MessagesPaginated] already containing the item requested.
     MessagesPaginated? fragment = _fragments.firstWhereOrNull(
-      (e) => e.items[key] != null,
+      // Single-item fragments shouldn't be used to display messages in
+      // pagination, as such fragments used only for [single]s.
+      (e) => e.items[key] != null && e.items.length > 1,
     );
 
     // If found, then return it, or otherwise construct a new one.
@@ -1216,6 +1228,7 @@ class HiveRxChat extends RxChat {
         pagination: Pagination(
           onKey: (e) => e.value.id,
           provider: _provider,
+          perPage: perPage,
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
         onDispose: () {
