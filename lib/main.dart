@@ -44,11 +44,13 @@ import 'api/backend/schema.dart';
 import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/session.dart';
+import 'domain/model/user.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/active_account.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
@@ -107,10 +109,16 @@ Future<void> main() async {
     }
 
     final graphQlProvider = Get.put(GraphQlProvider());
+    Get.put(ActiveAccountHiveProvider());
 
-    Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    final authService =
-        Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
+    // TODO: А почему тут так? Разные инстансы кладутся в локатор и в зависимости сервиса?
+    final authRepo =
+        Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
+    final authService = Get.put(AuthService(
+      authRepo,
+      Get.find(),
+      Get.find(),
+    ));
     router = RouterState(authService);
 
     authService.init();
@@ -216,6 +224,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     if (await callKeep.hasPhoneAccount()) {
       SharedPreferences? prefs;
       CredentialsHiveProvider? credentialsProvider;
+      ActiveAccountHiveProvider? activeAccountProvider;
       GraphQlProvider? provider;
       StreamSubscription? subscription;
 
@@ -257,10 +266,16 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         await Config.init();
         await Hive.initFlutter('hive');
         credentialsProvider = CredentialsHiveProvider();
-
+        activeAccountProvider = ActiveAccountHiveProvider();
         await credentialsProvider.init();
-        final Credentials? credentials = credentialsProvider.get();
+        await activeAccountProvider.init();
+
+        final UserId? lastUserId = activeAccountProvider.userId;
+        final Credentials? credentials =
+            lastUserId != null ? credentialsProvider.get(lastUserId) : null;
+
         await credentialsProvider.close();
+        await activeAccountProvider.close();
 
         if (credentials != null) {
           provider = GraphQlProvider();
@@ -373,6 +388,7 @@ Future<void> _initHive() async {
   }
 
   await Get.put(CredentialsHiveProvider()).init();
+  await Get.put(ActiveAccountHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {

@@ -77,13 +77,19 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   /// Returns the stored [MyUser] from [Hive].
   HiveMyUser? get(UserId id) {
     Log.debug('get($id)', '$runtimeType');
-    return getSafe(id);
+    return getSafe(id.val);
   }
 
   /// Saves the provided [MyUser] in [Hive].
   Future<void> put(HiveMyUser user) {
     Log.debug('set($user)', '$runtimeType');
-    return putSafe(user.value.id, user);
+    return putSafe(user.value.id.val, user);
+  }
+
+  /// Removes an [MyUser] from [Hive] by its [id].
+  Future<void> remove(UserId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
   }
 }
 

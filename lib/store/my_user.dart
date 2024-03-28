@@ -666,6 +666,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     if (user.ver >= myUserEntity?.ver || blocklist || ignoreVersion) {
       user.value.blocklistCount ??= myUserEntity?.value.blocklistCount;
       _myUserLocal.put(user);
+      _activeAccountLocal.set(user.value.id);
     }
   }
 

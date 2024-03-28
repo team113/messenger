@@ -27,7 +27,7 @@ import 'base.dart';
 /// [Hive] storage for a [Credentials].
 class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
   @override
-  Stream<BoxEvent> get boxEvents => box.watch(key: 0);
+  Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
   String get boxName => 'credentials';
@@ -46,14 +46,20 @@ class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
   }
 
   /// Returns the stored [Credentials] from [Hive].
-  Credentials? get() {
+  Credentials? get(UserId id) {
     Log.debug('getCredentials()', '$runtimeType');
-    return getSafe(0);
+    return getSafe(id.val);
   }
 
   /// Stores new [Credentials] to [Hive].
-  Future<void> set(Credentials credentials) async {
+  Future<void> put(Credentials credentials) async {
     Log.debug('setCredentials($credentials)', '$runtimeType');
-    await putSafe(0, credentials);
+    await putSafe(credentials.userId.val, credentials);
+  }
+
+  /// Removes an [Credentials] from [Hive] by its [id].
+  Future<void> remove(UserId id) async {
+    Log.debug('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
   }
 }

@@ -494,7 +494,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               await Future.wait([
                 deps.put(MyUserHiveProvider()).init(userId: me),
-                deps.put(ActiveAccountHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -627,7 +626,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             await Future.wait([
               deps.put(MyUserHiveProvider()).init(userId: me),
-              deps.put(ActiveAccountHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),

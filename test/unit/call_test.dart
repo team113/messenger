@@ -159,7 +159,7 @@ void main() async {
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
-    credentialsProvider.set(
+    credentialsProvider.put(
       Credentials(
         Session(
           const AccessToken('token'),
