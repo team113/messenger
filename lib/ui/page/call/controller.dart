@@ -573,6 +573,7 @@ class CallController extends GetxController {
 
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
+  String get _connectedCall => 'connected.wav';
 
   /// Returns the name of a reconnect sound asset.
   String get _reconnect => 'reconnect.mp3';
@@ -892,6 +893,7 @@ class CallController extends GetxController {
     }
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
+    _membersConnected.forEach((_, v) => v.dispose());
     _membersSubscription.cancel();
 
     for (final Timer e in _notificationTimers) {
@@ -2081,6 +2083,8 @@ class CallController extends GetxController {
     return false;
   }
 
+  final Map<CallMemberId, Worker> _membersConnected = {};
+
   /// Ensures [OngoingCall.outputDevice] is not an earpiece, if [videoState] is
   /// enabled.
   ///
@@ -2144,6 +2148,19 @@ class CallController extends GetxController {
             MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
       );
 
+      members.forEach((key, value) {
+        _membersConnected[key] ??= ever(
+          value.isConnected,
+          (v) {
+            final bool isActiveCall =
+                _currentCall.value.state.value == OngoingCallState.active;
+            if (v && isActiveCall) {
+              AudioUtils.once(AudioSource.asset('audio/$_connectedCall'));
+            }
+          },
+        );
+      });
+
       _membersSubscription = _currentCall.value.members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
@@ -2154,6 +2171,26 @@ class CallController extends GetxController {
             );
 
             _ensureCorrectGrouping();
+
+            final bool wasConnected = e.value?.isConnected.value ?? false;
+            if (wasConnected) {
+              final bool isActiveCall =
+                  _currentCall.value.state.value == OngoingCallState.active;
+              if (isActiveCall) {
+                AudioUtils.once(AudioSource.asset('audio/$_connectedCall'));
+              }
+            } else {
+              _membersConnected[e.key!] ??= ever(
+                e.value!.isConnected,
+                (v) {
+                  final bool isActiveCall =
+                      _currentCall.value.state.value == OngoingCallState.active;
+                  if (v && isActiveCall) {
+                    AudioUtils.once(AudioSource.asset('audio/$_connectedCall'));
+                  }
+                },
+              );
+            }
             break;
 
           case OperationKind.removed:
@@ -2163,6 +2200,7 @@ class CallController extends GetxController {
             focused.removeWhere((m) => m.member.id == e.key);
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _membersConnected.remove(e.key)?.dispose();
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();

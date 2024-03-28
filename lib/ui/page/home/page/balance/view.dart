@@ -40,8 +40,10 @@ import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import 'controller.dart';
+import 'widget/buy_button.dart';
 import 'widget/currency_field.dart';
 import 'widget/nominal_card.dart';
+import 'widget/pick_variant.dart';
 
 class BalanceProviderView extends StatelessWidget {
   const BalanceProviderView({super.key});
@@ -133,7 +135,7 @@ class BalanceProviderView extends StatelessWidget {
                       highlight: c.highlightIndex.value == i,
                       children: [
                         const SizedBox(height: 8),
-                        _card(
+                        Container(
                           width: 96,
                           padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                           child: const SvgImage.asset(
@@ -152,7 +154,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: '\$${(n / 100).round()}',
+                                price: '\$${(n / 100).round().withSpaces()}',
                                 bonus: 0,
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
@@ -162,18 +164,16 @@ class BalanceProviderView extends StatelessWidget {
                         }),
                         const SizedBox(height: 16),
                         Obx(() {
-                          return _nominal(context,
-                              price: nominals
-                                      .elementAtOrNull(c.nominal[e]!.value) ??
-                                  nominals.first);
+                          return _nominal(
+                            context,
+                            c,
+                            price:
+                                nominals.elementAtOrNull(c.nominal[e]!.value) ??
+                                    nominals.first,
+                          );
                         }),
                         const SizedBox(height: 16),
-                        _paypal(
-                          context,
-                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
-                                  nominals.first) /
-                              100,
-                        ),
+                        BuyButton(onPressed: () {}),
                       ],
                     );
 
@@ -200,19 +200,17 @@ class BalanceProviderView extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              _card(
-                                padding:
-                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                              Container(
                                 child: const SvgImage.asset(
                                   'assets/images/visa.svg',
-                                  height: 32,
+                                  height: 21,
                                 ),
                               ),
-                              const SizedBox(width: 4),
-                              _card(
+                              const SizedBox(width: 16),
+                              Container(
                                 child: const SvgImage.asset(
                                   'assets/images/mastercard.svg',
-                                  height: 36,
+                                  height: 38,
                                 ),
                               ),
                             ],
@@ -228,7 +226,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: '\$${(n / 100).round()}',
+                                price: '\$${(n / 100).round().withSpaces()}',
                                 bonus: 0,
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
@@ -240,18 +238,14 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           return _nominal(
                             context,
+                            c,
                             price:
                                 nominals.elementAtOrNull(c.nominal[e]!.value) ??
                                     nominals.first,
                           );
                         }),
                         const SizedBox(height: 16),
-                        _paymentCard(
-                          context,
-                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
-                                  nominals.first) /
-                              100,
-                        ),
+                        BuyButton(onPressed: () {}),
                       ],
                     );
 
@@ -263,9 +257,21 @@ class BalanceProviderView extends StatelessWidget {
                         8,
                         i == BalanceProvider.values.length ? 4 : 32,
                       ),
-                      title: e.name.toUpperCase(),
+                      // title: e.name.toUpperCase(),
                       highlight: c.highlightIndex.value == i,
                       children: [
+                        // const SizedBox(height: 8),
+                        Center(
+                          child: Container(
+                            width: 96,
+                            padding: const EdgeInsets.fromLTRB(0, 9, 0, 9),
+                            child: const SvgImage.asset(
+                              'assets/images/sepa.svg',
+                              height: 26,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         Text(
                           'label_sepa_transfer_description'.l10n,
                           style: style.fonts.small.regular.secondary,
@@ -302,6 +308,7 @@ class BalanceProviderView extends StatelessWidget {
 
                           return _nominal(
                             context,
+                            c,
                             price: max(
                               0,
                               CurrencyKind.eur.toCoins(price) -
@@ -313,10 +320,7 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           final bool enabled = c.sepaPrice >= 5;
 
-                          return PrimaryButton(
-                            title: 'Proceed',
-                            onPressed: enabled ? () {} : null,
-                          );
+                          return BuyButton(onPressed: enabled ? () {} : null);
                         }),
                       ],
                     );
@@ -329,14 +333,26 @@ class BalanceProviderView extends StatelessWidget {
                         8,
                         i == BalanceProvider.values.length ? 4 : 32,
                       ),
-                      title: e.name.toUpperCase(),
+                      // title: e.name.toUpperCase(),
                       highlight: c.highlightIndex.value == i,
                       children: [
-                        if (e == BalanceProvider.swift)
-                          Text(
-                            'label_swift_transfer_description'.l10n,
-                            style: style.fonts.small.regular.secondary,
+                        // const SizedBox(height: 8),
+                        Center(
+                          child: Container(
+                            width: 96,
+                            // height: 64,
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                            child: const SvgImage.asset(
+                              'assets/images/swift.svg',
+                              height: 36,
+                            ),
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'label_swift_transfer_description'.l10n,
+                          style: style.fonts.small.regular.secondary,
+                        ),
                         const SizedBox(height: 21),
                         ReactiveTextField(
                           state: TextFieldState(),
@@ -380,6 +396,7 @@ class BalanceProviderView extends StatelessWidget {
 
                           return _nominal(
                             context,
+                            c,
                             price: max(0, currency.toCoins(price) - 10000),
                           );
                         }),
@@ -388,10 +405,7 @@ class BalanceProviderView extends StatelessWidget {
                           final bool enabled = c.swiftPrice.value >=
                               c.swiftCurrency.value.fromCoins(10000);
 
-                          return PrimaryButton(
-                            title: 'Proceed',
-                            onPressed: enabled ? () {} : null,
-                          );
+                          return BuyButton(onPressed: enabled ? () {} : null);
                         }),
                       ],
                     );
@@ -410,9 +424,20 @@ class BalanceProviderView extends StatelessWidget {
                       highlight: c.highlightIndex.value == i,
                       children: [
                         const SizedBox(height: 8),
-                        Text(
-                          'Bitcoin',
-                          style: style.fonts.big.regular.onBackground,
+                        // Text(
+                        //   'Bitcoin',
+                        //   style: style.fonts.big.regular.onBackground,
+                        // ),
+                        // const SizedBox(height: 8),
+                        Center(
+                          child: Container(
+                            width: 96,
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: const SvgImage.asset(
+                              'assets/images/bitcoin.svg',
+                              height: 21,
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 16),
                         ...nominals.mapIndexed((i, n) {
@@ -435,19 +460,14 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           return _nominal(
                             context,
+                            c,
                             price:
                                 nominals.elementAtOrNull(c.nominal[e]!.value) ??
                                     nominals.first,
                           );
                         }),
                         const SizedBox(height: 16),
-                        _bitcoin(
-                          context,
-                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
-                                  nominals.first) /
-                              100 *
-                              0.000014,
-                        ),
+                        BuyButton(onPressed: () {}),
                       ],
                     );
 
@@ -466,8 +486,33 @@ class BalanceProviderView extends StatelessWidget {
                       children: [
                         const SizedBox(height: 8),
                         Text(
-                          'USDT',
+                          'USDT - TRC20',
                           style: style.fonts.big.regular.onBackground,
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 96,
+                                padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                child: const SvgImage.asset(
+                                  'assets/images/tether.svg',
+                                  height: 32,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Container(
+                                width: 84,
+                                padding: const EdgeInsets.fromLTRB(0, 6, 0, 6),
+                                child: const SvgImage.asset(
+                                  'assets/images/tron.svg',
+                                  height: 28,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 16),
                         ...nominals.mapIndexed((i, n) {
@@ -490,18 +535,14 @@ class BalanceProviderView extends StatelessWidget {
                         Obx(() {
                           return _nominal(
                             context,
+                            c,
                             price:
                                 nominals.elementAtOrNull(c.nominal[e]!.value) ??
                                     nominals.first,
                           );
                         }),
                         const SizedBox(height: 16),
-                        _usdt(
-                          context,
-                          (nominals.elementAtOrNull(c.nominal[e]!.value) ??
-                                  nominals.first) /
-                              100,
-                        ),
+                        BuyButton(onPressed: () {}),
                       ],
                     );
                 }
@@ -617,13 +658,13 @@ class BalanceProviderView extends StatelessWidget {
 
   Widget _card({
     double width = 64,
+    double height = 36,
     required Widget child,
     EdgeInsets padding = const EdgeInsets.fromLTRB(0, 1, 0, 1),
   }) {
     return Container(
       width: width,
-      // constraints: BoxConstraints(minWidth: 64),
-      height: 36,
+      height: height,
       padding: padding,
       decoration: BoxDecoration(
         color: const Color(0xFFF0F0F0),
@@ -634,7 +675,8 @@ class BalanceProviderView extends StatelessWidget {
   }
 
   Widget _nominal(
-    BuildContext context, {
+    BuildContext context,
+    BalanceProviderController c, {
     int price = 0,
   }) {
     return AnimatedSwitcher(
@@ -642,8 +684,9 @@ class BalanceProviderView extends StatelessWidget {
       switchInCurve: Curves.ease,
       switchOutCurve: Curves.linearToEaseOut,
       child: NominalCard(
-        key: Key(price.toString()),
+        key: Key(NominalCard.assetFor(price)),
         amount: price,
+        num: c.myUser.value?.num,
       ),
     );
   }
@@ -744,136 +787,6 @@ class BalanceProviderView extends StatelessWidget {
       ],
     );
   }
-
-  Widget _paypal(BuildContext context, double price) {
-    final style = Theme.of(context).style;
-
-    return WidgetButton(
-      onPressed: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAC335),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Buy with ',
-                style: style.fonts.small.regular.onBackground,
-              ),
-              TextSpan(
-                text: 'Pay',
-                style: style.fonts.medium.regular.onBackground.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF164EA1),
-                ),
-              ),
-              TextSpan(
-                text: 'Pal',
-                style: style.fonts.medium.regular.onBackground.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF5A9CFF),
-                ),
-              ),
-              TextSpan(
-                text: ' for \$${price.round()}',
-                style: style.fonts.small.regular.onBackground,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _paymentCard(BuildContext context, double price) {
-    final style = Theme.of(context).style;
-
-    return WidgetButton(
-      onPressed: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          color: style.colors.primary,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Buy with payment card',
-                style: style.fonts.small.regular.onPrimary,
-              ),
-              TextSpan(
-                text: ' for \$${price.round()}',
-                style: style.fonts.small.regular.onPrimary,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _usdt(BuildContext context, double price) {
-    final style = Theme.of(context).style;
-
-    return WidgetButton(
-      onPressed: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          color: style.colors.primary,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Buy',
-                style: style.fonts.small.regular.onPrimary,
-              ),
-              TextSpan(
-                text: ' for ${price.round()} USDT',
-                style: style.fonts.small.regular.onPrimary,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _bitcoin(BuildContext context, double price) {
-    final style = Theme.of(context).style;
-
-    return WidgetButton(
-      onPressed: () {},
-      child: Container(
-        decoration: BoxDecoration(
-          color: style.colors.primary,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-        child: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'Buy with Bitcoin',
-                style: style.fonts.small.regular.onPrimary,
-              ),
-              TextSpan(
-                text: ' for ${price} BTC',
-                style: style.fonts.small.regular.onPrimary,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 extension on num {
@@ -883,120 +796,5 @@ extension on num {
     }
 
     return NumberFormat('#,##0.00').format(this);
-  }
-}
-
-class PickVariantButton extends StatelessWidget {
-  const PickVariantButton({
-    super.key,
-    required this.price,
-    this.amount = 0,
-    this.onPressed,
-    this.selected = false,
-    this.bonus = 0.05,
-  });
-
-  final String price;
-  final num amount;
-  final void Function()? onPressed;
-  final bool selected;
-  final double bonus;
-
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        height: 73, //dense ? 54 : 73,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            border: style.cardBorder,
-            color: style.colors.transparent,
-          ),
-          child: Material(
-            type: MaterialType.card,
-            borderRadius: style.cardRadius,
-            color: selected ? style.colors.primary : style.cardColor,
-            child: InkWell(
-              borderRadius: style.cardRadius,
-              onTap: onPressed,
-              hoverColor:
-                  selected ? style.colors.primary : style.cardHoveredColor,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 6.5),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '¤$amount',
-                                  style: selected
-                                      ? style.fonts.big.regular.onPrimary
-                                      : style.fonts.big.regular.onBackground
-                                          .copyWith(
-                                          color: style.colors.acceptPrimary,
-                                        ),
-                                ),
-                                TextSpan(
-                                  text: ' for ',
-                                  style: selected
-                                      ? style.fonts.big.regular.onPrimary
-                                      : style.fonts.big.regular.secondary,
-                                ),
-                                TextSpan(
-                                  text: price,
-                                  style: selected
-                                      ? style.fonts.big.regular.onPrimary
-                                      : style.fonts.big.regular.onBackground,
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (bonus != 0) ...[
-                            const SizedBox(height: 3),
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Bonus: ',
-                                    style: selected
-                                        ? style.fonts.small.regular.onPrimary
-                                        : style.fonts.small.regular.secondary,
-                                  ),
-                                  TextSpan(
-                                    text: '¤${(amount * bonus).round()}',
-                                    style: selected
-                                        ? style.fonts.small.regular.onPrimary
-                                        : style.fonts.small.regular.onBackground
-                                            .copyWith(
-                                            color: style.colors.acceptPrimary,
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    SelectedDot(size: 21, selected: selected),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

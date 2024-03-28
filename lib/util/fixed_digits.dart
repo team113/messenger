@@ -19,6 +19,7 @@
 //       is fixed:
 //       https://github.com/flutter/flutter/issues/118485
 import 'package:flutter/widgets.dart';
+import 'package:messenger/ui/page/home/page/chat/widget/embossed_text.dart';
 
 /// Extension adding a fixed-length digits [Text] transformer.
 extension FixedDigitsExtension on Text {
@@ -55,6 +56,40 @@ extension FixedDigitsExtension on Text {
           ),
         ),
         copyWith(data!),
+      ],
+    );
+  }
+}
+
+extension FixedDigitsExtension2 on EmbossedText {
+  /// [RegExp] detecting numbers.
+  static final RegExp _regex = RegExp(r'\d');
+
+  /// Returns a [Text] guaranteed to have fixed width of digits in it.
+  Widget fixedDigits({bool all = false, int? size}) {
+    EmbossedText copyWith(String string) {
+      return EmbossedText(
+        string,
+        style: style,
+        textAlign: textAlign,
+        overflow: overflow,
+        maxLines: maxLines,
+        small: small,
+        color: color,
+        shadows: shadows,
+      );
+    }
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Opacity(
+          opacity: 0,
+          child: copyWith(
+            all ? '0' * (size ?? text!.length) : text!.replaceAll(_regex, '0'),
+          ),
+        ),
+        copyWith(text!),
       ],
     );
   }

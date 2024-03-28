@@ -140,7 +140,7 @@ class BalanceTabView extends StatelessWidget {
                         case BalanceProvider.usdt:
                           return button(
                             asset: SvgIcons.usdt,
-                            title: 'USDT',
+                            title: 'USDT - TRC20',
                             bonus: 5,
                           );
 
