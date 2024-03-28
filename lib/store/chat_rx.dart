@@ -853,17 +853,23 @@ class HiveRxChat extends RxChat {
       // Retrieve all the [HiveChatItem]s to put them in the [newChat].
       final Iterable<HiveChatItem> saved = await _local.values;
 
-      // Clear and close the current [ChatItemHiveProvider].
-      await clear();
+      final local = ChatItemHiveProvider(id);
+      await local.init(userId: me);
+
+      final sorting = ChatItemSortingHiveProvider(id);
+      await sorting.init(userId: me);
+
+      // Clear and close the current [Hive] providers.
+      await _local.clear();
+      await _sorting.clear();
       _local.close();
       _sorting.close();
 
-      _local = ChatItemHiveProvider(id);
-      await _local.init(userId: me);
-      _provider.hive = _local;
+      await clear();
 
-      _sorting = ChatItemSortingHiveProvider(id);
-      await _sorting.init(userId: me);
+      _local = local;
+      _sorting = sorting;
+      _provider.hive = _local;
 
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
@@ -877,7 +883,7 @@ class HiveRxChat extends RxChat {
         put(copy, ignoreBounds: true);
       }
 
-      _pagination.around();
+      await _pagination.around();
     }
   }
 
@@ -986,6 +992,19 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.firstItem != firstItem) {
               chatEntity.value.firstItem = firstItem;
               _chatLocal.put(chatEntity);
+            }
+          }
+
+          // If [Chat.lastItem] has changed during the query then set
+          // [PageInfo.hasNext] to `true`.
+          if (page.info.hasNext == false &&
+              page.edges.isNotEmpty &&
+              chat.value.lastItem != null &&
+              page.edges.last.value.at.isBefore(chat.value.lastItem!.at)) {
+            if (_provider.graphQlProvider.reversed) {
+              reversed.info.hasPrevious = true;
+            } else {
+              reversed.info.hasNext = true;
             }
           }
 
