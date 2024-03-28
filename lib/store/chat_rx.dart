@@ -877,7 +877,7 @@ class HiveRxChat extends RxChat {
         put(copy, ignoreBounds: true);
       }
 
-      _pagination.around();
+      await _pagination.around();
     }
   }
 
@@ -986,6 +986,19 @@ class HiveRxChat extends RxChat {
                 chatEntity.value.firstItem != firstItem) {
               chatEntity.value.firstItem = firstItem;
               _chatLocal.put(chatEntity);
+            }
+          }
+
+          // If [Chat.lastItem] has changed during the query then set
+          // [PageInfo.hasNext] to `true`.
+          if (page.info.hasNext == false &&
+              page.edges.isNotEmpty &&
+              chat.value.lastItem != null &&
+              page.edges.last.value.at.isBefore(chat.value.lastItem!.at)) {
+            if (_provider.graphQlProvider.reversed) {
+              reversed.info.hasPrevious = true;
+            } else {
+              reversed.info.hasNext = true;
             }
           }
 

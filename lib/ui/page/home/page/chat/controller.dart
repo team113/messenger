@@ -1797,6 +1797,7 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             _remove(e.element.value);
+            _ensureScrollable();
             break;
         }
       });
@@ -1810,6 +1811,7 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             _remove(e.value!.value);
+            _ensureScrollable();
             break;
         }
       });
