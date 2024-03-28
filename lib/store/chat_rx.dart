@@ -853,17 +853,23 @@ class HiveRxChat extends RxChat {
       // Retrieve all the [HiveChatItem]s to put them in the [newChat].
       final Iterable<HiveChatItem> saved = await _local.values;
 
-      // Clear and close the current [ChatItemHiveProvider].
-      await clear();
+      final local = ChatItemHiveProvider(id);
+      await local.init(userId: me);
+
+      final sorting = ChatItemSortingHiveProvider(id);
+      await sorting.init(userId: me);
+
+      // Clear and close the current [Hive] providers.
+      await _local.clear();
+      await _sorting.clear();
       _local.close();
       _sorting.close();
 
-      _local = ChatItemHiveProvider(id);
-      await _local.init(userId: me);
-      _provider.hive = _local;
+      await clear();
 
-      _sorting = ChatItemSortingHiveProvider(id);
-      await _sorting.init(userId: me);
+      _local = local;
+      _sorting = sorting;
+      _provider.hive = _local;
 
       for (var e in saved.whereType<HiveChatMessage>()) {
         // Copy the [HiveChatMessage] to the new [ChatItemHiveProvider].
