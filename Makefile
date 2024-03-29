@@ -917,7 +917,7 @@ sentry.upload:
 ##################
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
-        appcast.xml \
+        appcast.index appcast.item appcast.xml \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
