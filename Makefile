@@ -326,11 +326,37 @@ endif
 appcast-xml-ver = $(shell git describe --tags --dirty --match "v*" --always)
 
 appcast.xml:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(appcast-xml-ver)</title><description>$(notes)</description><pubDate>$(shell date -R)</pubDate>$(call appcast.xml.release,"macos","messenger-macos.zip")$(call appcast.xml.release,"windows","messenger-windows.zip")$(call appcast.xml.release,"linux","messenger-linux.zip")$(call appcast.xml.release,"android","messenger-android.zip")$(call appcast.xml.release,"ios","messenger-ios.zip")</item></channel></rss>" \
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(shell make appcast.item version=$(appcast-xml-ver) notes=$(notes) link=$(link))</channel></rss>" \
 	> $(or $(out),appcast.xml)
-define appcast.xml.release
+
+
+# Echo single item entry in Sparkle Appcast XML format.
+#
+# Usage:
+#	make appcast.item version=<version> notes-ru-ru=(<notes-ru>|<notes>) notes-en-us=(<notes-ru>|<notes>) link=<artifacts-url>
+
+# TODO: Use `$(call rwildcard,,*.dart)` to find every language!!!
+appcast-notes-en-us = $(or $(notes-en-us),$(notes),$(shell cat release_notes/en-US.md))
+appcast-notes-ru-ru = $(or $(notes-ru-ru),$(notes),$(shell cat release_notes/ru-RU.md))
+
+appcast.item:
+	@echo "<item><title>$(version)</title><description xml:lang=\"en-US\"><![CDATA[$(appcast-notes-en-us)]]></description><description xml:lang=\"ru-RU\"><![CDATA[$(appcast-notes-ru-ru)]]></description><pubDate>$(shell date -R)</pubDate>$(call appcast.item.release,"macos","messenger-macos.zip")$(call appcast.item.release,"windows","messenger-windows.zip")$(call appcast.item.release,"linux","messenger-linux.zip")$(call appcast.item.release,"android","messenger-android.zip")$(call appcast.item.release,"ios","messenger-ios.zip")</item>"
+define appcast.item.release
 <enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
 endef
+
+
+# Create Sparkle Appcast XML.
+#
+# Usage:
+#	make appcast.index items=<items> [out=(appcast.xml|<output-file>)
+
+appcast-index-items = $(or $(items),$(foreach xml,$(wildcard appcast/*.xml),$(shell cat $(xml))))
+
+appcast.index:
+	-rm appcast/appcast.xml
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-index-items)</channel></rss>" \
+	> $(or $(out),appcast.xml)
 
 
 
