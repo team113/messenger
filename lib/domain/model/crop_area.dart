@@ -49,7 +49,10 @@ class CropArea {
 
   @override
   bool operator ==(Object other) =>
-      other is CropArea && topLeft == other.topLeft && bottomRight == other.bottomRight && angle == other.angle;
+      other is CropArea &&
+      topLeft == other.topLeft &&
+      bottomRight == other.bottomRight &&
+      angle == other.angle;
 
   @override
   int get hashCode => Object.hash(topLeft, bottomRight, angle);

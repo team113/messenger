@@ -161,8 +161,7 @@ class EventUserCallCoverDeleted extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.callCoverDeleted;
 
   @override
-  bool operator ==(Object other) =>
-      other is EventUserCallCoverDeleted;
+  bool operator ==(Object other) => other is EventUserCallCoverDeleted;
 
   @override
   int get hashCode => kind.hashCode;
@@ -181,8 +180,8 @@ class EventUserCallCoverUpdated extends MyUserEvent {
   @override
   bool operator ==(Object other) =>
       other is EventUserCallCoverUpdated &&
-          callCover.original.relativeRef == other.callCover.original.relativeRef &&
-          callCover.crop == other.callCover.crop;
+      callCover.original.relativeRef == other.callCover.original.relativeRef &&
+      callCover.crop == other.callCover.crop;
 
   @override
   int get hashCode => callCover.hashCode;
@@ -196,8 +195,7 @@ class EventUserCameOffline extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.cameOffline;
 
   @override
-  bool operator ==(Object other) =>
-      other is EventUserCameOffline;
+  bool operator ==(Object other) => other is EventUserCameOffline;
 
   @override
   int get hashCode => kind.hashCode;
@@ -211,8 +209,7 @@ class EventUserCameOnline extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.cameOnline;
 
   @override
-  bool operator ==(Object other) =>
-      other is EventUserCameOnline;
+  bool operator ==(Object other) => other is EventUserCameOnline;
 
   @override
   int get hashCode => kind.hashCode;
@@ -226,8 +223,7 @@ class EventUserDeleted extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.deleted;
 
   @override
-  bool operator ==(Object other) =>
-      other is EventUserDeleted;
+  bool operator ==(Object other) => other is EventUserDeleted;
 
   @override
   int get hashCode => kind.hashCode;
@@ -241,8 +237,7 @@ class EventUserDirectLinkDeleted extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.directLinkDeleted;
 
   @override
-  bool operator ==(Object other) =>
-      other is EventUserDirectLinkDeleted;
+  bool operator ==(Object other) => other is EventUserDirectLinkDeleted;
 
   @override
   int get hashCode => kind.hashCode;
@@ -396,8 +391,7 @@ class EventUserPasswordUpdated extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.passwordUpdated;
 
   @override
-  bool operator ==(Object other) =>
-      other is EventUserPasswordUpdated;
+  bool operator ==(Object other) => other is EventUserPasswordUpdated;
 
   @override
   int get hashCode => kind.hashCode;
@@ -551,7 +545,9 @@ abstract class BlocklistEvent extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is BlocklistEvent && user.value.id == other.user.value.id && at == other.at;
+      other is BlocklistEvent &&
+      user.value.id == other.user.value.id &&
+      at == other.at;
 
   @override
   int get hashCode => Object.hash(user, at);

@@ -423,7 +423,9 @@ class ChatDirectLink {
 
   @override
   bool operator ==(Object other) =>
-      other is ChatDirectLink && slug == other.slug && usageCount == other.usageCount;
+      other is ChatDirectLink &&
+      slug == other.slug &&
+      usageCount == other.usageCount;
 
   @override
   int get hashCode => Object.hash(slug, usageCount);
