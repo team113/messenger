@@ -159,8 +159,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       field: MyUserField.name,
       current: () => myUser.value?.name,
       value: name,
-      mutation: _graphQlProvider.updateUserName,
-      update: (v) => myUser.update((u) => u?.name = v),
+      mutation: (v, _) => _graphQlProvider.updateUserName(v),
+      update: (v, _) => myUser.update((u) => u?.name = v),
     );
   }
 
@@ -172,8 +172,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       field: MyUserField.name,
       current: () => myUser.value?.status,
       value: status,
-      mutation: _graphQlProvider.updateUserStatus,
-      update: (v) => myUser.update((u) => u?.status = v),
+      mutation: (v, _) => _graphQlProvider.updateUserStatus(v),
+      update: (v, _) => myUser.update((u) => u?.status = v),
     );
   }
 
@@ -185,8 +185,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       field: MyUserField.bio,
       current: () => myUser.value?.bio,
       value: bio,
-      mutation: _graphQlProvider.updateUserBio,
-      update: (v) => myUser.update((u) => u?.bio = v),
+      mutation: (v, _) => _graphQlProvider.updateUserBio(v),
+      update: (v, _) => myUser.update((u) => u?.bio = v),
     );
   }
 
@@ -207,9 +207,9 @@ class MyUserRepository implements AbstractMyUserRepository {
       field: MyUserField.presence,
       current: () => myUser.value?.presence,
       value: presence,
-      mutation: (s) async =>
+      mutation: (s, _) async =>
           await _graphQlProvider.updateUserPresence(s ?? presence),
-      update: (v) => myUser.update((u) => u?.presence = v ?? presence),
+      update: (v, _) => myUser.update((u) => u?.presence = v ?? presence),
     );
   }
 
@@ -246,16 +246,25 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('deleteUserEmail($email)', '$runtimeType');
 
     if (myUser.value?.emails.unconfirmed == email) {
-      final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+      await _debounce(
+        field: MyUserField.unconfirmedEmail,
+        current: () => myUser.value?.emails.unconfirmed,
+        value: null,
+        mutation: (value, previous) async {
+          if (previous != null) {
+            return _graphQlProvider.deleteUserEmail(previous);
+          } else if (value != null) {
+            return _graphQlProvider.addUserEmail(value);
+          }
 
-      myUser.update((u) => u?.emails.unconfirmed = null);
-
-      try {
-        await _graphQlProvider.deleteUserEmail(email);
-      } catch (_) {
-        myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
-        rethrow;
-      }
+          return null;
+        },
+        update: (v, p) => myUser.update(
+          (u) => p != null
+              ? u?.emails.unconfirmed = null
+              : u?.emails.unconfirmed = v,
+        ),
+      );
     } else {
       int i = myUser.value?.emails.confirmed.indexOf(email) ?? -1;
 
@@ -280,16 +289,25 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('deleteUserPhone($phone)', '$runtimeType');
 
     if (myUser.value?.phones.unconfirmed == phone) {
-      final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+      await _debounce(
+        field: MyUserField.unconfirmedPhone,
+        current: () => myUser.value?.phones.unconfirmed,
+        value: null,
+        mutation: (value, previous) async {
+          if (previous != null) {
+            return _graphQlProvider.deleteUserPhone(previous);
+          } else if (value != null) {
+            return _graphQlProvider.addUserPhone(value);
+          }
 
-      myUser.update((u) => u?.phones.unconfirmed = null);
-
-      try {
-        await _graphQlProvider.deleteUserPhone(phone);
-      } catch (_) {
-        myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
-        rethrow;
-      }
+          return null;
+        },
+        update: (v, p) => myUser.update(
+          (u) => p != null
+              ? u?.phones.unconfirmed = null
+              : u?.phones.unconfirmed = v,
+        ),
+      );
     } else {
       int i = myUser.value?.phones.confirmed.indexOf(phone) ?? -1;
 
@@ -313,32 +331,50 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> addUserEmail(UserEmail email) async {
     Log.debug('addUserEmail($email)', '$runtimeType');
 
-    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+    await _debounce(
+      field: MyUserField.unconfirmedEmail,
+      current: () => myUser.value?.emails.unconfirmed,
+      value: email,
+      mutation: (value, previous) async {
+        if (previous != null) {
+          return _graphQlProvider.deleteUserEmail(previous);
+        } else if (value != null) {
+          return _graphQlProvider.addUserEmail(value);
+        }
 
-    myUser.update((u) => u?.emails.unconfirmed = email);
-
-    try {
-      await _graphQlProvider.addUserEmail(email);
-    } catch (_) {
-      myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
-      rethrow;
-    }
+        return null;
+      },
+      update: (v, p) => myUser.update(
+        (u) => p != null
+            ? u?.emails.unconfirmed = null
+            : u?.emails.unconfirmed = v,
+      ),
+    );
   }
 
   @override
   Future<void> addUserPhone(UserPhone phone) async {
     Log.debug('addUserPhone($phone)', '$runtimeType');
 
-    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+    await _debounce(
+      field: MyUserField.unconfirmedPhone,
+      current: () => myUser.value?.phones.unconfirmed,
+      value: phone,
+      mutation: (value, previous) async {
+        if (previous != null) {
+          return _graphQlProvider.deleteUserPhone(previous);
+        } else if (value != null) {
+          return _graphQlProvider.addUserPhone(value);
+        }
 
-    myUser.update((u) => u?.phones.unconfirmed = phone);
-
-    try {
-      await _graphQlProvider.addUserPhone(phone);
-    } catch (_) {
-      myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
-      rethrow;
-    }
+        return null;
+      },
+      update: (v, p) => myUser.update(
+        (u) => p != null
+            ? u?.phones.unconfirmed = null
+            : u?.phones.unconfirmed = v,
+      ),
+    );
   }
 
   @override
@@ -481,14 +517,15 @@ class MyUserRepository implements AbstractMyUserRepository {
       field: MyUserField.muted,
       current: () => myUser.value?.muted,
       value: mute,
-      mutation: (duration) async {
+      mutation: (duration, _) async {
         return await _graphQlProvider.toggleMyUserMute(
-          mute == null
+          duration == null
               ? null
-              : Muting(duration: mute.forever == true ? null : mute.until),
+              : Muting(
+                  duration: duration.forever == true ? null : duration.until),
         );
       },
-      update: (v) => myUser.update((u) => u?.muted = v),
+      update: (v, _) => myUser.update((u) => u?.muted = v),
     );
   }
 
@@ -1068,19 +1105,25 @@ class MyUserRepository implements AbstractMyUserRepository {
     required MyUserField field,
     required T? Function() current,
     T? value,
-    required void Function(T?) update,
-    required Future<MyUserEventsVersionedMixin?> Function(T?) mutation,
+    required void Function(T? value, T? previous) update,
+    required Future<MyUserEventsVersionedMixin?> Function(T? value, T? previous)
+        mutation,
   }) async {
-    update(value);
+    Log.debug(
+      '_debounce($field, $current, $value, $update, $mutation)',
+      '$runtimeType',
+    );
 
-    T? previous = current.call();
-    T? updated = value;
+    T? previous = current();
+
+    update(value, previous);
 
     await _pool.protect(
       field,
       () async {
         try {
-          final MyUserEventsVersionedMixin? response = await mutation(updated);
+          final MyUserEventsVersionedMixin? response =
+              await mutation(value, previous);
 
           if (response != null) {
             final event = MyUserEventsVersioned(
@@ -1091,16 +1134,16 @@ class MyUserRepository implements AbstractMyUserRepository {
             _myUserRemoteEvent(event, updateVersion: false);
           }
 
-          previous = updated;
+          previous = value;
         } catch (_) {
-          update(previous);
+          update(previous, value);
           rethrow;
         }
       },
       repeat: () {
         if (myUser.value != null) {
-          if (current() != updated) {
-            updated = current();
+          if (current() != value) {
+            value = current();
             return true;
           }
         }
@@ -1120,4 +1163,6 @@ enum MyUserField {
   status,
   bio,
   presence,
+  unconfirmedEmail,
+  unconfirmedPhone,
 }

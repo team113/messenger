@@ -86,6 +86,12 @@ class EventUserAvatarDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarDeleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserAvatarDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserAvatar] being updated.
@@ -97,6 +103,15 @@ class EventUserAvatarUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserAvatarUpdated &&
+      avatar.original.relativeRef == other.avatar.original.relativeRef &&
+      avatar.crop == other.avatar.crop;
+
+  @override
+  int get hashCode => avatar.hashCode;
 }
 
 /// Event of a [UserBio] being deleted.
@@ -144,6 +159,13 @@ class EventUserCallCoverDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.callCoverDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserCallCoverDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserCallCover] being updated.
@@ -155,6 +177,15 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.callCoverUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserCallCoverUpdated &&
+          callCover.original.relativeRef == other.callCover.original.relativeRef &&
+          callCover.crop == other.callCover.crop;
+
+  @override
+  int get hashCode => callCover.hashCode;
 }
 
 /// Event of an [MyUser] coming offline.
@@ -163,6 +194,13 @@ class EventUserCameOffline extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOffline;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserCameOffline;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser] coming online.
@@ -171,6 +209,13 @@ class EventUserCameOnline extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOnline;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserCameOnline;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser] being deleted.
@@ -179,6 +224,13 @@ class EventUserDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.deleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s [ChatDirectLink] being deleted.
@@ -187,6 +239,13 @@ class EventUserDirectLinkDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.directLinkDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserDirectLinkDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s [ChatDirectLink] being updated.
@@ -198,6 +257,13 @@ class EventUserDirectLinkUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.directLinkUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserDirectLinkUpdated && directLink == other.directLink;
+
+  @override
+  int get hashCode => directLink.hashCode;
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
@@ -227,6 +293,13 @@ class EventUserEmailConfirmed extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailConfirmed;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserEmailConfirmed && email == other.email;
+
+  @override
+  int get hashCode => email.hashCode;
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being deleted.
@@ -256,6 +329,13 @@ class EventUserLoginUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.loginUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserLoginUpdated && login == other.login;
+
+  @override
+  int get hashCode => login.hashCode;
 }
 
 /// Event of an [MyUser] being muted.
@@ -314,6 +394,13 @@ class EventUserPasswordUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.passwordUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserPasswordUpdated;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s phone number being added.
@@ -343,6 +430,13 @@ class EventUserPhoneConfirmed extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.phoneConfirmed;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserPhoneConfirmed && phone == other.phone;
+
+  @override
+  int get hashCode => phone.hashCode;
 }
 
 /// Event of an [MyUser]'s phone number being deleted.
@@ -436,6 +530,13 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserUnreadChatsCountUpdated && count == other.count;
+
+  @override
+  int get hashCode => count.hashCode;
 }
 
 /// Event of a [User] being added or removed to/from blocklist of the [MyUser].
@@ -447,6 +548,13 @@ abstract class BlocklistEvent extends MyUserEvent {
 
   /// [PreciseDateTime] when this [BlocklistEvent] happened.
   final PreciseDateTime at;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlocklistEvent && user.value.id == other.user.value.id && at == other.at;
+
+  @override
+  int get hashCode => Object.hash(user, at);
 }
 
 /// Event of a [BlocklistRecord] being added to blocklist of the authenticated
@@ -459,6 +567,13 @@ class EventBlocklistRecordAdded extends BlocklistEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.blocklistRecordAdded;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventBlocklistRecordAdded && reason == other.reason;
+
+  @override
+  int get hashCode => reason.hashCode;
 }
 
 /// Event of a [BlocklistRecord] being removed from blocklist of the
