@@ -847,6 +847,7 @@ class ChatView extends StatelessWidget {
                           m.memberId != e.value.author.id),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
+                  getItem: c.getItem,
                   onHide: () => c.hideChatItem(e.value),
                   onDelete: () => c.deleteMessage(e.value),
                   onReply: () {
