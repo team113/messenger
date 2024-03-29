@@ -17,14 +17,14 @@
 
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
-import 'package:messenger/domain/service/partner.dart';
+import 'package:messenger/domain/service/work.dart';
 
 import '/ui/widget/text_field.dart';
 
 class PartnerTabController extends GetxController {
   PartnerTabController(this._partnerService);
 
-  final PartnerService _partnerService;
+  final WorkService _partnerService;
 
   final RxBool withdrawing = RxBool(false);
   final RxBool hintDismissed = RxBool(false);

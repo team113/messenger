@@ -17,9 +17,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/work.dart';
 
 /// Controller of the [HomeTab.work] tab.
 class WorkTabController extends GetxController {
+  WorkTabController(this._workService);
+
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  final WorkService _workService;
+
+  RxDouble get balance => _workService.balance;
 }

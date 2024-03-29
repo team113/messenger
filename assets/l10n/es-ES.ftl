@@ -94,6 +94,9 @@ label_show_qr_code_to_sign_in3 = Ingresa -> Código QR.
 label_linked_devices = Dispositivos vinculados
 label_scan_qr_code = Escanear código QR
 label_work_with_us = Trabaja con nosotros
+label_work_with_us_two =
+    Trabaja con
+    nosotros
 btn_hide_tab = Ocultar pestaña
 label_media_buttons_in_app_bar = En el panel superior
 label_media_buttons_in_context_menu = En el menú contextual

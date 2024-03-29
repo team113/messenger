@@ -989,7 +989,7 @@ label_your_direct_link = Direct link to chat with you
 btn_personalize = Personalization
 label_personalization = Personalization
 label_tab_funds = Funds
-label_tab_public = Public
+label_tab_public = Publics
 plus = +
 semicolon_space = :{" "}
 space = {" "}
@@ -1168,6 +1168,9 @@ label_show_qr_code_to_sign_in1 = Please show the QR code on your other device:
 label_show_qr_code_to_sign_in2 = Settings -> Connected devices -> Show QR code.
 label_show_qr_code_to_sign_in3 = Sign in -> QR code.
 label_work_with_us = Work with us
+label_work_with_us_two =
+    Work
+    with us
 label_vacancies_and_partnership = Vacancies and partnership
 btn_hide_section = Hide tab
 btn_show_section = Show tab

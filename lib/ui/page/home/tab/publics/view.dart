@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
+import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 
 import 'controller.dart';
 
@@ -31,7 +33,34 @@ class PublicsTabView extends StatelessWidget {
       init: PublicsTabController(),
       builder: (PublicsTabController c) {
         return Scaffold(
-          appBar: CustomAppBar(title: Text('label_tab_public'.l10n)),
+          appBar: CustomAppBar(
+            title: Row(
+              children: [
+                const SizedBox(width: 21),
+                const SvgIcon(SvgIcons.publics),
+                const SizedBox(width: 17),
+                Text('label_tab_public'.l10n),
+              ],
+            ),
+            actions: [
+              AnimatedButton(
+                onPressed: () {},
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 21, 8),
+                  child: child,
+                ),
+                child: const SvgIcon(SvgIcons.search),
+              ),
+              AnimatedButton(
+                onPressed: () {},
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 28, 8),
+                  child: child,
+                ),
+                child: const SvgIcon(SvgIcons.more),
+              ),
+            ],
+          ),
           body: const Center(child: Text('Publics')),
         );
       },

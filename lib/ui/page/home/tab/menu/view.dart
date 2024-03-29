@@ -141,7 +141,7 @@ class MenuTabView extends StatelessWidget {
                 ],
               ),
             ),
-            leading: const [SizedBox(width: 21)],
+            leading: const [SizedBox(width: 18)],
             actions: [
               WidgetButton(
                 behavior: HitTestBehavior.translucent,

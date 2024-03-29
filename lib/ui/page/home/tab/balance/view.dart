@@ -18,9 +18,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/wallet.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
+import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/routes.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -47,29 +48,44 @@ class BalanceTabView extends StatelessWidget {
               children: [
                 const WalletWidget(balance: 0, visible: false),
                 const SizedBox(width: 16),
-                Obx(() {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '¤${c.balance.value.toInt().withSpaces()}',
-                        style: style.fonts.big.regular.onBackground,
-                      ),
-                    ],
-                  );
-                }),
+                Text(
+                  'Кошелёк'.l10n,
+                  textAlign: TextAlign.center,
+                ),
+                // Obx(() {
+                //   return Column(
+                //     mainAxisSize: MainAxisSize.min,
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text(
+                //         '¤${c.balance.value.toInt().withSpaces()}',
+                //         style: style.fonts.big.regular.onBackground,
+                //       ),
+                //     ],
+                //   );
+                // }),
               ],
             ),
             actions: [
-              AnimatedButton(
-                onPressed: () {},
-                decorator: (child) => Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 24, 8),
-                  child: child,
-                ),
-                child: const SvgIcon(SvgIcons.transactions),
-              ),
+              Obx(() {
+                return WidgetButton(
+                  onPressed: () {},
+                  child: Text(
+                    '¤ ${c.balance.value.toInt().withSpaces()}',
+                    style: style.fonts.big.regular.onBackground
+                        .copyWith(color: style.colors.primary),
+                  ),
+                );
+              }),
+              const SizedBox(width: 16),
+              // AnimatedButton(
+              //   onPressed: () {},
+              //   decorator: (child) => Padding(
+              //     padding: const EdgeInsets.fromLTRB(8, 8, 24, 8),
+              //     child: child,
+              //   ),
+              //   child: const SvgIcon(SvgIcons.transactions),
+              // ),
             ],
           ),
           extendBodyBehindAppBar: true,

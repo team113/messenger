@@ -573,7 +573,7 @@ class CallController extends GetxController {
 
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
-  String get _connectedCall => 'connected.wav';
+  String get _connectedCall => 'connected.mp3';
 
   /// Returns the name of a reconnect sound asset.
   String get _reconnect => 'reconnect.mp3';

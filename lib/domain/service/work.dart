@@ -20,7 +20,7 @@ import 'package:messenger/domain/model/transaction.dart';
 
 import 'disposable_service.dart';
 
-class PartnerService extends DisposableService {
+class WorkService extends DisposableService {
   late final RxList<Transaction> transactions;
 
   late final RxDouble balance;
@@ -45,7 +45,7 @@ class PartnerService extends DisposableService {
       ),
       IncomingTransaction(
         id: '428ac09a-6a85-4121-9c24-974d922156a3',
-        amount: 100,
+        amount: 300000,
         at: DateTime.now().subtract(const Duration(days: 50)),
       ),
     ]);

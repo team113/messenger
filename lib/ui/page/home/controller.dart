@@ -23,7 +23,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
-import 'package:messenger/domain/service/partner.dart';
+import 'package:messenger/domain/service/work.dart';
 import 'package:messenger/util/message_popup.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -121,7 +121,7 @@ class HomeController extends GetxController {
   final AbstractSettingsRepository _settings;
 
   final BalanceService _balanceService;
-  final PartnerService _partnerService;
+  final WorkService _partnerService;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;

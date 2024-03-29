@@ -41,7 +41,7 @@ import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/balance.dart';
-import 'domain/service/partner.dart';
+import 'domain/service/work.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
 import 'domain/service/user.dart';
@@ -683,7 +683,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(BlocklistService(blocklistRepository));
 
               deps.put<BalanceService>(BalanceService());
-              deps.put<PartnerService>(PartnerService());
+              deps.put<WorkService>(WorkService());
 
               return deps;
             },
@@ -847,7 +847,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             deps.put(MyUserWorker(myUserService));
             deps.put<BalanceService>(BalanceService());
-            deps.put<PartnerService>(PartnerService());
+            deps.put<WorkService>(WorkService());
 
             return deps;
           },

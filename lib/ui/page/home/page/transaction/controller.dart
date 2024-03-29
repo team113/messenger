@@ -18,7 +18,7 @@
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
-import 'package:messenger/domain/service/partner.dart';
+import 'package:messenger/domain/service/work.dart';
 
 class TransactionController extends GetxController {
   TransactionController(
@@ -31,7 +31,7 @@ class TransactionController extends GetxController {
 
   final String id;
   final BalanceService _balanceService;
-  final PartnerService _partnerService;
+  final WorkService _partnerService;
 
   @override
   void onInit() {

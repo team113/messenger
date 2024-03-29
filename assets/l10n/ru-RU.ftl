@@ -1022,7 +1022,7 @@ label_your_direct_link_section = Прямая ссылка, QR код
 btn_personalize = Персонализация
 label_personalization = Персонализация
 label_tab_funds = Счёт
-label_tab_public = Public
+label_tab_public = Паблики
 plus = +
 semicolon_space = :{" "}
 space = {" "}
@@ -1217,6 +1217,9 @@ label_show_qr_code_to_sign_in2 = Настройки -> Связанные уст
 label_or = ИЛИ
 label_show_qr_code_to_sign_in3 = Вход -> QR код.
 label_work_with_us = Работайте с нами
+label_work_with_us_two =
+    Работайте
+    с нами
 label_vacancies_and_partnership = Вакансии и партнёрство
 btn_hide_section = Скрыть вкладку
 btn_show_section = Показывать вкладку
