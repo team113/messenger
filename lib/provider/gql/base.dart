@@ -196,8 +196,17 @@ class GraphQlClient {
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
+    RawClientOptions? raw,
   }) {
-    return SubscriptionHandle(_subscribe, options, ver: ver).stream;
+    if (raw == null) {
+      return SubscriptionHandle(_subscribe, options, ver: ver).stream;
+    } else {
+      return SubscriptionHandle(
+        (options) => _subscribe(options, raw: raw),
+        options,
+        ver: ver,
+      ).stream;
+    }
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -259,9 +268,14 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
+  Future<Stream<QueryResult>> _subscribe(
+    SubscriptionOptions options, {
+    RawClientOptions? raw,
+  }) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
-      () async => (await client).subscribe(options),
+      () async => raw == null
+          ? (await client).subscribe(options)
+          : (await _newClient(raw)).subscribe(options),
     );
 
     final connection = SubscriptionConnection(

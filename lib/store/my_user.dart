@@ -23,6 +23,9 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
+import '../domain/model/session.dart';
+import '../provider/gql/base.dart';
+import '../provider/hive/credentials.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -58,10 +61,14 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._blocklistRepo,
     this._userRepo,
     this._activeAccountLocal,
+    this._credentialsLocal,
   );
 
   @override
   final Rx<MyUser?> myUser = Rx(null);
+
+  @override
+  final RxMap<UserId, Rx<MyUser?>> myUsers = RxMap({});
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -78,6 +85,11 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [Hive] storage for the currently active [MyUser]'s [UserId].
   final ActiveAccountHiveProvider _activeAccountLocal;
 
+  /// [Hive] storage for [Credentials] of the authenticated users.
+  ///
+  /// Used to initialize remote subscriptions for [MyUser]s,
+  final CredentialsHiveProvider _credentialsLocal;
+
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
 
@@ -87,12 +99,16 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUserHiveProvider.boxEvents] subscription.
   StreamIterator<BoxEvent>? _localSubscription;
 
-  /// [_myUserRemoteEvents] subscription.
+  /// Map of [_myUserRemoteEvents] subscriptions to update [myUsers].
+  final Map<UserId, StreamQueue<MyUserEventsVersioned>> _remoteSubscriptions =
+      {};
+
+  /// [_myUserRemoteEvents] subscription for the active [myUser].
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<MyUserEventsVersioned>? _remoteSubscription;
 
-  /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
+  /// [GraphQlProvider.keepOnline] subscription keeping the [myUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
   /// Subscription to the [PlatformUtils.onFocusChanged] initializing and
@@ -106,6 +122,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Sets [myUser]'s value if it's `null` and returns the stored value of the
   /// currently active [MyUser], if any.
   HiveMyUser? _ensureMyUserSet() {
+    Log.debug('_ensureMyUserSet()', '$runtimeType');
+
     final UserId? myUserId = _activeAccountLocal.userId;
     final HiveMyUser? model =
         myUserId != null ? _myUserLocal.get(myUserId) : null;
@@ -129,8 +147,12 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _ensureMyUserSet();
 
+    myUsers.value = {
+      for (final HiveMyUser u in _myUserLocal.values) u.value.id: Rx(u.value),
+    };
+
     _initLocalSubscription();
-    _initRemoteSubscription();
+    _initRemoteSubscriptions();
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -147,6 +169,45 @@ class MyUserRepository implements AbstractMyUserRepository {
           _keepOnlineSubscription = null;
         }
       });
+    }
+  }
+
+  Future<void> _initRemoteSubscriptions() async {
+    if (_disposed) {
+      return;
+    }
+
+    Log.debug('_initRemoteSubscriptions()', '$runtimeType');
+
+    _initActiveAccountRemoteSubscription();
+
+    for (final Credentials creds in _credentialsLocal.valuesSafe) {
+      if (creds.userId == _activeAccountLocal.userId) {
+        continue;
+      }
+
+      final session = creds.session;
+      final id = creds.userId;
+
+      _remoteSubscriptions[id]?.close(immediate: true);
+      final subscription = StreamQueue(
+        _myUserRemoteEvents(
+          () => null,
+          // TODO: Не забыть про `refreshToken`.
+          raw: RawClientOptions(session.token),
+        ),
+      );
+
+      _remoteSubscriptions[id] = subscription;
+
+      await subscription.execute(
+        _myUserRemoteEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            // TODO: Подумать, какие тут ошибочки могут быть, что вообще делать.
+          }
+        },
+      );
     }
   }
 
@@ -595,26 +656,38 @@ class MyUserRepository implements AbstractMyUserRepository {
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
+      final UserId key = UserId(event.key);
+      final MyUser? value = event.value?.value;
+
       if (event.deleted) {
-        myUser.value = null;
+        if (event.key == _activeAccountLocal.userId) {
+          myUser.value = null;
+        }
+
         _remoteSubscription?.close(immediate: true);
       } else {
-        myUser.value = event.value?.value;
+        if (key == _activeAccountLocal.userId) {
+          myUser.value = value;
 
-        // Refresh the value since [event.value] is the same [MyUser] stored in
-        // [_myUser] (so `==` operator fails to distinguish them).
-        myUser.refresh();
+          // Refresh the value since [event.value] is the same [MyUser] stored in
+          // [_myUser] (so `==` operator fails to distinguish them).
+          myUser.refresh();
+        }
       }
+
+      myUsers.value = {
+        for (final HiveMyUser u in _myUserLocal.values) u.value.id: Rx(u.value),
+      };
     }
   }
 
   /// Initializes [_myUserRemoteEvents] subscription.
-  Future<void> _initRemoteSubscription() async {
+  Future<void> _initActiveAccountRemoteSubscription() async {
     if (_disposed) {
       return;
     }
 
-    Log.debug('_initRemoteSubscription()', '$runtimeType');
+    Log.debug('_initActiveAccountRemoteSubscription()', '$runtimeType');
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
@@ -630,6 +703,8 @@ class MyUserRepository implements AbstractMyUserRepository {
         return myUserEntity?.ver;
       }),
     );
+
+    _remoteSubscriptions[_activeAccountLocal.userId!] = _remoteSubscription!;
 
     await _remoteSubscription!.execute(_myUserRemoteEvent, onError: (e) async {
       if (e is StaleVersionException) {
@@ -656,24 +731,37 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Saves the provided [user] in [Hive].
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
-    final HiveMyUser? myUserEntity = _ensureMyUserSet();
+
+    final HiveMyUser? savedUser = _ensureMyUserSet();
 
     // Update the stored [MyUser], if the provided [user] has non-`null`
     // blocklist count, which is different from the stored one.
     final bool blocklist = user.value.blocklistCount != null &&
-        user.value.blocklistCount != myUserEntity?.value.blocklistCount;
+        user.value.blocklistCount != savedUser?.value.blocklistCount;
 
-    if (user.ver >= myUserEntity?.ver || blocklist || ignoreVersion) {
-      user.value.blocklistCount ??= myUserEntity?.value.blocklistCount;
+    if (savedUser == null ||
+        user.ver >= savedUser.ver ||
+        blocklist ||
+        ignoreVersion) {
+      user.value.blocklistCount ??= savedUser?.value.blocklistCount;
       _myUserLocal.put(user);
-      _activeAccountLocal.set(user.value.id);
+      // _activeAccountLocal.set(user.value.id);
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    // TODO: Shouldn't be done this way mybe?
-    final HiveMyUser? userEntity = versioned.events.isNotEmpty
+    HiveMyUser? userEntity = versioned.events.isNotEmpty
+        ? _myUserLocal.get(versioned.events.first.userId)
+        : null;
+
+    if (userEntity == null) {
+      // TODO: Fix `_setMyUser` call being igonerd on `MyUser` initial event or
+      //       fetch [MyUser] when authenticating and remove this workaround.
+      await refresh();
+    }
+
+    userEntity = versioned.events.isNotEmpty
         ? _myUserLocal.get(versioned.events.first.userId)
         : null;
 
@@ -684,6 +772,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
       return;
     }
+
     userEntity.ver = versioned.ver;
 
     Log.debug(
@@ -907,42 +996,48 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
+  ///
+  /// [ver] callback is used to get the actual [HiveMyUser.ver] value.
   Stream<MyUserEventsVersioned> _myUserRemoteEvents(
-    MyUserVersion? Function() ver,
-  ) {
+    MyUserVersion? Function() ver, {
+    RawClientOptions? raw,
+  }) {
     Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
 
-    return _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
-      Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
+    return _graphQlProvider.myUserEvents(ver, raw: raw).asyncExpand(
+      (event) async* {
+        Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
 
-      var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+        var events =
+            MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        Log.debug(
-          '_myUserRemoteEvents(ver): SubscriptionInitialized',
-          '$runtimeType',
-        );
+        if (events.$$typename == 'SubscriptionInitialized') {
+          Log.debug(
+            '_myUserRemoteEvents(ver): SubscriptionInitialized',
+            '$runtimeType',
+          );
 
-        events
-            as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
-        // No-op.
-      } else if (events.$$typename == 'MyUser') {
-        Log.debug(
-          '_myUserRemoteEvents(ver): MyUser',
-          '$runtimeType',
-        );
+          events
+              as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
+          // No-op.
+        } else if (events.$$typename == 'MyUser') {
+          Log.debug(
+            '_myUserRemoteEvents(ver): MyUser',
+            '$runtimeType',
+          );
 
-        events as MyUserEvents$Subscription$MyUserEvents$MyUser;
+          events as MyUserEvents$Subscription$MyUserEvents$MyUser;
 
-        _setMyUser(events.toHive());
-      } else if (events.$$typename == 'MyUserEventsVersioned') {
-        var mixin = events as MyUserEventsVersionedMixin;
-        yield MyUserEventsVersioned(
-          mixin.events.map((e) => _myUserEvent(e)).toList(),
-          mixin.ver,
-        );
-      }
-    });
+          _setMyUser(events.toHive());
+        } else if (events.$$typename == 'MyUserEventsVersioned') {
+          var mixin = events as MyUserEventsVersionedMixin;
+          yield MyUserEventsVersioned(
+            mixin.events.map((e) => _myUserEvent(e)).toList(),
+            mixin.ver,
+          );
+        }
+      },
+    );
   }
 
   /// Constructs a [MyUserEvent] from the [MyUserEventsVersionedMixin$Events].

@@ -48,6 +48,9 @@ class MyUserService extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
+  ///
+  RxMap<UserId, Rx<MyUser?>> get myUsers => _userRepo.myUsers;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');

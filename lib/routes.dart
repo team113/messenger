@@ -43,7 +43,6 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
 import 'provider/gql/graphql.dart';
-import 'provider/hive/active_account.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
@@ -70,6 +69,7 @@ import 'store/contact.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
+import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/home/view.dart';
@@ -77,6 +77,7 @@ import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
+import 'ui/widget/progress_indicator.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
@@ -101,6 +102,7 @@ class Routes {
   static const menu = '/menu';
   static const user = '/user';
   static const work = '/work';
+  static const nowhere = '/nowhere';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -461,6 +463,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: Center(child: Text('Restarting...')),
         ),
       ];
+    } else if (_state.route == Routes.nowhere) {
+      return [
+        MaterialPage(
+          key: const ValueKey('NowherePage'),
+          name: Routes.nowhere,
+          child: Scaffold(
+            backgroundColor: Theme.of(router.context!).style.colors.background,
+            body: const Center(child: CustomProgressIndicator.big()),
+          ),
+        ),
+      ];
     } else if (_state.route == Routes.style) {
       return [
         const MaterialPage(
@@ -493,7 +506,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               UserId me = _state._auth.userId!;
 
               await Future.wait([
-                deps.put(MyUserHiveProvider()).init(userId: me),
+                // deps.put(MyUserHiveProvider()).init(),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -590,6 +603,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   blocklistRepository,
                   userRepository,
                   Get.find(),
+                  Get.find(),
                 ),
               );
 
@@ -625,7 +639,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             UserId me = _state._auth.userId!;
 
             await Future.wait([
-              deps.put(MyUserHiveProvider()).init(userId: me),
+              // deps.put(MyUserHiveProvider()).init(),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -743,6 +757,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
+                Get.find(),
                 Get.find(),
               ),
             );

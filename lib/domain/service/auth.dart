@@ -84,6 +84,8 @@ class AuthService extends GetxService {
   /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
 
+  // TODO: Добавить сюда обновление [credentials] при изменении в Hive (?)
+  // =====================================================================
   /// [StreamSubscription] to [CredentialsHiveProvider.boxEvents] saving new
   /// [Credentials] to the browser's storage.
   StreamSubscription? _credentialsSubscription;
@@ -288,7 +290,9 @@ class AuthService extends GetxService {
     status.value = RxStatus.loading();
     return WebUtils.protect(() async {
       try {
-        final Credentials creds = await _authRepository.signUp();
+        final data = await _authRepository.signUp();
+        final creds = data;
+
         _authorized(creds);
         _credentialsProvider.put(creds);
         _activeAccountProvider.set(creds.userId);
@@ -352,16 +356,19 @@ class AuthService extends GetxService {
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
     await WebUtils.protect(() async {
       try {
-        final Credentials data = await _authRepository.signIn(
+        final data = await _authRepository.signIn(
           password,
           login: login,
           num: num,
           email: email,
           phone: phone,
         );
-        _authorized(data);
-        _credentialsProvider.put(data);
-        _activeAccountProvider.set(data.userId);
+
+        final creds = data;
+
+        _authorized(creds);
+        _credentialsProvider.put(creds);
+        _activeAccountProvider.set(creds.userId);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -371,21 +378,24 @@ class AuthService extends GetxService {
   }
 
   /// Authorizes the current [Session] from the provided [credentials].
-  @visibleForTesting
-  Future<void> signInWith(Credentials credentials) async {
-    Log.debug('signInWith($credentials)', '$runtimeType');
+  // @visibleForTesting
+  Future<void> signInWith(UserId id) async {
+    Log.debug('signInWith($id)', '$runtimeType');
 
-    // Check if the [credentials] are valid.
-    credentials =
-        await _authRepository.renewSession(credentials.rememberedSession.token);
+    Credentials? credentials = _credentialsProvider.get(id);
+    if (credentials != null) {
+      // Check if the [credentials] are valid.
+      credentials = await _authRepository
+          .renewSession(credentials.rememberedSession.token);
 
-    status.value = RxStatus.loadingMore();
-    await WebUtils.protect(() async {
-      _authorized(credentials);
-      _credentialsProvider.put(credentials);
-      _activeAccountProvider.set(credentials.userId);
-      status.value = RxStatus.success();
-    });
+      status.value = RxStatus.loadingMore();
+      await WebUtils.protect(() async {
+        _authorized(credentials!);
+        _credentialsProvider.put(credentials);
+        _activeAccountProvider.set(credentials.userId);
+        status.value = RxStatus.success();
+      });
+    }
   }
 
   // TODO: Clean Hive storage on logout.
@@ -469,6 +479,7 @@ class AuthService extends GetxService {
             WebUtils.credentials?.session.token !=
                 credentials.value?.session.token) {
           _authorized(WebUtils.credentials!);
+
           _credentialsProvider.put(WebUtils.credentials!);
           _activeAccountProvider.set(WebUtils.credentials!.userId);
           return;

@@ -408,7 +408,10 @@ mixin UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// `MyUser.ver`.
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function() ver) {
+  Stream<QueryResult> myUserEvents(
+    MyUserVersion? Function() ver, {
+    RawClientOptions? raw,
+  }) {
     Log.debug('myUserEvents(ver)', '$runtimeType');
 
     final variables = MyUserEventsArguments(ver: ver());
@@ -419,6 +422,7 @@ mixin UserGraphQlMixin {
         variables: variables.toJson(),
       ),
       ver: ver,
+      raw: raw,
     );
   }
 

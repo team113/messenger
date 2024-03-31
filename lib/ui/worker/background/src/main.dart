@@ -26,10 +26,9 @@ import 'package:flutter_background_service_ios/flutter_background_service_ios.da
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
+import 'package:universal_io/io.dart';
 
-import '../../../../provider/hive/active_account.dart';
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -40,6 +39,7 @@ import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/active_account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 

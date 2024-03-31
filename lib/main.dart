@@ -54,6 +54,7 @@ import 'provider/hive/active_account.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
+import 'provider/hive/my_user.dart';
 import 'provider/hive/skipped_version.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -390,6 +391,7 @@ Future<void> _initHive() async {
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(ActiveAccountHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
+  await Get.put(MyUserHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {
     await Get.put(SkippedVersionHiveProvider()).init();

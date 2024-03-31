@@ -28,6 +28,9 @@ abstract class AbstractMyUserRepository {
   /// Returns currently active authenticated [MyUser].
   Rx<MyUser?> get myUser;
 
+  /// Returns reactive map of [MyUser]s.
+  RxMap<UserId, Rx<MyUser?>> get myUsers;
+
   /// Initializes the repository.
   ///
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.

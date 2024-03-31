@@ -21,10 +21,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 
-import '../../../domain/model/user.dart';
-import '../../../provider/hive/active_account.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/hive/active_account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';

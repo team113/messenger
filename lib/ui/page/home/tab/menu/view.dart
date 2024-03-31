@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../widget/widget_button.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -30,6 +31,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
 import '/util/platform_utils.dart';
+import 'accounts/view.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.menu] tab.
@@ -130,6 +132,38 @@ class MenuTabView extends StatelessWidget {
             leading: context.isNarrow
                 ? const [StyledBackButton()]
                 : const [SizedBox(width: 20)],
+            actions: [
+              WidgetButton(
+                behavior: HitTestBehavior.translucent,
+                onPressed: () => AccountsView.show(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: WidgetButton(
+                    child: Text(
+                      'Добавить\nаккаунт',
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  // return AnimatedButton(
+                  //   decorator: (child) => Padding(
+                  //     padding: const EdgeInsets.fromLTRB(16, 12, 3, 12),
+                  //     child: child,
+                  //   ),
+                  //   child: const SvgIcon(SvgIcons.switchAccount),
+                  // );
+
+                  // return WidgetButton(
+                  //   child: Text(
+                  //     'Сменить\nаккаунт',
+                  //     style: style.fonts.small.regular.primary,
+                  //     textAlign: TextAlign.center,
+                  //   ),
+                  // );
+                ),
+              ),
+            ],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,

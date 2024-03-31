@@ -33,6 +33,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
+import '/ui/page/home/tab/menu/accounts/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
@@ -1117,6 +1118,33 @@ Widget _bar(MyProfileController c, BuildContext context) {
             ),
           ),
           const SizedBox(width: 10),
+          WidgetButton(
+            behavior: HitTestBehavior.translucent,
+            onPressed: () => AccountsView.show(context),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Obx(() {
+                if (true) {
+                  return WidgetButton(
+                    child: Text(
+                      'Добавить\nаккаунт',
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
+                // else {
+                // return WidgetButton(
+                //   child: Text(
+                //     'Сменить\nаккаунт',
+                //     style: style.fonts.small.regular.primary,
+                //     textAlign: TextAlign.center,
+                //   ),
+                // );
+                // }
+              }),
+            ),
+          ),
         ],
       );
     } else {
