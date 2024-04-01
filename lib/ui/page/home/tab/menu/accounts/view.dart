@@ -21,6 +21,8 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
@@ -69,6 +71,8 @@ class AccountsView extends StatelessWidget {
       init: AccountsController(Get.find(), Get.find(), Get.find()),
       builder: (AccountsController c) {
         return Obx(() {
+          final accounts = c.accounts;
+
           builder(header, children) {
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -382,8 +386,9 @@ class AccountsView extends StatelessWidget {
                 tiles.add(const Center(child: CircularProgressIndicator()));
               } else {
                 for (final e in c.accounts) {
-                  final myUser = e.$1.value;
-                  final user = e.$2;
+                  final MyUser? myUser = e.myUser.value;
+                  final RxUser user = e.user;
+
                   tiles.add(
                     Padding(
                       padding: ModalPopup.padding(context),
@@ -428,9 +433,7 @@ class AccountsView extends StatelessWidget {
                                       if (!(myUser?.hasPassword ?? true)) ...[
                                         const TextSpan(text: '\n\n'),
                                         TextSpan(
-                                          text:
-                                              'Пароль не задан. Доступ к аккаунту может быть утерян безвозвратно.'
-                                                  .l10n,
+                                          text: 'label_password_not_set'.l10n,
                                         ),
                                       ],
                                       if (myUser?.emails.confirmed.isEmpty ??
@@ -438,7 +441,7 @@ class AccountsView extends StatelessWidget {
                                         const TextSpan(text: '\n\n'),
                                         TextSpan(
                                           text:
-                                              'E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.'
+                                              'label_email_or_password_not_set'
                                                   .l10n,
                                         ),
                                       ],

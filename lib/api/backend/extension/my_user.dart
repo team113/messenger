@@ -36,9 +36,7 @@ extension MyUserConversion on MyUserMixin {
         hasPassword: hasPassword,
         unreadChatsCount: unreadChatsCount,
         online: online.$$typename == 'UserOnline',
-        lastSeenAt: online.$$typename == 'UserOffline'
-            ? (online as UserMixin$Online$UserOffline).lastSeenAt
-            : null,
+        lastSeenAt: online.$$typename == 'UserOffline' ? null : null,
         chatDirectLink: chatDirectLink != null
             ? ChatDirectLink(
                 slug: chatDirectLink!.slug,

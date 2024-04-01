@@ -18,8 +18,8 @@
 import '../schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/provider/hive/user.dart';
 import 'file.dart';
 

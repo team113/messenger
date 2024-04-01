@@ -198,15 +198,11 @@ class GraphQlClient {
     FutureOr<Version?> Function()? ver,
     RawClientOptions? raw,
   }) {
-    if (raw == null) {
-      return SubscriptionHandle(_subscribe, options, ver: ver).stream;
-    } else {
-      return SubscriptionHandle(
-        (options) => _subscribe(options, raw: raw),
-        options,
-        ver: ver,
-      ).stream;
-    }
+    return SubscriptionHandle(
+      (ops) => _subscribe(ops, raw: raw),
+      options,
+      ver: ver,
+    ).stream;
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -432,7 +428,7 @@ class GraphQlClient {
         bearer != null ? authLink.concat(httpLink) : httpLink;
     Link link = httpAuthLink;
 
-    // Update the WebSocket connection if not [raw].
+// Update the WebSocket connection if not [raw].
     if (raw == null) {
       _disposeWebSocket();
 

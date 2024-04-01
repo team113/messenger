@@ -26,37 +26,37 @@ import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
-import '/util/log.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] management.
 class MyUserService extends DisposableService {
-  MyUserService(this._auth, this._userRepo);
+  MyUserService(this._auth, this._myUserRepo);
 
   /// Authentication service providing the authentication capabilities.
   final AuthService _auth;
 
   /// Repository responsible for storing [MyUser].
-  final AbstractMyUserRepository _userRepo;
+  final AbstractMyUserRepository _myUserRepo;
 
   /// Mutex guarding [updateUserPassword] mutation and `onPasswordUpdated`
   /// logic.
   final Mutex _passwordChangeGuard = Mutex();
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _userRepo.myUser;
+  Rx<MyUser?> get myUser => _myUserRepo.myUser;
 
   ///
-  RxMap<UserId, Rx<MyUser?>> get myUsers => _userRepo.myUsers;
+  RxMap<UserId, Rx<MyUser?>> get myUsers => _myUserRepo.myUsers;
 
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
     assert(_auth.initialized);
-    _userRepo.init(
+    _myUserRepo.init(
       onPasswordUpdated: _onPasswordUpdated,
       onUserDeleted: _onUserDeleted,
     );
@@ -67,7 +67,7 @@ class MyUserService extends DisposableService {
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    _userRepo.dispose();
+    _myUserRepo.dispose();
     super.onClose();
   }
 
@@ -76,7 +76,7 @@ class MyUserService extends DisposableService {
   /// If [name] is `null`, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
     Log.debug('updateUserName($name)', '$runtimeType');
-    await _userRepo.updateUserName(name);
+    await _myUserRepo.updateUserName(name);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
@@ -84,19 +84,19 @@ class MyUserService extends DisposableService {
   /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
-    await _userRepo.updateUserLogin(login);
+    await _myUserRepo.updateUserLogin(login);
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
     Log.debug('updateUserStatus($status)', '$runtimeType');
-    await _userRepo.updateUserStatus(status);
+    await _myUserRepo.updateUserStatus(status);
   }
 
   /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
   Future<void> updateUserBio(UserBio? bio) async {
     Log.debug('updateUserBio($bio)', '$runtimeType');
-    await _userRepo.updateUserBio(bio);
+    await _myUserRepo.updateUserBio(bio);
   }
 
   /// Updates password for the authenticated [MyUser].
@@ -114,7 +114,7 @@ class MyUserService extends DisposableService {
 
     await _passwordChangeGuard.protect(() async {
       // TODO: Make sure [AuthService] doesn't its `renewSession` during that.
-      await _userRepo.updateUserPassword(oldPassword, newPassword);
+      await _myUserRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(newPassword, num: myUser.value?.num);
     });
   }
@@ -122,7 +122,7 @@ class MyUserService extends DisposableService {
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
-    await _userRepo.updateUserPresence(presence);
+    await _myUserRepo.updateUserPresence(presence);
   }
 
   /// Deletes the authenticated [MyUser] completely.
@@ -131,7 +131,7 @@ class MyUserService extends DisposableService {
   Future<void> deleteMyUser() async {
     Log.debug('deleteMyUser()', '$runtimeType');
 
-    await _userRepo.deleteMyUser();
+    await _myUserRepo.deleteMyUser();
     _onUserDeleted();
   }
 
@@ -139,14 +139,14 @@ class MyUserService extends DisposableService {
   /// [MyUser].
   Future<void> deleteUserEmail(UserEmail email) async {
     Log.debug('deleteUserEmail($email)', '$runtimeType');
-    await _userRepo.deleteUserEmail(email);
+    await _myUserRepo.deleteUserEmail(email);
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
   Future<void> deleteUserPhone(UserPhone phone) async {
     Log.debug('deleteUserPhone($phone)', '$runtimeType');
-    await _userRepo.deleteUserPhone(phone);
+    await _myUserRepo.deleteUserPhone(phone);
   }
 
   /// Adds a new [email] address for the authenticated [MyUser].
@@ -156,7 +156,7 @@ class MyUserService extends DisposableService {
   /// a [ConfirmationCode].
   Future<void> addUserEmail(UserEmail email) async {
     Log.debug('addUserEmail($email)', '$runtimeType');
-    await _userRepo.addUserEmail(email);
+    await _myUserRepo.addUserEmail(email);
   }
 
   /// Adds a new [phone] number for the authenticated [MyUser].
@@ -166,7 +166,7 @@ class MyUserService extends DisposableService {
   /// [ConfirmationCode].
   Future<void> addUserPhone(UserPhone phone) async {
     Log.debug('addUserPhone($phone)', '$runtimeType');
-    await _userRepo.addUserPhone(phone);
+    await _myUserRepo.addUserPhone(phone);
   }
 
   /// Confirms the given [MyUserEmails.unconfirmed] address with the provided
@@ -174,7 +174,7 @@ class MyUserService extends DisposableService {
   /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
   Future<void> confirmEmailCode(ConfirmationCode code) async {
     Log.debug('confirmEmailCode($code)', '$runtimeType');
-    await _userRepo.confirmEmailCode(code);
+    await _myUserRepo.confirmEmailCode(code);
   }
 
   /// Confirms the given [MyUserPhones.unconfirmed] number with the provided
@@ -182,21 +182,21 @@ class MyUserService extends DisposableService {
   /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
     Log.debug('confirmPhoneCode($code)', '$runtimeType');
-    await _userRepo.confirmPhoneCode(code);
+    await _myUserRepo.confirmPhoneCode(code);
   }
 
   /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address for
   /// the authenticated [MyUser].
   Future<void> resendEmail() async {
     Log.debug('resendEmail()', '$runtimeType');
-    await _userRepo.resendEmail();
+    await _myUserRepo.resendEmail();
   }
 
   /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
   /// the authenticated [MyUser].
   Future<void> resendPhone() async {
     Log.debug('resendPhone()', '$runtimeType');
-    await _userRepo.resendPhone();
+    await _myUserRepo.resendPhone();
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -204,13 +204,13 @@ class MyUserService extends DisposableService {
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
-    await _userRepo.createChatDirectLink(slug);
+    await _myUserRepo.createChatDirectLink(slug);
   }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
   Future<void> deleteChatDirectLink() async {
     Log.debug('deleteChatDirectLink()', '$runtimeType');
-    await _userRepo.deleteChatDirectLink();
+    await _myUserRepo.deleteChatDirectLink();
   }
 
   /// Updates or resets the [MyUser.avatar] field with the provided image
@@ -220,7 +220,7 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
-    await _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
+    await _myUserRepo.updateAvatar(file, onSendProgress: onSendProgress);
   }
 
   /// Updates or resets the [MyUser.callCover] field with the provided image
@@ -230,25 +230,25 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateCallCover($file, onSendProgress)', '$runtimeType');
-    await _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
+    await _myUserRepo.updateCallCover(file, onSendProgress: onSendProgress);
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', '$runtimeType');
-    await _userRepo.toggleMute(mute);
+    await _myUserRepo.toggleMute(mute);
   }
 
   /// Removes [MyUser] from the local data storage.
   Future<void> clearCached() async {
     Log.debug('clearCached()', '$runtimeType');
-    await _userRepo.clearCache();
+    await _myUserRepo.clearCache();
   }
 
   /// Refreshes the [MyUser] to be up to date.
   Future<void> refresh() async {
     Log.debug('refresh()', '$runtimeType');
-    await _userRepo.refresh();
+    await _myUserRepo.refresh();
   }
 
   /// Callback to be called when [MyUser]'s password is updated.
@@ -273,6 +273,5 @@ class MyUserService extends DisposableService {
 
     _auth.logout();
     router.auth();
-    await clearCached();
   }
 }

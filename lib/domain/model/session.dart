@@ -121,5 +121,3 @@ class Credentials {
     };
   }
 }
-
-typedef AccountData = ({MyUser myUser, Credentials creds});

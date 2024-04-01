@@ -378,9 +378,26 @@ class AuthService extends GetxService {
   }
 
   /// Authorizes the current [Session] from the provided [credentials].
-  // @visibleForTesting
-  Future<void> signInWith(UserId id) async {
-    Log.debug('signInWith($id)', '$runtimeType');
+  @visibleForTesting
+  Future<void> signInWith(Credentials credentials) async {
+    Log.debug('signInWith($credentials)', '$runtimeType');
+
+    // Check if the [credentials] are valid.
+    credentials =
+        await _authRepository.renewSession(credentials.rememberedSession.token);
+
+    status.value = RxStatus.loadingMore();
+    await WebUtils.protect(() async {
+      _authorized(credentials);
+      _credentialsProvider.put(credentials);
+      status.value = RxStatus.success();
+    });
+  }
+
+  /// Authorizes the [Session] if there are any saved [Credentials] for the
+  /// given [id].
+  Future<void> signInToSavedAccount(UserId id) async {
+    Log.debug('signInToSavedAccount($id)', '$runtimeType');
 
     Credentials? credentials = _credentialsProvider.get(id);
     if (credentials != null) {
@@ -396,6 +413,12 @@ class AuthService extends GetxService {
         status.value = RxStatus.success();
       });
     }
+  }
+
+  /// Removes [Credentials] paired to the provided [id] from
+  /// [CredentialsHiveProvider].
+  Future<void> deleteAccount(UserId id) async {
+    await _credentialsProvider.remove(id);
   }
 
   // TODO: Clean Hive storage on logout.

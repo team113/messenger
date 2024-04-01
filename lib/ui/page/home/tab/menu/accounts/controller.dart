@@ -35,6 +35,8 @@ import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
+typedef AccountData = ({Rx<MyUser?> myUser, RxUser user});
+
 /// Possible [AccountsView] flow stage.
 enum AccountsViewStage {
   accounts,
@@ -49,7 +51,7 @@ enum AccountsViewStage {
 /// Controller of an [AccountsView].
 class AccountsController extends GetxController {
   AccountsController(
-    this._myUser,
+    this._myUserService,
     this._authService,
     this._userService, {
     AccountsViewStage initial = AccountsViewStage.accounts,
@@ -78,13 +80,13 @@ class AccountsController extends GetxController {
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Reactive map of authenticated [MyUser]s.
-  late final RxMap<UserId, Rx<MyUser?>> _accounts = _myUser.myUsers;
+  RxMap<UserId, Rx<MyUser?>> get _accounts => _myUserService.myUsers;
 
   /// Reactive list of [MyUser]s paired with the corresponding [User]s.
-  final RxList<(Rx<MyUser?>, RxUser)> accounts = RxList();
+  final RxList<AccountData> accounts = RxList();
 
   /// [MyUserService] ...
-  final MyUserService _myUser;
+  final MyUserService _myUserService;
 
   /// [AuthService] ...
   final AuthService _authService;
@@ -92,14 +94,21 @@ class AccountsController extends GetxController {
   /// [UserService] ...
   final UserService _userService;
 
-  /// ...
-  final Map<UserId, StreamSubscription> _userSubscriptions = {};
+  // /// ...
+  // final Map<UserId, StreamSubscription> _userSubscriptions = {};
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUser.myUser;
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  Worker? _myUsersWorker;
 
   @override
   void onInit() {
+    _myUsersWorker ??= ever(_accounts, (_) {
+      _populateUsers();
+      accounts.refresh();
+    });
+
     login = TextFieldState(onSubmitted: (s) {
       password.focus.requestFocus();
     });
@@ -150,8 +159,6 @@ class AccountsController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        print(s.error.value);
-
         if (s.error.value != null) {
           return;
         }
@@ -199,11 +206,7 @@ class AccountsController extends GetxController {
           graphQlProvider.token = creds!.session.token;
           await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
 
-          // router.noIntroduction = false;
-          // router.signUp = true;
           await switchTo(creds!.userId);
-
-          // _redirect();
         } on FormatException catch (_) {
           graphQlProvider.token = null;
           s.error.value = 'err_wrong_recovery_code'.l10n;
@@ -215,70 +218,84 @@ class AccountsController extends GetxController {
       },
     );
 
-    _initUsers();
+    _populateUsers();
 
     super.onInit();
   }
 
-  void _initUsers() async {
+  void _populateUsers() async {
     status.value = RxStatus.loading();
 
-    for (var e in _accounts.entries) {
+    final values = <AccountData>[];
+
+    for (final e in _accounts.entries) {
       final UserId id = e.key;
       final Rx<MyUser?> myUser = e.value;
 
+      print(myUser);
+
       if (myUser.value != null) {
-        final user = await _userService.get(id);
+        final FutureOr<RxUser?> futureOrUser = _userService.get(id);
+        final user =
+            futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+
         if (user != null) {
-          accounts.add((myUser, user));
+          values.add((myUser: myUser, user: user));
         }
       }
     }
 
-    accounts.sort((a, b) {
-      if (_authService.credentials.value?.userId == a.$2.id) {
+    values.sort((a, b) {
+      if (_authService.credentials.value?.userId == a.user.id) {
         return -1;
-      } else if (_authService.credentials.value?.userId == b.$2.id) {
+      } else if (_authService.credentials.value?.userId == b.user.id) {
         return 1;
-      } else if (a.$2.user.value.online && !b.$2.user.value.online) {
+      } else if (a.user.user.value.online && !b.user.user.value.online) {
         return -1;
-      } else if (!a.$2.user.value.online && b.$2.user.value.online) {
+      } else if (!a.user.user.value.online && b.user.user.value.online) {
         return 1;
-      } else if (a.$2.user.value.lastSeenAt == null ||
-          b.$2.user.value.lastSeenAt == null) {
+      } else if (a.user.user.value.lastSeenAt == null ||
+          b.user.user.value.lastSeenAt == null) {
         return -1;
       }
 
-      return -a.$2.user.value.lastSeenAt!.compareTo(
-        b.$2.user.value.lastSeenAt!,
+      return -a.user.user.value.lastSeenAt!.compareTo(
+        b.user.user.value.lastSeenAt!,
       );
     });
+
+    accounts.value = values;
 
     status.value = RxStatus.success();
   }
 
   @override
   void onClose() {
-    for (var e in _userSubscriptions.values) {
-      e.cancel();
-    }
-    _userSubscriptions.clear();
+    // for (var e in _userSubscriptions.values) {
+    //   e.cancel();
+    // }
+    // _userSubscriptions.clear();
+    _myUsersWorker?.dispose();
 
     super.onClose();
   }
 
   Future<void> delete(UserId id) async {
-    // await _authService.deleteAccount(account);
+    // accounts.removeWhere((e) => e.user.id == id);
+    // accounts.refresh();
 
-    // if (_authService.userId == account.myUser.id) {
-    //   final next = accounts.skip(1);
+    await _authService.deleteAccount(id);
 
-    //   if (next.isEmpty) {
-    //     router.go(await _authService.logout());
-    //   } else {
-    //     await switchTo(next.first.account);
-    //   }
-    // }
+    if (id == _authService.userId) {
+      final Iterable<AccountData> others =
+          accounts.where((e) => e.user.id != id);
+
+      if (others.isEmpty) {
+        router.go(await _authService.logout());
+      } else {
+        await switchTo(others.first.user.id);
+      }
+    }
   }
 
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
@@ -290,7 +307,7 @@ class AccountsController extends GetxController {
       if (id == null) {
         await _authService.register();
       } else {
-        await _authService.signInWith(id);
+        await _authService.signInToSavedAccount(id);
       }
     } catch (e) {
       Future.delayed(const Duration(milliseconds: 1000)).then((v) {

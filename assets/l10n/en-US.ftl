@@ -678,6 +678,7 @@ label_duration_second_short = s
 label_edit = Edit
 label_email = E-mail
 label_email_not_verified = E-mail not verified
+label_email_or_password_not_set = E-mail or phone number are not set. Access to the account will be lost.
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
@@ -813,7 +814,7 @@ label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
-label_password_not_set = Password not set. Access to the account will be lost.
+label_password_not_set = Password is not set. Access to the account will be lost.
 label_password_not_set_info = No password has been set for your account. Consequently:
 
     • access to your account will be lost forever when you close the current window;

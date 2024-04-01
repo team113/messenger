@@ -119,6 +119,24 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// requests should be made.
   bool _disposed = false;
 
+  /// Updates [myUsers] according to the current [_credentialsLocal] values.
+  void _populateMyUsers() {
+    // Log.debug('_populateMyUsers()', '$runtimeType');
+
+    final Iterable<UserId> authenticatedIds =
+        _credentialsLocal.valuesSafe.map((e) => e.userId);
+
+    myUsers.value = {
+      for (final HiveMyUser u in _myUserLocal.values)
+        if (authenticatedIds.contains(u.value.id))
+          u.value.id: myUsers[u.value.id] ?? Rx(u.value),
+    };
+
+    Log.debug(
+        '_populateMyUsers() ${myUsers.values.map((e) => e.value?.name?.val ?? e.value?.num.val)}',
+        '$runtimeType');
+  }
+
   /// Sets [myUser]'s value if it's `null` and returns the stored value of the
   /// currently active [MyUser], if any.
   HiveMyUser? _ensureMyUserSet() {
@@ -147,12 +165,12 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _ensureMyUserSet();
 
-    myUsers.value = {
-      for (final HiveMyUser u in _myUserLocal.values) u.value.id: Rx(u.value),
-    };
+    _populateMyUsers();
 
     _initLocalSubscription();
     _initRemoteSubscriptions();
+
+    _credentialsLocal.boxEvents.listen((_) => _populateMyUsers());
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -172,6 +190,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
+  final Map<UserId, GraphQlProvider> rawProviders = {};
+
   Future<void> _initRemoteSubscriptions() async {
     if (_disposed) {
       return;
@@ -186,8 +206,14 @@ class MyUserRepository implements AbstractMyUserRepository {
         continue;
       }
 
-      final session = creds.session;
-      final id = creds.userId;
+      final Session session = creds.session;
+      final UserId id = creds.userId;
+
+      // TODO: Не использовать провайдеры после того, как получится нормально
+      // прикрутить `RawClientOptions` к [GraphQlClient.subscribe],
+      final rawProvider = rawProviders[id] ?? GraphQlProvider();
+      rawProvider.token = session.token;
+      rawProviders[id] = rawProvider;
 
       _remoteSubscriptions[id]?.close(immediate: true);
       final subscription = StreamQueue(
@@ -203,8 +229,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
             return myUserEntity?.ver;
           },
-          // TODO: Не забыть про `refreshToken`.
-          raw: RawClientOptions(session.token),
+          // // TODO: Не забыть про `refreshToken`.
+          // raw: RawClientOptions(session.token),
+          provider: rawProvider,
         ),
       );
 
@@ -685,9 +712,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         }
       }
 
-      myUsers.value = {
-        for (final HiveMyUser u in _myUserLocal.values) u.value.id: Rx(u.value),
-      };
+      _populateMyUsers();
     }
   }
 
@@ -967,7 +992,14 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.deleted:
           event as EventUserDeleted;
-          onUserDeleted();
+
+          _credentialsLocal.remove(event.userId);
+
+          if (event.userId == _activeAccountLocal.userId) {
+            _activeAccountLocal.clear();
+            onUserDeleted();
+          }
+
           break;
 
         case MyUserEventKind.directLinkDeleted:
@@ -1011,10 +1043,13 @@ class MyUserRepository implements AbstractMyUserRepository {
   Stream<MyUserEventsVersioned> _myUserRemoteEvents(
     MyUserVersion? Function() ver, {
     RawClientOptions? raw,
+    GraphQlProvider? provider,
   }) {
     Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
 
-    return _graphQlProvider.myUserEvents(ver, raw: raw).asyncExpand(
+    return (provider ?? _graphQlProvider)
+        .myUserEvents(ver, raw: raw)
+        .asyncExpand(
       (event) async* {
         Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
 
