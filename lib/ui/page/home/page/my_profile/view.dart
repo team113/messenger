@@ -1093,7 +1093,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
             ),
           ),
           const SizedBox(width: 10),
-          Flexible(
+          Expanded(
             child: DefaultTextStyle.merge(
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -1124,24 +1124,16 @@ Widget _bar(MyProfileController c, BuildContext context) {
             child: Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Obx(() {
-                if (true) {
-                  return WidgetButton(
-                    child: Text(
-                      'Добавить\nаккаунт',
-                      style: style.fonts.small.regular.primary,
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-                // else {
-                // return WidgetButton(
-                //   child: Text(
-                //     'Сменить\nаккаунт',
-                //     style: style.fonts.small.regular.primary,
-                //     textAlign: TextAlign.center,
-                //   ),
-                // );
-                // }
+                final bool hasMultipleAccounts = c.accounts.length > 1;
+                final String label = hasMultipleAccounts
+                    ? 'btn_change_account_with_break'
+                    : 'btn_add_account_with_break';
+
+                return Text(
+                  label.l10n,
+                  style: style.fonts.small.regular.primary,
+                  textAlign: TextAlign.center,
+                );
               }),
             ),
           ),
@@ -1172,7 +1164,6 @@ Widget _bar(MyProfileController c, BuildContext context) {
             child: title,
           ),
         ),
-        const SizedBox(width: 52),
       ],
     );
   });

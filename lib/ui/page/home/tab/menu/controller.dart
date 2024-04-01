@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
@@ -48,7 +49,8 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  RxMap get accounts => _myUserService.myUsers;
+  /// Returns currently authenticated [MyUser]s.
+  RxMap<UserId, Rx<MyUser?>> get accounts => _myUserService.myUsers;
 
   @override
   void onClose() {

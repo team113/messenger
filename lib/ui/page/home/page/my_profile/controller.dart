@@ -131,6 +131,9 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
+  /// Returns currently authenticated [MyUser]s.
+  RxMap<UserId, Rx<MyUser?>> get accounts => _myUserService.myUsers;
+
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {

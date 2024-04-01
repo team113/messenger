@@ -138,20 +138,18 @@ class MenuTabView extends StatelessWidget {
                 onPressed: () => AccountsView.show(context),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
-                  child: WidgetButton(
-                    child: Obx(() {
-                      final bool hasMultipleAccounts = c.accounts.length > 1;
-                      final String label = hasMultipleAccounts
-                          ? 'btn_change_account_with_break'
-                          : 'btn_add_account_with_break';
+                  child: Obx(() {
+                    final bool hasMultipleAccounts = c.accounts.length > 1;
+                    final String label = hasMultipleAccounts
+                        ? 'btn_change_account_with_break'
+                        : 'btn_add_account_with_break';
 
-                      return Text(
-                        label.l10n,
-                        style: style.fonts.small.regular.primary,
-                        textAlign: TextAlign.center,
-                      );
-                    }),
-                  ),
+                    return Text(
+                      label.l10n,
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    );
+                  }),
                 ),
               ),
             ],
