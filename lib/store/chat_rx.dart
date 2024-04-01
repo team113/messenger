@@ -995,19 +995,6 @@ class HiveRxChat extends RxChat {
             }
           }
 
-          // If [Chat.lastItem] has changed during the query then set
-          // [PageInfo.hasNext] to `true`.
-          if (page.info.hasNext == false &&
-              page.edges.isNotEmpty &&
-              chat.value.lastItem != null &&
-              page.edges.last.value.at.isBefore(chat.value.lastItem!.at)) {
-            if (_provider.graphQlProvider.reversed) {
-              reversed.info.hasPrevious = true;
-            } else {
-              reversed.info.hasNext = true;
-            }
-          }
-
           return reversed;
         },
       ),

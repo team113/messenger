@@ -327,6 +327,10 @@ class Pagination<T, C, K> {
     bool put = ignoreBounds;
 
     if (!put) {
+      // Wait for [items] fetching before putting a new one.
+      await _guard.protect(() async => null);
+      await _nextGuard.protect(() async => null);
+      await _previousGuard.protect(() async => null);
       if (items.isEmpty) {
         put = hasNext.isFalse && hasPrevious.isFalse;
       } else if (compare?.call(item, items.last) == 1) {
