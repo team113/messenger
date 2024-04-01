@@ -557,6 +557,7 @@ class SubscriptionHandle {
         },
         onDone: _resubscribe,
         onError: (e) {
+          Log.info('EXCEPTION: $e', _options.operationName);
           _controller.addError(e);
           if (e is ResubscriptionRequiredException) {
             _resubscribe();

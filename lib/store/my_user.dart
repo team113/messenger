@@ -23,9 +23,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '../domain/model/session.dart';
-import '../provider/gql/base.dart';
-import '../provider/hive/credentials.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -35,14 +32,17 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/active_account.dart';
 import '/provider/hive/blocklist.dart';
+import '/provider/hive/credentials.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -192,9 +192,19 @@ class MyUserRepository implements AbstractMyUserRepository {
       _remoteSubscriptions[id]?.close(immediate: true);
       final subscription = StreamQueue(
         _myUserRemoteEvents(
-          () => null,
+          () {
+            final HiveMyUser? myUserEntity = _myUserLocal.get(id);
+
+            // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
+            // is `null`, to retrieve it.
+            if (myUserEntity?.value.blocklistCount == null) {
+              return null;
+            }
+
+            return myUserEntity?.ver;
+          },
           // TODO: Не забыть про `refreshToken`.
-          raw: RawClientOptions(session.token),
+          raw: RawClientOptions(),
         ),
       );
 
@@ -217,7 +227,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _disposed = true;
     _localSubscription?.cancel();
-    _remoteSubscription?.close(immediate: true);
+    _remoteSubscriptions.values.map((s) => s.close(immediate: true));
     _keepOnlineSubscription?.cancel();
     _onFocusChanged?.cancel();
   }
