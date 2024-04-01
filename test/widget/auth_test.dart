@@ -33,6 +33,7 @@ import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';

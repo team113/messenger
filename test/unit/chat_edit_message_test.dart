@@ -32,6 +32,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
@@ -92,6 +93,8 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  final accountProvider = ActiveAccountHiveProvider();
+  await accountProvider.init();
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -204,6 +207,7 @@ void main() async {
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
         credentialsProvider,
+        accountProvider,
       ),
     );
     authService.init();
@@ -277,6 +281,7 @@ void main() async {
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
         credentialsProvider,
+        accountProvider,
       ),
     );
     authService.init();

@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
@@ -156,6 +157,8 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  final accountProvider = ActiveAccountHiveProvider();
+  await accountProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
@@ -198,8 +201,11 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credentialsProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credentialsProvider,
+      accountProvider,
+    ));
     authService.init();
 
     UserRepository userRepository =
@@ -331,8 +337,11 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credentialsProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credentialsProvider,
+      accountProvider,
+    ));
     authService.init();
 
     UserRepository userRepository =
@@ -407,8 +416,11 @@ void main() async {
     final graphQlProvider = _FakeGraphQlProvider();
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credentialsProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credentialsProvider,
+      accountProvider,
+    ));
     authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(

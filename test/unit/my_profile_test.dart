@@ -23,6 +23,8 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/gql/base.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -49,6 +51,8 @@ void main() async {
   await sessionProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
+  final accountProvider = ActiveAccountHiveProvider();
+  await accountProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -58,7 +62,11 @@ void main() async {
 
     final graphQlProvider = FakeGraphQlProvider();
 
-    Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
+    Get.put(AuthService(
+      AuthRepository(graphQlProvider),
+      getStorage,
+      accountProvider,
+    ));
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -81,6 +89,8 @@ void main() async {
           myUserProvider,
           blocklistRepository,
           userRepository,
+          accountProvider,
+          getStorage,
         ),
       ),
     );
@@ -122,7 +132,10 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   };
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) {
+  Stream<QueryResult> myUserEvents(
+    MyUserVersion? Function()? getVer, {
+    RawClientOptions? raw,
+  }) {
     return Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,

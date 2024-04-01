@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/provider/gql/base.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/model/contact.dart';
@@ -138,7 +139,10 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
       });
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) =>
+  Stream<QueryResult> myUserEvents(
+    MyUserVersion? Function()? getVer, {
+    RawClientOptions? raw,
+  }) =>
       const Stream.empty();
 
   @override
