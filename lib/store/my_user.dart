@@ -204,7 +204,7 @@ class MyUserRepository implements AbstractMyUserRepository {
             return myUserEntity?.ver;
           },
           // TODO: Не забыть про `refreshToken`.
-          raw: RawClientOptions(),
+          raw: RawClientOptions(session.token),
         ),
       );
 

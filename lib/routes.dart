@@ -58,7 +58,6 @@ import 'provider/hive/favorite_chat.dart';
 import 'provider/hive/favorite_contact.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
-import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
 import 'provider/hive/session_data.dart';
 import 'provider/hive/user.dart';
