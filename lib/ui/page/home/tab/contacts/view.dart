@@ -181,6 +181,15 @@ class ContactsTabView extends StatelessWidget {
                 return Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    if (c.search.value == null && !c.selecting.value)
+                      AnimatedButton(
+                        decorator: (child) => Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+                          child: child,
+                        ),
+                        onPressed: onSwitched,
+                        child: const SvgIcon(SvgIcons.chatsSwitch),
+                      ),
                     if (child != null)
                       WidgetButton(
                         key: c.search.value != null
@@ -301,21 +310,14 @@ class ContactsTabView extends StatelessWidget {
                   );
                 }
 
-                return AnimatedButton(
-                  decorator: (child) => Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 10),
-                    child: child,
-                  ),
+                return Padding(
+                  padding: const EdgeInsets.only(left: 19, right: 18),
                   child: AnimatedSwitcher(
                     duration: 250.milliseconds,
                     child: WidgetButton(
                       key: c.search.value != null
                           ? const Key('CloseSearchButton')
                           : const Key('SearchButton'),
-                      onPressed: c.search.value == null
-                          // ? () => c.toggleSearch(true)
-                          ? onSwitched
-                          : () {},
                       child: SizedBox(
                         height: double.infinity,
                         child: c.search.value != null
@@ -325,7 +327,7 @@ class ContactsTabView extends StatelessWidget {
                                 size: 20,
                                 color: style.colors.primary,
                               )
-                            : const SvgIcon(SvgIcons.chatsLogo),
+                            : const SvgIcon(SvgIcons.contactsLogo),
                       ),
                     ),
                   ),

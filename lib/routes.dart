@@ -115,6 +115,7 @@ class Routes {
   static const work = '/work';
   static const terms = '/terms';
   static const nowhere = '/nowhere';
+  static const withdraw = '/withdraw';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -155,6 +156,15 @@ enum ProfileTab {
 }
 
 enum BalanceProvider {
+  usdt,
+  bitcoin,
+  paypal,
+  card,
+  sepa,
+  swift,
+}
+
+enum WithdrawMethod {
   usdt,
   bitcoin,
   paypal,
@@ -393,7 +403,9 @@ class AppRouteInformationParser
     String route = routeInformation.uri.path;
     HomeTab? tab;
 
-    if (route.startsWith(Routes.work) || route == Routes.faq) {
+    if (route.startsWith(Routes.work) ||
+        route == Routes.faq ||
+        route == Routes.withdraw) {
       tab = HomeTab.work;
     } else if (route.startsWith(Routes.balance)) {
       tab = HomeTab.balance;
@@ -893,6 +905,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.balance) ||
         _state.route.startsWith(Routes.topUp) ||
         _state.route.startsWith(Routes.faq) ||
+        _state.route.startsWith(Routes.withdraw) ||
         _state.route.startsWith(Routes.terms) ||
         _state.route.startsWith(Routes.transaction) ||
         _state.route.startsWith(Routes.style) ||
@@ -1042,6 +1055,9 @@ extension RouteLinks on RouterState {
     push ? this.push(Routes.topUp) : go(Routes.topUp);
     balanceSection.value = provider;
   }
+
+  void withdraw({bool push = false}) =>
+      (push ? this.push : go)(Routes.withdraw);
 
   void transaction(String id, {bool push = false}) => push
       ? this.push('${Routes.transaction}/$id')

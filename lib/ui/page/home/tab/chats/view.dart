@@ -275,18 +275,12 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      return AnimatedButton(
-                        onPressed: () {
-                          onSwitched?.call();
-                        },
-                        decorator: (child) => Padding(
-                          padding: const EdgeInsets.only(left: 20, right: 10),
-                          child: child,
-                        ),
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 20, right: 14),
                         child: Transform.translate(
                           offset: const Offset(-1, 0),
                           child: const SvgIcon(
-                            SvgIcons.contactsLogo,
+                            SvgIcons.chatsLogo,
                             key: Key('Contacts'),
                           ),
                         ),
@@ -333,6 +327,19 @@ class ChatsTabView extends StatelessWidget {
                       return Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (!c.searching.value &&
+                              !c.groupCreating.value &&
+                              !c.selecting.value)
+                            AnimatedButton(
+                              decorator: (child) => Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 12, 0),
+                                child: child,
+                              ),
+                              onPressed: () {
+                                onSwitched?.call();
+                              },
+                              child: const SvgIcon(SvgIcons.contactsSwitch),
+                            ),
                           WidgetButton(
                             key: c.searching.value
                                 ? const Key('CloseSearchButton')
@@ -366,7 +373,7 @@ class ChatsTabView extends StatelessWidget {
                                 right: !c.searching.value &&
                                         !c.groupCreating.value &&
                                         !c.selecting.value
-                                    ? 8
+                                    ? 6
                                     : 16,
                               ),
                               height: double.infinity,

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/ui/widget/context_menu/tile.dart';
+import 'package:messenger/util/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
@@ -386,6 +387,27 @@ class _HomeViewState extends State<HomeView> {
                                             const EdgeInsets.only(bottom: 8),
                                         actions: [
                                           // ...top,
+                                          ContextMenuBuilder((p) {
+                                            final c = Get.findOrNull<
+                                                ChatsContactsTabController>();
+
+                                            if (c == null) {
+                                              return const SizedBox();
+                                            }
+
+                                            return ContextMenuTile(
+                                              label: c.switched.value
+                                                  ? 'label_chats'.l10n
+                                                  : 'label_contacts'.l10n,
+                                              onPressed: (_) =>
+                                                  c.switched.toggle(),
+                                              asset: c.switched.value
+                                                  ? SvgIcons.chatsSwitch
+                                                  : SvgIcons.contactsSwitch,
+                                              pinnable: false,
+                                            );
+                                          }),
+                                          const ContextMenuDivider(),
                                           ContextMenuTile(
                                             label: c.myUser.value?.muted != null
                                                 ? 'btn_unmute_chats'.l10n

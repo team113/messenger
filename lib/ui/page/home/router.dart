@@ -35,6 +35,7 @@ import 'page/public/view.dart';
 import 'page/transaction/view.dart';
 import 'page/user/view.dart';
 import 'page/balance/view.dart';
+import 'page/withdraw/view.dart';
 
 /// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
 ///
@@ -153,6 +154,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('FaqPage'),
           name: Routes.faq,
           child: FaqView(),
+        ));
+      } else if (route == Routes.withdraw) {
+        pages.add(const CustomPage(
+          key: ValueKey('WithdrawPage'),
+          name: Routes.withdraw,
+          child: WithdrawView(),
         ));
       } else if (route == Routes.terms) {
         pages.add(const CustomPage(

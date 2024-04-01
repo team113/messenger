@@ -261,18 +261,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
           if (PlatformUtils.isMobile) {
             if (b is ContextMenuDivider) {
-              child = const SizedBox();
+              child = b;
             } else {
               child = Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   b,
-                  if (i < widget.actions.length - 1)
-                    Container(
-                      color: style.colors.onBackgroundOpacity7,
-                      height: 1,
-                      width: double.infinity,
-                    ),
+                  // if (i < widget.actions.length - 1)
+                  //   Container(
+                  //     color: style.colors.onBackgroundOpacity7,
+                  //     height: 1,
+                  //     width: double.infinity,
+                  //   ),
                 ],
               );
             }

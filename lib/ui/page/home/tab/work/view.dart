@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/ui/widget/svg/svg.dart';
@@ -108,58 +109,76 @@ class WorkTabView extends StatelessWidget {
               const SizedBox(width: 16),
             ],
           ),
-          // appBar: CustomAppBar(
-          //   leading: [
-          //     AnimatedButton(
-          //       decorator: (child) => Container(
-          //         margin: const EdgeInsets.only(left: 18),
-          //         height: double.infinity,
-          //         child: Center(child: child),
-          //       ),
-          //       onPressed: router.faq,
-          //       child: Center(
-          //         child: Icon(
-          //           Icons.question_mark_rounded,
-          //           color: style.colors.primary,
-          //           size: 22,
-          //         ),
-          //       ),
-          //     ),
-          //   ],
-          //   title: Text('label_work_with_us'.l10n),
-          //   actions: [
-          //     AnimatedButton(
-          //       decorator: (child) => Container(
-          //         padding: const EdgeInsets.only(right: 18),
-          //         height: double.infinity,
-          //         child: Center(child: child),
-          //       ),
-          //       onPressed: () {
-          //         // No-op.
-          //       },
-          //       child: Icon(Icons.more_vert, color: style.colors.primary),
-          //     ),
-          //   ],
-          // ),
           body: SafeScrollbar(
             controller: c.scrollController,
-            child: ListView.builder(
+            child: ListView(
               controller: c.scrollController,
-              itemCount: WorkTab.values.length,
-              itemBuilder: (_, i) {
-                final WorkTab e = WorkTab.values[i];
-
-                return Padding(
+              children: [
+                Padding(
                   padding: const EdgeInsets.symmetric(vertical: 1.5),
-                  child: VacancyWorkButton(e),
-                );
-              },
+                  child: Obx(() {
+                    return MenuButton(
+                      title: 'Вывести деньги',
+                      inverted: router.routes.lastOrNull == Routes.withdraw,
+                      onPressed: router.withdraw,
+                    );
+                  }),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                  child: MenuButton(
+                    title: 'Транзакции',
+                    onPressed: () {},
+                  ),
+                ),
+                _label(context, 'Партнёрская программа'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                  child: MenuButton(
+                    title: 'Кнопка 1',
+                    onPressed: () {},
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                  child: MenuButton(
+                    title: 'Кнопка 2',
+                    onPressed: () {},
+                  ),
+                ),
+                _label(context, 'Вакансии'),
+                ...WorkTab.values.map((e) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 1.5),
+                    child: VacancyWorkButton(e),
+                  );
+                }),
+              ],
             ),
           ),
           extendBodyBehindAppBar: true,
           extendBody: true,
         );
       },
+    );
+  }
+
+  Widget _label(BuildContext context, String label) {
+    final style = Theme.of(context).style;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 24, 0, 6),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: Text(label, style: style.systemMessageStyle),
+        ),
+      ),
     );
   }
 }

@@ -424,6 +424,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               _dragged = null;
               _items.insert(to, data);
               _populateExpandedKeys();
+              widget.onReorder?.call(_items.map((e) => e.item).toList());
               widget.onDragEnded?.call(_items[to].item);
             });
           }
@@ -470,13 +471,12 @@ class _DockState<T extends Object> extends State<Dock<T>> {
               _items.insert(to, data);
               _populateExpandedKeys();
               _compressed = -1;
+              widget.onReorder?.call(_items.map((e) => e.item).toList());
             });
           }
         },
       );
     }
-
-    widget.onReorder?.call(_items.map((e) => e.item).toList());
   }
 
   /// Calculates the position to drop the provided item at.
