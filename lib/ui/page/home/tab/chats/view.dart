@@ -286,7 +286,7 @@ class ChatsTabView extends StatelessWidget {
                         child: Transform.translate(
                           offset: const Offset(-1, 0),
                           child: const SvgIcon(
-                            SvgIcons.chats,
+                            SvgIcons.contactsLogo,
                             key: Key('Contacts'),
                           ),
                         ),

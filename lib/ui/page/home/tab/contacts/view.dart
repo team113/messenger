@@ -116,12 +116,10 @@ class ContactsTabView extends StatelessWidget {
                 if (c.fetching.value == null && c.status.value.isLoadingMore) {
                   synchronization = Padding(
                     padding: const EdgeInsets.only(top: 2),
-                    child: Center(
-                      child: Text(
-                        'label_synchronization'.l10n,
-                        style: style.fonts.small.regular.onBackground.copyWith(
-                          color: style.colors.secondary,
-                        ),
+                    child: Text(
+                      'label_synchronization'.l10n,
+                      style: style.fonts.small.regular.onBackground.copyWith(
+                        color: style.colors.secondary,
                       ),
                     ),
                   );
@@ -129,16 +127,19 @@ class ContactsTabView extends StatelessWidget {
                   synchronization = const SizedBox.shrink();
                 }
 
-                child = Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('label_contacts'.l10n),
-                    AnimatedSizeAndFade(
-                      sizeDuration: const Duration(milliseconds: 300),
-                      fadeDuration: const Duration(milliseconds: 300),
-                      child: synchronization,
-                    ),
-                  ],
+                child = Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('label_contacts'.l10n),
+                      AnimatedSizeAndFade(
+                        sizeDuration: const Duration(milliseconds: 300),
+                        fadeDuration: const Duration(milliseconds: 300),
+                        child: synchronization,
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -172,7 +173,7 @@ class ContactsTabView extends StatelessWidget {
                               key: Key('CloseGroupSearching'),
                             )
                       : const SvgIcon(
-                          SvgIcons.chatsSwitch,
+                          SvgIcons.search,
                           key: Key('Chats'),
                         );
                 }
@@ -195,7 +196,8 @@ class ContactsTabView extends StatelessWidget {
                           } else if (c.selecting.value) {
                             c.toggleSelecting();
                           } else {
-                            onSwitched?.call();
+                            c.toggleSearch();
+                            // onSwitched?.call();
                           }
                         },
                         child: Container(
@@ -300,6 +302,10 @@ class ContactsTabView extends StatelessWidget {
                 }
 
                 return AnimatedButton(
+                  decorator: (child) => Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 10),
+                    child: child,
+                  ),
                   child: AnimatedSwitcher(
                     duration: 250.milliseconds,
                     child: WidgetButton(
@@ -307,19 +313,19 @@ class ContactsTabView extends StatelessWidget {
                           ? const Key('CloseSearchButton')
                           : const Key('SearchButton'),
                       onPressed: c.search.value == null
-                          ? () => c.toggleSearch(true)
+                          // ? () => c.toggleSearch(true)
+                          ? onSwitched
                           : () {},
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 20, right: 6),
+                      child: SizedBox(
                         height: double.infinity,
                         child: c.search.value != null
                             ? Icon(
                                 key: const Key('ArrowBack'),
                                 Icons.arrow_back_ios_new,
                                 size: 20,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: style.colors.primary,
                               )
-                            : const SvgIcon(SvgIcons.search),
+                            : const SvgIcon(SvgIcons.chatsLogo),
                       ),
                     ),
                   ),

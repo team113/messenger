@@ -2349,4 +2349,16 @@ class SvgIcons {
     width: 23.89,
     height: 22,
   );
+
+  static const SvgData chatsLogo = SvgData(
+    'assets/icons/chats_logo.svg',
+    width: 35.36,
+    height: 30,
+  );
+
+  static const SvgData contactsLogo = SvgData(
+    'assets/icons/contacts_logo.svg',
+    width: 31.99,
+    height: 30,
+  );
 }
