@@ -29,6 +29,7 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import 'hook/performance.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
@@ -281,7 +282,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
-      ..hooks = [ResetAppHook()]
+      ..hooks = [ResetAppHook(), PerformanceHook()]
       ..reporters = [
         StdoutReporter(MessageLevel.verbose)
           ..setWriteLineFn(print)

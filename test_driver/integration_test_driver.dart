@@ -38,5 +38,34 @@ Future<void> main() {
 
   return integration_test_driver.integrationDriver(
     timeout: const Duration(minutes: 30),
+    responseDataCallback: (data) async {
+      for (var e in data?.entries ?? <MapEntry<String, dynamic>>[]) {
+        if (e.value is! Map<String, dynamic>) {
+          continue;
+        }
+
+        final Timeline timeline = Timeline.fromJson(
+          e.value as Map<String, dynamic>,
+        );
+
+        // Convert the [Timeline] into a [TimelineSummary] that's easier to read
+        // and understand.
+        final summary = TimelineSummary.summarize(timeline);
+
+        // Then, write the entire timeline to disk in a json format.
+        //
+        // This file can be opened in the Chrome browser's tracing tools found
+        // by navigating to chrome://tracing.
+        //
+        // Optionally, save the summary to disk by setting `includeSummary` to
+        // `true`.
+        await summary.writeTimelineToFile(
+          e.key,
+          destinationDirectory: 'test/e2e/reports',
+          pretty: true,
+          includeSummary: true,
+        );
+      }
+    },
   );
 }
