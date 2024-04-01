@@ -40,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
         - Missing bottom mobile paddings. ([#886], [#821])
     - Media panel:
         - Missing bottom mobile paddings in panel. ([#886], [#821])
+        - Call buttons positions not being persisted. ([#932])
     - Chat page:
         - Images displayed with vertical gaps on narrow screens. ([#901], [#888])
         - Messages marked as read when gallery is opened. ([#897], [#854])
@@ -73,6 +74,7 @@ All user visible changes to this project will be documented in this file. This p
 [#914]: /../../pull/914
 [#915]: /../../pull/915
 [#919]: /../../pull/919
+[#932]: /../../pull/932
 
 
 
