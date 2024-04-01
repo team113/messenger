@@ -36,6 +36,7 @@ extension MyUserConversion on MyUserMixin {
         hasPassword: hasPassword,
         unreadChatsCount: unreadChatsCount,
         online: online.$$typename == 'UserOnline',
+        // TODO: Get [MyUserMixin$Online] for [MyUser], not [User].
         lastSeenAt: online.$$typename == 'UserOffline' ? null : null,
         chatDirectLink: chatDirectLink != null
             ? ChatDirectLink(

@@ -48,6 +48,8 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  RxMap get accounts => _myUserService.myUsers;
+
   @override
   void onClose() {
     scrollController.dispose();

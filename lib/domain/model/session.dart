@@ -17,8 +17,8 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/user.dart';
+import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'my_user.dart';
 import 'precise_date_time/precise_date_time.dart';

@@ -62,6 +62,10 @@ alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
 alert_you_will_leave_group = Вы покинете группу.
 btn_add = Добавить
+btn_add_account = Добавить аккаунт
+btn_add_account_with_break =
+    Добавить
+    аккаунт
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
 btn_add_participant_desc =
@@ -160,6 +164,9 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Сменить
+btn_change_account_with_break =
+    Сменить
+    аккаунт
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_clear_cache = Очистить кэш
@@ -497,8 +504,10 @@ label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
 label_account = Аккаунт
+label_accounts = Ваши аккаунты
 label_account_created = Аккаунт создан
 label_actions = Действия
+label_active_account = Текущий
 label_add_additional_email = Добавить дополнительный E-mail
 label_add_additional_number = Добавить дополнительный телефон
 label_add_chat_member = Добавление участника

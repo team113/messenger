@@ -25,8 +25,8 @@ import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/login/widget/primary_button.dart';
 import '/ui/page/login/widget/sign_button.dart';
@@ -39,7 +39,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
-/// ...
+/// View for authenticated [MyUser]s management.
 ///
 /// Intended to be displayed with the [show] method.
 class AccountsView extends StatelessWidget {
@@ -71,28 +71,6 @@ class AccountsView extends StatelessWidget {
       init: AccountsController(Get.find(), Get.find(), Get.find()),
       builder: (AccountsController c) {
         return Obx(() {
-          final accounts = c.accounts;
-
-          builder(header, children) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                header,
-                const SizedBox(height: 13),
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    children: [
-                      ...children,
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }
-
           final Widget header;
           List<Widget> children;
 
@@ -295,12 +273,6 @@ class AccountsView extends StatelessWidget {
                       c.stage.value = AccountsViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
-                Center(
-                  child: StyledCupertinoButton(
-                    label: 'btn_terms_and_conditions'.l10n,
-                    onPressed: () {},
-                  ),
-                ),
               ];
 
               children = children
@@ -366,7 +338,6 @@ class AccountsView extends StatelessWidget {
                         child: const SvgIcon(SvgIcons.guest),
                       ),
                       onPressed: () {
-                        // router.accounts.value++;
                         Navigator.of(context).pop();
                         c.switchTo(null);
                       },
@@ -378,7 +349,7 @@ class AccountsView extends StatelessWidget {
               break;
 
             case AccountsViewStage.accounts:
-              header = ModalPopupHeader(text: 'Your accounts'.l10n);
+              header = ModalPopupHeader(text: 'label_accounts'.l10n);
 
               final List<Widget> tiles = [];
 
@@ -464,13 +435,13 @@ class AccountsView extends StatelessWidget {
                           const SizedBox(height: 5),
                           if (c.myUser.value?.id == myUser?.id)
                             Text(
-                              'Active',
+                              'label_active_account'.l10n,
                               style: style.fonts.small.regular.onPrimary,
                             )
                           else
                             Obx(() {
                               return Text(
-                                user.user.value.presence?.name ?? 'Offline',
+                                user.user.value.getStatus() ?? '',
                                 style: style.fonts.small.regular.secondary,
                               );
                             })
@@ -488,7 +459,7 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: PrimaryButton(
                     onPressed: () => c.stage.value = AccountsViewStage.add,
-                    title: 'Add account'.l10n,
+                    title: 'btn_add_account'.l10n,
                   ),
                 ),
               ];
@@ -500,7 +471,23 @@ class AccountsView extends StatelessWidget {
             sizeDuration: const Duration(milliseconds: 250),
             child: KeyedSubtree(
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-              child: builder(header, children),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  header,
+                  const SizedBox(height: 13),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      children: [
+                        ...children,
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         });

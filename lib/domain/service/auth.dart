@@ -84,8 +84,6 @@ class AuthService extends GetxService {
   /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
 
-  // TODO: Добавить сюда обновление [credentials] при изменении в Hive (?)
-  // =====================================================================
   /// [StreamSubscription] to [CredentialsHiveProvider.boxEvents] saving new
   /// [Credentials] to the browser's storage.
   StreamSubscription? _credentialsSubscription;
@@ -290,8 +288,7 @@ class AuthService extends GetxService {
     status.value = RxStatus.loading();
     return WebUtils.protect(() async {
       try {
-        final data = await _authRepository.signUp();
-        final creds = data;
+        final Credentials creds = await _authRepository.signUp();
 
         _authorized(creds);
         _credentialsProvider.put(creds);
@@ -356,15 +353,13 @@ class AuthService extends GetxService {
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
     await WebUtils.protect(() async {
       try {
-        final data = await _authRepository.signIn(
+        final Credentials creds = await _authRepository.signIn(
           password,
           login: login,
           num: num,
           email: email,
           phone: phone,
         );
-
-        final creds = data;
 
         _authorized(creds);
         _credentialsProvider.put(creds);

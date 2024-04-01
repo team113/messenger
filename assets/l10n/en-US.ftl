@@ -62,6 +62,10 @@ alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
 alert_you_will_leave_group = You will leave the group.
 btn_add = Add
+btn_add_account = Add account
+btn_add_account_with_break =
+    Add
+    account
 btn_add_member = Add member
 btn_add_participant = Add participant
 btn_add_participant_desc =
@@ -160,6 +164,9 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
+btn_change_account_with_break =
+    Change
+    account
 btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_clear_cache = Clear cache
@@ -486,8 +493,10 @@ label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
 label_account = Account
+label_accounts = Your accounts
 label_account_created = Account is created
 label_actions = Actions
+label_active_account = Active
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
 label_add_chat_member = Add member

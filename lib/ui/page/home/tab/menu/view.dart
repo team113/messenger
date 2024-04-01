@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../widget/widget_button.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -30,6 +29,7 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'accounts/view.dart';
 import 'controller.dart';
@@ -139,28 +139,19 @@ class MenuTabView extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: WidgetButton(
-                    child: Text(
-                      'Добавить\nаккаунт',
-                      style: style.fonts.small.regular.primary,
-                      textAlign: TextAlign.center,
-                    ),
+                    child: Obx(() {
+                      final bool hasMultipleAccounts = c.accounts.length > 1;
+                      final String label = hasMultipleAccounts
+                          ? 'btn_change_account_with_break'
+                          : 'btn_add_account_with_break';
+
+                      return Text(
+                        label.l10n,
+                        style: style.fonts.small.regular.primary,
+                        textAlign: TextAlign.center,
+                      );
+                    }),
                   ),
-
-                  // return AnimatedButton(
-                  //   decorator: (child) => Padding(
-                  //     padding: const EdgeInsets.fromLTRB(16, 12, 3, 12),
-                  //     child: child,
-                  //   ),
-                  //   child: const SvgIcon(SvgIcons.switchAccount),
-                  // );
-
-                  // return WidgetButton(
-                  //   child: Text(
-                  //     'Сменить\nаккаунт',
-                  //     style: style.fonts.small.regular.primary,
-                  //     textAlign: TextAlign.center,
-                  //   ),
-                  // );
                 ),
               ),
             ],
