@@ -143,19 +143,20 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - run: |
-          make appcast.item link=$(link) version=${{ steps.semver.outputs.group1 }} \
-          > appcast/${{ steps.semver.outputs.group1 }}.xml
+      - run: make appcast.item link=$(link) version=${{ steps.semver.outputs.group1 }}
         env:
           link: ${{ secrets.ARTIFACTS_STABLE }}
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - run: make appcast.index out=.cache/appcast.xml
-        if: ${{ steps.skip.outputs.no == 'true' }}
       - run: |
           cp appcast/${{ steps.semver.outputs.group1 }}.xml \
               .cache/${{ steps.semver.outputs.group1 }}.xml
         if: ${{ steps.skip.outputs.no == 'true' }}
+
+      - run: rm -f appcast/appcast.xml
+      - run: make appcast.index out=.cache/appcast.xml
+        if: ${{ steps.skip.outputs.no == 'true' }}
+
 
       - uses: actions/upload-artifact@v4
         with:
@@ -655,6 +656,7 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
 
       - run: mkdir -p appcast/
+      - run: rm -f appcast/appcast.xml
 
       - uses: actions/download-artifact@v4
         with:
