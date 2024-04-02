@@ -521,7 +521,7 @@ jobs:
           channel: stable
           cache: true
 
-      - run: brew install docker colima
+      - run: brew install docker docker-compose colima
         if: ${{ matrix.platform == 'macos' }}
 
       - name: Login to private E2E container registry
