@@ -523,31 +523,8 @@ jobs:
 
       - run: brew install docker docker-compose colima
         if: ${{ matrix.platform == 'macos' }}
-      - run: |
-          rm -rf ${HOME}/.lima/_config
-          mkdir -p ${HOME}/.colima/_lima/_config
-          touch ${HOME}/.colima/_lima/_config/override.yaml
-          echo "
-            mountType: 9p
-            mounts:
-              - location: "/Users/runner"
-                writable: true
-                9p:
-                  securityModel: mapped-xattr
-                  cache: mmap
-              - location: "~"
-                writable: true
-                9p:
-                  securityModel: mapped-xattr
-                  cache: mmap
-              - location: /tmp/colima
-                writable: true
-                9p:
-                  securityModel: mapped-xattr
-                  cache: mmap
-          " > ${HOME}/.colima/_lima/_config/override.yaml
       - name: Run Colima
-        run: colima start --mount-type 9p
+        run: colima start --vm-type=vz
         if: ${{ matrix.platform == 'macos' }}
 
       - name: Login to private E2E container registry
