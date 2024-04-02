@@ -1300,7 +1300,7 @@ class HiveRxChat extends RxChat {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
         () async {
-          _chatLocal.txn((txn) async {
+          await _chatLocal.txn((txn) async {
             final HiveChat? chat = await txn.get(id.val);
             if (chat != null) {
               chat.value.muted = null;
@@ -1511,7 +1511,7 @@ class HiveRxChat extends RxChat {
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         final node = event as ChatEventsChat;
-        _chatLocal.txn((txn) async {
+        await _chatLocal.txn((txn) async {
           final HiveChat? chatEntity = await txn.get(id.val);
           if (chatEntity != null) {
             chatEntity.value = node.chat.value;

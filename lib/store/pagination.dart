@@ -367,7 +367,7 @@ class Pagination<T, C, K> {
       items.remove(key);
     });
 
-    return provider.remove(key);
+    await provider.remove(key);
   }
 }
 
