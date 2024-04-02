@@ -199,6 +199,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                         ),
                       )
                     : const SizedBox()
+
+                // TODO: Perhaps only use `small` images and/or `thumbhash`?
                 : RetryImage.attachment(
                     attachment as ImageAttachment,
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
