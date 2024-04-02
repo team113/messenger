@@ -527,9 +527,7 @@ jobs:
           rm -rf ${HOME}/.lima/_config
           mkdir -p ${HOME}/.colima/_lima/_config
           touch ${HOME}/.colima/_lima/_config/override.yaml
-          echo "${{ env.YAML }}" > ${HOME}/.colima/_lima/_config/override.yaml
-        env:
-          YAML: |
+          echo "
             mountType: 9p
             mounts:
               - location: ${HOME}
@@ -547,7 +545,7 @@ jobs:
                 9p:
                   securityModel: mapped-xattr
                   cache: mmap
-        if: ${{ matrix.platform == 'macos' }}
+          " > ${HOME}/.colima/_lima/_config/override.yaml
       - name: Run Colima
         run: colima start --mount-type 9p
         if: ${{ matrix.platform == 'macos' }}
