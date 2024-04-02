@@ -79,6 +79,7 @@ class ChatItemWidget extends StatefulWidget {
     this.avatar = true,
     this.reads = const [],
     this.getUser,
+    this.getItem,
     this.onHide,
     this.onDelete,
     this.onReply,
@@ -120,6 +121,10 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final FutureOr<RxUser?> Function(UserId userId)? getUser;
+
+  /// Callback, called when a reactive [ChatItem] identified by the provided
+  /// [ChatItemId] is required.
+  final FutureOr<Rx<ChatItem>?> Function(ChatItemId itemId)? getItem;
 
   /// Callback, called when a hide action of this [ChatItem] is triggered.
   final void Function()? onHide;
@@ -232,6 +237,7 @@ class ChatItemWidget extends StatefulWidget {
         key: key,
         attachment: e,
         width: filled ? double.infinity : null,
+        height: filled ? double.infinity : null,
         onError: onError,
       );
 
@@ -335,12 +341,9 @@ class ChatItemWidget extends StatefulWidget {
   }
 }
 
-/// State of a [ChatItemWidget] used to update an active call [Timer].
+/// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
+/// machinery for a swipe gesture.
 class _ChatItemWidgetState extends State<ChatItemWidget> {
-  /// [Timer] rebuilding this widget every second if the [widget.item]
-  /// represents an ongoing [ChatCall].
-  Timer? _ongoingCallTimer;
-
   /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
@@ -417,14 +420,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateWorker();
+
     super.initState();
   }
 
   @override
   void dispose() {
-    _ongoingCallTimer?.cancel();
-    _ongoingCallTimer = null;
-
     _worker?.dispose();
     for (var r in _recognizers) {
       r.dispose();
@@ -1077,19 +1078,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _renderAsChatCall(BuildContext context) {
     final style = Theme.of(context).style;
 
-    var message = widget.item.value as ChatCall;
-    bool isOngoing =
-        message.finishReason == null && message.conversationStartedAt != null;
-
-    if (isOngoing && !Config.disableInfiniteAnimations) {
-      _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    } else {
-      _ongoingCallTimer?.cancel();
-    }
+    final message = widget.item.value as ChatCall;
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -1115,9 +1104,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
                         TextSpan(
-                          text: widget.user?.user.value.name?.val ??
-                              widget.user?.user.value.num.toString() ??
-                              'dot'.l10n * 3,
+                          text: widget.user?.title ?? 'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
                             ..onTap =
                                 () => router.chat(_author.dialog, push: true),
@@ -1137,7 +1124,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           WidgetSpan(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 4),
-                              child: _call(message),
+                              child: ChatCallWidget(
+                                message,
+                                me: widget.me,
+                                getItem: widget.getItem,
+                              ),
                             ),
                           ),
                           WidgetSpan(
@@ -1309,7 +1300,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         }
       }
     } else if (item is ChatCallQuote) {
-      content = _call(item.original as ChatCall?);
+      content = ChatCallWidget(
+        item.original as ChatCall?,
+        me: widget.me,
+        getItem: widget.getItem,
+      );
     } else if (item is ChatInfoQuote) {
       // TODO: Implement `ChatInfo`.
       content = Text(
@@ -1336,6 +1331,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 style.colors.userColors.length];
 
         return ClipRRect(
+          key: Key('Reply_${item.original?.id}'),
           borderRadius: style.cardRadius,
           child: Container(
             decoration: BoxDecoration(
@@ -1351,9 +1347,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        data?.user.value.name?.val ??
-                            data?.user.value.num.toString() ??
-                            'dot'.l10n * 3,
+                        data?.title ?? 'dot'.l10n * 3,
                         style: style.fonts.medium.regular.onBackground
                             .copyWith(color: color),
                       ),
@@ -1390,91 +1384,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         );
       },
-    );
-  }
-
-  /// Returns the visual representation of the provided [call].
-  Widget _call(ChatCall? call) {
-    final style = Theme.of(context).style;
-
-    final bool isOngoing =
-        call?.finishReason == null && call?.conversationStartedAt != null;
-
-    bool isMissed = false;
-    String title = 'label_chat_call_ended'.l10n;
-    String? time;
-
-    if (isOngoing) {
-      title = 'label_chat_call_ongoing'.l10n;
-      time = call!.conversationStartedAt!.val
-          .difference(DateTime.now())
-          .localizedString();
-    } else if (call != null && call.finishReason != null) {
-      title = call.finishReason!.localizedString(_fromMe) ?? title;
-      isMissed = (call.finishReason == ChatCallFinishReason.dropped) ||
-          (call.finishReason == ChatCallFinishReason.unanswered);
-
-      if (call.finishedAt != null && call.conversationStartedAt != null) {
-        time = call.finishedAt!.val
-            .difference(call.conversationStartedAt!.val)
-            .localizedString();
-      }
-    } else {
-      title = call?.author.id == widget.me
-          ? 'label_outgoing_call'.l10n
-          : 'label_incoming_call'.l10n;
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: SvgIcon(
-            (call?.withVideo ?? false)
-                ? isMissed
-                    ? SvgIcons.callVideoMissed
-                    : SvgIcons.callVideoDisabled
-                : isMissed
-                    ? SvgIcons.callAudioMissed
-                    : SvgIcons.callAudioDisabled,
-          ),
-        ),
-        Flexible(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: style.fonts.medium.regular.onBackground,
-                ),
-              ),
-              if (time != null) ...[
-                const SizedBox(width: 8),
-                Padding(
-                  padding: const EdgeInsets.only(top: 2.5),
-                  child: Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Text(
-                        time,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: style.fonts.normal.regular.secondary,
-                      ).fixedDigits(),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(width: 2),
-      ],
     );
   }
 
@@ -1684,253 +1593,259 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 );
 
                 return ConstrainedBox(
-                  constraints: constrained
-                      ? itemConstraints
-                      : const BoxConstraints.tightForFinite(),
+                  constraints: itemConstraints,
                   child: Material(
                     key: Key('Message_${item.id}'),
                     type: MaterialType.transparency,
-                    child: ContextMenuRegion(
-                      id: item.id.val,
-                      preventContextMenu: false,
-                      alignment: _fromMe
-                          ? Alignment.bottomRight
-                          : Alignment.bottomLeft,
-                      actions: [
-                        ContextMenuButton(
-                          label: PlatformUtils.isMobile
-                              ? 'btn_info'.l10n
-                              : 'btn_message_info'.l10n,
-                          trailing: const SvgIcon(SvgIcons.info),
-                          inverted: const SvgIcon(SvgIcons.infoWhite),
-                          onPressed: () => MessageInfo.show(
-                            context,
-                            id: widget.item.value.id,
-                            reads: reads ?? [],
-                          ),
-                        ),
-                        if (copyable != null)
+                    child: Obx(() {
+                      return ContextMenuRegion(
+                        id: item.id.val,
+                        preventContextMenu: false,
+                        alignment: _fromMe
+                            ? Alignment.bottomRight
+                            : Alignment.bottomLeft,
+                        actions: [
                           ContextMenuButton(
-                            key: const Key('CopyButton'),
                             label: PlatformUtils.isMobile
-                                ? 'btn_copy'.l10n
-                                : 'btn_copy_text'.l10n,
-                            trailing: const SvgIcon(SvgIcons.copy19),
-                            inverted: const SvgIcon(SvgIcons.copy19White),
-                            onPressed: () => widget.onCopy
-                                ?.call(_selection?.plainText ?? copyable!),
-                          ),
-                        if (item.status.value == SendingStatus.sent) ...[
-                          if (widget.onReply != null)
-                            ContextMenuButton(
-                              key: const Key('ReplyButton'),
-                              label: PlatformUtils.isMobile
-                                  ? 'btn_reply'.l10n
-                                  : 'btn_reply_message'.l10n,
-                              trailing: const SvgIcon(SvgIcons.reply),
-                              inverted: const SvgIcon(SvgIcons.replyWhite),
-                              onPressed: widget.onReply,
+                                ? 'btn_info'.l10n
+                                : 'btn_message_info'.l10n,
+                            trailing: const SvgIcon(SvgIcons.info),
+                            inverted: const SvgIcon(SvgIcons.infoWhite),
+                            onPressed: () => MessageInfo.show(
+                              context,
+                              id: widget.item.value.id,
+                              reads: reads ?? [],
                             ),
-                          if (item is ChatMessage)
+                          ),
+                          if (copyable != null)
                             ContextMenuButton(
-                              key: const Key('ForwardButton'),
+                              key: const Key('CopyButton'),
                               label: PlatformUtils.isMobile
-                                  ? 'btn_forward'.l10n
-                                  : 'btn_forward_message'.l10n,
-                              trailing: const SvgIcon(SvgIcons.forwardSmall),
-                              inverted:
-                                  const SvgIcon(SvgIcons.forwardSmallWhite),
+                                  ? 'btn_copy'.l10n
+                                  : 'btn_copy_text'.l10n,
+                              trailing: const SvgIcon(SvgIcons.copy19),
+                              inverted: const SvgIcon(SvgIcons.copy19White),
+                              onPressed: () => widget.onCopy
+                                  ?.call(_selection?.plainText ?? copyable!),
+                            ),
+                          if (item.status.value == SendingStatus.sent) ...[
+                            if (widget.onReply != null)
+                              ContextMenuButton(
+                                key: const Key('ReplyButton'),
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_reply'.l10n
+                                    : 'btn_reply_message'.l10n,
+                                trailing: const SvgIcon(SvgIcons.reply),
+                                inverted: const SvgIcon(SvgIcons.replyWhite),
+                                onPressed: widget.onReply,
+                              ),
+                            if (item is ChatMessage)
+                              ContextMenuButton(
+                                key: const Key('ForwardButton'),
+                                label: PlatformUtils.isMobile
+                                    ? 'btn_forward'.l10n
+                                    : 'btn_forward_message'.l10n,
+                                trailing: const SvgIcon(SvgIcons.forwardSmall),
+                                inverted:
+                                    const SvgIcon(SvgIcons.forwardSmallWhite),
+                                onPressed: () async {
+                                  await ChatForwardView.show(
+                                    context,
+                                    widget.chat.value!.id,
+                                    [ChatItemQuoteInput(item: item)],
+                                  );
+                                },
+                              ),
+                            if (item is ChatMessage &&
+                                _fromMe &&
+                                (item.at
+                                        .add(ChatController.editMessageTimeout)
+                                        .isAfter(PreciseDateTime.now()) ||
+                                    !widget.chat.value!.isRead(
+                                      widget.item.value,
+                                      widget.me,
+                                    )))
+                              ContextMenuButton(
+                                key: const Key('EditButton'),
+                                label: 'btn_edit'.l10n,
+                                trailing: const SvgIcon(SvgIcons.edit),
+                                inverted: const SvgIcon(SvgIcons.editWhite),
+                                onPressed: widget.onEdit,
+                              ),
+                            ContextMenuButton(
+                              key: widget.pinned
+                                  ? const Key('Pin')
+                                  : const Key('Unpin'),
+                              label: widget.pinned
+                                  ? PlatformUtils.isMobile
+                                      ? 'btn_unpin'.l10n
+                                      : 'btn_unpin_message'.l10n
+                                  : PlatformUtils.isMobile
+                                      ? 'btn_pin'.l10n
+                                      : 'btn_pin_message'.l10n,
+                              trailing: SvgIcon(
+                                widget.pinned
+                                    ? SvgIcons.unpinOutlined
+                                    : SvgIcons.pinOutlined,
+                              ),
+                              inverted: SvgIcon(
+                                widget.pinned
+                                    ? SvgIcons.unpinOutlinedWhite
+                                    : SvgIcons.pinOutlinedWhite,
+                              ),
+                              onPressed: widget.onPin,
+                            ),
+                            if (media.isNotEmpty) ...[
+                              if (PlatformUtils.isDesktop)
+                                ContextMenuButton(
+                                  key: const Key('DownloadButton'),
+                                  label: media.length == 1
+                                      ? 'btn_download'.l10n
+                                      : 'btn_download_all'.l10n,
+                                  trailing: const SvgIcon(SvgIcons.download19),
+                                  inverted:
+                                      const SvgIcon(SvgIcons.download19White),
+                                  onPressed: () =>
+                                      widget.onDownload?.call(media),
+                                ),
+                              if (PlatformUtils.isDesktop &&
+                                  !PlatformUtils.isWeb)
+                                ContextMenuButton(
+                                  key: const Key('DownloadAsButton'),
+                                  label: media.length == 1
+                                      ? 'btn_download_as'.l10n
+                                      : 'btn_download_all_as'.l10n,
+                                  trailing: const SvgIcon(SvgIcons.download19),
+                                  inverted:
+                                      const SvgIcon(SvgIcons.download19White),
+                                  onPressed: () =>
+                                      widget.onDownloadAs?.call(media),
+                                ),
+                              if (PlatformUtils.isMobile &&
+                                  !PlatformUtils.isWeb)
+                                ContextMenuButton(
+                                  key: const Key('SaveButton'),
+                                  label: media.length == 1
+                                      ? PlatformUtils.isMobile
+                                          ? 'btn_save'.l10n
+                                          : 'btn_save_to_gallery'.l10n
+                                      : PlatformUtils.isMobile
+                                          ? 'btn_save_all'.l10n
+                                          : 'btn_save_to_gallery_all'.l10n,
+                                  trailing: const SvgIcon(SvgIcons.download19),
+                                  inverted:
+                                      const SvgIcon(SvgIcons.download19White),
+                                  onPressed: () => widget.onSave?.call(media),
+                                ),
+                            ],
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
+                              trailing: const SvgIcon(SvgIcons.delete19),
+                              inverted: const SvgIcon(SvgIcons.delete19White),
                               onPressed: () async {
-                                await ChatForwardView.show(
+                                bool isMonolog = widget.chat.value!.isMonolog;
+                                bool deletable = _fromMe &&
+                                    !widget.chat.value!
+                                        .isRead(widget.item.value, widget.me) &&
+                                    (widget.item.value is ChatMessage);
+
+                                await ConfirmDialog.show(
                                   context,
-                                  widget.chat.value!.id,
-                                  [ChatItemQuoteInput(item: item)],
+                                  title: 'label_delete_message'.l10n,
+                                  description: deletable || isMonolog
+                                      ? null
+                                      : 'label_message_will_deleted_for_you'
+                                          .l10n,
+                                  initial: 1,
+                                  variants: [
+                                    if (!deletable || !isMonolog)
+                                      ConfirmDialogVariant(
+                                        key: const Key('HideForMe'),
+                                        onProceed: widget.onHide,
+                                        label: 'label_delete_for_me'.l10n,
+                                      ),
+                                    if (deletable)
+                                      ConfirmDialogVariant(
+                                        key: const Key('DeleteForAll'),
+                                        onProceed: widget.onDelete,
+                                        label: 'label_delete_for_everyone'.l10n,
+                                      )
+                                  ],
                                 );
                               },
                             ),
-                          if (item is ChatMessage &&
-                              _fromMe &&
-                              (item.at
-                                      .add(ChatController.editMessageTimeout)
-                                      .isAfter(PreciseDateTime.now()) ||
-                                  !_isRead ||
-                                  widget.chat.value?.isMonolog == true))
-                            ContextMenuButton(
-                              key: const Key('EditButton'),
-                              label: 'btn_edit'.l10n,
-                              trailing: const SvgIcon(SvgIcons.edit),
-                              inverted: const SvgIcon(SvgIcons.editWhite),
-                              onPressed: widget.onEdit,
-                            ),
-                          ContextMenuButton(
-                            key: widget.pinned
-                                ? const Key('Pin')
-                                : const Key('Unpin'),
-                            label: widget.pinned
-                                ? PlatformUtils.isMobile
-                                    ? 'btn_unpin'.l10n
-                                    : 'btn_unpin_message'.l10n
-                                : PlatformUtils.isMobile
-                                    ? 'btn_pin'.l10n
-                                    : 'btn_pin_message'.l10n,
-                            trailing: SvgIcon(
-                              widget.pinned
-                                  ? SvgIcons.unpinOutlined
-                                  : SvgIcons.pinOutlined,
-                            ),
-                            inverted: SvgIcon(
-                              widget.pinned
-                                  ? SvgIcons.unpinOutlinedWhite
-                                  : SvgIcons.pinOutlinedWhite,
-                            ),
-                            onPressed: widget.onPin,
-                          ),
-                          if (media.isNotEmpty) ...[
-                            if (PlatformUtils.isDesktop)
-                              ContextMenuButton(
-                                key: const Key('DownloadButton'),
-                                label: media.length == 1
-                                    ? 'btn_download'.l10n
-                                    : 'btn_download_all'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted:
-                                    const SvgIcon(SvgIcons.download19White),
-                                onPressed: () => widget.onDownload?.call(media),
-                              ),
-                            if (PlatformUtils.isDesktop && !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('DownloadAsButton'),
-                                label: media.length == 1
-                                    ? 'btn_download_as'.l10n
-                                    : 'btn_download_all_as'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted:
-                                    const SvgIcon(SvgIcons.download19White),
-                                onPressed: () =>
-                                    widget.onDownloadAs?.call(media),
-                              ),
-                            if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('SaveButton'),
-                                label: media.length == 1
-                                    ? PlatformUtils.isMobile
-                                        ? 'btn_save'.l10n
-                                        : 'btn_save_to_gallery'.l10n
-                                    : PlatformUtils.isMobile
-                                        ? 'btn_save_all'.l10n
-                                        : 'btn_save_to_gallery_all'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted:
-                                    const SvgIcon(SvgIcons.download19White),
-                                onPressed: () => widget.onSave?.call(media),
-                              ),
+                            if (!_fromMe && !_rejected) ...[
+                              if (item is ChatMessage && item.donate != null)
+                                ContextMenuButton(
+                                  label: 'Вернуть донат'.l10n,
+                                  trailing: const SvgIcon(SvgIcons.reject),
+                                  inverted: const SvgIcon(SvgIcons.rejectWhite),
+                                  onPressed: _rejectPayment,
+                                )
+                              else if ((item is ChatMessage ||
+                                      item is ChatCall) &&
+                                  widget.paid)
+                                ContextMenuButton(
+                                  label: 'Вернуть платёж'.l10n,
+                                  trailing: const SvgIcon(SvgIcons.reject),
+                                  inverted: const SvgIcon(SvgIcons.rejectWhite),
+                                  onPressed: _rejectPayment,
+                                )
+                            ],
                           ],
-                          ContextMenuButton(
-                            key: const Key('Delete'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.delete19),
-                            inverted: const SvgIcon(SvgIcons.delete19White),
-                            onPressed: () async {
-                              bool isMonolog = widget.chat.value!.isMonolog;
-                              bool deletable = _fromMe &&
-                                  !widget.chat.value!
-                                      .isRead(widget.item.value, widget.me) &&
-                                  (widget.item.value is ChatMessage);
-
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_delete_message'.l10n,
-                                description: deletable || isMonolog
-                                    ? null
-                                    : 'label_message_will_deleted_for_you'.l10n,
-                                initial: 1,
-                                variants: [
-                                  if (!deletable || !isMonolog)
-                                    ConfirmDialogVariant(
-                                      key: const Key('HideForMe'),
-                                      onProceed: widget.onHide,
-                                      label: 'label_delete_for_me'.l10n,
-                                    ),
-                                  if (deletable)
+                          if (item.status.value == SendingStatus.error) ...[
+                            ContextMenuButton(
+                              key: const Key('Resend'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_resend'.l10n
+                                  : 'btn_resend_message'.l10n,
+                              trailing: const SvgIcon(SvgIcons.sendSmall),
+                              inverted: const SvgIcon(SvgIcons.sendSmallWhite),
+                              onPressed: widget.onResend,
+                            ),
+                          ],
+                          if (item.status.value != SendingStatus.sent) ...[
+                            ContextMenuButton(
+                              key: const Key('Delete'),
+                              label: PlatformUtils.isMobile
+                                  ? 'btn_delete'.l10n
+                                  : 'btn_delete_message'.l10n,
+                              trailing: const SvgIcon(SvgIcons.delete19),
+                              inverted: const SvgIcon(SvgIcons.delete19White),
+                              onPressed: () async {
+                                await ConfirmDialog.show(
+                                  context,
+                                  title: 'label_delete_message'.l10n,
+                                  variants: [
                                     ConfirmDialogVariant(
                                       key: const Key('DeleteForAll'),
                                       onProceed: widget.onDelete,
                                       label: 'label_delete_for_everyone'.l10n,
                                     )
-                                ],
-                              );
-                            },
-                          ),
-                          if (!_fromMe && !_rejected) ...[
-                            if (item is ChatMessage && item.donate != null)
-                              ContextMenuButton(
-                                label: 'Вернуть донат'.l10n,
-                                trailing: const SvgIcon(SvgIcons.reject),
-                                inverted: const SvgIcon(SvgIcons.rejectWhite),
-                                onPressed: _rejectPayment,
-                              )
-                            else if ((item is ChatMessage ||
-                                    item is ChatCall) &&
-                                widget.paid)
-                              ContextMenuButton(
-                                label: 'Вернуть платёж'.l10n,
-                                trailing: const SvgIcon(SvgIcons.reject),
-                                inverted: const SvgIcon(SvgIcons.rejectWhite),
-                                onPressed: _rejectPayment,
-                              )
+                                  ],
+                                );
+                              },
+                            ),
                           ],
-                        ],
-                        if (item.status.value == SendingStatus.error) ...[
                           ContextMenuButton(
-                            key: const Key('Resend'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_resend'.l10n
-                                : 'btn_resend_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.sendSmall),
-                            inverted: const SvgIcon(SvgIcons.sendSmallWhite),
-                            onPressed: widget.onResend,
+                            key: const Key('Select'),
+                            label: 'btn_select_messages'.l10n,
+                            trailing: const SvgIcon(SvgIcons.select),
+                            inverted: const SvgIcon(SvgIcons.selectWhite),
+                            onPressed: widget.onSelect,
                           ),
                         ],
-                        if (item.status.value != SendingStatus.sent) ...[
-                          ContextMenuButton(
-                            key: const Key('Delete'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.delete19),
-                            inverted: const SvgIcon(SvgIcons.delete19White),
-                            onPressed: () async {
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_delete_message'.l10n,
-                                variants: [
-                                  ConfirmDialogVariant(
-                                    key: const Key('DeleteForAll'),
-                                    onProceed: widget.onDelete,
-                                    label: 'label_delete_for_everyone'.l10n,
-                                  )
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                        ContextMenuButton(
-                          key: const Key('Select'),
-                          label: 'btn_select_messages'.l10n,
-                          trailing: const SvgIcon(SvgIcons.select),
-                          inverted: const SvgIcon(SvgIcons.selectWhite),
-                          onPressed: widget.onSelect,
-                        ),
-                      ],
-                      builder: PlatformUtils.isMobile
-                          ? (menu) => child(menu, itemConstraints)
-                          : null,
-                      child: PlatformUtils.isMobile
-                          ? null
-                          : child(false, itemConstraints),
-                    ),
+                        builder: PlatformUtils.isMobile
+                            ? (menu) => child(menu, itemConstraints)
+                            : null,
+                        child: PlatformUtils.isMobile
+                            ? null
+                            : child(false, itemConstraints),
+                      );
+                    }),
                   ),
                 );
               }),
@@ -2089,6 +2004,166 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         'Use `ChatForward` widget for rendering `ChatForward`s instead',
       );
     }
+  }
+}
+
+/// [ChatCall] visual representation.
+class ChatCallWidget extends StatefulWidget {
+  const ChatCallWidget(
+    this.call, {
+    super.key,
+    this.getItem,
+    required this.me,
+  });
+
+  /// [UserId] of the authenticated [MyUser].
+  final UserId me;
+
+  /// [ChatCall] this widget represents.
+  final ChatCall? call;
+
+  /// Callback, called when a reactive [ChatItem] with relevant information
+  /// about [call] identified by the provided [ChatItemId] is required.
+  final FutureOr<Rx<ChatItem>?> Function(ChatItemId itemId)? getItem;
+
+  @override
+  State<ChatCallWidget> createState() => ChatCallWidgetState();
+}
+
+/// State of a [ChatCallWidget] maintaining the [FutureOr] retrieving the
+/// [ChatCall] and [Timer] for its periodic updates.
+class ChatCallWidgetState extends State<ChatCallWidget> {
+  /// [FutureOr] used in [FutureBuilder].
+  FutureOr<Rx<ChatItem>?>? _futureOrCall;
+
+  /// [Timer] rebuilding this widget every second if the [widget.chatCall]
+  /// represents an ongoing [ChatCall].
+  Timer? _ongoingCallTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.getItem != null && widget.call != null) {
+      _futureOrCall = widget.getItem!.call(widget.call!.id);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ongoingCallTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return FutureBuilder<Rx<ChatItem>?>(
+      initialData: _futureOrCall is Rx<ChatItem>?
+          ? _futureOrCall as Rx<ChatItem>?
+          : null,
+      future: _futureOrCall is Rx<ChatItem>?
+          ? null
+          : _futureOrCall as Future<Rx<ChatItem>?>,
+      builder: (context, snapshot) {
+        final ChatCall? call = snapshot.data?.value as ChatCall?;
+
+        final bool isOngoing =
+            call?.finishReason == null && call?.conversationStartedAt != null;
+
+        bool isMissed = false;
+        String title = 'label_chat_call_ended'.l10n;
+        String? time;
+
+        if (isOngoing) {
+          title = 'label_chat_call_ongoing'.l10n;
+          time = call!.conversationStartedAt!.val
+              .difference(DateTime.now())
+              .localizedString();
+        } else if (call != null && call.finishReason != null) {
+          title =
+              call.finishReason!.localizedString(call.author.id == widget.me) ??
+                  title;
+          isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+              call.finishReason == ChatCallFinishReason.unanswered;
+
+          if (call.finishedAt != null && call.conversationStartedAt != null) {
+            time = call.finishedAt!.val
+                .difference(call.conversationStartedAt!.val)
+                .localizedString();
+          }
+        } else {
+          title = call == null
+              ? title
+              : call.author.id == widget.me
+                  ? 'label_outgoing_call'.l10n
+                  : 'label_incoming_call'.l10n;
+        }
+
+        if (isOngoing && !Config.disableInfiniteAnimations) {
+          _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+            if (mounted) {
+              setState(() {});
+            }
+          });
+        } else {
+          _ongoingCallTimer?.cancel();
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SvgIcon(
+                (call?.withVideo ?? false)
+                    ? isMissed
+                        ? SvgIcons.callVideoMissed
+                        : SvgIcons.callVideo
+                    : isMissed
+                        ? SvgIcons.callAudioMissed
+                        : SvgIcons.callAudio,
+              ),
+            ),
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
+                  ),
+                  if (time != null) ...[
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2.5),
+                      child: Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Text(
+                            time,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: style.fonts.normal.regular.secondary,
+                          ).fixedDigits(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+        );
+      },
+    );
   }
 }
 

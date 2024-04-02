@@ -132,7 +132,10 @@ class ContactsTabView extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('label_contacts'.l10n),
+                      Text(
+                        'label_contacts'.l10n,
+                        style: style.fonts.large.regular.onBackground,
+                      ),
                       AnimatedSizeAndFade(
                         sizeDuration: const Duration(milliseconds: 300),
                         fadeDuration: const Duration(milliseconds: 300),
@@ -308,6 +311,10 @@ class ContactsTabView extends StatelessWidget {
                       ),
                     ),
                   );
+                }
+
+                if (c.search.value == null) {
+                  return const SizedBox(width: 21);
                 }
 
                 return Padding(

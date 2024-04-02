@@ -10,11 +10,13 @@ class MoneyField extends StatelessWidget {
     required this.state,
     this.label,
     this.onChanged,
+    this.currency = '¤',
   });
 
   final TextFieldState state;
   final String? label;
   final void Function(int)? onChanged;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,8 @@ class MoneyField extends StatelessWidget {
           widthFactor: 0.0,
           child: Transform.translate(
             offset: const Offset(12, 0),
-            child: Text('¤', style: style.fonts.medium.regular.onBackground),
+            child:
+                Text(currency, style: style.fonts.medium.regular.onBackground),
           ),
         ),
       ),

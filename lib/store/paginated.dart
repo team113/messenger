@@ -72,6 +72,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
   @override
   Future<void> ensureInitialized() async {
     Log.debug('ensureInitialized()', '$runtimeType');
+
     if (_futures.isEmpty && !status.value.isSuccess) {
       for (var f in initial) {
         if (f is Future<Map<K, T>>) {
@@ -178,7 +179,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
 class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
   RxPaginatedImpl({
     required this.transform,
-    required super.pagination,
+    required Pagination<V, C, K> super.pagination,
     super.initial,
     super.initialKey,
     super.initialCursor,
@@ -234,8 +235,6 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
           items.addAll(f);
         }
       }
-
-      _futures.add(pagination!.around(key: initialKey, cursor: initialCursor));
 
       await Future.wait(_futures);
       status.value = RxStatus.success();

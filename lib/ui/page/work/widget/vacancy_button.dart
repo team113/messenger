@@ -53,14 +53,15 @@ class VacancyWorkButton extends StatelessWidget {
           WorkTab.frontend => 'Flutter',
           WorkTab.freelance => 'Flutter',
         },
-        leading: switch (work) {
-          WorkTab.backend =>
-            SvgIcon(selected ? SvgIcons.rustWhite : SvgIcons.rust),
-          WorkTab.frontend =>
-            SvgIcon(selected ? SvgIcons.frontendWhite : SvgIcons.frontend),
-          WorkTab.freelance =>
-            SvgIcon(selected ? SvgIcons.freelanceWhite : SvgIcons.freelance),
-        },
+        // leading: switch (work) {
+        //   WorkTab.backend =>
+        //     SvgIcon(selected ? SvgIcons.rustWhite : SvgIcons.rust),
+        //   WorkTab.frontend =>
+        //     SvgIcon(selected ? SvgIcons.frontendWhite : SvgIcons.frontend),
+        //   WorkTab.freelance =>
+        //     SvgIcon(selected ? SvgIcons.freelanceWhite : SvgIcons.freelance),
+        // },
+        leading: const SvgIcon(SvgIcons.getMoney),
         inverted: selected,
         onPressed: onPressed == null ? null : () => onPressed?.call(work),
       );

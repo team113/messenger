@@ -703,6 +703,7 @@ class ChatInfoView extends StatelessWidget {
                         Flexible(
                           child: Text(
                             c.chat!.title,
+                            style: style.fonts.big.regular.onBackground,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),

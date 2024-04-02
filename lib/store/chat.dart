@@ -528,6 +528,7 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
+
     final HiveRxChat? chat = chats[chatId];
     final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
     final RxUser? user =
@@ -582,6 +583,8 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> hideChat(ChatId id) async {
+    Log.debug('hideChat($id)', '$runtimeType');
+
     HiveRxChat? chat = chats[id];
     ChatData? monologData;
 

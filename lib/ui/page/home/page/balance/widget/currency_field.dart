@@ -9,23 +9,35 @@ import 'package:messenger/ui/widget/widget_button.dart';
 
 enum CurrencyKind {
   usd,
-  eur;
+  eur,
+  btc,
+  usdt;
 
   String toSymbol() {
-    return switch (this) { usd => '\$', eur => '€' };
-  }
-
-  int toCoins(int amount) {
     return switch (this) {
-      usd => amount * 100,
-      eur => (amount * 100 * 1.08).round(),
+      usd => '\$',
+      eur => '€',
+      btc => 'BTC',
+      usdt => 'USDT',
     };
   }
 
-  double fromCoins(int amount) {
+  int toCoins(num amount, [double multiplier = 1]) {
     return switch (this) {
-      usd => amount / 100,
-      eur => (amount / 100 / 1.08),
+      usd => amount * 100 * multiplier,
+      eur => amount * 100 * 1.08 * multiplier,
+      btc => amount * 100 / 0.000014 * multiplier,
+      usdt => amount * 100 * multiplier,
+    }
+        .round();
+  }
+
+  double fromCoins(num amount, [double multiplier = 1]) {
+    return switch (this) {
+      usd => amount / 100 * multiplier,
+      eur => (amount / 100 / 1.08) * multiplier,
+      btc => amount / 100 * 0.000014 * multiplier,
+      usdt => amount / 100 * multiplier,
     };
   }
 }
@@ -35,15 +47,19 @@ class CurrencyField extends StatefulWidget {
   CurrencyField({
     super.key,
     required this.currency,
+    this.value,
     List<CurrencyKind>? allowed,
     this.onCurrency,
     this.onChanged,
+    this.label = 'Currency',
   }) : allowed = allowed ?? CurrencyKind.values.toList();
 
   final CurrencyKind currency;
+  final num? value;
   final List<CurrencyKind> allowed;
-  final void Function(int)? onChanged;
+  final void Function(double)? onChanged;
   final void Function(CurrencyKind)? onCurrency;
+  final String label;
 
   @override
   State<CurrencyField> createState() => _CurrencyFieldState();
@@ -53,34 +69,53 @@ class _CurrencyFieldState extends State<CurrencyField> {
   final TextFieldState state = TextFieldState();
 
   @override
+  void didUpdateWidget(oldWidget) {
+    final double current = double.tryParse(state.text) ?? 0;
+
+    print('${widget.value} vs $current');
+    if (widget.value != current) {
+      state.text = widget.value.toString();
+      setState(() {});
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return ReactiveTextField(
       state: state,
-      label: 'Currency',
+      label: widget.label,
       floatingLabelBehavior: FloatingLabelBehavior.always,
       style: style.fonts.medium.regular.onBackground,
       formatters: [
-        FilteringTextInputFormatter.digitsOnly,
+        // FilteringTextInputFormatter.allow('.'),
+        // FilteringTextInputFormatter.digitsOnly,
+        FilteringTextInputFormatter.allow(RegExp(r'[0-9]|[.]')),
         LengthLimitingTextInputFormatter(6),
       ],
       onChanged: () {
-        final int parsed = int.tryParse(state.text) ?? 0;
-        String string = NumberFormat.decimalPattern().format(parsed);
+        final double parsed = double.tryParse(state.text) ?? 0;
 
-        if (string == '0') {
-          string = '';
-        }
+        // String string = NumberFormat.decimalPattern().format(parsed);
 
-        state.controller.value = TextEditingValue(
-          text: string,
-          selection: TextSelection.collapsed(offset: string.length),
-        );
+        // if (string == '0') {
+        //   string = '';
+        // }
+
+        // state.controller.value = TextEditingValue(
+        //   text: string,
+        //   selection: TextSelection.collapsed(offset: string.length),
+        // );
 
         widget.onChanged?.call(parsed);
       },
       hint: '0',
+      prefixConstraints: BoxConstraints(
+        minWidth: 22 + widget.currency.toSymbol().length * 15,
+      ),
       prefixIcon: WidgetButton(
         onPressed: widget.onCurrency == null
             ? null
@@ -96,7 +131,7 @@ class _CurrencyFieldState extends State<CurrencyField> {
         child: Center(
           widthFactor: 0,
           child: Padding(
-            padding: const EdgeInsets.only(left: 16.0, bottom: 0),
+            padding: const EdgeInsets.only(left: 21.0, bottom: 0),
             child: Text(
               widget.currency.toSymbol(),
               style: style.fonts.big.regular.onBackground.copyWith(

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
@@ -29,6 +30,8 @@ class PublicsTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: PublicsTabController(),
       builder: (PublicsTabController c) {
@@ -37,9 +40,12 @@ class PublicsTabView extends StatelessWidget {
             title: Row(
               children: [
                 const SizedBox(width: 21),
-                const SvgIcon(SvgIcons.publics),
-                const SizedBox(width: 17),
-                Text('label_tab_public'.l10n),
+                // const SvgIcon(SvgIcons.publics),
+                // const SizedBox(width: 17),
+                Text(
+                  'label_tab_public'.l10n,
+                  style: style.fonts.large.regular.onBackground,
+                ),
               ],
             ),
             actions: [

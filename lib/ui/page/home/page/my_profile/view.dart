@@ -2323,9 +2323,9 @@ Widget _bar(MyProfileController c, BuildContext context) {
                       c.myUser.value?.name?.val ??
                           c.myUser.value?.num.toString() ??
                           'dot'.l10n * 3,
-                      style: style.fonts.big.regular.onBackground,
+                      style: style.fonts.large.regular.onBackground,
                     ),
-                    Text(section, style: style.fonts.small.regular.secondary),
+                    // Text(section, style: style.fonts.small.regular.secondary),
                   ],
                 );
               }),

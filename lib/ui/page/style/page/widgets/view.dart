@@ -1844,6 +1844,12 @@ class DummyRxChat extends RxChat {
     // TODO: implement around
     throw UnimplementedError();
   }
+
+  @override
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) {
+    // TODO: implement single
+    throw UnimplementedError();
+  }
 }
 
 class _HoveredBuilder extends StatefulWidget {

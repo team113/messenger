@@ -101,6 +101,7 @@ class MenuTabView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
+                  // const SizedBox(width: 4),
                   Flexible(
                     child: DefaultTextStyle.merge(
                       maxLines: 1,
@@ -114,17 +115,18 @@ class MenuTabView extends StatelessWidget {
                               c.myUser.value?.name?.val ??
                                   c.myUser.value?.num.toString() ??
                                   'dot'.l10n * 3,
-                              style: style.fonts.big.regular.onBackground,
+                              // style: style.fonts.big.regular.onBackground,
+                              style: style.fonts.large.regular.onBackground,
                             ),
-                            Text(
-                              // c.myUser.value?.status?.val ??
-                              // 'label_online'.l10n,
-                              switch (c.myUser.value?.presence) {
-                                Presence.away => 'label_presence_away'.l10n,
-                                (_) => 'label_presence_present'.l10n,
-                              },
-                              style: style.fonts.small.regular.secondary,
-                            ),
+                            // Text(
+                            //   // c.myUser.value?.status?.val ??
+                            //   // 'label_online'.l10n,
+                            //   switch (c.myUser.value?.presence) {
+                            //     Presence.away => 'label_presence_away'.l10n,
+                            //     (_) => 'label_presence_present'.l10n,
+                            //   },
+                            //   style: style.fonts.small.regular.secondary,
+                            // ),
                             // Obx(() {
                             //   return Text(
                             //     // c.myUser.value?.status?.val ??

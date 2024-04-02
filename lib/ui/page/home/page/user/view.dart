@@ -589,6 +589,7 @@ class UserView extends StatelessWidget {
                   children: [
                     Text(
                       '${c.contact.value?.contact.value.name.val ?? c.user?.user.value.name?.val ?? c.user?.user.value.num}',
+                      style: style.fonts.big.regular.onBackground,
                     ),
                     if (subtitle.isNotEmpty)
                       Text(

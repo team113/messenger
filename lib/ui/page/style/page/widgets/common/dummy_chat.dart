@@ -25,7 +25,6 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
-import '/domain/repository/user.dart';
 import '/store/paginated.dart';
 import '/util/obs/obs.dart';
 
@@ -130,4 +129,10 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) {
+    // TODO: implement single
+    throw UnimplementedError();
+  }
 }

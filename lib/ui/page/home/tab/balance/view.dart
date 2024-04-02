@@ -46,24 +46,13 @@ class BalanceTabView extends StatelessWidget {
             leading: const [SizedBox(width: 21)],
             title: Row(
               children: [
-                const WalletWidget(balance: 0, visible: false),
-                const SizedBox(width: 16),
+                // const WalletWidget(balance: 0, visible: false),
+                // const SizedBox(width: 16),
                 Text(
                   'Кошелёк'.l10n,
                   textAlign: TextAlign.center,
+                  style: style.fonts.large.regular.onBackground,
                 ),
-                // Obx(() {
-                //   return Column(
-                //     mainAxisSize: MainAxisSize.min,
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Text(
-                //         '¤${c.balance.value.toInt().withSpaces()}',
-                //         style: style.fonts.big.regular.onBackground,
-                //       ),
-                //     ],
-                //   );
-                // }),
               ],
             ),
             actions: [

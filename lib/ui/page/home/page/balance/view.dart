@@ -294,7 +294,7 @@ class BalanceProviderView extends StatelessWidget {
                         const SizedBox(height: 16),
                         CurrencyField(
                           currency: CurrencyKind.eur,
-                          onChanged: (s) => c.sepaPrice.value = s,
+                          onChanged: (s) => c.sepaPrice.value = s.round(),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -373,8 +373,12 @@ class BalanceProviderView extends StatelessWidget {
                           Obx(() {
                             return CurrencyField(
                               currency: c.swiftCurrency.value,
+                              allowed: const [
+                                CurrencyKind.usd,
+                                CurrencyKind.eur
+                              ],
                               onCurrency: (s) => c.swiftCurrency.value = s,
-                              onChanged: (s) => c.swiftPrice.value = s,
+                              onChanged: (s) => c.swiftPrice.value = s.round(),
                             );
                           }),
                         const SizedBox(height: 8),

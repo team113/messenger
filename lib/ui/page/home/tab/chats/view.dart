@@ -180,7 +180,11 @@ class ChatsTabView extends StatelessWidget {
                                   onPressed: () {
                                     Get.find<AuthService>().renewSession();
                                   },
-                                  child: Text('label_chats'.l10n),
+                                  child: Text(
+                                    'label_chats'.l10n,
+                                    style:
+                                        style.fonts.large.regular.onBackground,
+                                  ),
                                 ),
                                 AnimatedSizeAndFade(
                                   sizeDuration:
@@ -274,6 +278,8 @@ class ChatsTabView extends StatelessWidget {
                           ),
                         );
                       }
+
+                      return const SizedBox(width: 21);
 
                       return Padding(
                         padding: const EdgeInsets.only(left: 20, right: 14),

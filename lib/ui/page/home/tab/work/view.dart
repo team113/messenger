@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/ui/page/home/tab/menu/widget/menu_button.dart';
+import '/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/ui/widget/svg/svg.dart';
@@ -47,21 +47,30 @@ class WorkTabView extends StatelessWidget {
           appBar: CustomAppBar(
             title: Row(
               children: [
-                const SizedBox(width: 16),
-                AnimatedButton(
-                  enabled: false,
-                  onPressed: () {},
-                  decorator: (child) => Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
-                    child: child,
-                  ),
-                  child: const SvgIcon(SvgIcons.partner),
-                ),
+                const SizedBox(width: 21),
+                // AnimatedButton(
+                //   enabled: false,
+                //   onPressed: () {},
+                //   decorator: (child) => Padding(
+                //     padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+                //     child: child,
+                //   ),
+                //   child: const SvgIcon(SvgIcons.partner),
+                // ),
+                // Flexible(
+                //   child: Text(
+                //     'label_work_with_us'.l10n,
+                //     style: style.fonts.large.regular.onBackground,
+                //     textAlign: TextAlign.left,
+                //     maxLines: 2,
+                //     overflow: TextOverflow.ellipsis,
+                //   ),
+                // ),
                 Flexible(
                   child: LayoutBuilder(
                     builder: (context, snapshot) {
                       final double occupies =
-                          'label_work_with_us'.l10n.length * 9.35;
+                          'label_work_with_us'.l10n.length * 11;
 
                       if (occupies >= snapshot.maxWidth) {
                         return Text(
@@ -69,13 +78,15 @@ class WorkTabView extends StatelessWidget {
                           textAlign: TextAlign.left,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: style.fonts.small.regular.onBackground,
+                          style: style.fonts.medium.regular.onBackground
+                              .copyWith(height: 1),
                         );
                       }
 
                       return Text(
                         'label_work_with_us'.l10n,
                         textAlign: TextAlign.left,
+                        style: style.fonts.large.regular.onBackground,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       );
@@ -96,13 +107,11 @@ class WorkTabView extends StatelessWidget {
             ),
             actions: [
               Obx(() {
-                return WidgetButton(
-                  onPressed: () {},
-                  child: Text(
-                    '¤ ${c.balance.value.toInt().withSpaces()}',
-                    style: style.fonts.big.regular.onBackground.copyWith(
-                      color: style.colors.primary,
-                    ),
+                return Text(
+                  '¤ ${c.balance.value.toInt().withSpaces()}',
+                  style: style.fonts.big.regular.onBackground.copyWith(
+                    // color: style.colors.primary,
+                    color: style.colors.acceptPrimary,
                   ),
                 );
               }),
@@ -121,6 +130,7 @@ class WorkTabView extends StatelessWidget {
                       title: 'Вывести деньги',
                       inverted: router.routes.lastOrNull == Routes.withdraw,
                       onPressed: router.withdraw,
+                      leading: const SvgIcon(SvgIcons.getMoney),
                     );
                   }),
                 ),
@@ -129,14 +139,17 @@ class WorkTabView extends StatelessWidget {
                   child: MenuButton(
                     title: 'Транзакции',
                     onPressed: () {},
+                    leading: const SvgIcon(SvgIcons.getMoney),
                   ),
                 ),
                 _label(context, 'Партнёрская программа'),
+                // const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 1.5),
                   child: MenuButton(
                     title: 'Кнопка 1',
                     onPressed: () {},
+                    leading: const SvgIcon(SvgIcons.getMoney),
                   ),
                 ),
                 Padding(
@@ -144,8 +157,10 @@ class WorkTabView extends StatelessWidget {
                   child: MenuButton(
                     title: 'Кнопка 2',
                     onPressed: () {},
+                    leading: const SvgIcon(SvgIcons.getMoney),
                   ),
                 ),
+                // const SizedBox(height: 16),
                 _label(context, 'Вакансии'),
                 ...WorkTab.values.map((e) {
                   return Padding(
@@ -166,17 +181,36 @@ class WorkTabView extends StatelessWidget {
   Widget _label(BuildContext context, String label) {
     final style = Theme.of(context).style;
 
+    // return Padding(
+    //   padding: const EdgeInsets.only(top: 2),
+    //   child: MenuButton(
+    //     dense: true,
+    //     // leading: const SvgIcon(SvgIcons.getMoney),
+    //     leading: const SizedBox(width: 32),
+    //     child: Text(
+    //       label,
+    //       style: style.fonts.big.regular.secondary,
+    //     ),
+    //   ),
+    // );
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 24, 0, 6),
+      padding: const EdgeInsets.fromLTRB(/*8*/ 56, 12, 0, 2),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            border: style.systemMessageBorder,
-            color: style.systemMessageColor,
+            // border: style.systemMessageBorder,
+            // color: style.systemMessageColor,
           ),
-          child: Text(label, style: style.systemMessageStyle),
+          child: Text(
+            label,
+            style: style.fonts.big.regular.secondary,
+            // style: style.systemMessageStyle,
+          ),
         ),
       ),
     );
