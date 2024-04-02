@@ -521,10 +521,29 @@ jobs:
           channel: stable
           cache: true
 
-      - run: |
-          brew install docker docker-compose
-          brew install --HEAD colima
+      - run: brew install docker docker-compose colima
         if: ${{ matrix.platform == 'macos' }}
+      - run: |
+          echo $(YAML) > ${HOME}/.colima/_config/override.yaml
+        env:
+          YAML: |
+            mountType: 9p
+            mounts:
+              - location: ${HOME}
+                writable: true
+                9p:
+                  securityModel: mapped-xattr
+                  cache: mmap
+              - location: "~"
+                writable: true
+                9p:
+                  securityModel: mapped-xattr
+                  cache: mmap
+              - location: /tmp/colima
+                writable: true
+                9p:
+                  securityModel: mapped-xattr
+                  cache: mmap
       - name: Run Colima
         run: colima start --mount-type 9p
         if: ${{ matrix.platform == 'macos' }}
