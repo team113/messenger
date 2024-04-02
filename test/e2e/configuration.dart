@@ -282,7 +282,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
-      ..hooks = [ResetAppHook(), PerformanceHook()]
+      ..hooks = [
+        ResetAppHook(),
+
+        // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
+        // supported on Dart VM platforms.
+        if (!PlatformUtils.isWeb) PerformanceHook(),
+      ]
       ..reporters = [
         StdoutReporter(MessageLevel.verbose)
           ..setWriteLineFn(print)
