@@ -497,6 +497,7 @@ label_accounts = Your accounts
 label_account_created = Account is created
 label_actions = Actions
 label_active_account = Active
+label_add_account = Add account
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
 label_add_chat_member = Add member

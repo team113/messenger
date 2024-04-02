@@ -287,7 +287,7 @@ class AccountsView extends StatelessWidget {
 
             case AccountsViewStage.add:
               header = ModalPopupHeader(
-                text: 'Add account'.l10n,
+                text: 'label_add_account'.l10n,
                 onBack: () => c.stage.value = AccountsViewStage.accounts,
               );
 
@@ -354,7 +354,12 @@ class AccountsView extends StatelessWidget {
               final List<Widget> tiles = [];
 
               if (c.status.value.isLoading) {
-                tiles.add(const Center(child: CircularProgressIndicator()));
+                tiles.add(
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                );
               } else {
                 for (final e in c.accounts) {
                   final MyUser? myUser = e.myUser.value;

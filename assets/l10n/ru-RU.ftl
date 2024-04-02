@@ -508,6 +508,7 @@ label_accounts = Ваши аккаунты
 label_account_created = Аккаунт создан
 label_actions = Действия
 label_active_account = Текущий
+label_add_account = Добавить аккаунт
 label_add_additional_email = Добавить дополнительный E-mail
 label_add_additional_number = Добавить дополнительный телефон
 label_add_chat_member = Добавление участника

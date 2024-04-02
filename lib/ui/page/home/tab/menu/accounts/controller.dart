@@ -20,7 +20,8 @@ import 'dart:async';
 import 'package:get/get.dart' hide Response;
 
 import '/api/backend/extension/credentials.dart';
-import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
+import '/api/backend/schema.dart'
+    show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -94,9 +95,6 @@ class AccountsController extends GetxController {
   /// [UserService] ...
   final UserService _userService;
 
-  // /// ...
-  // final Map<UserId, StreamSubscription> _userSubscriptions = {};
-
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -109,9 +107,16 @@ class AccountsController extends GetxController {
       accounts.refresh();
     });
 
-    login = TextFieldState(onSubmitted: (s) {
-      password.focus.requestFocus();
-    });
+    login = TextFieldState(
+      onChanged: (s) {
+        s.error.value = null;
+        password.unsubmit();
+      },
+      onSubmitted: (s) {
+        password.focus.requestFocus();
+        s.unsubmit();
+      },
+    );
 
     password = TextFieldState(
       onChanged: (s) {
@@ -120,11 +125,7 @@ class AccountsController extends GetxController {
           try {
             UserPassword(s.text);
           } on FormatException {
-            if (s.text.isEmpty) {
-              s.error.value = 'err_password_empty'.l10n;
-            } else {
-              s.error.value = 'err_password_incorrect'.l10n;
-            }
+            s.error.value = 'err_password_incorrect'.l10n;
           }
         }
       },
@@ -134,11 +135,62 @@ class AccountsController extends GetxController {
         }
 
         password.status.value = RxStatus.loading();
-        await _authService.signIn(
-          UserPassword(password.text),
-          login: UserLogin(login.text),
-        );
-        password.status.value = RxStatus.empty();
+        login.status.value = RxStatus.loading();
+
+        final String input = login.text.toLowerCase();
+
+        final UserLogin? userLogin = UserLogin.tryParse(input);
+        final UserNum? userNum = UserNum.tryParse(input);
+        final UserEmail? userEmail = UserEmail.tryParse(input);
+        final UserPhone? userPhone = UserPhone.tryParse(input);
+        final UserPassword? userPassword = UserPassword.tryParse(password.text);
+
+        login.error.value = null;
+        password.error.value = null;
+
+        final bool noCredentials = userLogin == null &&
+            userNum == null &&
+            userEmail == null &&
+            userPhone == null;
+
+        if (noCredentials || userPassword == null) {
+          password.error.value = 'err_incorrect_login_or_password'.l10n;
+          password.unsubmit();
+          return;
+        }
+
+        try {
+          login.status.value = RxStatus.loading();
+          password.status.value = RxStatus.loading();
+          await _authService.signIn(
+            userPassword,
+            login: userLogin,
+            num: userNum,
+            email: userEmail,
+            phone: userPhone,
+          );
+        } on CreateSessionException catch (e) {
+          switch (e.code) {
+            case CreateSessionErrorCode.wrongPassword:
+              // TODO: Тут ещё должен быть подсчёт попыток, запуск таймера и т.д.
+              password.error.value = e.toMessage();
+              break;
+
+            case CreateSessionErrorCode.artemisUnknown:
+              password.error.value = 'err_data_transfer'.l10n;
+              rethrow;
+          }
+        } on ConnectionException {
+          password.unsubmit();
+          password.error.value = 'err_data_transfer'.l10n;
+        } catch (e) {
+          password.unsubmit();
+          password.error.value = 'err_data_transfer'.l10n;
+          rethrow;
+        } finally {
+          login.status.value = RxStatus.empty();
+          password.status.value = RxStatus.empty();
+        }
 
         router.go(Routes.nowhere);
         await Future.delayed(const Duration(milliseconds: 500));
@@ -163,31 +215,29 @@ class AccountsController extends GetxController {
           return;
         }
 
-        stage.value = AccountsViewStage.signUpWithEmailCode;
+        final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
 
-        final GraphQlProvider graphQlProvider = Get.find();
-
-        try {
-          final response = await graphQlProvider.signUp();
-          creds = response.toModel();
-          graphQlProvider.token = creds!.session.token;
-          await graphQlProvider.addUserEmail(UserEmail(email.text));
-          graphQlProvider.token = null;
-
-          s.unsubmit();
-        } on AddUserEmailException catch (e) {
-          graphQlProvider.token = null;
-          s.error.value = e.toMessage();
-
+        if (email == null) {
+          s.error.value = 'err_incorrect_email'.l10n;
+        } else {
+          emailCode.clear();
           stage.value = AccountsViewStage.signUpWithEmailCode;
-        } catch (e) {
-          graphQlProvider.token = null;
-          s.error.value = 'err_data_transfer'.l10n;
-          s.unsubmit();
+          try {
+            await _authService.signUpWithEmail(email);
+            s.unsubmit();
+          } on AddUserEmailException catch (e) {
+            s.error.value = e.toMessage();
+            // _setResendEmailTimer(false);
 
-          stage.value = AccountsViewStage.signUpWithEmailCode;
+            stage.value = AccountsViewStage.signUpWithEmail;
+          } catch (_) {
+            s.error.value = 'err_data_transfer'.l10n;
+            // _setResendEmailTimer(false);
+            s.unsubmit();
 
-          rethrow;
+            stage.value = AccountsViewStage.signUpWithEmail;
+            rethrow;
+          }
         }
       },
     );
@@ -232,8 +282,6 @@ class AccountsController extends GetxController {
       final UserId id = e.key;
       final Rx<MyUser?> myUser = e.value;
 
-      print(myUser);
-
       if (myUser.value != null) {
         final FutureOr<RxUser?> futureOrUser = _userService.get(id);
         final user =
@@ -271,19 +319,14 @@ class AccountsController extends GetxController {
 
   @override
   void onClose() {
-    // for (var e in _userSubscriptions.values) {
-    //   e.cancel();
-    // }
-    // _userSubscriptions.clear();
     _myUsersWorker?.dispose();
 
     super.onClose();
   }
 
-  Future<void> delete(UserId id) async {
-    // accounts.removeWhere((e) => e.user.id == id);
-    // accounts.refresh();
+  Future<void> signIn() async {}
 
+  Future<void> delete(UserId id) async {
     await _authService.deleteAccount(id);
 
     if (id == _authService.userId) {
@@ -297,8 +340,6 @@ class AccountsController extends GetxController {
       }
     }
   }
-
-  FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   Future<void> switchTo(UserId? id) async {
     router.go(Routes.nowhere);
