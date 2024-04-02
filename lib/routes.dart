@@ -605,7 +605,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
-              deps.put(MyUserService(Get.find(), myUserRepository));
+              deps.put(MyUserService(Get.find(), myUserRepository, Get.find()));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
               ChatService chatService =
@@ -637,7 +637,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             UserId me = _state._auth.userId!;
 
             await Future.wait([
-              // deps.put(MyUserHiveProvider()).init(),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -760,8 +759,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            MyUserService myUserService =
-                deps.put(MyUserService(Get.find(), myUserRepository));
+            MyUserService myUserService = deps.put(MyUserService(
+              Get.find(),
+              myUserRepository,
+              Get.find(),
+            ));
             deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
             ChatService chatService =

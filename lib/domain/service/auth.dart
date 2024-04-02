@@ -96,11 +96,58 @@ class AuthService extends GetxService {
   UserId? get userId => credentials.value?.userId;
 
   /// Indicates whether the [credentials] require a refresh.
-  bool get _shouldRefresh =>
-      credentials.value?.session.expireAt
-          .subtract(_accessTokenMinTtl)
-          .isBefore(PreciseDateTime.now().toUtc()) ==
-      true;
+  ///
+  /// If no [credentials] are provided, then credentials of an active account
+  /// are used.
+  bool _shouldRefresh([Credentials? credentials]) {
+    final Credentials? oldCredentials = credentials ?? this.credentials.value;
+
+    return oldCredentials?.session.expireAt
+            .subtract(_accessTokenMinTtl)
+            .isBefore(PreciseDateTime.now().toUtc()) ==
+        true;
+  }
+
+  /// Map of [Timer]s, periodically checking [Session.expireAt] of authenticated
+  /// [MyUser]s and refreshing it if necessary.
+  final Map<UserId, Timer> _refreshTimers = {};
+
+  /// Initializes the refresh timers for all the authenticated [MyUser]s.
+  void _initRefreshTimers() {
+    Log.debug('_initRefreshTimers()', '$runtimeType');
+
+    final Iterable<Credentials> creds = _credentialsProvider.valuesSafe;
+
+    for (final Credentials cred in creds) {
+      // Refresh the [credentials] manually for the first time.
+      _refresh(cred);
+
+      _refreshTimers[cred.userId]?.cancel();
+      _refreshTimers[cred.userId] = Timer.periodic(
+        _refreshTaskInterval,
+        (_) => _refresh(cred),
+      );
+    }
+  }
+
+  /// Refreshes the [credentials]. Should not be used for renewing active user's
+  /// session.
+  Future<void> _refresh(Credentials credentials) async {
+    Log.debug('_refresh(${credentials.userId})', '$runtimeType');
+
+    if (_shouldRefresh(credentials)) {
+      try {
+        final Credentials data = await _authRepository
+            .renewSession(credentials.rememberedSession.token);
+
+        _credentialsProvider.put(data);
+      } on RenewSessionException catch (_) {
+        _credentialsProvider.remove(credentials.userId);
+
+        rethrow;
+      }
+    }
+  }
 
   @override
   void onClose() {
@@ -481,7 +528,7 @@ class AuthService extends GetxService {
             '$runtimeType',
           );
 
-          if (!_shouldRefresh) {
+          if (!_shouldRefresh()) {
             // [Credentials] are successfully updated.
             return;
           }
@@ -511,6 +558,7 @@ class AuthService extends GetxService {
           _credentialsProvider.put(data);
           status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
+          // TODO: Неправильно!
           router.go(_unauthorized());
           rethrow;
         }
@@ -541,9 +589,11 @@ class AuthService extends GetxService {
     credentials.value = creds;
     _refreshTimer?.cancel();
 
+    _initRefreshTimers();
+
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
-      if (credentials.value?.rememberedSession != null && _shouldRefresh) {
+      if (credentials.value?.rememberedSession != null && _shouldRefresh()) {
         renewSession();
       }
     });

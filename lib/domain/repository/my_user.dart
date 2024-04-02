@@ -28,7 +28,7 @@ abstract class AbstractMyUserRepository {
   /// Returns currently active authenticated [MyUser].
   Rx<MyUser?> get myUser;
 
-  /// Returns reactive map of [MyUser]s.
+  /// Returns a reactive map of [MyUser]s.
   RxMap<UserId, Rx<MyUser?>> get myUsers;
 
   /// Initializes the repository.

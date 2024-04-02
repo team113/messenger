@@ -112,7 +112,6 @@ Future<void> main() async {
     final graphQlProvider = Get.put(GraphQlProvider());
     Get.put(ActiveAccountHiveProvider());
 
-    // TODO: А почему тут так? Разные инстансы кладутся в локатор и в зависимости сервиса?
     final authRepo =
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService = Get.put(AuthService(

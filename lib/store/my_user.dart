@@ -79,6 +79,12 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  // TODO: Temporary solution, [RawClientOptions] should be used in `raw`
+  //       parameter in [GraphQlClient]'s methods instead.
+  /// Map of raw [GraphQlProvider]s for subscriptions to [myUsers] remote
+  /// events.
+  final Map<UserId, GraphQlProvider> rawProviders = {};
+
   /// [MyUser]s local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
@@ -170,7 +176,21 @@ class MyUserRepository implements AbstractMyUserRepository {
     _initLocalSubscription();
     _initRemoteSubscriptions();
 
-    _credentialsLocal.boxEvents.listen((_) => _populateMyUsers());
+    _credentialsLocal.boxEvents.listen((event) {
+      final UserId id = UserId(event.key);
+      final Credentials creds = event.value;
+
+      if (event.deleted) {
+        // If the access to [Credentials] is lost, remove the subscription.
+        _remoteSubscriptions.remove(id)?.cancel(immediate: true);
+      } else {
+        // If [Credentials] were updated (e.g. during `renewSession`), then
+        // resubscribe.
+        _initRemoteSubscriptionFor(creds);
+      }
+
+      _populateMyUsers();
+    });
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -190,8 +210,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  final Map<UserId, GraphQlProvider> rawProviders = {};
-
+  /// Initializes [_myUserRemoteEvents] subscription for [myUsers].
   Future<void> _initRemoteSubscriptions() async {
     if (_disposed) {
       return;
@@ -206,46 +225,46 @@ class MyUserRepository implements AbstractMyUserRepository {
         continue;
       }
 
-      final Session session = creds.session;
-      final UserId id = creds.userId;
-
-      // TODO: Не использовать провайдеры после того, как получится нормально
-      // прикрутить `RawClientOptions` к [GraphQlClient.subscribe],
-      final rawProvider = rawProviders[id] ?? GraphQlProvider();
-      rawProvider.token = session.token;
-      rawProviders[id] = rawProvider;
-
-      _remoteSubscriptions[id]?.close(immediate: true);
-      final subscription = StreamQueue(
-        _myUserRemoteEvents(
-          () {
-            final HiveMyUser? myUserEntity = _myUserLocal.get(id);
-
-            // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
-            // is `null`, to retrieve it.
-            if (myUserEntity?.value.blocklistCount == null) {
-              return null;
-            }
-
-            return myUserEntity?.ver;
-          },
-          // // TODO: Не забыть про `refreshToken`.
-          // raw: RawClientOptions(session.token),
-          provider: rawProvider,
-        ),
-      );
-
-      _remoteSubscriptions[id] = subscription;
-
-      await subscription.execute(
-        _myUserRemoteEvent,
-        onError: (e) async {
-          if (e is StaleVersionException) {
-            // TODO: Подумать, какие тут ошибочки могут быть, что вообще делать.
-          }
-        },
-      );
+      _initRemoteSubscriptionFor(creds);
     }
+  }
+
+  void _initRemoteSubscriptionFor(Credentials creds) async {
+    final Session session = creds.session;
+    final UserId id = creds.userId;
+
+    final rawProvider = rawProviders[id] ?? GraphQlProvider();
+    rawProvider.token = session.token;
+    rawProviders[id] = rawProvider;
+
+    _remoteSubscriptions[id]?.close(immediate: true);
+    final subscription = StreamQueue(
+      _myUserRemoteEvents(
+        () {
+          final HiveMyUser? myUserEntity = _myUserLocal.get(id);
+
+          // Ask for initial [MyUser] event, if the stored
+          // [MyUser.blocklistCount] is `null`, to retrieve it.
+          if (myUserEntity?.value.blocklistCount == null) {
+            return null;
+          }
+
+          return myUserEntity?.ver;
+        },
+        // raw: RawClientOptions(session.token),
+        provider: rawProvider,
+      ),
+    );
+
+    _remoteSubscriptions[id] = subscription;
+
+    final name = myUsers[id]?.value?.name?.val;
+
+    Log.debug('_initRemoteSubscriptionFor($name)', '$runtimeType');
+
+    await subscription.execute(
+      _myUserRemoteEvent,
+    );
   }
 
   @override
@@ -255,6 +274,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _disposed = true;
     _localSubscription?.cancel();
     _remoteSubscriptions.values.map((s) => s.close(immediate: true));
+    _remoteSubscriptions.clear();
     _keepOnlineSubscription?.cancel();
     _onFocusChanged?.cancel();
   }
@@ -716,7 +736,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [_myUserRemoteEvents] subscription.
+  /// Initializes [_myUserRemoteEvents] subscription for the [myUser].
   Future<void> _initActiveAccountRemoteSubscription() async {
     if (_disposed) {
       return;

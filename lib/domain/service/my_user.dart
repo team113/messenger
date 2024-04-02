@@ -20,12 +20,13 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model/my_user.dart';
-import '../model/user.dart';
-import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/my_user.dart';
+import '/provider/hive/session_data.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import 'auth.dart';
@@ -33,7 +34,7 @@ import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] management.
 class MyUserService extends DisposableService {
-  MyUserService(this._auth, this._myUserRepo);
+  MyUserService(this._auth, this._myUserRepo, this._sessionDataProvider);
 
   /// Authentication service providing the authentication capabilities.
   final AuthService _auth;
@@ -45,10 +46,13 @@ class MyUserService extends DisposableService {
   /// logic.
   final Mutex _passwordChangeGuard = Mutex();
 
+  /// [SessionData] storage being cleared when [_onUserDeleted] is called.
+  final SessionDataHiveProvider _sessionDataProvider;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserRepo.myUser;
 
-  ///
+  /// Returns a reactive map of all authenticated [MyUser]s available.
   RxMap<UserId, Rx<MyUser?>> get myUsers => _myUserRepo.myUsers;
 
   @override
@@ -265,11 +269,13 @@ class MyUserService extends DisposableService {
     });
   }
 
-  /// Callback to be called when [MyUser] is deleted.
+  /// Callback to be called when currently active [MyUser] is deleted.
   ///
-  /// Performs log out and clears [MyUser] store.
+  /// Performs log out and removes [MyUser]-related data.
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
+
+    _sessionDataProvider.clear();
 
     _auth.logout();
     router.auth();
