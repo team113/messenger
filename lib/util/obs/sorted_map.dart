@@ -91,6 +91,6 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
       return compare;
     }
 
-    return (_, __) => 1;
+    return (_, __) => -1;
   }
 }
