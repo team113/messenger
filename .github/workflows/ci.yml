@@ -530,7 +530,7 @@ jobs:
           echo "
             mountType: 9p
             mounts:
-              - location: ${HOME}
+              - location: "/Users/runner"
                 writable: true
                 9p:
                   securityModel: mapped-xattr
