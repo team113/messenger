@@ -575,6 +575,7 @@ jobs:
       - run: |
           make test.e2e start-app=yes device=macos pull=yes no-cache=yes \
                 dart-env='SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}'
+          docker logs messenger-cockroachdb
         if: ${{ matrix.platform == 'macos' }}
 
       # Grant permissions to `.cache/` dir created in the previous step, since
