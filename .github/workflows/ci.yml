@@ -521,7 +521,9 @@ jobs:
           channel: stable
           cache: true
 
-      - run: brew install docker docker-compose colima
+      - run: |
+          brew install docker docker-compose
+          brew install --HEAD colima
         if: ${{ matrix.platform == 'macos' }}
       - name: Run Colima
         run: colima start --mount-type 9p
