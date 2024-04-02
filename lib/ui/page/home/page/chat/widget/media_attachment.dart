@@ -17,6 +17,7 @@
 
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -86,6 +87,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
 
+    bool narrow = false;
+
     final Widget child;
 
     if (isImage) {
@@ -110,7 +113,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               final Size? dimensions = attachment.file.dimensions.value;
               final double ratio =
                   (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
-              final bool narrow = ratio > 3 || ratio < 0.33;
+              narrow = ratio > 3 || ratio < 0.33;
 
               return Image.memory(
                 attachment.file.bytes.value!,
@@ -125,7 +128,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       } else {
         final ImageFile file = attachment.original as ImageFile;
         final double ratio = (file.width ?? 300) / (file.height ?? 300);
-        final bool narrow = ratio > 3 || ratio < 0.33;
+        narrow = ratio > 3 || ratio < 0.33;
 
         child = RetryImage.attachment(
           attachment as ImageAttachment,
@@ -182,6 +185,25 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     return Stack(
       fit: StackFit.passthrough,
       children: [
+        if (isImage && narrow)
+          Positioned.fill(
+            child: attachment is LocalAttachment
+                ? attachment.file.bytes.value != null && !attachment.file.isSvg
+                    ? Image.memory(
+                        attachment.file.bytes.value!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      )
+                    : const SizedBox()
+                : RetryImage.attachment(
+                    attachment as ImageAttachment,
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+          ),
         child,
         Obx(() {
           if (attachment.isDownloading) {
