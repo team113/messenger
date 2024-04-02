@@ -484,7 +484,15 @@ jobs:
 
   test-e2e:
     name: test (E2E)
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - macos
+          - web
+    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
+              || (matrix.platform == 'windows'           && 'windows-latest')
+              ||                                            'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -555,6 +563,12 @@ jobs:
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]
+        if: ${{ matrix.platform == 'web' }}
+
+      - run: |
+          make test.e2e start-app=yes device=macos pull=yes no-cache=yes \
+                dart-env='SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}'
+        if: ${{ matrix.platform == 'macos' }}
 
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
