@@ -357,8 +357,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 hinted: c.draggedButton.value == null,
               ),
               onReorder: (buttons) {
-                c.buttons.clear();
-                c.buttons.addAll(buttons);
+                c.buttons.value = buttons;
                 c.relocateSecondary();
               },
               onDragStarted: (b) {
