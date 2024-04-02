@@ -505,7 +505,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               UserId me = _state._auth.userId!;
 
               await Future.wait([
-                // deps.put(MyUserHiveProvider()).init(),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
