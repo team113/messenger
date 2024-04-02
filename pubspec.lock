@@ -249,6 +249,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  copy_with_extension:
+    dependency: "direct main"
+    description:
+      name: copy_with_extension
+      sha256: "9c17d2b9a041ad19c97aa544c46a60f192cd409529bb9cfb98f48f336bb84d31"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.4"
+  copy_with_extension_gen:
+    dependency: "direct dev"
+    description:
+      name: copy_with_extension_gen
+      sha256: "19ab5e5095a9047315b42a6c2bb7ddf59a85cd23a75278500661ced4299165e9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.4"
   coverage:
     dependency: transitive
     description:

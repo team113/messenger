@@ -14,6 +14,7 @@ dependencies:
   back_button_interceptor: ^7.0.0
   callkeep: ^0.3.3
   collection: ^1.17.2
+  copy_with_extension: ^4.0.0
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
   device_info_plus: ^9.0.2
@@ -112,6 +113,7 @@ dev_dependencies:
   build: ^2.4.1
   build_runner: ^2.4.6
   dartdoc: ^8.0.5
+  copy_with_extension_gen: ^4.0.0
   flutter_driver:
     sdk: flutter
   flutter_gherkin:

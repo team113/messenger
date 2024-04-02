@@ -158,6 +158,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.name,
       current: () => myUser.value?.name,
+      saved: () => _myUserLocal.myUser?.value.name,
       value: name,
       mutation: (v, _) => _graphQlProvider.updateUserName(v),
       update: (v, _) => myUser.update((u) => u?.name = v),
@@ -171,6 +172,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.name,
       current: () => myUser.value?.status,
+      saved: () => _myUserLocal.myUser?.value.status,
       value: status,
       mutation: (v, _) => _graphQlProvider.updateUserStatus(v),
       update: (v, _) => myUser.update((u) => u?.status = v),
@@ -184,6 +186,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.bio,
       current: () => myUser.value?.bio,
+      saved: () => _myUserLocal.myUser?.value.bio,
       value: bio,
       mutation: (v, _) => _graphQlProvider.updateUserBio(v),
       update: (v, _) => myUser.update((u) => u?.bio = v),
@@ -206,6 +209,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.presence,
       current: () => myUser.value?.presence,
+      saved: () => _myUserLocal.myUser?.value.presence,
       value: presence,
       mutation: (s, _) async =>
           await _graphQlProvider.updateUserPresence(s ?? presence),
@@ -249,6 +253,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _debounce(
         field: MyUserField.unconfirmedEmail,
         current: () => myUser.value?.emails.unconfirmed,
+        saved: () => _myUserLocal.myUser?.value.emails.unconfirmed,
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
@@ -292,6 +297,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _debounce(
         field: MyUserField.unconfirmedPhone,
         current: () => myUser.value?.phones.unconfirmed,
+        saved: () => _myUserLocal.myUser?.value.phones.unconfirmed,
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
@@ -334,6 +340,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.unconfirmedEmail,
       current: () => myUser.value?.emails.unconfirmed,
+      saved: () => _myUserLocal.myUser?.value.emails.unconfirmed,
       value: email,
       mutation: (value, previous) async {
         if (previous != null) {
@@ -359,6 +366,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.unconfirmedPhone,
       current: () => myUser.value?.phones.unconfirmed,
+      saved: () => _myUserLocal.myUser?.value.phones.unconfirmed,
       value: phone,
       mutation: (value, previous) async {
         if (previous != null) {
@@ -516,6 +524,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.muted,
       current: () => myUser.value?.muted,
+      saved: () => _myUserLocal.myUser?.value.muted,
       value: mute,
       mutation: (duration, _) async {
         return await _graphQlProvider.toggleMyUserMute(
@@ -613,24 +622,51 @@ class MyUserRepository implements AbstractMyUserRepository {
         // Don't update the [MyUserField]s considered locked in the [_pool], as
         // those events might've been applied optimistically during mutations
         // and await corresponding subscription events to be persisted.
-        if (_pool.locked(MyUserField.name)) {
-          value?.name = myUser.value?.name;
+        UserName? name = value?.name;
+        UserTextStatus? status = value?.status;
+        UserBio? bio = value?.bio;
+        Presence? presence = value?.presence;
+        MuteDuration? muted = value?.muted;
+        MyUserEmails? emails = value?.emails;
+        MyUserPhones? phones = value?.phones;
+        if (_pool.lockedBy(MyUserField.name, value?.name)) {
+          name = myUser.value?.name;
         }
-        if (_pool.locked(MyUserField.status)) {
-          value?.status = myUser.value?.status;
+        if (_pool.lockedBy(MyUserField.status, value?.status)) {
+          status = myUser.value?.status;
         }
-        if (_pool.locked(MyUserField.bio)) {
-          value?.bio = myUser.value?.bio;
+        if (_pool.lockedBy(MyUserField.bio, value?.bio)) {
+          bio = myUser.value?.bio;
         }
-        if (_pool.locked(MyUserField.presence)) {
-          value?.presence = myUser.value?.presence ?? value.presence;
+        if (_pool.lockedBy(MyUserField.presence, value?.presence)) {
+          presence = myUser.value?.presence ?? presence;
         }
-        if (_pool.locked(MyUserField.muted)) {
-          value?.muted = myUser.value?.muted;
+        if (_pool.lockedBy(MyUserField.muted, value?.muted)) {
+          muted = myUser.value?.muted;
+        }
+        if (_pool.lockedBy(
+          MyUserField.unconfirmedEmail,
+          value?.emails.unconfirmed,
+        )) {
+          emails = emails?.copyWith(unconfirmed: myUser.value?.emails.unconfirmed);
+        }
+        if (_pool.lockedBy(
+          MyUserField.unconfirmedPhone,
+          value?.phones.unconfirmed,
+        )) {
+          phones = phones?.copyWith(unconfirmed: myUser.value?.phones.unconfirmed);
         }
 
         // Copy [event.value] as it always contains the same [MyUser].
-        myUser.value = value?.copyWith();
+        myUser.value = value?.copyWith(
+          muted: muted,
+          status: status,
+          bio: bio,
+          presenceIndex: presence!.index,
+          name: name,
+          emails: emails,
+          phones: phones,
+        );
       }
     }
   }
@@ -1104,6 +1140,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _debounce<T>({
     required MyUserField field,
     required T? Function() current,
+    required T? Function() saved,
     T? value,
     required void Function(T? value, T? previous) update,
     required Future<MyUserEventsVersionedMixin?> Function(T? value, T? previous)
@@ -1122,6 +1159,9 @@ class MyUserRepository implements AbstractMyUserRepository {
       field,
       () async {
         try {
+          _pool.lockBy(field, saved());
+          _pool.lockBy(field, value);
+
           final MyUserEventsVersionedMixin? response =
               await mutation(value, previous);
 
@@ -1132,20 +1172,24 @@ class MyUserRepository implements AbstractMyUserRepository {
             );
 
             _myUserRemoteEvent(event, updateVersion: false);
+
+            // Wait for [Hive] to update the [HiveMyUser] from
+            // [_myUserRemoteEvent].
+            await Future.delayed(Duration.zero);
           }
 
           previous = value;
         } catch (_) {
-          update(previous, value);
+          update(saved(), value);
           rethrow;
+        } finally {
+          _pool.unlock(field);
         }
       },
       repeat: () {
-        if (myUser.value != null) {
-          if (current() != value) {
-            value = current();
-            return true;
-          }
+        if (myUser.value != null && current() != saved()) {
+          value = current();
+          return true;
         }
 
         return false;
