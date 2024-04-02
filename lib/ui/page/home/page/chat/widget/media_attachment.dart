@@ -189,11 +189,14 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           Positioned.fill(
             child: attachment is LocalAttachment
                 ? attachment.file.bytes.value != null && !attachment.file.isSvg
-                    ? Image.memory(
-                        attachment.file.bytes.value!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
+                    ? ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Image.memory(
+                          attachment.file.bytes.value!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                        ),
                       )
                     : const SizedBox()
                 : RetryImage.attachment(
