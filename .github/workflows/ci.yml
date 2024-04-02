@@ -544,6 +544,9 @@ jobs:
 
       - run: mkdir build/
 
+      - run: brew install docker colima
+        if: ${{ matrix.platform == 'macos' }}
+
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
       # passed to the `chromedriver` does.
