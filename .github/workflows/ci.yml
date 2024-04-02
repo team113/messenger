@@ -521,6 +521,9 @@ jobs:
           channel: stable
           cache: true
 
+      - run: brew install docker colima
+        if: ${{ matrix.platform == 'macos' }}
+
       - name: Login to private E2E container registry
         uses: docker/login-action@v3
         with:
@@ -543,9 +546,6 @@ jobs:
           fail_on_empty: true
 
       - run: mkdir build/
-
-      - run: brew install docker colima
-        if: ${{ matrix.platform == 'macos' }}
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`
