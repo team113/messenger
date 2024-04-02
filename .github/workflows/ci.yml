@@ -524,7 +524,7 @@ jobs:
       - run: brew install docker docker-compose colima
         if: ${{ matrix.platform == 'macos' }}
       - name: Run Colima
-        run: colima start
+        run: colima start --mount-type 9p
         if: ${{ matrix.platform == 'macos' }}
 
       - name: Login to private E2E container registry
