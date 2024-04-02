@@ -524,6 +524,7 @@ jobs:
       - run: brew install docker docker-compose colima
         if: ${{ matrix.platform == 'macos' }}
       - run: |
+          touch ${HOME}/.colima/_config/override.yaml
           echo "${{ env.YAML }}" > ${HOME}/.colima/_config/override.yaml
         env:
           YAML: |
