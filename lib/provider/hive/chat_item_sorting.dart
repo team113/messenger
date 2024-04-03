@@ -37,7 +37,7 @@ class ChatItemSortingHiveProvider extends HiveBaseProvider<ChatItemId> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', '$runtimeType');
+    Log.debug('registerAdapters($id)', '$runtimeType');
 
     Hive.maybeRegisterAdapter(ChatItemIdAdapter());
   }

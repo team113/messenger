@@ -45,7 +45,7 @@ class ChatMemberHiveProvider extends HiveLazyProvider<HiveChatMember>
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', '$runtimeType');
+    Log.debug('registerAdapters($id)', '$runtimeType');
 
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());

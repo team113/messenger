@@ -1289,7 +1289,7 @@ class HiveRxChat extends RxChat {
 
   /// Updates the [members] and [title] fields based on the [chat] state.
   Future<void> _updateFields({Chat? previous}) async {
-    Log.debug('_updateFields($previous)', '$runtimeType($id)');
+    Log.trace('_updateFields($previous)', '$runtimeType($id)');
 
     if (!chat.value.isDialog) {
       avatar.value = chat.value.avatar;

@@ -39,7 +39,7 @@ class ChatMemberSortingHiveProvider extends HiveBaseProvider<UserId> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', '$runtimeType');
+    Log.debug('registerAdapters($id)', '$runtimeType');
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
