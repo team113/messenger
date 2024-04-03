@@ -46,7 +46,7 @@ class BlocklistSortingHiveProvider extends HiveBaseProvider<UserId> {
 
   /// Puts the provided [UserId] by the provided [key] to [Hive].
   Future<void> put(PreciseDateTime key, UserId item) async {
-    Log.debug('put($key, $item)', '$runtimeType');
+    Log.trace('put($key, $item)', '$runtimeType');
 
     final String i = '${key.toUtc().toString()}_$item';
 
@@ -64,7 +64,7 @@ class BlocklistSortingHiveProvider extends HiveBaseProvider<UserId> {
 
   /// Removes the provided [UserId] from [Hive].
   Future<void> remove(UserId item) async {
-    Log.debug('remove($item)', '$runtimeType');
+    Log.trace('remove($item)', '$runtimeType');
 
     await _mutex.protect(() async {
       final int index = values.toList().indexOf(item);
