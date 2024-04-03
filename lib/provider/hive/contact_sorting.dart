@@ -46,7 +46,7 @@ class ContactSortingHiveProvider extends HiveBaseProvider<ChatContactId> {
 
   /// Puts the provided [ChatContactId] by the provided [name] to [Hive].
   Future<void> put(UserName name, ChatContactId item) async {
-    Log.debug('put($name, $item)', '$runtimeType');
+    Log.trace('put($name, $item)', '$runtimeType');
 
     final String key = '${name}_$item';
 
@@ -64,7 +64,7 @@ class ContactSortingHiveProvider extends HiveBaseProvider<ChatContactId> {
 
   /// Removes the provided [ChatContactId] from [Hive].
   Future<void> remove(ChatContactId item) async {
-    Log.debug('remove($item)', '$runtimeType');
+    Log.trace('remove($item)', '$runtimeType');
 
     await _mutex.protect(() async {
       final int index = values.toList().indexOf(item);

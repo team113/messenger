@@ -55,19 +55,19 @@ class BlocklistHiveProvider extends HiveLazyProvider<HiveBlocklistRecord>
 
   @override
   Future<void> put(HiveBlocklistRecord record) async {
-    Log.debug('put($record)', '$runtimeType');
+    Log.trace('put($record)', '$runtimeType');
     await putSafe(record.value.userId.val, record);
   }
 
   @override
   Future<HiveBlocklistRecord?> get(UserId id) async {
-    Log.debug('get($id)', '$runtimeType');
+    Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   @override
   Future<void> remove(UserId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
 }

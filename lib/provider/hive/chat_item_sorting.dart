@@ -51,13 +51,13 @@ class ChatItemSortingHiveProvider extends HiveBaseProvider<ChatItemId> {
 
   /// Puts the provided [key] to [Hive].
   Future<void> put(ChatItemKey key) async {
-    Log.debug('put($key))', '$runtimeType');
+    Log.trace('put($key))', '$runtimeType');
     await putSafe(key.toString(), key.id);
   }
 
   /// Removes the provided [ChatItemKey] from [Hive].
   Future<void> remove(ChatItemKey key) async {
-    Log.debug('remove($key)', '$runtimeType');
+    Log.trace('remove($key)', '$runtimeType');
     await deleteSafe(key.toString());
   }
 }

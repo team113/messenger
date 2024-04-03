@@ -38,19 +38,19 @@ class DownloadHiveProvider extends HiveLazyProvider<String> {
 
   /// Puts the provided [File.path] to [Hive].
   Future<void> put(String checksum, String path) async {
-    Log.debug('put($checksum, $path)', '$runtimeType');
+    Log.trace('put($checksum, $path)', '$runtimeType');
     await putSafe(checksum, path);
   }
 
   /// Returns a [File.path] from [Hive] by its [checksum].
   Future<String?> get(String checksum) async {
-    Log.debug('get($checksum)', '$runtimeType');
+    Log.trace('get($checksum)', '$runtimeType');
     return await getSafe(checksum);
   }
 
   /// Removes an [File.path] from [Hive] by its [checksum].
   Future<void> remove(String checksum) async {
-    Log.debug('remove($checksum)', '$runtimeType');
+    Log.trace('remove($checksum)', '$runtimeType');
     await deleteSafe(checksum);
   }
 }

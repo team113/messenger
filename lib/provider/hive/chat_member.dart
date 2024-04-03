@@ -69,19 +69,19 @@ class ChatMemberHiveProvider extends HiveLazyProvider<HiveChatMember>
 
   @override
   Future<void> put(HiveChatMember member) async {
-    Log.debug('put($member)', '$runtimeType');
+    Log.trace('put($member)', '$runtimeType');
     await putSafe(member.value.user.id.val, member);
   }
 
   @override
   Future<HiveChatMember?> get(UserId id) {
-    Log.debug('get($id)', '$runtimeType');
+    Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   @override
   Future<void> remove(UserId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
 }
