@@ -178,12 +178,13 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _credentialsLocal.boxEvents.listen((event) {
       final UserId id = UserId(event.key);
-      final Credentials creds = event.value;
 
       if (event.deleted) {
         // If the access to [Credentials] is lost, remove the subscription.
         _remoteSubscriptions.remove(id)?.cancel(immediate: true);
       } else {
+        final Credentials creds = event.value;
+
         // If [Credentials] were updated (e.g. during `renewSession`), then
         // resubscribe.
         _initRemoteSubscriptionFor(creds);

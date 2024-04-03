@@ -119,30 +119,37 @@ class AuthService extends GetxService {
     final Iterable<Credentials> creds = _credentialsProvider.valuesSafe;
 
     for (final Credentials cred in creds) {
+      if (cred.userId == credentials.value?.userId) {
+        continue;
+      }
       // Refresh the [credentials] manually for the first time.
-      _refresh(cred);
+      _refresh(cred.userId);
 
       _refreshTimers[cred.userId]?.cancel();
       _refreshTimers[cred.userId] = Timer.periodic(
         _refreshTaskInterval,
-        (_) => _refresh(cred),
+        (_) => _refresh(cred.userId),
       );
     }
   }
 
   /// Refreshes the [credentials]. Should not be used for renewing active user's
   /// session.
-  Future<void> _refresh(Credentials credentials) async {
-    Log.debug('_refresh(${credentials.userId})', '$runtimeType');
+  Future<void> _refresh(UserId id) async {
+    Log.debug('_refresh($id)', '$runtimeType');
 
-    if (_shouldRefresh(credentials)) {
+    final Credentials? credentials = _credentialsProvider.get(id);
+
+    if (credentials != null && true /* _shouldRefresh(credentials) */) {
       try {
-        final Credentials data = await _authRepository
-            .renewSession(credentials.rememberedSession.token);
+        final Credentials data = await _authRepository.renewSession(
+          credentials.rememberedSession.token,
+          true,
+        );
 
-        _credentialsProvider.put(data);
+        await _credentialsProvider.put(data);
       } on RenewSessionException catch (_) {
-        _credentialsProvider.remove(credentials.userId);
+        // _credentialsProvider.remove(credentials.userId);
 
         rethrow;
       }
