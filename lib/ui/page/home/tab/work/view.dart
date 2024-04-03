@@ -130,7 +130,7 @@ class WorkTabView extends StatelessWidget {
                       title: 'Вывести деньги',
                       inverted: router.routes.lastOrNull == Routes.withdraw,
                       onPressed: router.withdraw,
-                      leading: const SvgIcon(SvgIcons.getMoney),
+                      leading: const SvgIcon(SvgIcons.workGetMoney),
                     );
                   }),
                 ),
@@ -139,7 +139,7 @@ class WorkTabView extends StatelessWidget {
                   child: MenuButton(
                     title: 'Транзакции',
                     onPressed: () {},
-                    leading: const SvgIcon(SvgIcons.getMoney),
+                    leading: const SvgIcon(SvgIcons.workTransactions),
                   ),
                 ),
                 _label(context, 'Партнёрская программа'),
@@ -149,7 +149,7 @@ class WorkTabView extends StatelessWidget {
                   child: MenuButton(
                     title: 'Кнопка 1',
                     onPressed: () {},
-                    leading: const SvgIcon(SvgIcons.getMoney),
+                    leading: const SvgIcon(SvgIcons.workGetMoney),
                   ),
                 ),
                 Padding(
@@ -157,7 +157,7 @@ class WorkTabView extends StatelessWidget {
                   child: MenuButton(
                     title: 'Кнопка 2',
                     onPressed: () {},
-                    leading: const SvgIcon(SvgIcons.getMoney),
+                    leading: const SvgIcon(SvgIcons.workGetMoney),
                   ),
                 ),
                 // const SizedBox(height: 16),

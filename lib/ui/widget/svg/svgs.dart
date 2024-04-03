@@ -2362,8 +2362,14 @@ class SvgIcons {
     height: 30,
   );
 
-  static const SvgData getMoney = SvgData(
-    'assets/icons/get_money.svg',
+  static const SvgData workGetMoney = SvgData(
+    'assets/icons/work_get_money.svg',
+    width: 32,
+    height: 32,
+  );
+
+    static const SvgData workTransactions = SvgData(
+    'assets/icons/work_transactions.svg',
     width: 32,
     height: 32,
   );
