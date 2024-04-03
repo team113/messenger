@@ -89,7 +89,10 @@ class RetryImage extends StatefulWidget {
     return RetryImage(
       image.url,
       checksum: image.checksum,
-      thumbhash: image.thumbhash ?? attachment.big.thumbhash,
+      thumbhash: image.thumbhash ??
+          attachment.big.thumbhash ??
+          attachment.medium.thumbhash ??
+          attachment.small.thumbhash,
       fit: fit,
       height: height,
       width: width,
