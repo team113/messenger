@@ -556,13 +556,6 @@ jobs:
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: e2e-perf-${{ github.run_number }}
-          path: test/e2e/reports/*.timeline_summary.json
-          if-no-files-found: warn
-          retention-days: 1
-
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
       - run: sudo chmod -R 755 .cache/

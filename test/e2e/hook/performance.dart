@@ -21,6 +21,9 @@ import 'package:gherkin/gherkin.dart';
 import 'package:integration_test/integration_test.dart';
 
 /// [Hook] gathering performance results of a test.
+///
+/// Results are embedded into the
+/// [IntegrationTestWidgetsFlutterBinding.reportData] after all the tests run.
 class PerformanceHook extends Hook {
   /// [Completer] measuring the performance between [onBeforeScenario] and
   /// [onAfterScenario].
@@ -29,7 +32,12 @@ class PerformanceHook extends Hook {
   /// [Future]s of the [IntegrationTestWidgetsFlutterBinding.traceAction].
   final List<Future> _futures = [];
 
-  Map<String, dynamic>? _data;
+  /// [IntegrationTestWidgetsFlutterBinding.reportData]s accumulated.
+  ///
+  /// This is populated at every [onAfterScenario], since [onAfterRun] callback
+  /// replaces the data stored in the binding with gherkin reports, and we
+  /// don't want to lose the performance stats.
+  final Map<String, dynamic> _data = {};
 
   @override
   int get priority => 0;
@@ -63,14 +71,18 @@ class PerformanceHook extends Hook {
     _completer?.complete();
     _completer = null;
 
+    // [_futures] aren't removed, because already completed [Future]s aren't
+    // awaited at all, causing no microtask and no async code.
     await Future.wait(_futures);
-    _data = IntegrationTestWidgetsFlutterBinding.instance.reportData;
+    _data.addAll(
+      IntegrationTestWidgetsFlutterBinding.instance.reportData ?? {},
+    );
   }
 
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
-    if (_data != null) {
-      IntegrationTestWidgetsFlutterBinding.instance.reportData?.addAll(_data!);
+    if (_data.isNotEmpty) {
+      IntegrationTestWidgetsFlutterBinding.instance.reportData?.addAll(_data);
     }
   }
 }
