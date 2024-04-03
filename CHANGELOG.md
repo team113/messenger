@@ -23,6 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned editing mode and actions. ([#868])
+        - Blurred previews under wide/narrow images. ([#934])
     - User page:
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
@@ -73,6 +74,7 @@ All user visible changes to this project will be documented in this file. This p
 [#914]: /../../pull/914
 [#915]: /../../pull/915
 [#919]: /../../pull/919
+[#934]: /../../pull/934
 
 
 

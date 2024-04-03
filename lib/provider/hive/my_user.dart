@@ -76,7 +76,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
 
   /// Saves the provided [MyUser] in [Hive].
   Future<void> set(HiveMyUser user) async {
-    Log.debug('set($user)', '$runtimeType');
+    Log.trace('set($user)', '$runtimeType');
     await putSafe(0, user);
   }
 }
