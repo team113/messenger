@@ -212,6 +212,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         rightClickWidget,
         scrollAndSee,
         scrollToBottom,
+        scrollToTop,
         scrollUntilPresent,
         seeBlockedUsers,
         seeChatAsDismissed,

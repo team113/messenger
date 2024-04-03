@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:gherkin/gherkin.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:messenger/config.dart';
 
 /// [Hook] gathering performance results of a test.
 ///
@@ -82,7 +83,10 @@ class PerformanceHook extends Hook {
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
     if (_data.isNotEmpty) {
-      IntegrationTestWidgetsFlutterBinding.instance.reportData?.addAll(_data);
+      IntegrationTestWidgetsFlutterBinding.instance.reportData?['traces'] =
+          _data;
+      IntegrationTestWidgetsFlutterBinding.instance.reportData?['level'] =
+          Config.logLevel.index;
     }
   }
 }

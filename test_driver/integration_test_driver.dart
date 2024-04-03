@@ -15,11 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:integration_test/integration_test_driver.dart'
     as integration_test_driver;
+import 'package:log_me/log_me.dart';
 
 /// Entry point of a Flutter integration test driver.
 Future<void> main() {
@@ -39,7 +41,12 @@ Future<void> main() {
   return integration_test_driver.integrationDriver(
     timeout: const Duration(minutes: 30),
     responseDataCallback: (data) async {
-      for (var e in data?.entries ?? <MapEntry<String, dynamic>>[]) {
+      // Retrieve the [LogLevel] from the [data], as accessing [Config] here
+      // isn't possible due to Flutter imports happening in [Config].
+      final int? level = data?['level'] is int ? data!['level'] as int : null;
+
+      final Map<String, dynamic> traces = data?['traces'] ?? {};
+      for (var e in traces.entries) {
         if (e.value is! Map<String, dynamic>) {
           continue;
         }
@@ -52,19 +59,27 @@ Future<void> main() {
         // and understand.
         final summary = TimelineSummary.summarize(timeline);
 
-        // Then, write the entire timeline to disk in a json format.
+        const String directory = 'test/e2e/reports';
+
+        // Write the whole [Timeline] to the disk, if [Config.logLevel] is or
+        // bigger than [LogLevel.trace].
         //
-        // This file can be opened in the Chrome browser's tracing tools found
-        // by navigating to chrome://tracing.
-        //
-        // Optionally, save the summary to disk by setting `includeSummary` to
-        // `true`.
-        await summary.writeTimelineToFile(
-          e.key,
-          destinationDirectory: 'test/e2e/reports',
-          pretty: true,
-          includeSummary: true,
-        );
+        // Or write only the summary otherwise.
+        if ((level ?? 0) >= LogLevel.trace.index) {
+          await summary.writeTimelineToFile(
+            e.key,
+            destinationDirectory: directory,
+            pretty: true,
+            includeSummary: true,
+          );
+        } else {
+          await fs.directory(directory).create(recursive: true);
+          final File file =
+              fs.file('$directory/${e.key}.timeline_summary.json');
+          await file.writeAsString(
+            const JsonEncoder.withIndent('  ').convert(summary.summaryJson),
+          );
+        }
       }
     },
   );
