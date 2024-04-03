@@ -2161,10 +2161,11 @@ class ChatRepository extends DisposableInterface
             final HiveRxChat? localChat = chats[localId];
 
             if (localChat != null) {
+              await localChat.updateChat(data.chat);
+
               chats.move(localId, chatId);
               paginated.move(localId, chatId);
 
-              await localChat.updateChat(data.chat);
               entry = localChat;
             }
 

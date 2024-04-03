@@ -84,6 +84,9 @@ class Pagination<T, C, K> {
   /// [Mutex] guarding synchronized access to the [previous].
   final Mutex _previousGuard = Mutex();
 
+  /// [Mutex] guarding synchronized access to the [put] and [remove].
+  final Mutex _itemsGuard = Mutex();
+
   /// [CancelToken] for cancelling [init], [around], [next] and [previous]
   /// query.
   final CancelToken _cancelToken = CancelToken();
@@ -327,15 +330,22 @@ class Pagination<T, C, K> {
     bool put = ignoreBounds;
 
     if (!put) {
-      if (items.isEmpty) {
-        put = hasNext.isFalse && hasPrevious.isFalse;
-      } else if (compare?.call(item, items.last) == 1) {
-        put = hasNext.isFalse;
-      } else if (compare?.call(item, items.first) == -1) {
-        put = hasPrevious.isFalse;
-      } else {
-        put = true;
-      }
+      await _itemsGuard.protect(() async {
+        // Wait for [items] fetching before putting a new one.
+        await _guard.protect(() async => null);
+        await _nextGuard.protect(() async => null);
+        await _previousGuard.protect(() async => null);
+
+        if (items.isEmpty) {
+          put = hasNext.isFalse && hasPrevious.isFalse;
+        } else if (compare?.call(item, items.last) == 1) {
+          put = hasNext.isFalse;
+        } else if (compare?.call(item, items.first) == -1) {
+          put = hasPrevious.isFalse;
+        } else {
+          put = true;
+        }
+      });
     }
 
     if (put) {
@@ -346,15 +356,18 @@ class Pagination<T, C, K> {
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
-  Future<void> remove(K key) {
+  Future<void> remove(K key) async {
     Log.debug('remove($key)', '$runtimeType');
 
     if (_disposed) {
       return Future.value();
     }
 
-    items.remove(key);
-    return provider.remove(key);
+    await _itemsGuard.protect(() async {
+      items.remove(key);
+    });
+
+    await provider.remove(key);
   }
 }
 
