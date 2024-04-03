@@ -47,13 +47,13 @@ class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
 
   /// Returns the stored [Credentials] from [Hive].
   Credentials? get() {
-    Log.debug('getCredentials()', '$runtimeType');
+    Log.trace('getCredentials()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Stores new [Credentials] to [Hive].
   Future<void> set(Credentials credentials) async {
-    Log.debug('setCredentials($credentials)', '$runtimeType');
+    Log.trace('setCredentials($credentials)', '$runtimeType');
     await putSafe(0, credentials);
   }
 }

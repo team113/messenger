@@ -17,6 +17,7 @@
 
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -86,10 +87,37 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     final bool isImage = (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
 
-    final Widget child;
+    Widget? preview;
+    Widget? child;
 
     if (isImage) {
       if (attachment is LocalAttachment) {
+        // Indicates whether the provided [dimensions] are considered too narrow
+        // or too wide.
+        bool isNarrow(Size? dimensions) {
+          final double ratio =
+              (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
+          return ratio > 3 || ratio < 0.33;
+        }
+
+        preview = Obx(() {
+          if (attachment.file.bytes.value != null &&
+              !attachment.file.isSvg &&
+              isNarrow(attachment.file.dimensions.value)) {
+            return ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Image.memory(
+                attachment.file.bytes.value!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            );
+          }
+
+          return const SizedBox();
+        });
+
         child = Obx(() {
           if (attachment.file.bytes.value == null) {
             return const Center(
@@ -108,9 +136,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               );
             } else {
               final Size? dimensions = attachment.file.dimensions.value;
-              final double ratio =
-                  (dimensions?.width ?? 300) / (dimensions?.height ?? 300);
-              final bool narrow = ratio > 3 || ratio < 0.33;
+              final bool narrow = isNarrow(dimensions);
 
               return Image.memory(
                 attachment.file.bytes.value!,
@@ -122,13 +148,40 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             }
           }
         });
-      } else {
+      } else if (attachment is ImageAttachment) {
         final ImageFile file = attachment.original as ImageFile;
         final double ratio = (file.width ?? 300) / (file.height ?? 300);
         final bool narrow = ratio > 3 || ratio < 0.33;
 
+        if (narrow) {
+          final ThumbHash? thumbhash =
+              (attachment.original as ImageFile).thumbhash ??
+                  attachment.big.thumbhash ??
+                  attachment.medium.thumbhash ??
+                  attachment.small.thumbhash;
+
+          // Display only the [ThumbHash], if [attachment] has any, to reduce
+          // possible overhead caused by a [RetryImage].
+          if (thumbhash != null) {
+            preview = Image(
+              image: CacheWorker.instance.getThumbhashProvider(thumbhash),
+              height: double.infinity,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            );
+          } else {
+            preview = RetryImage.attachment(
+              attachment,
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            );
+          }
+        }
+
         child = RetryImage.attachment(
-          attachment as ImageAttachment,
+          attachment,
           fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
           minWidth: 75,
@@ -182,7 +235,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     return Stack(
       fit: StackFit.passthrough,
       children: [
-        child,
+        if (preview != null) Positioned.fill(child: preview),
+        if (child != null) child,
         Obx(() {
           if (attachment.isDownloading) {
             return Positioned(
