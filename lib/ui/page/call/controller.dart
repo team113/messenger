@@ -309,6 +309,9 @@ class CallController extends GetxController {
   /// to calculate the difference.
   BoxConstraints? _lastConstraints;
 
+  /// [DateTime] when this [CallController] was created.
+  DateTime _createdAt = DateTime.now();
+
   /// Service managing the [_currentCall].
   final CallService _calls;
 
@@ -369,6 +372,10 @@ class CallController extends GetxController {
 
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
+
+  /// [Worker]s reacting on [CallMember.isConnected] changes playing the
+  /// [_connected] sound.
+  final Map<CallMemberId, Worker> _membersConnected = {};
 
   /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
@@ -548,6 +555,9 @@ class CallController extends GetxController {
 
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
+
+  /// Returns the name of a new connection sound asset.
+  String get _connected => 'connected.mp3';
 
   /// Returns the name of a reconnect sound asset.
   String get _reconnect => 'reconnect.mp3';
@@ -2094,12 +2104,18 @@ class CallController extends GetxController {
         }
       }
 
-      _membersTracksSubscriptions = _currentCall.value.members.map(
+      _membersTracksSubscriptions = members.map(
         (k, v) =>
             MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
       );
 
-      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+      members.forEach((_, member) {
+        if (member.isConnected.isFalse) {
+          _listenConnected(member);
+        }
+      });
+
+      _membersSubscription = members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             _putTracksFrom(e.value!);
@@ -2109,6 +2125,12 @@ class CallController extends GetxController {
             );
 
             _ensureCorrectGrouping();
+
+            if (e.value!.isConnected.isTrue) {
+              _playConnected();
+            } else {
+              _listenConnected(e.value!);
+            }
             break;
 
           case OperationKind.removed:
@@ -2148,6 +2170,29 @@ class CallController extends GetxController {
     }
   }
 
+  /// Initializes [_membersConnected] for the provided [member].
+  void _listenConnected(CallMember member) {
+    _membersConnected[member.id] ??= ever(
+      member.isConnected,
+      (connected) async {
+        if (connected) {
+          await _playConnected();
+
+          _membersConnected.remove(member.id)?.dispose();
+        }
+      },
+    );
+  }
+
+  /// Plays the [_connected] sound.
+  Future<void> _playConnected() async {
+    print('_createdAt.difference(DateTime.now()).inSeconds: ${_createdAt.difference(DateTime.now()).inSeconds}');
+    if (_currentCall.value.state.value == OngoingCallState.active &&
+        DateTime.now().difference(_createdAt).inSeconds > 5) {
+      await AudioUtils.once(AudioSource.asset('audio/$_connected'));
+    }
+  }
+
   /// Sets the [chat] to the provided value, updating the title.
   void _updateChat(RxChat? v) {
     _chatSubscription?.cancel();
@@ -2175,8 +2220,7 @@ class CallController extends GetxController {
 
         updateTitle();
 
-        _titleSubscription =
-            _currentCall.value.members.listen((_) => updateTitle());
+        _titleSubscription = members.listen((_) => updateTitle());
         _durationSubscription = duration.listen((_) => updateTitle());
       }
     }
