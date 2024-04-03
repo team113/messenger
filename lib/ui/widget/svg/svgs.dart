@@ -262,6 +262,11 @@ class SvgIcons {
     width: 32.04,
     height: 31.97,
   );
+  static const SvgData workRust = SvgData(
+    'assets/icons/work_rust.svg',
+    width: 32,
+    height: 32,
+  );
 
   static const SvgData android = SvgData(
     'assets/icons/android.svg',
@@ -2368,7 +2373,7 @@ class SvgIcons {
     height: 32,
   );
 
-    static const SvgData workTransactions = SvgData(
+  static const SvgData workTransactions = SvgData(
     'assets/icons/work_transactions.svg',
     width: 32,
     height: 32,
