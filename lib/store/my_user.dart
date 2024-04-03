@@ -627,34 +627,38 @@ class MyUserRepository implements AbstractMyUserRepository {
         UserBio? bio = value?.bio;
         Presence? presence = value?.presence;
         MuteDuration? muted = value?.muted;
-        MyUserEmails? emails = value?.emails;
-        MyUserPhones? phones = value?.phones;
-        if (_pool.lockedBy(MyUserField.name, value?.name)) {
+        MyUserEmails? emails = value?.emails.copyWith();
+        MyUserPhones? phones = value?.phones.copyWith();
+        if (_pool.lockedWith(MyUserField.name, value?.name)) {
           name = myUser.value?.name;
         }
-        if (_pool.lockedBy(MyUserField.status, value?.status)) {
+        if (_pool.lockedWith(MyUserField.status, value?.status)) {
           status = myUser.value?.status;
         }
-        if (_pool.lockedBy(MyUserField.bio, value?.bio)) {
+        if (_pool.lockedWith(MyUserField.bio, value?.bio)) {
           bio = myUser.value?.bio;
         }
-        if (_pool.lockedBy(MyUserField.presence, value?.presence)) {
+        if (_pool.lockedWith(MyUserField.presence, value?.presence)) {
           presence = myUser.value?.presence ?? presence;
         }
-        if (_pool.lockedBy(MyUserField.muted, value?.muted)) {
+        if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
           muted = myUser.value?.muted;
         }
-        if (_pool.lockedBy(
+        if (_pool.lockedWith(
           MyUserField.unconfirmedEmail,
           value?.emails.unconfirmed,
         )) {
-          emails = emails?.copyWith(unconfirmed: myUser.value?.emails.unconfirmed);
+          emails =
+              // ignore: invalid_null_aware_operator
+              emails?.copyWith(unconfirmed: myUser.value?.emails.unconfirmed);
         }
-        if (_pool.lockedBy(
+        if (_pool.lockedWith(
           MyUserField.unconfirmedPhone,
           value?.phones.unconfirmed,
         )) {
-          phones = phones?.copyWith(unconfirmed: myUser.value?.phones.unconfirmed);
+          phones =
+              // ignore: invalid_null_aware_operator
+              phones?.copyWith(unconfirmed: myUser.value?.phones.unconfirmed);
         }
 
         // Copy [event.value] as it always contains the same [MyUser].
@@ -1159,8 +1163,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       field,
       () async {
         try {
-          _pool.lockBy(field, saved());
-          _pool.lockBy(field, value);
+          _pool.lockWith(field, [value, saved()]);
 
           final MyUserEventsVersionedMixin? response =
               await mutation(value, previous);
@@ -1182,8 +1185,6 @@ class MyUserRepository implements AbstractMyUserRepository {
         } catch (_) {
           update(saved(), value);
           rethrow;
-        } finally {
-          _pool.unlock(field);
         }
       },
       repeat: () {

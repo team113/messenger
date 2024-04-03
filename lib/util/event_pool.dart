@@ -57,17 +57,14 @@ class EventPool<T> {
   bool processed(Object event, {bool remove = true}) =>
       (remove ? _processed.remove : _processed.contains).call(event);
 
-  /// Associates the provided [value] with the [Mutex] by the provided [tag].
-  void lockBy(T tag, Object? value) => _mutexes[tag]?.values.add(value);
-
-  /// Clears all values associated with the [Mutex] by the provided [tag].
-  void unlock(T tag) => _mutexes[tag]?.values.clear();
+  /// Associates the provided [values] with the [Mutex] by the provided [tag].
+  void lockWith(T tag, List<Object?> values) => _mutexes[tag]?.values = values;
 
   /// Indicates whether an event with the provided [tag] and [value] is being
   /// executed.
-  bool lockedBy(T tag, Object? value) =>
+  bool lockedWith(T tag, Object? value) =>
       _mutexes[tag]?.mutex.isLocked == true &&
-      _mutexes[tag]!.values.any((e) => e == value);
+      _mutexes[tag]!.values.contains(value);
 }
 
 /// Wrapper around [Mutex] with a values associated with it.
