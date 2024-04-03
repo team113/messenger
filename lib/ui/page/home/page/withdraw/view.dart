@@ -11,7 +11,6 @@ import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
-import 'package:messenger/ui/widget/info_tile.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
 import 'controller.dart';
@@ -131,43 +130,6 @@ class WithdrawView extends StatelessWidget {
                     },
                     label: 'Сумма',
                   ),
-
-                  // Align(
-                  //   alignment: Alignment.centerLeft,
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.only(left: 8.0),
-                  //     child: Obx(() {
-                  //       final amount = switch (c.method.value) {
-                  //         WithdrawMethod.card ||
-                  //         WithdrawMethod.paypal ||
-                  //         WithdrawMethod.swift =>
-                  //           '\$${(c.amount.value / 100).toStringAsFixed(2)}',
-                  //         WithdrawMethod.sepa =>
-                  //           '€${(c.amount.value / 110).toStringAsFixed(2)}',
-                  //         WithdrawMethod.usdt =>
-                  //           '${(c.amount.value / 100).toStringAsFixed(2)} USDT',
-                  //         WithdrawMethod.bitcoin =>
-                  //           '${c.amount.value / 100000000} BTC',
-                  //       };
-
-                  //       return Text.rich(
-                  //         TextSpan(
-                  //           children: [
-                  //             TextSpan(
-                  //               text: 'К отправке: ',
-                  //               style: style.fonts.normal.regular.secondary,
-                  //             ),
-                  //             TextSpan(
-                  //               text: amount,
-                  //               style: style.fonts.medium.regular.onBackground,
-                  //             ),
-                  //           ],
-                  //         ),
-                  //         textAlign: TextAlign.start,
-                  //       );
-                  //     }),
-                  //   ),
-                  // ),
                   const SizedBox(height: 16),
                   Obx(() {
                     return CurrencyField(
@@ -187,42 +149,6 @@ class WithdrawView extends StatelessWidget {
                       },
                     );
                   }),
-                  // MoneyField(
-                  //   label: 'К отправке',
-                  //   state: c.money,
-                  //   currency: c.method.value.currency,
-                  // ),
-                  // Obx(() {
-                  //   final OutlineInputBorder border = OutlineInputBorder(
-                  //     borderRadius: BorderRadius.circular(25),
-                  //     borderSide: BorderSide(
-                  //       width: 1,
-                  //       color: style.colors.acceptPrimary,
-                  //     ),
-                  //   );
-
-                  //   return Theme(
-                  //     data: Theme.of(context).copyWith(
-                  //       inputDecorationTheme:
-                  //           Theme.of(context).inputDecorationTheme.copyWith(
-                  //                 border: border,
-                  //                 errorBorder: border,
-                  //                 enabledBorder: border,
-                  //                 focusedBorder: border,
-                  //                 disabledBorder: border,
-                  //                 focusedErrorBorder: border,
-                  //                 focusColor: style.colors.onPrimary,
-                  //                 fillColor: style.colors.onPrimary,
-                  //                 hoverColor: style.colors.transparent,
-                  //               ),
-                  //     ),
-                  //     child: ReactiveTextField(
-                  //       label: 'К отправке',
-                  //       readOnly: true,
-                  //       state: c.money,
-                  //     ),
-                  //   );
-                  // }),
                   const SizedBox(height: 16),
                   PrimaryButton(
                     title: 'btn_proceed'.l10n,
@@ -243,16 +169,3 @@ extension on int {
     return NumberFormat('#,##0').format(this);
   }
 }
-
-// extension on WithdrawMethod {
-//   String get currency {
-//     return switch (this) {
-//       WithdrawMethod.card ||
-//       WithdrawMethod.paypal ||
-//       WithdrawMethod.swift
-//       WithdrawMethod.sepa => total.value * 110,
-//       WithdrawMethod.usdt => total.value * 100,
-//       WithdrawMethod.bitcoin => total.value * 100000000,
-//     };
-//   }
-// }
