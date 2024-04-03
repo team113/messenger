@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -37,6 +38,7 @@ import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'my_user.dart';
 
 /// Authentication service exposing [credentials] of the authenticated session.
 ///
@@ -116,6 +118,9 @@ class AuthService extends GetxService {
   void _initRefreshTimers() {
     Log.debug('_initRefreshTimers()', '$runtimeType');
 
+    _refreshTimers.forEach((_, t) => t.cancel());
+    _refreshTimers.clear();
+
     final Iterable<Credentials> creds = _credentialsProvider.valuesSafe;
 
     for (final Credentials cred in creds) {
@@ -125,9 +130,8 @@ class AuthService extends GetxService {
       // Refresh the [credentials] manually for the first time.
       _refresh(cred.userId);
 
-      _refreshTimers[cred.userId]?.cancel();
       _refreshTimers[cred.userId] = Timer.periodic(
-        _refreshTaskInterval,
+        1.minutes,
         (_) => _refresh(cred.userId),
       );
     }
@@ -148,10 +152,13 @@ class AuthService extends GetxService {
         );
 
         await _credentialsProvider.put(data);
-      } on RenewSessionException catch (_) {
-        // _credentialsProvider.remove(credentials.userId);
-
-        rethrow;
+      } on RenewSessionException catch (e) {
+        final MyUserService myUsRepo = Get.find();
+        final user = myUsRepo.myUsers[id]?.value;
+        final name = user?.name?.val ?? user?.num.val;
+        MessagePopup.error(
+          'Unable to renew session for user $name\n\nError: $e\n\nPlease log in again.',
+        );
       }
     }
   }
@@ -163,6 +170,8 @@ class AuthService extends GetxService {
     _storageSubscription?.cancel();
     _credentialsSubscription?.cancel();
     _refreshTimer?.cancel();
+    _refreshTimers.forEach((_, t) => t.cancel());
+    _refreshTimers.clear();
   }
 
   /// Initializes this service.

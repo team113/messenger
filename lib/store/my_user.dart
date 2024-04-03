@@ -219,6 +219,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     Log.debug('_initRemoteSubscriptions()', '$runtimeType');
 
+    _remoteSubscriptions.values.map((s) => s.close(immediate: true));
+    _remoteSubscriptions.clear();
+
     _initActiveAccountRemoteSubscription();
 
     for (final Credentials creds in _credentialsLocal.valuesSafe) {
