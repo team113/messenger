@@ -22,15 +22,27 @@ class CountrySelector extends StatefulWidget {
 
   final FlagCache flagCache;
 
+  final Widget? Function(BuildContext context, Country)? subtitle;
+
   const CountrySelector({
     super.key,
     required this.onCountrySelected,
     required this.flagCache,
     this.countries,
+    this.subtitle = _defaultSubtitle,
   });
 
   @override
   CountrySelectorState createState() => CountrySelectorState();
+
+  static Widget _defaultSubtitle(BuildContext context, Country country) {
+    final style = Theme.of(context).style;
+
+    return Text(
+      '+${country.phoneCode}',
+      style: style.fonts.small.regular.onBackground,
+    );
+  }
 }
 
 class CountrySelectorState extends State<CountrySelector> {
@@ -112,8 +124,9 @@ class CountrySelectorState extends State<CountrySelector> {
                   padding: const EdgeInsets.only(right: 10),
                   controller: _scrollController,
                   itemCount: _filteredList.length,
-                  itemBuilder: (_, i) {
+                  itemBuilder: (context, i) {
                     final country = _filteredList[i];
+                    final subtitle = widget.subtitle?.call(context, country);
 
                     return InkWellWithHover(
                       key: ValueKey(country.e164Key),
@@ -156,12 +169,10 @@ class CountrySelectorState extends State<CountrySelector> {
                                     style:
                                         style.fonts.medium.regular.onBackground,
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '+${country.phoneCode}',
-                                    style:
-                                        style.fonts.small.regular.onBackground,
-                                  ),
+                                  if (subtitle != null) ...[
+                                    const SizedBox(height: 2),
+                                    subtitle,
+                                  ],
                                 ],
                               ),
                             ),

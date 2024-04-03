@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/ui/widget/list_divider.dart';
 import '/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
@@ -149,7 +150,7 @@ class WorkTabView extends StatelessWidget {
                   child: MenuButton(
                     title: 'Кнопка 1',
                     onPressed: () {},
-                    leading: const SvgIcon(SvgIcons.workGetMoney),
+                    leading: const SvgIcon(SvgIcons.workPartner),
                   ),
                 ),
                 Padding(
@@ -179,41 +180,7 @@ class WorkTabView extends StatelessWidget {
   }
 
   Widget _label(BuildContext context, String label) {
-    final style = Theme.of(context).style;
-
-    // return Padding(
-    //   padding: const EdgeInsets.only(top: 2),
-    //   child: MenuButton(
-    //     dense: true,
-    //     // leading: const SvgIcon(SvgIcons.getMoney),
-    //     leading: const SizedBox(width: 32),
-    //     child: Text(
-    //       label,
-    //       style: style.fonts.big.regular.secondary,
-    //     ),
-    //   ),
-    // );
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(/*8*/ 56, 12, 0, 2),
-      child: Center(
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            // border: style.systemMessageBorder,
-            // color: style.systemMessageColor,
-          ),
-          child: Text(
-            label,
-            style: style.fonts.big.regular.secondary,
-            // style: style.systemMessageStyle,
-          ),
-        ),
-      ),
-    );
+    return ListDividerWidget(label: label);
   }
 }
 

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/list_divider.dart';
 
 import '/config.dart';
 import '/domain/repository/contact.dart';
@@ -399,20 +400,26 @@ class ContactsTabView extends StatelessWidget {
                                 router.user((element as UserElement).user.id),
                           );
                         } else if (element is DividerElement) {
-                          child = Center(
-                            child: Container(
-                              margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                              padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                              width: double.infinity,
-                              child: Center(
-                                child: Text(
-                                  element.category.name.capitalizeFirst!,
-                                  style:
-                                      style.fonts.normal.regular.onBackground,
-                                ),
-                              ),
-                            ),
+                          child = ListDividerWidget(
+                            padding: ListDividerWidget.defaultPadding
+                                .copyWith(left: 72),
+                            label: element.category.name.capitalizeFirst!,
                           );
+
+                          // child = Center(
+                          //   child: Container(
+                          //     margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                          //     padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                          //     width: double.infinity,
+                          //     child: Center(
+                          //       child: Text(
+                          //         element.category.name.capitalizeFirst!,
+                          //         style:
+                          //             style.fonts.normal.regular.onBackground,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // );
                         } else {
                           child = const SizedBox();
                         }

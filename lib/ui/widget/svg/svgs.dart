@@ -262,11 +262,6 @@ class SvgIcons {
     width: 32.04,
     height: 31.97,
   );
-  static const SvgData workRust = SvgData(
-    'assets/icons/work_rust.svg',
-    width: 32,
-    height: 32,
-  );
 
   static const SvgData android = SvgData(
     'assets/icons/android.svg',
@@ -2375,6 +2370,30 @@ class SvgIcons {
 
   static const SvgData workTransactions = SvgData(
     'assets/icons/work_transactions.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workRust = SvgData(
+    'assets/icons/work_rust.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workFlutter = SvgData(
+    'assets/icons/work_flutter.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workFreelance = SvgData(
+    'assets/icons/work_freelance.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workPartner = SvgData(
+    'assets/icons/work_partner.svg',
     width: 32,
     height: 32,
   );

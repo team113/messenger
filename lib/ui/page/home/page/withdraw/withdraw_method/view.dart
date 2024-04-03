@@ -57,7 +57,7 @@ class WithdrawMethodView extends StatelessWidget {
                               c.method.value = e;
                               onChanged?.call(e);
                             },
-                      label: e.name,
+                      label: e.l10n,
                     );
                   });
                 },

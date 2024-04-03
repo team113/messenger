@@ -170,7 +170,18 @@ enum WithdrawMethod {
   paypal,
   card,
   sepa,
-  swift,
+  swift;
+
+  String get l10n {
+    return switch (this) {
+      usdt => 'USDT - TRC20',
+      bitcoin => 'Bitcoin',
+      paypal => 'PayPal',
+      card => 'Payment card',
+      sepa => 'SEPA transfer',
+      swift => 'SWIFT transfer',
+    };
+  }
 }
 
 enum WidgetsTab {

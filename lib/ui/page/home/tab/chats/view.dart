@@ -24,6 +24,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/ui/widget/list_divider.dart';
 
 import '/config.dart';
 import '/domain/repository/chat.dart';
@@ -280,17 +281,6 @@ class ChatsTabView extends StatelessWidget {
                       }
 
                       return const SizedBox(width: 21);
-
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 14),
-                        child: Transform.translate(
-                          offset: const Offset(-1, 0),
-                          child: const SvgIcon(
-                            SvgIcons.chatsLogo,
-                            key: Key('Contacts'),
-                          ),
-                        ),
-                      );
                     }),
                   ],
                   actions: [
@@ -584,25 +574,27 @@ class ChatsTabView extends StatelessWidget {
                                   break;
                               }
 
-                              child = Container(
-                                width: double.infinity,
-                                margin: const EdgeInsets.fromLTRB(8, 24, 8, 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: style.systemMessageBorder,
-                                  color: style.systemMessageColor,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    text,
-                                    style: style.systemMessageStyle,
-                                  ),
-                                ),
-                              );
+                              child = ListDividerWidget(label: text);
+
+                              // child = Container(
+                              //   width: double.infinity,
+                              //   margin: const EdgeInsets.fromLTRB(8, 24, 8, 8),
+                              //   padding: const EdgeInsets.symmetric(
+                              //     horizontal: 12,
+                              //     vertical: 8,
+                              //   ),
+                              //   decoration: BoxDecoration(
+                              //     borderRadius: BorderRadius.circular(15),
+                              //     border: style.systemMessageBorder,
+                              //     color: style.systemMessageColor,
+                              //   ),
+                              //   child: Center(
+                              //     child: Text(
+                              //       text,
+                              //       style: style.systemMessageStyle,
+                              //     ),
+                              //   ),
+                              // );
                             } else {
                               child = const SizedBox();
                             }
@@ -689,26 +681,10 @@ class ChatsTabView extends StatelessWidget {
                                   onTap: () => c.openChat(user: element.user),
                                 );
                               } else if (element is DividerElement) {
-                                child = Container(
-                                  width: double.infinity,
-                                  margin: EdgeInsets.fromLTRB(
-                                    8,
-                                    i == 0 ? 0 : 8,
-                                    8,
-                                    3,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  decoration: const BoxDecoration(),
-                                  child: Center(
-                                    child: Text(
-                                      element.category.name.capitalizeFirst!,
-                                      style: style
-                                          .fonts.normal.regular.onBackground,
-                                    ),
-                                  ),
+                                child = ListDividerWidget(
+                                  padding: ListDividerWidget.defaultPadding
+                                      .copyWith(left: 72),
+                                  label: element.category.name.capitalizeFirst!,
                                 );
                               } else {
                                 child = const SizedBox();

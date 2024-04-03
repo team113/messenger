@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
@@ -11,7 +13,12 @@ import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
+import 'package:messenger/ui/widget/country_selector2.dart';
+import 'package:messenger/ui/widget/info_tile.dart';
+import 'package:messenger/ui/widget/modal_popup.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:phone_form_field/phone_form_field.dart' hide CountrySelector;
+import 'package:circle_flags/circle_flags.dart';
 
 import 'controller.dart';
 import 'withdraw_method/view.dart';
@@ -79,7 +86,7 @@ class WithdrawView extends StatelessWidget {
                 children: [
                   Obx(() {
                     return FieldButton(
-                      text: c.method.value.name,
+                      text: c.method.value.l10n,
                       headline: Text('Способ'.l10n),
                       onPressed: () async {
                         await WithdrawMethodView.show(
@@ -91,32 +98,205 @@ class WithdrawView extends StatelessWidget {
                       style: style.fonts.normal.regular.primary,
                     );
                   }),
+                  // Obx(() {
+                  //   switch (c.method.value) {
+                  //     case WithdrawMethod.usdt:
+                  //       return Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           const SizedBox(height: 16),
+                  //           Text('Минимальная сумма транзакции: 10 USDT'),
+                  //           Text('Максимальная сумма транзакции: 1000 USDT'),
+                  //           Text('Комиссия: 3 USDT'),
+                  //         ],
+                  //       );
+
+                  //     default:
+                  //       return const SizedBox();
+                  //   }
+                  // }),
                 ],
               ),
+              Obx(() {
+                switch (c.method.value) {
+                  case WithdrawMethod.usdt:
+                    return Block(
+                      title: c.method.value.l10n,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        InfoTile(
+                          title: 'Минимальная сумма транзакции',
+                          content: '10 USDT',
+                        ),
+                        SizedBox(height: 16),
+                        InfoTile(
+                          title: 'Максимальная сумма транзакции',
+                          content: '1000 USDT',
+                        ),
+                        SizedBox(height: 16),
+                        InfoTile(
+                          title: 'Комиссия',
+                          content: '3 USDT',
+                        ),
+                        // Text('Минимальная сумма транзакции: 10 USDT'),
+                        // Text('Максимальная сумма транзакции: 1000 USDT'),
+                        // Text('Комиссия: 3 USDT'),
+                      ],
+                    );
+
+                  default:
+                    return const SizedBox();
+                }
+              }),
+              Obx(() {
+                final List<Widget> more = [];
+
+                switch (c.method.value) {
+                  case WithdrawMethod.usdt:
+                    more.addAll([
+                      const SizedBox(height: 8),
+                      ReactiveTextField(
+                        state: c.usdtWallet,
+                        label: 'Номер кошелька',
+                        hint: 'T0000000000000000',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                      const SizedBox(height: 8),
+                    ]);
+                    break;
+
+                  default:
+                    break;
+                }
+
+                return Block(
+                  title: 'Реквизиты',
+                  children: [
+                    Text(
+                      'Все поля заполняются латинскими буквами именно так, как они указаны в банке, платежной системе или на платежной карте.',
+                      style: style.fonts.normal.regular.secondary,
+                    ),
+                    const SizedBox(height: 24),
+                    ReactiveTextField(
+                      label: 'Имя получателя',
+                      state: c.name,
+                      hint: 'JOHN SMITH',
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      formatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[A-Za-z0-9]|[ ]|[.]|[,]'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Obx(() {
+                      return FieldButton(
+                        text: c.country.value?.name ?? 'Не выбрано',
+                        headline: Text('Страна'.l10n),
+                        onPressed: () async {
+                          final result = await const _CountrySelectorNavigator()
+                              .navigate(context, FlagCache());
+                          if (result != null) {
+                            c.country.value = result;
+                          }
+                        },
+                        style: style.fonts.normal.regular.primary,
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                    ReactiveTextField(
+                      label: 'Адрес',
+                      hint: 'Дом, улица, город, область/район/провинция/штат',
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      state: c.address,
+                      formatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[A-Za-z0-9]|[ ]|[.]|[,]'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    ReactiveTextField(
+                      label: 'Почтовый индекс',
+                      hint: '00000',
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      state: c.index,
+                    ),
+                    const SizedBox(height: 16),
+                    ReactiveTextField(
+                      label: 'E-mail',
+                      hint: 'dummy@example.com',
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      state: c.email,
+                    ),
+                    const SizedBox(height: 16),
+                    ReactiveTextField(
+                      label: 'Телефон',
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      hint: '+1 234 567 8901',
+                      state: c.phone,
+                      formatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[0-9]|[ ]|[+]'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ...more,
+                  ],
+                );
+              }),
               Block(
-                title: 'Реквизиты',
+                title: 'Документы',
                 children: [
-                  const SizedBox(height: 8),
-                  ReactiveTextField(
-                    label: 'Имя или название',
-                    state: TextFieldState(),
+                  Text(
+                    'Каждая траназкция должна сопровождаться документами, подтверждающими личность получателя, адрес получателя и назначение платежа. Это требование финансовых институтов и государственных органов.',
+                    style: style.fonts.normal.regular.secondary,
                   ),
-                  const SizedBox(height: 16),
-                  ReactiveTextField(
-                    label: 'Адрес',
-                    state: TextFieldState(),
+                  const SizedBox(height: 24),
+                  FieldButton(
+                    text: 'Не выбрано',
+                    headline: Text('Подписанный договор'.l10n),
+                    onPressed: () {},
+                    style: style.fonts.normal.regular.primary,
                   ),
-                  const SizedBox(height: 16),
-                  ReactiveTextField(
-                    label: 'E-mail',
-                    state: TextFieldState(),
+                  const SizedBox(height: 6),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Договор можете ',
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                        TextSpan(
+                          text: 'скачать здесь',
+                          style: style.fonts.small.regular.primary,
+                          recognizer: TapGestureRecognizer()..onTap = () {},
+                        ),
+                        TextSpan(
+                          text:
+                              '. Необходимо распечатать, подписать, сфотографировать и загрузить.',
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  ReactiveTextField(
-                    label: 'Телефон',
-                    state: TextFieldState(),
+                  const SizedBox(height: 32),
+                  FieldButton(
+                    text: 'Не выбрано',
+                    headline: Text(
+                      'Паспорт, загранпаспорт, ID карта'.l10n,
+                    ),
+                    onPressed: () {},
+                    style: style.fonts.normal.regular.primary,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 32),
+                  FieldButton(
+                    text: 'Не выбрано',
+                    headline: Text('Документ, подтверждающий адрес'.l10n),
+                    onPressed: () {},
+                    style: style.fonts.normal.regular.primary,
+                  )
                 ],
               ),
               Block(
@@ -150,10 +330,27 @@ class WithdrawView extends StatelessWidget {
                     );
                   }),
                   const SizedBox(height: 16),
-                  PrimaryButton(
-                    title: 'btn_proceed'.l10n,
-                    onPressed: () {},
-                  ),
+                  Obx(() {
+                    bool enabled = !c.name.isEmpty.value &&
+                        !c.address.isEmpty.value &&
+                        !c.email.isEmpty.value &&
+                        !c.phone.isEmpty.value &&
+                        c.amount.value != 0;
+
+                    switch (c.method.value) {
+                      case WithdrawMethod.usdt:
+                        enabled = enabled && !c.usdtWallet.isEmpty.value;
+                        break;
+
+                      default:
+                        break;
+                    }
+
+                    return PrimaryButton(
+                      title: 'btn_proceed'.l10n,
+                      onPressed: enabled ? () {} : null,
+                    );
+                  }),
                 ],
               ),
             ],
@@ -167,5 +364,26 @@ class WithdrawView extends StatelessWidget {
 extension on int {
   String withSpaces() {
     return NumberFormat('#,##0').format(this);
+  }
+}
+
+class _CountrySelectorNavigator extends CountrySelectorNavigator {
+  const _CountrySelectorNavigator()
+      : super(
+          searchAutofocus: false,
+        );
+
+  @override
+  Future<Country?> navigate(BuildContext context, dynamic flagCache) {
+    return ModalPopup.show(
+      context: context,
+      child: CountrySelector(
+        countries: countries,
+        onCountrySelected: (country) =>
+            Navigator.of(context, rootNavigator: true).pop(country),
+        flagCache: flagCache,
+        subtitle: null,
+      ),
+    );
   }
 }

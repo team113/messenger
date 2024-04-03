@@ -94,7 +94,7 @@ class _CurrencyFieldState extends State<CurrencyField> {
         // FilteringTextInputFormatter.allow('.'),
         // FilteringTextInputFormatter.digitsOnly,
         FilteringTextInputFormatter.allow(RegExp(r'[0-9]|[.]')),
-        LengthLimitingTextInputFormatter(6),
+        LengthLimitingTextInputFormatter(9),
       ],
       onChanged: () {
         final double parsed = double.tryParse(state.text) ?? 0;

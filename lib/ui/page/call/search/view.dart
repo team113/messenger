@@ -284,16 +284,7 @@ class SearchView extends StatelessWidget {
                                     style: selected
                                         ? style.fonts.medium.regular.onPrimary
                                         : style.fonts.medium.regular.secondary,
-                                    //   .copyWith(
-                                    //   color: style.colors.leather,
-                                    // ),
                                   ),
-                                  // const SizedBox(width: 4),
-                                  // SvgIcon(
-                                  //   selected
-                                  //       ? SvgIcons.faceSmileWhite
-                                  //       : SvgIcons.faceSmile,
-                                  // ),
                                   const SizedBox(width: 4),
                                 ],
                                 if (!paid && blocked) ...[

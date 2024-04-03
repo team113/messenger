@@ -1201,8 +1201,35 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Returns an [User] from [UserService] by the provided [id].
+  /// Returns a reactive [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Returns a reactive [ChatItem] by the provided [id].
+  FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
+    Rx<ChatItem>? item;
+
+    item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+    item ??= _fragments
+        .firstWhereOrNull((e) => e.items.keys.contains(id))
+        ?.items[id];
+
+    if (item == null) {
+      final Future<Rx<ChatItem>?>? future =
+          chat?.single(id).then((fragment) async {
+        if (fragment != null) {
+          await fragment.around();
+          _fragments.add(fragment);
+          return fragment.items.values.firstOrNull;
+        }
+
+        return null;
+      });
+
+      return future;
+    }
+
+    return item;
+  }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -1853,7 +1880,9 @@ class ChatController extends GetxController {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.contains(itemId),
+        // Single-item fragments shouldn't be used to display messages in
+        // pagination, as such fragments used only for [RxChat.single]s.
+        (e) => e.items.keys.contains(itemId) && e.items.length > 1,
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],
@@ -2093,6 +2122,7 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             _remove(e.element.value);
+            _ensureScrollable();
             break;
         }
       });
@@ -2106,6 +2136,7 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             _remove(e.value!.value);
+            _ensureScrollable();
             break;
         }
       });
