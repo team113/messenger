@@ -310,7 +310,7 @@ class CallController extends GetxController {
   BoxConstraints? _lastConstraints;
 
   /// [DateTime] when this [CallController] was created.
-  DateTime _createdAt = DateTime.now();
+  final DateTime _createdAt = DateTime.now();
 
   /// Service managing the [_currentCall].
   final CallService _calls;
@@ -2186,7 +2186,6 @@ class CallController extends GetxController {
 
   /// Plays the [_connected] sound.
   Future<void> _playConnected() async {
-    print('_createdAt.difference(DateTime.now()).inSeconds: ${_createdAt.difference(DateTime.now()).inSeconds}');
     if (_currentCall.value.state.value == OngoingCallState.active &&
         DateTime.now().difference(_createdAt).inSeconds > 5) {
       await AudioUtils.once(AudioSource.asset('audio/$_connected'));
