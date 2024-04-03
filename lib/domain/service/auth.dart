@@ -140,11 +140,16 @@ class AuthService extends GetxService {
   /// Refreshes the [credentials]. Should not be used for renewing active user's
   /// session.
   Future<void> _refresh(UserId id) async {
-    Log.debug('_refresh($id)', '$runtimeType');
+    // Log.debug('_refresh($id)', '$runtimeType');
 
     final Credentials? credentials = _credentialsProvider.get(id);
 
-    if (credentials != null && true /* _shouldRefresh(credentials) */) {
+    final bool shouldRefresh =
+        credentials != null && _shouldRefresh(credentials);
+
+    Log.debug('_refresh($id): $shouldRefresh', '$runtimeType');
+
+    if (shouldRefresh) {
       try {
         final Credentials data = await _authRepository.renewSession(
           credentials.rememberedSession.token,
@@ -153,12 +158,27 @@ class AuthService extends GetxService {
 
         await _credentialsProvider.put(data);
       } on RenewSessionException catch (e) {
+        // TODO: убрать потом всё, просто оставить просто удаление
+        // _credentialsProvider.remove(id);
+
+        // TODO: убрать
         final MyUserService myUsRepo = Get.find();
         final user = myUsRepo.myUsers[id]?.value;
         final name = user?.name?.val ?? user?.num.val;
+
+        print(
+            '================================================================\n\n\n'
+            'Unable to renew session for user $name\n\nError: $e\n\nPlease log in again.'
+            '\n\n\n================================================================');
         MessagePopup.error(
           'Unable to renew session for user $name\n\nError: $e\n\nPlease log in again.',
         );
+
+        final bool? shouldDelete =
+            await MessagePopup.alert('Delete account $name?');
+        if (shouldDelete ?? false) {
+          _credentialsProvider.remove(id);
+        }
       }
     }
   }

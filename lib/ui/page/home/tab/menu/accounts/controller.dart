@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart' hide Response;
 
-import '/api/backend/extension/credentials.dart';
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';

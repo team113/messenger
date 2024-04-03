@@ -31,7 +31,6 @@ import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
@@ -255,6 +254,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
           return myUserEntity?.ver;
         },
+        id,
         // raw: RawClientOptions(session.token),
         provider: rawProvider,
       ),
@@ -750,17 +750,20 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _myUserRemoteEvents(() {
-        final HiveMyUser? myUserEntity = _ensureMyUserSet();
+      _myUserRemoteEvents(
+        () {
+          final HiveMyUser? myUserEntity = _ensureMyUserSet();
 
-        // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
-        // is `null`, to retrieve it.
-        if (myUserEntity?.value.blocklistCount == null) {
-          return null;
-        }
+          // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
+          // is `null`, to retrieve it.
+          if (myUserEntity?.value.blocklistCount == null) {
+            return null;
+          }
 
-        return myUserEntity?.ver;
-      }),
+          return myUserEntity?.ver;
+        },
+        _ensureMyUserSet()!.value.id,
+      ),
     );
 
     _remoteSubscriptions[_activeAccountLocal.userId!] = _remoteSubscription!;
@@ -1006,7 +1009,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.online = false;
           put((u) => u
             ..online = false
-            ..lastSeenAt = PreciseDateTime.now());
+            ..lastSeenAt = event.at);
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
@@ -1065,7 +1068,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   ///
   /// [ver] callback is used to get the actual [HiveMyUser.ver] value.
   Stream<MyUserEventsVersioned> _myUserRemoteEvents(
-    MyUserVersion? Function() ver, {
+    MyUserVersion? Function() ver,
+    UserId id, {
     RawClientOptions? raw,
     GraphQlProvider? provider,
   }) {
@@ -1082,7 +1086,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         if (events.$$typename == 'SubscriptionInitialized') {
           Log.debug(
-            '_myUserRemoteEvents(ver): SubscriptionInitialized',
+            '_myUserRemoteEvents(ver): SubscriptionInitialized ($id)',
             '$runtimeType',
           );
 
@@ -1186,7 +1190,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
-      return EventUserCameOffline(node.userId);
+      return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
       var node = e
           as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
