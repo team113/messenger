@@ -2170,7 +2170,7 @@ class CallController extends GetxController {
     }
   }
 
-  /// Initializes [_membersConnected] for the provided [member].
+  /// Initializes [_membersConnected] subscription for the provided [member].
   void _listenConnected(CallMember member) {
     _membersConnected[member.id] ??= ever(
       member.isConnected,
