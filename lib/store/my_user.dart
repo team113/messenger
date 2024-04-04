@@ -251,7 +251,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     if (myUser.value?.emails.unconfirmed == email) {
       await _debounce(
-        field: MyUserField.unconfirmedEmail,
+        field: MyUserField.email,
         current: () => myUser.value?.emails.unconfirmed,
         saved: () => _myUserLocal.myUser?.value.emails.unconfirmed,
         value: null,
@@ -295,7 +295,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     if (myUser.value?.phones.unconfirmed == phone) {
       await _debounce(
-        field: MyUserField.unconfirmedPhone,
+        field: MyUserField.phone,
         current: () => myUser.value?.phones.unconfirmed,
         saved: () => _myUserLocal.myUser?.value.phones.unconfirmed,
         value: null,
@@ -338,7 +338,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('addUserEmail($email)', '$runtimeType');
 
     await _debounce(
-      field: MyUserField.unconfirmedEmail,
+      field: MyUserField.email,
       current: () => myUser.value?.emails.unconfirmed,
       saved: () => _myUserLocal.myUser?.value.emails.unconfirmed,
       value: email,
@@ -364,7 +364,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('addUserPhone($phone)', '$runtimeType');
 
     await _debounce(
-      field: MyUserField.unconfirmedPhone,
+      field: MyUserField.phone,
       current: () => myUser.value?.phones.unconfirmed,
       saved: () => _myUserLocal.myUser?.value.phones.unconfirmed,
       value: phone,
@@ -531,7 +531,8 @@ class MyUserRepository implements AbstractMyUserRepository {
           duration == null
               ? null
               : Muting(
-                  duration: duration.forever == true ? null : duration.until),
+                  duration: duration.forever == true ? null : duration.until,
+                ),
         );
       },
       update: (v, _) => myUser.update((u) => u?.muted = v),
@@ -617,7 +618,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         myUser.value = null;
         _remoteSubscription?.close(immediate: true);
       } else {
-        final MyUser? value = event.value?.value;
+        final MyUser? value = event.value?.value as MyUser?;
 
         // Don't update the [MyUserField]s considered locked in the [_pool], as
         // those events might've been applied optimistically during mutations
@@ -629,6 +630,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         MuteDuration? muted = value?.muted;
         MyUserEmails? emails = value?.emails.copyWith();
         MyUserPhones? phones = value?.phones.copyWith();
+
         if (_pool.lockedWith(MyUserField.name, value?.name)) {
           name = myUser.value?.name;
         }
@@ -644,18 +646,12 @@ class MyUserRepository implements AbstractMyUserRepository {
         if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
           muted = myUser.value?.muted;
         }
-        if (_pool.lockedWith(
-          MyUserField.unconfirmedEmail,
-          value?.emails.unconfirmed,
-        )) {
+        if (_pool.lockedWith(MyUserField.email, value?.emails.unconfirmed)) {
           emails =
               // ignore: invalid_null_aware_operator
               emails?.copyWith(unconfirmed: myUser.value?.emails.unconfirmed);
         }
-        if (_pool.lockedWith(
-          MyUserField.unconfirmedPhone,
-          value?.phones.unconfirmed,
-        )) {
+        if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
           phones =
               // ignore: invalid_null_aware_operator
               phones?.copyWith(unconfirmed: myUser.value?.phones.unconfirmed);
@@ -1170,7 +1166,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
           if (response != null) {
             final event = MyUserEventsVersioned(
-              response.events.map((e) => _myUserEvent(e)).toList(),
+              response.events.map(_myUserEvent).toList(),
               response.ver,
             );
 
@@ -1208,6 +1204,6 @@ enum MyUserField {
   status,
   bio,
   presence,
-  unconfirmedEmail,
-  unconfirmedPhone,
+  email,
+  phone,
 }

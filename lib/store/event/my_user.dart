@@ -579,4 +579,10 @@ class EventBlocklistRecordRemoved extends BlocklistEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.blocklistRecordRemoved;
+
+  @override
+  bool operator ==(Object other) => other is EventBlocklistRecordRemoved;
+
+  @override
+  int get hashCode => kind.hashCode;
 }

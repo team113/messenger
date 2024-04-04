@@ -38,11 +38,12 @@ class EventPool<T> {
     Future<void> Function() callback, {
     bool Function()? repeat,
   }) async {
-    if (_mutexes[tag] == null) {
-      _mutexes[tag] = _PoolMutex(Mutex());
+    _PoolMutex? mutex = _mutexes[tag];
+    if (mutex == null) {
+      mutex = _PoolMutex();
+      _mutexes[tag] = mutex;
     }
 
-    final Mutex mutex = _mutexes[tag]!.mutex;
     if (!mutex.isLocked) {
       do {
         await mutex.protect(callback);
@@ -62,18 +63,28 @@ class EventPool<T> {
 
   /// Indicates whether an event with the provided [tag] and [value] is being
   /// executed.
-  bool lockedWith(T tag, Object? value) =>
-      _mutexes[tag]?.mutex.isLocked == true &&
-      _mutexes[tag]!.values.contains(value);
+  bool lockedWith(T tag, Object? value) {
+    final _PoolMutex? mutex = _mutexes[tag];
+    return mutex != null &&
+        mutex.isLocked == true &&
+        mutex.values.contains(value);
+  }
 }
 
-/// Wrapper around [Mutex] with a values associated with it.
+/// Wrapper around [Mutex] with the values associated with it.
 class _PoolMutex {
-  _PoolMutex(this.mutex);
+  _PoolMutex();
 
   /// [Mutex] of this [_PoolMutex].
-  final Mutex mutex;
+  final Mutex mutex = Mutex();
 
   /// Values associated with the [mutex].
   List<Object?> values = [];
+
+  /// Indicates whether the lock has been acquired and isn't released.
+  bool get isLocked => mutex.isLocked;
+
+  /// Guards the [criticalSection] allowing ony synchronized execution of it.
+  Future<T> protect<T>(Future<T> Function() criticalSection) =>
+      mutex.protect(criticalSection);
 }
