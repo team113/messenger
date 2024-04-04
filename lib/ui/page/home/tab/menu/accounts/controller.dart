@@ -22,7 +22,6 @@ import 'package:get/get.dart' hide Response;
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
-import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
@@ -30,7 +29,6 @@ import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
-import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -75,9 +73,32 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  Credentials? creds;
-
+  /// Current authentication status.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
+
+  /// Amount of [signIn] unsuccessful submitting attempts.
+  int signInAttempts = 0;
+
+  /// Amount of [emailCode] unsuccessful submitting attempts.
+  int codeAttempts = 0;
+
+  /// Timeout of a [signIn] next invoke attempt.
+  final RxInt signInTimeout = RxInt(0);
+
+  /// Timeout of a [emailCode] next submit attempt.
+  final RxInt codeTimeout = RxInt(0);
+
+  /// Timeout of a [resendEmail] next invoke attempt.
+  final RxInt resendEmailTimeout = RxInt(0);
+
+  /// [Timer] disabling [emailCode] submitting for [codeTimeout].
+  Timer? _codeTimer;
+
+  /// [Timer] disabling [signIn] invoking for [signInTimeout].
+  Timer? _signInTimer;
+
+  /// [Timer] used to disable resend code button [resendEmailTimeout].
+  Timer? _resendEmailTimer;
 
   /// Reactive map of authenticated [MyUser]s.
   RxMap<UserId, Rx<MyUser?>> get _accounts => _myUserService.myUsers;
@@ -85,18 +106,19 @@ class AccountsController extends GetxController {
   /// Reactive list of [MyUser]s paired with the corresponding [User]s.
   final RxList<AccountData> accounts = RxList();
 
-  /// [MyUserService] ...
+  /// [MyUserService] to obtain [_accounts] and [myUser].
   final MyUserService _myUserService;
 
-  /// [AuthService] ...
+  /// [AuthService] providing the authentication capabilities.
   final AuthService _authService;
 
-  /// [UserService] ...
+  /// [UserService] used to retrieve [User]s.
   final UserService _userService;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// [Worker] updating the [accounts] list.
   Worker? _myUsersWorker;
 
   @override
@@ -120,81 +142,9 @@ class AccountsController extends GetxController {
     password = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
-        if (s.text.isNotEmpty) {
-          try {
-            UserPassword(s.text);
-          } on FormatException {
-            s.error.value = 'err_password_incorrect'.l10n;
-          }
-        }
+        s.unsubmit();
       },
-      onSubmitted: (s) async {
-        if (!password.status.value.isEmpty) {
-          return;
-        }
-
-        password.status.value = RxStatus.loading();
-        login.status.value = RxStatus.loading();
-
-        final String input = login.text.toLowerCase();
-
-        final UserLogin? userLogin = UserLogin.tryParse(input);
-        final UserNum? userNum = UserNum.tryParse(input);
-        final UserEmail? userEmail = UserEmail.tryParse(input);
-        final UserPhone? userPhone = UserPhone.tryParse(input);
-        final UserPassword? userPassword = UserPassword.tryParse(password.text);
-
-        login.error.value = null;
-        password.error.value = null;
-
-        final bool noCredentials = userLogin == null &&
-            userNum == null &&
-            userEmail == null &&
-            userPhone == null;
-
-        if (noCredentials || userPassword == null) {
-          password.error.value = 'err_incorrect_login_or_password'.l10n;
-          password.unsubmit();
-          return;
-        }
-
-        try {
-          login.status.value = RxStatus.loading();
-          password.status.value = RxStatus.loading();
-          await _authService.signIn(
-            userPassword,
-            login: userLogin,
-            num: userNum,
-            email: userEmail,
-            phone: userPhone,
-          );
-        } on CreateSessionException catch (e) {
-          switch (e.code) {
-            case CreateSessionErrorCode.wrongPassword:
-              // TODO: Тут ещё должен быть подсчёт попыток, запуск таймера и т.д.
-              password.error.value = e.toMessage();
-              break;
-
-            case CreateSessionErrorCode.artemisUnknown:
-              password.error.value = 'err_data_transfer'.l10n;
-              rethrow;
-          }
-        } on ConnectionException {
-          password.unsubmit();
-          password.error.value = 'err_data_transfer'.l10n;
-        } catch (e) {
-          password.unsubmit();
-          password.error.value = 'err_data_transfer'.l10n;
-          rethrow;
-        } finally {
-          login.status.value = RxStatus.empty();
-          password.status.value = RxStatus.empty();
-        }
-
-        router.go(Routes.nowhere);
-        await Future.delayed(const Duration(milliseconds: 500));
-        router.home();
-      },
+      onSubmitted: (_) => signIn(),
     );
 
     email = TextFieldState(
@@ -226,12 +176,12 @@ class AccountsController extends GetxController {
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
-            // _setResendEmailTimer(false);
+            _setResendEmailTimer(false);
 
             stage.value = AccountsViewStage.signUpWithEmail;
           } catch (_) {
             s.error.value = 'err_data_transfer'.l10n;
-            // _setResendEmailTimer(false);
+            _setResendEmailTimer(false);
             s.unsubmit();
 
             stage.value = AccountsViewStage.signUpWithEmail;
@@ -243,26 +193,45 @@ class AccountsController extends GetxController {
 
     emailCode = TextFieldState(
       onSubmitted: (s) async {
-        final GraphQlProvider graphQlProvider = Get.find();
-
+        s.status.value = RxStatus.loading();
         try {
-          if (!stage.value.registering && s.text == '2222') {
-            throw const ConfirmUserEmailException(
-              ConfirmUserEmailErrorCode.occupied,
-            );
+          await _authService.confirmSignUpEmail(
+            ConfirmationCode(emailCode.text),
+            logoutOnFailure: false,
+          );
+
+          router.go(Routes.nowhere);
+          await Future.delayed(const Duration(milliseconds: 500));
+          router.home();
+        } on ConfirmUserEmailException catch (e) {
+          switch (e.code) {
+            case ConfirmUserEmailErrorCode.wrongCode:
+              s.error.value = e.toMessage();
+
+              ++codeAttempts;
+              if (codeAttempts >= 3) {
+                codeAttempts = 0;
+                _setCodeTimer();
+              }
+              s.status.value = RxStatus.empty();
+              break;
+
+            default:
+              s.error.value = 'err_wrong_recovery_code'.l10n;
+              break;
           }
-
-          graphQlProvider.token = creds!.session.token;
-          await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
-
-          await switchTo(creds!.userId);
         } on FormatException catch (_) {
-          graphQlProvider.token = null;
           s.error.value = 'err_wrong_recovery_code'.l10n;
+          s.status.value = RxStatus.empty();
+          ++codeAttempts;
+          if (codeAttempts >= 3) {
+            codeAttempts = 0;
+            _setCodeTimer();
+          }
         } catch (_) {
-          graphQlProvider.token = null;
           s.error.value = 'err_data_transfer'.l10n;
           s.unsubmit();
+          rethrow;
         }
       },
     );
@@ -272,6 +241,8 @@ class AccountsController extends GetxController {
     super.onInit();
   }
 
+  /// Updates the [accounts] list with the currently authenticated [MyUser]s
+  /// with sorting applied.
   void _populateUsers() async {
     status.value = RxStatus.loading();
 
@@ -323,9 +294,73 @@ class AccountsController extends GetxController {
     super.onClose();
   }
 
-  Future<void> signIn() async {}
+  /// Tries to sign in into a new account and to redirect to the [Routes.home]
+  /// page.
+  Future<void> signIn() async {
+    final String input = login.text.toLowerCase();
 
-  Future<void> delete(UserId id) async {
+    final UserLogin? userLogin = UserLogin.tryParse(input);
+    final UserNum? userNum = UserNum.tryParse(input);
+    final UserEmail? userEmail = UserEmail.tryParse(input);
+    final UserPhone? userPhone = UserPhone.tryParse(input);
+    final UserPassword? userPassword = UserPassword.tryParse(password.text);
+
+    login.error.value = null;
+    password.error.value = null;
+
+    final bool noCredentials = userLogin == null &&
+        userNum == null &&
+        userEmail == null &&
+        userPhone == null;
+
+    if (noCredentials || userPassword == null) {
+      password.error.value = 'err_incorrect_login_or_password'.l10n;
+      password.unsubmit();
+      return;
+    }
+
+    try {
+      login.status.value = RxStatus.loading();
+      password.status.value = RxStatus.loading();
+      await _authService.signIn(
+        userPassword,
+        login: userLogin,
+        num: userNum,
+        email: userEmail,
+        phone: userPhone,
+        logoutOnFailure: false,
+      );
+
+      router.go(Routes.nowhere);
+      await Future.delayed(const Duration(milliseconds: 500));
+      router.home();
+    } on CreateSessionException catch (e) {
+      switch (e.code) {
+        case CreateSessionErrorCode.wrongPassword:
+          // TODO: Тут ещё должен быть подсчёт попыток, запуск таймера и т.д.
+          password.error.value = e.toMessage();
+          break;
+
+        case CreateSessionErrorCode.artemisUnknown:
+          password.error.value = 'err_data_transfer'.l10n;
+          rethrow;
+      }
+    } on ConnectionException {
+      password.unsubmit();
+      password.error.value = 'err_data_transfer'.l10n;
+    } catch (e) {
+      password.unsubmit();
+      password.error.value = 'err_data_transfer'.l10n;
+      rethrow;
+    } finally {
+      login.status.value = RxStatus.empty();
+      password.status.value = RxStatus.empty();
+    }
+  }
+
+  /// Deletes the account with the given [id] and switches to another one, if
+  /// any left.
+  Future<void> deleteAccount(UserId id) async {
     await _authService.deleteAccount(id);
 
     if (id == _authService.userId) {
@@ -340,6 +375,8 @@ class AccountsController extends GetxController {
     }
   }
 
+  /// Switches to the account with the given [id] or creates a new one, if
+  /// `null`.
   Future<void> switchTo(UserId? id) async {
     router.go(Routes.nowhere);
 
@@ -359,13 +396,48 @@ class AccountsController extends GetxController {
 
     router.home();
   }
-}
 
-extension on AccountsViewStage {
-  bool get registering => switch (this) {
-        AccountsViewStage.signIn ||
-        AccountsViewStage.signInWithPassword =>
-          false,
-        (_) => true,
-      };
+  /// Starts or stops the [_codeTimer] based on [enabled] value.
+  void _setCodeTimer([bool enabled = true]) {
+    if (enabled) {
+      codeTimeout.value = 30;
+      _codeTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          codeTimeout.value--;
+          if (codeTimeout.value <= 0) {
+            codeTimeout.value = 0;
+            _codeTimer?.cancel();
+            _codeTimer = null;
+          }
+        },
+      );
+    } else {
+      codeTimeout.value = 0;
+      _codeTimer?.cancel();
+      _codeTimer = null;
+    }
+  }
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setResendEmailTimer([bool enabled = true]) {
+    if (enabled) {
+      resendEmailTimeout.value = 30;
+      _resendEmailTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          resendEmailTimeout.value--;
+          if (resendEmailTimeout.value <= 0) {
+            resendEmailTimeout.value = 0;
+            _resendEmailTimer?.cancel();
+            _resendEmailTimer = null;
+          }
+        },
+      );
+    } else {
+      resendEmailTimeout.value = 0;
+      _resendEmailTimer?.cancel();
+      _resendEmailTimer = null;
+    }
+  }
 }

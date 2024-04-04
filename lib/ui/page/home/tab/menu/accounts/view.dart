@@ -427,7 +427,7 @@ class AccountsView extends StatelessWidget {
                               );
 
                               if (result == true) {
-                                c.delete(user.id);
+                                c.deleteAccount(user.id);
                               }
                             },
                             child: c.myUser.value?.id == myUser?.id

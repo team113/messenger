@@ -23,6 +23,7 @@ import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:messenger/util/message_popup.dart';
 
+import '../../provider/hive/my_user.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -147,7 +148,11 @@ class AuthService extends GetxService {
     final bool shouldRefresh =
         credentials != null && _shouldRefresh(credentials);
 
-    Log.debug('_refresh($id): $shouldRefresh', '$runtimeType');
+    final MyUserHiveProvider prov = Get.find();
+    final user = prov.get(id)?.value;
+    final name = user?.name?.val ?? user?.num.val;
+
+    Log.debug('_refresh($name): $shouldRefresh', '$runtimeType');
 
     if (shouldRefresh) {
       try {
@@ -158,24 +163,13 @@ class AuthService extends GetxService {
 
         await _credentialsProvider.put(data);
       } on RenewSessionException catch (e) {
-        // TODO: убрать потом всё, просто оставить просто удаление
-        // _credentialsProvider.remove(id);
-
         // TODO: убрать
         final MyUserService myUsRepo = Get.find();
         final user = myUsRepo.myUsers[id]?.value;
         final name = user?.name?.val ?? user?.num.val;
 
-        print(
-            '================================================================\n\n\n'
-            'Unable to renew session for user $name\n\nError: $e\n\nPlease log in again.'
-            '\n\n\n================================================================');
-        MessagePopup.error(
-          'Unable to renew session for user $name\n\nError: $e\n\nPlease log in again.',
-        );
-
-        final bool? shouldDelete =
-            await MessagePopup.alert('Delete account $name?');
+        final bool? shouldDelete = await MessagePopup.alert(
+            'Unable to renew session. \nError: $e\n\n\nDelete account $name?');
         if (shouldDelete ?? false) {
           _credentialsProvider.remove(id);
         }
@@ -396,7 +390,10 @@ class AuthService extends GetxService {
   }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
-  Future<void> confirmSignUpEmail(ConfirmationCode code) async {
+  Future<void> confirmSignUpEmail(
+    ConfirmationCode code, {
+    bool logoutOnFailure = true,
+  }) async {
     Log.debug('confirmSignUpEmail($code)', '$runtimeType');
 
     try {
@@ -405,7 +402,9 @@ class AuthService extends GetxService {
       _credentialsProvider.put(creds);
       _activeAccountProvider.set(creds.userId);
     } catch (e) {
-      _unauthorized();
+      if (logoutOnFailure) {
+        _unauthorized();
+      }
       rethrow;
     }
   }
@@ -429,6 +428,7 @@ class AuthService extends GetxService {
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    bool logoutOnFailure = true,
   }) async {
     Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
@@ -449,7 +449,9 @@ class AuthService extends GetxService {
         _activeAccountProvider.set(creds.userId);
         status.value = RxStatus.success();
       } catch (e) {
-        _unauthorized();
+        if (logoutOnFailure) {
+          _unauthorized();
+        }
         rethrow;
       }
     });

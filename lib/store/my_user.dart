@@ -790,11 +790,11 @@ class MyUserRepository implements AbstractMyUserRepository {
     );
   }
 
-  /// Saves the provided [user] in [Hive].
+  /// Saves the provided [user] in [MyUserHiveProvider].
   void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
-    final HiveMyUser? savedUser = _ensureMyUserSet();
+    final HiveMyUser? savedUser = _myUserLocal.get(user.value.id);
 
     // Update the stored [MyUser], if the provided [user] has non-`null`
     // blocklist count, which is different from the stored one.
@@ -807,7 +807,6 @@ class MyUserRepository implements AbstractMyUserRepository {
         ignoreVersion) {
       user.value.blocklistCount ??= savedUser?.value.blocklistCount;
       _myUserLocal.put(user);
-      // _activeAccountLocal.set(user.value.id);
     }
   }
 
@@ -985,7 +984,10 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.passwordUpdated:
           event as EventUserPasswordUpdated;
           userEntity.value.hasPassword = true;
-          onPasswordUpdated();
+
+          if (event.userId == _activeAccountLocal.userId) {
+            onPasswordUpdated();
+          }
           break;
 
         case MyUserEventKind.userMuted:
@@ -1026,7 +1028,6 @@ class MyUserRepository implements AbstractMyUserRepository {
             _activeAccountLocal.clear();
             onUserDeleted();
           }
-
           break;
 
         case MyUserEventKind.directLinkDeleted:
