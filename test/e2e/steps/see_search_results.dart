@@ -15,7 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -25,8 +27,10 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
 
+import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
+import 'scroll_until.dart';
 
 /// Waits until the provided [User] or [ChatContact] is found and displayed in
 /// the ongoing search results.
@@ -49,14 +53,38 @@ final StepDefinitionGeneric seeUserInSearchResults =
                 .firstWhere((e) => e.contact.value.name.val == user.name)
                 .id;
             return context.world.appDriver.isPresent(
-              context.world.appDriver.findBy(
-                'SearchContact_$id',
-                FindType.key,
-              ),
+              context.world.appDriver.findBy('SearchContact_$id', FindType.key),
             );
 
           case SearchCategory.user:
             final UserId userId = context.world.sessions[user.name]!.userId;
+
+            final finder = context.world.appDriver
+                .findByKeySkipOffstage('SearchUser_$userId');
+
+            final scrollable = find.descendant(
+              of: find.byKey(const Key('SearchScrollable')),
+              matching: find.byWidgetPredicate((widget) {
+                // TODO: Find a proper way to differentiate [Scrollable]s from
+                //       [TextField]s:
+                //       https://github.com/flutter/flutter/issues/76981
+                if (widget is Scrollable) {
+                  return widget.restorationId == null;
+                }
+                return false;
+              }),
+            );
+
+            if (!await context.world.appDriver.isPresent(scrollable)) {
+              return false;
+            }
+
+            await context.world.appDriver.scrollIntoVisible(
+              finder,
+              scrollable,
+              dy: 100,
+            );
+
             return context.world.appDriver.isPresent(
               context.world.appDriver.findBy(
                 'SearchUser_$userId',
