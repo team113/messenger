@@ -17,8 +17,10 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/message_popup.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
@@ -49,6 +51,9 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Reactive map of authenticated [MyUser]s.
+  RxMap<UserId, Rx<MyUser?>> get _accounts => _myUserService.myUsers;
+
   /// Returns currently authenticated [MyUser]s.
   RxMap<UserId, Rx<MyUser?>> get accounts => _myUserService.myUsers;
 
@@ -71,7 +76,35 @@ class MenuTabController extends GetxController {
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _authService.logout();
+  Future<void> logout() async {
+    router.go(Routes.nowhere);
+    final String path = await _authService.logout();
+
+    if (_accounts.length < 2) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      router.go(path);
+    } else {
+      final UserId? me = _authService.userId ?? myUser.value?.id;
+      final UserId? next = _accounts.keys.firstWhereOrNull(
+        (id) => id != me,
+      );
+
+      try {
+        if (next != null) {
+          await _authService.signInToSavedAccount(next);
+        } else {
+          await _authService.register();
+        }
+      } catch (e) {
+        Future.delayed(const Duration(milliseconds: 1000)).then((v) {
+          MessagePopup.error(e);
+        });
+      }
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      router.home();
+    }
+  }
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
