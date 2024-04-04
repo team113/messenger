@@ -83,7 +83,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
 
     return ClipRect(
       child: ColoredBox(
-        color: style.colors.almostTransparent,
+        color: style.colors.transparent,
         child: matchingBuilder.buildTransitions(
           this,
           context,
