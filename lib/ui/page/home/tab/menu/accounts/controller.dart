@@ -337,7 +337,14 @@ class AccountsController extends GetxController {
     } on CreateSessionException catch (e) {
       switch (e.code) {
         case CreateSessionErrorCode.wrongPassword:
-          // TODO: Тут ещё должен быть подсчёт попыток, запуск таймера и т.д.
+          ++signInAttempts;
+
+          if (signInAttempts >= 3) {
+            // Wrong password was entered three times. Login is possible in N
+            // seconds.
+            signInAttempts = 0;
+            _setSignInTimer();
+          }
           password.error.value = e.toMessage();
           break;
 
@@ -397,6 +404,28 @@ class AccountsController extends GetxController {
     router.home();
   }
 
+  /// Starts or stops the [_signInTimer] based on [enabled] value.
+  void _setSignInTimer([bool enabled = true]) {
+    if (enabled) {
+      signInTimeout.value = 30;
+      _signInTimer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) {
+          signInTimeout.value--;
+          if (signInTimeout.value <= 0) {
+            signInTimeout.value = 0;
+            _signInTimer?.cancel();
+            _signInTimer = null;
+          }
+        },
+      );
+    } else {
+      signInTimeout.value = 0;
+      _signInTimer?.cancel();
+      _signInTimer = null;
+    }
+  }
+
   /// Starts or stops the [_codeTimer] based on [enabled] value.
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
@@ -438,6 +467,21 @@ class AccountsController extends GetxController {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();
       _resendEmailTimer = null;
+    }
+  }
+
+  /// Resends a [ConfirmationCode] to the specified [email].
+  Future<void> resendEmail() async {
+    _setResendEmailTimer();
+
+    try {
+      await _authService.resendSignUpEmail();
+    } on ResendUserEmailConfirmationException catch (e) {
+      emailCode.error.value = e.toMessage();
+    } catch (e) {
+      emailCode.error.value = 'err_data_transfer'.l10n;
+      _setResendEmailTimer(false);
+      rethrow;
     }
   }
 }

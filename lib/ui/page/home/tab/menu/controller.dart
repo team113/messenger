@@ -51,9 +51,6 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Reactive map of authenticated [MyUser]s.
-  RxMap<UserId, Rx<MyUser?>> get _accounts => _myUserService.myUsers;
-
   /// Returns currently authenticated [MyUser]s.
   RxMap<UserId, Rx<MyUser?>> get accounts => _myUserService.myUsers;
 
@@ -75,17 +72,18 @@ class MenuTabController extends GetxController {
     return true;
   }
 
-  /// Logs out the current session and go to the [Routes.auth] page.
+  /// Logs out the current session and switches to the next account or goes to
+  /// [Routes.auth] page, if none.
   Future<void> logout() async {
     router.go(Routes.nowhere);
-    final String path = await _authService.logout();
 
-    if (_accounts.length < 2) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      router.go(path);
+    final String toLogin = await _authService.logout();
+
+    if (accounts.length < 2) {
+      router.go(toLogin);
     } else {
       final UserId? me = _authService.userId ?? myUser.value?.id;
-      final UserId? next = _accounts.keys.firstWhereOrNull(
+      final UserId? next = accounts.keys.firstWhereOrNull(
         (id) => id != me,
       );
 
@@ -96,12 +94,11 @@ class MenuTabController extends GetxController {
           await _authService.register();
         }
       } catch (e) {
-        Future.delayed(const Duration(milliseconds: 1000)).then((v) {
-          MessagePopup.error(e);
-        });
+        await Future.delayed(1.seconds);
+        MessagePopup.error(e);
       }
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(500.milliseconds);
       router.home();
     }
   }

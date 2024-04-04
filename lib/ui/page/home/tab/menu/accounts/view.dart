@@ -104,12 +104,16 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled =
-                      !c.login.isEmpty.value && !c.password.isEmpty.value;
+                  final bool enabled = !c.login.isEmpty.value &&
+                      !c.password.isEmpty.value &&
+                      c.signInTimeout.value == 0;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
-                    title: 'btn_sign_in'.l10n,
+                    title: c.signInTimeout.value == 0
+                        ? 'btn_sign_in'.l10n
+                        : 'label_wait_seconds'
+                            .l10nfmt({'for': c.signInTimeout.value}),
                     onPressed: enabled ? c.password.submit : null,
                   );
                 }),
@@ -169,20 +173,33 @@ class AccountsView extends StatelessWidget {
                 const SizedBox(height: 16),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'label_did_not_receive_code'.l10n,
-                    style: style.fonts.medium.regular.onBackground,
-                  ),
+                  child: Obx(() {
+                    return Text(
+                      c.resendEmailTimeout.value == 0
+                          ? 'label_did_not_receive_code'.l10n
+                          : 'label_code_sent_again'.l10n,
+                      style: style.fonts.medium.regular.onBackground,
+                    );
+                  }),
                 ),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: WidgetButton(
-                    onPressed: () {},
-                    child: Text(
-                      'btn_resend_code'.l10n,
-                      style: style.fonts.medium.regular.primary,
-                    ),
-                  ),
+                  child: Obx(() {
+                    final bool enabled = c.resendEmailTimeout.value == 0;
+
+                    return WidgetButton(
+                      onPressed: enabled ? c.resendEmail : null,
+                      child: Text(
+                        enabled
+                            ? 'btn_resend_code'.l10n
+                            : 'label_wait_seconds'
+                                .l10nfmt({'for': c.resendEmailTimeout.value}),
+                        style: enabled
+                            ? style.fonts.medium.regular.primary
+                            : style.fonts.medium.regular.onBackground,
+                      ),
+                    );
+                  }),
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -193,10 +210,14 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.emailCode.isEmpty.value;
+                  final bool enabled =
+                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
                   return PrimaryButton(
                     key: const Key('Proceed'),
-                    title: 'btn_send'.l10n,
+                    title: c.codeTimeout.value == 0
+                        ? 'btn_send'.l10n
+                        : 'label_wait_seconds'
+                            .l10nfmt({'for': c.codeTimeout.value}),
                     onPressed: enabled ? c.emailCode.submit : null,
                   );
                 }),
