@@ -35,6 +35,8 @@ import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -69,6 +71,8 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
+  final Stopwatch watch = Stopwatch()..start();
+
   await Config.init();
 
   me.Log.options = me.LogOptions(
@@ -140,12 +144,16 @@ Future<void> main() async {
     (options) {
       options.dsn = Config.sentryDsn;
       options.tracesSampleRate = 1.0;
+      options.sampleRate = 1.0;
       options.release =
           '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
       options.debug = true;
       options.diagnosticLevel = SentryLevel.info;
       options.enablePrintBreadcrumbs = true;
       options.maxBreadcrumbs = 512;
+      options.enableTimeToFullDisplayTracing = true;
+      options.enableAppHangTracking = true;
+      options.enableTracing = true;
       options.beforeSend = (SentryEvent event, {Hint? hint}) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 
@@ -157,6 +165,7 @@ Future<void> main() async {
             exception is HttpException ||
             exception is ClientException ||
             exception is DioException ||
+            exception is TimeoutException ||
             exception is ResubscriptionRequiredException) {
           return null;
         }
@@ -198,6 +207,26 @@ Future<void> main() async {
     },
     appRunner: appRunner,
   );
+
+  // TODO: Remove, when Sentry supports app start measurement for all platforms.
+  // ignore: invalid_use_of_internal_member
+  NativeAppStartIntegration.setAppStartInfo(
+    AppStartInfo(
+      AppStartType.cold,
+      start: DateTime.now().subtract(watch.elapsed),
+      end: DateTime.now(),
+    ),
+  );
+
+  // Transaction indicating Flutter engine has rasterized the first frame.
+  final ISentrySpan ready = Sentry.startTransaction(
+    'ui.app.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
+
+  WidgetsBinding.instance.waitUntilFirstFrameRasterized
+      .then((_) => ready.finish());
 }
 
 /// Initializes the [FlutterCallkeep] and displays an incoming call

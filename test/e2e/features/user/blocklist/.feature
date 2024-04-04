@@ -29,5 +29,6 @@ Feature: Blocklist
     And I tap `Proceed` button
     Then Bob sends message to me and receives blocked exception
 
-    When I tap `Unblock` button
+    When I scroll `UserScrollable` to top
+    And I tap `Unblock` button
     Then Bob sends message to me and receives no exception
