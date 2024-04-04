@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:copy_with_extension/copy_with_extension.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
 
@@ -30,7 +29,6 @@ import 'user.dart';
 part 'my_user.g.dart';
 
 /// `User` of an application being currently signed-in.
-@CopyWith()
 @HiveType(typeId: ModelTypeId.myUser)
 class MyUser extends HiveObject {
   MyUser({
@@ -151,10 +149,30 @@ class MyUser extends HiveObject {
   /// Total count of blocked users.
   @HiveField(16)
   int? blocklistCount;
+
+  /// Returns a copy of this [MyUser].
+  MyUser copy() => MyUser(
+        id: id,
+        num: num,
+        login: login,
+        name: name,
+        bio: bio,
+        hasPassword: hasPassword,
+        emails: emails.copy(),
+        phones: phones.copy(),
+        chatDirectLink: chatDirectLink,
+        unreadChatsCount: unreadChatsCount,
+        status: status,
+        callCover: callCover,
+        avatar: avatar,
+        presenceIndex: presenceIndex,
+        online: online,
+        muted: muted,
+        blocklistCount: blocklistCount,
+      );
 }
 
 /// List of [UserPhone]s associated with [MyUser].
-@CopyWith()
 @HiveType(typeId: ModelTypeId.myUserPhones)
 class MyUserPhones {
   MyUserPhones({
@@ -178,10 +196,13 @@ class MyUserPhones {
   /// completion of confirmation process only.
   @HiveField(1)
   UserPhone? unconfirmed;
+
+  /// Returns a copy of this [MyUserPhones].
+  MyUserPhones copy() =>
+      MyUserPhones(confirmed: confirmed, unconfirmed: unconfirmed);
 }
 
 /// List of [UserEmail]s associated with [MyUser].
-@CopyWith()
 @HiveType(typeId: ModelTypeId.myUserEmails)
 class MyUserEmails {
   MyUserEmails({
@@ -205,6 +226,10 @@ class MyUserEmails {
   /// completion of confirmation process only.
   @HiveField(1)
   UserEmail? unconfirmed;
+
+  /// Returns a copy of this [MyUserEmails].
+  MyUserEmails copy() =>
+      MyUserEmails(confirmed: confirmed, unconfirmed: unconfirmed);
 }
 
 /// Confirmation code used by [MyUser].

@@ -618,55 +618,35 @@ class MyUserRepository implements AbstractMyUserRepository {
         myUser.value = null;
         _remoteSubscription?.close(immediate: true);
       } else {
-        final MyUser? value = event.value?.value as MyUser?;
+        // Copy [event.value] as it always contains the same [MyUser].
+        final MyUser? value = (event.value?.value as MyUser?)?.copy();
 
         // Don't update the [MyUserField]s considered locked in the [_pool], as
         // those events might've been applied optimistically during mutations
         // and await corresponding subscription events to be persisted.
-        UserName? name = value?.name;
-        UserTextStatus? status = value?.status;
-        UserBio? bio = value?.bio;
-        Presence? presence = value?.presence;
-        MuteDuration? muted = value?.muted;
-        MyUserEmails? emails = value?.emails.copyWith();
-        MyUserPhones? phones = value?.phones.copyWith();
-
         if (_pool.lockedWith(MyUserField.name, value?.name)) {
-          name = myUser.value?.name;
+          value?.name = myUser.value?.name;
         }
         if (_pool.lockedWith(MyUserField.status, value?.status)) {
-          status = myUser.value?.status;
+          value?.status = myUser.value?.status;
         }
         if (_pool.lockedWith(MyUserField.bio, value?.bio)) {
-          bio = myUser.value?.bio;
+          value?.bio = myUser.value?.bio;
         }
         if (_pool.lockedWith(MyUserField.presence, value?.presence)) {
-          presence = myUser.value?.presence ?? presence;
+          value?.presence = myUser.value?.presence ?? value.presence;
         }
         if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
-          muted = myUser.value?.muted;
+          value?.muted = myUser.value?.muted;
         }
         if (_pool.lockedWith(MyUserField.email, value?.emails.unconfirmed)) {
-          emails =
-              // ignore: invalid_null_aware_operator
-              emails?.copyWith(unconfirmed: myUser.value?.emails.unconfirmed);
+          value?.emails.unconfirmed = myUser.value?.emails.unconfirmed;
         }
         if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
-          phones =
-              // ignore: invalid_null_aware_operator
-              phones?.copyWith(unconfirmed: myUser.value?.phones.unconfirmed);
+          value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
         }
 
-        // Copy [event.value] as it always contains the same [MyUser].
-        myUser.value = value?.copyWith(
-          muted: muted,
-          status: status,
-          bio: bio,
-          presenceIndex: presence!.index,
-          name: name,
-          emails: emails,
-          phones: phones,
-        );
+        myUser.value = value;
       }
     }
   }
