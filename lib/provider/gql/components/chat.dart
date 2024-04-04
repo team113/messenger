@@ -186,13 +186,14 @@ mixin ChatGraphQlMixin {
     Log.debug('createDialogChat($responderId)', '$runtimeType');
 
     final variables = CreateDialogArguments(responderId: responderId);
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'CreateDialog',
         document: CreateDialogMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => CreateDialogException((CreateDialog$Mutation.fromJson(data)
+      onException: (data) => CreateDialogException((CreateDialog$Mutation
+                      .fromJson(data)
                   .createDialogChat
               as CreateDialog$Mutation$CreateDialogChat$CreateDialogChatError)
           .code),
@@ -213,14 +214,14 @@ mixin ChatGraphQlMixin {
 
     final variables =
         CreateGroupChatArguments(memberIds: memberIds, name: name);
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'CreateGroupChat',
         document: CreateGroupChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => CreateGroupChatException((CreateGroupChat$Mutation.fromJson(
-                      data)
+      onException: (data) => CreateGroupChatException((CreateGroupChat$Mutation
+                      .fromJson(data)
                   .createGroupChat
               as CreateGroupChat$Mutation$CreateGroupChat$CreateGroupChatError)
           .code),
@@ -545,14 +546,14 @@ mixin ChatGraphQlMixin {
     Log.debug('readChat($chatId, $untilId)', '$runtimeType');
 
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
-    final QueryResult result = await client.query(
-      QueryOptions(
+    final QueryResult result = await client.mutate(
+      MutationOptions(
         operationName: 'ReadChat',
         document: ReadChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      (data) => ReadChatException((ReadChat$Mutation.fromJson(data).readChat
-              as ReadChat$Mutation$ReadChat$ReadChatError)
+      onException: (data) => ReadChatException((ReadChat$Mutation.fromJson(data)
+              .readChat as ReadChat$Mutation$ReadChat$ReadChatError)
           .code),
     );
     return (ReadChat$Mutation.fromJson(result.data!).readChat
@@ -863,6 +864,7 @@ mixin ChatGraphQlMixin {
           'file': attachment,
         }),
         options: dio.Options(contentType: 'multipart/form-data'),
+        operationName: query.operationName,
         onSendProgress: onSendProgress,
         onException: (data) => UploadAttachmentException((UploadAttachment$Mutation
                         .fromJson(data)
@@ -1302,6 +1304,7 @@ mixin ChatGraphQlMixin {
           'file': file,
         }),
         options: dio.Options(contentType: 'multipart/form-data'),
+        operationName: query.operationName,
         onSendProgress: onSendProgress,
         onException: (data) => UpdateChatAvatarException(
           (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar

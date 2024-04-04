@@ -19,8 +19,10 @@ import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
+import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -157,14 +159,17 @@ class GraphQlClient {
   Future<QueryResult> query(
     QueryOptions options, [
     Exception Function(Map<String, dynamic>)? handleException,
-  ]) =>
-      _middleware(() async {
+  ]) {
+    return _middleware(() async {
+      return _transaction(options.operationName, () async {
         final QueryResult result = await _queryLimiter.execute(
           () async => await (await client).query(options).timeout(timeout),
         );
         GraphQlProviderExceptions.fire(result, handleException);
         return result;
       });
+    });
+  }
 
   /// Resolves a single mutation according to the [MutationOptions] specified
   /// and returns a [Future] which resolves with the [QueryResult] or throws an
@@ -178,16 +183,20 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (raw != null) {
-      QueryResult result =
-          await (await _newClient(raw)).mutate(options).timeout(timeout);
-      GraphQlProviderExceptions.fire(result, onException);
-      return result;
-    } else {
-      return _middleware(() async {
-        QueryResult result =
-            await (await client).mutate(options).timeout(timeout);
+      return await _transaction(options.operationName, () async {
+        final QueryResult result =
+            await (await _newClient(raw)).mutate(options).timeout(timeout);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
+      });
+    } else {
+      return await _middleware(() async {
+        return await _transaction(options.operationName, () async {
+          final QueryResult result =
+              await (await client).mutate(options).timeout(timeout);
+          GraphQlProviderExceptions.fire(result, onException);
+          return result;
+        });
       });
     }
   }
@@ -209,10 +218,12 @@ class GraphQlClient {
   Future<dio.Response<T>> post<T>(
     dynamic data, {
     dio.Options? options,
+    String? operationName,
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
-  }) =>
-      _middleware(() async {
+  }) {
+    return _middleware(() async {
+      return await _transaction(operationName, () async {
         final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
         authorized.headers!['Authorization'] = 'Bearer $token';
@@ -236,6 +247,8 @@ class GraphQlClient {
           rethrow;
         }
       });
+    });
+  }
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() async {
@@ -465,6 +478,30 @@ class GraphQlClient {
       ),
       link: link,
     );
+  }
+
+  /// Completes the [fn] wrapped around [Sentry.startTransaction], meaning the
+  /// [fn] will be recorded as a transaction.
+  Future<T> _transaction<T>(String? operation, Future<T> Function() fn) async {
+    if (operation == null || Config.sentryDsn.isEmpty || kDebugMode) {
+      return await fn();
+    }
+
+    final ISentrySpan transaction = Sentry.startTransaction(
+      'graphql.$operation()',
+      'graphql',
+      autoFinishAfter: const Duration(minutes: 1),
+    )..startChild('query');
+
+    try {
+      return await fn();
+    } catch (e) {
+      transaction.throwable = e;
+      transaction.status = const SpanStatus.internalError();
+      rethrow;
+    } finally {
+      transaction.finish();
+    }
   }
 }
 
