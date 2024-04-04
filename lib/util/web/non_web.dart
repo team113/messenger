@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
@@ -201,6 +202,10 @@ class WebUtils {
 
   /// Returns the [Rect] stored by the provided [chatId], if any.
   static Rect? getCallRect(ChatId chatId) => null;
+
+  static Future<void> writeFile(String name, Uint8List bytes) async {
+    // No-op.
+  }
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {

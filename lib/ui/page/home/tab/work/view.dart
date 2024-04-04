@@ -148,7 +148,7 @@ class WorkTabView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 1.5),
                   child: MenuButton(
-                    title: 'Кнопка 1',
+                    title: 'О программе',
                     onPressed: () {},
                     leading: const SvgIcon(SvgIcons.workPartner),
                   ),
@@ -156,9 +156,9 @@ class WorkTabView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 1.5),
                   child: MenuButton(
-                    title: 'Кнопка 2',
+                    title: 'Промоматериалы',
                     onPressed: () {},
-                    leading: const SvgIcon(SvgIcons.workGetMoney),
+                    leading: const SvgIcon(SvgIcons.workPromoLinks),
                   ),
                 ),
                 // const SizedBox(height: 16),

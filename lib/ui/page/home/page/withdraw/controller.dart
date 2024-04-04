@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/work.dart';
 import 'package:messenger/routes.dart';
@@ -17,6 +18,8 @@ class WithdrawController extends GetxController {
   final TextFieldState phone = TextFieldState();
 
   final Rx<Country?> country = Rx(null);
+  final Rx<PlatformFile?> contract = Rx(null);
+  final Rx<PlatformFile?> passport = Rx(null);
 
   final TextFieldState usdtWallet = TextFieldState();
 
@@ -40,8 +43,10 @@ class WithdrawController extends GetxController {
       WithdrawMethod.bitcoin => amount.value / 100000000 / 2,
     };
 
-    total.value =
-        double.tryParse(total.value.toStringAsFixed(2)) ?? total.value;
+    total.value = switch (method.value) {
+      WithdrawMethod.bitcoin => total.value,
+      (_) => double.tryParse(total.value.toStringAsFixed(2)) ?? total.value,
+    };
 
     money.text = amount.value.toString();
 

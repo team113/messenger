@@ -8,6 +8,7 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/balance/widget/currency_field.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
+import 'package:messenger/ui/page/home/page/my_profile/widget/line_divider.dart';
 import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
@@ -21,6 +22,7 @@ import 'package:phone_form_field/phone_form_field.dart' hide CountrySelector;
 import 'package:circle_flags/circle_flags.dart';
 
 import 'controller.dart';
+import 'widget/uploadable_file.dart';
 import 'withdraw_method/view.dart';
 
 class WithdrawView extends StatelessWidget {
@@ -92,7 +94,10 @@ class WithdrawView extends StatelessWidget {
                         await WithdrawMethodView.show(
                           context,
                           initial: c.method.value,
-                          onChanged: (e) => c.method.value = e,
+                          onChanged: (e) {
+                            c.method.value = e;
+                            c.recalculateAmount();
+                          },
                         );
                       },
                       style: style.fonts.normal.regular.primary,
@@ -173,7 +178,7 @@ class WithdrawView extends StatelessWidget {
                   title: 'Реквизиты',
                   children: [
                     Text(
-                      'Все поля заполняются латинскими буквами именно так, как они указаны в банке, платежной системе или на платежной карте.',
+                      'Все поля заполняются латинскими буквами так, как они указаны в банке, платежной системе или на платежной карте.',
                       style: style.fonts.normal.regular.secondary,
                     ),
                     const SizedBox(height: 24),
@@ -249,23 +254,66 @@ class WithdrawView extends StatelessWidget {
               Block(
                 title: 'Документы',
                 children: [
-                  Text(
-                    'Каждая траназкция должна сопровождаться документами, подтверждающими личность получателя, адрес получателя и назначение платежа. Это требование финансовых институтов и государственных органов.',
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                  const SizedBox(height: 24),
-                  FieldButton(
-                    text: 'Не выбрано',
-                    headline: Text('Подписанный договор'.l10n),
-                    onPressed: () {},
-                    style: style.fonts.normal.regular.primary,
-                  ),
-                  const SizedBox(height: 6),
+                  // Text(
+                  //   'Каждая траназкция должна сопровождаться документами, подтверждающими личность получателя и назначение платежа. Это требование финансовых институтов и государственных органов.',
+                  //   style: style.fonts.normal.regular.secondary,
+                  // ),
                   Text.rich(
                     TextSpan(
                       children: [
                         TextSpan(
-                          text: 'Договор можете ',
+                          text: 'Важно!',
+                          style: style.fonts.normal.regular.onBackground,
+                        ),
+                        TextSpan(
+                          text:
+                              ' Каждая траназкция должна сопровождаться документами, подтверждающими личность получателя и назначение платежа. Это требование финансовых институтов и государственных органов.',
+                          style: style.fonts.normal.regular.secondary,
+                        ),
+                      ],
+                    ),
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                  const SizedBox(height: 12),
+                  // Text(
+                  //   'Важно: принимаются только фотографии документов (не скан-копии) в форматах: JPG, PNG, PDF. Разрешение не ниже 200 DPI. На фотографии должен быть читаемый текст и документ должен быть сфотографирован полностью, включая края.',
+                  //   style: style.fonts.normal.regular.secondary,
+                  // ),
+                  // Text(
+                  //   'Важно! Принимаются только:\n'
+                  //   '- фотографии документов (не скан-копии);\n'
+                  //   '- формат: JPG, PNG, PDF;\n- разрешение не ниже 200 DPI;\n'
+                  //   '- весь текст должен быть абсолютно читаем (отсутствие бликов, размытий и т.п.);\n'
+                  //   '- документ должен быть сфотографирован полностью, включая края.',
+                  //   style: style.fonts.normal.regular.secondary,
+                  // ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Важно!',
+                          style: style.fonts.normal.regular.onBackground,
+                        ),
+                        TextSpan(
+                          text: ' Принимаются только:\n'
+                              '- фотографии документов (НЕ СКАН-КОПИИ);\n'
+                              '- формат: JPG, PNG, PDF;\n- разрешение не ниже 200 DPI;\n'
+                              '- весь текст должен быть читаем (отсутствие бликов, размытий и т.п.);\n'
+                              '- документ должен быть сфотографирован полностью, ВКЛЮЧАЯ КРАЯ.',
+                          style: style.fonts.normal.regular.secondary,
+                        ),
+                      ],
+                    ),
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                  const SizedBox(height: 24),
+                  const LineDivider('Подписанный договор'),
+                  const SizedBox(height: 12),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Договор ',
                           style: style.fonts.small.regular.secondary,
                         ),
                         TextSpan(
@@ -281,48 +329,82 @@ class WithdrawView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  FieldButton(
-                    text: 'Не выбрано',
-                    headline: Text(
-                      'Паспорт, загранпаспорт, ID карта'.l10n,
-                    ),
-                    onPressed: () {},
-                    style: style.fonts.normal.regular.primary,
+                  const SizedBox(height: 24),
+                  Obx(() {
+                    return UploadableFile(
+                      label: 'Договор',
+                      onChanged: (f) => c.contract.value = f,
+                      file: c.contract.value,
+                    );
+                  }),
+
+                  const SizedBox(height: 24),
+
+                  const LineDivider('Документ, удостоверяющий личность'),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Документом, удостоверяющим личность, считается только: заграничный паспорт, внутренний паспорт, внутренняя ID карта, водительское удостоверение.',
+                    style: style.fonts.small.regular.secondary,
                   ),
-                  const SizedBox(height: 32),
-                  FieldButton(
-                    text: 'Не выбрано',
-                    headline: Text('Документ, подтверждающий адрес'.l10n),
-                    onPressed: () {},
-                    style: style.fonts.normal.regular.primary,
-                  )
+                  const SizedBox(height: 24),
+                  Obx(() {
+                    return UploadableFile(
+                      label: 'Загранпаспорт, паспорт, ID карта',
+                      onChanged: (f) => c.passport.value = f,
+                      file: c.passport.value,
+                    );
+                  }),
+                  // const SizedBox(height: 6),
+                  // Text.rich(
+                  //   TextSpan(
+                  //     children: [
+                  //       TextSpan(
+                  //         text: 'Договор можете ',
+                  //         style: style.fonts.small.regular.secondary,
+                  //       ),
+                  //       TextSpan(
+                  //         text: 'скачать здесь',
+                  //         style: style.fonts.small.regular.primary,
+                  //         recognizer: TapGestureRecognizer()..onTap = () {},
+                  //       ),
+                  //       TextSpan(
+                  //         text:
+                  //             '. Необходимо распечатать, подписать, сфотографировать и загрузить.',
+                  //         style: style.fonts.small.regular.secondary,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
               Block(
                 children: [
                   const SizedBox(height: 8),
                   MoneyField(
+                    currency: null,
                     state: c.coins,
                     onChanged: (e) {
                       c.amount.value = e;
                       c.recalculateAmount();
                     },
-                    label: 'Сумма',
+                    label: 'Сумма к списанию, ¤',
                   ),
                   const SizedBox(height: 16),
                   Obx(() {
+                    final currency = switch (c.method.value) {
+                      WithdrawMethod.card ||
+                      WithdrawMethod.paypal ||
+                      WithdrawMethod.swift =>
+                        CurrencyKind.usd,
+                      WithdrawMethod.sepa => CurrencyKind.eur,
+                      WithdrawMethod.usdt => CurrencyKind.usdt,
+                      WithdrawMethod.bitcoin => CurrencyKind.btc,
+                    };
+
                     return CurrencyField(
-                      currency: switch (c.method.value) {
-                        WithdrawMethod.card ||
-                        WithdrawMethod.paypal ||
-                        WithdrawMethod.swift =>
-                          CurrencyKind.usd,
-                        WithdrawMethod.sepa => CurrencyKind.eur,
-                        WithdrawMethod.usdt => CurrencyKind.usdt,
-                        WithdrawMethod.bitcoin => CurrencyKind.btc,
-                      },
+                      currency: null,
                       value: c.total.value,
+                      label: 'Сумма к отправке, ${currency.toSymbol()}',
                       onChanged: (e) {
                         c.total.value = e.toDouble();
                         c.recalculateTotal();

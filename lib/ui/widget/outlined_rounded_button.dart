@@ -113,10 +113,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final BorderRadius borderRadius = BorderRadius.circular(
-      15 * 0.7, // * ((widget.height ?? 42) / 42),
-    );
-
+    final BorderRadius borderRadius = BorderRadius.circular(15 * 0.7);
     final border = OutlineInputBorder(
       borderSide: widget.border?.bottom ?? BorderSide.none,
       borderRadius: borderRadius,

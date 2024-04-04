@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
@@ -54,7 +53,7 @@ class CurrencyField extends StatefulWidget {
     this.label = 'Currency',
   }) : allowed = allowed ?? CurrencyKind.values.toList();
 
-  final CurrencyKind currency;
+  final CurrencyKind? currency;
   final num? value;
   final List<CurrencyKind> allowed;
   final void Function(double)? onChanged;
@@ -69,12 +68,24 @@ class _CurrencyFieldState extends State<CurrencyField> {
   final TextFieldState state = TextFieldState();
 
   @override
+  void initState() {
+    state.text = widget.value.toString();
+    if (state.text == '0.0') {
+      state.text = '';
+    }
+    super.initState();
+  }
+
+  @override
   void didUpdateWidget(oldWidget) {
     final double current = double.tryParse(state.text) ?? 0;
 
-    print('${widget.value} vs $current');
     if (widget.value != current) {
+      // state.text = NumberFormat('0.${'0' * 16}').format(widget.value);
       state.text = widget.value.toString();
+      if (state.text == '0.0') {
+        state.text = '';
+      }
       setState(() {});
     }
 
@@ -113,34 +124,40 @@ class _CurrencyFieldState extends State<CurrencyField> {
         widget.onChanged?.call(parsed);
       },
       hint: '0',
-      prefixConstraints: BoxConstraints(
-        minWidth: 22 + widget.currency.toSymbol().length * 15,
-      ),
-      prefixIcon: WidgetButton(
-        onPressed: widget.onCurrency == null
-            ? null
-            : () async {
-                final selected = await const _CountrySelectorNavigator()
-                    .show(context, widget.currency);
-                if (selected != null) {
-                  widget.onCurrency?.call(selected);
-                }
+      prefixConstraints: widget.currency == null
+          ? null
+          : BoxConstraints(
+              minWidth: 22 + widget.currency!.toSymbol().length * 15,
+            ),
+      prefixIcon: widget.currency == null
+          ? null
+          : WidgetButton(
+              onPressed: widget.onCurrency == null
+                  ? null
+                  : () async {
+                      final selected = await const _CountrySelectorNavigator()
+                          .show(context, widget.currency!);
+                      if (selected != null) {
+                        widget.onCurrency?.call(selected);
+                      }
 
-                state.focus.requestFocus();
-              },
-        child: Center(
-          widthFactor: 0,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 21.0, bottom: 0),
-            child: Text(
-              widget.currency.toSymbol(),
-              style: style.fonts.big.regular.onBackground.copyWith(
-                color: widget.onCurrency == null ? null : style.colors.primary,
+                      state.focus.requestFocus();
+                    },
+              child: Center(
+                widthFactor: 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 21.0, bottom: 0),
+                  child: Text(
+                    widget.currency!.toSymbol(),
+                    style: style.fonts.big.regular.onBackground.copyWith(
+                      color: widget.onCurrency == null
+                          ? null
+                          : style.colors.primary,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

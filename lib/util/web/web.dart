@@ -594,6 +594,14 @@ class WebUtils {
     return null;
   }
 
+  static Future<void> writeFile(String name, Uint8List bytes) async {
+    final blob = html.Blob([bytes], 'text/plain', 'native');
+
+    html.AnchorElement(href: html.Url.createObjectUrlFromBlob(blob).toString())
+      ..setAttribute('download', name)
+      ..click();
+  }
+
   /// Downloads a file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {
     final Response response = await (await PlatformUtils.dio).head(url);

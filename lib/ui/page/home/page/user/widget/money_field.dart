@@ -16,7 +16,7 @@ class MoneyField extends StatelessWidget {
   final TextFieldState state;
   final String? label;
   final void Function(int)? onChanged;
-  final String currency;
+  final String? currency;
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +46,20 @@ class MoneyField extends StatelessWidget {
         onChanged?.call(parsed);
       },
       hint: '0',
-      prefixIcon: SizedBox(
-        child: Center(
-          widthFactor: 0.0,
-          child: Transform.translate(
-            offset: const Offset(12, 0),
-            child:
-                Text(currency, style: style.fonts.medium.regular.onBackground),
-          ),
-        ),
-      ),
+      prefixIcon: currency == null
+          ? null
+          : SizedBox(
+              child: Center(
+                widthFactor: 0.0,
+                child: Transform.translate(
+                  offset: const Offset(12, 0),
+                  child: Text(
+                    currency!,
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
+                ),
+              ),
+            ),
       label: label,
     );
   }

@@ -2397,4 +2397,10 @@ class SvgIcons {
     width: 32,
     height: 32,
   );
+
+  static const SvgData workPromoLinks = SvgData(
+    'assets/icons/work_promo_links.svg',
+    width: 32,
+    height: 32,
+  );
 }
