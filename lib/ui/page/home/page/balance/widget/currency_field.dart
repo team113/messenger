@@ -70,7 +70,7 @@ class _CurrencyFieldState extends State<CurrencyField> {
   @override
   void initState() {
     state.text = widget.value.toString();
-    if (state.text == '0.0') {
+    if (state.text == '0.0' || state.text == '0') {
       state.text = '';
     }
     super.initState();
@@ -83,7 +83,7 @@ class _CurrencyFieldState extends State<CurrencyField> {
     if (widget.value != current) {
       // state.text = NumberFormat('0.${'0' * 16}').format(widget.value);
       state.text = widget.value.toString();
-      if (state.text == '0.0') {
+      if (state.text == '0.0' || state.text == '0') {
         state.text = '';
       }
       setState(() {});
