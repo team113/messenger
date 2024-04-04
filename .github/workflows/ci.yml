@@ -168,9 +168,9 @@ jobs:
 
       - run: make flutter.pub
 
-      # Running `build_runner` here ensures `PubspecBuilder` and its `git
-      # describe` returns the valid result without possible `-dirty` tag, that
-      # may happen during FCM configuration.
+      # Running `build_runner` here ensures `PubspecBuilder` and its
+      # `git describe` command returns the valid result without possible
+      # `--dirty` tag, that may happen during FCM configuration.
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ios web', matrix.platform) }}
 
