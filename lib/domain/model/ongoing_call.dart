@@ -510,7 +510,6 @@ class OngoingCall {
 
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members[_me]?.id = id;
-    members[_me]?.joinedAt.value = PreciseDateTime.now();
     members.move(_me, id);
     _me = id;
 
@@ -549,6 +548,7 @@ class OngoingCall {
                   await _joinRoom(node.call.joinLink!);
                 }
                 state.value = OngoingCallState.active;
+                members[_me]?.joinedAt.value ??= PreciseDateTime.now();
               }
 
               final ChatMembersDialed? dialed = node.call.dialed;
@@ -663,6 +663,7 @@ class OngoingCall {
                   call.refresh();
 
                   state.value = OngoingCallState.active;
+                  members[_me]?.joinedAt.value ??= PreciseDateTime.now();
                   break;
 
                 case ChatCallEventKind.finished:
