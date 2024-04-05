@@ -31,6 +31,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -103,6 +104,8 @@ void main() async {
   await sessionProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
+  final accountProvider = ActiveAccountHiveProvider();
+  await accountProvider.init();
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -211,6 +214,7 @@ void main() async {
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
       credentialsProvider,
+      accountProvider,
     ),
   );
   authService.init();
@@ -233,6 +237,7 @@ void main() async {
     myUserProvider,
     blocklistRepository,
     userRepository,
+    accountProvider,
   );
   MyUserService myUserService =
       Get.put(MyUserService(authService, myUserRepository));

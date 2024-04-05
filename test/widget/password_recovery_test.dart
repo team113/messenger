@@ -26,6 +26,7 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -56,7 +57,8 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   await credentialsProvider.init();
   await credentialsProvider.clear();
-
+  final accountProvider = ActiveAccountHiveProvider();
+  await accountProvider.init();
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   var contactProvider = ContactHiveProvider();
@@ -86,6 +88,7 @@ void main() async {
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
+        accountProvider,
       ),
     );
     authService.init();

@@ -28,6 +28,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -89,6 +90,8 @@ void main() async {
   await sessionProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
+  final accountProvider = ActiveAccountHiveProvider();
+  await accountProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -129,7 +132,7 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.myUser?.ver.internal ?? BigInt.zero + BigInt.one)}',
+              '${(myUserProvider.valuesSafe.firstOrNull?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
       }).addUserPhone
           as AddUserPhone$Mutation$AddUserPhone$MyUserEventsVersioned),
@@ -150,7 +153,8 @@ void main() async {
             }
           ],
           'myUser': myUserData,
-          'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
+          'ver':
+              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
         }
       }).confirmUserPhone
           as ConfirmUserPhone$Mutation$ConfirmUserPhone$MyUserEventsVersioned),
@@ -170,7 +174,8 @@ void main() async {
             }
           ],
           'myUser': myUserData,
-          'ver': '${(myUserProvider.myUser!.ver.internal + BigInt.one)}',
+          'ver':
+              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
         }
       }).deleteUserPhone),
     );
@@ -188,6 +193,7 @@ void main() async {
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
+        accountProvider,
       ),
     );
     UserRepository userRepository =
@@ -208,6 +214,7 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
+      accountProvider,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     await Future.delayed(Duration.zero);
@@ -261,6 +268,7 @@ void main() async {
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
+        accountProvider,
       ),
     );
     UserRepository userRepository =
@@ -281,6 +289,7 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
+      accountProvider,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
