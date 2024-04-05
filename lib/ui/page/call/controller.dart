@@ -2128,6 +2128,10 @@ class CallController extends GetxController {
       members.forEach((_, member) {
         if (member.isConnected.isFalse) {
           _listenConnected(member);
+        } else if (member.joinedAt.value == null) {
+          _listenJoinedAt(member);
+        } else {
+          _playConnected(member);
         }
       });
 
@@ -2142,14 +2146,12 @@ class CallController extends GetxController {
 
             _ensureCorrectGrouping();
 
-            if (e.value!.isConnected.isTrue) {
-              if (e.value!.joinedAt.value != null) {
-                _playConnected(e.value!);
-              } else {
-                _listenJoinedAt(e.value!);
-              }
-            } else {
+            if (e.value!.isConnected.isFalse) {
               _listenConnected(e.value!);
+            } else if (e.value!.joinedAt.value == null) {
+              _listenJoinedAt(e.value!);
+            } else {
+              _playConnected(e.value!);
             }
             break;
 
