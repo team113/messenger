@@ -128,7 +128,7 @@ class Routes {
 enum HomeTab { balance, work, public, chats, menu }
 
 /// List of [Routes.work] page sections.
-enum WorkTab { freelance, frontend, backend }
+enum WorkTab { freelance, frontend, backend, designer }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {

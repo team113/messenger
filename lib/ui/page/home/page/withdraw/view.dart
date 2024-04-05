@@ -228,12 +228,23 @@ class WithdrawView extends StatelessWidget {
                       state: c.index,
                     ),
                     const SizedBox(height: 16),
-                    ReactiveTextField(
-                      label: 'E-mail',
-                      hint: 'dummy@example.com',
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      state: c.email,
-                    ),
+                    Obx(() {
+                      if (c.method.value == WithdrawMethod.paypal) {
+                        return ReactiveTextField(
+                          label: 'E-mail, зар',
+                          hint: 'dummy@example.com',
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          state: c.email,
+                        );
+                      }
+
+                      return ReactiveTextField(
+                        label: 'E-mail',
+                        hint: 'dummy@example.com',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        state: c.email,
+                      );
+                    }),
                     const SizedBox(height: 16),
                     ReactiveTextField(
                       label: 'Телефон',

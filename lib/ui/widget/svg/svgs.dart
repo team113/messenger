@@ -2403,4 +2403,10 @@ class SvgIcons {
     width: 32,
     height: 32,
   );
+
+  static const SvgData workDesigner = SvgData(
+    'assets/icons/work_designer.svg',
+    width: 32,
+    height: 32,
+  );
 }

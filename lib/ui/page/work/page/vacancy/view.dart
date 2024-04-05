@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/work/page/designer/view.dart';
 
 import '/routes.dart';
 import '/ui/page/work/page/backend/view.dart';
@@ -40,6 +41,9 @@ class VacancyWorkView extends StatelessWidget {
 
       case WorkTab.frontend:
         return const FrontendWorkView();
+
+      case WorkTab.designer:
+        return const DesignerWorkView();
     }
   }
 }

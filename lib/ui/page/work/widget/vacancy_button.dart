@@ -47,11 +47,13 @@ class VacancyWorkButton extends StatelessWidget {
           WorkTab.backend => 'Backend Developer',
           WorkTab.frontend => 'Frontend Developer',
           WorkTab.freelance => 'Freelance',
+          WorkTab.designer => 'UI/UX Designer',
         },
         subtitle: switch (work) {
           WorkTab.backend => 'Rust',
-          WorkTab.frontend => 'Flutter',
-          WorkTab.freelance => 'Flutter',
+          WorkTab.frontend => 'Flutter/Dart',
+          WorkTab.freelance => 'Flutter/Dart',
+          WorkTab.designer => 'Figma',
         },
         // leading: switch (work) {
         //   WorkTab.backend =>
@@ -65,6 +67,7 @@ class VacancyWorkButton extends StatelessWidget {
           WorkTab.backend => const SvgIcon(SvgIcons.workRust),
           WorkTab.frontend => const SvgIcon(SvgIcons.workFlutter),
           WorkTab.freelance => const SvgIcon(SvgIcons.workFreelance),
+          WorkTab.designer => const SvgIcon(SvgIcons.workDesigner),
         },
         inverted: selected,
         onPressed: onPressed == null ? null : () => onPressed?.call(work),
