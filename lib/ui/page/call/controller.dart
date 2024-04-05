@@ -2125,15 +2125,7 @@ class CallController extends GetxController {
             MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
       );
 
-      members.forEach((_, member) {
-        if (member.isConnected.isFalse) {
-          _listenConnected(member);
-        } else if (member.joinedAt.value == null) {
-          _listenJoinedAt(member);
-        } else {
-          _playConnected(member);
-        }
-      });
+      members.forEach((_, member) => _playConnected(member));
 
       _membersSubscription = members.changes.listen((e) {
         switch (e.op) {
@@ -2146,13 +2138,7 @@ class CallController extends GetxController {
 
             _ensureCorrectGrouping();
 
-            if (e.value!.isConnected.isFalse) {
-              _listenConnected(e.value!);
-            } else if (e.value!.joinedAt.value == null) {
-              _listenJoinedAt(e.value!);
-            } else {
-              _playConnected(e.value!);
-            }
+            _playConnected(e.value!);
             break;
 
           case OperationKind.removed:
@@ -2193,6 +2179,22 @@ class CallController extends GetxController {
     }
   }
 
+  /// Plays the [_connected] sound or initializes [_memberWorkers] for the
+  /// provided [member].
+  Future<void> _playConnected(CallMember member) async {
+    final CallMember me = _currentCall.value.me;
+
+    if (member.isConnected.isFalse) {
+      _listenConnected(member);
+    } else if (member.joinedAt.value == null) {
+      _listenJoinedAt(member);
+    } else if (_currentCall.value.state.value == OngoingCallState.active &&
+        me.joinedAt.value != null &&
+        member.joinedAt.value!.isAfter(me.joinedAt.value!)) {
+      await AudioUtils.once(AudioSource.asset('audio/$_connected'));
+    }
+  }
+
   /// Initializes [_memberWorkers] for the provided [CallMember.isConnected].
   void _listenConnected(CallMember member) {
     _memberWorkers.remove(member.id)?.dispose();
@@ -2202,11 +2204,7 @@ class CallController extends GetxController {
         if (connected) {
           _memberWorkers.remove(member.id)?.dispose();
 
-          if (member.joinedAt.value != null) {
-            await _playConnected(member);
-          } else {
-            _listenJoinedAt(member);
-          }
+          await _playConnected(member);
         }
       },
     );
@@ -2219,24 +2217,12 @@ class CallController extends GetxController {
       member.joinedAt,
       (joinedAt) async {
         if (joinedAt != null) {
-          await _playConnected(member);
-
           _memberWorkers.remove(member.id)?.dispose();
+
+          await _playConnected(member);
         }
       },
     );
-  }
-
-  /// Plays the [_connected] sound for the provided [member].
-  Future<void> _playConnected(CallMember member) async {
-    final CallMember me = _currentCall.value.me;
-
-    if (_currentCall.value.state.value == OngoingCallState.active &&
-        me.joinedAt.value != null &&
-        member.joinedAt.value != null &&
-        member.joinedAt.value!.isAfter(me.joinedAt.value!)) {
-      await AudioUtils.once(AudioSource.asset('audio/$_connected'));
-    }
   }
 
   /// Sets the [chat] to the provided value, updating the title.
