@@ -310,9 +310,6 @@ class CallController extends GetxController {
   /// to calculate the difference.
   BoxConstraints? _lastConstraints;
 
-  /// [DateTime] when this [CallController] was created.
-  final DateTime _createdAt = DateTime.now();
-
   /// Service managing the [_currentCall].
   final CallService _calls;
 
@@ -374,9 +371,9 @@ class CallController extends GetxController {
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
 
-  /// [Worker]s reacting on [CallMember.isConnected] changes playing the
-  /// [_connected] sound.
-  final Map<CallMemberId, Worker> _membersConnected = {};
+  /// [Worker]s reacting on [CallMember.isConnected] or [CallMember.joinedAt]
+  /// changes playing the [_connected] sound.
+  final Map<CallMemberId, Worker> _memberWorkers = {};
 
   /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
@@ -885,6 +882,7 @@ class CallController extends GetxController {
     }
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
+    _memberWorkers.forEach((_, v) => v.dispose());
     _membersSubscription.cancel();
 
     for (final Timer e in _notificationTimers) {
@@ -2145,7 +2143,11 @@ class CallController extends GetxController {
             _ensureCorrectGrouping();
 
             if (e.value!.isConnected.isTrue) {
-              _playConnected();
+              if (e.value!.joinedAt.value != null) {
+                _playConnected(e.value!);
+              } else {
+                _listenJoinedAt(e.value!);
+              }
             } else {
               _listenConnected(e.value!);
             }
@@ -2158,6 +2160,7 @@ class CallController extends GetxController {
             focused.removeWhere((m) => m.member.id == e.key);
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _memberWorkers.remove(e.key)?.dispose();
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
@@ -2188,24 +2191,48 @@ class CallController extends GetxController {
     }
   }
 
-  /// Initializes [_membersConnected] subscription for the provided [member].
+  /// Initializes [_memberWorkers] for the provided [CallMember.isConnected].
   void _listenConnected(CallMember member) {
-    _membersConnected[member.id] ??= ever(
+    _memberWorkers.remove(member.id)?.dispose();
+    _memberWorkers[member.id] = ever(
       member.isConnected,
       (connected) async {
         if (connected) {
-          await _playConnected();
+          _memberWorkers.remove(member.id)?.dispose();
 
-          _membersConnected.remove(member.id)?.dispose();
+          if (member.joinedAt.value != null) {
+            await _playConnected(member);
+          } else {
+            _listenJoinedAt(member);
+          }
         }
       },
     );
   }
 
-  /// Plays the [_connected] sound.
-  Future<void> _playConnected() async {
+  /// Initializes [_memberWorkers] for the provided [CallMember.joinedAt].
+  void _listenJoinedAt(CallMember member) {
+    _memberWorkers.remove(member.id)?.dispose();
+    _memberWorkers[member.id] = ever(
+      member.joinedAt,
+      (joinedAt) async {
+        if (joinedAt != null) {
+          await _playConnected(member);
+
+          _memberWorkers.remove(member.id)?.dispose();
+        }
+      },
+    );
+  }
+
+  /// Plays the [_connected] sound for the provided [member].
+  Future<void> _playConnected(CallMember member) async {
+    final CallMember me = _currentCall.value.me;
+
     if (_currentCall.value.state.value == OngoingCallState.active &&
-        DateTime.now().difference(_createdAt).inSeconds > 5) {
+        me.joinedAt.value != null &&
+        member.joinedAt.value != null &&
+        member.joinedAt.value!.isAfter(me.joinedAt.value!)) {
       await AudioUtils.once(AudioSource.asset('audio/$_connected'));
     }
   }

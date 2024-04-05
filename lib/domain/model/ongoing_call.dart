@@ -510,6 +510,7 @@ class OngoingCall {
 
     CallMemberId id = CallMemberId(_me.userId, deviceId);
     members[_me]?.id = id;
+    members[_me]?.joinedAt.value = PreciseDateTime.now();
     members.move(_me, id);
     _me = id;
 
@@ -704,6 +705,7 @@ class OngoingCall {
                   if (redialed != null) {
                     redialed.id = id;
                     redialed.isDialing.value = false;
+                    redialed.joinedAt.value = node.at;
                     members.move(redialedId, id);
                   }
 
@@ -713,12 +715,15 @@ class OngoingCall {
                     members[id] = CallMember(
                       id,
                       null,
+                      joinedAt: node.at,
                       isHandRaised: call.value?.members
                               .firstWhereOrNull((e) => e.user.id == id.userId)
                               ?.handRaised ??
                           false,
                       isConnected: false,
                     );
+                  } else {
+                    member.joinedAt.value = node.at;
                   }
                   break;
 
@@ -2306,9 +2311,11 @@ class CallMember {
     bool isHandRaised = false,
     bool isConnected = false,
     bool isDialing = false,
+    PreciseDateTime? joinedAt,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
         isDialing = RxBool(isDialing),
+        joinedAt = Rx(joinedAt),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
@@ -2316,9 +2323,11 @@ class CallMember {
     bool isHandRaised = false,
     bool isConnected = false,
     bool isDialing = false,
+    PreciseDateTime? joinedAt,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
         isDialing = RxBool(isDialing),
+        joinedAt = Rx(joinedAt),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -2341,6 +2350,9 @@ class CallMember {
 
   /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
+
+  /// [DateTime] when this [CallMember] was joined.
+  Rx<PreciseDateTime?> joinedAt;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
