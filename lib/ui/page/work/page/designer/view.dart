@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
@@ -31,6 +30,7 @@ import '/ui/page/login/view.dart';
 import '/ui/page/work/widget/proceed_block.dart';
 import '/ui/page/work/widget/project_block.dart';
 import '/ui/page/work/widget/share_icon_button.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
