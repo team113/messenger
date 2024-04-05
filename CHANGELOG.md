@@ -48,6 +48,8 @@ All user visible changes to this project will be documented in this file. This p
         - Replied calls displaying irrelevant information. ([#919], [#455])
     - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
     - Incoming call notification duplicating. ([#914])
+    - Home page:
+        - Alarm sound when clicking on empty right space. ([#937])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
@@ -78,6 +80,7 @@ All user visible changes to this project will be documented in this file. This p
 [#928]: /../../issues/928
 [#934]: /../../pull/934
 [#935]: /../../pull/935
+[#937]: /../../pull/937
 
 
 
