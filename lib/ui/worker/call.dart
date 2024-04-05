@@ -94,6 +94,17 @@ class CallWorker extends DisposableService {
   /// [StreamSubscription] for canceling the [_incoming] sound playing.
   StreamSubscription? _incomingAudio;
 
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the application's window is in focus.
+  bool _focused = true;
+
+  /// [Duration] indicating the time after which the push notification should be
+  /// considered as lost.
+  static const Duration _pushTimeout = Duration(seconds: 10);
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
 
@@ -106,13 +117,6 @@ class CallWorker extends DisposableService {
 
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
-
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
-  /// [_focused].
-  StreamSubscription? _onFocusChanged;
-
-  /// Indicator whether the application's window is in focus.
-  bool _focused = true;
 
   @override
   void onInit() {
@@ -195,13 +199,14 @@ class CallWorker extends DisposableService {
 
               // Show a notification of an incoming call.
               if (!outgoing && !PlatformUtils.isMobile && !_focused) {
-                if (_myUser.value?.muted == null) {
-                  final FutureOr<RxChat?> chat =
-                      _chatService.get(c.chatId.value);
+                final FutureOr<RxChat?> chat = _chatService.get(c.chatId.value);
 
-                  void showIncomingCallNotification(RxChat? chat) {
-                    if (chat?.chat.value.muted == null) {
-                      String? title = chat?.title ?? c.caller?.title;
+                void showIncomingCallNotification(RxChat? chat) {
+                  // Displays a local notification via [NotificationService].
+                  void notify() {
+                    if (_myUser.value?.muted == null &&
+                        chat?.chat.value.muted == null) {
+                      final String? title = chat?.title ?? c.caller?.title;
 
                       _notificationService.show(
                         title ?? 'label_incoming_call'.l10n,
@@ -213,11 +218,22 @@ class CallWorker extends DisposableService {
                     }
                   }
 
-                  if (chat is RxChat?) {
-                    showIncomingCallNotification(chat);
-                  } else {
-                    chat.then(showIncomingCallNotification);
+                  // If FCM wasn't initialized, show a local notification
+                  // immediately.
+                  if (!_notificationService.pushNotifications) {
+                    notify();
+                  } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+                    // [NotificationService] will not show the scheduled local
+                    // notification, if a push with the same tag was already
+                    // received.
+                    Future.delayed(_pushTimeout, notify);
                   }
+                }
+
+                if (chat is RxChat?) {
+                  showIncomingCallNotification(chat);
+                } else {
+                  chat.then(showIncomingCallNotification);
                 }
               }
             }

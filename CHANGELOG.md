@@ -16,12 +16,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Call ended sound and left alone in group call sound. ([#877], [#809])
+    - Update available popup. ([#907], [#896])
 
 ### Changed
 
 - UI:
     - Chat page:
         - Redesigned editing mode and actions. ([#868])
+        - Blurred previews under wide/narrow images. ([#934])
     - User page:
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
@@ -42,10 +44,13 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Images displayed with vertical gaps on narrow screens. ([#901], [#888])
         - Messages marked as read when gallery is opened. ([#897], [#854])
+        - Replied calls displaying irrelevant information. ([#919], [#455])
     - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
+    - Incoming call notification duplicating. ([#914])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
+[#455]: /../../issues/455
 [#809]: /../../issues/809
 [#821]: /../../issues/821
 [#851]: /../../issues/851
@@ -59,12 +64,17 @@ All user visible changes to this project will be documented in this file. This p
 [#888]: /../../issues/888
 [#890]: /../../pull/890
 [#891]: /../../pull/891
+[#896]: /../../issues/896
 [#897]: /../../pull/897
 [#901]: /../../pull/901
+[#907]: /../../pull/907
 [#909]: /../../issues/909
 [#910]: /../../pull/910
 [#912]: /../../issues/912
+[#914]: /../../pull/914
 [#915]: /../../pull/915
+[#919]: /../../pull/919
+[#934]: /../../pull/934
 
 
 

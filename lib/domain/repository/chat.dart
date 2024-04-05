@@ -305,10 +305,14 @@ abstract class RxChat implements Comparable<RxChat> {
   /// If [reply] or [forward] is provided, then the [item] is considered as a
   /// quote of the specified [reply] of [forward].
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
-    ChatItem? item,
+    ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
   });
+
+  /// Fetches a single [ChatItem] in the [Paginated] page identified by the
+  /// provided [id].
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item);
 
   /// Fetches the next [messages] page.
   Future<void> next();

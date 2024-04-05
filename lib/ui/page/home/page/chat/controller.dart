@@ -29,6 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -351,6 +352,13 @@ class ChatController extends GetxController {
 
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
+
+  /// [Sentry] transaction monitoring this [ChatController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.chat.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -713,201 +721,257 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
-    _ignorePositionChanges = true;
+    ISentrySpan span = _ready.startChild('fetch');
 
-    status.value = RxStatus.loading();
+    try {
+      _ignorePositionChanges = true;
 
-    final FutureOr<RxChat?> fetched = _chatService.get(id);
-    chat = fetched is RxChat? ? fetched : await fetched;
+      status.value = RxStatus.loading();
 
-    if (chat == null) {
-      status.value = RxStatus.empty();
-    } else {
-      _chatSubscription = chat!.updates.listen((_) {});
+      final FutureOr<RxChat?> fetched = _chatService.get(id);
+      chat = fetched is RxChat? ? fetched : await fetched;
 
-      unreadMessages = chat!.chat.value.unreadCount;
+      span.finish();
+      span = _ready.startChild('fetch');
 
-      final ChatMessage? draft = chat!.draft.value;
+      if (chat == null) {
+        status.value = RxStatus.empty();
+      } else {
+        _chatSubscription = chat!.updates.listen((_) {});
 
-      if (send.field.text.isEmpty) {
-        send.field.unchecked = draft?.text?.val ?? send.field.text;
-      }
+        unreadMessages = chat!.chat.value.unreadCount;
 
-      send.inCall = chat!.inCall;
-      send.field.unsubmit();
-      send.replied.value = List.from(
-        draft?.repliesTo
-                .map((e) => e.original)
-                .whereNotNull()
-                .map((e) => Rx(e)) ??
-            <Rx<ChatItem>>[],
-      );
+        final ChatMessage? draft = chat!.draft.value;
 
-      for (Attachment e in draft?.attachments ?? []) {
-        send.attachments.add(MapEntry(GlobalKey(), e));
-      }
-
-      for (Rx<ChatItem> e in chat!.messages) {
-        _add(e);
-      }
-
-      _subscribeFor(chat: chat);
-
-      _chatWorker = ever(chat!.chat, (Chat e) {
-        if (e.id != id) {
-          WebUtils.replaceState(id.val, e.id.val);
-          id = e.id;
+        if (send.field.text.isEmpty) {
+          send.field.unchecked = draft?.text?.val ?? send.field.text;
         }
-      });
 
-      listController.sliverController.onPaintItemPositionsCallback =
-          (height, positions) {
-        if (positions.isNotEmpty) {
-          _topVisibleItem = positions.last;
+        send.inCall = chat!.inCall;
+        send.field.unsubmit();
+        send.replied.value = List.from(
+          draft?.repliesTo
+                  .map((e) => e.original)
+                  .whereNotNull()
+                  .map((e) => Rx(e)) ??
+              <Rx<ChatItem>>[],
+        );
 
-          _lastVisibleItem = positions.firstWhereOrNull((e) {
-            ListElement? element = elements.values.elementAtOrNull(e.index);
-            return element is ChatMessageElement ||
-                element is ChatInfoElement ||
-                element is ChatCallElement ||
-                element is ChatForwardElement;
-          });
+        for (Attachment e in draft?.attachments ?? []) {
+          send.attachments.add(MapEntry(GlobalKey(), e));
+        }
 
-          if (_lastVisibleItem != null &&
-              status.value.isSuccess &&
-              !status.value.isLoadingMore) {
-            ListElement element =
-                elements.values.elementAt(_lastVisibleItem!.index);
+        _chatWorker = ever(chat!.chat, (Chat e) {
+          if (e.id != id) {
+            WebUtils.replaceState(id.val, e.id.val);
+            id = e.id;
+          }
+        });
 
-            // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
-            // then set the [_lastSeenItem] to this item.
-            if (!element.id.id.isLocal &&
-                (_lastSeenItem.value == null ||
-                    element.id.at.isAfter(_lastSeenItem.value!.at))) {
-              if (element is ChatMessageElement) {
-                _lastSeenItem.value = element.item.value;
-              } else if (element is ChatInfoElement) {
-                _lastSeenItem.value = element.item.value;
-              } else if (element is ChatCallElement) {
-                _lastSeenItem.value = element.item.value;
-              } else if (element is ChatForwardElement) {
-                _lastSeenItem.value = element.forwards.last.value;
+        listController.sliverController.onPaintItemPositionsCallback =
+            (height, positions) {
+          if (positions.isNotEmpty) {
+            _topVisibleItem = positions.last;
+
+            _lastVisibleItem = positions.firstWhereOrNull((e) {
+              ListElement? element = elements.values.elementAtOrNull(e.index);
+              return element is ChatMessageElement ||
+                  element is ChatInfoElement ||
+                  element is ChatCallElement ||
+                  element is ChatForwardElement;
+            });
+
+            if (_lastVisibleItem != null &&
+                status.value.isSuccess &&
+                !status.value.isLoadingMore) {
+              ListElement element =
+                  elements.values.elementAt(_lastVisibleItem!.index);
+
+              // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
+              // then set the [_lastSeenItem] to this item.
+              if (!element.id.id.isLocal &&
+                  (_lastSeenItem.value == null ||
+                      element.id.at.isAfter(_lastSeenItem.value!.at))) {
+                if (element is ChatMessageElement) {
+                  _lastSeenItem.value = element.item.value;
+                } else if (element is ChatInfoElement) {
+                  _lastSeenItem.value = element.item.value;
+                } else if (element is ChatCallElement) {
+                  _lastSeenItem.value = element.item.value;
+                } else if (element is ChatForwardElement) {
+                  _lastSeenItem.value = element.forwards.last.value;
+                }
               }
             }
           }
+        };
+
+        if (chat?.chat.value.isDialog == true) {
+          _userSubscription = chat?.members.values
+              .lastWhereOrNull((u) => u.user.id != me)
+              ?.user
+              .updates
+              .listen((_) {});
         }
-      };
 
-      if (chat?.chat.value.isDialog == true) {
-        _userSubscription = chat?.members.values
-            .lastWhereOrNull((u) => u.user.id != me)
-            ?.user
-            .updates
-            .listen((_) {});
-      }
+        _readWorker ??= ever(_lastSeenItem, readChat);
+        _obscuredWorker ??= ever(router.obscuring, (modals) {
+          if (modals.isEmpty) {
+            readChat(_lastSeenItem.value);
+          }
+        });
 
-      _readWorker ??= ever(_lastSeenItem, readChat);
-      _obscuredWorker ??= ever(router.obscuring, (modals) {
-        if (modals.isEmpty) {
+        // If [RxChat.status] is not successful yet, populate the
+        // [_messageInitializedWorker] to determine the initial messages list
+        // index and offset.
+        if (!chat!.status.value.isSuccess) {
+          _messageInitializedWorker =
+              ever(chat!.status, (RxStatus status) async {
+            if (_messageInitializedWorker != null) {
+              if (status.isSuccess) {
+                _messageInitializedWorker?.dispose();
+                _messageInitializedWorker = null;
+
+                await Future.delayed(Duration.zero);
+
+                if (!this.status.value.isSuccess) {
+                  this.status.value = RxStatus.loadingMore();
+                }
+
+                _determineFirstUnread();
+                var result = _calculateListViewIndex();
+                initIndex = result.index;
+                initOffset = result.offset;
+              }
+            }
+          });
+        } else {
+          _determineFirstUnread();
+          final result = _calculateListViewIndex();
+          initIndex = result.index;
+          initOffset = result.offset;
+
+          status.value = RxStatus.loadingMore();
+        }
+
+        _bottomLoaderStartTimer = Timer(
+          const Duration(seconds: 2),
+          () {
+            if ((!status.value.isSuccess || status.value.isLoadingMore) &&
+                elements.isNotEmpty) {
+              _bottomLoader = LoaderElement.bottom(
+                (chat?.messages.lastOrNull?.value.at
+                        .add(const Duration(microseconds: 1)) ??
+                    PreciseDateTime.now()),
+              );
+
+              elements[_bottomLoader!.id] = _bottomLoader!;
+            }
+          },
+        );
+
+        span.finish();
+        span = _ready.startChild('around');
+
+        _ready.setTag('messages', '${chat!.messages.isNotEmpty}');
+        _ready.setTag('local', '${id.isLocal}');
+
+        if (itemId == null) {
+          for (Rx<ChatItem> e in chat!.messages) {
+            _add(e);
+          }
+
+          _subscribeFor(chat: chat);
+
+          await chat!.around();
+
+          // Required in order for [Hive.boxEvents] to add the messages.
+          await Future.delayed(Duration.zero);
+
+          Rx<ChatItem>? firstUnread = _firstUnread;
+          _determineFirstUnread();
+
+          // Scroll to the last read message if [_firstUnread] was updated.
+          // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
+          // last read item is already in the list.
+          if (firstUnread?.value.id != _firstUnread?.value.id) {
+            _scrollToLastRead();
+          }
+        } else {
+          await animateTo(itemId!);
+        }
+
+        span.finish();
+        span = _ready.startChild('end');
+
+        if (welcome != null) {
+          chat!.addMessage(welcome!);
+        }
+
+        status.value = RxStatus.success();
+
+        if (_bottomLoader != null) {
+          showLoaders.value = false;
+
+          _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
+            if (_bottomLoader != null) {
+              elements.remove(_bottomLoader!.id);
+              _bottomLoader = null;
+              showLoaders.value = true;
+            }
+          });
+        }
+
+        if (_lastSeenItem.value != null) {
           readChat(_lastSeenItem.value);
         }
+      }
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _ensureScrollable();
       });
 
-      // If [RxChat.status] is not successful yet, populate the
-      // [_messageInitializedWorker] to determine the initial messages list
-      // index and offset.
-      if (!chat!.status.value.isSuccess) {
-        _messageInitializedWorker = ever(chat!.status, (RxStatus status) async {
-          if (_messageInitializedWorker != null) {
-            if (status.isSuccess) {
-              _messageInitializedWorker?.dispose();
-              _messageInitializedWorker = null;
+      _ignorePositionChanges = false;
 
-              await Future.delayed(Duration.zero);
+      span.finish();
 
-              if (!this.status.value.isSuccess) {
-                this.status.value = RxStatus.loadingMore();
-              }
-
-              _determineFirstUnread();
-              var result = _calculateListViewIndex();
-              initIndex = result.index;
-              initOffset = result.offset;
-            }
-          }
-        });
-      } else {
-        _determineFirstUnread();
-        final result = _calculateListViewIndex();
-        initIndex = result.index;
-        initOffset = result.offset;
-
-        status.value = RxStatus.loadingMore();
-      }
-
-      _bottomLoaderStartTimer = Timer(
-        const Duration(seconds: 2),
-        () {
-          if ((!status.value.isSuccess || status.value.isLoadingMore) &&
-              elements.isNotEmpty) {
-            _bottomLoader = LoaderElement.bottom(
-              (chat?.messages.lastOrNull?.value.at
-                      .add(const Duration(microseconds: 1)) ??
-                  PreciseDateTime.now()),
-            );
-
-            elements[_bottomLoader!.id] = _bottomLoader!;
-          }
-        },
-      );
-
-      await chat!.around();
-
-      // Required in order for [Hive.boxEvents] to add the messages.
-      await Future.delayed(Duration.zero);
-
-      Rx<ChatItem>? firstUnread = _firstUnread;
-      _determineFirstUnread();
-
-      // Scroll to the last read message if [_firstUnread] was updated.
-      // Otherwise, [FlutterListViewDelegate.keepPosition] handles this as the
-      // last read item is already in the list.
-      if (firstUnread?.value.id != _firstUnread?.value.id) {
-        _scrollToLastRead();
-      }
-
-      if (welcome != null) {
-        chat!.addMessage(welcome!);
-      }
-
-      status.value = RxStatus.success();
-
-      if (_bottomLoader != null) {
-        showLoaders.value = false;
-
-        _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
-          if (_bottomLoader != null) {
-            elements.remove(_bottomLoader!.id);
-            _bottomLoader = null;
-            showLoaders.value = true;
-          }
-        });
-      }
-
-      if (_lastSeenItem.value != null) {
-        readChat(_lastSeenItem.value);
-      }
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+      rethrow;
     }
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _ensureScrollable();
-    });
-
-    _ignorePositionChanges = false;
   }
 
-  /// Returns an [User] from [UserService] by the provided [id].
+  /// Returns a reactive [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Returns a reactive [ChatItem] by the provided [id].
+  FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
+    Rx<ChatItem>? item;
+
+    item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
+    item ??= _fragments
+        .firstWhereOrNull((e) => e.items.keys.contains(id))
+        ?.items[id];
+
+    if (item == null) {
+      final Future<Rx<ChatItem>?>? future =
+          chat?.single(id).then((fragment) async {
+        if (fragment != null) {
+          await fragment.around();
+          _fragments.add(fragment);
+          return fragment.items.values.firstOrNull;
+        }
+
+        return null;
+      });
+
+      return future;
+    }
+
+    return item;
+  }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
   /// inclusively.
@@ -935,15 +999,16 @@ class ChatController extends GetxController {
   /// Animates [listController] to a [ChatItem] identified by the provided
   /// [item] and its [reply] or [forward].
   Future<void> animateTo(
-    ChatItem item, {
+    ChatItemId itemId, {
+    ChatItem? item,
     ChatItemQuote? reply,
     ChatItemQuote? forward,
     bool offsetBasedOnBottom = true,
     bool addToHistory = true,
     double offset = 50,
   }) async {
-    final ChatItem original = reply?.original ?? forward?.original ?? item;
-    final ChatItemId animateTo = original.id;
+    final ChatItem? original = reply?.original ?? forward?.original ?? item;
+    final ChatItemId animateTo = original?.id ?? itemId;
 
     final int index = elements.values.toList().indexWhere((e) {
       return e.id.id == animateTo ||
@@ -969,62 +1034,68 @@ class ChatController extends GetxController {
       }
 
       // And add the transition to the [history].
-      if (addToHistory) {
+      if (addToHistory && item != null) {
         this.addToHistory(item);
       }
     } else {
-      final ListElementId itemId = ListElementId(original.at, original.id);
-      final ListElementId? lastId = elements.values
-          .lastWhereOrNull(
-            (e) =>
-                e is ChatMessageElement ||
-                e is ChatInfoElement ||
-                e is ChatCallElement ||
-                e is ChatForwardElement,
-          )
-          ?.id;
+      if (original != null) {
+        final ListElementId elementId = ListElementId(original.at, original.id);
+        final ListElementId? lastId = elements.values
+            .lastWhereOrNull(
+              (e) =>
+                  e is ChatMessageElement ||
+                  e is ChatInfoElement ||
+                  e is ChatCallElement ||
+                  e is ChatForwardElement,
+            )
+            ?.id;
 
-      // If the [original] is placed before the first item, then animate to top,
-      // or otherwise to bottom.
-      if (lastId != null && itemId.compareTo(lastId) == 1) {
-        if (_topLoader == null) {
-          _topLoader = LoaderElement.top();
-          elements[_topLoader!.id] = _topLoader!;
+        // If the [original] is placed before the first item, then animate to top,
+        // or otherwise to bottom.
+        if (lastId != null && elementId.compareTo(lastId) == 1) {
+          if (_topLoader == null) {
+            _topLoader = LoaderElement.top();
+            elements[_topLoader!.id] = _topLoader!;
+          }
+
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            _ignorePositionChanges = true;
+            await listController.sliverController.animateToIndex(
+              elements.length - 1,
+              offsetBasedOnBottom: true,
+              offset: 0,
+              duration: 300.milliseconds,
+              curve: Curves.ease,
+            );
+            _ignorePositionChanges = false;
+          });
+        } else {
+          if (_bottomLoader == null) {
+            _bottomLoader = LoaderElement.bottom();
+            elements[_bottomLoader!.id] = _bottomLoader!;
+          }
+
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            _ignorePositionChanges = true;
+            await listController.sliverController.animateToIndex(
+              0,
+              offsetBasedOnBottom: true,
+              offset: 0,
+              duration: 300.milliseconds,
+              curve: Curves.ease,
+            );
+            _ignorePositionChanges = false;
+          });
         }
-
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          _ignorePositionChanges = true;
-          await listController.sliverController.animateToIndex(
-            elements.length - 1,
-            offsetBasedOnBottom: true,
-            offset: 0,
-            duration: 300.milliseconds,
-            curve: Curves.ease,
-          );
-          _ignorePositionChanges = false;
-        });
-      } else {
-        if (_bottomLoader == null) {
-          _bottomLoader = LoaderElement.bottom();
-          elements[_bottomLoader!.id] = _bottomLoader!;
-        }
-
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          _ignorePositionChanges = true;
-          await listController.sliverController.animateToIndex(
-            0,
-            offsetBasedOnBottom: true,
-            offset: 0,
-            duration: 300.milliseconds,
-            curve: Curves.ease,
-          );
-          _ignorePositionChanges = false;
-        });
       }
 
       // And then try to fetch the items.
       try {
-        await _fetchItemsAround(item, reply: reply, forward: forward);
+        await _fetchItemsAround(
+          itemId,
+          reply: reply?.original?.id,
+          forward: forward?.original?.id,
+        );
 
         final int index = elements.values.toList().indexWhere((e) {
           return e.id.id == animateTo ||
@@ -1045,7 +1116,7 @@ class ChatController extends GetxController {
 
           _highlight(elements.values.elementAt(index).id);
 
-          if (addToHistory) {
+          if (addToHistory && item != null) {
             this.addToHistory(item);
           }
         }
@@ -1083,7 +1154,8 @@ class ChatController extends GetxController {
   /// [ChatItem] in the [RxChat.messages] otherwise.
   Future<void> animateToBottom() async {
     if (_history.isNotEmpty) {
-      await animateTo(_history.removeLast(), addToHistory: false);
+      final ChatItem item = _history.removeLast();
+      await animateTo(item.id, item: item, addToHistory: false);
       _updateFabStates();
     } else if (chat?.messages.isEmpty == false && listController.hasClients) {
       canGoDown.value = false;
@@ -1525,9 +1597,9 @@ class ChatController extends GetxController {
   /// Fetches the [ChatItem]s around the provided [item] or its [reply] or
   /// [forward] and replaces the [elements] with them.
   Future<void> _fetchItemsAround(
-    ChatItem item, {
-    ChatItemQuote? reply,
-    ChatItemQuote? forward,
+    ChatItemId item, {
+    ChatItemId? reply,
+    ChatItemId? forward,
   }) async {
     // Uses the [chat] as [elements] source.
     void switchToMessages() {
@@ -1538,25 +1610,23 @@ class ChatController extends GetxController {
       _subscribeFor(chat: chat);
     }
 
-    final ChatItemId itemId = (reply?.original ?? forward?.original ?? item).id;
+    final ChatItemId itemId = reply ?? forward ?? item;
 
     // If the [itemId] is within [RxChat.messages], then [switchToMessages].
     if (chat!.messages.any((e) => e.value.id == itemId)) {
       switchToMessages();
     } else {
       _fragment = _fragments.firstWhereOrNull(
-        (e) => e.items.keys.contains(itemId),
+        // Single-item fragments shouldn't be used to display messages in
+        // pagination, as such fragments used only for [RxChat.single]s.
+        (e) => e.items.keys.contains(itemId) && e.items.length > 1,
       );
 
       // If no fragments from the [_fragments] already contain the [itemId],
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
         final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
-            await chat!.around(
-          item: item,
-          reply: reply?.original?.id,
-          forward: forward?.original?.id,
-        );
+            await chat!.around(item: item, reply: reply, forward: forward);
 
         StreamSubscription? subscription;
         subscription = fragment!.updates.listen(
@@ -1588,6 +1658,18 @@ class ChatController extends GetxController {
   /// Adds the provided [ChatItem] to the [elements].
   void _add(Rx<ChatItem> e) {
     final ChatItem item = e.value;
+
+    if (chat?.chat.value.unreadCount != 0) {
+      final ListElementId elementId = ListElementId(item.at, item.id);
+      final ListElement? previous = elements[elements.firstKeyAfter(elementId)];
+
+      if (previous != null && previous.id.id == chat?.chat.value.lastReadItem) {
+        _unreadElement = UnreadMessagesElement(
+          e.value.at.subtract(const Duration(microseconds: 1)),
+        );
+        elements[_unreadElement!.id] = _unreadElement!;
+      }
+    }
 
     // Put a [DateTimeElement] with [ChatItem.at] day, if not already.
     final PreciseDateTime day = item.at.toDay();
@@ -1777,6 +1859,7 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             _remove(e.element.value);
+            _ensureScrollable();
             break;
         }
       });
@@ -1790,6 +1873,7 @@ class ChatController extends GetxController {
 
           case OperationKind.removed:
             _remove(e.value!.value);
+            _ensureScrollable();
             break;
         }
       });
@@ -1972,17 +2056,6 @@ class ChatController extends GetxController {
   void _determineFirstUnread() {
     if (chat?.unreadCount.value != 0) {
       _firstUnread = chat?.firstUnread;
-
-      if (_firstUnread != null) {
-        if (_unreadElement != null) {
-          elements.remove(_unreadElement!.id);
-        }
-
-        PreciseDateTime? at =
-            _firstUnread!.value.at.subtract(const Duration(microseconds: 1));
-        _unreadElement = UnreadMessagesElement(at);
-        elements[_unreadElement!.id] = _unreadElement!;
-      }
     }
   }
 
@@ -1993,36 +2066,27 @@ class ChatController extends GetxController {
     int index = 0;
     double offset = 0;
 
-    if (itemId != null) {
-      int i = elements.values.toList().indexWhere((e) => e.id.id == itemId);
-      if (i != -1) {
-        index = i;
-        offset = 50;
-        _highlight(elements.values.elementAt(index).id);
-      }
-    } else {
-      if (chat?.messages.isEmpty == false) {
-        if (chat!.chat.value.unreadCount == 0) {
-          index = 0;
-          offset = 0;
-        } else if (_firstUnread != null) {
-          int i = elements.values.toList().indexWhere((e) {
-            if (e is ChatForwardElement) {
-              if (e.note.value?.value.id == _firstUnread!.value.id) {
-                return true;
-              }
-
-              return e.forwards.firstWhereOrNull(
-                      (f) => f.value.id == _firstUnread!.value.id) !=
-                  null;
+    if (chat?.messages.isEmpty == false) {
+      if (chat!.chat.value.unreadCount == 0) {
+        index = 0;
+        offset = 0;
+      } else if (_firstUnread != null) {
+        int i = elements.values.toList().indexWhere((e) {
+          if (e is ChatForwardElement) {
+            if (e.note.value?.value.id == _firstUnread!.value.id) {
+              return true;
             }
 
-            return e.id.id == _firstUnread!.value.id;
-          });
-          if (i != -1) {
-            index = i;
-            offset = (MediaQuery.of(router.context!).size.height) / 3;
+            return e.forwards.firstWhereOrNull(
+                    (f) => f.value.id == _firstUnread!.value.id) !=
+                null;
           }
+
+          return e.id.id == _firstUnread!.value.id;
+        });
+        if (i != -1) {
+          index = i;
+          offset = (MediaQuery.of(router.context!).size.height) / 3;
         }
       }
     }

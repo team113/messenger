@@ -95,6 +95,12 @@ class Config {
   /// mismatch is detected.
   static String? credentials;
 
+  /// URL of a Sparkle Appcast XML file.
+  ///
+  /// Intended to be used in [UpgradeWorker] to notify users about new releases
+  /// available.
+  static String appcast = '';
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
@@ -194,6 +200,10 @@ class Config {
           kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
     );
 
+    appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
+        ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
+        : (document['appcast']?['url'] ?? appcast);
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -253,6 +263,7 @@ class Config {
                 remote['user']?['agent']?['version'] ?? userAgentVersion;
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
+            appcast = remote['appcast']?['url'] ?? appcast;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],

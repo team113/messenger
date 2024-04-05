@@ -241,6 +241,7 @@ btn_settings = Настройки
 btn_share = Поделиться
 btn_sign_in = Вход
 btn_sign_up = Регистрация
+btn_skip = Пропустить
 btn_start = Начать
 btn_sticker = Стикер
 btn_submit = Применить
@@ -712,6 +713,7 @@ label_enter_confirmation_code_hint = Введите проверочный ко�
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
+label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
 label_files_saved_to_gallery = Файлы добавлены в галерею
 label_forward_message = Переслать сообщение
@@ -909,7 +911,7 @@ label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
 label_subtitle_participants = {$count} {$count ->
-    [1] участник
+    [one] участник
     [few] участника
     *[other] участников
 }
@@ -924,9 +926,11 @@ label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
 label_unread_messages = {$quantity ->
-    [1] {$quantity} непрочитанное сообщение
-    *[other] {$quantity} непрочитанных сообщения
+    [one] {$quantity} непрочитанное сообщение
+    [few] {$quantity} непрочитанных сообщения
+    *[other] {$quantity} непрочитанных сообщений
 }
+label_update_is_available = Доступно обновление
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}

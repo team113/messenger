@@ -627,7 +627,8 @@ class ChatView extends StatelessWidget {
                               ),
                             );
                           }
-                          if (c.chat!.status.value.isLoading) {
+
+                          if (c.status.value.isLoading) {
                             return const Center(
                               child: CustomProgressIndicator(),
                             );
@@ -846,6 +847,7 @@ class ChatView extends StatelessWidget {
                           m.memberId != e.value.author.id),
                   user: snapshot.data ?? (user is RxUser? ? user : null),
                   getUser: c.getUser,
+                  getItem: c.getItem,
                   onHide: () => c.hideChatItem(e.value),
                   onDelete: () => c.deleteMessage(e.value),
                   onReply: () {
@@ -867,7 +869,7 @@ class ChatView extends StatelessWidget {
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
-                      await c.animateTo(e.value, reply: q);
+                      await c.animateTo(e.value.id, item: e.value, reply: q);
                     }
                   },
                   onGallery: c.calculateGallery,
@@ -994,7 +996,7 @@ class ChatView extends StatelessWidget {
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {
                       if (item.quote.original!.chatId == c.id) {
-                        c.animateTo(item, forward: item.quote);
+                        c.animateTo(item.id, item: item, forward: item.quote);
                       } else {
                         router.chat(
                           item.quote.original!.chatId,
@@ -1396,7 +1398,8 @@ class ChatView extends StatelessWidget {
           controller: c.edit.value,
           onChanged:
               c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-          onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+          onItemPressed: (item) =>
+              c.animateTo(item.id, item: item, addToHistory: false),
           onAttachmentError: c.chat?.updateAttachments,
         );
       }
@@ -1405,7 +1408,8 @@ class ChatView extends StatelessWidget {
         key: const Key('SendField'),
         controller: c.send,
         onChanged: c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-        onItemPressed: (item) => c.animateTo(item, addToHistory: false),
+        onItemPressed: (item) =>
+            c.animateTo(item.id, item: item, addToHistory: false),
         canForward: true,
         onAttachmentError: c.chat?.updateAttachments,
       );

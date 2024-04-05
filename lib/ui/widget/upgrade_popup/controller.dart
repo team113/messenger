@@ -15,34 +15,25 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
-export 'view.dart';
+import '/ui/worker/upgrade.dart';
 
-/// [Routes.work] page controller.
-class WorkController extends GetxController {
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+/// Possible [UpgradePopupView] screens.
+enum UpgradePopupScreen { notice, download }
 
-  /// [Sentry] transaction monitoring this [WorkController] readiness.
-  final ISentrySpan _ready = Sentry.startTransaction(
-    'ui.work.ready',
-    'ui',
-    autoFinishAfter: const Duration(minutes: 2),
-  )..startChild('ready');
+/// Controller of an [UpgradePopupView].
+class UpgradePopupController extends GetxController {
+  UpgradePopupController(this._upgradeWorker);
 
-  @override
-  void onReady() {
-    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
-    super.onReady();
-  }
+  /// [UpgradePopupScreen] to display currently.
+  final Rx<UpgradePopupScreen> screen = Rx(UpgradePopupScreen.notice);
 
-  @override
-  void onClose() {
-    scrollController.dispose();
-    super.onClose();
+  /// [UpgradeWorker] to skip the [Release]s.
+  final UpgradeWorker _upgradeWorker;
+
+  /// Skips the provided [release].
+  Future<void> skip(Release release) async {
+    await _upgradeWorker.skip(release);
   }
 }

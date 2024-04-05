@@ -25,6 +25,7 @@ import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
 import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:universal_io/io.dart';
 
 import '../steps/internet.dart';
 
@@ -48,7 +49,13 @@ class ResetAppHook extends Hook {
         .removeWhere((e) => e is DelayedInterceptor);
 
     await Future.delayed(Duration.zero);
-    await Hive.close();
+
+    try {
+      await Hive.close();
+    } on PathNotFoundException {
+      // `.lock` file might not exist here, so no-op.
+    }
+
     await Hive.clean('hive');
 
     svg.cache.clear();
