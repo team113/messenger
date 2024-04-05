@@ -38,6 +38,7 @@ import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/active_account.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
@@ -56,6 +57,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._myUserLocal,
     this._blocklistRepo,
     this._userRepo,
+    this._activeAccountLocal,
   );
 
   @override
@@ -72,6 +74,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
+
+  /// [Hive] storage providing the [UserId] of currently active [MyUser].
+  final ActiveAccountHiveProvider _activeAccountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -98,6 +103,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// requests should be made.
   bool _disposed = false;
 
+  /// Returns the currently active [HiveMyUser] from [Hive].
+  HiveMyUser? get _active {
+    final UserId? activeUserId = _activeAccountLocal.userId;
+    final savedMyUser =
+        activeUserId != null ? _myUserLocal.get(activeUserId) : null;
+
+    return savedMyUser;
+  }
+
   @override
   Future<void> init({
     required Function() onUserDeleted,
@@ -108,7 +122,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    myUser = Rx<MyUser?>(_myUserLocal.myUser?.value);
+    myUser = Rx<MyUser?>(_active?.value);
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -576,15 +590,23 @@ class MyUserRepository implements AbstractMyUserRepository {
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       BoxEvent event = _localSubscription!.current;
-      if (event.deleted) {
-        myUser.value = null;
-        _remoteSubscription?.close(immediate: true);
-      } else {
-        myUser.value = event.value?.value;
+      final key = UserId(event.key);
+      final MyUser? value = event.value?.value;
 
-        // Refresh the value since [event.value] is the same [MyUser] stored in
-        // [_myUser] (so `==` operator fails to distinguish them).
-        myUser.refresh();
+      if (key == _active?.value.id) {
+        if (event.deleted) {
+          myUser.value = null;
+          _remoteSubscription?.close(immediate: true);
+        } else {
+          myUser.value = value;
+
+          // Refresh the value since [event.value] is the same [MyUser] stored in
+          // [_myUser] (so `==` operator fails to distinguish them).
+          myUser.refresh();
+        }
+      } else {
+        // Events of not currently active users.
+        // No-op.
       }
     }
   }
@@ -602,11 +624,11 @@ class MyUserRepository implements AbstractMyUserRepository {
       _myUserRemoteEvents(() {
         // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
         // is `null`, to retrieve it.
-        if (_myUserLocal.myUser?.value.blocklistCount == null) {
+        if (_active?.value.blocklistCount == null) {
           return null;
         }
 
-        return _myUserLocal.myUser?.ver;
+        return _active?.ver;
       }),
     );
 
@@ -639,17 +661,17 @@ class MyUserRepository implements AbstractMyUserRepository {
     // Update the stored [MyUser], if the provided [user] has non-`null`
     // blocklist count, which is different from the stored one.
     final bool blocklist = user.value.blocklistCount != null &&
-        user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
+        user.value.blocklistCount != _active?.value.blocklistCount;
 
-    if (user.ver >= _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
-      user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
-      _myUserLocal.set(user);
+    if (user.ver >= _active?.ver || blocklist || ignoreVersion) {
+      user.value.blocklistCount ??= _active?.value.blocklistCount;
+      _myUserLocal.put(user);
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
   Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    final HiveMyUser? userEntity = _myUserLocal.myUser;
+    final HiveMyUser? userEntity = _active;
 
     if (userEntity == null || versioned.ver < userEntity.ver) {
       Log.debug(
@@ -808,7 +830,10 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.passwordUpdated:
           event as EventUserPasswordUpdated;
           userEntity.value.hasPassword = true;
-          onPasswordUpdated();
+
+          if (event.userId == _active?.value.id) {
+            onPasswordUpdated();
+          }
           break;
 
         case MyUserEventKind.userMuted:
@@ -832,7 +857,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.online = false;
           put((u) => u
             ..online = false
-            ..lastSeenAt = PreciseDateTime.now());
+            ..lastSeenAt = event.at);
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
@@ -842,7 +867,12 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.deleted:
           event as EventUserDeleted;
-          onUserDeleted();
+
+          if (event.userId == _active?.value.id) {
+            _activeAccountLocal.clear();
+            onUserDeleted();
+          }
+
           break;
 
         case MyUserEventKind.directLinkDeleted:
@@ -877,7 +907,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    _myUserLocal.set(userEntity);
+    _myUserLocal.put(userEntity);
   }
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
@@ -996,7 +1026,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
-      return EventUserCameOffline(node.userId);
+      return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
       var node = e
           as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;

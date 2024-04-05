@@ -69,7 +69,7 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  credentialsProvider.set(
+  credentialsProvider.put(
     Credentials(
       Session(
         const AccessToken('token'),

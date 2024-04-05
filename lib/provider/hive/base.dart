@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import 'package:universal_io/io.dart';
 
 import '/domain/model/user.dart';
+import '/util/log.dart';
 
 /// Base class for data providers backed by [Hive].
 abstract class HiveBaseProvider<T> extends DisposableInterface {
@@ -80,6 +81,8 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// In order for this box to be linked with a certain [User], [userId] may be
   /// specified.
   Future<void> init({UserId? userId}) async {
+    Log.debug('init($userId)', '$runtimeType');
+
     registerAdapters();
     await _mutex.protect(() async {
       final String name = userId == null ? boxName : '${userId}_$boxName';
@@ -107,6 +110,8 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Closes the [Box].
   @mustCallSuper
   Future<void> close() {
+    Log.debug('close()', '$runtimeType');
+
     return _mutex.protect(() async {
       if (_isReady && _box.isOpen) {
         _isReady = false;
@@ -122,6 +127,8 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   @override
   void onClose() async {
+    Log.debug('onClose()', '$runtimeType');
+
     await close();
     super.onClose();
   }
@@ -218,6 +225,8 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// In order for this box to be linked with a certain [User], [userId] may be
   /// specified.
   Future<void> init({UserId? userId}) async {
+    Log.debug('init($userId)', '$runtimeType');
+
     await _mutex.protect(() async {
       if (_isReady && _box.isOpen) {
         return;
@@ -242,6 +251,8 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// Removes all entries from the [Box].
   @mustCallSuper
   Future<void> clear() {
+    Log.debug('clear()', '$runtimeType');
+
     return _transaction.protect(
       () => _mutex.protect(() async {
         if (_isReady && keysSafe.isNotEmpty) {
@@ -254,6 +265,8 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// Closes the [Box].
   @mustCallSuper
   Future<void> close() {
+    Log.debug('close()', '$runtimeType');
+
     return _mutex.protect(() async {
       if (_isReady && _box.isOpen) {
         _isReady = false;
@@ -269,6 +282,8 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   @override
   void onClose() async {
+    Log.debug('onClose()', '$runtimeType');
+
     await close();
     super.onClose();
   }

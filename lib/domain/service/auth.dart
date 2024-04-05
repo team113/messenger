@@ -22,6 +22,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 
+import '/provider/hive/active_account.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -42,7 +43,11 @@ import '/util/web/web_utils.dart';
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
 class AuthService extends GetxService {
-  AuthService(this._authRepository, this._credentialsProvider);
+  AuthService(
+    this._authRepository,
+    this._credentialsProvider,
+    this._activeAccountProvider,
+  );
 
   /// Currently authorized session's [Credentials].
   final Rx<Credentials?> credentials = Rx(null);
@@ -60,6 +65,9 @@ class AuthService extends GetxService {
 
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
+
+  /// [ActiveAccountHiveProvider] used to store the currently user's [UserId].
+  final ActiveAccountHiveProvider _activeAccountProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -121,7 +129,10 @@ class AuthService extends GetxService {
       }
     };
 
-    Credentials? creds = _credentialsProvider.get();
+    final UserId? activeUserId = _activeAccountProvider.userId;
+
+    Credentials? creds =
+        activeUserId != null ? _credentialsProvider.get(activeUserId) : null;
     Session? session = creds?.session;
     RememberedSession? remembered = creds?.rememberedSession;
 
@@ -274,7 +285,7 @@ class AuthService extends GetxService {
       try {
         var data = await _authRepository.signUp();
         _authorized(data);
-        _credentialsProvider.set(data);
+        _credentialsProvider.put(data);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -301,7 +312,7 @@ class AuthService extends GetxService {
     try {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
       _authorized(creds);
-      _credentialsProvider.set(creds);
+      _credentialsProvider.put(creds);
     } catch (e) {
       _unauthorized();
       rethrow;
@@ -342,7 +353,7 @@ class AuthService extends GetxService {
           phone: phone,
         );
         _authorized(data);
-        _credentialsProvider.set(data);
+        _credentialsProvider.put(data);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -363,7 +374,7 @@ class AuthService extends GetxService {
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
       _authorized(credentials);
-      _credentialsProvider.set(credentials);
+      _credentialsProvider.put(credentials);
       status.value = RxStatus.success();
     });
   }
@@ -449,7 +460,7 @@ class AuthService extends GetxService {
             WebUtils.credentials?.session.token !=
                 credentials.value?.session.token) {
           _authorized(WebUtils.credentials!);
-          _credentialsProvider.set(WebUtils.credentials!);
+          _credentialsProvider.put(WebUtils.credentials!);
           return;
         }
 
@@ -458,7 +469,7 @@ class AuthService extends GetxService {
               .renewSession(credentials.value!.rememberedSession.token);
           _authorized(data);
 
-          _credentialsProvider.set(data);
+          _credentialsProvider.put(data);
           status.value = RxStatus.success();
         } on RenewSessionException catch (_) {
           router.go(_unauthorized());

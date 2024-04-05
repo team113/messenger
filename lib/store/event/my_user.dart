@@ -145,7 +145,10 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 
 /// Event of an [MyUser] coming offline.
 class EventUserCameOffline extends MyUserEvent {
-  const EventUserCameOffline(super.userId);
+  const EventUserCameOffline(super.userId, this.at);
+
+  /// [PreciseDateTime] when the user came offline.
+  final PreciseDateTime at;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOffline;

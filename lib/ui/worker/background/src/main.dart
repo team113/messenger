@@ -26,8 +26,8 @@ import 'package:flutter_background_service_ios/flutter_background_service_ios.da
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:universal_io/io.dart';
 import 'package:path_provider_android/path_provider_android.dart';
+import 'package:universal_io/io.dart';
 
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/user.dart';
@@ -36,9 +36,11 @@ import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/active_account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 
@@ -155,10 +157,16 @@ class _BackgroundService {
     Timer(_renewSessionTimerDuration, () async {
       if (!_connectionEstablished && _credentials == null) {
         await Hive.initFlutter('hive');
-        var credentialsProvider = CredentialsHiveProvider();
-        await credentialsProvider.init();
+        final credentialsProvider = CredentialsHiveProvider();
+        final activeAccountProvider = ActiveAccountHiveProvider();
 
-        _credentials = credentialsProvider.get();
+        await credentialsProvider.init();
+        await activeAccountProvider.init();
+
+        final UserId? lastUserId = activeAccountProvider.userId;
+        _credentials =
+            lastUserId != null ? credentialsProvider.get(lastUserId) : null;
+
         _provider.token = _credentials?.session.token;
         _provider.reconnect();
 
@@ -166,6 +174,7 @@ class _BackgroundService {
           _subscribe();
         }
 
+        await activeAccountProvider.close();
         await credentialsProvider.close();
         await Hive.close();
       }
@@ -288,7 +297,7 @@ class _BackgroundService {
                 await Hive.initFlutter('hive');
                 var credentialsProvider = CredentialsHiveProvider();
                 await credentialsProvider.init();
-                await credentialsProvider.set(_credentials!);
+                await credentialsProvider.put(_credentials!);
                 await credentialsProvider.close();
                 await Hive.close();
               });

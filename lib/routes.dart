@@ -58,7 +58,6 @@ import 'provider/hive/favorite_chat.dart';
 import 'provider/hive/favorite_contact.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
-import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
 import 'provider/hive/session_data.dart';
 import 'provider/hive/user.dart';
@@ -492,7 +491,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               UserId me = _state._auth.userId!;
 
               await Future.wait([
-                deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -588,6 +586,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   blocklistRepository,
                   userRepository,
+                  Get.find(),
                 ),
               );
 
@@ -623,7 +622,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             UserId me = _state._auth.userId!;
 
             await Future.wait([
-              deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -741,6 +739,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
+                Get.find(),
               ),
             );
 

@@ -59,6 +59,9 @@ extension MyUserConversion on MyUserMixin {
                 : MuteDuration.until(
                     (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
             : null,
+        lastSeenAt: online.$$typename == 'UserOffline'
+            ? (online as UserMixin$Online$UserOffline).lastSeenAt
+            : null,
       );
 
   /// Constructs a new [HiveMyUser] from this [MyUserMixin].
