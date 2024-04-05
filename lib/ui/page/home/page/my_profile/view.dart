@@ -43,6 +43,7 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -1139,7 +1140,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: title,
           ),
