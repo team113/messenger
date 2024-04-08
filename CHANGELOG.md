@@ -33,11 +33,7 @@ All user visible changes to this project will be documented in this file. This p
         - About field in separate block. ([#891])
         - Section title in app bar. ([#942], [#939])
     - Contacts displayed everywhere with given names. ([#890], [#874])
-    - Work tab:
-        - Redesigned app bar. ([#942], [#939])
-    - Contacts tab:
-        - Redesigned app bar. ([#942], [#939])
-    - Chats tab:
+    - Home page:
         - Redesigned app bar. ([#942], [#939])
 
 ### Fixed

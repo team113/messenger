@@ -52,7 +52,7 @@ class WorkTabView extends StatelessWidget {
 
                       if (occupies >= snapshot.maxWidth) {
                         return Text(
-                          'label_work_with_us_two'.l10n,
+                          'label_work_with_us_desc'.l10n,
                           textAlign: TextAlign.left,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
