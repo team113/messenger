@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'menu.dart';
@@ -117,7 +118,7 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
                   height: 40,
                   width: 40,
                   child: Center(
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 100),
                       child: widget.pinned!
                           ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
