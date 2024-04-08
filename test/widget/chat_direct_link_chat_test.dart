@@ -145,6 +145,9 @@ void main() async {
   await credentialsProvider.clear();
   final accountProvider = ActiveAccountHiveProvider();
   await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
 
   accountProvider.set(const UserId('me'));
   credentialsProvider.put(
@@ -180,6 +183,7 @@ void main() async {
       AuthRepository(graphQlProvider),
       credentialsProvider,
       accountProvider,
+      myUserProvider,
     ),
   );
   authService.init();
@@ -232,9 +236,6 @@ void main() async {
   await blocklistProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(

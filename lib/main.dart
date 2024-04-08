@@ -121,6 +121,7 @@ Future<void> main() async {
       authRepo,
       Get.find(),
       Get.find(),
+      Get.find(),
     ));
     router = RouterState(authService);
 

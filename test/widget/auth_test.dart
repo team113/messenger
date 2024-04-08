@@ -79,15 +79,19 @@ void main() async {
 
   final accountProvider = ActiveAccountHiveProvider();
   await accountProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
 
   var graphQlProvider = _FakeGraphQlProvider();
   AuthRepository authRepository = AuthRepository(graphQlProvider);
-  AuthService authService =
-      AuthService(authRepository, credentialsProvider, accountProvider);
+  AuthService authService = AuthService(
+    authRepository,
+    credentialsProvider,
+    accountProvider,
+    myUserProvider,
+  );
   authService.init();
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
   var userProvider = UserHiveProvider();
@@ -143,6 +147,7 @@ void main() async {
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
         accountProvider,
+        myUserProvider,
       ),
     );
 

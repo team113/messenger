@@ -152,7 +152,7 @@ class MyUser extends HiveObject {
   @HiveField(16)
   int? blocklistCount;
 
-  /// [PreciseDateTime] this [User] was last seen online at.
+  /// [PreciseDateTime] this [MyUser] was last seen online at.
   @HiveField(17)
   PreciseDateTime? lastSeenAt;
 

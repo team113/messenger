@@ -74,7 +74,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
-  /// [Hive] storage providing the [UserId] of currently active [MyUser].
+  /// [Hive] storage providing the [UserId] of a currently active [MyUser].
   final ActiveAccountHiveProvider _activeAccountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
@@ -866,6 +866,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.deleted:
           event as EventUserDeleted;
+
+          _myUserLocal.remove(event.userId);
 
           if (event.userId == _active?.value.id) {
             _activeAccountLocal.clear();

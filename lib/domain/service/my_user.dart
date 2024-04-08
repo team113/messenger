@@ -236,12 +236,6 @@ class MyUserService extends DisposableService {
     await _userRepo.toggleMute(mute);
   }
 
-  /// Removes [MyUser] from the local data storage.
-  Future<void> clearCached() async {
-    Log.debug('clearCached()', '$runtimeType');
-    await _userRepo.clearCache();
-  }
-
   /// Refreshes the [MyUser] to be up to date.
   Future<void> refresh() async {
     Log.debug('refresh()', '$runtimeType');
@@ -265,11 +259,10 @@ class MyUserService extends DisposableService {
   /// Callback to be called when [MyUser] is deleted.
   ///
   /// Performs log out and clears [MyUser] store.
-  Future<void> _onUserDeleted() async {
+  void _onUserDeleted() {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
     _auth.logout();
     router.auth();
-    await clearCached();
   }
 }

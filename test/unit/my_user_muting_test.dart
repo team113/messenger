@@ -145,6 +145,7 @@ void main() async {
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
         accountProvider,
+        myUserProvider,
       ),
     );
     UserRepository userRepository =
@@ -200,6 +201,7 @@ void main() async {
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
         accountProvider,
+        myUserProvider,
       ),
     );
     UserRepository userRepository =

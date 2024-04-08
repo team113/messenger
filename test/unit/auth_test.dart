@@ -28,6 +28,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/active_account.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:mockito/annotations.dart';
@@ -40,6 +41,8 @@ void main() async {
   Hive.init('./test/.temp_hive/unit_auth');
   final credsProvider = CredentialsHiveProvider();
   final accountProvider = ActiveAccountHiveProvider();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
   await credsProvider.init();
   await accountProvider.init();
 
@@ -91,6 +94,7 @@ void main() async {
       authRepository,
       getStorage,
       accountProvider,
+      myUserProvider,
     ));
 
     expect(authService.init(), Routes.auth);
@@ -127,8 +131,12 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credsProvider, accountProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credsProvider,
+      accountProvider,
+      myUserProvider,
+    ));
 
     expect(authService.init(), null);
 
@@ -154,8 +162,12 @@ void main() async {
     );
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credsProvider, accountProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credsProvider,
+      accountProvider,
+      myUserProvider,
+    ));
 
     expect(authService.init(), Routes.auth);
     try {
@@ -173,8 +185,12 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credsProvider, accountProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credsProvider,
+      accountProvider,
+      myUserProvider,
+    ));
 
     when(graphQlProvider.recoverUserPassword(
             UserLogin('login'), null, null, null))
@@ -212,8 +228,12 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credsProvider, accountProvider));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credsProvider,
+      accountProvider,
+      myUserProvider,
+    ));
 
     when(graphQlProvider.recoverUserPassword(
             UserLogin('login'), null, null, null))

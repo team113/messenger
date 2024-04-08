@@ -176,6 +176,8 @@ void main() async {
   await credentialsProvider.init();
   final accountProvider = ActiveAccountHiveProvider();
   await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
 
   accountProvider.set(const UserId('me'));
 
@@ -195,15 +197,12 @@ void main() async {
     AuthRepository(graphQlProvider),
     credentialsProvider,
     accountProvider,
+    myUserProvider,
   );
   authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
-
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
@@ -453,6 +452,7 @@ void main() async {
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
         accountProvider,
+        myUserProvider,
       ),
     );
     authService.init();

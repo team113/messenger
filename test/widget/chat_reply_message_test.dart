@@ -443,6 +443,9 @@ void main() async {
   await credentialsProvider.clear();
   final accountProvider = ActiveAccountHiveProvider();
   await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
 
   accountProvider.set(const UserId('me'));
   credentialsProvider.put(
@@ -463,6 +466,7 @@ void main() async {
     AuthRepository(graphQlProvider),
     credentialsProvider,
     accountProvider,
+    myUserProvider,
   );
 
   router = RouterState(authService);
@@ -493,9 +497,6 @@ void main() async {
   await chatCredentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
@@ -537,6 +538,7 @@ void main() async {
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
         accountProvider,
+        myUserProvider,
       ),
     );
     authService.init();

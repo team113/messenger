@@ -170,6 +170,9 @@ void main() async {
   await credentialsProvider.clear();
   final accountProvider = ActiveAccountHiveProvider();
   await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -204,6 +207,7 @@ void main() async {
       AuthRepository(graphQlProvider),
       credentialsProvider,
       accountProvider,
+      myUserProvider,
     ),
   );
   authService.init();
@@ -234,9 +238,6 @@ void main() async {
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
   await chatCredentialsProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var callRectProvider = CallRectHiveProvider();

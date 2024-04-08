@@ -39,6 +39,7 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -64,6 +65,8 @@ void main() async {
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var credentialsProvider = Get.put(CredentialsHiveProvider());
@@ -173,6 +176,7 @@ void main() async {
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
       credentialsProvider,
       accountProvider,
+      myUserProvider,
     ),
   );
   authService.init();

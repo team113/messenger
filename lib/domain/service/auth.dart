@@ -33,6 +33,7 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/active_account.dart';
 import '/provider/hive/credentials.dart';
+import '/provider/hive/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -47,6 +48,7 @@ class AuthService extends GetxService {
     this._authRepository,
     this._credentialsProvider,
     this._activeAccountProvider,
+    this._myUserProvider,
   );
 
   /// Currently authorized session's [Credentials].
@@ -66,8 +68,11 @@ class AuthService extends GetxService {
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
 
-  /// [ActiveAccountHiveProvider] used to store the currently user's [UserId].
+  /// [ActiveAccountHiveProvider] used to store the current user's [UserId].
   final ActiveAccountHiveProvider _activeAccountProvider;
+
+  /// [MyUserHiveProvider] used to deleted [MyUser]s that have logged out.
+  final MyUserHiveProvider _myUserProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -163,8 +168,11 @@ class AuthService extends GetxService {
     });
 
     WebUtils.credentials = creds;
-    _credentialsSubscription = _credentialsProvider.boxEvents
-        .listen((e) => WebUtils.credentials = e.value);
+    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
+      if (e.key == activeUserId?.val) {
+        WebUtils.credentials = e.value;
+      }
+    });
 
     if (session == null) {
       return _unauthorized();
@@ -283,7 +291,7 @@ class AuthService extends GetxService {
     status.value = RxStatus.loading();
     return WebUtils.protect(() async {
       try {
-        final creds = await _authRepository.signUp();
+        final Credentials creds = await _authRepository.signUp();
         _authorized(creds);
         _credentialsProvider.put(creds);
         _activeAccountProvider.set(creds.userId);
@@ -409,6 +417,9 @@ class AuthService extends GetxService {
       }
 
       await _authRepository.logout(fcmToken);
+      if (userId != null) {
+        await _myUserProvider.remove(userId!);
+      }
     } catch (e) {
       printError(info: e.toString());
     }
@@ -466,7 +477,6 @@ class AuthService extends GetxService {
           _authorized(WebUtils.credentials!);
 
           _credentialsProvider.put(WebUtils.credentials!);
-          _activeAccountProvider.set(WebUtils.credentials!.userId);
           return;
         }
 

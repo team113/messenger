@@ -215,6 +215,7 @@ void main() async {
       Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
       credentialsProvider,
       accountProvider,
+      myUserProvider,
     ),
   );
   authService.init();
