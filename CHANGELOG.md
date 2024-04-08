@@ -18,6 +18,8 @@ All user visible changes to this project will be documented in this file. This p
         - Call ended sound and left alone in group call sound. ([#877], [#809])
         - New member connected sound. ([#935], [#928])
     - Update available popup. ([#907], [#896])
+    - Work page:
+        - UI/UX designer vacancy. ([#941])
 
 ### Changed
 
@@ -81,6 +83,7 @@ All user visible changes to this project will be documented in this file. This p
 [#934]: /../../pull/934
 [#935]: /../../pull/935
 [#937]: /../../pull/937
+[#941]: /../../pull/941
 
 
 
