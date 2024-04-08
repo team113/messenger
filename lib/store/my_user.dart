@@ -257,9 +257,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return _graphQlProvider.deleteUserEmail(previous);
+            return await _graphQlProvider.deleteUserEmail(previous);
           } else if (value != null) {
-            return _graphQlProvider.addUserEmail(value);
+            return await _graphQlProvider.addUserEmail(value);
           }
 
           return null;
@@ -301,9 +301,9 @@ class MyUserRepository implements AbstractMyUserRepository {
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return _graphQlProvider.deleteUserPhone(previous);
+            return await _graphQlProvider.deleteUserPhone(previous);
           } else if (value != null) {
-            return _graphQlProvider.addUserPhone(value);
+            return await _graphQlProvider.addUserPhone(value);
           }
 
           return null;
@@ -344,9 +344,9 @@ class MyUserRepository implements AbstractMyUserRepository {
       value: email,
       mutation: (value, previous) async {
         if (previous != null) {
-          return _graphQlProvider.deleteUserEmail(previous);
+          return await _graphQlProvider.deleteUserEmail(previous);
         } else if (value != null) {
-          return _graphQlProvider.addUserEmail(value);
+          return await _graphQlProvider.addUserEmail(value);
         }
 
         return null;
@@ -370,9 +370,9 @@ class MyUserRepository implements AbstractMyUserRepository {
       value: phone,
       mutation: (value, previous) async {
         if (previous != null) {
-          return _graphQlProvider.deleteUserPhone(previous);
+          return await _graphQlProvider.deleteUserPhone(previous);
         } else if (value != null) {
-          return _graphQlProvider.addUserPhone(value);
+          return await _graphQlProvider.addUserPhone(value);
         }
 
         return null;
@@ -614,11 +614,12 @@ class MyUserRepository implements AbstractMyUserRepository {
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;
+
       if (event.deleted) {
         myUser.value = null;
         _remoteSubscription?.close(immediate: true);
       } else {
-        // Copy [event.value] as it always contains the same [MyUser].
+        // Copy [event.value], as it always contains the same [MyUser].
         final MyUser? value = (event.value?.value as MyUser?)?.copyWith();
 
         // Don't update the [MyUserField]s considered locked in the [_pool], as
@@ -735,7 +736,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     // overwriting each other's actions.
     if (updateVersion) {
       userEntity.ver = versioned.ver;
-      versioned.events.removeWhere((e) => _pool.processed(e));
+      versioned.events.removeWhere(_pool.processed);
     } else {
       versioned.events.forEach(_pool.add);
     }
@@ -1145,8 +1146,6 @@ class MyUserRepository implements AbstractMyUserRepository {
       field,
       () async {
         try {
-          _pool.lockWith(field, [value, saved()]);
-
           final MyUserEventsVersionedMixin? response =
               await mutation(value, previous);
 
@@ -1169,6 +1168,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           rethrow;
         }
       },
+      values: [value, saved()],
       repeat: () {
         if (myUser.value != null && current() != saved()) {
           value = current();

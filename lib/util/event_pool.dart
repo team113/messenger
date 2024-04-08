@@ -17,12 +17,12 @@
 
 import 'package:mutex/mutex.dart';
 
-/// Helper for managing processed [T] objects.
+/// Helper guarding synchronized access for processing [T] objects.
 class EventPool<T> {
   /// [Mutex]es guarding access to the [protect] method.
   final Map<T, _PoolMutex> _mutexes = {};
 
-  /// List of [T] events that have been processed.
+  /// List of [T] objects that have been processed.
   final List<Object> _processed = [];
 
   /// Executes the provided [callback], locking its execution with the provided
@@ -33,10 +33,14 @@ class EventPool<T> {
   ///
   /// If [repeat] is provided, then the [callback] will be invoked in loop,
   /// while [repeat] returns `true`.
+  ///
+  /// If [values] are provided, then [lockedWith] shall return `true` only if
+  /// [values] contain the specified there value.
   Future<void> protect(
     T tag,
     Future<void> Function() callback, {
     bool Function()? repeat,
+    List<Object?> values = const [],
   }) async {
     _PoolMutex? mutex = _mutexes[tag];
     if (mutex == null) {
@@ -45,23 +49,20 @@ class EventPool<T> {
     }
 
     if (!mutex.isLocked) {
+      mutex.values = values;
       do {
         await mutex.protect(callback);
       } while (repeat?.call() ?? false);
     }
   }
 
-  /// Adds the provided [event] to the list of processed events.
-  void add(Object event) => _processed.add(event);
+  /// Adds the provided [object] to the list of processed objects.
+  void add(Object object) => _processed.add(object);
 
-  /// Indicates whether the provided [event] has been processed.
-  bool processed(Object event, {bool remove = true}) =>
-      (remove ? _processed.remove : _processed.contains).call(event);
+  /// Indicates whether the provided [object] has been processed, popping it.
+  bool processed(Object object) => _processed.remove(object);
 
-  /// Associates the provided [values] with the [Mutex] by the provided [tag].
-  void lockWith(T tag, List<Object?> values) => _mutexes[tag]?.values = values;
-
-  /// Indicates whether an event with the provided [tag] and [value] is being
+  /// Indicates whether an object with the provided [tag] and [value] is being
   /// executed.
   bool lockedWith(T tag, Object? value) {
     final _PoolMutex? mutex = _mutexes[tag];
