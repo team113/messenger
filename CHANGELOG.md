@@ -28,7 +28,14 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
         - About field in separate block. ([#891])
+        - Section title in app bar. ([#942], [#939])
     - Contacts displayed everywhere with given names. ([#890], [#874])
+    - Work tab:
+        - Redesigned app bar. ([#942], [#939])
+    - Contacts tab:
+        - Redesigned app bar. ([#942], [#939])
+    - Chats tab:
+        - Redesigned app bar. ([#942], [#939])
 
 ### Fixed
 
@@ -78,6 +85,8 @@ All user visible changes to this project will be documented in this file. This p
 [#919]: /../../pull/919
 [#934]: /../../pull/934
 [#937]: /../../pull/937
+[#939]: /../../issues/939
+[#942]: /../../pull/942
 
 
 
