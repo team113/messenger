@@ -619,7 +619,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         _remoteSubscription?.close(immediate: true);
       } else {
         // Copy [event.value] as it always contains the same [MyUser].
-        final MyUser? value = (event.value?.value as MyUser?)?.copy();
+        final MyUser? value = (event.value?.value as MyUser?)?.copyWith();
 
         // Don't update the [MyUserField]s considered locked in the [_pool], as
         // those events might've been applied optimistically during mutations
@@ -627,21 +627,27 @@ class MyUserRepository implements AbstractMyUserRepository {
         if (_pool.lockedWith(MyUserField.name, value?.name)) {
           value?.name = myUser.value?.name;
         }
+
         if (_pool.lockedWith(MyUserField.status, value?.status)) {
           value?.status = myUser.value?.status;
         }
+
         if (_pool.lockedWith(MyUserField.bio, value?.bio)) {
           value?.bio = myUser.value?.bio;
         }
+
         if (_pool.lockedWith(MyUserField.presence, value?.presence)) {
           value?.presence = myUser.value?.presence ?? value.presence;
         }
+
         if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
           value?.muted = myUser.value?.muted;
         }
+
         if (_pool.lockedWith(MyUserField.email, value?.emails.unconfirmed)) {
           value?.emails.unconfirmed = myUser.value?.emails.unconfirmed;
         }
+
         if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
           value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
         }
@@ -1127,7 +1133,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         mutation,
   }) async {
     Log.debug(
-      '_debounce($field, $current, $value, $update, $mutation)',
+      '_debounce($field, current, saved, $value, update, mutation)',
       '$runtimeType',
     );
 

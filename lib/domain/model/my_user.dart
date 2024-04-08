@@ -151,15 +151,15 @@ class MyUser extends HiveObject {
   int? blocklistCount;
 
   /// Returns a copy of this [MyUser].
-  MyUser copy() => MyUser(
+  MyUser copyWith() => MyUser(
         id: id,
         num: num,
         login: login,
         name: name,
         bio: bio,
         hasPassword: hasPassword,
-        emails: emails.copy(),
-        phones: phones.copy(),
+        emails: emails.copyWith(),
+        phones: phones.copyWith(),
         chatDirectLink: chatDirectLink,
         unreadChatsCount: unreadChatsCount,
         status: status,
@@ -197,8 +197,8 @@ class MyUserPhones {
   @HiveField(1)
   UserPhone? unconfirmed;
 
-  /// Returns a copy of this [MyUserPhones].
-  MyUserPhones copy() =>
+  /// Returns a copy of these [MyUserPhones].
+  MyUserPhones copyWith() =>
       MyUserPhones(confirmed: confirmed, unconfirmed: unconfirmed);
 }
 
@@ -227,8 +227,8 @@ class MyUserEmails {
   @HiveField(1)
   UserEmail? unconfirmed;
 
-  /// Returns a copy of this [MyUserEmails].
-  MyUserEmails copy() =>
+  /// Returns a copy of these [MyUserEmails].
+  MyUserEmails copyWith() =>
       MyUserEmails(confirmed: confirmed, unconfirmed: unconfirmed);
 }
 
