@@ -143,6 +143,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
     _onFocusChanged?.cancel();
+    _pool.dispose();
   }
 
   @override

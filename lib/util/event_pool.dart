@@ -25,6 +25,14 @@ class EventPool<T> {
   /// List of [T] objects that have been processed.
   final List<Object> _processed = [];
 
+  /// Indicator whether this [EventPool] has been disposed.
+  bool _disposed = false;
+
+  /// Disposes this [EventPool].
+  void dispose() {
+    _disposed = true;
+  }
+
   /// Executes the provided [callback], locking its execution with the provided
   /// [tag].
   ///
@@ -52,7 +60,7 @@ class EventPool<T> {
       mutex.values = values;
       do {
         await mutex.protect(callback);
-      } while (repeat?.call() ?? false);
+      } while (!_disposed && repeat?.call() == true);
     }
   }
 
