@@ -932,6 +932,9 @@ label_was_removed = {$author} left the group
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}left the group
 label_work_with_us = Work with us
+label_work_with_us_two =
+    Work
+    with us
 label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blocklist = Your blacklist

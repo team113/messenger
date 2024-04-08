@@ -206,15 +206,18 @@ class EditBlockButton extends StatelessWidget {
         child: AnimatedButton(
           key: _key,
           onPressed: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-            child: editing
-                ? const Padding(
-                    padding: EdgeInsets.all(2),
-                    child: SvgIcon(SvgIcons.closeSmallPrimary),
-                  )
-                : const SvgIcon(SvgIcons.editSmall),
-          ),
+          decorator: (child) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+              child: child,
+            );
+          },
+          child: editing
+              ? const Padding(
+                  padding: EdgeInsets.all(2),
+                  child: SvgIcon(SvgIcons.closeSmallPrimary),
+                )
+              : const SvgIcon(SvgIcons.editSmall),
         ),
       ),
     );
