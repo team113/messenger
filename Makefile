@@ -885,7 +885,7 @@ sentry.upload:
 
 google-client-id=$(strip $(shell grep 'GOOGLE_CLIENT_ID=' .env | cut -d'=' -f2))
 fcm-vapid=$(strip $(shell grep 'FCM_VAPID=' .env | cut -d'=' -f2))
-sentry-dsn=$(strip $(shell grep 'SENTRY_DSN=' .env | cut -d'=' -f2))
+# sentry-dsn=$(strip $(shell grep 'SENTRY_DSN=' .env | cut -d'=' -f2))
 link-prefix=$(strip $(shell grep 'LINK_PREFIX=' .env | cut -d'=' -f2))
 
 deploy:
