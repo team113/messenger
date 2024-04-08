@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'buttons.dart';
@@ -125,7 +126,7 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                     width: 40,
                     child: Center(
                       child: AnimatedButton(
-                        child: AnimatedSwitcher(
+                        child: SafeAnimatedSwitcher(
                           duration: 100.milliseconds,
                           child: widget.pinned
                               ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
