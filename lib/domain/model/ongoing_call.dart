@@ -548,7 +548,6 @@ class OngoingCall {
                   await _joinRoom(node.call.joinLink!);
                 }
                 state.value = OngoingCallState.active;
-                members[_me]?.joinedAt.value ??= PreciseDateTime.now();
               }
 
               final ChatMembersDialed? dialed = node.call.dialed;
@@ -663,7 +662,6 @@ class OngoingCall {
                   call.refresh();
 
                   state.value = OngoingCallState.active;
-                  members[_me]?.joinedAt.value ??= PreciseDateTime.now();
                   break;
 
                 case ChatCallEventKind.finished:
@@ -1833,6 +1831,10 @@ class OngoingCall {
       rethrow;
     }
 
+    // Set the [CallMember.joinedAt] of our [CallMember] to the moment when
+    // [RoomHandle.join] has been executed.
+    members[_me]?.joinedAt.value ??= PreciseDateTime.now();
+
     Log.info('Room joined!', '$runtimeType');
   }
 
@@ -2352,7 +2354,7 @@ class CallMember {
   /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
 
-  /// [DateTime] when this [CallMember] was joined.
+  /// [DateTime] when this [CallMember] has joined.
   Rx<PreciseDateTime?> joinedAt;
 
   /// [ConnectionHandle] of this [CallMember].

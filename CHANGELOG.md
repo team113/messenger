@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Call ended sound and left alone in group call sound. ([#877], [#809])
-        - New member connected sound. ([#935], [#928])
+        - Member connected sound. ([#935], [#928])
     - Update available popup. ([#907], [#896])
     - Work page:
         - UI/UX designer vacancy. ([#941])

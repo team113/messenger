@@ -2125,8 +2125,6 @@ class CallController extends GetxController {
             MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
       );
 
-      members.forEach((_, member) => _playConnected(member));
-
       _membersSubscription = members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
@@ -2137,7 +2135,6 @@ class CallController extends GetxController {
             );
 
             _ensureCorrectGrouping();
-
             _playConnected(e.value!);
             break;
 
@@ -2174,7 +2171,11 @@ class CallController extends GetxController {
         }
       });
 
-      members.forEach((_, value) => _putTracksFrom(value));
+      members.forEach((_, value) {
+        _putTracksFrom(value);
+        _playConnected(value);
+      });
+
       _ensureCorrectGrouping();
     }
   }
@@ -2185,9 +2186,9 @@ class CallController extends GetxController {
     final CallMember me = _currentCall.value.me;
 
     if (member.isConnected.isFalse) {
-      _listenConnected(member);
+      _listenToConnected(member);
     } else if (member.joinedAt.value == null) {
-      _listenJoinedAt(member);
+      _listenToJoinedAt(member);
     } else if (_currentCall.value.state.value == OngoingCallState.active &&
         me.joinedAt.value != null &&
         member.joinedAt.value!.isAfter(me.joinedAt.value!)) {
@@ -2196,14 +2197,13 @@ class CallController extends GetxController {
   }
 
   /// Initializes [_memberWorkers] for the provided [CallMember.isConnected].
-  void _listenConnected(CallMember member) {
+  void _listenToConnected(CallMember member) {
     _memberWorkers.remove(member.id)?.dispose();
     _memberWorkers[member.id] = ever(
       member.isConnected,
       (connected) async {
         if (connected) {
           _memberWorkers.remove(member.id)?.dispose();
-
           await _playConnected(member);
         }
       },
@@ -2211,14 +2211,13 @@ class CallController extends GetxController {
   }
 
   /// Initializes [_memberWorkers] for the provided [CallMember.joinedAt].
-  void _listenJoinedAt(CallMember member) {
+  void _listenToJoinedAt(CallMember member) {
     _memberWorkers.remove(member.id)?.dispose();
     _memberWorkers[member.id] = ever(
       member.joinedAt,
       (joinedAt) async {
         if (joinedAt != null) {
           _memberWorkers.remove(member.id)?.dispose();
-
           await _playConnected(member);
         }
       },
