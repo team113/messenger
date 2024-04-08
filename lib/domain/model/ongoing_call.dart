@@ -2355,7 +2355,7 @@ class CallMember {
   final RxInt quality = RxInt(4);
 
   /// [DateTime] when this [CallMember] has joined.
-  Rx<PreciseDateTime?> joinedAt;
+  final Rx<PreciseDateTime?> joinedAt;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
