@@ -60,7 +60,7 @@ extension MyUserConversion on MyUserMixin {
                     (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
             : null,
         lastSeenAt: online.$$typename == 'UserOffline'
-            ? (online as UserMixin$Online$UserOffline).lastSeenAt
+            ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
             : null,
       );
 

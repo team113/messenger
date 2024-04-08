@@ -22,7 +22,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 
-import '/provider/hive/active_account.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -32,6 +31,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
+import '/provider/hive/active_account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -283,9 +283,10 @@ class AuthService extends GetxService {
     status.value = RxStatus.loading();
     return WebUtils.protect(() async {
       try {
-        var data = await _authRepository.signUp();
-        _authorized(data);
-        _credentialsProvider.put(data);
+        final creds = await _authRepository.signUp();
+        _authorized(creds);
+        _credentialsProvider.put(creds);
+        _activeAccountProvider.set(creds.userId);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -313,6 +314,7 @@ class AuthService extends GetxService {
       final Credentials creds = await _authRepository.confirmSignUpEmail(code);
       _authorized(creds);
       _credentialsProvider.put(creds);
+      _activeAccountProvider.set(creds.userId);
     } catch (e) {
       _unauthorized();
       rethrow;
@@ -345,15 +347,16 @@ class AuthService extends GetxService {
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
     await WebUtils.protect(() async {
       try {
-        final Credentials data = await _authRepository.signIn(
+        final Credentials creds = await _authRepository.signIn(
           password,
           login: login,
           num: num,
           email: email,
           phone: phone,
         );
-        _authorized(data);
-        _credentialsProvider.put(data);
+        _authorized(creds);
+        _credentialsProvider.put(creds);
+        _activeAccountProvider.set(creds.userId);
         status.value = RxStatus.success();
       } catch (e) {
         _unauthorized();
@@ -375,6 +378,7 @@ class AuthService extends GetxService {
     await WebUtils.protect(() async {
       _authorized(credentials);
       _credentialsProvider.put(credentials);
+      _activeAccountProvider.set(credentials.userId);
       status.value = RxStatus.success();
     });
   }
@@ -460,7 +464,9 @@ class AuthService extends GetxService {
             WebUtils.credentials?.session.token !=
                 credentials.value?.session.token) {
           _authorized(WebUtils.credentials!);
+
           _credentialsProvider.put(WebUtils.credentials!);
+          _activeAccountProvider.set(WebUtils.credentials!.userId);
           return;
         }
 
@@ -516,7 +522,11 @@ class AuthService extends GetxService {
   String _unauthorized() {
     Log.debug('_unauthorized()', '$runtimeType');
 
-    _credentialsProvider.clear();
+    final UserId? id = _activeAccountProvider.userId;
+    if (id != null) {
+      _credentialsProvider.remove(id);
+    }
+    _activeAccountProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();

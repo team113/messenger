@@ -105,10 +105,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Returns the currently active [HiveMyUser] from [Hive].
   HiveMyUser? get _active {
     final UserId? activeUserId = _activeAccountLocal.userId;
-    final savedMyUser =
+    final HiveMyUser? saved =
         activeUserId != null ? _myUserLocal.get(activeUserId) : null;
 
-    return savedMyUser;
+    return saved;
   }
 
   @override
