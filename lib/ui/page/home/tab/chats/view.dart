@@ -325,7 +325,7 @@ class ChatsTabView extends StatelessWidget {
                           },
                           child: SizedBox(
                             width: 29.17,
-                            child: AnimatedSwitcher(
+                            child: SafeAnimatedSwitcher(
                               duration: 250.milliseconds,
                               child: child,
                             ),

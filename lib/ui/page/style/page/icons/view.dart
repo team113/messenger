@@ -500,6 +500,15 @@ class IconsView extends StatelessWidget {
                   child: const SvgIcon(SvgIcons.workFreelance),
                 ),
               ),
+              const SizedBox(height: 8),
+              MenuButton(
+                inverted: true,
+                leading: AnimatedButton(
+                  onPressed: () => c.icon.value =
+                      IconDetails.svg(SvgIcons.workDesigner, invert: true),
+                  child: const SvgIcon(SvgIcons.workDesigner),
+                ),
+              ),
             ],
           ),
           Block(

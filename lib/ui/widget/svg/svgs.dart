@@ -274,24 +274,6 @@ class SvgIcons {
     height: 23,
   );
 
-  static const SvgData workFreelance = SvgData(
-    'assets/icons/work_freelance.svg',
-    width: 32,
-    height: 32,
-  );
-
-  static const SvgData workFlutter = SvgData(
-    'assets/icons/work_flutter.svg',
-    width: 32,
-    height: 32,
-  );
-
-  static const SvgData workRust = SvgData(
-    'assets/icons/work_rust.svg',
-    width: 32,
-    height: 32,
-  );
-
   static const SvgData enter = SvgData(
     'assets/icons/enter.svg',
     width: 20.21,
@@ -1861,5 +1843,41 @@ class SvgIcons {
     'assets/icons/logo.svg',
     width: 21.78,
     height: 25,
+  );
+
+  static const SvgData workRust = SvgData(
+    'assets/icons/work_rust.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workFlutter = SvgData(
+    'assets/icons/work_flutter.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workFreelance = SvgData(
+    'assets/icons/work_freelance.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workPartner = SvgData(
+    'assets/icons/work_partner.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workPromoLinks = SvgData(
+    'assets/icons/work_promo_links.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData workDesigner = SvgData(
+    'assets/icons/work_designer.svg',
+    width: 32,
+    height: 32,
   );
 }
