@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'animated_switcher.dart';
+
 /// The `AnimatedSizeAndFade` widget does a fade and size transition between a.
 class AnimatedSizeAndFade extends StatelessWidget {
   const AnimatedSizeAndFade({

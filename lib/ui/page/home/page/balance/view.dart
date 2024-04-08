@@ -196,22 +196,18 @@ class BalanceProviderView extends StatelessWidget {
                           style: style.fonts.big.regular.onBackground,
                         ),
                         const SizedBox(height: 8),
-                        Center(
+                        const Center(
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                child: const SvgImage.asset(
-                                  'assets/images/visa.svg',
-                                  height: 21,
-                                ),
+                              SvgImage.asset(
+                                'assets/images/visa.svg',
+                                height: 21,
                               ),
-                              const SizedBox(width: 16),
-                              Container(
-                                child: const SvgImage.asset(
-                                  'assets/images/mastercard.svg',
-                                  height: 38,
-                                ),
+                              SizedBox(width: 16),
+                              SvgImage.asset(
+                                'assets/images/mastercard.svg',
+                                height: 38,
                               ),
                             ],
                           ),

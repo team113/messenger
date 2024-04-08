@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
@@ -17,6 +20,7 @@ import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/country_selector2.dart';
 import 'package:messenger/ui/widget/info_tile.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
+import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:phone_form_field/phone_form_field.dart' hide CountrySelector;
 import 'package:circle_flags/circle_flags.dart';
@@ -103,23 +107,6 @@ class WithdrawView extends StatelessWidget {
                       style: style.fonts.normal.regular.primary,
                     );
                   }),
-                  // Obx(() {
-                  //   switch (c.method.value) {
-                  //     case WithdrawMethod.usdt:
-                  //       return Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           const SizedBox(height: 16),
-                  //           Text('Минимальная сумма транзакции: 10 USDT'),
-                  //           Text('Максимальная сумма транзакции: 1000 USDT'),
-                  //           Text('Комиссия: 3 USDT'),
-                  //         ],
-                  //       );
-
-                  //     default:
-                  //       return const SizedBox();
-                  //   }
-                  // }),
                 ],
               ),
               Obx(() {
@@ -143,9 +130,109 @@ class WithdrawView extends StatelessWidget {
                           title: 'Комиссия',
                           content: '3 USDT',
                         ),
-                        // Text('Минимальная сумма транзакции: 10 USDT'),
-                        // Text('Максимальная сумма транзакции: 1000 USDT'),
-                        // Text('Комиссия: 3 USDT'),
+                      ],
+                    );
+
+                  case WithdrawMethod.bitcoin:
+                    return Block(
+                      title: c.method.value.l10n,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        InfoTile(
+                          title: 'Минимальная сумма транзакции',
+                          content: '0.000014 BTC',
+                        ),
+                        SizedBox(height: 16),
+                        InfoTile(
+                          title: 'Максимальная сумма транзакции',
+                          content: '0.014 BTC',
+                        ),
+                        SizedBox(height: 16),
+                        InfoTile(
+                          title: 'Комиссия',
+                          content: '0.000042 BTC',
+                        ),
+                      ],
+                    );
+
+                  case WithdrawMethod.card:
+                    return Block(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
+                      children: [
+                        const SizedBox(height: 8),
+                        Center(
+                          child: Text(
+                            c.method.value.l10n,
+                            style: style.fonts.big.regular.onBackground,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SvgImage.asset(
+                                'assets/images/visa.svg',
+                                height: 21,
+                              ),
+                              SizedBox(width: 16),
+                              SvgImage.asset(
+                                'assets/images/mastercard.svg',
+                                height: 38,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const InfoTile(
+                          title: 'Минимальная сумма транзакции',
+                          content: '\$3.00',
+                        ),
+                        const SizedBox(height: 16),
+                        const InfoTile(
+                          title: 'Максимальная сумма транзакции',
+                          content: '\$550.00',
+                        ),
+                        const SizedBox(height: 16),
+                        const InfoTile(
+                          title: 'Комиссия',
+                          content: '1.5%',
+                        ),
+                      ],
+                    );
+
+                  case WithdrawMethod.sepa:
+                    return Block(
+                      title: c.method.value.l10n,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        InfoTile(
+                          title: 'Минимальная сумма транзакции',
+                          content: '€5.00',
+                        ),
+                        SizedBox(height: 16),
+                        InfoTile(
+                          title: 'Комиссия',
+                          content: '€5.00',
+                        ),
+                      ],
+                    );
+
+                  case WithdrawMethod.swift:
+                    return Block(
+                      title: c.method.value.l10n,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        InfoTile(
+                          title: 'Минимальная сумма транзакции',
+                          content: '\$100.00',
+                        ),
+                        SizedBox(height: 16),
+                        InfoTile(
+                          title: 'Комиссия',
+                          content: '\$100.00',
+                        ),
                       ],
                     );
 
@@ -164,6 +251,61 @@ class WithdrawView extends StatelessWidget {
                         state: c.usdtWallet,
                         label: 'Номер кошелька',
                         hint: 'T0000000000000000',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                      const SizedBox(height: 8),
+                    ]);
+                    break;
+
+                  case WithdrawMethod.bitcoin:
+                    more.addAll([
+                      const SizedBox(height: 8),
+                      ReactiveTextField(
+                        state: c.btcWallet,
+                        label: 'Номер кошелька',
+                        hint: '0000000000000000000',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                      const SizedBox(height: 8),
+                    ]);
+                    break;
+
+                  case WithdrawMethod.card:
+                    more.addAll([
+                      const SizedBox(height: 8),
+                      ReactiveTextField(
+                        state: c.cardNumber,
+                        label: 'Номер карты',
+                        hint: '0000 0000 0000 0000',
+                        onChanged: () {
+                          c.cardNumber.text = UserNum.unchecked(
+                            c.cardNumber.text.replaceAll(' ', ''),
+                          ).toString();
+
+                          c.cardNumber.text = c.cardNumber.text.substring(
+                            0,
+                            min(c.cardNumber.text.length, 19),
+                          );
+                        },
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                      ),
+                      const SizedBox(height: 16),
+                      ReactiveTextField(
+                        state: c.cardExpire,
+                        label: 'Срок действия',
+                        hint: '00/00',
+                        onChanged: () {
+                          c.cardExpire.text = c.cardExpire.text.substring(
+                            0,
+                            min(c.cardExpire.text.length, 5),
+                          );
+                        },
+                        formatters: [
+                          CardExpirationFormatter(),
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[1-9]|/'),
+                          )
+                        ],
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                       ),
                       const SizedBox(height: 8),
@@ -231,7 +373,7 @@ class WithdrawView extends StatelessWidget {
                     Obx(() {
                       if (c.method.value == WithdrawMethod.paypal) {
                         return ReactiveTextField(
-                          label: 'E-mail, зар',
+                          label: 'E-mail в PayPal',
                           hint: 'dummy@example.com',
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           state: c.email,
@@ -265,10 +407,6 @@ class WithdrawView extends StatelessWidget {
               Block(
                 title: 'Документы',
                 children: [
-                  // Text(
-                  //   'Каждая траназкция должна сопровождаться документами, подтверждающими личность получателя и назначение платежа. Это требование финансовых институтов и государственных органов.',
-                  //   style: style.fonts.normal.regular.secondary,
-                  // ),
                   Text.rich(
                     TextSpan(
                       children: [
@@ -286,18 +424,6 @@ class WithdrawView extends StatelessWidget {
                     style: style.fonts.normal.regular.secondary,
                   ),
                   const SizedBox(height: 12),
-                  // Text(
-                  //   'Важно: принимаются только фотографии документов (не скан-копии) в форматах: JPG, PNG, PDF. Разрешение не ниже 200 DPI. На фотографии должен быть читаемый текст и документ должен быть сфотографирован полностью, включая края.',
-                  //   style: style.fonts.normal.regular.secondary,
-                  // ),
-                  // Text(
-                  //   'Важно! Принимаются только:\n'
-                  //   '- фотографии документов (не скан-копии);\n'
-                  //   '- формат: JPG, PNG, PDF;\n- разрешение не ниже 200 DPI;\n'
-                  //   '- весь текст должен быть абсолютно читаем (отсутствие бликов, размытий и т.п.);\n'
-                  //   '- документ должен быть сфотографирован полностью, включая края.',
-                  //   style: style.fonts.normal.regular.secondary,
-                  // ),
                   Text.rich(
                     TextSpan(
                       children: [
@@ -348,9 +474,7 @@ class WithdrawView extends StatelessWidget {
                       file: c.contract.value,
                     );
                   }),
-
                   const SizedBox(height: 24),
-
                   const LineDivider('Документ, удостоверяющий личность'),
                   const SizedBox(height: 12),
                   Text(
@@ -365,27 +489,6 @@ class WithdrawView extends StatelessWidget {
                       file: c.passport.value,
                     );
                   }),
-                  // const SizedBox(height: 6),
-                  // Text.rich(
-                  //   TextSpan(
-                  //     children: [
-                  //       TextSpan(
-                  //         text: 'Договор можете ',
-                  //         style: style.fonts.small.regular.secondary,
-                  //       ),
-                  //       TextSpan(
-                  //         text: 'скачать здесь',
-                  //         style: style.fonts.small.regular.primary,
-                  //         recognizer: TapGestureRecognizer()..onTap = () {},
-                  //       ),
-                  //       TextSpan(
-                  //         text:
-                  //             '. Необходимо распечатать, подписать, сфотографировать и загрузить.',
-                  //         style: style.fonts.small.regular.secondary,
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                 ],
               ),
               Block(
@@ -412,6 +515,24 @@ class WithdrawView extends StatelessWidget {
                       WithdrawMethod.bitcoin => CurrencyKind.btc,
                     };
 
+                    final double? minimum = switch (c.method.value) {
+                      WithdrawMethod.card => 3.5,
+                      WithdrawMethod.paypal => null,
+                      WithdrawMethod.swift => 100,
+                      WithdrawMethod.sepa => 5,
+                      WithdrawMethod.usdt => 10,
+                      WithdrawMethod.bitcoin => 0.0000014,
+                    };
+
+                    final double? maximum = switch (c.method.value) {
+                      WithdrawMethod.card => 550,
+                      WithdrawMethod.paypal => null,
+                      WithdrawMethod.swift => null,
+                      WithdrawMethod.sepa => null,
+                      WithdrawMethod.usdt => 1000,
+                      WithdrawMethod.bitcoin => 0.014,
+                    };
+
                     return CurrencyField(
                       currency: null,
                       value: c.total.value,
@@ -420,6 +541,8 @@ class WithdrawView extends StatelessWidget {
                         c.total.value = e.toDouble();
                         c.recalculateTotal();
                       },
+                      minimum: minimum,
+                      maximum: maximum,
                     );
                   }),
                   const SizedBox(height: 16),
@@ -476,6 +599,32 @@ class _CountrySelectorNavigator extends CountrySelectorNavigator {
             Navigator.of(context, rootNavigator: true).pop(country),
         flagCache: flagCache,
         subtitle: null,
+      ),
+    );
+  }
+}
+
+class CardExpirationFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final newValueString = newValue.text;
+    String valueToReturn = '';
+
+    for (int i = 0; i < newValueString.length; i++) {
+      if (newValueString[i] != '/') valueToReturn += newValueString[i];
+      var nonZeroIndex = i + 1;
+      final contains = valueToReturn.contains(RegExp(r'\/'));
+      if (nonZeroIndex % 2 == 0 &&
+          nonZeroIndex != newValueString.length &&
+          !(contains)) {
+        valueToReturn += '/';
+      }
+    }
+    return newValue.copyWith(
+      text: valueToReturn,
+      selection: TextSelection.fromPosition(
+        TextPosition(offset: valueToReturn.length),
       ),
     );
   }

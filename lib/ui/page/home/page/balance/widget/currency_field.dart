@@ -1,5 +1,7 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/menu_button.dart';
 import 'package:messenger/ui/widget/modal_popup.dart';
@@ -51,6 +53,8 @@ class CurrencyField extends StatefulWidget {
     this.onCurrency,
     this.onChanged,
     this.label = 'Currency',
+    this.minimum,
+    this.maximum,
   }) : allowed = allowed ?? CurrencyKind.values.toList();
 
   final CurrencyKind? currency;
@@ -59,20 +63,24 @@ class CurrencyField extends StatefulWidget {
   final void Function(double)? onChanged;
   final void Function(CurrencyKind)? onCurrency;
   final String label;
+  final num? minimum;
+  final num? maximum;
 
   @override
   State<CurrencyField> createState() => _CurrencyFieldState();
 }
 
 class _CurrencyFieldState extends State<CurrencyField> {
-  final TextFieldState state = TextFieldState();
+  late final TextFieldState state = TextFieldState(
+    onChanged: (s) {
+      s.error.value = null;
+      _ensureLimits();
+    },
+  );
 
   @override
   void initState() {
-    state.text = widget.value.toString();
-    if (state.text == '0.0' || state.text == '0') {
-      state.text = '';
-    }
+    _formatValue();
     super.initState();
   }
 
@@ -81,12 +89,8 @@ class _CurrencyFieldState extends State<CurrencyField> {
     final double current = double.tryParse(state.text) ?? 0;
 
     if (widget.value != current) {
-      // state.text = NumberFormat('0.${'0' * 16}').format(widget.value);
-      state.text = widget.value.toString();
-      if (state.text == '0.0' || state.text == '0') {
-        state.text = '';
-      }
-      setState(() {});
+      setState(() => _formatValue());
+      _ensureLimits();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -159,6 +163,30 @@ class _CurrencyFieldState extends State<CurrencyField> {
               ),
             ),
     );
+  }
+
+  void _formatValue() {
+    if (widget.value == null) {
+      state.text = '';
+    } else {
+      state.text = Decimal.parse(widget.value.toString()).toString();
+
+      if (state.text == '0.00' || state.text == '0.0' || state.text == '0') {
+        state.text = '';
+      }
+    }
+  }
+
+  void _ensureLimits() {
+    final double current = double.tryParse(state.text) ?? 0;
+
+    if (current != 0) {
+      if (widget.minimum != null && current < widget.minimum!) {
+        state.error.value = 'Минимум: ${widget.minimum}';
+      } else if (widget.maximum != null && current > widget.maximum!) {
+        state.error.value = 'Максимум: ${widget.maximum}';
+      }
+    }
   }
 }
 

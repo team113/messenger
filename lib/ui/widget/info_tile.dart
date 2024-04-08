@@ -24,19 +24,21 @@ class InfoTile extends StatelessWidget {
   const InfoTile({
     super.key,
     this.title,
-    required this.content,
+    this.content,
     this.leading,
     this.trailing,
     this.subtitle = const [],
     this.maxLines = 1,
     this.danger = false,
+    this.child,
   });
 
   /// Optional title of this [InfoTile].
   final String? title;
 
   /// Content of this [InfoTile].
-  final String content;
+  final String? content;
+  final Widget? child;
 
   /// Optional leading [Widget] of this [InfoTile].
   final Widget? leading;
@@ -83,7 +85,7 @@ class InfoTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     if (leading != null) leading!,
-                    Expanded(child: Text(content)),
+                    Expanded(child: child ?? Text(content ?? '')),
                     if (trailing != null) ...[
                       const SizedBox(width: 24),
                       Padding(

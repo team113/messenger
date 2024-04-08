@@ -134,6 +134,7 @@ dependencies:
   # audioplayers_platform_interface: ^6.1.0
   # audioplayers_darwin: ^5.0.2
   xml: ^6.5.0
+  decimal: ^2.3.3
 
 dev_dependencies:
   artemis: ^7.13.1

@@ -274,7 +274,7 @@ class ReactiveTextField extends StatelessWidget {
                     ? const SvgIcon(key: Key('Loading'), SvgIcons.timer)
                     : status.isSuccess
                         ? SizedBox(
-                            key: const ValueKey('Success'),
+                            key: const Key('Success'),
                             width: 24,
                             child: Icon(
                               Icons.check,
@@ -286,7 +286,7 @@ class ReactiveTextField extends StatelessWidget {
                             ? onCanceled != null
                                 ? cancelButton
                                 : SizedBox(
-                                    key: const ValueKey('Error'),
+                                    key: const Key('Error'),
                                     width: 24,
                                     child: Icon(
                                       Icons.error,
@@ -300,7 +300,7 @@ class ReactiveTextField extends StatelessWidget {
                                 ? state.isEmpty.value && !clearable
                                     ? null
                                     : AllowOverflow(
-                                        key: const ValueKey('Approve'),
+                                        key: const Key('Approve'),
                                         child: Text(
                                           'btn_save'.l10n,
                                           style:
@@ -310,7 +310,7 @@ class ReactiveTextField extends StatelessWidget {
                                 : onCanceled != null
                                     ? cancelButton
                                     : SizedBox(
-                                        key: const ValueKey('Icon'),
+                                        key: const Key('Icon'),
                                         width: 24,
                                         child: suffix != null
                                             ? Icon(suffix)
