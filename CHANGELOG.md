@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Call ended sound and left alone in group call sound. ([#877], [#809])
     - Update available popup. ([#907], [#896])
+    - Work page:
+        - UI/UX designer vacancy. ([#941])
 
 ### Changed
 
@@ -47,6 +49,8 @@ All user visible changes to this project will be documented in this file. This p
         - Replied calls displaying irrelevant information. ([#919], [#455])
     - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
     - Incoming call notification duplicating. ([#914])
+    - Home page:
+        - Alarm sound when clicking on empty right space. ([#937])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
@@ -75,6 +79,8 @@ All user visible changes to this project will be documented in this file. This p
 [#915]: /../../pull/915
 [#919]: /../../pull/919
 [#934]: /../../pull/934
+[#937]: /../../pull/937
+[#941]: /../../pull/941
 
 
 
