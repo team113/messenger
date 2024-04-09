@@ -95,7 +95,7 @@ class ModelTypeId {
   static const chatFavoritePosition = 72;
   static const favoriteChatsListVersion = 73;
   static const blocklistCursor = 74;
-  static const windowPreferences = 74;
+  static const windowPreferences = 75;
   static const blocklistReason = 76;
   static const chatMembersDialedAll = 77;
   static const chatMembersDialedConcrete = 78;
