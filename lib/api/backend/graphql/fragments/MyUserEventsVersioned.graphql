@@ -95,6 +95,10 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             email
             at
         }
+        ... on EventUserLoginDeleted {
+            userId
+            at
+        }
         ... on EventUserLoginUpdated {
             userId
             login

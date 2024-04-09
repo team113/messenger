@@ -350,7 +350,7 @@ Future<CustomUser> createUser({
   if (user != null && world != null) {
     world.sessions[user.name] = customUser;
 
-    provider.token = result.createUser.session.token;
+    provider.token = result.createUser.accessToken.secret;
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
       await provider.updateUserPassword(null, password);

@@ -56,16 +56,26 @@ void main() async {
       (_) => Future.value(
         SignIn$Mutation$CreateSession$CreateSessionOk.fromJson({
           'session': {
-            'token': 'token',
-            'expireAt': DateTime.now().add(const Duration(days: 1)).toString(),
-            'ver': '30066501444801094020394372057490153134',
+            '__typename': 'Session',
+            'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+            'userAgent':
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            'isCurrent': true,
+            'lastActivatedAt': DateTime.now().toString(),
+            'ver': '031592915314290362597742826064324903711'
           },
-          'remembered': {
-            'token': 'token',
-            'expireAt': DateTime.now().add(const Duration(days: 1)).toString(),
-            'ver': '30066501444801094020394372057490153134',
+          'accessToken': {
+            '__typename': 'AccessToken',
+            'secret': 'token',
+            'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
+          },
+          'refreshToken': {
+            '__typename': 'RefreshToken',
+            'secret': 'token',
+            'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
           },
           'user': {
+            '__typename': 'MyUser',
             'id': 'id',
             'num': '1234567890123456',
             'login': 'val',
@@ -90,8 +100,10 @@ void main() async {
     await authService.signIn(UserPassword('123'), login: UserLogin('user'));
 
     expect(authService.status.value.isSuccess, true);
-    expect(authService.credentials.value?.session.token,
-        const AccessToken('token'));
+    expect(
+      authService.credentials.value?.access.secret,
+      const AccessTokenSecret('token'),
+    );
 
     await authService.logout();
 
@@ -103,12 +115,12 @@ void main() async {
   test('AuthService successfully logins with saved session', () async {
     provider.set(
       Credentials(
-        Session(
-          const AccessToken('token'),
+        AccessToken(
+          const AccessTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
-        RememberedSession(
-          const RefreshToken('token'),
+        RefreshToken(
+          const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         const UserId('me'),
@@ -124,8 +136,8 @@ void main() async {
 
     expect(authService.status.value.isSuccess, true);
     expect(
-      authService.credentials.value?.session.token,
-      const AccessToken('token'),
+      authService.credentials.value?.access.secret,
+      const AccessTokenSecret('token'),
     );
 
     await authService.logout();

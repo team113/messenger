@@ -32,7 +32,7 @@ final StepDefinitionGeneric chatIsIndeedHidden = given1<String, CustomWorld>(
   (String name, context) async {
     final provider = GraphQlProvider();
     final AuthService authService = Get.find();
-    provider.token = authService.credentials.value!.session.token;
+    provider.token = authService.credentials.value!.access.secret;
 
     await context.world.appDriver.waitUntil(
       () async {
