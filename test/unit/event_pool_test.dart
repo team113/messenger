@@ -36,25 +36,28 @@ void main() {
     expect(pool.lockedWith('tag', '1'), false);
   });
 
-  test('EventPool.protect does nothing if already executing', () async {
-    EventPool pool = EventPool();
+  test(
+    'EventPool.protect does nothing if already executing with same tag',
+    () async {
+      EventPool pool = EventPool();
 
-    pool.protect(
-      'tag',
-      () => Future.delayed(const Duration(seconds: 2)),
-      values: ['value'],
-    );
+      pool.protect(
+        'tag',
+        () => Future.delayed(const Duration(seconds: 2)),
+        values: ['value'],
+      );
 
-    DateTime startedAt = DateTime.now();
+      DateTime startedAt = DateTime.now();
 
-    await pool.protect(
-      'tag',
-      () => Future.delayed(const Duration(seconds: 2)),
-      values: ['value'],
-    );
+      await pool.protect(
+        'tag',
+        () => Future.delayed(const Duration(seconds: 2)),
+        values: ['value'],
+      );
 
-    expect(DateTime.now().difference(startedAt) < 15.milliseconds, true);
-  });
+      expect(DateTime.now().difference(startedAt) < 15.milliseconds, true);
+    },
+  );
 
   test('EventPool correctly works with processed objects', () async {
     EventPool pool = EventPool();
