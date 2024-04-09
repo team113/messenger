@@ -23,8 +23,6 @@ void main() {
     DateTime invokedAt1 = DateTime.now();
     DateTime invokedAt2 = DateTime.now();
 
-    print('invokedAt1: $invokedAt1');
-
     SyncTimer.periodic(
       const Duration(milliseconds: 200),
       () => invokedAt1 = DateTime.now(),
