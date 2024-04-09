@@ -144,12 +144,12 @@ void main() async {
   await credentialsProvider.clear();
   credentialsProvider.set(
     Credentials(
-      Session(
-        const AccessToken('token'),
+      AccessToken(
+        const AccessTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
-      RememberedSession(
-        const RefreshToken('token'),
+      RefreshToken(
+        const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),

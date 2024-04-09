@@ -185,13 +185,7 @@ class MyProfileView extends StatelessWidget {
                               child: UserLoginField(
                                 c.myUser.value?.login,
                                 onSubmit: (s) async {
-                                  if (s == null) {
-                                    // TODO: Implement [UserLogin] deleting.
-                                    c.myUser.value?.login = null;
-                                    c.myUser.refresh();
-                                  } else {
-                                    await c.updateUserLogin(s);
-                                  }
+                                  await c.updateUserLogin(s);
                                 },
                               ),
                             );
@@ -539,9 +533,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           child: UserLoginField(
             c.myUser.value?.login,
             onSubmit: (s) async {
-              if (s != null) {
-                await c.updateUserLogin(s);
-              }
+              await c.updateUserLogin(s);
             },
           ),
         );

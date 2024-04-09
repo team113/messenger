@@ -49,14 +49,14 @@ class GraphQlProviderBase {
   Mutex get clientGuard => _client.guard;
 
   /// Returns authorization bearer token.
-  AccessToken? get token => _client.token;
+  AccessTokenSecret? get token => _client.token;
 
   /// Sets callback, called when middleware catches [AuthorizationException].
   set authExceptionHandler(Future<void> Function(AuthorizationException)? fn) =>
       _client.authExceptionHandler = fn;
 
   /// Sets authorization bearer token and reconnects the [client].
-  set token(AccessToken? value) => _client.token = value;
+  set token(AccessTokenSecret? value) => _client.token = value;
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() => _client.reconnect();
@@ -77,7 +77,7 @@ class GraphQlClient {
   static const int maxReconnectPeriodMillis = 30000;
 
   /// Authorization bearer token.
-  AccessToken? token;
+  AccessTokenSecret? token;
 
   /// Mutex guarding the [client].
   final Mutex guard = Mutex();
@@ -97,7 +97,7 @@ class GraphQlClient {
   /// Current authorization bearer token of the [_client].
   ///
   /// Used to update [_client] if [token] is different.
-  AccessToken? _currentToken;
+  AccessTokenSecret? _currentToken;
 
   /// List of the currently ongoing [SubscriptionConnection]s used to emit a
   /// re-subscribe request on the [_client] reconnection.
@@ -425,7 +425,7 @@ class GraphQlClient {
       },
     );
 
-    final AccessToken? bearer = raw?.token ?? token;
+    final AccessTokenSecret? bearer = raw?.token ?? token;
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
     final Link httpAuthLink =
         bearer != null ? authLink.concat(httpLink) : httpLink;
@@ -621,6 +621,6 @@ class SubscriptionHandle {
 class RawClientOptions {
   const RawClientOptions([this.token]);
 
-  /// [AccessToken] to pass to raw [GraphQlClient].
-  final AccessToken? token;
+  /// [AccessTokenSecret] to pass to raw [GraphQlClient].
+  final AccessTokenSecret? token;
 }

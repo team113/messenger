@@ -37,11 +37,15 @@ class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
     Log.debug('registerAdapters()', '$runtimeType');
 
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
+    Hive.maybeRegisterAdapter(AccessTokenAdapter());
+    Hive.maybeRegisterAdapter(AccessTokenSecretAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RefreshTokenAdapter());
-    Hive.maybeRegisterAdapter(RememberedSessionAdapter());
+    Hive.maybeRegisterAdapter(RefreshTokenSecretAdapter());
     Hive.maybeRegisterAdapter(SessionAdapter());
+    Hive.maybeRegisterAdapter(SessionIdAdapter());
+    Hive.maybeRegisterAdapter(UserAgentAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
