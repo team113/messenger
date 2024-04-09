@@ -43,6 +43,7 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
 
+    Hive.maybeRegisterAdapter(BlocklistCursorAdapter());
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());

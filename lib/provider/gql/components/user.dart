@@ -239,14 +239,15 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserLoginUpdated].
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserLoginUpdated] (if [login] argument is specified);
+  /// - [EventUserLoginDeleted] (if [login] argument is absent or is `null`).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [login] already.
-  Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin login) async {
+  Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
     final variables = UpdateUserLoginArguments(login: login);
@@ -345,8 +346,7 @@ mixin UserGraphQlMixin {
   ///
   /// __This action cannot be reverted.__
   ///
-  /// Also deletes all the [Session]s and [RememberedSession]s of the
-  /// authenticated [MyUser].
+  /// Also deletes all the [Session]s of the authenticated [MyUser].
   ///
   /// ### Authentication
   ///

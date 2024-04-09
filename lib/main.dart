@@ -293,7 +293,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
         if (credentials != null) {
           provider = GraphQlProvider();
-          provider.token = credentials.session.token;
+          provider.token = credentials.access.secret;
           provider.reconnect();
 
           subscription = provider
