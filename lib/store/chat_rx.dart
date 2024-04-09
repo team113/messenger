@@ -1751,12 +1751,12 @@ class HiveRxChat extends RxChat {
                 event as EventChatLastItemUpdated;
                 chatEntity.value.lastItem = event.lastItem?.value;
 
-                // TODO [ChatCall.conversationStartedAt] shouldn't be `null`
+                // TODO: [ChatCall.conversationStartedAt] shouldn't be `null`
                 //      here when starting group or monolog [ChatCall].
                 if (!chatEntity.value.isDialog &&
                     chatEntity.value.lastItem is ChatCall) {
                   (chatEntity.value.lastItem as ChatCall)
-                      .conversationStartedAt = PreciseDateTime.now();
+                      .conversationStartedAt ??= PreciseDateTime.now();
                 }
 
                 chatEntity.value.updatedAt =

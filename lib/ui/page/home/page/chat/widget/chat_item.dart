@@ -1879,7 +1879,9 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
 
         if (isOngoing) {
           title = 'label_chat_call_ongoing'.l10n;
-          time = call!.at.val.difference(DateTime.now()).localizedString();
+          time = call!.conversationStartedAt!.val
+              .difference(DateTime.now())
+              .localizedString();
         } else if (call != null && call.finishReason != null) {
           title =
               call.finishReason!.localizedString(call.author.id == widget.me) ??
@@ -1887,9 +1889,10 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
           isMissed = call.finishReason == ChatCallFinishReason.dropped ||
               call.finishReason == ChatCallFinishReason.unanswered;
 
-          if (call.finishedAt != null) {
-            time =
-                call.finishedAt!.val.difference(call.at.val).localizedString();
+          if (call.finishedAt != null && call.conversationStartedAt != null) {
+            time = call.finishedAt!.val
+                .difference(call.conversationStartedAt!.val)
+                .localizedString();
           }
         } else {
           title = call == null
