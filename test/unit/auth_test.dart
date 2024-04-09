@@ -90,8 +90,10 @@ void main() async {
     await authService.signIn(UserPassword('123'), login: UserLogin('user'));
 
     expect(authService.status.value.isSuccess, true);
-    expect(authService.credentials.value?.session.token,
-        const AccessToken('token'));
+    expect(
+      authService.credentials.value?.access.secret,
+      const AccessTokenSecret('token'),
+    );
 
     await authService.logout();
 
@@ -103,12 +105,12 @@ void main() async {
   test('AuthService successfully logins with saved session', () async {
     provider.set(
       Credentials(
-        Session(
-          const AccessToken('token'),
+        AccessToken(
+          const AccessTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
-        RememberedSession(
-          const RefreshToken('token'),
+        RefreshToken(
+          const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         const UserId('me'),
@@ -124,8 +126,8 @@ void main() async {
 
     expect(authService.status.value.isSuccess, true);
     expect(
-      authService.credentials.value?.session.token,
-      const AccessToken('token'),
+      authService.credentials.value?.access.secret,
+      const AccessTokenSecret('token'),
     );
 
     await authService.logout();

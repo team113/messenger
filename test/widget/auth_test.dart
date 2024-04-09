@@ -200,7 +200,7 @@ void main() async {
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
-  AccessToken? token;
+  AccessTokenSecret? token;
 
   @override
   Future<void> Function(AuthorizationException)? authExceptionHandler;

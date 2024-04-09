@@ -110,7 +110,7 @@ class MyUserService extends DisposableService {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     await _passwordChangeGuard.protect(() async {
-      // TODO: Make sure [AuthService] doesn't its `renewSession` during that.
+      // TODO: Make sure [AuthService] doesn't its `refreshSession` during that.
       await _userRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(newPassword, num: myUser.value?.num);
     });

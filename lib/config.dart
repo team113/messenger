@@ -89,11 +89,11 @@ class Config {
   static me.LogLevel logLevel = me.LogLevel.info;
 
   /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema = '0';
+  static String? schema = '1';
 
   /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
   /// mismatch is detected.
-  static String? credentials;
+  static String? credentials = '0';
 
   /// URL of a Sparkle Appcast XML file.
   ///

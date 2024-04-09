@@ -74,9 +74,8 @@ class BackgroundWorker extends GetxService {
           var creds = e.value as Credentials?;
           // Otherwise if [Credentials] mismatch is detected, update the
           // [_service].
-          if (creds?.session.token != lastCreds?.session.token ||
-              creds?.rememberedSession.token !=
-                  lastCreds?.rememberedSession.token) {
+          if (creds?.access.secret != lastCreds?.access.secret ||
+              creds?.refresh.secret != lastCreds?.refresh.secret) {
             lastCreds = creds;
 
             if (creds == null) {

@@ -23,14 +23,16 @@ mutation SignUp {
             ver
         }
         session {
-            token
-            expireAt
-            ver
+            __typename
+            ...Session
         }
-        remembered {
-            token
-            expireAt
-            ver
+        accessToken {
+            __typename
+            ...AccessToken
+        }
+        refreshToken {
+            __typename
+            ...RefreshToken
         }
     }
 }
