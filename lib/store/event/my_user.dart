@@ -220,7 +220,7 @@ class EventUserEmailDeleted extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.emailDeleted;
 }
 
-/// Event of an [UserLogin] being updated.
+/// Event of a [UserLogin] being updated.
 class EventUserLoginUpdated extends MyUserEvent {
   const EventUserLoginUpdated(super.userId, this.login);
 
@@ -231,7 +231,7 @@ class EventUserLoginUpdated extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.loginUpdated;
 }
 
-/// Event of an [UserLogin] being updated.
+/// Event of a [UserLogin] being deleted.
 class EventUserLoginDeleted extends MyUserEvent {
   const EventUserLoginDeleted(super.userId, this.at);
 
