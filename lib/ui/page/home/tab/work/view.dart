@@ -41,24 +41,39 @@ class WorkTabView extends StatelessWidget {
 
         return Scaffold(
           appBar: CustomAppBar(
-            leading: [
-              AnimatedButton(
-                decorator: (child) => Container(
-                  margin: const EdgeInsets.only(left: 18),
-                  height: double.infinity,
-                  child: Center(child: child),
-                ),
-                onPressed: router.auth,
-                child: Center(
-                  child: Icon(
-                    Icons.question_mark_rounded,
-                    color: style.colors.primary,
-                    size: 22,
+            title: Row(
+              children: [
+                const SizedBox(width: 21),
+                Flexible(
+                  child: LayoutBuilder(
+                    builder: (context, snapshot) {
+                      final double occupies =
+                          'label_work_with_us'.l10n.length * 11;
+
+                      if (occupies >= snapshot.maxWidth) {
+                        return Text(
+                          'label_work_with_us_desc'.l10n,
+                          textAlign: TextAlign.left,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: style.fonts.medium.regular.onBackground
+                              .copyWith(height: 1),
+                        );
+                      }
+
+                      return Text(
+                        'label_work_with_us'.l10n,
+                        textAlign: TextAlign.left,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: style.fonts.large.regular.onBackground,
+                      );
+                    },
                   ),
                 ),
-              ),
-            ],
-            title: Text('label_work_with_us'.l10n),
+                const SizedBox(width: 16),
+              ],
+            ),
             actions: [
               AnimatedButton(
                 decorator: (child) => Container(

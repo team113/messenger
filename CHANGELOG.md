@@ -6,7 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.13] · 2024-??-??
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13...v0.1.0-alpha.14) | [Milestone](/../../milestone/19)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned app bar. ([#942], [#939])
+
+[#939]: /../../issues/939
+[#942]: /../../pull/942
+
+
+
+
+## [0.1.0-alpha.13] · 2024-04-09
 [0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
 
 [Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
