@@ -228,4 +228,3 @@ class ConfirmationCode extends NewType<String> {
     }
   }
 }
-
