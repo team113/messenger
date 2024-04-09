@@ -423,7 +423,10 @@ class UserView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(c.user!.title),
+                    Text(
+                      c.user!.title,
+                      style: style.fonts.big.regular.onBackground,
+                    ),
                     if (subtitle?.isNotEmpty == true)
                       Text(
                         key: Key(

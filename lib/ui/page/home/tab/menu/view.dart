@@ -102,23 +102,10 @@ class MenuTabView extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       child: Obx(() {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.toString() ??
-                                  'dot'.l10n * 3,
-                              style: style.fonts.big.regular.onBackground,
-                            ),
-                            Obx(() {
-                              return Text(
-                                c.myUser.value?.bio?.val ?? 'label_online'.l10n,
-                                style: style.fonts.small.regular.secondary,
-                              );
-                            }),
-                          ],
+                        return Text(
+                          c.myUser.value?.name?.val ??
+                              c.myUser.value?.num.toString() ??
+                              'dot'.l10n * 3,
                         );
                       }),
                     ),
