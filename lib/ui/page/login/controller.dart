@@ -174,7 +174,7 @@ class LoginController extends GetxController {
       try {
         final response = await graphQlProvider.signUp();
         creds = response.toModel();
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.addUserEmail(UserEmail(email.text));
         graphQlProvider.token = null;
 
@@ -214,7 +214,7 @@ class LoginController extends GetxController {
           );
         }
 
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
 
         await _authService.signInWith(creds!);
@@ -295,7 +295,7 @@ class LoginController extends GetxController {
       try {
         final response = await graphQlProvider.signUp();
         creds = response.toModel();
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.addUserPhone(
           UserPhone(phone.controller2.value!.international.toLowerCase()),
         );
@@ -1058,7 +1058,7 @@ class LoginController extends GetxController {
       final GraphQlProvider graphQlProvider = Get.find();
 
       if (stage.value.registering) {
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.resendEmail();
         graphQlProvider.token = null;
       }
@@ -1129,7 +1129,7 @@ class LoginController extends GetxController {
       final GraphQlProvider graphQlProvider = Get.find();
 
       if (stage.value.registering) {
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.resendPhone();
         graphQlProvider.token = null;
       }
@@ -1146,7 +1146,7 @@ class LoginController extends GetxController {
   Future<void> registerOccupied() async {
     final GraphQlProvider graphQlProvider = Get.find();
 
-    graphQlProvider.token = creds!.session.token;
+    graphQlProvider.token = creds!.access.secret;
 
     if (stage.value == LoginViewStage.signInWithEmailOccupied) {
       // await graphQlProvider.confirmEmailCode(ConfirmationCode(emailCode.text));

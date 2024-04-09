@@ -179,7 +179,7 @@ class ChatsTabView extends StatelessWidget {
                               children: [
                                 WidgetButton(
                                   onPressed: () {
-                                    Get.find<AuthService>().renewSession();
+                                    Get.find<AuthService>().refreshSession();
                                   },
                                   child: Text(
                                     'label_chats'.l10n,

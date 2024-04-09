@@ -35,15 +35,17 @@ mutation SignIn(
                 __typename
                 ...MyUser
             }
-            session {
-                expireAt
-                token
-                ver
+            accessToken {
+                __typename
+                ...AccessToken
             }
-            remembered {
-                expireAt
-                token
-                ver
+            refreshToken {
+                __typename
+                ...RefreshToken
+            }
+            session {
+                __typename
+                ...Session
             }
         }
         ... on CreateSessionError {

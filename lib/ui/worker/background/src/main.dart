@@ -159,7 +159,7 @@ class _BackgroundService {
         await credentialsProvider.init();
 
         _credentials = credentialsProvider.get();
-        _provider.token = _credentials?.session.token;
+        _provider.token = _credentials?.access.secret;
         _provider.reconnect();
 
         if (_subscription == null) {
@@ -237,7 +237,7 @@ class _BackgroundService {
       _credentials = Credentials.fromJson(event!);
 
       _renewSessionTimer?.cancel();
-      _provider.token = _credentials?.session.token;
+      _provider.token = _credentials?.access.secret;
       _provider.reconnect();
 
       if (_subscription == null) {
@@ -269,16 +269,16 @@ class _BackgroundService {
       _connectionEstablished ? _renewSessionTimerDuration : Duration.zero,
       () async {
         if (!_connectionEstablished) {
-          if (_credentials?.rememberedSession.expireAt
+          if (_credentials?.refresh.expireAt
                   .isAfter(PreciseDateTime.now().toUtc()) ==
               true) {
             try {
               _renewFulfilled = true;
 
-              var result = await _provider
-                  .renewSession(_credentials!.rememberedSession.token);
-              var ok = (result.renewSession
-                  as RenewSession$Mutation$RenewSession$RenewSessionOk);
+              var result =
+                  await _provider.refreshSession(_credentials!.refresh.secret);
+              var ok = (result.refreshSession
+                  as RefreshSession$Mutation$RefreshSession$CreateSessionOk);
               _credentials = ok.toModel();
 
               // Store the [Credentials] in the [Hive].
@@ -295,9 +295,9 @@ class _BackgroundService {
 
               _service.invoke('token', _credentials!.toJson());
 
-              _provider.token = _credentials?.session.token;
+              _provider.token = _credentials?.access.secret;
               _provider.reconnect();
-            } on RenewSessionException catch (_) {
+            } on RefreshSessionException catch (_) {
               _service.invoke('requireToken');
             }
           } else {

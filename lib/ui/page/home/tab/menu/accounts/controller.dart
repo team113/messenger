@@ -122,7 +122,7 @@ class AccountsController extends GetxController {
       try {
         final response = await graphQlProvider.signUp();
         creds = response.toModel();
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.addUserEmail(UserEmail(email.text));
         graphQlProvider.token = null;
 
@@ -160,7 +160,7 @@ class AccountsController extends GetxController {
           );
         }
 
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.confirmEmailCode(ConfirmationCode(s.text));
 
         router.noIntroduction = false;
@@ -212,7 +212,7 @@ class AccountsController extends GetxController {
       try {
         final response = await graphQlProvider.signUp();
         creds = response.toModel();
-        graphQlProvider.token = creds!.session.token;
+        graphQlProvider.token = creds!.access.secret;
         await graphQlProvider.addUserPhone(
           UserPhone(phone.controller2.value!.international.toLowerCase()),
         );

@@ -240,14 +240,14 @@ class CreateSessionException with LocalizedExceptionMixin implements Exception {
 }
 
 /// Exception of `Mutation.renewSession` described in the [code].
-class RenewSessionException implements Exception {
-  RenewSessionException(this.code);
+class RefreshSessionException implements Exception {
+  RefreshSessionException(this.code);
 
   /// Reason of why the mutation has failed.
-  RenewSessionErrorCode code;
+  RefreshSessionErrorCode code;
 
   @override
-  String toString() => 'RenewSessionException($code)';
+  String toString() => 'RefreshSessionException($code)';
 }
 
 /// Exception of `Mutation.createChatDialog` described in the [code].
