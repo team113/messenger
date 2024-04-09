@@ -57,6 +57,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_digits.dart';
 import '/util/platform_utils.dart';
+import '/util/timer.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
@@ -1837,9 +1838,9 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
   /// [FutureOr] used in [FutureBuilder].
   FutureOr<Rx<ChatItem>?>? _futureOrCall;
 
-  /// [Timer] rebuilding this widget every second if the [widget.chatCall]
-  /// represents an ongoing [ChatCall].
-  Timer? _ongoingCallTimer;
+  /// [SyncTimer] for [Timer] rebuilding this widget every second if
+  /// the [widget.chatCall] represents an ongoing [ChatCall].
+  SyncTimer? _ongoingCallTimer;
 
   @override
   void initState() {
@@ -1903,7 +1904,7 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
         }
 
         if (isOngoing && !Config.disableInfiniteAnimations) {
-          _ongoingCallTimer ??= Timer.periodic(1.seconds, (_) {
+          _ongoingCallTimer ??= SyncTimer.periodic(1.seconds, () {
             if (mounted) {
               setState(() {});
             }

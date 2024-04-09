@@ -54,6 +54,7 @@ import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/timer.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
 import 'screen_share/view.dart';
@@ -325,10 +326,10 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// [Timer] for updating [duration] of the call.
+  /// [SyncTimer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
-  Timer? _durationTimer;
+  SyncTimer? _durationTimer;
 
   /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
@@ -641,9 +642,9 @@ class CallController extends GetxController {
               },
             );
             DateTime begunAt = DateTime.now();
-            _durationTimer = Timer.periodic(
+            _durationTimer = SyncTimer.periodic(
               const Duration(seconds: 1),
-              (_) {
+              () {
                 duration.value = DateTime.now().difference(begunAt);
                 if (hoveredRendererTimeout > 0 &&
                     draggedRenderer.value == null) {

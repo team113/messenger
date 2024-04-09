@@ -38,6 +38,7 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/timer.dart';
 
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
@@ -129,14 +130,14 @@ class LoginController extends GetxController {
   /// Authentication service providing the authentication capabilities.
   final AuthService _authService;
 
-  /// [Timer] disabling [emailCode] submitting for [codeTimeout].
-  Timer? _codeTimer;
+  /// [SyncTimer] disabling [emailCode] submitting for [codeTimeout].
+  SyncTimer? _codeTimer;
 
-  /// [Timer] disabling [signIn] invoking for [signInTimeout].
-  Timer? _signInTimer;
+  /// [SyncTimer] disabling [signIn] invoking for [signInTimeout].
+  SyncTimer? _signInTimer;
 
-  /// [Timer] used to disable resend code button [resendEmailTimeout].
-  Timer? _resendEmailTimer;
+  /// [SyncTimer] used to disable resend code button [resendEmailTimeout].
+  SyncTimer? _resendEmailTimer;
 
   /// [UserNum] that was provided in [recoverAccess] used to [validateCode] and
   /// [resetUserPassword].
@@ -579,9 +580,9 @@ class LoginController extends GetxController {
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
       signInTimeout.value = 30;
-      _signInTimer = Timer.periodic(
+      _signInTimer = SyncTimer.periodic(
         const Duration(seconds: 1),
-        (_) {
+        () {
           signInTimeout.value--;
           if (signInTimeout.value <= 0) {
             signInTimeout.value = 0;
@@ -601,9 +602,9 @@ class LoginController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
+      _resendEmailTimer = SyncTimer.periodic(
         const Duration(seconds: 1),
-        (_) {
+        () {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {
             resendEmailTimeout.value = 0;
@@ -623,9 +624,9 @@ class LoginController extends GetxController {
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
       codeTimeout.value = 30;
-      _codeTimer = Timer.periodic(
+      _codeTimer = SyncTimer.periodic(
         const Duration(seconds: 1),
-        (_) {
+        () {
           codeTimeout.value--;
           if (codeTimeout.value <= 0) {
             codeTimeout.value = 0;

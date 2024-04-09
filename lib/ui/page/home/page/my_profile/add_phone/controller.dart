@@ -27,6 +27,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/timer.dart';
 
 export 'view.dart';
 
@@ -64,8 +65,8 @@ class AddPhoneController extends GetxController {
   /// [MyUserService] used for confirming an [UserPhone].
   final MyUserService _myUserService;
 
-  /// [Timer] decreasing the [resendPhoneTimeout].
-  Timer? _resendPhoneTimer;
+  /// [SyncTimer] decreasing the [resendPhoneTimeout].
+  SyncTimer? _resendPhoneTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -139,9 +140,9 @@ class AddPhoneController extends GetxController {
   void _setResendPhoneTimer([bool enabled = true]) {
     if (enabled) {
       resendPhoneTimeout.value = 30;
-      _resendPhoneTimer = Timer.periodic(
+      _resendPhoneTimer = SyncTimer.periodic(
         const Duration(seconds: 1),
-        (_) {
+        () {
           resendPhoneTimeout.value--;
           if (resendPhoneTimeout.value <= 0) {
             resendPhoneTimeout.value = 0;
