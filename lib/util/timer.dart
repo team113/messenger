@@ -17,7 +17,7 @@
 
 import 'dart:async';
 
-/// A synchronized repeating timer.
+/// A synchronized periodic timer.
 class SyncTimer {
   SyncTimer._(this._subscription);
 
