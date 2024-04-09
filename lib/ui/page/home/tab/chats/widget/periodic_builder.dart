@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '/util/timer.dart';
+import '/util/fixed_timer.dart';
 
 /// [Widget] invoking the [builder] over the provided [period].
 class PeriodicBuilder extends StatefulWidget {
@@ -45,8 +45,8 @@ class PeriodicBuilder extends StatefulWidget {
 
 /// State of a [PeriodicBuilder] maintaining the [_timer] and [_delay].
 class _PeriodicBuilderState extends State<PeriodicBuilder> {
-  /// [SyncTimer] rebuilding this [Widget].
-  SyncTimer? _timer;
+  /// [FixedTimer] rebuilding this [Widget].
+  FixedTimer? _timer;
 
   /// [Timer] delaying the first invocation of the [builder].
   Timer? _delay;
@@ -80,7 +80,7 @@ class _PeriodicBuilderState extends State<PeriodicBuilder> {
 
   /// Starts the [_timer].
   void _start() {
-    _timer = SyncTimer.periodic(widget.period, () {
+    _timer = FixedTimer.periodic(widget.period, () {
       if (mounted) {
         setState(() {});
       }

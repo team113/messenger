@@ -16,21 +16,21 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:messenger/util/timer.dart';
+import 'package:messenger/util/fixed_timer.dart';
 
 void main() {
-  test('SyncTimer.periodic invokes synchronously', () async {
+  test('FixedTimer.periodic() is invoked correctly', () async {
     DateTime invokedAt1 = DateTime.now();
     DateTime invokedAt2 = DateTime.now();
 
-    SyncTimer.periodic(
+    FixedTimer.periodic(
       const Duration(milliseconds: 200),
       () => invokedAt1 = DateTime.now(),
     );
 
     await Future.delayed(const Duration(milliseconds: 100));
 
-    SyncTimer.periodic(
+    FixedTimer.periodic(
       const Duration(milliseconds: 200),
       () => invokedAt2 = DateTime.now(),
     );
@@ -40,13 +40,14 @@ void main() {
     expect(invokedAt1.difference(invokedAt2).inMilliseconds.abs() < 10, true);
   });
 
-  test('SyncTimer can be canceled', () async {
+  test('FixedTimer can be canceled', () async {
     int invoked = 0;
 
-    final SyncTimer timer = SyncTimer.periodic(
+    final FixedTimer timer = FixedTimer.periodic(
       const Duration(milliseconds: 200),
       () => invoked++,
     );
+
     timer.cancel();
 
     await Future.delayed(const Duration(milliseconds: 300));

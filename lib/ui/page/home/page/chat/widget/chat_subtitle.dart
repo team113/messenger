@@ -29,7 +29,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/util/platform_utils.dart';
-import '/util/timer.dart';
+import '/util/fixed_timer.dart';
 
 /// Subtitle visual representation of a [RxChat].
 class ChatSubtitle extends StatefulWidget {
@@ -63,8 +63,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   /// changes.
   ChatItemId? _previousCall;
 
-  /// [SyncTimer] for updating [_duration] of a [Chat.ongoingCall], if any.
-  SyncTimer? _durationTimer;
+  /// [FixedTimer] for updating [_duration] of a [Chat.ongoingCall], if any.
+  FixedTimer? _durationTimer;
 
   /// Worker invoking the [_updateTimer] on the [RxChat.chat] changes.
   Worker? _chatWorker;
@@ -220,7 +220,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       _durationTimer = null;
 
       if (chat.ongoingCall != null) {
-        _durationTimer = SyncTimer.periodic(
+        _durationTimer = FixedTimer.periodic(
           const Duration(seconds: 1),
           () {
             if (chat.ongoingCall?.conversationStartedAt != null) {

@@ -27,7 +27,6 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/util/timer.dart';
 
 export 'view.dart';
 
@@ -62,8 +61,8 @@ class AddEmailController extends GetxController {
   /// [MyUserService] used for confirming an [UserEmail].
   final MyUserService _myUserService;
 
-  /// [SyncTimer] decreasing the [resendEmailTimeout].
-  SyncTimer? _resendEmailTimer;
+  /// [Timer] decreasing the [resendEmailTimeout].
+  Timer? _resendEmailTimer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -137,9 +136,9 @@ class AddEmailController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = SyncTimer.periodic(
+      _resendEmailTimer = Timer.periodic(
         const Duration(seconds: 1),
-        () {
+        (_) {
           resendEmailTimeout.value--;
           if (resendEmailTimeout.value <= 0) {
             resendEmailTimeout.value = 0;
