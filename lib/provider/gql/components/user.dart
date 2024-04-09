@@ -346,8 +346,7 @@ mixin UserGraphQlMixin {
   ///
   /// __This action cannot be reverted.__
   ///
-  /// Also deletes all the [Session]s and [RememberedSession]s of the
-  /// authenticated [MyUser].
+  /// Also deletes all the [Session]s of the authenticated [MyUser].
   ///
   /// ### Authentication
   ///

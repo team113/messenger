@@ -36,9 +36,7 @@ mixin AuthGraphQlMixin {
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
   ///
-  /// The created [Session] may be prolonged via [refreshSession] if the
-  /// `remember` argument is specified (so the [RememberedSession] is returned
-  /// as well).
+  /// The created [Session] should be prolonged via [refreshSession].
   ///
   /// Once the created [Session] expires and cannot be prolonged, the created
   /// [MyUser] looses its access, if he doesn't provide a password via
