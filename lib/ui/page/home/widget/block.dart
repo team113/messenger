@@ -133,7 +133,7 @@ class Block extends StatelessWidget {
                         if (title != null) ...[
                           Center(
                             child: Container(
-                              padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                               child: Text(
                                 title!,
                                 textAlign: TextAlign.center,

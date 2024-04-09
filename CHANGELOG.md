@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13...v0.1.0-alpha.14) | [Milestone](/../../milestone/19)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned app bar. ([#942], [#939])
+
+[#939]: /../../issues/939
+[#942]: /../../pull/942
+
+
+
+
 ## [0.1.0-alpha.13] · 2024-04-09
 [0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
 
@@ -31,10 +48,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
         - About field in separate block. ([#891])
-        - Section title in app bar. ([#942], [#939])
     - Contacts displayed everywhere with given names. ([#890], [#874])
-    - Home page:
-        - Redesigned app bar. ([#942], [#939])
 
 ### Fixed
 
@@ -86,9 +100,7 @@ All user visible changes to this project will be documented in this file. This p
 [#934]: /../../pull/934
 [#935]: /../../pull/935
 [#937]: /../../pull/937
-[#939]: /../../issues/939
 [#941]: /../../pull/941
-[#942]: /../../pull/942
 
 
 

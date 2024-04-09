@@ -22,7 +22,6 @@ import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
@@ -114,9 +113,7 @@ class MenuTabView extends StatelessWidget {
                 ],
               ),
             ),
-            leading: context.isNarrow
-                ? const [StyledBackButton()]
-                : const [SizedBox(width: 20)],
+            leading: const [SizedBox(width: 20)],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
