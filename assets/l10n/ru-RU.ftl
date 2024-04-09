@@ -963,6 +963,9 @@ label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
 label_work_with_us = Работайте с нами
+label_work_with_us_desc =
+    Работайте
+    с нами
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blocklist = Ваш чёрный список
