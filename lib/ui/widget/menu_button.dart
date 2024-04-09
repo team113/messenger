@@ -41,7 +41,7 @@ class MenuButton extends StatelessWidget {
     this.inverted = false,
     this.onPressed,
   })  : icon = null,
-        title = tab.title(),
+        title = tab.l10n,
         subtitle = switch (tab) {
           ProfileTab.public => 'label_public_section_hint'.l10n,
           ProfileTab.signing => 'label_login_section_hint'.l10n,

@@ -290,7 +290,7 @@ extension L10nDurationExtension on Duration {
 /// Extension adding an ability to get [ProfileTab] localized title.
 extension L10nProfileTabExtension on ProfileTab {
   /// Returns localized title of this [ProfileTab].
-  String title() {
+  String get l10n {
     return switch (this) {
       ProfileTab.public => 'label_profile'.l10n,
       ProfileTab.signing => 'label_login_options'.l10n,

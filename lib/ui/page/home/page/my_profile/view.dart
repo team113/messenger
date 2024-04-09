@@ -119,7 +119,7 @@ class MyProfileView extends StatelessWidget {
                           child: Column(
                             children: [
                               block(
-                                title: ProfileTab.public.title(),
+                                title: ProfileTab.public.l10n,
                                 children: [
                                   Obx(() {
                                     return BigAvatarWidget.myUser(
@@ -162,7 +162,7 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.signing:
                       return block(
-                        title: ProfileTab.signing.title(),
+                        title: ProfileTab.signing.l10n,
                         children: [
                           Paddings.basic(
                             Obx(() {
@@ -238,7 +238,7 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.background:
                       return block(
-                        title: ProfileTab.background.title(),
+                        title: ProfileTab.background.l10n,
                         children: [
                           Paddings.dense(
                             Obx(() {
@@ -254,7 +254,7 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.chats:
                       return block(
-                        title: ProfileTab.chats.title(),
+                        title: ProfileTab.chats.l10n,
                         children: [_chats(context, c)],
                       );
 
@@ -264,7 +264,7 @@ class MyProfileView extends StatelessWidget {
                       }
 
                       return block(
-                        title: ProfileTab.calls.title(),
+                        title: ProfileTab.calls.l10n,
                         children: [_call(context, c)],
                       );
 
@@ -274,7 +274,7 @@ class MyProfileView extends StatelessWidget {
                       }
 
                       return block(
-                        title: ProfileTab.media.title(),
+                        title: ProfileTab.media.l10n,
                         children: [_media(context, c)],
                       );
 
@@ -306,25 +306,25 @@ class MyProfileView extends StatelessWidget {
                       }
 
                       return block(
-                        title: ProfileTab.storage.title(),
+                        title: ProfileTab.storage.l10n,
                         children: [_storage(context, c)],
                       );
 
                     case ProfileTab.language:
                       return block(
-                        title: ProfileTab.language.title(),
+                        title: ProfileTab.language.l10n,
                         children: [_language(context, c)],
                       );
 
                     case ProfileTab.blocklist:
                       return block(
-                        title: ProfileTab.blocklist.title(),
+                        title: ProfileTab.blocklist.l10n,
                         children: [_blockedUsers(context, c)],
                       );
 
                     case ProfileTab.sections:
                       return block(
-                        title: ProfileTab.sections.title(),
+                        title: ProfileTab.sections.l10n,
                         children: [_sections(context, c)],
                       );
 
@@ -340,7 +340,7 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.danger:
                       return block(
-                        title: ProfileTab.danger.title(),
+                        title: ProfileTab.danger.l10n,
                         children: [_danger(context, c)],
                       );
 
@@ -1132,7 +1132,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
               padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
               child: Center(
                 child: Text(
-                  router.profileSection.value?.title() ?? 'label_profile'.l10n,
+                  router.profileSection.value?.l10n ?? 'label_profile'.l10n,
                 ),
               ),
             ),
