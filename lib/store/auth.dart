@@ -43,7 +43,7 @@ class AuthRepository implements AbstractAuthRepository {
   Credentials? _signUpCredentials;
 
   @override
-  set token(AccessToken? token) {
+  set token(AccessTokenSecret? token) {
     Log.debug('set token($token)', '$runtimeType');
 
     _graphQlProvider.token = token;
@@ -104,7 +104,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     await _graphQlProvider.addUserEmail(
       email,
-      raw: RawClientOptions(_signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
   }
 
@@ -120,7 +120,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     await _graphQlProvider.confirmEmailCode(
       code,
-      raw: RawClientOptions(_signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
     return _signUpCredentials!;
   }
@@ -134,7 +134,7 @@ class AuthRepository implements AbstractAuthRepository {
     }
 
     await _graphQlProvider.resendEmail(
-      raw: RawClientOptions(_signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
   }
 
@@ -155,13 +155,14 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> renewSession(RefreshToken token) {
-    Log.debug('renewSession($token)', '$runtimeType');
+  Future<Credentials> refreshSession(RefreshTokenSecret secret) {
+    Log.debug('refreshSession($secret)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
-      var response = (await _graphQlProvider.renewSession(token)).renewSession
-          as RenewSession$Mutation$RenewSession$RenewSessionOk;
-      _graphQlProvider.token = response.session.token;
+      final response =
+          (await _graphQlProvider.refreshSession(secret)).refreshSession
+              as RefreshSession$Mutation$RefreshSession$CreateSessionOk;
+      _graphQlProvider.token = response.accessToken.secret;
       _graphQlProvider.reconnect();
       return response.toModel();
     });

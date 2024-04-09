@@ -37,7 +37,7 @@ final StepDefinitionGeneric renameContact =
 
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
-    provider.token = authService.credentials.value!.session.token;
+    provider.token = authService.credentials.value!.access.secret;
 
     await provider.changeContactName(contactId, UserName(name));
 

@@ -78,8 +78,8 @@ class _BackgroundService {
   /// [Credentials] to use in the [_provider].
   Credentials? _credentials;
 
-  /// [Timer], used to [_renewSession] after some period of time.
-  Timer? _renewSessionTimer;
+  /// [Timer], used to [_refreshSession] after some period of time.
+  Timer? _refreshSessionTimer;
 
   /// [StreamSubscription] to the [GraphQlProvider.incomingCallsTopEvents].
   StreamSubscription? _subscription;
@@ -98,10 +98,10 @@ class _BackgroundService {
   /// non-active.
   static const Duration _connectionFailureDuration = Duration(seconds: 6);
 
-  /// [Duration] of the [_renewSessionTimer] renewing the session.
+  /// [Duration] of the [_refreshSessionTimer] renewing the session.
   ///
   /// Should be enough to determine if [_connectionEstablished] is still `true`.
-  static const Duration _renewSessionTimerDuration = Duration(seconds: 7);
+  static const Duration _refreshSessionTimerDuration = Duration(seconds: 7);
 
   /// List of all the incoming calls.
   final List<String> _incomingCalls = [];
@@ -120,10 +120,10 @@ class _BackgroundService {
   ///    as they contain the accepted call, so no decline request is sent.
   final List<String> _acceptedCalls = [];
 
-  /// Indicator whether the [_renewSession] request has been fulfilled or not.
+  /// Indicator whether the [_refreshSession] request has been fulfilled or not.
   ///
   /// Used in the [_connectionFailureTimer] to prevent repeating the
-  /// [_renewSession] on the main application connection loss.
+  /// [_refreshSession] on the main application connection loss.
   bool _renewFulfilled = true;
 
   /// Initializes this [_BackgroundService].
@@ -141,7 +141,7 @@ class _BackgroundService {
 
     _provider.authExceptionHandler = (e) async {
       _renewFulfilled = false;
-      return _renewSession();
+      return _refreshSession();
     };
 
     _resetConnectionTimer();
@@ -152,14 +152,14 @@ class _BackgroundService {
     // Start a [Timer] fetching the [_credentials] from the [Hive] in case
     // [_connectionEstablished] is `false` after some time meaning the main
     // application is non-active.
-    Timer(_renewSessionTimerDuration, () async {
+    Timer(_refreshSessionTimerDuration, () async {
       if (!_connectionEstablished && _credentials == null) {
         await Hive.initFlutter('hive');
         var credentialsProvider = CredentialsHiveProvider();
         await credentialsProvider.init();
 
         _credentials = credentialsProvider.get();
-        _provider.token = _credentials?.session.token;
+        _provider.token = _credentials?.access.secret;
         _provider.reconnect();
 
         if (_subscription == null) {
@@ -236,8 +236,8 @@ class _BackgroundService {
       _renewFulfilled = true;
       _credentials = Credentials.fromJson(event!);
 
-      _renewSessionTimer?.cancel();
-      _provider.token = _credentials?.session.token;
+      _refreshSessionTimer?.cancel();
+      _provider.token = _credentials?.access.secret;
       _provider.reconnect();
 
       if (_subscription == null) {
@@ -262,23 +262,23 @@ class _BackgroundService {
     );
   }
 
-  /// Starts the [_renewSessionTimer] renewing the [_credentials].
-  Future<void> _renewSession() async {
-    _renewSessionTimer?.cancel();
-    _renewSessionTimer = Timer(
-      _connectionEstablished ? _renewSessionTimerDuration : Duration.zero,
+  /// Starts the [_refreshSessionTimer] renewing the [_credentials].
+  Future<void> _refreshSession() async {
+    _refreshSessionTimer?.cancel();
+    _refreshSessionTimer = Timer(
+      _connectionEstablished ? _refreshSessionTimerDuration : Duration.zero,
       () async {
         if (!_connectionEstablished) {
-          if (_credentials?.rememberedSession.expireAt
+          if (_credentials?.refresh.expireAt
                   .isAfter(PreciseDateTime.now().toUtc()) ==
               true) {
             try {
               _renewFulfilled = true;
 
-              var result = await _provider
-                  .renewSession(_credentials!.rememberedSession.token);
-              var ok = (result.renewSession
-                  as RenewSession$Mutation$RenewSession$RenewSessionOk);
+              var result =
+                  await _provider.refreshSession(_credentials!.refresh.secret);
+              var ok = (result.refreshSession
+                  as RefreshSession$Mutation$RefreshSession$CreateSessionOk);
               _credentials = ok.toModel();
 
               // Store the [Credentials] in the [Hive].
@@ -295,9 +295,9 @@ class _BackgroundService {
 
               _service.invoke('token', _credentials!.toJson());
 
-              _provider.token = _credentials?.session.token;
+              _provider.token = _credentials?.access.secret;
               _provider.reconnect();
-            } on RenewSessionException catch (_) {
+            } on RefreshSessionException catch (_) {
               _service.invoke('requireToken');
             }
           } else {
@@ -316,7 +316,7 @@ class _BackgroundService {
     _connectionFailureTimer = Timer(_connectionFailureDuration, () {
       _connectionEstablished = false;
       if (!_renewFulfilled) {
-        _renewSession();
+        _refreshSession();
       }
     });
   }
