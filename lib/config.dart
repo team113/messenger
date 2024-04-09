@@ -91,11 +91,11 @@ class Config {
   static String googleClientId = '';
 
   /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema = '0';
+  static String? schema = '1';
 
   /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
   /// mismatch is detected.
-  static String? credentials;
+  static String? credentials = '1';
 
   /// Domain considered as the URL to download `appcast.xml` from.
   ///
