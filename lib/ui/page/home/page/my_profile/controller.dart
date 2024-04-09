@@ -449,7 +449,7 @@ class MyProfileController extends GetxController {
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
   /// Throws [UpdateUserLoginException].
-  Future<void> updateUserLogin(UserLogin login) async {
+  Future<void> updateUserLogin(UserLogin? login) async {
     await _myUserService.updateUserLogin(login);
   }
 

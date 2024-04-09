@@ -31,14 +31,20 @@ subscription RecentChatsTopEvents(
         }
         ... on RecentChatsTop {
             list {
-                __typename
-                ...Chat
+                node {
+                    __typename
+                    ...Chat
+                }
+                cursor
             }
         }
         ... on EventRecentChatsTopChatUpdated {
             chat {
-                __typename
-                ...Chat
+                node {
+                    __typename
+                    ...Chat
+                }
+                cursor
             }
         }
         ... on EventRecentChatsTopChatDeleted {
