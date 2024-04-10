@@ -599,8 +599,8 @@ class MyUserRepository implements AbstractMyUserRepository {
         } else {
           myUser.value = value;
 
-          // Refresh the value since [event.value] is the same [MyUser] stored in
-          // [_myUser] (so `==` operator fails to distinguish them).
+          // Refresh the value since [event.value] is the same [MyUser] stored
+          // in [_myUser] (so `==` operator fails to distinguish them).
           myUser.refresh();
         }
       } else {

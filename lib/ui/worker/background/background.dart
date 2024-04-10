@@ -32,13 +32,13 @@ import 'src/main.dart';
 
 /// Worker responsible for a [FlutterBackgroundService] management.
 class BackgroundWorker extends GetxService {
-  BackgroundWorker(this._credentialsProvider, this._activeAccountProvider);
+  BackgroundWorker(this._credentialsProvider, this._accountProvider);
 
   /// [CredentialsHiveProvider] listening [Credentials] changes.
   final CredentialsHiveProvider _credentialsProvider;
 
   /// [AccountHiveProvider] used to get the currently active [UserId].
-  final AccountHiveProvider _activeAccountProvider;
+  final AccountHiveProvider _accountProvider;
 
   /// [FlutterBackgroundService] itself.
   final FlutterBackgroundService _service = FlutterBackgroundService();
@@ -65,7 +65,7 @@ class BackgroundWorker extends GetxService {
 
   /// Returns the [Credentials] of the active [MyUser].
   Credentials? get _creds {
-    final UserId? id = _activeAccountProvider.userId;
+    final UserId? id = _accountProvider.userId;
     final Credentials? creds = id != null ? _credentialsProvider.get(id) : null;
 
     return creds;
@@ -79,7 +79,7 @@ class BackgroundWorker extends GetxService {
       _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
         final key = UserId(e.key);
 
-        if (key == _creds?.userId) {
+        if (key == _creds?.userId || _creds == null) {
           // If session is deleted, then ask the [_service] to stop.
           if (e.deleted) {
             _service.invoke('stop');
