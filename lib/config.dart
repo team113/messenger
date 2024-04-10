@@ -132,7 +132,8 @@ class Config {
   /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    Map<String, dynamic> document =
+
+    final Map<String, dynamic> document =
         TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
             .toMap();
 
@@ -251,7 +252,7 @@ class Config {
         final response = await (await PlatformUtils.dio)
             .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
-          Map<String, dynamic> remote =
+          final Map<String, dynamic> remote =
               TomlDocument.parse(response.data.toString()).toMap();
 
           confRemote = remote['conf']?['remote'] ?? confRemote;
@@ -271,7 +272,9 @@ class Config {
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
             appcast = remote['appcast']?['url'] ?? appcast;
-            copyright = remote['legal']?['copyright'] ?? copyright;
+            copyright = remote['legal']?[Uri.base.host]['copyright'] ??
+                remote['legal']?['copyright'] ??
+                copyright;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],
