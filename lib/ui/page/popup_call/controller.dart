@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:log_me/log_me.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/domain/model/chat.dart';
@@ -79,6 +80,11 @@ class PopupCallController extends GetxController {
     );
 
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      Log.debug(
+        'WebUtils.onStorageChange(${e.key}): ${e.newValue}',
+        '$runtimeType',
+      );
+
       if (e.key == null) {
         WebUtils.closeWindow();
       } else if (e.newValue == null) {
@@ -107,6 +113,7 @@ class PopupCallController extends GetxController {
     _storageSubscription?.cancel();
     _stateWorker.dispose();
     _calls.leave(call.value.chatId.value);
+    WebUtils.closeWindow();
     super.dispose();
   }
 

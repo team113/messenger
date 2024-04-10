@@ -142,12 +142,12 @@ class AuthService extends GetxService {
 
     // Listen to the [Credentials] changes.
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
-      if (e.key == 'credentials') {
-        Log.debug(
-          '_storageSubscription(${e.key}): received new credentials',
-          '$runtimeType',
-        );
+      Log.debug(
+        '_storageSubscription(${e.key}): received new credentials',
+        '$runtimeType',
+      );
 
+      if (e.key == 'credentials') {
         if (e.newValue != null) {
           final Credentials creds =
               Credentials.fromJson(json.decode(e.newValue!));
@@ -168,7 +168,8 @@ class AuthService extends GetxService {
 
     WebUtils.credentials = creds;
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      if (e.key == userId?.val) {
+      if (_accountProvider.userId == null ||
+          e.key == _accountProvider.userId?.val) {
         WebUtils.credentials = e.value;
       }
     });
