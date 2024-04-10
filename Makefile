@@ -825,7 +825,8 @@ fcm.conf:
 		--ios-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
 		--macos-bundle-id=$(or $(bundle-id),$(FCM_BUNDLE)) \
 		--android-package-name=$(or $(bundle-id),$(FCM_BUNDLE)) \
-		--web-app-id=$(or $(web-id),$(FCM_WEB))
+		--web-app-id=$(or $(web-id),$(FCM_WEB)) \
+		--windows-app-id=$(or $(web-id),$(FCM_WEB))
 
 
 
