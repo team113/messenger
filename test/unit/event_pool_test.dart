@@ -21,7 +21,7 @@ import 'package:messenger/util/event_pool.dart';
 
 void main() {
   test('EventPool locks the correct values', () async {
-    EventPool pool = EventPool();
+    final pool = EventPool();
 
     pool.protect(
       'tag',
@@ -37,7 +37,7 @@ void main() {
   });
 
   test('EventPool.protect() does nothing, if executing the same tag', () async {
-    EventPool pool = EventPool();
+    final pool = EventPool();
 
     pool.protect(
       'tag',
@@ -45,7 +45,7 @@ void main() {
       values: ['value'],
     );
 
-    DateTime startedAt = DateTime.now();
+    final startedAt = DateTime.now();
 
     await pool.protect(
       'tag',
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('EventPool.processed() returns expected results', () async {
-    EventPool pool = EventPool();
+    final pool = EventPool();
 
     pool.add('processed');
     expect(pool.processed('processed'), true);
@@ -67,7 +67,7 @@ void main() {
 
   test('EventPool.protect() repeats the provided callback', () async {
     int i = 10;
-    EventPool pool = EventPool();
+    final pool = EventPool();
 
     await pool.protect('tag', () async => i--, repeat: () => i > 0);
 
@@ -75,7 +75,7 @@ void main() {
   });
 
   test('EventPool.protect() stops repeating, if disposed', () async {
-    EventPool pool = EventPool();
+    final pool = EventPool();
 
     pool.protect(
       'tag',
