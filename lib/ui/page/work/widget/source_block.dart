@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
@@ -41,7 +42,7 @@ class SourceCodeBlock extends StatelessWidget {
     }
 
     return Block(
-      title: 'Исходный код',
+      title: 'label_source_code'.l10n,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         button(
@@ -59,7 +60,7 @@ class SourceCodeBlock extends StatelessWidget {
             const SizedBox(width: 4),
             Text('(', style: style.fonts.normal.regular.onBackground),
             button(
-              label: 'открыть отдельно',
+              label: 'btn_open_separately'.l10n,
               onPressed: () => launchUrlString(
                 '${Config.origin}${Routes.style}',
               ),

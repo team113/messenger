@@ -69,6 +69,6 @@ class VacancyWorkButton extends StatelessWidget {
 
   /// Changes router location to the [work] page.
   ///
-  /// Intended to be used as a default of the [decorator].
+  /// Intended to be used as a default of the [onPressed].
   static void _defaultOnPressed(WorkTab work) => router.work(work);
 }
