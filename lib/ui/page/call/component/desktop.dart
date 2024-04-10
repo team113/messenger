@@ -608,11 +608,13 @@ Widget desktopCall(CallController c, BuildContext context) {
             cursor: c.draggedRenderer.value != null ||
                     c.doughDraggedRenderer.value != null
                 ? CustomMouseCursors.grabbing
-                : c.hoveredRenderer.value != null
-                    ? CustomMouseCursors.grab
-                    : c.isCursorHidden.value
-                        ? SystemMouseCursors.none
-                        : MouseCursor.defer,
+                : c.isCursorHidden.value
+                    ? SystemMouseCursors.none
+                    : c.hoveredRenderer.value != null
+                        ? CustomMouseCursors.grab
+                        : c.hoveredParticipant.value != null
+                            ? SystemMouseCursors.basic
+                            : MouseCursor.defer,
           );
         }),
 
@@ -743,23 +745,27 @@ Widget desktopCall(CallController c, BuildContext context) {
                               ),
                             ],
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: c.layoutAsPrimary,
                               child: const SvgIcon(SvgIcons.callGallery),
                             ),
                             const SizedBox(width: 16),
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: () =>
                                   c.layoutAsSecondary(floating: true),
                               child: const SvgIcon(SvgIcons.callFloating),
                             ),
                             const SizedBox(width: 16),
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: () =>
                                   c.layoutAsSecondary(floating: false),
                               child: const SvgIcon(SvgIcons.callSide),
                             ),
                             const SizedBox(width: 16),
                             AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
                               onPressed: c.toggleFullscreen,
                               child: SvgIcon(
                                 c.fullscreen.value
@@ -842,10 +848,18 @@ Widget desktopCall(CallController c, BuildContext context) {
                       chat: c.chat.value,
                       fullscreen: c.fullscreen.value,
                       height: CallController.titleHeight,
-                      toggleFullscreen: c.toggleFullscreen,
-                      onPrimary: c.layoutAsPrimary,
-                      onFloating: () => c.layoutAsSecondary(floating: true),
-                      onSecondary: () => c.layoutAsSecondary(floating: false),
+                      toggleFullscreen: c.draggedRenderer.value == null
+                          ? c.toggleFullscreen
+                          : null,
+                      onPrimary: c.draggedRenderer.value == null
+                          ? c.layoutAsPrimary
+                          : null,
+                      onFloating: c.draggedRenderer.value == null
+                          ? () => c.layoutAsSecondary(floating: true)
+                          : null,
+                      onSecondary: c.draggedRenderer.value == null
+                          ? () => c.layoutAsSecondary(floating: false)
+                          : null,
                     );
                   }),
                 ),
@@ -868,18 +882,21 @@ Widget desktopCall(CallController c, BuildContext context) {
           double? width,
           double? height,
         }) {
-          return MouseRegion(
-            cursor: cursor,
-            child: Scaler(
-              key: key,
-              onDragUpdate: onDrag,
-              onDragEnd: (_) {
-                c.updateSecondaryAttach();
-              },
-              width: width ?? Scaler.size,
-              height: height ?? Scaler.size,
-            ),
-          );
+          return Obx(() {
+            return MouseRegion(
+              cursor:
+                  c.draggedRenderer.value != null ? MouseCursor.defer : cursor,
+              child: Scaler(
+                key: key,
+                onDragUpdate: onDrag,
+                onDragEnd: (_) {
+                  c.updateSecondaryAttach();
+                },
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          });
         }
 
         // Returns a stack of draggable [Scaler]s on each of the sides:
@@ -1091,8 +1108,9 @@ Widget _primaryView(CallController c) {
     c.primaryDrags.value = 0;
     c.draggedRenderer.value = null;
     c.doughDraggedRenderer.value = null;
-    c.hoveredRenderer.value = d.participant;
-    c.hoveredRendererTimeout = 5;
+    c.hoveredParticipant.value = null;
+    c.hoveredRenderer.value = null;
+    c.hoveredParticipantTimeout = 5;
     c.isCursorHidden.value = false;
   }
 
@@ -1144,7 +1162,7 @@ Widget _primaryView(CallController c) {
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered = c.hoveredRenderer.value == participant &&
+                bool isHovered = c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
                 BoxFit? fit = participant.video.value?.renderer.value == null
@@ -1164,21 +1182,21 @@ Widget _primaryView(CallController c) {
                   opaque: false,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onHover: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onExit: (d) {
-                    c.hoveredRendererTimeout = 0;
-                    c.hoveredRenderer.value = null;
+                    c.hoveredParticipantTimeout = 0;
+                    c.hoveredParticipant.value = null;
                     c.isCursorHidden.value = false;
                   },
                   child: AnimatedOpacity(
@@ -1301,6 +1319,11 @@ Widget _primaryView(CallController c) {
                 onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit: c.rendererBoxFit[
                     participant.video.value?.renderer.value?.track.id() ?? ''],
+                onHovered: (v) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = v ? participant : null;
+                  }
+                },
               );
             });
           },
@@ -1541,8 +1564,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
         c.secondaryDrags.value = 0;
         c.draggedRenderer.value = null;
         c.doughDraggedRenderer.value = null;
-        c.hoveredRenderer.value = d.participant;
-        c.hoveredRendererTimeout = 5;
+        c.hoveredParticipant.value = null;
+        c.hoveredRenderer.value = null;
+        c.hoveredParticipantTimeout = 5;
         c.isCursorHidden.value = false;
       }
 
@@ -1677,28 +1701,28 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered = c.hoveredRenderer.value == participant &&
+                bool isHovered = c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
                 return MouseRegion(
                   opaque: false,
                   onEnter: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onHover: (d) {
                     if (c.draggedRenderer.value == null) {
-                      c.hoveredRenderer.value = data.participant;
-                      c.hoveredRendererTimeout = 5;
+                      c.hoveredParticipant.value = data.participant;
+                      c.hoveredParticipantTimeout = 5;
                       c.isCursorHidden.value = false;
                     }
                   },
                   onExit: (d) {
-                    c.hoveredRendererTimeout = 0;
-                    c.hoveredRenderer.value = null;
+                    c.hoveredParticipantTimeout = 0;
+                    c.hoveredParticipant.value = null;
                     c.isCursorHidden.value = false;
                   },
                   child: SafeAnimatedSwitcher(
@@ -1787,6 +1811,11 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
+                onHovered: (v) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredRenderer.value = v ? data.participant : null;
+                  }
+                },
               );
             },
             children:
