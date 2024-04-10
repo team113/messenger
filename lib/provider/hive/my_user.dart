@@ -60,6 +60,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(MyUserVersionAdapter());
     Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(ThumbHashAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
     Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
