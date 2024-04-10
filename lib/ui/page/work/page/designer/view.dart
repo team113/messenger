@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
@@ -57,39 +58,23 @@ class DesignerWorkView extends StatelessWidget {
               children: [
                 const SizedBox(height: 4),
                 const ProjectBlock(),
-                const Block(
-                  title: 'Условия',
+                Block(
+                  title: 'label_conditions'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- ежедневная оплата;\n'
-                      '- от 1500 EUR;\n'
-                      '- 4-х, 6-ти или 8-ми часовой рабочий день;\n'
-                      '- учёт рабочего времени и оплата переработок;\n'
-                      '- удалённое сотрудничество.',
-                    ),
-                  ],
-                ),
-                const Block(
-                  title: 'Требования',
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- понимание принципов UI/UX дизайна;\n'
-                      '- уверенное владение Figma;\n'
-                      '- возможность обеспечить качественную аудио и видеосвязь.',
-                    ),
-                  ],
-                ),
-                const Block(
-                  title: 'Стек технологий',
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('- Figma - вёрстка и прототипирование.'),
-                  ],
+                  children: [Text('label_conditions_ui_ux_designer'.l10n)],
                 ),
                 Block(
-                  title: 'Исходный код',
+                  title: 'label_requirements'.l10n,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [Text('label_requirements_ui_ux_developer'.l10n)],
+                ),
+                Block(
+                  title: 'label_tech_stack'.l10n,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [Text('label_tech_stack_ui_ux_designer'.l10n)],
+                ),
+                Block(
+                  title: 'label_source_code'.l10n,
                   children: [
                     Row(
                       children: [
@@ -108,7 +93,7 @@ class DesignerWorkView extends StatelessWidget {
                 ),
                 Obx(() {
                   return ProceedBlock(
-                    'Записаться на интервью',
+                    'btn_schedule_an_interview'.l10n,
                     onPressed: c.linkStatus.value.isLoading
                         ? null
                         : () async {

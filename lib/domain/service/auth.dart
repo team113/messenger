@@ -470,6 +470,10 @@ class AuthService extends GetxService {
           return;
         }
 
+        if (credentials.value == null) {
+          router.go(_unauthorized());
+        }
+
         try {
           final Credentials data = await _authRepository
               .refreshSession(credentials.value!.refresh.secret);

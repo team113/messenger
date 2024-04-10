@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -59,13 +60,8 @@ class FreelanceWorkController extends GetxController {
 
   // TODO: Remove when backend supports it out of the box.
   /// Welcome message of the [Chat] in the [_link].
-  static const ChatMessageText _welcome = ChatMessageText(
-    'Добрый день. Пожалуйста, укажите:\n'
-    '- логин на GitHub\'е;\n'
-    '- номер PR (Pull Request);\n'
-    '- предполагаемый срок выполнения задачи (дедлайн);\n'
-    '- предполагаемый способ решения задачи.',
-  );
+  static final ChatMessageText _welcome =
+      ChatMessageText('label_welcome_message_freelance'.l10n);
 
   /// URL to fetch the [Issue]s from.
   ///
