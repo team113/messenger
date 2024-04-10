@@ -555,6 +555,7 @@ class ChatInfoView extends StatelessWidget {
                             c.chat!.title,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
+                            style: style.fonts.big.regular.onBackground,
                           ),
                         ),
                         Obx(() {

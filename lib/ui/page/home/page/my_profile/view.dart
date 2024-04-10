@@ -95,15 +95,17 @@ class MyProfileView extends StatelessWidget {
                 itemCount: ProfileTab.values.length,
                 physics: const ClampingScrollPhysics(),
                 itemBuilder: (context, i) {
+                  final ProfileTab tab = ProfileTab.values[i];
+
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
-                    required String title,
+                    String? title,
                     List<Widget> overlay = const [],
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
-                        title: title,
+                        title: title ?? tab.l10n,
                         highlight: c.highlightIndex.value == i,
                         overlay: overlay,
                         children: children,
@@ -111,7 +113,7 @@ class MyProfileView extends StatelessWidget {
                     });
                   }
 
-                  switch (ProfileTab.values[i]) {
+                  switch (tab) {
                     case ProfileTab.public:
                       return Obx(() {
                         return HighlightedContainer(
@@ -119,7 +121,6 @@ class MyProfileView extends StatelessWidget {
                           child: Column(
                             children: [
                               block(
-                                title: 'label_profile'.l10n,
                                 children: [
                                   Obx(() {
                                     return BigAvatarWidget.myUser(
@@ -162,7 +163,6 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.signing:
                       return block(
-                        title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
                             Obx(() {
@@ -185,13 +185,7 @@ class MyProfileView extends StatelessWidget {
                               child: UserLoginField(
                                 c.myUser.value?.login,
                                 onSubmit: (s) async {
-                                  if (s == null) {
-                                    // TODO: Implement [UserLogin] deleting.
-                                    c.myUser.value?.login = null;
-                                    c.myUser.refresh();
-                                  } else {
-                                    await c.updateUserLogin(s);
-                                  }
+                                  await c.updateUserLogin(s);
                                 },
                               ),
                             );
@@ -238,7 +232,6 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.background:
                       return block(
-                        title: 'label_background'.l10n,
                         children: [
                           Paddings.dense(
                             Obx(() {
@@ -253,30 +246,21 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.chats:
-                      return block(
-                        title: 'label_chats'.l10n,
-                        children: [_chats(context, c)],
-                      );
+                      return block(children: [_chats(context, c)]);
 
                     case ProfileTab.calls:
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
 
-                      return block(
-                        title: 'label_calls'.l10n,
-                        children: [_call(context, c)],
-                      );
+                      return block(children: [_call(context, c)]);
 
                     case ProfileTab.media:
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
 
-                      return block(
-                        title: 'label_media'.l10n,
-                        children: [_media(context, c)],
-                      );
+                      return block(children: [_media(context, c)]);
 
                     case ProfileTab.notifications:
                       return block(
@@ -305,28 +289,16 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return block(
-                        title: 'label_storage'.l10n,
-                        children: [_storage(context, c)],
-                      );
+                      return block(children: [_storage(context, c)]);
 
                     case ProfileTab.language:
-                      return block(
-                        title: 'label_language'.l10n,
-                        children: [_language(context, c)],
-                      );
+                      return block(children: [_language(context, c)]);
 
                     case ProfileTab.blocklist:
-                      return block(
-                        title: 'label_blocked_users'.l10n,
-                        children: [_blockedUsers(context, c)],
-                      );
+                      return block(children: [_blockedUsers(context, c)]);
 
                     case ProfileTab.sections:
-                      return block(
-                        title: 'label_show_sections'.l10n,
-                        children: [_sections(context, c)],
-                      );
+                      return block(children: [_sections(context, c)]);
 
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
@@ -339,10 +311,7 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.danger:
-                      return block(
-                        title: 'label_danger_zone'.l10n,
-                        children: [_danger(context, c)],
-                      );
+                      return block(children: [_danger(context, c)]);
 
                     case ProfileTab.logout:
                       return const SafeArea(
@@ -539,9 +508,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           child: UserLoginField(
             c.myUser.value?.login,
             onSubmit: (s) async {
-              if (s != null) {
-                await c.updateUserLogin(s);
-              }
+              await c.updateUserLogin(s);
             },
           ),
         );
@@ -1130,7 +1097,11 @@ Widget _bar(MyProfileController c, BuildContext context) {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(child: Text('label_profile'.l10n)),
+              child: Center(
+                child: Text(
+                  router.profileSection.value?.l10n ?? 'label_profile'.l10n,
+                ),
+              ),
             ),
           ),
         ],

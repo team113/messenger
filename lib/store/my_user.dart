@@ -210,7 +210,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> updateUserLogin(UserLogin login) async {
+  Future<void> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
     // Don't do optimism, as [login] might be occupied, thus shouldn't set the
@@ -776,6 +776,11 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.login = event.login;
           break;
 
+        case MyUserEventKind.loginDeleted:
+          event as EventUserLoginDeleted;
+          userEntity.value.login = null;
+          break;
+
         case MyUserEventKind.emailAdded:
           event as EventUserEmailAdded;
           userEntity.value.emails.unconfirmed = event.email;
@@ -993,6 +998,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserLoginUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
       return EventUserLoginUpdated(node.userId, node.login);
+    } else if (e.$$typename == 'EventUserLoginDeleted') {
+      var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
+      return EventUserLoginDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserEmailAdded') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
       return EventUserEmailAdded(node.userId, node.email);

@@ -211,7 +211,7 @@ void main() async {
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
-  AccessToken? token;
+  AccessTokenSecret? token;
 
   @override
   Future<void> Function(AuthorizationException)? authExceptionHandler;
@@ -258,16 +258,25 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     return SignIn$Mutation$CreateSession$CreateSessionOk.fromJson(
       {
         'session': {
-          'token': 'token',
-          'expireAt': DateTime.now().add(const Duration(days: 1)).toString(),
-          'ver': '0',
+          '__typename': 'Session',
+          'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+          'userAgent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+          'isCurrent': true,
+          'lastActivatedAt': DateTime.now().toString(),
+          'ver': '031592915314290362597742826064324903711'
         },
-        'remembered': {
-          'token': 'token',
-          'expireAt': DateTime.now().add(const Duration(days: 1)).toString(),
-          'ver': '30066501444801094020394372057490153134',
+        'accessToken': {
+          '__typename': 'AccessToken',
+          'secret': 'token',
+          'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
         },
-        'user': userData
+        'refreshToken': {
+          '__typename': 'RefreshToken',
+          'secret': 'token',
+          'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
+        },
+        'user': userData,
       },
     );
   }

@@ -79,7 +79,7 @@ class MyUserService extends DisposableService {
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
   /// Throws [UpdateUserLoginException].
-  Future<void> updateUserLogin(UserLogin login) async {
+  Future<void> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
     await _userRepo.updateUserLogin(login);
   }
@@ -110,7 +110,7 @@ class MyUserService extends DisposableService {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     await _passwordChangeGuard.protect(() async {
-      // TODO: Make sure [AuthService] doesn't its `renewSession` during that.
+      // TODO: Make sure [AuthService] doesn't its `refreshSession` during that.
       await _userRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(newPassword, num: myUser.value?.num);
     });

@@ -39,7 +39,7 @@ final StepDefinitionGeneric chatIsFavorite =
     final ChatId chatId = context.world.groups[name]!;
     final provider = GraphQlProvider();
     final AuthService authService = Get.find();
-    provider.token = authService.credentials.value!.session.token;
+    provider.token = authService.credentials.value!.access.secret;
 
     if (status == FavoriteStatus.favorite) {
       final RxObsMap<ChatId, RxChat> chats = Get.find<ChatService>().chats;
