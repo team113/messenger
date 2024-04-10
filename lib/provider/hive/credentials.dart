@@ -49,19 +49,19 @@ class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
-  /// Returns [Credentials] from [Hive] by [id].
+  /// Returns [Credentials] from [Hive] by its [id].
   Credentials? get(UserId id) {
     Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
-  /// Saves provided [Credentials] to [Hive].
+  /// Saves the provided [Credentials] to [Hive].
   Future<void> put(Credentials credentials) async {
     Log.trace('put($credentials)', '$runtimeType');
     await putSafe(credentials.userId.val, credentials);
   }
 
-  /// Removes [Credentials] from [Hive] by [id].
+  /// Removes [Credentials] from [Hive] by its [id].
   Future<void> remove(UserId id) async {
     Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

@@ -81,7 +81,7 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// In order for this box to be linked with a certain [User], [userId] may be
   /// specified.
   Future<void> init({UserId? userId}) async {
-    Log.debug('init($userId)', '$runtimeType');
+    Log.debug('init(userId: $userId)', '$runtimeType');
 
     registerAdapters();
     await _mutex.protect(() async {
@@ -102,6 +102,8 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
   /// Removes all entries from the [Box].
   @mustCallSuper
   Future<void> clear() async {
+    Log.debug('close()', '$runtimeType');
+
     if (_isReady && _box.isOpen) {
       await box.clear();
     }
@@ -127,8 +129,6 @@ abstract class HiveBaseProvider<T> extends DisposableInterface {
 
   @override
   void onClose() async {
-    Log.debug('onClose()', '$runtimeType');
-
     await close();
     super.onClose();
   }
@@ -225,7 +225,7 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
   /// In order for this box to be linked with a certain [User], [userId] may be
   /// specified.
   Future<void> init({UserId? userId}) async {
-    Log.debug('init($userId)', '$runtimeType');
+    Log.debug('init(userId: $userId)', '$runtimeType');
 
     await _mutex.protect(() async {
       if (_isReady && _box.isOpen) {
@@ -282,8 +282,6 @@ abstract class HiveLazyProvider<T extends Object> extends DisposableInterface {
 
   @override
   void onClose() async {
-    Log.debug('onClose()', '$runtimeType');
-
     await close();
     super.onClose();
   }

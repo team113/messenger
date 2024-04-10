@@ -81,13 +81,13 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     await putSafe(user.value.id.val, user);
   }
 
-  /// Returns a [MyUser] from [Hive] by [id].
+  /// Returns the [MyUser] from [Hive] by its [id].
   HiveMyUser? get(UserId id) {
     Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
-  /// Removes a [MyUser] from [Hive] by [id].
+  /// Removes the [MyUser] from [Hive] by its [id].
   Future<void> remove(UserId id) async {
     Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);

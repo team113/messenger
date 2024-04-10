@@ -37,7 +37,7 @@ import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/active_account.dart';
+import '/provider/hive/account.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
@@ -56,7 +56,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._myUserLocal,
     this._blocklistRepo,
     this._userRepo,
-    this._activeAccountLocal,
+    this._accountLocal,
   );
 
   @override
@@ -74,8 +74,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
 
-  /// [Hive] storage providing the [UserId] of a currently active [MyUser].
-  final ActiveAccountHiveProvider _activeAccountLocal;
+  /// [Hive] storage providing the [UserId] of the currently active [MyUser].
+  final AccountHiveProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -94,7 +94,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] initializing and
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged] initializing and
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onFocusChanged;
 
@@ -104,9 +104,8 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Returns the currently active [HiveMyUser] from [Hive].
   HiveMyUser? get _active {
-    final UserId? activeUserId = _activeAccountLocal.userId;
-    final HiveMyUser? saved =
-        activeUserId != null ? _myUserLocal.get(activeUserId) : null;
+    final UserId? userId = _accountLocal.userId;
+    final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
 
     return saved;
   }
@@ -588,8 +587,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      final key = UserId(event.key);
+      final BoxEvent event = _localSubscription!.current;
+
+      final UserId key = UserId(event.key);
       final MyUser? value = event.value?.value;
 
       if (key == _active?.value.id) {
@@ -604,8 +604,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           myUser.refresh();
         }
       } else {
-        // Events of not currently active users.
-        // No-op.
+        // No-op, as those events aren't of the currently active [MyUser].
       }
     }
   }
@@ -859,9 +858,11 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.cameOffline:
           event as EventUserCameOffline;
           userEntity.value.online = false;
-          put((u) => u
-            ..online = false
-            ..lastSeenAt = event.at);
+          put(
+            (u) => u
+              ..online = false
+              ..lastSeenAt = event.at,
+          );
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
@@ -875,10 +876,9 @@ class MyUserRepository implements AbstractMyUserRepository {
           _myUserLocal.remove(event.userId);
 
           if (event.userId == _active?.value.id) {
-            _activeAccountLocal.clear();
+            _accountLocal.clear();
             onUserDeleted();
           }
-
           break;
 
         case MyUserEventKind.directLinkDeleted:

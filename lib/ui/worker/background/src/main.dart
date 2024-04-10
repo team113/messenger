@@ -40,7 +40,7 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/active_account.dart';
+import '/provider/hive/account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 
@@ -158,14 +158,13 @@ class _BackgroundService {
       if (!_connectionEstablished && _credentials == null) {
         await Hive.initFlutter('hive');
         final credentialsProvider = CredentialsHiveProvider();
-        final activeAccountProvider = ActiveAccountHiveProvider();
+        final accountProvider = AccountHiveProvider();
 
         await credentialsProvider.init();
-        await activeAccountProvider.init();
+        await accountProvider.init();
 
-        final UserId? lastUserId = activeAccountProvider.userId;
-        _credentials =
-            lastUserId != null ? credentialsProvider.get(lastUserId) : null;
+        final UserId? userId = accountProvider.userId;
+        _credentials = userId != null ? credentialsProvider.get(userId) : null;
 
         _provider.token = _credentials?.access.secret;
         _provider.reconnect();
@@ -174,7 +173,7 @@ class _BackgroundService {
           _subscribe();
         }
 
-        await activeAccountProvider.close();
+        await accountProvider.close();
         await credentialsProvider.close();
         await Hive.close();
       }

@@ -24,7 +24,7 @@ import 'package:get/get.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/active_account.dart';
+import '/provider/hive/account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -37,8 +37,8 @@ class BackgroundWorker extends GetxService {
   /// [CredentialsHiveProvider] listening [Credentials] changes.
   final CredentialsHiveProvider _credentialsProvider;
 
-  /// [ActiveAccountHiveProvider] used to get the currently active [UserId].
-  final ActiveAccountHiveProvider _activeAccountProvider;
+  /// [AccountHiveProvider] used to get the currently active [UserId].
+  final AccountHiveProvider _activeAccountProvider;
 
   /// [FlutterBackgroundService] itself.
   final FlutterBackgroundService _service = FlutterBackgroundService();
@@ -63,7 +63,7 @@ class BackgroundWorker extends GetxService {
   /// [Worker] reacting on the [L10n.chosen] changes.
   Worker? _localizationWorker;
 
-  /// Returns [Credentials] of the last active user.
+  /// Returns the [Credentials] of the active [MyUser].
   Credentials? get _creds {
     final UserId? id = _activeAccountProvider.userId;
     final Credentials? creds = id != null ? _credentialsProvider.get(id) : null;
@@ -96,8 +96,7 @@ class BackgroundWorker extends GetxService {
             }
           }
         } else {
-          // [Credentials] of another account were changed.
-          // No-op.
+          // No-op, as [Credentials] of non-active [MyUser] were changed.
         }
       });
     }

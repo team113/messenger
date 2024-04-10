@@ -52,7 +52,7 @@ import 'domain/service/auth.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/active_account.dart';
+import 'provider/hive/account.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
@@ -250,7 +250,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     if (await callKeep.hasPhoneAccount()) {
       SharedPreferences? prefs;
       CredentialsHiveProvider? credentialsProvider;
-      ActiveAccountHiveProvider? activeAccountProvider;
+      AccountHiveProvider? accountProvider;
       GraphQlProvider? provider;
       StreamSubscription? subscription;
 
@@ -292,17 +292,17 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         await Config.init();
         await Hive.initFlutter('hive');
         credentialsProvider = CredentialsHiveProvider();
-        activeAccountProvider = ActiveAccountHiveProvider();
+        accountProvider = AccountHiveProvider();
 
         await credentialsProvider.init();
-        await activeAccountProvider.init();
+        await accountProvider.init();
 
-        final UserId? lastUserId = activeAccountProvider.userId;
+        final UserId? userId = accountProvider.userId;
         final Credentials? credentials =
-            lastUserId != null ? credentialsProvider.get(lastUserId) : null;
+            userId != null ? credentialsProvider.get(userId) : null;
 
         await credentialsProvider.close();
-        await activeAccountProvider.close();
+        await accountProvider.close();
 
         if (credentials != null) {
           provider = GraphQlProvider();
@@ -414,7 +414,7 @@ Future<void> _initHive() async {
     });
   }
 
-  await Get.put(ActiveAccountHiveProvider()).init();
+  await Get.put(AccountHiveProvider()).init();
   await Get.put(MyUserHiveProvider()).init();
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();

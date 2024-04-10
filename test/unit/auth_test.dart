@@ -26,7 +26,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/active_account.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/routes.dart';
@@ -40,7 +40,7 @@ import 'auth_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/unit_auth');
   final credsProvider = CredentialsHiveProvider();
-  final accountProvider = ActiveAccountHiveProvider();
+  final accountProvider = AccountHiveProvider();
   final myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await credsProvider.init();

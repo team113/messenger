@@ -22,12 +22,12 @@ import '/util/log.dart';
 import 'base.dart';
 
 /// [Hive] storage for the currently active [MyUser]'s [UserId].
-class ActiveAccountHiveProvider extends HiveBaseProvider<UserId> {
+class AccountHiveProvider extends HiveBaseProvider<UserId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch(key: 0);
 
   @override
-  String get boxName => 'active_account';
+  String get boxName => 'account';
 
   @override
   void registerAdapters() {
