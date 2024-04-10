@@ -1,0 +1,7 @@
+fragment Session on Session {
+    id
+    userAgent
+    isCurrent
+    lastActivatedAt
+    ver
+}

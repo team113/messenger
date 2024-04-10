@@ -4,6 +4,11 @@ debug = true
 [instance]
 name = "backend"
 
+[db.cockroachdb.pool.background]
+total = 20
+[db.cockroachdb.pool.client]
+total = 30
+
 [fcm]
 files_url = "http://localhost/files"
 
@@ -28,9 +33,9 @@ max_relay_port = 49200
 [chat.call.room]
 member_join_timeout = "24s" # 20s (instance restart time) + 4s (event handlers)
 
-[background.event_handler.initialize_call]
-period = "300ms"
 [background.event_handler.ensure_call_member_joined_room]
+period = "300ms"
+[background.event_handler.initialize_call]
 period = "300ms"
 [background.event_handler.invalidate_chat_counts]
 period = "500ms"

@@ -43,6 +43,7 @@ enum MyUserEventKind {
   emailAdded,
   emailConfirmed,
   emailDeleted,
+  loginDeleted,
   loginUpdated,
   nameDeleted,
   nameUpdated,
@@ -315,7 +316,7 @@ class EventUserEmailDeleted extends MyUserEvent {
   int get hashCode => email.hashCode;
 }
 
-/// Event of an [UserLogin] being updated.
+/// Event of a [UserLogin] being updated.
 class EventUserLoginUpdated extends MyUserEvent {
   const EventUserLoginUpdated(super.userId, this.login);
 
@@ -331,6 +332,17 @@ class EventUserLoginUpdated extends MyUserEvent {
 
   @override
   int get hashCode => login.hashCode;
+}
+
+/// Event of a [UserLogin] being deleted.
+class EventUserLoginDeleted extends MyUserEvent {
+  const EventUserLoginDeleted(super.userId, this.at);
+
+  /// [DateTime] when the [UserLogin] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.loginDeleted;
 }
 
 /// Event of an [MyUser] being muted.

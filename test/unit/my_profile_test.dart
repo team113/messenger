@@ -94,7 +94,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   int version = 0;
 
   @override
-  AccessToken? token = const AccessToken('aaaaaaaaaaa');
+  AccessTokenSecret? token = const AccessTokenSecret('aaaaaaaaaaa');
 
   Map<String, dynamic> userData = {
     'id': 'id',
