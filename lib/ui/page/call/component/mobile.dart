@@ -696,7 +696,6 @@ Widget mobileCall(CallController c, BuildContext context) {
               c.minimized.value = animation.value != 0;
             } else {
               if (animation.value != 0) {
-                c.hoveredRenderer.value = null;
                 c.keepUi(false);
               }
               c.minimized.value = animation.value == 1;
