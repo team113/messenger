@@ -15,26 +15,28 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation RenewSession($token: RefreshToken!) {
-    renewSession(token: $token) {
+mutation RefreshSession($secret: RefreshTokenSecret!) {
+    refreshSession(secret: $secret) {
         __typename
-        ... on RenewSessionOk {
+        ... on CreateSessionOk {
             user {
                 __typename
                 id
             }
             session {
-                expireAt
-                token
-                ver
+                __typename
+                ...Session
             }
-            remembered {
-                expireAt
-                token
-                ver
+            accessToken {
+                __typename
+                ...AccessToken
+            }
+            refreshToken {
+                __typename
+                ...RefreshToken
             }
         }
-        ... on RenewSessionError {
+        ... on RefreshSessionError {
             code
         }
     }

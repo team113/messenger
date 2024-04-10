@@ -380,6 +380,10 @@ class CallController extends GetxController {
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
 
+  /// [Worker]s reacting on [CallMember.isConnected] or [CallMember.joinedAt]
+  /// changes playing the [_connected] sound.
+  final Map<CallMemberId, Worker> _memberWorkers = {};
+
   /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
 
@@ -565,6 +569,9 @@ class CallController extends GetxController {
 
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
+
+  /// Returns the name of a new connection sound asset.
+  String get _connected => 'connected.mp3';
 
   /// Returns the name of a reconnect sound asset.
   String get _reconnect => 'reconnect.mp3';
@@ -884,6 +891,7 @@ class CallController extends GetxController {
     }
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
+    _memberWorkers.forEach((_, v) => v.dispose());
     _membersSubscription.cancel();
 
     for (final Timer e in _notificationTimers) {
@@ -2121,12 +2129,12 @@ class CallController extends GetxController {
         }
       }
 
-      _membersTracksSubscriptions = _currentCall.value.members.map(
+      _membersTracksSubscriptions = members.map(
         (k, v) =>
             MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
       );
 
-      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+      _membersSubscription = members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             _putTracksFrom(e.value!);
@@ -2136,6 +2144,7 @@ class CallController extends GetxController {
             );
 
             _ensureCorrectGrouping();
+            _playConnected(e.value!);
             break;
 
           case OperationKind.removed:
@@ -2145,6 +2154,7 @@ class CallController extends GetxController {
             focused.removeWhere((m) => m.member.id == e.key);
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _memberWorkers.remove(e.key)?.dispose();
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
@@ -2170,9 +2180,57 @@ class CallController extends GetxController {
         }
       });
 
-      members.forEach((_, value) => _putTracksFrom(value));
+      members.forEach((_, value) {
+        _putTracksFrom(value);
+        _playConnected(value);
+      });
+
       _ensureCorrectGrouping();
     }
+  }
+
+  /// Plays the [_connected] sound or initializes [_memberWorkers] for the
+  /// provided [member].
+  Future<void> _playConnected(CallMember member) async {
+    final CallMember me = _currentCall.value.me;
+
+    if (member.isConnected.isFalse) {
+      _listenToConnected(member);
+    } else if (member.joinedAt.value == null) {
+      _listenToJoinedAt(member);
+    } else if (_currentCall.value.state.value == OngoingCallState.active &&
+        me.joinedAt.value != null &&
+        member.joinedAt.value!.isAfter(me.joinedAt.value!)) {
+      await AudioUtils.once(AudioSource.asset('audio/$_connected'));
+    }
+  }
+
+  /// Initializes [_memberWorkers] for the provided [CallMember.isConnected].
+  void _listenToConnected(CallMember member) {
+    _memberWorkers.remove(member.id)?.dispose();
+    _memberWorkers[member.id] = ever(
+      member.isConnected,
+      (connected) async {
+        if (connected) {
+          _memberWorkers.remove(member.id)?.dispose();
+          await _playConnected(member);
+        }
+      },
+    );
+  }
+
+  /// Initializes [_memberWorkers] for the provided [CallMember.joinedAt].
+  void _listenToJoinedAt(CallMember member) {
+    _memberWorkers.remove(member.id)?.dispose();
+    _memberWorkers[member.id] = ever(
+      member.joinedAt,
+      (joinedAt) async {
+        if (joinedAt != null) {
+          _memberWorkers.remove(member.id)?.dispose();
+          await _playConnected(member);
+        }
+      },
+    );
   }
 
   /// Sets the [chat] to the provided value, updating the title.
@@ -2202,8 +2260,7 @@ class CallController extends GetxController {
 
         updateTitle();
 
-        _titleSubscription =
-            _currentCall.value.members.listen((_) => updateTitle());
+        _titleSubscription = members.listen((_) => updateTitle());
         _durationSubscription = duration.listen((_) => updateTitle());
       }
     }

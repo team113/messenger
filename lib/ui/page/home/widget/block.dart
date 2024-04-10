@@ -133,7 +133,7 @@ class Block extends StatelessWidget {
                         if (title != null) ...[
                           Center(
                             child: Container(
-                              padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                               child: Text(
                                 title!,
                                 textAlign: TextAlign.center,
@@ -206,15 +206,18 @@ class EditBlockButton extends StatelessWidget {
         child: AnimatedButton(
           key: _key,
           onPressed: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-            child: editing
-                ? const Padding(
-                    padding: EdgeInsets.all(2),
-                    child: SvgIcon(SvgIcons.closeSmallPrimary),
-                  )
-                : const SvgIcon(SvgIcons.editSmall),
-          ),
+          decorator: (child) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
+              child: child,
+            );
+          },
+          child: editing
+              ? const Padding(
+                  padding: EdgeInsets.all(2),
+                  child: SvgIcon(SvgIcons.closeSmallPrimary),
+                )
+              : const SvgIcon(SvgIcons.editSmall),
         ),
       ),
     );

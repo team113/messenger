@@ -480,42 +480,24 @@ class IconsView extends StatelessWidget {
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails.svg(SvgIcons.rust),
-                  child: const SvgIcon(SvgIcons.rust),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                inverted: true,
-                leading: AnimatedButton(
-                  onPressed: () => c.icon.value =
-                      IconDetails.svg(SvgIcons.rustWhite, invert: true),
-                  child: const SvgIcon(SvgIcons.rustWhite),
+                      c.icon.value = IconDetails.svg(SvgIcons.workRust),
+                  child: const SvgIcon(SvgIcons.workRust),
                 ),
               ),
               const SizedBox(height: 8),
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails.svg(SvgIcons.frontend),
-                  child: const SvgIcon(SvgIcons.frontend),
-                ),
-              ),
-              const SizedBox(height: 8),
-              MenuButton(
-                inverted: true,
-                leading: AnimatedButton(
-                  onPressed: () => c.icon.value =
-                      IconDetails.svg(SvgIcons.frontendWhite, invert: true),
-                  child: const SvgIcon(SvgIcons.frontendWhite),
+                      c.icon.value = IconDetails.svg(SvgIcons.workFlutter),
+                  child: const SvgIcon(SvgIcons.workFlutter),
                 ),
               ),
               const SizedBox(height: 8),
               MenuButton(
                 leading: AnimatedButton(
                   onPressed: () =>
-                      c.icon.value = IconDetails.svg(SvgIcons.freelance),
-                  child: const SvgIcon(SvgIcons.freelance),
+                      c.icon.value = IconDetails.svg(SvgIcons.workFreelance),
+                  child: const SvgIcon(SvgIcons.workFreelance),
                 ),
               ),
               const SizedBox(height: 8),
@@ -523,8 +505,8 @@ class IconsView extends StatelessWidget {
                 inverted: true,
                 leading: AnimatedButton(
                   onPressed: () => c.icon.value =
-                      IconDetails.svg(SvgIcons.freelanceWhite, invert: true),
-                  child: const SvgIcon(SvgIcons.freelanceWhite),
+                      IconDetails.svg(SvgIcons.workDesigner, invert: true),
+                  child: const SvgIcon(SvgIcons.workDesigner),
                 ),
               ),
             ],

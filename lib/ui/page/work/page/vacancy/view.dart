@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/routes.dart';
 import '/ui/page/work/page/backend/view.dart';
+import '/ui/page/work/page/designer/view.dart';
 import '/ui/page/work/page/freelance/view.dart';
 import '/ui/page/work/page/frontend/view.dart';
 
@@ -40,6 +41,9 @@ class VacancyWorkView extends StatelessWidget {
 
       case WorkTab.frontend:
         return const FrontendWorkView();
+
+      case WorkTab.designer:
+        return const DesignerWorkView();
     }
   }
 }

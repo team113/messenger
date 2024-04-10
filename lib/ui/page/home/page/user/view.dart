@@ -36,6 +36,7 @@ import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/quick_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -422,7 +423,10 @@ class UserView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(c.user!.title),
+                    Text(
+                      c.user!.title,
+                      style: style.fonts.big.regular.onBackground,
+                    ),
                     if (subtitle?.isNotEmpty == true)
                       Text(
                         key: Key(
@@ -445,7 +449,7 @@ class UserView extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: title,
           ),

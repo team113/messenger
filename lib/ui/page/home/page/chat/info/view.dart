@@ -38,6 +38,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/quick_button.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/member_tile.dart';
@@ -554,6 +555,7 @@ class ChatInfoView extends StatelessWidget {
                             c.chat!.title,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
+                            style: style.fonts.big.regular.onBackground,
                           ),
                         ),
                         Obx(() {
@@ -582,7 +584,7 @@ class ChatInfoView extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: title,
           ),
