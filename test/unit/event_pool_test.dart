@@ -20,7 +20,7 @@ import 'package:get/get.dart';
 import 'package:messenger/util/event_pool.dart';
 
 void main() {
-  test('EventPool locks with correct values', () async {
+  test('EventPool locks the correct values', () async {
     EventPool pool = EventPool();
 
     pool.protect(
@@ -36,30 +36,27 @@ void main() {
     expect(pool.lockedWith('tag', '1'), false);
   });
 
-  test(
-    'EventPool.protect does nothing if already executing with same tag',
-    () async {
-      EventPool pool = EventPool();
+  test('EventPool.protect() does nothing, if executing the same tag', () async {
+    EventPool pool = EventPool();
 
-      pool.protect(
-        'tag',
-        () => Future.delayed(const Duration(seconds: 2)),
-        values: ['value'],
-      );
+    pool.protect(
+      'tag',
+      () => Future.delayed(const Duration(seconds: 2)),
+      values: ['value'],
+    );
 
-      DateTime startedAt = DateTime.now();
+    DateTime startedAt = DateTime.now();
 
-      await pool.protect(
-        'tag',
-        () => Future.delayed(const Duration(seconds: 2)),
-        values: ['value'],
-      );
+    await pool.protect(
+      'tag',
+      () => Future.delayed(const Duration(seconds: 2)),
+      values: ['value'],
+    );
 
-      expect(DateTime.now().difference(startedAt) < 15.milliseconds, true);
-    },
-  );
+    expect(DateTime.now().difference(startedAt) < 15.milliseconds, true);
+  });
 
-  test('EventPool correctly works with processed objects', () async {
+  test('EventPool.processed() returns expected results', () async {
     EventPool pool = EventPool();
 
     pool.add('processed');
@@ -68,7 +65,7 @@ void main() {
     expect(pool.processed('processed1'), false);
   });
 
-  test('EventPool.protect repeats the provided callback', () async {
+  test('EventPool.protect() repeats the provided callback', () async {
     int i = 10;
     EventPool pool = EventPool();
 
@@ -77,7 +74,7 @@ void main() {
     expect(i, 0);
   });
 
-  test('EventPool.protect stops repeating if disposed', () async {
+  test('EventPool.protect() stops repeating, if disposed', () async {
     EventPool pool = EventPool();
 
     pool.protect(
