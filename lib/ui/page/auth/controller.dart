@@ -63,21 +63,23 @@ class AuthController extends GetxController {
   @override
   void onClose() {
     _animationTimer?.cancel();
+    _registerGuard.release();
     super.onClose();
   }
 
   /// Registers and redirects to the [Routes.home] page.
   Future<void> register() async {
     if (!_registerGuard.isLocked) {
-      await _registerGuard.protect(() async {
-        try {
-          await _auth.register();
-          router.home();
-        } catch (e) {
-          MessagePopup.error(e);
-          rethrow;
-        }
-      });
+      await _registerGuard.acquire();
+
+      try {
+        await _auth.register();
+        router.home();
+      } catch (e) {
+        MessagePopup.error(e);
+        _registerGuard.release();
+        rethrow;
+      }
     }
   }
 

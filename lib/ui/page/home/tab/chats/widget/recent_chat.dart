@@ -228,7 +228,7 @@ class RecentChatTile extends StatelessWidget {
                   Expanded(child: _subtitle(context, selected, inverted)),
                   const SizedBox(width: 3),
                   _status(context, inverted),
-                  if (!chat.id.isLocal)
+                  if (!chat.id.isLocalWith(me))
                     Text(
                       chat.updatedAt.val.toLocal().short,
                       style: inverted
