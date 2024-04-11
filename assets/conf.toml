@@ -117,3 +117,9 @@
 #
 # Default:
 #   url = ""
+
+[legal]
+# Optional copyright to display at the bottom of auth page.
+#
+# Default:
+#   copyright = ""

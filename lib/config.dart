@@ -101,6 +101,9 @@ class Config {
   /// available.
   static String appcast = '';
 
+  /// Optional copyright to display at the bottom of [Routes.auth] page.
+  static String copyright = '';
+
   /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
   /// instance to initialize it.
   static Map<String, dynamic> get callKeep {
@@ -129,7 +132,8 @@ class Config {
   /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    Map<String, dynamic> document =
+
+    final Map<String, dynamic> document =
         TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
             .toMap();
 
@@ -204,6 +208,10 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
         : (document['appcast']?['url'] ?? appcast);
 
+    copyright = const bool.hasEnvironment('SOCAPP_LEGAL_COPYRIGHT')
+        ? const String.fromEnvironment('SOCAPP_LEGAL_COPYRIGHT')
+        : (document['legal']?['copyright'] ?? copyright);
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -244,7 +252,7 @@ class Config {
         final response = await (await PlatformUtils.dio)
             .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
-          Map<String, dynamic> remote =
+          final Map<String, dynamic> remote =
               TomlDocument.parse(response.data.toString()).toMap();
 
           confRemote = remote['conf']?['remote'] ?? confRemote;
@@ -264,6 +272,9 @@ class Config {
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
             appcast = remote['appcast']?['url'] ?? appcast;
+            copyright = remote['legal']?[Uri.base.host]['copyright'] ??
+                remote['legal']?['copyright'] ??
+                copyright;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],

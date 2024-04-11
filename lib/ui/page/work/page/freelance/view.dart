@@ -62,106 +62,75 @@ class FreelanceWorkView extends StatelessWidget {
               children: [
                 const SizedBox(height: 4),
                 const ProjectBlock(),
-                const Block(
-                  title: 'Деньги',
+                Block(
+                  title: 'label_money'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;\n'
-                      '- оплата отправляется на основании договора о предоставлении услуг и/или инвойса;\n'
-                      '- оплата осуществляется криптовалютой USDT (TRC-20).',
-                    ),
-                  ],
+                  children: [Text('label_money_freelance'.l10n)],
                 ),
                 Block(
-                  title: 'Требования к коду',
+                  title: 'label_code_requirements'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text.rich(
                       TextSpan(
                         children: [
-                          const TextSpan(
-                            text: '- код должен отвечать правилам ',
+                          TextSpan(
+                            text: 'label_code_requirements_contribution_guide1'
+                                .l10n,
                           ),
                           TextSpan(
-                            text: 'Contribution Guide',
+                            text: 'label_code_requirements_contribution_guide2'
+                                .l10n,
                             style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://github.com/team113/messenger/blob/main/CONTRIBUTING.md',
                                   ),
                           ),
-                          const TextSpan(text: ';'),
+                          TextSpan(
+                            text: 'label_code_requirements_contribution_guide3'
+                                .l10n,
+                          ),
                         ],
                       ),
                     ),
                     Text.rich(
                       TextSpan(
                         children: [
-                          const TextSpan(
-                            text:
-                                '- код должен быть покрыт документацией по правилам ',
+                          TextSpan(
+                            text: 'label_code_requirements_documentation1'.l10n,
                           ),
                           TextSpan(
-                            text: 'Effective Dart: Documentation',
+                            text: 'label_code_requirements_documentation2'.l10n,
                             style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
                                     'https://dart.dev/effective-dart/documentation',
                                   ),
                           ),
-                          const TextSpan(text: ';'),
+                          TextSpan(
+                            text: 'label_code_requirements_documentation3'.l10n,
+                          ),
                         ],
                       ),
                     ),
-                    const Text(
-                      '- код должен быть покрыт модульными, виджет и/или интеграционными тестами (при необходимости).',
-                    ),
+                    Text('label_code_requirements_tests'.l10n),
                   ],
                 ),
-                const Block(
-                  title: 'Ревью',
+                Block(
+                  title: 'label_review'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- выполненная задача должна пройти ревью кода;\n'
-                      '- запрос на ревью выполненной задачи, комментарии, пояснения, аргументы должны размещаться публично на GitHub в соответствующей ветке или пул-реквесте.',
-                    ),
-                  ],
+                  children: [Text('label_review_freelance'.l10n)],
                 ),
-                const Block(
-                  title: 'Регламент',
+                Block(
+                  title: 'label_regulations'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '1. Выбрать задачу из списка ниже\n'
-                      '2. Сделать форк проекта и по нему оформить PR (Pull Request)\n'
-                      '3. Связаться с командой фронтэнда (кнопка ниже) и отправить заявку, указав:\n'
-                      '    - логин на GitHub\'е\n'
-                      '    - номер PR (Pull Request)\n'
-                      '    - предполагаемый срок выполнения задачи (дедлайн)\n'
-                      '    - предполагаемый способ решения задачи\n'
-                      '4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)\n'
-                      '5. В процессе работы над задачей Вы должны делать push commit\'ов в свой PR не реже, чем каждые 72 часа\n'
-                      '6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества',
-                    ),
-                  ],
+                  children: [Text('label_regulations_freelance'.l10n)],
                 ),
-                const Block(
-                  title: 'Стек технологий',
+                Block(
+                  title: 'label_tech_stack'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- Язык - Dart;\n'
-                      '- Flutter - фреймворк;\n'
-                      '- GetX - Dependency Injection и State Management;\n'
-                      '- Navigator 2.0 (Router) - навигация;\n'
-                      '- Hive - локальная база данных;\n'
-                      '- Firebase - push уведомления;\n'
-                      '- GraphQL и Artemis - связь с бэкэндом;\n'
-                      '- Gherkin - E2E тестирование.',
-                    ),
-                  ],
+                  children: [Text('label_tech_stack_freelance'.l10n)],
                 ),
                 const SourceCodeBlock(),
                 Block(
@@ -172,11 +141,14 @@ class FreelanceWorkView extends StatelessWidget {
                         children: [
                           TextSpan(
                             text:
-                                'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Flutter, Вы можете воспользоваться нашей ',
+                                'label_for_learning_use_our_flutter_incubator1'
+                                    .l10n,
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
-                            text: 'корпоративной песочницей.',
+                            text:
+                                'label_for_learning_use_our_flutter_incubator2'
+                                    .l10n,
                             style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
@@ -192,13 +164,15 @@ class FreelanceWorkView extends StatelessWidget {
                   if (c.issuesStatus.value.isEmpty) {
                     return const SizedBox();
                   } else if (c.issuesStatus.value.isLoading) {
-                    return const Block(
-                      title: 'Задачи',
-                      children: [Center(child: CustomProgressIndicator())],
+                    return Block(
+                      title: 'label_tasks'.l10n,
+                      children: const [
+                        Center(child: CustomProgressIndicator())
+                      ],
                     );
                   } else if (c.issuesStatus.value.isError) {
                     return Block(
-                      title: 'Задачи',
+                      title: 'label_tasks'.l10n,
                       children: [
                         Text(
                           c.issuesStatus.value.errorMessage ??
@@ -209,7 +183,7 @@ class FreelanceWorkView extends StatelessWidget {
                   }
 
                   return Block(
-                    title: 'Задачи',
+                    title: 'label_tasks'.l10n,
                     children: c.issues.mapIndexed((i, e) {
                       return Obx(() {
                         return Padding(
@@ -232,7 +206,7 @@ class FreelanceWorkView extends StatelessWidget {
                 }),
                 Obx(() {
                   return ProceedBlock(
-                    'Отправить заявку',
+                    'btn_send_application'.l10n,
                     onPressed: c.linkStatus.value.isLoading
                         ? null
                         : () async {
