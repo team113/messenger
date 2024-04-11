@@ -41,7 +41,7 @@ class EraseView extends StatelessWidget {
                     '- your login;\n'
                     '- all of your emails;\n'
                     '- all of your phone numbers;\n'
-                    '- your contacts list;\n'
+                    '- your contacts list.\n'
                     '\n'
                     'The data that will not be deleted:\n'
                     '- your Gapopa ID, as is does not represent personal information and cannot be used to associate account with you;\n'
