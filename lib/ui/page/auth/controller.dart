@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/service/auth.dart';
@@ -47,6 +48,9 @@ class AuthController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// [Mutex] for synchronized access to [register].
+  final Mutex _registerGuard = Mutex();
+
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
@@ -64,12 +68,16 @@ class AuthController extends GetxController {
 
   /// Registers and redirects to the [Routes.home] page.
   Future<void> register() async {
-    try {
-      await _auth.register();
-      router.home();
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
+    if (!_registerGuard.isLocked) {
+      await _registerGuard.protect(() async {
+        try {
+          await _auth.register();
+          router.home();
+        } catch (e) {
+          MessagePopup.error(e);
+          rethrow;
+        }
+      });
     }
   }
 
