@@ -592,7 +592,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       final UserId key = UserId(event.key);
       final MyUser? value = event.value?.value;
 
-      if (key == _active?.value.id) {
+      if (key == (_active?.value ?? myUser.value)?.id) {
         if (event.deleted) {
           myUser.value = null;
           _remoteSubscription?.close(immediate: true);
@@ -873,10 +873,7 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.deleted:
           event as EventUserDeleted;
 
-          _myUserLocal.remove(event.userId);
-
-          if (event.userId == _active?.value.id) {
-            _accountLocal.clear();
+          if (event.userId == myUser.value?.id) {
             onUserDeleted();
           }
           break;

@@ -20,14 +20,15 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model/my_user.dart';
-import '../model/user.dart';
-import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/util/log.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/my_user.dart';
 import '/routes.dart';
+import '/util/log.dart';
+import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -259,10 +260,13 @@ class MyUserService extends DisposableService {
   /// Callback to be called when [MyUser] is deleted.
   ///
   /// Performs log out and clears [MyUser] store.
-  void _onUserDeleted() {
+  Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
-    _auth.logout();
+    await _auth.logout();
+    if (WebUtils.isPopup) {
+      WebUtils.closeWindow();
+    }
     router.auth();
   }
 }

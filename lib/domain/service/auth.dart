@@ -168,8 +168,10 @@ class AuthService extends GetxService {
 
     WebUtils.credentials = creds;
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      if (_accountProvider.userId == null ||
-          e.key == _accountProvider.userId?.val) {
+      final UserId? current =
+          _accountProvider.userId ?? WebUtils.credentials?.userId;
+
+      if (e.key == current?.val) {
         WebUtils.credentials = e.value;
       }
     });
@@ -511,6 +513,7 @@ class AuthService extends GetxService {
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
+    WebUtils.credentials = creds;
     _refreshTimer?.cancel();
 
     // TODO: Offload refresh task to the background process?

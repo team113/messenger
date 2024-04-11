@@ -63,8 +63,11 @@ class BackgroundWorker extends GetxService {
   /// [Worker] reacting on the [L10n.chosen] changes.
   Worker? _localizationWorker;
 
+  /// Last [Credentials] used to start the [_service].
+  Credentials? currentCreds;
+
   /// Returns the [Credentials] of the active [MyUser].
-  Credentials? get _creds {
+  Credentials? get _storedCreds {
     final UserId? id = _accountProvider.userId;
     final Credentials? creds = id != null ? _credentialsProvider.get(id) : null;
 
@@ -79,7 +82,7 @@ class BackgroundWorker extends GetxService {
       _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
         final key = UserId(e.key);
 
-        if (key == _creds?.userId || _creds == null) {
+        if (key == currentCreds?.userId) {
           // If session is deleted, then ask the [_service] to stop.
           if (e.deleted) {
             _service.invoke('stop');
@@ -125,9 +128,11 @@ class BackgroundWorker extends GetxService {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Do not initialize the service if no [Credentials] are stored.
-    if (_creds == null) {
+    if (_storedCreds == null) {
       return;
     }
+
+    currentCreds = _storedCreds;
 
     for (var e in _onDataReceived) {
       e.cancel();
@@ -135,7 +140,7 @@ class BackgroundWorker extends GetxService {
     _onDataReceived.clear();
 
     _onDataReceived.add(_service.on('requireToken').listen((e) {
-      FlutterBackgroundService().invoke('token', _creds!.toJson());
+      FlutterBackgroundService().invoke('token', currentCreds!.toJson());
     }));
 
     _onDataReceived.add(_service.on('token').listen((e) {
@@ -187,6 +192,7 @@ class BackgroundWorker extends GetxService {
     _lifecycleWorker = null;
     _localizationWorker?.dispose();
     _localizationWorker = null;
+    currentCreds = null;
 
     for (var e in _onDataReceived) {
       e.cancel();
