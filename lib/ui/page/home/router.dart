@@ -17,6 +17,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/erase/view.dart';
 import 'package:messenger/ui/page/terms/view.dart';
 
 import '/domain/model/chat.dart';
@@ -121,6 +122,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: VacancyWorkView(work),
           ));
         }
+      } else if (route.startsWith(Routes.erase)) {
+        pages.add(const CustomPage(
+          key: ValueKey('ErasePage'),
+          name: Routes.erase,
+          child: EraseView(),
+        ));
       } else if (route.startsWith('${Routes.public}/')) {
         String id = route.replaceFirst('${Routes.public}/', '');
         pages.add(CustomPage(

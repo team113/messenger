@@ -77,6 +77,7 @@ import 'store/settings.dart';
 import 'store/user.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
+import 'ui/page/erase/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
@@ -116,6 +117,7 @@ class Routes {
   static const terms = '/terms';
   static const nowhere = '/nowhere';
   static const withdraw = '/withdraw';
+  static const erase = '/erase';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -893,6 +895,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             name: Routes.work,
             child: WorkView(),
           ));
+        } else if (route.startsWith(Routes.erase)) {
+          pages.add(const MaterialPage(
+            key: ValueKey('ErasePage'),
+            name: Routes.erase,
+            child: EraseView(),
+          ));
         }
       }
     }
@@ -917,6 +925,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.topUp) ||
         _state.route.startsWith(Routes.faq) ||
         _state.route.startsWith(Routes.withdraw) ||
+        _state.route.startsWith(Routes.erase) ||
         _state.route.startsWith(Routes.terms) ||
         _state.route.startsWith(Routes.transaction) ||
         _state.route.startsWith(Routes.style) ||
@@ -1080,6 +1089,8 @@ extension RouteLinks on RouterState {
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
 
   void style({bool push = false}) => (push ? this.push : go)(Routes.style);
+
+  void erase({bool push = false}) => (push ? this.push : go)(Routes.erase);
 
   /// Changes router location to the [Routes.chats] page.
   ///
