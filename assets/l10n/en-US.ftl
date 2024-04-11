@@ -626,13 +626,13 @@ label_code_sent_again = The code has been re-sent.
 label_conditions = Conditions
 label_conditions_backend_developer =
     - Daily payments;
-    - From 2500 EUR per month;
+    - From 2000 EUR per month;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices;
     - Remote work.
 label_conditions_frontend_developer =
     - Daily payments;
-    - From 2500 EUR per month;
+    - From 2000 EUR per month;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices;
     - Remote work.
