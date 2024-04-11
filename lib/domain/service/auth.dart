@@ -387,7 +387,10 @@ class AuthService extends GetxService {
 
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
-  Future<String> logout() async {
+  ///
+  /// [deleteMyUser] set to `true` deletes [MyUser] from [Hive] and thus should
+  /// be used if logging out is a voluntary action of the user.
+  Future<String> logout({bool deleteMyUser = false}) async {
     Log.debug('logout()', '$runtimeType');
 
     status.value = RxStatus.loading();
@@ -411,8 +414,13 @@ class AuthService extends GetxService {
       }
 
       await _authRepository.logout(fcmToken);
-      if (userId != null) {
-        await _myUserProvider.remove(userId!);
+
+      if (deleteMyUser) {
+        final UserId? id = userId ?? _accountProvider.userId;
+
+        if (id != null) {
+          await _myUserProvider.remove(id);
+        }
       }
     } catch (e) {
       printError(info: e.toString());

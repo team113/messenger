@@ -262,7 +262,7 @@ class MyUserService extends DisposableService {
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
-    await _auth.logout();
+    await _auth.logout(deleteMyUser: true);
     router.auth();
   }
 }
