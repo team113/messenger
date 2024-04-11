@@ -149,11 +149,37 @@ class MyUser extends HiveObject {
   /// Total count of blocked users.
   @HiveField(16)
   int? blocklistCount;
+
+  /// Returns a copy of this [MyUser].
+  MyUser copyWith() => MyUser(
+        id: id,
+        num: num,
+        login: login,
+        name: name,
+        bio: bio,
+        hasPassword: hasPassword,
+        emails: emails.copyWith(),
+        phones: phones.copyWith(),
+        chatDirectLink: chatDirectLink,
+        unreadChatsCount: unreadChatsCount,
+        status: status,
+        callCover: callCover,
+        avatar: avatar,
+        presenceIndex: presenceIndex,
+        online: online,
+        muted: muted,
+        blocklistCount: blocklistCount,
+      );
 }
 
 /// List of [UserPhone]s associated with [MyUser].
 @HiveType(typeId: ModelTypeId.myUserPhones)
 class MyUserPhones {
+  MyUserPhones({
+    required this.confirmed,
+    this.unconfirmed,
+  });
+
   /// List of already confirmed phone numbers.
   ///
   /// Any confirmed phone number can be used in combination with
@@ -171,15 +197,19 @@ class MyUserPhones {
   @HiveField(1)
   UserPhone? unconfirmed;
 
-  MyUserPhones({
-    required this.confirmed,
-    this.unconfirmed,
-  });
+  /// Returns a copy of these [MyUserPhones].
+  MyUserPhones copyWith() =>
+      MyUserPhones(confirmed: confirmed, unconfirmed: unconfirmed);
 }
 
 /// List of [UserEmail]s associated with [MyUser].
 @HiveType(typeId: ModelTypeId.myUserEmails)
 class MyUserEmails {
+  MyUserEmails({
+    required this.confirmed,
+    this.unconfirmed,
+  });
+
   /// List of already confirmed email addresses.
   ///
   /// Any confirmed email address can be used in combination with
@@ -197,10 +227,9 @@ class MyUserEmails {
   @HiveField(1)
   UserEmail? unconfirmed;
 
-  MyUserEmails({
-    required this.confirmed,
-    this.unconfirmed,
-  });
+  /// Returns a copy of these [MyUserEmails].
+  MyUserEmails copyWith() =>
+      MyUserEmails(confirmed: confirmed, unconfirmed: unconfirmed);
 }
 
 /// Confirmation code used by [MyUser].

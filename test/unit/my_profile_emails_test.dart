@@ -277,15 +277,16 @@ void main() async {
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
+    await Future.delayed(Duration.zero);
 
-    expect(
+    await expectLater(
         () async => await myUserService.addUserEmail(UserEmail('test@mail.ru')),
         throwsA(isA<AddUserEmailException>()));
 
-    expect(() async => await myUserService.resendEmail(),
+    await expectLater(() async => await myUserService.resendEmail(),
         throwsA(isA<ResendUserEmailConfirmationException>()));
 
-    expect(
+    await expectLater(
         () async =>
             await myUserService.confirmEmailCode(ConfirmationCode('1234')),
         throwsA(isA<ConfirmUserEmailException>()));
