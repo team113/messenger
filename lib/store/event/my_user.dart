@@ -87,6 +87,12 @@ class EventUserAvatarDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarDeleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserAvatarDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserAvatar] being updated.
@@ -98,6 +104,15 @@ class EventUserAvatarUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserAvatarUpdated &&
+      avatar.original.relativeRef == other.avatar.original.relativeRef &&
+      avatar.crop == other.avatar.crop;
+
+  @override
+  int get hashCode => avatar.hashCode;
 }
 
 /// Event of a [UserBio] being deleted.
@@ -109,6 +124,13 @@ class EventUserBioDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.bioDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserBioDeleted && at == other.at;
+
+  @override
+  int get hashCode => at.hashCode;
 }
 
 /// Event of a [UserBio] being updated.
@@ -123,6 +145,13 @@ class EventUserBioUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.bioUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserBioUpdated && bio == other.bio && at == other.at;
+
+  @override
+  int get hashCode => Object.hash(bio, at);
 }
 
 /// Event of an [UserCallCover] being deleted.
@@ -131,6 +160,12 @@ class EventUserCallCoverDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.callCoverDeleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserCallCoverDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserCallCover] being updated.
@@ -142,6 +177,15 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.callCoverUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserCallCoverUpdated &&
+      callCover.original.relativeRef == other.callCover.original.relativeRef &&
+      callCover.crop == other.callCover.crop;
+
+  @override
+  int get hashCode => callCover.hashCode;
 }
 
 /// Event of an [MyUser] coming offline.
@@ -153,6 +197,12 @@ class EventUserCameOffline extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOffline;
+
+  @override
+  bool operator ==(Object other) => other is EventUserCameOffline;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser] coming online.
@@ -161,6 +211,12 @@ class EventUserCameOnline extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOnline;
+
+  @override
+  bool operator ==(Object other) => other is EventUserCameOnline;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser] being deleted.
@@ -169,6 +225,12 @@ class EventUserDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.deleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s [ChatDirectLink] being deleted.
@@ -177,6 +239,12 @@ class EventUserDirectLinkDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.directLinkDeleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserDirectLinkDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s [ChatDirectLink] being updated.
@@ -188,6 +256,13 @@ class EventUserDirectLinkUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.directLinkUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserDirectLinkUpdated && directLink == other.directLink;
+
+  @override
+  int get hashCode => directLink.hashCode;
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
@@ -199,6 +274,13 @@ class EventUserEmailAdded extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailAdded;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserEmailAdded && email == other.email;
+
+  @override
+  int get hashCode => email.hashCode;
 }
 
 /// Event of an [MyUser]'s email address being confirmed.
@@ -210,6 +292,13 @@ class EventUserEmailConfirmed extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailConfirmed;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserEmailConfirmed && email == other.email;
+
+  @override
+  int get hashCode => email.hashCode;
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being deleted.
@@ -221,6 +310,13 @@ class EventUserEmailDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserEmailDeleted && email == other.email;
+
+  @override
+  int get hashCode => email.hashCode;
 }
 
 /// Event of a [UserLogin] being updated.
@@ -232,6 +328,13 @@ class EventUserLoginUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.loginUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserLoginUpdated && login == other.login;
+
+  @override
+  int get hashCode => login.hashCode;
 }
 
 /// Event of a [UserLogin] being deleted.
@@ -254,6 +357,13 @@ class EventUserMuted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.userMuted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserMuted && until == other.until;
+
+  @override
+  int get hashCode => until.hashCode;
 }
 
 /// Event of an [UserName] being deleted.
@@ -262,6 +372,12 @@ class EventUserNameDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.nameDeleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserNameDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserName] being updated.
@@ -273,6 +389,13 @@ class EventUserNameUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.nameUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserNameUpdated && name == other.name;
+
+  @override
+  int get hashCode => name.hashCode;
 }
 
 /// Event of an [MyUser]'s password being updated.
@@ -281,6 +404,12 @@ class EventUserPasswordUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.passwordUpdated;
+
+  @override
+  bool operator ==(Object other) => other is EventUserPasswordUpdated;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s phone number being added.
@@ -292,6 +421,13 @@ class EventUserPhoneAdded extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.phoneAdded;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserPhoneAdded && phone == other.phone;
+
+  @override
+  int get hashCode => phone.hashCode;
 }
 
 /// Event of an [MyUser]'s phone number being confirmed.
@@ -303,6 +439,13 @@ class EventUserPhoneConfirmed extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.phoneConfirmed;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserPhoneConfirmed && phone == other.phone;
+
+  @override
+  int get hashCode => phone.hashCode;
 }
 
 /// Event of an [MyUser]'s phone number being deleted.
@@ -314,6 +457,13 @@ class EventUserPhoneDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.phoneDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserPhoneDeleted && phone == other.phone;
+
+  @override
+  int get hashCode => phone.hashCode;
 }
 
 /// Event of an [MyUser]'s [Presence] being updated.
@@ -325,6 +475,13 @@ class EventUserPresenceUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.presenceUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserPresenceUpdated && presence == other.presence;
+
+  @override
+  int get hashCode => presence.hashCode;
 }
 
 /// Event of an [UserTextStatus] being deleted.
@@ -333,6 +490,12 @@ class EventUserStatusDeleted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.statusDeleted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserStatusDeleted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserTextStatus] being updated.
@@ -344,6 +507,13 @@ class EventUserStatusUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.statusUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserStatusUpdated && status == other.status;
+
+  @override
+  int get hashCode => status.hashCode;
 }
 
 /// Event of an [MyUser] being unmuted.
@@ -352,6 +522,12 @@ class EventUserUnmuted extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unmuted;
+
+  @override
+  bool operator ==(Object other) => other is EventUserUnmuted;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s unread `Chat`s count being updated.
@@ -363,6 +539,13 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unreadChatsCountUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserUnreadChatsCountUpdated && count == other.count;
+
+  @override
+  int get hashCode => count.hashCode;
 }
 
 /// Event of a [User] being added or removed to/from blocklist of the [MyUser].
@@ -374,6 +557,15 @@ abstract class BlocklistEvent extends MyUserEvent {
 
   /// [PreciseDateTime] when this [BlocklistEvent] happened.
   final PreciseDateTime at;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlocklistEvent &&
+      user.value.id == other.user.value.id &&
+      at == other.at;
+
+  @override
+  int get hashCode => Object.hash(user, at);
 }
 
 /// Event of a [BlocklistRecord] being added to blocklist of the authenticated
@@ -386,6 +578,13 @@ class EventBlocklistRecordAdded extends BlocklistEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.blocklistRecordAdded;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventBlocklistRecordAdded && reason == other.reason;
+
+  @override
+  int get hashCode => reason.hashCode;
 }
 
 /// Event of a [BlocklistRecord] being removed from blocklist of the
@@ -395,4 +594,10 @@ class EventBlocklistRecordRemoved extends BlocklistEvent {
 
   @override
   MyUserEventKind get kind => MyUserEventKind.blocklistRecordRemoved;
+
+  @override
+  bool operator ==(Object other) => other is EventBlocklistRecordRemoved;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
