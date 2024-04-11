@@ -171,7 +171,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.name,
       current: () => myUser.value?.name,
-      saved: () => _myUserLocal.myUser?.value.name,
+      saved: () => _active?.value.name,
       value: name,
       mutation: (v, _) => _graphQlProvider.updateUserName(v),
       update: (v, _) => myUser.update((u) => u?.name = v),
@@ -185,7 +185,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.name,
       current: () => myUser.value?.status,
-      saved: () => _myUserLocal.myUser?.value.status,
+      saved: () => _active?.value.status,
       value: status,
       mutation: (v, _) => _graphQlProvider.updateUserStatus(v),
       update: (v, _) => myUser.update((u) => u?.status = v),
@@ -199,7 +199,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.bio,
       current: () => myUser.value?.bio,
-      saved: () => _myUserLocal.myUser?.value.bio,
+      saved: () => _active?.value.bio,
       value: bio,
       mutation: (v, _) => _graphQlProvider.updateUserBio(v),
       update: (v, _) => myUser.update((u) => u?.bio = v),
@@ -222,7 +222,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.presence,
       current: () => myUser.value?.presence,
-      saved: () => _myUserLocal.myUser?.value.presence,
+      saved: () => _active?.value.presence,
       value: presence,
       mutation: (s, _) async =>
           await _graphQlProvider.updateUserPresence(s ?? presence),
@@ -266,7 +266,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _debounce(
         field: MyUserField.email,
         current: () => myUser.value?.emails.unconfirmed,
-        saved: () => _myUserLocal.myUser?.value.emails.unconfirmed,
+        saved: () => _active?.value.emails.unconfirmed,
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
@@ -310,7 +310,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _debounce(
         field: MyUserField.phone,
         current: () => myUser.value?.phones.unconfirmed,
-        saved: () => _myUserLocal.myUser?.value.phones.unconfirmed,
+        saved: () => _active?.value.phones.unconfirmed,
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
@@ -353,7 +353,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.email,
       current: () => myUser.value?.emails.unconfirmed,
-      saved: () => _myUserLocal.myUser?.value.emails.unconfirmed,
+      saved: () => _active?.value.emails.unconfirmed,
       value: email,
       mutation: (value, previous) async {
         if (previous != null) {
@@ -379,7 +379,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.phone,
       current: () => myUser.value?.phones.unconfirmed,
-      saved: () => _myUserLocal.myUser?.value.phones.unconfirmed,
+      saved: () => _active?.value.phones.unconfirmed,
       value: phone,
       mutation: (value, previous) async {
         if (previous != null) {
@@ -537,7 +537,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.muted,
       current: () => myUser.value?.muted,
-      saved: () => _myUserLocal.myUser?.value.muted,
+      saved: () => _active?.value.muted,
       value: mute,
       mutation: (duration, _) async {
         return await _graphQlProvider.toggleMyUserMute(
@@ -628,16 +628,16 @@ class MyUserRepository implements AbstractMyUserRepository {
     while (await _localSubscription!.moveNext()) {
       final BoxEvent event = _localSubscription!.current;
 
-      final UserId key = UserId(event.key);
-      final MyUser? value = event.value?.value;
+      final UserId id = UserId(event.key);
+      final MyUser? user = event.value?.value;
 
-      if (key == (_active?.value ?? myUser.value)?.id) {
+      if (id == (_active?.value ?? myUser.value)?.id) {
         if (event.deleted) {
           myUser.value = null;
           _remoteSubscription?.close(immediate: true);
         } else {
           // Copy [event.value], as it always contains the same [MyUser].
-          final MyUser? value = (event.value?.value as MyUser?)?.copyWith();
+          final MyUser? value = user?.copyWith();
 
           // Don't update the [MyUserField]s considered locked in the [_pool], as
           // those events might've been applied optimistically during mutations
