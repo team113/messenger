@@ -63,7 +63,7 @@ class BackgroundWorker extends GetxService {
   /// [Worker] reacting on the [L10n.chosen] changes.
   Worker? _localizationWorker;
 
-  /// Last [Credentials] used to start the [_service].
+  /// Current [Credentials] being used in this [BackgroundWorker].
   Credentials? currentCreds;
 
   /// Returns the [Credentials] of the active [MyUser].
