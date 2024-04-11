@@ -63,7 +63,10 @@ class AuthController extends GetxController {
   @override
   void onClose() {
     _animationTimer?.cancel();
-    _registerGuard.release();
+    if (_registerGuard.isLocked) {
+      _registerGuard.release();
+    }
+
     super.onClose();
   }
 
