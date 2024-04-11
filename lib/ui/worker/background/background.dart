@@ -66,7 +66,7 @@ class BackgroundWorker extends GetxService {
   /// Current [Credentials] being used in this [BackgroundWorker].
   Credentials? currentCreds;
 
-  /// Returns the [Credentials] of the active [MyUser].
+  /// Returns stored in [Hive] [Credentials] of the active [MyUser].
   Credentials? get _storedCreds {
     final UserId? id = _accountProvider.userId;
     final Credentials? creds = id != null ? _credentialsProvider.get(id) : null;

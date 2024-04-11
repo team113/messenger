@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:log_me/log_me.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/domain/model/chat.dart';
@@ -27,6 +26,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/service/call.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
