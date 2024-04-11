@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/util/fixed_timer.dart';
 
 /// [Text] represented three dots that change their count over [duration].
 class AnimatedDots extends StatefulWidget {
@@ -42,13 +43,13 @@ class _AnimatedDotsState extends State<AnimatedDots> {
   int _count = 0;
 
   /// Periodic [Timer] used to increase the [_count].
-  late final Timer _timer;
+  late final FixedTimer _timer;
 
   @override
   void initState() {
     super.initState();
 
-    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
+    _timer = FixedTimer.periodic(const Duration(milliseconds: 250), () {
       setState(() => ++_count);
       if (_count > 3) {
         _count = 0;
