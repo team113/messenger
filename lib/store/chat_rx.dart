@@ -518,7 +518,7 @@ class HiveRxChat extends RxChat {
     return null;
   }
 
-    @override
+  @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async {
     Log.debug('single($item)', '$runtimeType($id)');
     return await _paginateAround(item, perPage: 1);
@@ -1752,12 +1752,12 @@ class HiveRxChat extends RxChat {
                 event as EventChatLastItemUpdated;
                 chatEntity.value.lastItem = event.lastItem?.value;
 
-                // TODO [ChatCall.conversationStartedAt] shouldn't be `null`
-                //      here when starting group or monolog [ChatCall].
+                // TODO: [ChatCall.conversationStartedAt] shouldn't be `null`
+                //       here when starting group or monolog [ChatCall].
                 if (!chatEntity.value.isDialog &&
                     chatEntity.value.lastItem is ChatCall) {
                   (chatEntity.value.lastItem as ChatCall)
-                      .conversationStartedAt = PreciseDateTime.now();
+                      .conversationStartedAt ??= PreciseDateTime.now();
                 }
 
                 chatEntity.value.updatedAt =
