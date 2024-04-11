@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13.1...v0.1.0-alpha.14) | [Milestone](/../../milestone/20)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Active and ended calls displaying invalid duration. ([#944])
+
+[#944]: /../../pull/944
+
+
+
+
 ## [0.1.0-alpha.13.1] · 2024-04-10
 [0.1.0-alpha.13.1]: /../../tree/v0.1.0-alpha.13.1
 
