@@ -28,7 +28,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
-import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -264,9 +263,6 @@ class MyUserService extends DisposableService {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
     await _auth.logout();
-    if (WebUtils.isPopup) {
-      WebUtils.closeWindow();
-    }
     router.auth();
   }
 }

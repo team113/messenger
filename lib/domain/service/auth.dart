@@ -540,6 +540,14 @@ class AuthService extends GetxService {
     credentials.value = null;
     status.value = RxStatus.empty();
     _refreshTimer?.cancel();
+    WebUtils.credentials = null;
+
+    if (WebUtils.isPopup) {
+      // Popup call window may show [Routes.auth] page before being closed, so
+      // close it manually.
+      WebUtils.closeWindow();
+    }
+
     return Routes.auth;
   }
 }
