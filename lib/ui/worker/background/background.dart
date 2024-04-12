@@ -64,10 +64,10 @@ class BackgroundWorker extends GetxService {
   Worker? _localizationWorker;
 
   /// Current [Credentials] being used in this [BackgroundWorker].
-  Credentials? currentCreds;
+  Credentials? _credentials;
 
-  /// Returns stored in [Hive] [Credentials] of the active [MyUser].
-  Credentials? get _storedCreds {
+  /// Returns the stored [Credentials] of the currently active [MyUser].
+  Credentials? get _active {
     final UserId? id = _accountProvider.userId;
     final Credentials? creds = id != null ? _credentialsProvider.get(id) : null;
 
@@ -82,20 +82,20 @@ class BackgroundWorker extends GetxService {
       _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
         final key = UserId(e.key);
 
-        if (key == currentCreds?.userId) {
+        if (key == _credentials?.userId) {
           // If session is deleted, then ask the [_service] to stop.
           if (e.deleted) {
             _service.invoke('stop');
             _dispose();
           } else {
-            final Credentials newCreds = e.value;
+            final Credentials credentials = e.value;
 
             // Start the service, if not already. Otherwise, send the new
             // token to it.
             if (_onDataReceived.isEmpty) {
               _initService();
             } else {
-              _service.invoke('token', newCreds.toJson());
+              _service.invoke('token', credentials.toJson());
             }
           }
         } else {
@@ -128,11 +128,11 @@ class BackgroundWorker extends GetxService {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Do not initialize the service if no [Credentials] are stored.
-    if (_storedCreds == null) {
+    if (_active == null) {
       return;
     }
 
-    currentCreds = _storedCreds;
+    _credentials = _active;
 
     for (var e in _onDataReceived) {
       e.cancel();
@@ -140,7 +140,7 @@ class BackgroundWorker extends GetxService {
     _onDataReceived.clear();
 
     _onDataReceived.add(_service.on('requireToken').listen((e) {
-      FlutterBackgroundService().invoke('token', currentCreds!.toJson());
+      FlutterBackgroundService().invoke('token', _credentials!.toJson());
     }));
 
     _onDataReceived.add(_service.on('token').listen((e) {
@@ -192,7 +192,7 @@ class BackgroundWorker extends GetxService {
     _lifecycleWorker = null;
     _localizationWorker?.dispose();
     _localizationWorker = null;
-    currentCreds = null;
+    _credentials = null;
 
     for (var e in _onDataReceived) {
       e.cancel();
