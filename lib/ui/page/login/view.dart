@@ -353,7 +353,8 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   final bool enabled = !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
-                      c.signInTimeout.value == 0;
+                      c.signInTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
@@ -400,7 +401,12 @@ class LoginView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 25 / 2),
-                PrimaryButton(title: 'btn_guest'.l10n, onPressed: c.register),
+                Obx(
+                  () => PrimaryButton(
+                    title: 'btn_guest'.l10n,
+                    onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+                  ),
+                ),
                 const SizedBox(height: 16),
               ];
               break;
