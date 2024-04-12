@@ -296,17 +296,8 @@ class AuthService extends GetxService {
   ///
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
   Future<void> signUpWithEmail(UserEmail email) async {
-    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
-
-    if (!isLocked) {
-      Log.debug('signUpWithEmail($email)', '$runtimeType');
-
-      await WebUtils.protect(() async {
-        await _authRepository.signUpWithEmail(email);
-      });
-    }
+    Log.debug('signUpWithEmail($email)', '$runtimeType');
+    await _authRepository.signUpWithEmail(email);
   }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
