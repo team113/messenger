@@ -46,14 +46,12 @@ alert_phone_will_be_deleted1 = Телефон{" "}
 alert_phone_will_be_deleted2 = {" "}будет удалён.
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
-    Вы не сможете принимать звонки, пока
+    Вы не сможете принимать звонки, когда
     приложение свёрнуто, без следующих разрешений:
 
     - Экран блокировки;
-
-    - Отображать всплывающие окна, когда запущено в фоновом режиме;
-
-    - Всплывающие окна.
+    - Открывать новые окна, когда запущено в фоновом режиме;
+    - Отображение всплывающих окон.
 alert_popup_permissions_title =
     Пожалуйста, разрешите отображение всплывающих окон
 alert_user_will_be_blocked1 = Пользователь{" "}
@@ -61,6 +59,7 @@ alert_user_will_be_blocked2 = {" "}будет заблокирован.
 alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
 alert_you_will_leave_group = Вы покинете группу.
+btn_accept = Принять
 btn_add = Добавить
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
@@ -218,14 +217,36 @@ btn_one_time_account = Гостевой аккаунт
 btn_one_time_account_desc =
     Гостевой
     аккаунт
+btn_privacy_policy = Политика конфиденциальности
 btn_participants = Список участников
 btn_participants_desc =
     Список
     участников
 btn_password = Пароль
 btn_paste = Вставить
+label_personal_data_deletion = Delete account
+label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
+label_personal_data_deletion_description =
+    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+
+    The data that will be deleted is:
+    - your avatar;
+    - your name;
+    - your biography;
+    - your login;
+    - all of your emails;
+    - all of your phone numbers;
+    - your contacts list.
+
+    The data that will not be deleted:
+    - your Gapopa ID, as is does not represent personal information;
+    - the messages you have sent, however no one will see you as an author of those messages.
+
+    Not a single user will be able to find, identify or detect the information of your presence within the system.
+label_personalization = Personalization
 btn_personalize = Персонализация
 btn_proceed = Продолжить
+btn_privacy_policy = Политика конфиденциальности
 btn_remove = Удалить
 btn_rename = Переименовать
 btn_reply = Ответить
@@ -1067,7 +1088,6 @@ label_do_not_show_for_this_chat = Не показывать для этого ч
 label_make_call = Совершить звонок
 label_send_message = Отправить сообщение
 label_paid_chat = Платный чат
-btn_accept = Принять
 label_insufficient_funds = Недостаточно средств
 label_not_enough_funds_on_your_account = На Вашем счету недостаточно средств.
 label_please_add_funds_to_your_account = Пожалуйста, пополните Ваш счёт.

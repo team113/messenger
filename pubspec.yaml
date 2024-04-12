@@ -11,7 +11,7 @@ dependencies:
   animated_size_and_fade: ^3.0.0
   async: ^2.10.0
   back_button_interceptor: ^7.0.0
-  callkeep: ^0.3.3
+  flutter_callkit_incoming:
   collection: ^1.17.2
   crypto: ^3.0.3
   desktop_drop: ^0.4.1

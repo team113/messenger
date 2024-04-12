@@ -302,8 +302,6 @@ class HomeController extends GetxController {
       stage = IntroductionViewStage.signUp;
     }
 
-    // stage = IntroductionViewStage.oneTime;
-
     if (stage != null) {
       IntroductionView.show(router.context!, initial: stage)
           .then((_) => _settings.setShowIntroduction(false));

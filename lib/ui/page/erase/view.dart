@@ -1,23 +1,32 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/app_bar.dart';
-import 'package:messenger/ui/page/home/widget/block.dart';
-import 'package:messenger/ui/page/home/widget/field_button.dart';
-import 'package:messenger/ui/page/home/widget/paddings.dart';
-import 'package:messenger/ui/page/login/widget/primary_button.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/get.dart';
-import 'package:messenger/util/message_popup.dart';
+
+import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/login/widget/primary_button.dart';
+import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/util/get.dart';
+import '/util/message_popup.dart';
 
 import 'controller.dart';
 
+/// [Routes.erase] page.
 class EraseView extends StatelessWidget {
   const EraseView({super.key});
+
+  /// Displays a [EraseView] wrapped in a [ModalPopup].
+  static Future<T?> show<T>(BuildContext context) {
+    return ModalPopup.show(context: context, child: const EraseView());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,30 +34,17 @@ class EraseView extends StatelessWidget {
       init: EraseController(Get.find(), Get.findOrNull<MyUserService>()),
       builder: (EraseController c) {
         return Scaffold(
-          appBar: const CustomAppBar(title: Text('Request deletion')),
+          appBar: CustomAppBar(
+            leading: const [StyledBackButton()],
+            title: Text('label_personal_data_deletion'.l10n),
+            actions: const [SizedBox(width: 32)],
+          ),
           body: ListView(
             children: [
-              const Block(
-                title: 'Instruction',
+              Block(
+                title: 'label_description'.l10n,
                 children: [
-                  Text(
-                    'Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.\n'
-                    '\n'
-                    'The data that will be deleted is:\n'
-                    '- your avatar;\n'
-                    '- your name;\n'
-                    '- your biography;\n'
-                    '- your login;\n'
-                    '- all of your emails;\n'
-                    '- all of your phone numbers;\n'
-                    '- your contacts list.\n'
-                    '\n'
-                    'The data that will not be deleted:\n'
-                    '- your Gapopa ID, as is does not represent personal information and cannot be used to associate account with you;\n'
-                    '- the messages you have sent, however no one will see you as an author of those messages.\n'
-                    '\n'
-                    'Not a single user will be able to find, identify or detect the information of your presence within the system.',
-                  ),
+                  Text('label_personal_data_deletion_description'.l10n),
                 ],
               ),
               _deletion(context, c),
@@ -59,6 +55,7 @@ class EraseView extends StatelessWidget {
     );
   }
 
+  /// Returns the [Block] containing the delete account button.
   Widget _deletion(BuildContext context, EraseController c) {
     final style = Theme.of(context).style;
 
@@ -69,9 +66,7 @@ class EraseView extends StatelessWidget {
         children = const [Center(child: CircularProgressIndicator())];
       } else if (c.authStatus.value.isEmpty) {
         children = [
-          const Text(
-            'In order to delete your account, please, authorize first in the form below.',
-          ),
+          Text('label_personal_data_deletion_authorize'.l10n),
           const SizedBox(height: 25),
           ReactiveTextField(
             key: const Key('UsernameField'),
@@ -100,7 +95,7 @@ class EraseView extends StatelessWidget {
                 c.password.error.value == null;
 
             return PrimaryButton(
-              title: 'Proceed',
+              title: 'btn_proceed'.l10n,
               onPressed: enabled ? c.signIn : null,
             );
           }),
@@ -126,7 +121,6 @@ class EraseView extends StatelessWidget {
           key: Key(
             '${c.authStatus.value.isLoading}${c.authStatus.value.isEmpty}',
           ),
-          title: 'Delete account',
           children: children,
         ),
       );

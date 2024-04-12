@@ -24,7 +24,6 @@ library main;
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -32,6 +31,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/notification_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
@@ -306,110 +310,173 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
   Log.debug('handlePushNotification($message)', 'main');
 
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
-    final FlutterCallkeep callKeep = FlutterCallkeep();
+    SharedPreferences? prefs;
+    CredentialsHiveProvider? credentialsProvider;
+    GraphQlProvider? provider;
+    StreamSubscription? subscription;
 
-    if (await callKeep.hasPhoneAccount()) {
-      SharedPreferences? prefs;
-      CredentialsHiveProvider? credentialsProvider;
-      GraphQlProvider? provider;
-      StreamSubscription? subscription;
+    try {
+      // await callKeep.setup(
+      //   null,
+      //   Config.callKeep,
+      //   backgroundMode: true,
+      // );
 
-      try {
-        await callKeep.setup(
-          null,
-          Config.callKeep,
-          backgroundMode: true,
-        );
+      // callKeep.on(
+      //   CallKeepPerformAnswerCallAction(),
+      //   (CallKeepPerformAnswerCallAction event) async {
+      //     await prefs?.setString('answeredCall', message.data['chatId']);
+      //     await callKeep.rejectCall(event.callUUID!);
+      //     await callKeep.backToForeground();
+      //   },
+      // );
 
-        callKeep.on(
-          CallKeepPerformAnswerCallAction(),
-          (CallKeepPerformAnswerCallAction event) async {
+      // callKeep.on(
+      //   CallKeepPerformEndCallAction(),
+      //   (CallKeepPerformEndCallAction event) async {
+      //     if (prefs?.getString('answeredCall') != event.callUUID!) {
+      //       await provider?.declineChatCall(ChatId(event.callUUID!));
+      //     }
+
+      //     subscription?.cancel();
+      //     provider?.disconnect();
+      //     await Hive.close();
+      //   },
+      // );
+
+      // callKeep.displayIncomingCall(
+      //   message.data['chatId'],
+      //   message.notification?.title ?? 'gapopa',
+      //   handleType: 'generic',
+      // );
+
+      FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
+        switch (event!.event) {
+          case Event.actionCallAccept:
             await prefs?.setString('answeredCall', message.data['chatId']);
-            await callKeep.rejectCall(event.callUUID!);
-            await callKeep.backToForeground();
-          },
-        );
+            break;
 
-        callKeep.on(
-          CallKeepPerformEndCallAction(),
-          (CallKeepPerformEndCallAction event) async {
-            if (prefs?.getString('answeredCall') != event.callUUID!) {
-              await provider?.declineChatCall(ChatId(event.callUUID!));
-            }
+          case Event.actionCallDecline:
+            // TODO: declined an incoming call
+            break;
+
+          case Event.actionCallEnded:
+          case Event.actionCallTimeout:
+            print(event.body);
+            // if (prefs?.getString('answeredCall') != event.body!) {
+            // await provider?.declineChatCall(ChatId(event.callUUID!));
+            // }
 
             subscription?.cancel();
             provider?.disconnect();
             await Hive.close();
-          },
-        );
+            break;
 
-        callKeep.displayIncomingCall(
-          message.data['chatId'],
-          message.notification?.title ?? 'gapopa',
-          handleType: 'generic',
-        );
+          case Event.actionCallCallback:
+            // TODO: only Android - click action `Call back` from missed call notification
+            break;
 
-        await Config.init();
-        await Hive.initFlutter('hive');
-        credentialsProvider = CredentialsHiveProvider();
+          default:
+            break;
+        }
+      });
 
-        await credentialsProvider.init();
-        final Credentials? credentials = credentialsProvider.get();
-        await credentialsProvider.close();
+      await FlutterCallkitIncoming.showCallkitIncoming(
+        CallKitParams(
+          id: message.data['chatId'],
+          nameCaller: message.notification?.title ?? 'gapopa',
+          appName: 'Gapopa',
+          avatar: 'https://i.pravatar.cc/100',
+          handle: '0123456789',
+          type: 0,
+          textAccept: 'Accept',
+          textDecline: 'Decline',
+          missedCallNotification: const NotificationParams(
+            showNotification: true,
+            isShowCallback: true,
+            subtitle: 'Missed call',
+            callbackText: 'Call back',
+          ),
+          duration: 30000,
+          extra: <String, dynamic>{'chatId': message.data['chatId']},
+          headers: <String, dynamic>{'platform': 'flutter'},
+          android: const AndroidParams(
+            isCustomNotification: true,
+            isShowLogo: false,
+            ringtonePath: 'system_ringtone_default',
+            backgroundColor: '#0955fa',
+            backgroundUrl: 'https://i.pravatar.cc/500',
+            actionColor: '#4CAF50',
+            textColor: '#ffffff',
+            incomingCallNotificationChannelName: 'Incoming Call',
+            missedCallNotificationChannelName: 'Missed Call',
+            isShowCallID: false,
+          ),
+        ),
+      );
 
-        if (credentials != null) {
-          provider = GraphQlProvider();
-          provider.token = credentials.access.secret;
-          provider.reconnect();
+      await Config.init();
+      await Hive.initFlutter('hive');
+      credentialsProvider = CredentialsHiveProvider();
 
-          subscription = provider
-              .chatEvents(ChatId(message.data['chatId']), null, () => null)
-              .listen((e) {
-            var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
-            if (events.$$typename == 'ChatEventsVersioned') {
-              var mixin = events
-                  as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+      await credentialsProvider.init();
+      final Credentials? credentials = credentialsProvider.get();
+      await credentialsProvider.close();
 
-              for (var e in mixin.events) {
-                if (e.$$typename == 'EventChatCallFinished') {
-                  callKeep.rejectCall(message.data['chatId']);
-                } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                  var node = e
-                      as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                  if (node.user.id == credentials.userId) {
-                    callKeep.rejectCall(message.data['chatId']);
-                  }
-                } else if (e.$$typename == 'EventChatCallDeclined') {
-                  var node = e
-                      as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                  if (node.user.id == credentials.userId) {
-                    callKeep.rejectCall(message.data['chatId']);
-                  }
+      if (credentials != null) {
+        provider = GraphQlProvider();
+        provider.token = credentials.access.secret;
+        provider.reconnect();
+
+        subscription = provider
+            .chatEvents(ChatId(message.data['chatId']), null, () => null)
+            .listen((e) async {
+          var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+          if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin = events
+                as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+            for (var e in mixin.events) {
+              if (e.$$typename == 'EventChatCallFinished') {
+                await FlutterCallkitIncoming.endCall(message.data['chatId']);
+              } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                var node = e
+                    as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(message.data['chatId']);
+                }
+              } else if (e.$$typename == 'EventChatCallDeclined') {
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(message.data['chatId']);
                 }
               }
             }
-          });
+          }
+        });
 
-          prefs = await SharedPreferences.getInstance();
-          await prefs.remove('answeredCall');
-        }
-
-        // Remove the incoming call notification after a reasonable amount of
-        // time for a better UX.
-        await Future.delayed(30.seconds);
-
-        callKeep.rejectCall(message.data['chatId']);
-      } catch (_) {
-        provider?.disconnect();
-        subscription?.cancel();
-        callKeep.rejectCall(message.data['chatId']);
-        await credentialsProvider?.close();
-        await Hive.close();
+        prefs = await SharedPreferences.getInstance();
+        await prefs.remove('answeredCall');
       }
+
+      // Remove the incoming call notification after a reasonable amount of
+      // time for a better UX.
+      await Future.delayed(30.seconds);
+
+      await FlutterCallkitIncoming.endCall(message.data['chatId']);
+    } catch (_) {
+      provider?.disconnect();
+      subscription?.cancel();
+      await FlutterCallkitIncoming.endCall(message.data['chatId']);
+      await credentialsProvider?.close();
+      await Hive.close();
     }
   }
 }

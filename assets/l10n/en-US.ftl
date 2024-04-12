@@ -51,9 +51,7 @@ alert_popup_permissions_description =
     disabled:
 
     - Show on Lock screen;
-
     - Display pop-up windows while running in the background;
-
     - Display pop-up window.
 alert_popup_permissions_title = Please enable the popup permissions
 alert_user_will_be_blocked1 = User{" "}
@@ -61,6 +59,7 @@ alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
 alert_you_will_leave_group = You will leave the group.
+btn_accept = Accept
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
@@ -217,14 +216,36 @@ btn_one_time_account = Guest account
 btn_one_time_account_desc =
     Guest
     account
+btn_privacy_policy = Privacy policy
 btn_participants = Participants
 btn_participants_desc =
     Call
     participants
 btn_password = Password
 btn_paste = Paste
+label_personal_data_deletion = Delete account
+label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
+label_personal_data_deletion_description =
+    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+
+    The data that will be deleted is:
+    - your avatar;
+    - your name;
+    - your biography;
+    - your login;
+    - all of your emails;
+    - all of your phone numbers;
+    - your contacts list.
+
+    The data that will not be deleted:
+    - your Gapopa ID, as is does not represent personal information;
+    - the messages you have sent, however no one will see you as an author of those messages.
+
+    Not a single user will be able to find, identify or detect the information of your presence within the system.
+label_personalization = Personalization
 btn_personalize = Personalization
 btn_proceed = Proceed
+btn_privacy_policy = Privacy policy
 btn_remove = Remove
 btn_rename = Rename
 btn_reply = Reply
@@ -1034,7 +1055,6 @@ label_do_not_show_for_this_chat = Do not show for this chat
 label_make_call = Make a call
 label_send_message = Send message
 label_paid_chat = Paid chat
-btn_accept = Accept
 label_insufficient_funds = Insufficient funds
 label_please_add_funds_to_your_account = Please, add funds to your account.
 label_message_cant_send_message_funds = Unfortunately, the message cannot be sent. Please, add funds to your account.

@@ -1,15 +1,17 @@
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/my_user.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/l10n/l10n.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
-import 'package:messenger/routes.dart';
-import 'package:messenger/ui/widget/text_field.dart';
-import 'package:messenger/util/message_popup.dart';
+
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
+import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart';
+import '/routes.dart';
+import '/ui/widget/text_field.dart';
+import '/util/message_popup.dart';
 
 import '/domain/service/auth.dart';
 
+/// Controller of the [Routes.erase] page.
 class EraseController extends GetxController {
   EraseController(this._authService, this._myUserService);
 
@@ -23,7 +25,6 @@ class EraseController extends GetxController {
   late final TextFieldState password = TextFieldState(
     onChanged: (s) => s.error.value = null,
     onSubmitted: (s) => signIn(),
-    revalidateOnUnfocus: true,
   );
 
   /// Indicator whether the [password] should be obscured.
@@ -32,13 +33,19 @@ class EraseController extends GetxController {
   /// Indicator whether the [newPassword] should be obscured.
   final RxBool obscureNewPassword = RxBool(true);
 
+  /// [AuthService] user for signing into an account.
   final AuthService _authService;
+
+  /// [MyUserService] used to delete authorized [MyUser].
   final MyUserService? _myUserService;
 
+  /// Returns the authorization status.
   Rx<RxStatus> get authStatus => _authService.status;
+
+  /// Returns the authenticated [MyUser].
   Rx<MyUser?>? get myUser => _myUserService?.myUser;
 
-  /// Signs in and redirects to the [Routes.home] page.
+  /// Signs in and redirects to the [Routes.erase] page.
   ///
   /// Username is [login]'s text and the password is [password]'s text.
   Future<void> signIn() async {

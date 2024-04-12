@@ -18,15 +18,17 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:callkeep/callkeep.dart';
+// import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/login/widget/primary_button.dart';
+import 'package:messenger/util/message_popup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -38,7 +40,6 @@ import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
-import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
@@ -78,7 +79,7 @@ class CallWorker extends DisposableService {
   StreamSubscription? _storageSubscription;
 
   /// [FlutterCallkeep] used to require the call account permissions.
-  final FlutterCallkeep _callKeep = FlutterCallkeep();
+  // final FlutterCallkeep _callKeep = FlutterCallkeep();
 
   /// [ChatId]s of the calls that should be answered right away.
   final List<ChatId> _answeredCalls = [];
@@ -135,7 +136,8 @@ class CallWorker extends DisposableService {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       _lifecycleWorker = ever(router.lifecycle, (e) async {
         if (e.inForeground) {
-          _callKeep.endAllCalls();
+          // _callKeep.endAllCalls();
+          await FlutterCallkitIncoming.endAllCalls();
 
           _callService.calls.forEach((id, call) {
             if (_answeredCalls.contains(id) && !call.value.isActive) {
@@ -318,38 +320,50 @@ class CallWorker extends DisposableService {
   void onReady() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        _callKeep.setup(router.context!, Config.callKeep);
+        FlutterCallkitIncoming.requestNotificationPermission(
+          {
+            'rationaleMessagePermission':
+                'Notification permission is required, to show notification.',
+            'postNotificationMessageRequired':
+                'Notification permission is required, Please allow notification permission from setting.'
+          },
+        );
 
-        _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
-          if (event.callUUID != null) {
-            _answeredCalls.add(ChatId(event.callUUID!));
-          }
-        });
+        // _callKeep.setup(router.context!, Config.callKeep);
 
-        if (PlatformUtils.isAndroid) {
-          AndroidUtils.canDrawOverlays().then((v) {
-            if (!v) {
-              showDialog(
-                barrierDismissible: false,
-                context: router.context!,
-                builder: (context) => AlertDialog(
-                  title: Text('alert_popup_permissions_title'.l10n),
-                  content: Text('alert_popup_permissions_description'.l10n),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        AndroidUtils.openOverlaySettings().then((_) {
-                          Navigator.of(context).pop();
-                        });
-                      },
-                      child: Text('alert_popup_permissions_button'.l10n),
-                    ),
-                  ],
-                ),
-              );
-            }
-          });
-        }
+        // _callKeep.on(CallKeepPerformAnswerCallAction(), (event) {
+        //   if (event.callUUID != null) {
+        //     _answeredCalls.add(ChatId(event.callUUID!));
+        //   }
+        // });
+
+        // if (PlatformUtils.isAndroid) {
+        //   AndroidUtils.canDrawOverlays().then((v) async {
+        //     if (!v) {
+        //       await MessagePopup.alert(
+        //         'alert_popup_permissions_title'.l10n,
+        //         description: [
+        //           TextSpan(text: 'alert_popup_permissions_description'.l10n),
+        //         ],
+        //         button: (context) {
+        //           return PrimaryButton(
+        //             key: const Key('Proceed'),
+        //             title: 'alert_popup_permissions_button'.l10n,
+        //             onPressed: () async {
+        //               try {
+        //                 await AndroidUtils.openOverlaySettings();
+        //               } finally {
+        //                 if (context.mounted) {
+        //                   Navigator.of(context).pop();
+        //                 }
+        //               }
+        //             },
+        //           );
+        //         },
+        //       );
+        //     }
+        //   });
+        // }
       });
     }
 

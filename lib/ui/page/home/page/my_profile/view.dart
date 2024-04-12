@@ -33,7 +33,9 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/repository/user.dart';
 import 'package:messenger/main.dart';
+import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/call/widget/fit_view.dart';
+import 'package:messenger/ui/page/erase/view.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/get_paid/view.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_gallery.dart';
@@ -48,7 +50,9 @@ import 'package:messenger/ui/page/home/widget/contact_tile.dart';
 import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
 import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 import 'package:messenger/ui/page/login/controller.dart';
+import 'package:messenger/ui/page/login/privacy_policy/view.dart';
 import 'package:messenger/ui/page/login/qr_code/view.dart';
+import 'package:messenger/ui/page/login/terms_of_use/view.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
 import 'package:messenger/ui/widget/info_tile.dart';
 import 'package:messenger/ui/widget/member_tile.dart';
@@ -585,7 +589,25 @@ class MyProfileView extends StatelessWidget {
                       return const SizedBox();
 
                     case ProfileTab.logout:
-                      return const SizedBox();
+                      return Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          Center(
+                            child: StyledCupertinoButton(
+                              label: 'btn_terms_and_conditions'.l10n,
+                              onPressed: () => TermsOfUseView.show(context),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Center(
+                            child: StyledCupertinoButton(
+                              label: 'btn_privacy_policy'.l10n,
+                              onPressed: () => PrivacyPolicy.show(context),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      );
                   }
                 },
               );
@@ -2460,26 +2482,9 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  final style = Theme.of(context).style;
-
-  final bool? result = await MessagePopup.alert(
-    'label_delete_account'.l10n,
-    description: [
-      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
-      TextSpan(
-        text: c.myUser.value?.name?.val ??
-            c.myUser.value?.login?.val ??
-            c.myUser.value?.num.toString() ??
-            'dot'.l10n * 3,
-        style: style.fonts.normal.regular.onBackground,
-      ),
-      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
-    ],
+  await Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => const EraseView()),
   );
-
-  if (result == true) {
-    await c.deleteAccount();
-  }
 }
 
 Future<void> _clearCache(MyProfileController c, BuildContext context) async {

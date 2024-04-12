@@ -36,6 +36,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'qr_code/view.dart';
+import 'terms_of_use/view.dart';
 import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
@@ -800,9 +801,8 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25 / 2),
                 Center(
                   child: StyledCupertinoButton(
-                    // color: style.colors.secondary,
                     label: 'btn_terms_and_conditions'.l10n,
-                    onPressed: () {},
+                    onPressed: () => TermsOfUseView.show(context),
                   ),
                 ),
               ];
