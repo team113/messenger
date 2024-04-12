@@ -26,8 +26,10 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/login/controller.dart';
+import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
@@ -148,7 +150,14 @@ class IntroductionView extends StatelessWidget {
                     style: style.fonts.normal.regular.onPrimary,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 25 / 2),
+                Center(
+                  child: StyledCupertinoButton(
+                    label: 'btn_terms_and_conditions'.l10n,
+                    onPressed: () => TermsOfUseView.show(context),
+                  ),
+                ),
+                const SizedBox(height: 8),
               ];
               break;
 
@@ -229,6 +238,14 @@ class IntroductionView extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 25 / 2),
+                  Center(
+                    child: StyledCupertinoButton(
+                      label: 'btn_terms_and_conditions'.l10n,
+                      onPressed: () => TermsOfUseView.show(context),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                 ];
               } else {
                 header = ModalPopupHeader(
@@ -244,7 +261,14 @@ class IntroductionView extends StatelessWidget {
                   guestButton,
                   const SizedBox(height: 15),
                   signInButton,
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 25 / 2),
+                  Center(
+                    child: StyledCupertinoButton(
+                      label: 'btn_terms_and_conditions'.l10n,
+                      onPressed: () => TermsOfUseView.show(context),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                 ];
               }
               break;

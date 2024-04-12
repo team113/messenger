@@ -52,7 +52,6 @@ import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/view.dart';
-import 'package:messenger/ui/worker/background/background.dart';
 import 'package:messenger/util/audio_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -130,7 +129,6 @@ void main() async {
     Get.put(settingsProvider);
     Get.put(callCredentialsProvider);
     Get.put(NotificationService(graphQlProvider));
-    Get.put(BackgroundWorker(credentialsProvider));
     Get.put(monologProvider);
 
     AuthService authService = Get.put(

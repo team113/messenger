@@ -31,6 +31,8 @@ import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
+import '/ui/page/erase/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -43,6 +45,8 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/login/privacy_policy/view.dart';
+import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -314,11 +318,29 @@ class MyProfileView extends StatelessWidget {
                       return block(children: [_danger(context, c)]);
 
                     case ProfileTab.logout:
-                      return const SafeArea(
+                      return SafeArea(
                         top: false,
                         right: false,
                         left: false,
-                        child: SizedBox(),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 12),
+                            Center(
+                              child: StyledCupertinoButton(
+                                label: 'btn_terms_and_conditions'.l10n,
+                                onPressed: () => TermsOfUseView.show(context),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Center(
+                              child: StyledCupertinoButton(
+                                label: 'btn_privacy_policy'.l10n,
+                                onPressed: () => PrivacyPolicy.show(context),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
                       );
                   }
                 },
@@ -1170,24 +1192,7 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  final style = Theme.of(context).style;
-
-  final bool? result = await MessagePopup.alert(
-    'label_delete_account'.l10n,
-    description: [
-      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
-      TextSpan(
-        text: c.myUser.value?.name?.val ??
-            c.myUser.value?.login?.val ??
-            c.myUser.value?.num.toString() ??
-            'dot'.l10n * 3,
-        style: style.fonts.normal.regular.onBackground,
-      ),
-      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
-    ],
+  await Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => const EraseView()),
   );
-
-  if (result == true) {
-    await c.deleteAccount();
-  }
 }

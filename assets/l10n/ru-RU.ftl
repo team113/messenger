@@ -61,6 +61,7 @@ alert_user_will_be_blocked2 = {" "}будет заблокирован.
 alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
 alert_you_will_leave_group = Вы покинете группу.
+btn_accept = Принять
 btn_add = Добавить
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
@@ -170,6 +171,7 @@ btn_copy = Скопировать
 btn_copy_text = Скопировать текст
 btn_create = Создать
 btn_create_group = Создать группу
+btn_decline = Отклонить
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_chat = Удалить чат
@@ -220,6 +222,7 @@ btn_participants_desc =
 btn_password = Пароль
 btn_paste = Вставить
 btn_personalize = Персонализация
+btn_privacy_policy = Политика конфиденциальности
 btn_proceed = Продолжить
 btn_remove = Удалить
 btn_rename = Переименовать
@@ -250,6 +253,7 @@ btn_sticker = Стикер
 btn_submit = Применить
 btn_take_photo = Фото
 btn_take_video = Видео
+btn_terms_and_conditions = Условия использования
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_undo_delete = Отменить удаление
@@ -888,6 +892,25 @@ label_password_not_set_info = Для Вашего аккаунта не зада
 
     • в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файлов cookie.
 label_password_set = Пароль задан.
+label_personal_data_deletion = Удалить аккаунт
+label_personal_data_deletion_authorize = Чтобы удалить Ваш аккаунт, пожалуйста, авторизуйтесь в форме ниже.
+label_personal_data_deletion_description =
+    Запрос на удаление аккаунта может быть отправлен с данной страницы. Этот процесс НЕОБРАТИМ - Вы не сможете восстановить свой аккаунт.
+
+    Информация, которая будет удалена:
+    - Ваш аватар;
+    - Ваше имя;
+    - Ваша биография;
+    - Ваш логин;
+    - все Ваши e-mail адреса;
+    - все Ваши номера телефонов;
+    - Ваш список контактов.
+
+    Информация, которая не будет удалена:
+    - Ваш Gapopa ID, поскольку он не является персональной информацией;
+    - отправленные Вами сообщения, при этом никто не сможет идентифицировать, что автором этих сообщений были или являетесь Вы.
+
+    Ни один пользователь не сможет найти, идентифицировать или обнаружить информацию о Вашем присутствии в системе.
 label_personalization = Персонализация
 label_phone = Телефон
 label_phone_confirmation_code_was_send =

@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
@@ -28,6 +29,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'terms_of_use/view.dart';
 import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
@@ -303,7 +305,13 @@ class LoginView extends StatelessWidget {
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
+                Center(
+                  child: StyledCupertinoButton(
+                    label: 'btn_terms_and_conditions'.l10n,
+                    onPressed: () => TermsOfUseView.show(context),
+                  ),
+                ),
               ];
               break;
 

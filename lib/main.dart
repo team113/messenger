@@ -23,11 +23,13 @@ library main;
 
 import 'dart:async';
 
-import 'package:callkeep/callkeep.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/entities/entities.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
@@ -65,6 +67,7 @@ import 'ui/worker/cache.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
+import 'util/get.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -236,110 +239,129 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
   Log.debug('handlePushNotification($message)', 'main');
 
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
-    final FlutterCallkeep callKeep = FlutterCallkeep();
+    SharedPreferences? prefs;
+    CredentialsHiveProvider? credentialsProvider;
+    GraphQlProvider? provider;
+    StreamSubscription? subscription;
 
-    if (await callKeep.hasPhoneAccount()) {
-      SharedPreferences? prefs;
-      CredentialsHiveProvider? credentialsProvider;
-      GraphQlProvider? provider;
-      StreamSubscription? subscription;
-
-      try {
-        await callKeep.setup(
-          null,
-          Config.callKeep,
-          backgroundMode: true,
-        );
-
-        callKeep.on(
-          CallKeepPerformAnswerCallAction(),
-          (CallKeepPerformAnswerCallAction event) async {
+    try {
+      FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
+        switch (event!.event) {
+          case Event.actionCallAccept:
             await prefs?.setString('answeredCall', message.data['chatId']);
-            await callKeep.rejectCall(event.callUUID!);
-            await callKeep.backToForeground();
-          },
-        );
+            break;
 
-        callKeep.on(
-          CallKeepPerformEndCallAction(),
-          (CallKeepPerformEndCallAction event) async {
-            if (prefs?.getString('answeredCall') != event.callUUID!) {
-              await provider?.declineChatCall(ChatId(event.callUUID!));
-            }
+          case Event.actionCallDecline:
+            await provider?.declineChatCall(ChatId(message.data['chatId']));
+            break;
 
+          case Event.actionCallEnded:
+          case Event.actionCallTimeout:
             subscription?.cancel();
             provider?.disconnect();
             await Hive.close();
-          },
-        );
+            break;
 
-        callKeep.displayIncomingCall(
-          message.data['chatId'],
-          message.notification?.title ?? 'gapopa',
-          handleType: 'generic',
-        );
+          case Event.actionCallCallback:
+            // TODO: Handle.
+            break;
 
-        await Config.init();
-        await Hive.initFlutter('hive');
-        credentialsProvider = CredentialsHiveProvider();
+          default:
+            break;
+        }
+      });
 
-        await credentialsProvider.init();
-        final Credentials? credentials = credentialsProvider.get();
-        await credentialsProvider.close();
+      await FlutterCallkitIncoming.showCallkitIncoming(
+        CallKitParams(
+          id: message.data['chatId'],
+          nameCaller: message.notification?.title ?? 'gapopa',
+          appName: 'Gapopa',
+          avatar: '', // TODO: Add avatar to FCM notifications.
+          handle: '0123456789',
+          type: 0,
+          textAccept: 'btn_accept'.l10n,
+          textDecline: 'btn_decline'.l10n,
+          duration: 30000,
+          extra: {'chatId': message.data['chatId']},
+          headers: {'platform': 'flutter'},
+          android: AndroidParams(
+            isCustomNotification: true,
+            isShowLogo: false,
+            ringtonePath: 'system_ringtone_default',
+            backgroundColor: '#0955fa',
+            backgroundUrl: '', // TODO: Add avatar to FCM notifications.
+            actionColor: '#4CAF50',
+            textColor: '#ffffff',
+            incomingCallNotificationChannelName: 'label_incoming_call'.l10n,
+            missedCallNotificationChannelName: 'label_chat_call_missed'.l10n,
+            isShowCallID: false,
+            isShowFullLockedScreen: true,
+          ),
+        ),
+      );
 
-        if (credentials != null) {
-          provider = GraphQlProvider();
-          provider.token = credentials.access.secret;
-          provider.reconnect();
+      await Config.init();
+      await Hive.initFlutter('hive');
+      credentialsProvider = CredentialsHiveProvider();
 
-          subscription = provider
-              .chatEvents(ChatId(message.data['chatId']), null, () => null)
-              .listen((e) {
-            var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
-            if (events.$$typename == 'ChatEventsVersioned') {
-              var mixin = events
-                  as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+      await credentialsProvider.init();
+      final Credentials? credentials = credentialsProvider.get();
+      await credentialsProvider.close();
 
-              for (var e in mixin.events) {
-                if (e.$$typename == 'EventChatCallFinished') {
-                  callKeep.rejectCall(message.data['chatId']);
-                } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                  var node = e
-                      as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                  if (node.user.id == credentials.userId) {
-                    callKeep.rejectCall(message.data['chatId']);
-                  }
-                } else if (e.$$typename == 'EventChatCallDeclined') {
-                  var node = e
-                      as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                  if (node.user.id == credentials.userId) {
-                    callKeep.rejectCall(message.data['chatId']);
-                  }
+      if (credentials != null) {
+        provider = GraphQlProvider();
+        provider.token = credentials.access.secret;
+        provider.reconnect();
+
+        subscription = provider
+            .chatEvents(ChatId(message.data['chatId']), null, () => null)
+            .listen((e) async {
+          var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+          if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin = events
+                as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+            for (var e in mixin.events) {
+              if (e.$$typename == 'EventChatCallFinished') {
+                await FlutterCallkitIncoming.endCall(message.data['chatId']);
+              } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                var node = e
+                    as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(message.data['chatId']);
+                }
+              } else if (e.$$typename == 'EventChatCallDeclined') {
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(message.data['chatId']);
                 }
               }
             }
-          });
+          }
+        });
 
-          prefs = await SharedPreferences.getInstance();
-          await prefs.remove('answeredCall');
-        }
-
-        // Remove the incoming call notification after a reasonable amount of
-        // time for a better UX.
-        await Future.delayed(30.seconds);
-
-        callKeep.rejectCall(message.data['chatId']);
-      } catch (_) {
-        provider?.disconnect();
-        subscription?.cancel();
-        callKeep.rejectCall(message.data['chatId']);
-        await credentialsProvider?.close();
-        await Hive.close();
+        prefs = await SharedPreferences.getInstance();
+        await prefs.remove('answeredCall');
       }
+
+      // Remove the incoming call notification after a reasonable amount of
+      // time for a better UX.
+      await Future.delayed(30.seconds);
+
+      await FlutterCallkitIncoming.endCall(message.data['chatId']);
+    } catch (_) {
+      provider?.disconnect();
+      subscription?.cancel();
+      await FlutterCallkitIncoming.endCall(message.data['chatId']);
+      await credentialsProvider?.close();
+      await Hive.close();
     }
   }
 }
@@ -437,18 +459,5 @@ extension HiveClean on HiveInterface {
         // No-op.
       }
     }
-  }
-}
-
-/// Extension adding ability to find non-strict dependencies from a
-/// [GetInterface].
-extension on GetInterface {
-  /// Returns the [S] dependency, if it [isRegistered].
-  S? findOrNull<S>({String? tag}) {
-    if (isRegistered<S>(tag: tag)) {
-      return find<S>(tag: tag);
-    }
-
-    return null;
   }
 }

@@ -61,6 +61,7 @@ alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
 alert_you_will_leave_group = You will leave the group.
+btn_accept = Accept
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
@@ -170,6 +171,7 @@ btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
 btn_create_group = Create group
+btn_decline = Decline
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
@@ -220,6 +222,7 @@ btn_participants_desc =
 btn_password = Password
 btn_paste = Paste
 btn_personalize = Personalization
+btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
@@ -250,6 +253,7 @@ btn_sticker = Sticker
 btn_submit = Submit
 btn_take_photo = Take photo
 btn_take_video = Take video
+btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_undo_delete = Undo delete
@@ -861,6 +865,25 @@ label_password_not_set_info = No password has been set for your account. Consequ
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
+label_personal_data_deletion = Delete account
+label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
+label_personal_data_deletion_description =
+    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+
+    The data that will be deleted is:
+    - your avatar;
+    - your name;
+    - your biography;
+    - your login;
+    - all of your emails;
+    - all of your phone numbers;
+    - your contacts list.
+
+    The data that will not be deleted:
+    - your Gapopa ID, as is does not represent personal information;
+    - the messages you have sent, however no one will see you as an author of those messages.
+
+    Not a single user will be able to find, identify or detect the information of your presence within the system.
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
