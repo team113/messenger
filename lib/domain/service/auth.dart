@@ -267,20 +267,26 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   Future<void> register() async {
-    Log.debug('register()', '$runtimeType');
+    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
+    final bool isLocked =
+        futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    status.value = RxStatus.loading();
-    return WebUtils.protect(() async {
-      try {
-        var data = await _authRepository.signUp();
-        _authorized(data);
-        _credentialsProvider.set(data);
-        status.value = RxStatus.success();
-      } catch (e) {
-        _unauthorized();
-        rethrow;
-      }
-    });
+    if (!isLocked) {
+      Log.debug('register()', '$runtimeType');
+
+      status.value = RxStatus.loading();
+      return WebUtils.protect(() async {
+        try {
+          final Credentials data = await _authRepository.signUp();
+          _authorized(data);
+          _credentialsProvider.set(data);
+          status.value = RxStatus.success();
+        } catch (e) {
+          _unauthorized();
+          rethrow;
+        }
+      });
+    }
   }
 
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
@@ -290,21 +296,39 @@ class AuthService extends GetxService {
   ///
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
   Future<void> signUpWithEmail(UserEmail email) async {
-    Log.debug('signUpWithEmail($email)', '$runtimeType');
-    await _authRepository.signUpWithEmail(email);
+    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
+    final bool isLocked =
+        futureOrBool is bool ? futureOrBool : await futureOrBool;
+
+    if (!isLocked) {
+      Log.debug('signUpWithEmail($email)', '$runtimeType');
+
+      await WebUtils.protect(() async {
+        await _authRepository.signUpWithEmail(email);
+      });
+    }
   }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   Future<void> confirmSignUpEmail(ConfirmationCode code) async {
-    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
+    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
+    final bool isLocked =
+        futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    try {
-      final Credentials creds = await _authRepository.confirmSignUpEmail(code);
-      _authorized(creds);
-      _credentialsProvider.set(creds);
-    } catch (e) {
-      _unauthorized();
-      rethrow;
+    if (!isLocked) {
+      Log.debug('confirmSignUpEmail($code)', '$runtimeType');
+
+      await WebUtils.protect(() async {
+        try {
+          final Credentials creds =
+              await _authRepository.confirmSignUpEmail(code);
+          _authorized(creds);
+          _credentialsProvider.set(creds);
+        } catch (e) {
+          _unauthorized();
+          rethrow;
+        }
+      });
     }
   }
 
@@ -328,44 +352,57 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
   }) async {
-    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
+    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
+    final bool isLocked =
+        futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    status.value =
-        credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
-    await WebUtils.protect(() async {
-      try {
-        final Credentials data = await _authRepository.signIn(
-          password,
-          login: login,
-          num: num,
-          email: email,
-          phone: phone,
-        );
-        _authorized(data);
-        _credentialsProvider.set(data);
-        status.value = RxStatus.success();
-      } catch (e) {
-        _unauthorized();
-        rethrow;
-      }
-    });
+    if (!isLocked) {
+      Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
+
+      status.value = credentials.value == null
+          ? RxStatus.loading()
+          : RxStatus.loadingMore();
+      await WebUtils.protect(() async {
+        try {
+          final Credentials data = await _authRepository.signIn(
+            password,
+            login: login,
+            num: num,
+            email: email,
+            phone: phone,
+          );
+          _authorized(data);
+          _credentialsProvider.set(data);
+          status.value = RxStatus.success();
+        } catch (e) {
+          _unauthorized();
+          rethrow;
+        }
+      });
+    }
   }
 
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
-    Log.debug('signInWith($credentials)', '$runtimeType');
+    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
+    final bool isLocked =
+        futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    // Check if the [credentials] are valid.
-    credentials =
-        await _authRepository.refreshSession(credentials.refresh.secret);
+    if (!isLocked) {
+      Log.debug('signInWith($credentials)', '$runtimeType');
 
-    status.value = RxStatus.loadingMore();
-    await WebUtils.protect(() async {
-      _authorized(credentials);
-      _credentialsProvider.set(credentials);
-      status.value = RxStatus.success();
-    });
+      // Check if the [credentials] are valid.
+      credentials =
+          await _authRepository.refreshSession(credentials.refresh.secret);
+
+      status.value = RxStatus.loadingMore();
+      await WebUtils.protect(() async {
+        _authorized(credentials);
+        _credentialsProvider.set(credentials);
+        status.value = RxStatus.success();
+      });
+    }
   }
 
   // TODO: Clean Hive storage on logout.
