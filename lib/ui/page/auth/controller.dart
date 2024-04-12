@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/service/auth.dart';
@@ -48,9 +47,6 @@ class AuthController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
-  /// [Mutex] for synchronized access to [register].
-  final Mutex _registerGuard = Mutex();
-
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
@@ -63,26 +59,17 @@ class AuthController extends GetxController {
   @override
   void onClose() {
     _animationTimer?.cancel();
-    if (_registerGuard.isLocked) {
-      _registerGuard.release();
-    }
-
     super.onClose();
   }
 
   /// Registers and redirects to the [Routes.home] page.
   Future<void> register() async {
-    if (!_registerGuard.isLocked) {
-      await _registerGuard.acquire();
-
-      try {
-        await _auth.register();
-        router.home();
-      } catch (e) {
-        MessagePopup.error(e);
-        _registerGuard.release();
-        rethrow;
-      }
+    try {
+      await _auth.register();
+      router.home();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
     }
   }
 
