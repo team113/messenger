@@ -227,16 +227,22 @@ class LoginView extends StatelessWidget {
                   );
                 }),
                 const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('EmailCodeField'),
-                  state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
-                  type: TextInputType.number,
-                ),
+                Obx(() {
+                  final bool enabled = c.authStatus.value.isEmpty;
+
+                  return ReactiveTextField(
+                    key: const Key('EmailCodeField'),
+                    state: c.emailCode,
+                    label: 'label_confirmation_code'.l10n,
+                    type: TextInputType.number,
+                    enabled: enabled,
+                  );
+                }),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled =
-                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
+                  final bool enabled = !c.emailCode.isEmpty.value &&
+                      c.codeTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),

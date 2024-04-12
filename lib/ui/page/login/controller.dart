@@ -254,6 +254,11 @@ class LoginController extends GetxController {
 
     emailCode = TextFieldState(
       onSubmitted: (s) async {
+        if (!_authService.status.value.isEmpty) {
+          // Abort submitting if already authenticated or in the process.
+          return;
+        }
+
         s.status.value = RxStatus.loading();
         try {
           await _authService

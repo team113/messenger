@@ -309,6 +309,7 @@ class AuthService extends GetxService {
     if (!isLocked) {
       Log.debug('confirmSignUpEmail($code)', '$runtimeType');
 
+      status.value = RxStatus.loading();
       await WebUtils.protect(() async {
         try {
           final Credentials creds =
@@ -401,30 +402,33 @@ class AuthService extends GetxService {
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 
-    status.value = RxStatus.loading();
+    await WebUtils.protect(() async {
+      status.value = RxStatus.loading();
 
-    try {
-      FcmRegistrationToken? fcmToken;
+      try {
+        FcmRegistrationToken? fcmToken;
 
-      if (PlatformUtils.pushNotifications) {
-        final NotificationSettings settings =
-            await FirebaseMessaging.instance.getNotificationSettings();
+        if (PlatformUtils.pushNotifications) {
+          final NotificationSettings settings =
+              await FirebaseMessaging.instance.getNotificationSettings();
 
-        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-          final String? token = await FirebaseMessaging.instance.getToken(
-            vapidKey: Config.vapidKey,
-          );
+          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            final String? token = await FirebaseMessaging.instance.getToken(
+              vapidKey: Config.vapidKey,
+            );
 
-          if (token != null) {
-            fcmToken = FcmRegistrationToken(token);
+            if (token != null) {
+              fcmToken = FcmRegistrationToken(token);
+            }
           }
         }
-      }
 
-      await _authRepository.logout(fcmToken);
-    } catch (e) {
-      printError(info: e.toString());
-    }
+        await _authRepository.logout(fcmToken);
+      } catch (e) {
+        printError(info: e.toString());
+      }
+    });
+
     return _unauthorized();
   }
 
