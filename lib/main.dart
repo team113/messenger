@@ -50,6 +50,7 @@ import 'domain/model/chat.dart';
 import 'domain/model/session.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
+import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
@@ -239,7 +240,19 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp(
+      options: PlatformUtils.pushNotifications
+          ? DefaultFirebaseOptions.currentPlatform
+          : null,
+    );
+  } catch (e) {
+    if (e.toString().contains('[core/duplicate-app]')) {
+      // No-op.
+    } else {
+      rethrow;
+    }
+  }
 
   Log.debug('handlePushNotification($message)', 'main');
 
