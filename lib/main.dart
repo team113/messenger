@@ -232,7 +232,7 @@ Future<void> main() async {
       .then((_) => ready.finish());
 }
 
-/// Initializes the [FlutterCallkeep] and displays an incoming call
+/// Initializes the [FlutterCallkitIncoming] and displays an incoming call
 /// notification, if the provided [message] is about a call.
 ///
 /// Must be a top level function, as intended to be used as a Firebase Cloud
