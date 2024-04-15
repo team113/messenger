@@ -32,6 +32,8 @@ alert_chat_will_be_deleted1 = Chat{" "}
 alert_chat_will_be_deleted2 = {" "}will be deleted.
 
     To restore the chat, please, use the search.
+alert_chat_will_be_reported1 = Chat{" "}
+alert_chat_will_be_reported2 = {" "}will be reported.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
 alert_contact_will_be_removed2 = {" "}will be deleted.
@@ -60,6 +62,8 @@ alert_user_will_be_blocked1 = User{" "}
 alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
+alert_user_will_be_reported1 = User{" "}
+alert_user_will_be_reported2 = {" "}will be reported.
 alert_you_will_leave_group = You will leave the group.
 btn_accept = Accept
 btn_add = Add
