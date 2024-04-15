@@ -252,7 +252,7 @@ class AuthService extends GetxService {
     );
 
     await WebUtils.protect(() async {
-      await _authRepository.resetUserPassword(
+      return _authRepository.resetUserPassword(
         login: login,
         num: num,
         email: email,

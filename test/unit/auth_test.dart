@@ -243,6 +243,9 @@ void main() async {
               newPassword: UserPassword('123456'),
             ),
         throwsA(isA<ResetUserPasswordException>()));
+
+    await Future.delayed(Duration.zero);
+
     verifyInOrder([
       graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
       graphQlProvider.validateUserPasswordRecoveryCode(
