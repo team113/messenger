@@ -14,11 +14,11 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-    - Account deletion page. ([#944])
-    - Terms and conditions page. ([#944])
-    - Privacy policy page. ([#944])
+    - Account deletion page. ([#961])
+    - Terms and conditions page. ([#961])
+    - Privacy policy page. ([#961])
 
-[#944]: /../../pull/944
+[#961]: /../../pull/961
 
 
 
