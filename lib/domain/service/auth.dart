@@ -252,22 +252,22 @@ class AuthService extends GetxService {
     );
 
     await WebUtils.protect(() async {
-      if (status.value.isSuccess) {
-        status.value = RxStatus.loadingMore();
+      // if (status.value.isSuccess) {
+      //   status.value = RxStatus.loadingMore();
 
-        try {
-          await _authRepository.resetUserPassword(
-            login: login,
-            num: num,
-            email: email,
-            phone: phone,
-            code: code,
-            newPassword: newPassword,
-          );
-        } finally {
-          status.value = RxStatus.success();
-        }
-      }
+      //   try {
+      await _authRepository.resetUserPassword(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+        code: code,
+        newPassword: newPassword,
+      );
+      // } finally {
+      //   status.value = RxStatus.success();
+      //   }
+      // }
     });
   }
 
