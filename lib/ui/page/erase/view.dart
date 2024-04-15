@@ -58,6 +58,7 @@ class EraseView extends StatelessWidget {
             actions: const [SizedBox(width: 32)],
           ),
           body: ListView(
+            key: const Key('EraseScrollable'),
             children: [
               Block(
                 title: 'label_description'.l10n,
@@ -122,7 +123,7 @@ class EraseView extends StatelessWidget {
         children = [
           Paddings.dense(
             FieldButton(
-              key: const Key('DeleteAccount'),
+              key: const Key('ConfirmDelete'),
               text: 'btn_delete_account'.l10n,
               onPressed: () => _deleteAccount(context, c),
               danger: true,
