@@ -168,11 +168,26 @@ class AuthService extends GetxService {
 
     WebUtils.credentials = creds;
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      final UserId? current =
-          _accountProvider.userId ?? WebUtils.credentials?.userId;
+      if (!e.deleted) {
+        // Existing [Credentials] were changed.
+        final UserId? current = WebUtils.credentials?.userId;
 
-      if (e.key == current?.val) {
-        WebUtils.credentials = e.value;
+        // New [Credentials] from another account were added.
+        final UserId? other = _accountProvider.userId;
+
+        if (e.key == (current ?? other)?.val) {
+          WebUtils.credentials = e.value;
+        }
+      }
+    });
+
+    _accountProvider.boxEvents.listen((e) {
+      final Credentials? creds = _credentialsProvider.get(UserId(e.value));
+
+      if (e.deleted) {
+        WebUtils.credentials = null;
+      } else if (creds != null) {
+        WebUtils.credentials = creds;
       }
     });
 
@@ -521,7 +536,6 @@ class AuthService extends GetxService {
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
-    WebUtils.credentials = creds;
     _refreshTimer?.cancel();
 
     // TODO: Offload refresh task to the background process?
@@ -548,13 +562,6 @@ class AuthService extends GetxService {
     credentials.value = null;
     status.value = RxStatus.empty();
     _refreshTimer?.cancel();
-    WebUtils.credentials = null;
-
-    if (WebUtils.isPopup) {
-      // Popup call window may show [Routes.auth] page before being closed, so
-      // close it manually.
-      WebUtils.closeWindow();
-    }
 
     return Routes.auth;
   }
