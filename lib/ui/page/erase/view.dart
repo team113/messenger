@@ -33,7 +33,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/get.dart';
 import '/util/message_popup.dart';
-
 import 'controller.dart';
 
 /// [Routes.erase] page.

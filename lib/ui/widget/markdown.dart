@@ -25,6 +25,7 @@ import '/themes.dart';
 class MarkdownWidget extends StatelessWidget {
   const MarkdownWidget(this.body, {super.key});
 
+  /// Text to parse and render as a markdown.
   final String body;
 
   @override
