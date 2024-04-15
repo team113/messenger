@@ -180,13 +180,12 @@ class AuthService extends GetxService {
 
       final UserId key = UserId(e.key);
 
-      // If equals to [key], existing [Credentials] were changed.
-      final UserId? current = WebUtils.credentials?.userId;
+      // Check [_accountProvider] in case these [Credentials] are of new
+      // account.
+      final UserId? current =
+          WebUtils.credentials?.userId ?? _accountProvider.userId;
 
-      // If equals to [key], new [Credentials] of another account were added.
-      final UserId? other = _accountProvider.userId;
-
-      if (key == (current ?? other)) {
+      if (key == current) {
         WebUtils.credentials = e.value;
       }
     });
@@ -195,14 +194,11 @@ class AuthService extends GetxService {
       if (e.deleted) {
         WebUtils.credentials = null;
       } else {
-        final Credentials? creds = _credentialsProvider.get(e.value as UserId);
+        final UserId id = e.value;
+        final Credentials? creds = _credentialsProvider.get(id);
 
-        if (creds != null) {
-          // If [creds] are `null`, they just haven't been added to the
-          // [_credentialsProvider] yet. This case is handled in the
-          // [_credentialsSubscription].
-          WebUtils.credentials = creds;
-        }
+        // Put the new value to the [WebUtils.credentials] even if it's `null`.
+        WebUtils.credentials = creds;
       }
     });
 
@@ -417,9 +413,6 @@ class AuthService extends GetxService {
 
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
-  ///
-  /// [deleteMyUser] set to `true` deletes [MyUser] from [Hive] and thus should
-  /// be used if logging out is a voluntary action of the user.
   Future<String> logout({bool deleteMyUser = false}) async {
     Log.debug('logout()', '$runtimeType');
 
