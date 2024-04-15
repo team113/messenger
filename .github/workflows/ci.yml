@@ -227,19 +227,6 @@ jobs:
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
-      - uses: Tlaster/android-sign@v1
-        name: Sign Android application
-        with:
-          releaseDirectory: |
-            build/app/outputs/flutter-apk/
-            app/build/outputs/bundle/release/
-          signingKeyBase64: ${{ secrets.ANDROID_KEY }}
-          output: app/build/outputs/signed/
-          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.ANDROID_KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        if: ${{ contains('apk appbundle', matrix.platform) }}
-
       - name: Parse application name from Git repository name
         id: app
         uses: actions-ecosystem/action-regex-match@v2
