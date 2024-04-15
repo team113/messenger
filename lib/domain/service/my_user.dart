@@ -35,6 +35,9 @@ import 'disposable_service.dart';
 class MyUserService extends DisposableService {
   MyUserService(this._auth, this._userRepo);
 
+  /// Password changing status.
+  final Rx<RxStatus> passwordStatus = Rx<RxStatus>(RxStatus.success());
+
   /// Authentication service providing the authentication capabilities.
   final AuthService _auth;
 
@@ -116,9 +119,13 @@ class MyUserService extends DisposableService {
         return;
       }
 
+      passwordStatus.value = RxStatus.loading();
+
       // TODO: Make sure [AuthService] doesn't its `refreshSession` during that.
       await _userRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(newPassword, num: myUser.value?.num);
+
+      passwordStatus.value = RxStatus.success();
     });
   }
 

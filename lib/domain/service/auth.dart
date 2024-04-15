@@ -252,14 +252,22 @@ class AuthService extends GetxService {
     );
 
     await WebUtils.protect(() async {
-      return _authRepository.resetUserPassword(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-        code: code,
-        newPassword: newPassword,
-      );
+      if (status.value.isSuccess) {
+        status.value = RxStatus.loadingMore();
+
+        try {
+          await _authRepository.resetUserPassword(
+            login: login,
+            num: num,
+            email: email,
+            phone: phone,
+            code: code,
+            newPassword: newPassword,
+          );
+        } finally {
+          status.value = RxStatus.success();
+        }
+      }
     });
   }
 
@@ -478,6 +486,7 @@ class AuthService extends GetxService {
                 credentials.value?.access.secret) {
           _authorized(WebUtils.credentials!);
           _credentialsProvider.set(WebUtils.credentials!);
+          status.value = RxStatus.success();
           return;
         }
 

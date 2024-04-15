@@ -175,14 +175,17 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.newPassword.isEmpty.value ||
-                          c.repeatPassword.isEmpty.value
-                      ? null
-                      : c.resetUserPassword,
-                ),
+                Obx(() {
+                  final bool enabled = c.authStatus.value.isSuccess &&
+                      !c.newPassword.isEmpty.value &&
+                      !c.repeatPassword.isEmpty.value;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_proceed'.l10n,
+                    onPressed: enabled ? c.resetUserPassword : null,
+                  );
+                }),
               ];
               break;
 
