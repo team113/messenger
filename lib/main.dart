@@ -290,13 +290,16 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         }
       });
 
+      // TODO: Use stored in [ApplicationSettings] language here.
+      await L10n.init();
+
       await FlutterCallkitIncoming.showCallkitIncoming(
         CallKitParams(
           id: message.data['chatId'],
           nameCaller: message.notification?.title ?? 'gapopa',
           appName: 'Gapopa',
           avatar: '', // TODO: Add avatar to FCM notifications.
-          handle: '0123456789',
+          handle: message.data['chatId'],
           type: 0,
           textAccept: 'btn_accept'.l10n,
           textDecline: 'btn_decline'.l10n,
@@ -306,14 +309,14 @@ Future<void> handlePushNotification(RemoteMessage message) async {
           android: AndroidParams(
             isCustomNotification: true,
             isShowLogo: false,
-            ringtonePath: 'system_ringtone_default',
+            ringtonePath: 'ringtone',
             backgroundColor: '#0955fa',
             backgroundUrl: '', // TODO: Add avatar to FCM notifications.
             actionColor: '#4CAF50',
             textColor: '#ffffff',
             incomingCallNotificationChannelName: 'label_incoming_call'.l10n,
             missedCallNotificationChannelName: 'label_chat_call_missed'.l10n,
-            isShowCallID: false,
+            isShowCallID: true,
             isShowFullLockedScreen: true,
           ),
         ),
