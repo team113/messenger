@@ -377,24 +377,18 @@ class AuthService extends GetxService {
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
-    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
+    Log.debug('signInWith($credentials)', '$runtimeType');
 
-    if (!isLocked) {
-      Log.debug('signInWith($credentials)', '$runtimeType');
+    // Check if the [credentials] are valid.
+    credentials =
+        await _authRepository.refreshSession(credentials.refresh.secret);
 
-      // Check if the [credentials] are valid.
-      credentials =
-          await _authRepository.refreshSession(credentials.refresh.secret);
-
-      status.value = RxStatus.loadingMore();
-      await WebUtils.protect(() async {
-        _authorized(credentials);
-        _credentialsProvider.set(credentials);
-        status.value = RxStatus.success();
-      });
-    }
+    status.value = RxStatus.loadingMore();
+    await WebUtils.protect(() async {
+      _authorized(credentials);
+      _credentialsProvider.set(credentials);
+      status.value = RxStatus.success();
+    });
   }
 
   // TODO: Clean Hive storage on logout.
