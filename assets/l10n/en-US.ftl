@@ -926,6 +926,7 @@ label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
+label_report = Report
 label_required = Required
 label_requirements = Requirements
 label_requirements_backend_developer =

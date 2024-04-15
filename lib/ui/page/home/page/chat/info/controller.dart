@@ -102,6 +102,9 @@ class ChatInfoController extends GetxController {
   /// Indicator whether [AppBar] should display the [ChatName] and [ChatAvatar].
   final RxBool displayName = RxBool(false);
 
+  /// [TextFieldState] for report reason.
+  final TextFieldState reporting = TextFieldState();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -320,6 +323,11 @@ class ChatInfoController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Reports the [chat].
+  Future<void> reportChat() async {
+    // TODO: Implement.
   }
 
   /// Clears all the [ChatItem]s of the [chat].

@@ -96,6 +96,9 @@ class UserController extends GetxController {
   /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
+  /// [TextFieldState] for report reason.
+  final TextFieldState reporting = TextFieldState();
+
   /// [TextFieldState] for [ChatContact] name editing.
   late final TextFieldState name;
 
@@ -301,6 +304,11 @@ class UserController extends GetxController {
     } finally {
       blocklistStatus.value = RxStatus.empty();
     }
+  }
+
+  /// Reports the [user].
+  Future<void> report() async {
+    // TODO: Implement.
   }
 
   /// Removes the [user] from the blocklist of the authenticated [MyUser].

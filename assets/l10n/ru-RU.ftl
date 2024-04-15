@@ -32,6 +32,8 @@ alert_chat_will_be_deleted1 = Чат{" "}
 alert_chat_will_be_deleted2 = {" "}будет удалён.
 
     Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
+alert_chat_will_be_reported1 = На чат{" "}
+alert_chat_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
 alert_contact_will_be_removed1 = Контакт{" "}
 alert_contact_will_be_removed2 = {" "}будет удалён.
@@ -60,6 +62,8 @@ alert_user_will_be_blocked1 = Пользователь{" "}
 alert_user_will_be_blocked2 = {" "}будет заблокирован.
 alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
+alert_user_will_be_reported1 = На пользователя{" "}
+alert_user_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_you_will_leave_group = Вы покинете группу.
 btn_accept = Принять
 btn_add = Добавить
@@ -954,6 +958,7 @@ label_replies = [{$count} {$count ->
     [few] ответа
     *[other] ответов
     }]
+label_report = Пожаловаться
 label_required = Обязательно
 label_requirements = Требуется
 label_requirements_backend_developer =
