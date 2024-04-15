@@ -22,6 +22,10 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+def hasKeystore = keystorePropertiesFile.exists()
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
@@ -52,12 +56,25 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        if (hasKeystore) {
+            release {
+                    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+                    storeFile file("$keystoreProperties.storeFile")
+                    storePassword "$keystoreProperties.storePassword"
+                    keyAlias "$keystoreProperties.keyAlias"
+                    keyPassword "$keystoreProperties.keyPassword"
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release`
-            // works.
-            signingConfig signingConfigs.debug
+            if (hasKeystore) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
         }
     }
 }
