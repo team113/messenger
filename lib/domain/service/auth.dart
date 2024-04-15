@@ -251,14 +251,16 @@ class AuthService extends GetxService {
       '$runtimeType',
     );
 
-    await _authRepository.resetUserPassword(
-      login: login,
-      num: num,
-      email: email,
-      phone: phone,
-      code: code,
-      newPassword: newPassword,
-    );
+    await WebUtils.protect(() async {
+      await _authRepository.resetUserPassword(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+        code: code,
+        newPassword: newPassword,
+      );
+    });
   }
 
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
