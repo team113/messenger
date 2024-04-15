@@ -192,15 +192,17 @@ class AuthService extends GetxService {
     });
 
     _accountSubscription = _accountProvider.boxEvents.listen((e) {
-      final Credentials? creds = _credentialsProvider.get(e.value as UserId);
-
       if (e.deleted) {
         WebUtils.credentials = null;
-      } else if (creds != null) {
-        // If [creds] are `null`, they just haven't been added to the
-        // [_credentialsProvider] yet. This case is handled in the
-        // [_credentialsSubscription].
-        WebUtils.credentials = creds;
+      } else {
+        final Credentials? creds = _credentialsProvider.get(e.value as UserId);
+
+        if (creds != null) {
+          // If [creds] are `null`, they just haven't been added to the
+          // [_credentialsProvider] yet. This case is handled in the
+          // [_credentialsSubscription].
+          WebUtils.credentials = creds;
+        }
       }
     });
 
