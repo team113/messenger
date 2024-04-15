@@ -82,6 +82,7 @@ enum WidgetKey {
   Email,
   EmailsExpandable,
   ExpandSigning,
+  EraseView,
   FavoriteChatButton,
   FavoriteContactButton,
   ForwardButton,

@@ -48,6 +48,7 @@ class EraseView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
+      key: const Key('EraseView'),
       init: EraseController(Get.find(), Get.findOrNull<MyUserService>()),
       builder: (EraseController c) {
         return Scaffold(

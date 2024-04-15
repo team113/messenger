@@ -40,6 +40,8 @@ Feature: Account creation
     And I tap `DangerZone` button
     And I scroll `MyProfileScrollable` until `DeleteAccount` is present
     And I tap `DeleteAccount` button
+    And I wait until `EraseView` is present
+    And I tap `DeleteAccount` button
     And I tap `Proceed` button
     Then I wait until `AuthView` is present
     And I pause for 1 second
