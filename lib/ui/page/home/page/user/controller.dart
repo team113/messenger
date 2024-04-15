@@ -120,6 +120,9 @@ class UserController extends GetxController {
   /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
+  /// [TextFieldState] for report reason.
+  final TextFieldState reporting = TextFieldState();
+
   /// [TextFieldState] for [ChatContact] name editing.
   late final TextFieldState name;
 
@@ -419,6 +422,11 @@ class UserController extends GetxController {
     }
   }
 
+  /// Reports the [user].
+  Future<void> report() async {
+    // TODO: Implement.
+  }
+
   /// Removes the [user] from the blocklist of the authenticated [MyUser].
   Future<void> unblock() async {
     blocklistStatus.value = RxStatus.loading();
@@ -558,11 +566,11 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> report() async {
-    const userId = UserId('18ff6b4f-1a81-47f9-a8ed-bf69a51bdae6');
-    final user = await _userService.get(userId);
-    router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
-  }
+  // Future<void> report() async {
+  //   const userId = UserId('18ff6b4f-1a81-47f9-a8ed-bf69a51bdae6');
+  //   final user = await _userService.get(userId);
+  //   router.chat(user?.user.value.dialog ?? ChatId.local(userId), push: true);
+  // }
 
   void highlight(int i) {
     highlighted.value = i;

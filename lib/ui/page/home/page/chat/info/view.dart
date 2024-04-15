@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
+import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
@@ -147,13 +148,6 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Block(
-      // overlay: [
-      //   EditBlockButton(
-      //     key: const Key('EditProfileButton'),
-      //     onPressed: c.profileEditing.toggle,
-      //     editing: c.profileEditing.value,
-      //   ),
-      // ],
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
         SelectionContainer.disabled(
@@ -209,19 +203,41 @@ class ChatInfoView extends StatelessWidget {
                   formatters: [LengthLimitingTextInputFormatter(100)],
                 ),
               ),
-              const SizedBox(height: 4),
-              const SizedBox(height: 12),
-              WidgetButton(
-                onPressed: () {
-                  c.profileEditing.value = false;
-                },
-                child: SelectionContainer.disabled(
-                  child: Text(
-                    'Готово',
-                    style: style.fonts.small.regular.primary,
-                  ),
+              const SizedBox(height: 16),
+              SelectionContainer.disabled(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    WidgetButton(
+                      onPressed: () {
+                        c.submitName();
+                        c.profileEditing.value = false;
+                      },
+                      child: Text(
+                        'Сохранить',
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                    Text(
+                      ' или ',
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                    WidgetButton(
+                      onPressed: () {
+                        c.name.text = c.chat!.chat.value.name?.val ?? '';
+                        c.profileEditing.value = false;
+                      },
+                      child: SelectionContainer.disabled(
+                        child: Text(
+                          'отменить',
+                          style: style.fonts.small.regular.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 4),
             ];
           } else {
             children = [
@@ -457,31 +473,6 @@ class ChatInfoView extends StatelessWidget {
 
   Widget _status(ChatInfoController c, BuildContext context) {
     return Block(
-      // overlay: [
-      //   Positioned(
-      //     right: 0,
-      //     top: 0,
-      //     child: Center(
-      //       child: SelectionContainer.disabled(
-      //         child: AnimatedButton(
-      //           onPressed: () {
-      //             c.bioEditing.toggle();
-      //             c.textStatus.unsubmit();
-      //           },
-      //           child: Padding(
-      //             padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-      //             child: c.bioEditing.value
-      //                 ? const Padding(
-      //                     padding: EdgeInsets.all(2),
-      //                     child: SvgIcon(SvgIcons.closeSmallPrimary),
-      //                   )
-      //                 : const SvgIcon(SvgIcons.editSmall),
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      // ],
       title: 'О группе',
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
@@ -530,7 +521,7 @@ class ChatInfoView extends StatelessWidget {
         ),
         if (!c.isMonolog)
           ActionButton(
-            onPressed: c.report,
+            onPressed: () => _reportChat(c, context),
             text: 'btn_report'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -620,9 +611,7 @@ class ChatInfoView extends StatelessWidget {
           ),
           if (!c.isMonolog)
             ContextMenuButton(
-              onPressed: () {
-                // TODO: Implement.
-              },
+              onPressed: () => _reportChat(c, context),
               label: 'btn_report'.l10n,
               trailing: const SvgIcon(SvgIcons.report),
               inverted: const SvgIcon(SvgIcons.reportWhite),
@@ -837,6 +826,41 @@ class ChatInfoView extends StatelessWidget {
 
     if (result == true) {
       await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup reporting this [Chat].
+  Future<void> _reportChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_reported2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+      ],
+      button: (context) {
+        return Obx(() {
+          return PrimaryButton(
+            title: 'btn_proceed'.l10n,
+            onPressed: c.reporting.isEmpty.value
+                ? null
+                : () => Navigator.of(context).pop(true),
+          );
+        });
+      },
+    );
+
+    if (result == true) {
+      await c.reportChat();
     }
   }
 }

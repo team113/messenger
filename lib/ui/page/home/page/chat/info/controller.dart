@@ -124,6 +124,9 @@ class ChatInfoController extends GetxController {
   /// Indicator whether [AppBar] should display the [ChatName] and [ChatAvatar].
   final RxBool displayName = RxBool(false);
 
+  /// [TextFieldState] for report reason.
+  final TextFieldState reporting = TextFieldState();
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -204,36 +207,6 @@ class ChatInfoController extends GetxController {
           s.unsubmit();
           return;
         }
-
-        ChatName? name;
-        try {
-          name = s.text.isEmpty ? null : ChatName(s.text);
-        } on FormatException catch (_) {
-          s.status.value = RxStatus.empty();
-          s.error.value = 'err_incorrect_input'.l10n;
-          s.unsubmit();
-          return;
-        }
-
-        if (s.error.value == null) {
-          s.status.value = RxStatus.loading();
-          s.editable.value = false;
-
-          try {
-            await _chatService.renameChat(chat!.chat.value.id, name);
-            s.status.value = RxStatus.empty();
-            s.unsubmit();
-          } on RenameChatException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toString();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e.toString());
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
       },
     );
 
@@ -248,6 +221,38 @@ class ChatInfoController extends GetxController {
     );
 
     super.onInit();
+  }
+
+  Future<void> submitName() async {
+    ChatName? name;
+    try {
+      name = this.name.text.isEmpty ? null : ChatName(this.name.text);
+    } on FormatException catch (_) {
+      this.name.status.value = RxStatus.empty();
+      this.name.error.value = 'err_incorrect_input'.l10n;
+      this.name.unsubmit();
+      return;
+    }
+
+    if (this.name.error.value == null) {
+      this.name.status.value = RxStatus.loading();
+      this.name.editable.value = false;
+
+      try {
+        await _chatService.renameChat(chat!.chat.value.id, name);
+        this.name.status.value = RxStatus.empty();
+        this.name.unsubmit();
+      } on RenameChatException catch (e) {
+        this.name.status.value = RxStatus.empty();
+        this.name.error.value = e.toString();
+      } catch (e) {
+        this.name.status.value = RxStatus.empty();
+        MessagePopup.error(e.toString());
+        rethrow;
+      } finally {
+        this.name.editable.value = true;
+      }
+    }
   }
 
   @override
@@ -396,6 +401,11 @@ class ChatInfoController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Reports the [chat].
+  Future<void> reportChat() async {
+    // TODO: Implement.
   }
 
   /// Clears all the [ChatItem]s of the [chat].

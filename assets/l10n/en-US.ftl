@@ -32,6 +32,8 @@ alert_chat_will_be_deleted1 = Chat{" "}
 alert_chat_will_be_deleted2 = {" "}will be deleted.
 
     To restore the chat, please, use the search.
+alert_chat_will_be_reported1 = Chat{" "}
+alert_chat_will_be_reported2 = {" "}will be reported.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
 alert_contact_will_be_removed2 = {" "}will be deleted.
@@ -58,7 +60,10 @@ alert_user_will_be_blocked1 = User{" "}
 alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
+alert_user_will_be_reported1 = User{" "}
+alert_user_will_be_reported2 = {" "}will be reported.
 alert_you_will_leave_group = You will leave the group.
+btn_accept = Accept
 btn_accept = Accept
 btn_add = Add
 btn_add_member = Add member
@@ -169,6 +174,7 @@ btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
 btn_create_group = Create group
+btn_decline = Decline
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
@@ -179,11 +185,12 @@ btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
+btn_do_not_allow = Don't allow
 btn_download = Download
 btn_download_all = Download all
+btn_download_application = Download application
 btn_download_as = Download as
 btn_download_as_all = Download all as
-btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
 btn_file = File
@@ -223,26 +230,6 @@ btn_participants_desc =
     participants
 btn_password = Password
 btn_paste = Paste
-label_personal_data_deletion = Delete account
-label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
-label_personal_data_deletion_description =
-    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
-
-    The data that will be deleted is:
-    - your avatar;
-    - your name;
-    - your biography;
-    - your login;
-    - all of your emails;
-    - all of your phone numbers;
-    - your contacts list.
-
-    The data that will not be deleted:
-    - your Gapopa ID, as is does not represent personal information;
-    - the messages you have sent, however no one will see you as an author of those messages.
-
-    Not a single user will be able to find, identify or detect the information of your presence within the system.
-label_personalization = Personalization
 btn_personalize = Personalization
 btn_proceed = Proceed
 btn_privacy_policy = Privacy policy
@@ -874,6 +861,25 @@ label_password_not_set_info = No password has been set for your account. Consequ
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
+label_personal_data_deletion = Delete account
+label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
+label_personal_data_deletion_description =
+    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+
+    The data that will be deleted is:
+    - your avatar;
+    - your name;
+    - your biography;
+    - your login;
+    - all of your emails;
+    - all of your phone numbers;
+    - your contacts list.
+
+    The data that will not be deleted:
+    - your Gapopa ID, as is does not represent personal information;
+    - the messages you have sent, however no one will see you as an author of those messages.
+
+    Not a single user will be able to find, identify or detect the information of your presence within the system.
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
@@ -908,6 +914,7 @@ label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
+label_report = Report
 label_required = Required
 label_resend = Resend
 label_resend_timeout = Resend ({$timeout})
@@ -1138,7 +1145,6 @@ btn_one_time_account =
     account
 btn_work_with_us = Work with us
 btn_work = Work
-btn_download_application = Download application
 label_sign_up = Sign up
 btn_continue_with_email = Continue with email
 btn_continue_with_phone =

@@ -1,3 +1,20 @@
+// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,7 +33,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/get.dart';
 import '/util/message_popup.dart';
-
 import 'controller.dart';
 
 /// [Routes.erase] page.
@@ -31,6 +47,7 @@ class EraseView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
+      key: const Key('EraseView'),
       init: EraseController(Get.find(), Get.findOrNull<MyUserService>()),
       builder: (EraseController c) {
         return Scaffold(
@@ -40,6 +57,7 @@ class EraseView extends StatelessWidget {
             actions: const [SizedBox(width: 32)],
           ),
           body: ListView(
+            key: const Key('EraseScrollable'),
             children: [
               Block(
                 title: 'label_description'.l10n,
@@ -104,7 +122,7 @@ class EraseView extends StatelessWidget {
         children = [
           Paddings.dense(
             FieldButton(
-              key: const Key('DeleteAccount'),
+              key: const Key('ConfirmDelete'),
               text: 'btn_delete_account'.l10n,
               onPressed: () => _deleteAccount(context, c),
               danger: true,

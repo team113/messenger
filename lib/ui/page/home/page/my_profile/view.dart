@@ -589,23 +589,29 @@ class MyProfileView extends StatelessWidget {
                       return const SizedBox();
 
                     case ProfileTab.logout:
-                      return Column(
+                      final style = Theme.of(context).style;
+
+                      return Block(
                         children: [
-                          const SizedBox(height: 12),
-                          Center(
-                            child: StyledCupertinoButton(
-                              label: 'btn_terms_and_conditions'.l10n,
-                              onPressed: () => TermsOfUseView.show(context),
-                            ),
+                          Column(
+                            children: [
+                              Center(
+                                child: StyledCupertinoButton(
+                                  label: 'btn_terms_and_conditions'.l10n,
+                                  style: style.fonts.small.regular.primary,
+                                  onPressed: () => TermsOfUseView.show(context),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Center(
+                                child: StyledCupertinoButton(
+                                  label: 'btn_privacy_policy'.l10n,
+                                  style: style.fonts.small.regular.primary,
+                                  onPressed: () => PrivacyPolicy.show(context),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 6),
-                          Center(
-                            child: StyledCupertinoButton(
-                              label: 'btn_privacy_policy'.l10n,
-                              onPressed: () => PrivacyPolicy.show(context),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
                         ],
                       );
                   }

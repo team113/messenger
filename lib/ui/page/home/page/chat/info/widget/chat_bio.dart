@@ -2,7 +2,6 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 import 'package:messenger/util/message_popup.dart';
@@ -40,25 +39,6 @@ class _ChatBioFieldState extends State<ChatBioField> {
       submitted: widget.bio != null,
       onChanged: (s) async {
         s.error.value = null;
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await widget.onSubmit?.call(s.text);
-            s.status.value = RxStatus.success();
-            await Future.delayed(const Duration(seconds: 1));
-            s.status.value = RxStatus.empty();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e);
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
       },
     );
 
@@ -130,10 +110,60 @@ class _ChatBioFieldState extends State<ChatBioField> {
               widget.onEditing?.call(_editing);
             },
             child: SelectionContainer.disabled(
-              child: Text(
-                'Готово',
-                style: style.fonts.small.regular.primary,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WidgetButton(
+                    onPressed: () async {
+                      if (_state.error.value == null) {
+                        _state.editable.value = false;
+                        _state.status.value = RxStatus.loading();
+
+                        try {
+                          await widget.onSubmit?.call(_state.text);
+                        } catch (e) {
+                          MessagePopup.error(e);
+                          _state.unsubmit();
+                          rethrow;
+                        } finally {
+                          _state.status.value = RxStatus.empty();
+                          _state.editable.value = true;
+                        }
+                      }
+
+                      _editing = false;
+                      setState(() => _editing = false);
+                      widget.onEditing?.call(_editing);
+                    },
+                    child: Text(
+                      'Сохранить',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                  Text(
+                    ' или ',
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                  WidgetButton(
+                    onPressed: () {
+                      _state.text = widget.bio ?? '';
+                      _editing = false;
+                      setState(() => _editing = false);
+                      widget.onEditing?.call(_editing);
+                    },
+                    child: SelectionContainer.disabled(
+                      child: Text(
+                        'отменить',
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              // child: Text(
+              //   'Готово',
+              //   style: style.fonts.small.regular.primary,
+              // ),
             ),
           ),
         ],

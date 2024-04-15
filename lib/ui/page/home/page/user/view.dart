@@ -32,6 +32,7 @@ import 'package:messenger/ui/page/home/widget/direct_link.dart';
 import 'package:messenger/ui/page/home/widget/field_button.dart';
 import 'package:messenger/ui/page/home/widget/highlighted_container.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
+import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/context_menu/menu.dart';
 import 'package:messenger/ui/widget/context_menu/region.dart';
 import 'package:messenger/ui/widget/expandable_text.dart';
@@ -485,7 +486,7 @@ class UserView extends StatelessWidget {
           ],
           ContextMenuButton(
             label: 'btn_report'.l10n,
-            onPressed: c.report,
+            onPressed: () => _reportUser(c, context),
             trailing: const SvgIcon(SvgIcons.report),
             inverted: const SvgIcon(SvgIcons.reportWhite),
           ),
@@ -680,7 +681,7 @@ class UserView extends StatelessWidget {
           ActionButton(
             text: 'btn_report'.l10n,
             trailing: const SvgIcon(SvgIcons.report16),
-            onPressed: c.report,
+            onPressed: () => _reportUser(c, context),
           ),
           Obx(() {
             if (c.isBlocked != null) {
@@ -1110,6 +1111,41 @@ class UserView extends StatelessWidget {
 
     if (result == true) {
       await c.block();
+    }
+  }
+
+  /// Opens a confirmation popup reporting the [User].
+  Future<void> _reportUser(UserController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_report'.l10n,
+      description: [
+        TextSpan(text: 'alert_user_will_be_reported1'.l10n),
+        TextSpan(
+          text: c.user?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_user_will_be_reported2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+      ],
+      button: (context) {
+        return Obx(() {
+          return PrimaryButton(
+            title: 'btn_proceed'.l10n,
+            onPressed: c.reporting.isEmpty.value
+                ? null
+                : () => Navigator.of(context).pop(true),
+          );
+        });
+      },
+    );
+
+    if (result == true) {
+      await c.report();
     }
   }
 }

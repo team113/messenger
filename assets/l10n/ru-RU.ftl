@@ -32,6 +32,8 @@ alert_chat_will_be_deleted1 = Чат{" "}
 alert_chat_will_be_deleted2 = {" "}будет удалён.
 
     Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
+alert_chat_will_be_reported1 = На чат{" "}
+alert_chat_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
 alert_contact_will_be_removed1 = Контакт{" "}
 alert_contact_will_be_removed2 = {" "}будет удалён.
@@ -58,6 +60,8 @@ alert_user_will_be_blocked1 = Пользователь{" "}
 alert_user_will_be_blocked2 = {" "}будет заблокирован.
 alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
+alert_user_will_be_reported1 = На пользователя{" "}
+alert_user_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_you_will_leave_group = Вы покинете группу.
 btn_accept = Принять
 btn_add = Добавить
@@ -170,6 +174,7 @@ btn_copy = Скопировать
 btn_copy_text = Скопировать текст
 btn_create = Создать
 btn_create_group = Создать группу
+btn_decline = Отклонить
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_chat = Удалить чат
@@ -180,6 +185,7 @@ btn_delete_from_contacts = Удалить из контактов
 btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
+btn_do_not_allow = Не разрешать
 btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
@@ -224,26 +230,6 @@ btn_participants_desc =
     участников
 btn_password = Пароль
 btn_paste = Вставить
-label_personal_data_deletion = Delete account
-label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
-label_personal_data_deletion_description =
-    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
-
-    The data that will be deleted is:
-    - your avatar;
-    - your name;
-    - your biography;
-    - your login;
-    - all of your emails;
-    - all of your phone numbers;
-    - your contacts list.
-
-    The data that will not be deleted:
-    - your Gapopa ID, as is does not represent personal information;
-    - the messages you have sent, however no one will see you as an author of those messages.
-
-    Not a single user will be able to find, identify or detect the information of your presence within the system.
-label_personalization = Personalization
 btn_personalize = Персонализация
 btn_proceed = Продолжить
 btn_privacy_policy = Политика конфиденциальности
@@ -901,6 +887,25 @@ label_password_not_set_info = Для Вашего аккаунта не зада
 
     • в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файлов cookie.
 label_password_set = Пароль задан.
+label_personal_data_deletion = Удалить аккаунт
+label_personal_data_deletion_authorize = Чтобы удалить Ваш аккаунт, пожалуйста, авторизуйтесь в форме ниже.
+label_personal_data_deletion_description =
+    Запрос на удаление аккаунта может быть отправлен с данной страницы. Этот процесс НЕОБРАТИМ - Вы не сможете восстановить свой аккаунт.
+
+    Информация, которая будет удалена:
+    - Ваш аватар;
+    - Ваше имя;
+    - Ваша биография;
+    - Ваш логин;
+    - все Ваши e-mail адреса;
+    - все Ваши номера телефонов;
+    - Ваш список контактов.
+
+    Информация, которая не будет удалена:
+    - Ваш Gapopa ID, поскольку он не является персональной информацией;
+    - отправленные Вами сообщения, при этом никто не сможет идентифицировать, что автором этих сообщений были или являетесь Вы.
+
+    Ни один пользователь не сможет найти, идентифицировать или обнаружить информацию о Вашем присутствии в системе.
 label_personalization = Персонализация
 label_phone = Телефон
 label_phone_confirmation_code_was_send =
@@ -938,6 +943,7 @@ label_replies = [{$count} {$count ->
     [few] ответа
     *[other] ответов
     }]
+label_report = Пожаловаться
 label_required = Обязательно
 label_resend = Отправить код
 label_resend_timeout = Повторить ({$timeout})

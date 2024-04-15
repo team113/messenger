@@ -95,6 +95,10 @@ Future<void> main() async {
     dateStamp: !PlatformUtils.isWeb,
   );
 
+  await Hive.initFlutter('hive');
+
+  // runApp();
+
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
@@ -185,10 +189,6 @@ Future<void> main() async {
       ),
     );
   }
-
-  // Log.debug(
-  //   '[Sentry] enabled: ${Config.sentryDsn.isNotEmpty} && ${!(kDebugMode && !kProfileMode)}',
-  // );
 
   // TODO: Enable Sentry.
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
@@ -303,14 +303,26 @@ Future<void> main() async {
   });
 }
 
-/// Initializes the [FlutterCallkeep] and displays an incoming call
+/// Initializes the [FlutterCallkitIncoming] and displays an incoming call
 /// notification, if the provided [message] is about a call.
 ///
 /// Must be a top level function, as intended to be used as a Firebase Cloud
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp(
+      options: PlatformUtils.pushNotifications
+          ? DefaultFirebaseOptions.currentPlatform
+          : null,
+    );
+  } catch (e) {
+    if (e.toString().contains('[core/duplicate-app]')) {
+      // No-op.
+    } else {
+      rethrow;
+    }
+  }
 
   Log.debug('handlePushNotification($message)', 'main');
 
@@ -322,40 +334,6 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     StreamSubscription? subscription;
 
     try {
-      // await callKeep.setup(
-      //   null,
-      //   Config.callKeep,
-      //   backgroundMode: true,
-      // );
-
-      // callKeep.on(
-      //   CallKeepPerformAnswerCallAction(),
-      //   (CallKeepPerformAnswerCallAction event) async {
-      //     await prefs?.setString('answeredCall', message.data['chatId']);
-      //     await callKeep.rejectCall(event.callUUID!);
-      //     await callKeep.backToForeground();
-      //   },
-      // );
-
-      // callKeep.on(
-      //   CallKeepPerformEndCallAction(),
-      //   (CallKeepPerformEndCallAction event) async {
-      //     if (prefs?.getString('answeredCall') != event.callUUID!) {
-      //       await provider?.declineChatCall(ChatId(event.callUUID!));
-      //     }
-
-      //     subscription?.cancel();
-      //     provider?.disconnect();
-      //     await Hive.close();
-      //   },
-      // );
-
-      // callKeep.displayIncomingCall(
-      //   message.data['chatId'],
-      //   message.notification?.title ?? 'gapopa',
-      //   handleType: 'generic',
-      // );
-
       FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
         switch (event!.event) {
           case Event.actionCallAccept:
@@ -363,23 +341,18 @@ Future<void> handlePushNotification(RemoteMessage message) async {
             break;
 
           case Event.actionCallDecline:
-            // TODO: declined an incoming call
+            await provider?.declineChatCall(ChatId(message.data['chatId']));
             break;
 
           case Event.actionCallEnded:
           case Event.actionCallTimeout:
-            print(event.body);
-            // if (prefs?.getString('answeredCall') != event.body!) {
-            // await provider?.declineChatCall(ChatId(event.callUUID!));
-            // }
-
             subscription?.cancel();
             provider?.disconnect();
             await Hive.close();
             break;
 
           case Event.actionCallCallback:
-            // TODO: only Android - click action `Call back` from missed call notification
+            // TODO: Handle.
             break;
 
           default:
@@ -387,36 +360,34 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         }
       });
 
+      // TODO: Use stored in [ApplicationSettings] language here.
+      await L10n.init();
+
       await FlutterCallkitIncoming.showCallkitIncoming(
         CallKitParams(
           id: message.data['chatId'],
           nameCaller: message.notification?.title ?? 'gapopa',
           appName: 'Gapopa',
-          avatar: 'https://i.pravatar.cc/100',
-          handle: '0123456789',
+          avatar: '', // TODO: Add avatar to FCM notifications.
+          handle: message.data['chatId'],
           type: 0,
-          textAccept: 'Accept',
-          textDecline: 'Decline',
-          missedCallNotification: const NotificationParams(
-            showNotification: true,
-            isShowCallback: true,
-            subtitle: 'Missed call',
-            callbackText: 'Call back',
-          ),
+          textAccept: 'btn_accept'.l10n,
+          textDecline: 'btn_decline'.l10n,
           duration: 30000,
-          extra: <String, dynamic>{'chatId': message.data['chatId']},
-          headers: <String, dynamic>{'platform': 'flutter'},
-          android: const AndroidParams(
+          extra: {'chatId': message.data['chatId']},
+          headers: {'platform': 'flutter'},
+          android: AndroidParams(
             isCustomNotification: true,
             isShowLogo: false,
-            ringtonePath: 'system_ringtone_default',
+            ringtonePath: 'ringtone',
             backgroundColor: '#0955fa',
-            backgroundUrl: 'https://i.pravatar.cc/500',
+            backgroundUrl: '', // TODO: Add avatar to FCM notifications.
             actionColor: '#4CAF50',
             textColor: '#ffffff',
-            incomingCallNotificationChannelName: 'Incoming Call',
-            missedCallNotificationChannelName: 'Missed Call',
-            isShowCallID: false,
+            incomingCallNotificationChannelName: 'label_incoming_call'.l10n,
+            missedCallNotificationChannelName: 'label_chat_call_missed'.l10n,
+            isShowCallID: true,
+            isShowFullLockedScreen: true,
           ),
         ),
       );
@@ -507,8 +478,6 @@ class App extends StatelessWidget {
 /// Initializes a [Hive] storage and registers a [CredentialsHiveProvider] in
 /// the [Get]'s context.
 Future<void> _initHive() async {
-  await Hive.initFlutter('hive');
-
   // Load and compare application version.
   final Box box = await Hive.openBox('version');
 

@@ -101,7 +101,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   void initState() {
     _state = TextFieldState(
       text: widget.link?.slug.val,
-      approvable: true,
+      // approvable: true,
       submitted: widget.link != null,
       debounce: true,
       onChanged: (s) {
@@ -112,47 +112,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             ChatDirectLinkSlug(s.text);
           } on FormatException {
             s.error.value = 'err_invalid_symbols_in_link'.l10n;
-          }
-        }
-      },
-      onSubmitted: (s) async {
-        ChatDirectLinkSlug? slug;
-
-        if (s.text.isNotEmpty) {
-          try {
-            slug = ChatDirectLinkSlug(s.text);
-          } on FormatException {
-            s.error.value = 'err_invalid_symbols_in_link'.l10n;
-          }
-
-          if (widget.editing != true) {
-            setState(() => _editing = false);
-          }
-
-          if (slug == null || slug == widget.link?.slug) {
-            return;
-          }
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await widget.onSubmit?.call(slug);
-            s.status.value = RxStatus.success();
-            await Future.delayed(const Duration(seconds: 1));
-            s.status.value = RxStatus.empty();
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = 'err_data_transfer'.l10n;
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
           }
         }
       },
@@ -170,6 +129,48 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     }
 
     super.initState();
+  }
+
+  void _submitLink() async {
+    ChatDirectLinkSlug? slug;
+
+    if (_state.text.isNotEmpty) {
+      try {
+        slug = ChatDirectLinkSlug(_state.text);
+      } on FormatException {
+        _state.error.value = 'err_invalid_symbols_in_link'.l10n;
+      }
+
+      if (widget.editing != true) {
+        setState(() => _editing = false);
+      }
+
+      if (slug == null || slug == widget.link?.slug) {
+        return;
+      }
+    }
+
+    if (_state.error.value == null) {
+      _state.editable.value = false;
+      _state.status.value = RxStatus.loading();
+
+      try {
+        await widget.onSubmit?.call(slug);
+        _state.status.value = RxStatus.success();
+        await Future.delayed(const Duration(seconds: 1));
+        _state.status.value = RxStatus.empty();
+      } on CreateChatDirectLinkException catch (e) {
+        _state.status.value = RxStatus.empty();
+        _state.error.value = e.toMessage();
+      } catch (e) {
+        _state.status.value = RxStatus.empty();
+        _state.error.value = 'err_data_transfer'.l10n;
+        _state.unsubmit();
+        rethrow;
+      } finally {
+        _state.editable.value = true;
+      }
+    }
   }
 
   @override
@@ -221,25 +222,56 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                         await widget.onSubmit?.call(null);
                         setState(() => _editing = false);
                       },
-                trailing: _state.isEmpty.value || _state.text.isEmpty
+                trailing: _state.isEmpty.value ||
+                        _state.text.isEmpty ||
+                        widget.link == null
                     ? null
                     : const SvgIcon(SvgIcons.delete),
                 label: '${Config.link}/',
               );
             }),
             const SizedBox(height: 8),
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: WidgetButton(
-                onPressed: () {
-                  setState(() => _editing = false);
-                  widget.onEditing?.call(_editing);
-                },
-                child: Text(
-                  'Готово',
-                  style: style.fonts.small.regular.primary,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: WidgetButton(
+                    onPressed: () {
+                      if (widget.link != null) {
+                        _state.text = widget.link?.slug.val ?? _state.text;
+                      }
+                      setState(() => _editing = false);
+                      widget.onEditing?.call(_editing);
+                    },
+                    child: Text(
+                      'Отменить',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  ' или ',
+                  style: style.fonts.small.regular.secondary,
+                ),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: WidgetButton(
+                    onPressed: () {
+                      _submitLink();
+                      // if (widget.link != null) {
+                      //   _state.text = widget.link?.slug.val ?? _state.text;
+                      // }
+                      // setState(() => _editing = false);
+                      // widget.onEditing?.call(_editing);
+                    },
+                    child: Text(
+                      'сохранить',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

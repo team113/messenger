@@ -112,6 +112,7 @@ class MessagePopup {
   }) =>
       FloatingSnackBar.show(title, bottom: bottom, at: at);
 
+  /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {
     final style = Theme.of(context).style;
 
