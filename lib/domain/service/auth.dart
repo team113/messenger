@@ -91,6 +91,10 @@ class AuthService extends GetxService {
   /// [Credentials] to the browser's storage.
   StreamSubscription? _credentialsSubscription;
 
+  /// [StreamSubscription] to [AccountHiveProvider.boxEvents] saving new
+  /// [Credentials] to the browser's storage.
+  StreamSubscription? _accountSubscription;
+
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
   StreamSubscription? _storageSubscription;
@@ -111,6 +115,7 @@ class AuthService extends GetxService {
 
     _storageSubscription?.cancel();
     _credentialsSubscription?.cancel();
+    _accountSubscription?.cancel();
     _refreshTimer?.cancel();
   }
 
@@ -168,25 +173,33 @@ class AuthService extends GetxService {
 
     WebUtils.credentials = creds;
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      if (!e.deleted) {
-        // Existing [Credentials] were changed.
-        final UserId? current = WebUtils.credentials?.userId;
+      if (e.deleted) {
+        // No-op, as already handled in [_accountSubscription].
+        return;
+      }
 
-        // New [Credentials] from another account were added.
-        final UserId? other = _accountProvider.userId;
+      final UserId key = UserId(e.key);
 
-        if (e.key == (current ?? other)?.val) {
-          WebUtils.credentials = e.value;
-        }
+      // If equals to [key], existing [Credentials] were changed.
+      final UserId? current = WebUtils.credentials?.userId;
+
+      // If equals to [key], new [Credentials] of another account were added.
+      final UserId? other = _accountProvider.userId;
+
+      if (key == (current ?? other)) {
+        WebUtils.credentials = e.value;
       }
     });
 
-    _accountProvider.boxEvents.listen((e) {
-      final Credentials? creds = _credentialsProvider.get(UserId(e.value));
+    _accountSubscription = _accountProvider.boxEvents.listen((e) {
+      final Credentials? creds = _credentialsProvider.get(e.value as UserId);
 
       if (e.deleted) {
         WebUtils.credentials = null;
       } else if (creds != null) {
+        // If [creds] are `null`, they just haven't been added to the
+        // [_credentialsProvider] yet. This case is handled in the
+        // [_credentialsSubscription].
         WebUtils.credentials = creds;
       }
     });
