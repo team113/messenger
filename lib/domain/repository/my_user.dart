@@ -41,7 +41,7 @@ abstract class AbstractMyUserRepository {
   /// Disposes the repository.
   void dispose();
 
-  /// Clears the stored [MyUser].
+  /// Deletes stored [MyUser]s.
   Future<void> clearCache();
 
   /// Updates [MyUser.name] field for the authenticated [MyUser].
@@ -77,7 +77,7 @@ abstract class AbstractMyUserRepository {
   /// __This action cannot be reverted.__
   Future<void> deleteMyUser();
 
-  /// Removes [MyUser] with the provided [id] from storage without editing any
+  /// Removes stored [MyUser] with the provided [id] without affecting any
   /// remote data.
   Future<void> remove(UserId id);
 

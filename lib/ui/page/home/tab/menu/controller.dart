@@ -67,7 +67,7 @@ class MenuTabController extends GetxController {
     return true;
   }
 
-  /// Logs out the current session and go to the [Routes.auth] page.
+  /// Logs out the current session and goes to the [Routes.auth] page.
   Future<String> logout() async {
     final UserId? id = myUser.value?.id;
     if (id != null) {

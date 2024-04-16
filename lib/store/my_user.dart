@@ -921,7 +921,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           event as EventUserPasswordUpdated;
           userEntity.value.hasPassword = true;
 
-          if (event.userId == _active?.value.id) {
+          if (event.userId == myUser.value?.id) {
             onPasswordUpdated();
           }
           break;
