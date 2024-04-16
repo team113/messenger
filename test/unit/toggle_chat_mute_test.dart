@@ -194,7 +194,11 @@ void main() async {
   test('ChatService successfully toggle chat mute', () async {
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          graphQlProvider,
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
         accountProvider,
       ),
@@ -256,7 +260,11 @@ void main() async {
       () async {
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          graphQlProvider,
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
         accountProvider,
       ),

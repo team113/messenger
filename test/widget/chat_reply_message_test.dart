@@ -463,7 +463,11 @@ void main() async {
   );
 
   AuthService authService = AuthService(
-    AuthRepository(graphQlProvider),
+    AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ),
     credentialsProvider,
     accountProvider,
   );
@@ -534,7 +538,11 @@ void main() async {
       (WidgetTester tester) async {
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
         accountProvider,
       ),

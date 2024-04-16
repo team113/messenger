@@ -52,6 +52,8 @@ void main() async {
   await blocklistSortingProvider.init();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
+  final credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -62,7 +64,11 @@ void main() async {
     final graphQlProvider = FakeGraphQlProvider();
 
     Get.put(AuthService(
-      AuthRepository(graphQlProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
       getStorage,
       accountProvider,
     ));

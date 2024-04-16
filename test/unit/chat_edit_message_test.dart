@@ -208,7 +208,11 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          graphQlProvider,
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
         accountProvider,
       ),
@@ -282,7 +286,11 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider)),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          graphQlProvider,
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
         accountProvider,
       ),

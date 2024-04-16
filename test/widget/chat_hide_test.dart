@@ -204,7 +204,11 @@ void main() async {
 
   AuthService authService = Get.put(
     AuthService(
-      AuthRepository(graphQlProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
       credentialsProvider,
       accountProvider,
     ),

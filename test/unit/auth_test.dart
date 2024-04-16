@@ -99,7 +99,11 @@ void main() async {
       ),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       getStorage,
@@ -141,7 +145,11 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credsProvider,
@@ -171,7 +179,11 @@ void main() async {
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credsProvider,
@@ -193,7 +205,11 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credsProvider,
@@ -235,7 +251,11 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credsProvider,

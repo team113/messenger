@@ -201,7 +201,11 @@ void main() async {
     );
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credentialsProvider,
@@ -337,7 +341,11 @@ void main() async {
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credentialsProvider,
@@ -416,7 +424,11 @@ void main() async {
   test('CallService registers and successfully starts the call', () async {
     final graphQlProvider = _FakeGraphQlProvider();
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ));
     AuthService authService = Get.put(AuthService(
       authRepository,
       credentialsProvider,

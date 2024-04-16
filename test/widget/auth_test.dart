@@ -83,7 +83,11 @@ void main() async {
   await myUserProvider.init();
 
   var graphQlProvider = _FakeGraphQlProvider();
-  AuthRepository authRepository = AuthRepository(graphQlProvider);
+  AuthRepository authRepository = AuthRepository(
+    graphQlProvider,
+    myUserProvider,
+    credentialsProvider,
+  );
   AuthService authService = AuthService(
     authRepository,
     credentialsProvider,
@@ -143,7 +147,11 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
         accountProvider,
       ),
