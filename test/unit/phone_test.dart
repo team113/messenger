@@ -59,6 +59,7 @@ void main() async {
   test('Parsing UserPhone throws FormatException', () {
     expect(() => UserPhone('some number'), throwsA(isA<FormatException>()));
     expect(() => UserPhone('+123456'), throwsA(isA<FormatException>()));
+    expect(() => UserPhone('+507123a4123'), throwsA(isA<FormatException>()));
     expect(() => UserPhone('5071234123'), throwsA(isA<FormatException>()));
     expect(
       () => UserPhone('+1234567890123456789'),

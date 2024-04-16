@@ -400,6 +400,8 @@ class ContactRepository extends DisposableInterface
 
   /// Imports contacts from the device's contact list.
   Future<void> _importContacts() async {
+    Log.debug('_importContacts()', '$runtimeType');
+
     PermissionStatus status = await Permission.contacts.status;
 
     if (status.isPermanentlyDenied || status.isRestricted) {
@@ -423,16 +425,22 @@ class ContactRepository extends DisposableInterface
       for (var e in contact.phones) {
         try {
           phones.add(UserPhone(e.number));
-        } catch (_) {
-          // No-op.
+        } catch (ex) {
+          Log.warning(
+            'Failed to parse ${e.number} into UserPhone with $ex',
+            '$runtimeType',
+          );
         }
       }
 
       for (var e in contact.emails) {
         try {
           emails.add(UserEmail(e.address));
-        } catch (_) {
-          // No-op.
+        } catch (ex) {
+          Log.warning(
+            'Failed to parse ${e.address} into UserEmail with $ex',
+            '$runtimeType',
+          );
         }
       }
 

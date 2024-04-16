@@ -374,14 +374,14 @@ class UserPhone extends NewType<String> {
 
   factory UserPhone(String val) {
     // Normalize phone number.
-    val = val.replaceAll(RegExp(r'[^\d+]'), '');
+    val = val.replaceAll(RegExp(r'[- ]'), '');
 
     if (val.startsWith('0')) {
       val = '+38$val';
     }
 
     if (!val.startsWith('+')) {
-      throw const FormatException('Must start with plus');
+      val = '+$val';
     }
 
     if (val.length < 8) {
