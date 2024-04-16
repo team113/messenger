@@ -33,7 +33,6 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/hive/account.dart';
 import '/provider/hive/credentials.dart';
-import '/provider/hive/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -48,7 +47,6 @@ class AuthService extends GetxService {
     this._authRepository,
     this._credentialsProvider,
     this._accountProvider,
-    this._myUserProvider,
   );
 
   /// Currently authorized session's [Credentials].
@@ -70,9 +68,6 @@ class AuthService extends GetxService {
 
   /// [AccountHiveProvider] storing the current user's [UserId].
   final AccountHiveProvider _accountProvider;
-
-  /// [MyUserHiveProvider] for removing [MyUser]s during [logout].
-  final MyUserHiveProvider _myUserProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -180,7 +175,7 @@ class AuthService extends GetxService {
 
       final UserId key = UserId(e.key);
 
-      // Check [_accountProvider] in case these [Credentials] are of new
+      // Check [_accountProvider] in case these [Credentials] are of a new
       // account.
       final UserId? current =
           WebUtils.credentials?.userId ?? _accountProvider.userId;
@@ -413,7 +408,7 @@ class AuthService extends GetxService {
 
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
-  Future<String> logout({bool deleteMyUser = false}) async {
+  Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 
     status.value = RxStatus.loading();
@@ -437,14 +432,6 @@ class AuthService extends GetxService {
       }
 
       await _authRepository.logout(fcmToken);
-
-      if (deleteMyUser) {
-        final UserId? id = userId ?? _accountProvider.userId;
-
-        if (id != null) {
-          await _myUserProvider.remove(id);
-        }
-      }
     } catch (e) {
       printError(info: e.toString());
     }

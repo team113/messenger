@@ -118,7 +118,7 @@ Future<void> main() async {
     final authRepository =
         Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
     final authService = Get.put(
-      AuthService(authRepository, Get.find(), Get.find(), Get.find()),
+      AuthService(authRepository, Get.find(), Get.find()),
     );
     router = RouterState(authService);
 

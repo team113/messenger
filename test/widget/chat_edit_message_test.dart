@@ -456,7 +456,6 @@ void main() async {
         Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
         credentialsProvider,
         accountProvider,
-        myUserProvider,
       ),
     );
     authService.init();

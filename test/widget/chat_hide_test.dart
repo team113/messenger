@@ -207,7 +207,6 @@ void main() async {
       AuthRepository(graphQlProvider),
       credentialsProvider,
       accountProvider,
-      myUserProvider,
     ),
   );
   authService.init();

@@ -65,7 +65,6 @@ void main() async {
       AuthRepository(graphQlProvider),
       getStorage,
       accountProvider,
-      myUserProvider,
     ));
 
     UserRepository userRepository =

@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
@@ -67,7 +68,14 @@ class MenuTabController extends GetxController {
   }
 
   /// Logs out the current session and go to the [Routes.auth] page.
-  Future<String> logout() => _authService.logout(deleteMyUser: true);
+  Future<String> logout() async {
+    final UserId? id = myUser.value?.id;
+    if (id != null) {
+      _myUserService.removeAccount(id);
+    }
+
+    return _authService.logout();
+  }
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>

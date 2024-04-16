@@ -206,7 +206,6 @@ void main() async {
       authRepository,
       credentialsProvider,
       accountProvider,
-      myUserProvider,
     ));
     authService.init();
 
@@ -343,7 +342,6 @@ void main() async {
       authRepository,
       credentialsProvider,
       accountProvider,
-      myUserProvider,
     ));
     authService.init();
 
@@ -423,7 +421,6 @@ void main() async {
       authRepository,
       credentialsProvider,
       accountProvider,
-      myUserProvider,
     ));
     authService.init();
 

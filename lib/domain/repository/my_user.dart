@@ -77,6 +77,10 @@ abstract class AbstractMyUserRepository {
   /// __This action cannot be reverted.__
   Future<void> deleteMyUser();
 
+  /// Removes [MyUser] with the provided [id] from storage without editing any
+  /// remote data.
+  Future<void> remove(UserId id);
+
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
   Future<void> deleteUserEmail(UserEmail email);

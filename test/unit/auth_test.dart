@@ -104,7 +104,6 @@ void main() async {
       authRepository,
       getStorage,
       accountProvider,
-      myUserProvider,
     ));
 
     expect(authService.init(), Routes.auth);
@@ -147,7 +146,6 @@ void main() async {
       authRepository,
       credsProvider,
       accountProvider,
-      myUserProvider,
     ));
 
     expect(authService.init(), null);
@@ -178,7 +176,6 @@ void main() async {
       authRepository,
       credsProvider,
       accountProvider,
-      myUserProvider,
     ));
 
     expect(authService.init(), Routes.auth);
@@ -201,7 +198,6 @@ void main() async {
       authRepository,
       credsProvider,
       accountProvider,
-      myUserProvider,
     ));
 
     when(graphQlProvider.recoverUserPassword(
@@ -244,7 +240,6 @@ void main() async {
       authRepository,
       credsProvider,
       accountProvider,
-      myUserProvider,
     ));
 
     when(graphQlProvider.recoverUserPassword(
