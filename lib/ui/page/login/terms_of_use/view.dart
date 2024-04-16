@@ -72,7 +72,9 @@ If you have any questions or suggestions about the Terms and Conditions, please 
         const ModalPopupHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: ModalPopup.padding(context),
+            padding: ModalPopup.padding(context).add(
+              const EdgeInsets.only(bottom: 16),
+            ),
             child: const MarkdownWidget(_text),
           ),
         ),

@@ -109,7 +109,9 @@ If you have any questions regarding privacy while using the Application, or have
         const ModalPopupHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: ModalPopup.padding(context),
+            padding: ModalPopup.padding(context).add(
+              const EdgeInsets.only(bottom: 16),
+            ),
             child: const MarkdownWidget(_text),
           ),
         ),

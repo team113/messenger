@@ -210,6 +210,10 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}'
         if: ${{ matrix.platform == 'web' }}
 
+      - name: Sign Android application
+        run: base64 -d ${{ secrets.ANDROID_KEY }} > android/key.properties
+        if: ${{ contains('apk appbundle', matrix.platform) }}
+
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
       #       supports debug symbols:
       #       split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
@@ -305,6 +309,10 @@ jobs:
       #     if-no-files-found: error
       #     retention-days: 1
       #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
+
+      - name: Cleanup secret Android signing key
+        run: rm -rf android/key.properties
+        if: ${{ always() }}
 
   build-linux:
     name: build (linux)
