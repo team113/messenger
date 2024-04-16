@@ -139,7 +139,8 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]) async {
+  Future<void> deleteSession(
+      [FcmRegistrationToken? fcmRegistrationToken]) async {
     Log.debug('logout($fcmRegistrationToken)', '$runtimeType');
 
     if (fcmRegistrationToken != null) {

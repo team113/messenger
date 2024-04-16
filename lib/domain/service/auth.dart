@@ -63,6 +63,9 @@ class AuthService extends GetxService {
   /// - `status.isSuccess` meaning successful authorization.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
+  /// Callback removing [MyUser] from storage during [logout] and [logoutFrom].
+  void Function(UserId id)? removeAccount;
+
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
 
@@ -408,10 +411,11 @@ class AuthService extends GetxService {
     });
   }
 
-  // TODO: Clean Hive storage on logout.
-  /// Deletes [Session] of the currently authenticated [MyUser].
-  Future<String> logout() async {
-    Log.debug('logout()', '$runtimeType');
+  /// Deletes [Session] of the active [MyUser].
+  ///
+  /// Returns the path of the authentication page.
+  Future<String> deleteSession() async {
+    Log.debug('deleteSession()', '$runtimeType');
 
     status.value = RxStatus.loading();
 
@@ -419,6 +423,7 @@ class AuthService extends GetxService {
       FcmRegistrationToken? fcmToken;
 
       if (PlatformUtils.pushNotifications) {
+        // Do not unregister from FCM if deleting the session of another user.
         final NotificationSettings settings =
             await FirebaseMessaging.instance.getNotificationSettings();
 
@@ -433,11 +438,36 @@ class AuthService extends GetxService {
         }
       }
 
-      await _authRepository.logout(fcmToken);
+      await _authRepository.deleteSession(fcmToken);
     } catch (e) {
       printError(info: e.toString());
     }
     return _unauthorized();
+  }
+
+  /// Deletes [Session] of the active [MyUser] and removes it from the list of
+  /// available accounts on this device.
+  Future<String> logout() async {
+    Log.debug('logout()', '$runtimeType');
+
+    if (userId != null) {
+      removeAccount?.call(userId!);
+    }
+
+    return await deleteSession();
+  }
+
+  /// Removes [MyUser] with the provided [id] from the list of available
+  /// accounts on this device.
+  void logoutFrom(UserId id) {
+    Log.debug('logoutFrom()', '$runtimeType');
+
+    if (id == userId) {
+      logout();
+    } else {
+      removeAccount?.call(id);
+      _credentialsProvider.remove(id);
+    }
   }
 
   /// Validates the current [AccessToken].

@@ -248,14 +248,7 @@ class MyUserService extends DisposableService {
     await _userRepo.refresh();
   }
 
-  /// Removes [MyUser] with the provided [id] from list of the accounts
-  /// available on this device without deleting any remote data.
-  Future<void> removeAccount(UserId id) async {
-    Log.debug('removeAccount()', '$runtimeType');
-    await _userRepo.remove(id);
-  }
-
-  /// Callback to be called when [MyUser]'s password is updated.
+  /// Callback to be called when the active [MyUser]'s is updated.
   ///
   /// Performs log out if the current [AccessToken] is not valid.
   Future<void> _onPasswordUpdated() async {
@@ -264,22 +257,18 @@ class MyUserService extends DisposableService {
     await _passwordChangeGuard.protect(() async {
       final bool isTokenValid = await _auth.validateToken();
       if (!isTokenValid) {
-        router.go(await _auth.logout());
+        router.go(await _auth.deleteSession());
       }
     });
   }
 
-  /// Callback to be called when [MyUser] is deleted.
+  /// Callback to be called when active [MyUser] is deleted.
   ///
-  /// Performs log out and clears [MyUser] store.
+  /// Performs log out and deletes stored [MyUser] value.
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
     await _auth.logout();
-    final UserId? id = myUser.value?.id;
-    if (id != null) {
-      removeAccount(id);
-    }
     router.auth();
   }
 }

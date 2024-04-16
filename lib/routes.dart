@@ -590,6 +590,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 ),
               );
 
+              Get.find<AuthService>().removeAccount = myUserRepository.remove;
+
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
@@ -742,6 +744,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
+
+            Get.find<AuthService>().removeAccount = myUserRepository.remove;
 
             MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
