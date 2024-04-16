@@ -424,7 +424,17 @@ class ContactRepository extends DisposableInterface
 
       for (var e in contact.phones) {
         try {
-          phones.add(UserPhone(e.number));
+          String phone = e.number.replaceAll(RegExp(r'[- ]'), '');
+
+          if(phone.startsWith('0')) {
+            phone = '+38$phone';
+          }
+
+          if (!phone.startsWith('+')) {
+            phone = '+$phone';
+          }
+
+          phones.add(UserPhone(phone));
         } catch (ex) {
           Log.warning(
             'Failed to parse ${e.number} into UserPhone with $ex',
