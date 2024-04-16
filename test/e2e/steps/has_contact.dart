@@ -40,8 +40,7 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
     for (int i = 0; i < count; i++) {
       futures.add(
         Future(() async {
-          final CustomUser user =
-              await createUser(user: TestUser.Dave, world: context.world);
+          final CustomUser user = await createUser();
           await provider.createChatContact(
             name: UserName(i.toString().padLeft(2, '0')),
             records: [ChatContactRecord(userId: user.userId)],
@@ -74,8 +73,7 @@ final StepDefinitionGeneric hasFavoriteContacts =
 
     for (int i = 0; i < count; i++) {
       Future future = Future(() async {
-        final CustomUser user =
-            await createUser(user: TestUser.Dave, world: context.world);
+        final CustomUser user = await createUser();
         final ChatContactEventsVersionedMixin result =
             await provider.createChatContact(
           name: UserName(i.toString().padLeft(2, '0')),
