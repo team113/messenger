@@ -210,8 +210,11 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}'
         if: ${{ matrix.platform == 'web' }}
 
-      - name: Sign Android application
-        run: echo ${{ secrets.ANDROID_KEY }} | base64 -d > android/key.properties
+      - name: Prepare Android signing resources
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android/keystore.jks
+          echo "${{ secrets.ANDROID_PROPERTIES }}" > android/key.properties
+
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
