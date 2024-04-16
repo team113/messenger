@@ -63,9 +63,6 @@ class AuthService extends GetxService {
   /// - `status.isSuccess` meaning successful authorization.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
-  /// Callback removing [MyUser] from storage during [logout] and [logoutFrom].
-  void Function(UserId id)? removeAccount;
-
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
 
@@ -459,7 +456,7 @@ class AuthService extends GetxService {
   /// Removes [MyUser] with the provided [id] from the list of available
   /// accounts on this device.
   void logoutFrom(UserId id) {
-    Log.debug('logoutFrom()', '$runtimeType');
+    Log.debug('logoutFrom($id)', '$runtimeType');
 
     _authRepository.removeAccount(userId!);
 
