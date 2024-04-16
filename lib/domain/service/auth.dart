@@ -450,22 +450,21 @@ class AuthService extends GetxService {
     Log.debug('logout()', '$runtimeType');
 
     if (userId != null) {
-      removeAccount?.call(userId!);
+      _authRepository.removeAccount(userId!);
     }
 
     return await deleteSession();
   }
 
-  /// Removes [MyUser] and [Credentials] associated with the provided [id] from
-  /// the list of available accounts on this device.
+  /// Removes [MyUser] with the provided [id] from the list of available
+  /// accounts on this device.
   void logoutFrom(UserId id) {
     Log.debug('logoutFrom()', '$runtimeType');
 
+    _authRepository.removeAccount(userId!);
+
     if (id == userId) {
-      logout();
-    } else {
-      removeAccount?.call(id);
-      _credentialsProvider.remove(id);
+      deleteSession();
     }
   }
 

@@ -63,6 +63,9 @@ abstract class AbstractAuthRepository {
   /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
   Future<void> deleteSession([FcmRegistrationToken? fcmRegistrationToken]);
 
+  /// Removes [MyUser] and [Credentials] with the provided [id] from storage.
+  Future<void> removeAccount(UserId id);
+
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
   ///
   /// [ConfirmationCode] is sent to the [email], which should be confirmed with

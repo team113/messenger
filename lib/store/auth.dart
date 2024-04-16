@@ -26,16 +26,28 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/credentials.dart';
+import '/provider/hive/my_user.dart';
 import '/util/log.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
 /// All methods may throw [ConnectionException], [GraphQlException].
 class AuthRepository implements AbstractAuthRepository {
-  AuthRepository(this._graphQlProvider);
+  AuthRepository(
+    this._graphQlProvider,
+    this._myUserProvider,
+    this._credentialsProvider,
+  );
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
+
+  /// [MyUserHiveProvider] for removing [MyUser]s.
+  final MyUserHiveProvider _myUserProvider;
+
+  /// [CredentialsHiveProvider] for removing [Credentials].
+  final CredentialsHiveProvider _credentialsProvider;
 
   // TODO: Temporary solution, wait for support from backend.
   /// [Credentials] of [Session] created with [signUpWithEmail] returned in
@@ -147,6 +159,14 @@ class AuthRepository implements AbstractAuthRepository {
       await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
     }
     await _graphQlProvider.deleteSession();
+  }
+
+  @override
+  Future<void> removeAccount(UserId id) async {
+    Log.debug('removeAccount($id)', '$runtimeType');
+
+    await _myUserProvider.remove(id);
+    await _credentialsProvider.remove(id);
   }
 
   @override

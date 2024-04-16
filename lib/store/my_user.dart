@@ -259,12 +259,6 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> remove(UserId id) async {
-    Log.debug('removeAccount()', '$runtimeType');
-    await _myUserLocal.remove(id);
-  }
-
-  @override
   Future<void> deleteUserEmail(UserEmail email) async {
     Log.debug('deleteUserEmail($email)', '$runtimeType');
 

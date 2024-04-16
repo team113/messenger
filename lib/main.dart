@@ -115,8 +115,11 @@ Future<void> main() async {
 
     final graphQlProvider = Get.put(GraphQlProvider());
 
-    final authRepository =
-        Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
+    final authRepository = Get.put<AbstractAuthRepository>(AuthRepository(
+      graphQlProvider,
+      Get.find(),
+      Get.find(),
+    ));
     final authService = Get.put(
       AuthService(authRepository, Get.find(), Get.find()),
     );
