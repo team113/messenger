@@ -19,6 +19,7 @@ Feature: Contacts dismissing
 
   Scenario: Contacts can be dismissed and restored
     Given I am Alice
+    And users Bob and Charlie
     And contacts Bob and Charlie
     And I tap `ContactsButton` button
     And I wait until "Bob" contact is present
