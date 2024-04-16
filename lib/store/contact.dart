@@ -431,7 +431,7 @@ class ContactRepository extends DisposableInterface
 
       for (var e in contact.phones) {
         try {
-          phones.add(UserPhone(e.number.replaceAll(' ', '')));
+          phones.add(UserPhone(e.number));
         } catch (_) {
           // No-op.
         }
