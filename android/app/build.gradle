@@ -22,9 +22,9 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-def hasKeystore = keystorePropertiesFile.exists()
+def properties = new Properties()
+def propertiesFile = rootProject.file('key.properties')
+def hasProperties = propertiesFile.exists()
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
@@ -57,20 +57,20 @@ android {
     }
 
     signingConfigs {
-        if (hasKeystore) {
+        if (hasProperties) {
             release {
-                    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
-                    storeFile file("$keystoreProperties.storeFile")
-                    storePassword "$keystoreProperties.storePassword"
-                    keyAlias "$keystoreProperties.keyAlias"
-                    keyPassword "$keystoreProperties.keyPassword"
+                    propertiesFile.withInputStream { properties.load(it) }
+                    storeFile file("$properties.storeFile")
+                    storePassword "$properties.storePassword"
+                    keyAlias "$properties.keyAlias"
+                    keyPassword "$properties.keyPassword"
             }
         }
     }
 
     buildTypes {
         release {
-            if (hasKeystore) {
+            if (hasProperties) {
                 signingConfig signingConfigs.release
             } else {
                 signingConfig signingConfigs.debug
