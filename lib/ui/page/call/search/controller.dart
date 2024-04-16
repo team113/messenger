@@ -585,11 +585,11 @@ class SearchController extends GetxController {
 
       // Predicates to filter the [allContacts] by.
       bool isMember(RxChatContact c) =>
-          chat?.members.items.containsKey(c.user.value!.id) ?? false;
-      bool inRecent(RxChatContact c) => recent.containsKey(c.user.value!.id);
+          chat?.members.items.containsKey(c.user.value?.id) ?? false;
+      bool inRecent(RxChatContact c) => recent.containsKey(c.user.value?.id);
       bool inChats(RxChatContact c) => chats.values.any((chat) =>
           chat.chat.value.isDialog &&
-          chat.members.items.containsKey(c.user.value!.id));
+          chat.members.items.containsKey(c.user.value?.id));
       bool matchesQuery(RxChatContact c) => _matchesQuery(user: c.user.value);
 
       final List<RxChatContact> filtered = allContacts

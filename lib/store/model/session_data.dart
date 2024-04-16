@@ -54,4 +54,9 @@ class SessionData extends HiveObject {
   /// remote, meaning no queries should be made.
   @HiveField(5)
   bool? blocklistSynchronized;
+
+  /// Persisted indicator whether contacts from device's contacts book was
+  /// imported.
+  @HiveField(6)
+  bool? contactsImported;
 }

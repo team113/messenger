@@ -19,9 +19,11 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:fast_contacts/fast_contacts.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/page_info.dart';
@@ -45,6 +47,8 @@ import '/store/pagination/graphql.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
+import '/util/permission.dart';
+import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
@@ -128,6 +132,12 @@ class ContactRepository extends DisposableInterface
     _initPagination();
     _initLocalSubscription();
     _initRemoteSubscription();
+
+    if (PlatformUtils.isMobile &&
+        !PlatformUtils.isWeb &&
+        _sessionLocal.getContactsImported() != true) {
+      _importContacts();
+    }
 
     super.onInit();
   }
@@ -386,6 +396,71 @@ class ContactRepository extends DisposableInterface
     }
 
     await _contactLocal.remove(id);
+  }
+
+  /// Imports contacts from the device's contact list.
+  Future<void> _importContacts() async {
+    PermissionStatus status = await Permission.contacts.status;
+
+    if (status.isPermanentlyDenied || status.isRestricted) {
+      return;
+    }
+
+    if (!status.isGranted) {
+      status = await PermissionUtil.contacts();
+
+      if (!status.isGranted) {
+        return;
+      }
+    }
+
+    final List<Contact> contacts = await FastContacts.getAllContacts();
+
+    for (final Contact contact in contacts) {
+      final UserName name;
+      final List<UserPhone> phones = [];
+      final List<UserEmail> emails = [];
+
+      if (contact.displayName.length > 1) {
+        name = UserName(contact.displayName);
+      } else {
+        name = UserName(
+          contact.displayName + '_' * (2 - contact.displayName.length),
+        );
+      }
+
+      for (var e in contact.phones) {
+        try {
+          phones.add(UserPhone(e.number.replaceAll(' ', '')));
+        } catch (_) {
+          // No-op.
+        }
+      }
+
+      for (var e in contact.emails) {
+        try {
+          emails.add(UserEmail(e.address));
+        } catch (_) {
+          // No-op.
+        }
+      }
+
+      try {
+        if (phones.isNotEmpty || emails.isNotEmpty) {
+          _graphQlProvider.createChatContact(
+            name: name,
+            records: [
+              ...phones.map((e) => ChatContactRecord(phone: e)),
+              ...emails.map((e) => ChatContactRecord(email: e)),
+            ],
+          );
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    await _sessionLocal.setContactsImported(true);
   }
 
   /// Searches [ChatContact]s by the provided [UserName].

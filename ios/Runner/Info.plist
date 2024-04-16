@@ -58,9 +58,11 @@
   <string>We need access to your microphone to record it</string>
   <key>LSSupportsOpeningDocumentsInPlace</key>
   <true/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
+  <key>CADisableMinimumFrameDurationOnPhone</key>
+  <true/>
+  <key>UIApplicationSupportsIndirectInputEvents</key>
+  <true/>
+  <key>NSContactsUsageDescription</key>
+  <string>We need access to your contacts to import them.</string>
 </dict>
 </plist>

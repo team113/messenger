@@ -308,6 +308,8 @@ class ChatsTabView extends StatelessWidget {
                                 c.search.value?.search.clear();
                                 c.search.value?.query.value = '';
                                 c.search.value?.search.focus.requestFocus();
+                              } else {
+                                c.closeSearch(true);
                               }
                             } else if (c.selecting.value) {
                               c.toggleSelecting();
