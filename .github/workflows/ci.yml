@@ -313,8 +313,14 @@ jobs:
       #     retention-days: 1
       #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
 
-      - name: Cleanup secret Android signing key
-        run: rm -rf android/key.properties
+      - name: Cleanup Android signing resources
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            rd /s /q "android/key.properties"
+            rd /s /q "android/app/keystore.jks"
+          else
+            rm -rf android/key.properties android/app/keystore.jks
+          fi
         if: ${{ always() }}
 
   build-linux:
