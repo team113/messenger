@@ -211,7 +211,7 @@ jobs:
         if: ${{ matrix.platform == 'web' }}
 
       - name: Sign Android application
-        run: base64 -d "${{ secrets.ANDROID_KEY }}" > android/key.properties
+        run: echo ${{ secrets.ANDROID_KEY }} | base64 -d > android/key.properties
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
