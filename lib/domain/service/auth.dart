@@ -252,10 +252,6 @@ class AuthService extends GetxService {
     );
 
     await WebUtils.protect(() async {
-      // if (status.value.isSuccess) {
-      //   status.value = RxStatus.loadingMore();
-
-      //   try {
       await _authRepository.resetUserPassword(
         login: login,
         num: num,
@@ -264,10 +260,6 @@ class AuthService extends GetxService {
         code: code,
         newPassword: newPassword,
       );
-      // } finally {
-      //   status.value = RxStatus.success();
-      //   }
-      // }
     });
   }
 
