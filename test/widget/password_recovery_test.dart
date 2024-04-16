@@ -147,6 +147,8 @@ void main() async {
     await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle();
 
+    await Future.delayed(Duration.zero);
+
     verifyInOrder([
       graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
       graphQlProvider.validateUserPasswordRecoveryCode(
