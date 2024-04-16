@@ -248,7 +248,7 @@ class MyUserService extends DisposableService {
     await _userRepo.refresh();
   }
 
-  /// Callback to be called when the active [MyUser]'s is updated.
+  /// Callback to be called when the active [MyUser]'s password is updated.
   ///
   /// Performs log out if the current [AccessToken] is not valid.
   Future<void> _onPasswordUpdated() async {
@@ -262,7 +262,7 @@ class MyUserService extends DisposableService {
     });
   }
 
-  /// Callback to be called when active [MyUser] is deleted.
+  /// Callback to be called when the active [MyUser] is deleted.
   ///
   /// Performs log out and deletes stored [MyUser] value.
   Future<void> _onUserDeleted() async {
