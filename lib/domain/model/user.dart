@@ -376,7 +376,7 @@ class UserPhone extends NewType<String> {
     // Normalize phone number.
     val = val.replaceAll(RegExp(r'[^\d+]'), '');
 
-    if(val.startsWith('0')) {
+    if (val.startsWith('0')) {
       val = '+38$val';
     }
 
