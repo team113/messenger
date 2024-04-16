@@ -138,7 +138,6 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     );
   }
 
-
   /// Stores a new [SessionData.contactsImported] to [Hive].
   Future<void> setContactsImported(bool val) async {
     Log.trace('setContactsImported()', '$runtimeType');
