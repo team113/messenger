@@ -212,7 +212,7 @@ jobs:
 
       - name: Prepare Android signing resources
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android/keystore.jks
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android/app/keystore.jks
           echo "${{ secrets.ANDROID_PROPERTIES }}" > android/key.properties
 
         if: ${{ contains('apk appbundle', matrix.platform) }}
