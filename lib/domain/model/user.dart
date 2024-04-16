@@ -372,7 +372,7 @@ class UserBio extends NewType<String> {
 class UserPhone extends NewType<String> {
   const UserPhone._(super.val);
 
-  UserPhone(String val) : super('') {
+  UserPhone(String val) : super(val) {
     if (!val.startsWith('+')) {
       throw const FormatException('Must start with plus');
     }
