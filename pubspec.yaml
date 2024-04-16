@@ -48,6 +48,7 @@ dependencies:
   flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
+  flutter_widget_from_html_core: ^0.14.11
   flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.6
@@ -167,6 +168,8 @@ flutter:
     - assets/images/logo/
     - assets/images/media_buttons/
     - assets/l10n/
+    - assets/privacy.html
+    - assets/terms.html
   fonts:
     - family: Roboto
       fonts:
