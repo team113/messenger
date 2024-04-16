@@ -423,7 +423,6 @@ class AuthService extends GetxService {
       FcmRegistrationToken? fcmToken;
 
       if (PlatformUtils.pushNotifications) {
-        // Do not unregister from FCM if deleting the session of another user.
         final NotificationSettings settings =
             await FirebaseMessaging.instance.getNotificationSettings();
 
@@ -457,8 +456,8 @@ class AuthService extends GetxService {
     return await deleteSession();
   }
 
-  /// Removes [MyUser] with the provided [id] from the list of available
-  /// accounts on this device.
+  /// Removes [MyUser] and [Credentials] associated with the provided [id] from
+  /// the list of available accounts on this device.
   void logoutFrom(UserId id) {
     Log.debug('logoutFrom()', '$runtimeType');
 
