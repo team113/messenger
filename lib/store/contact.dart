@@ -426,7 +426,7 @@ class ContactRepository extends DisposableInterface
         try {
           String phone = e.number.replaceAll(RegExp(r'[- ]'), '');
 
-          if(phone.startsWith('0')) {
+          if (phone.startsWith('0')) {
             phone = '+38$phone';
           }
 
