@@ -112,6 +112,9 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
+  /// [Chat.bio] field state.
+  late final TextFieldState bio;
+
   /// [Chat.directLink] field state.
   late final TextFieldState link;
 
@@ -152,7 +155,7 @@ class ChatInfoController extends GetxController {
   static const Duration _highlightTimeout = Duration(seconds: 1);
 
   late final TextFieldState textStatus;
-  final RxnString bio = RxnString('Ретроспектива: 00:00 UTC');
+  // final RxnString bio = RxnString('Ретроспектива: 00:00 UTC');
 
   /// Worker to react on [chat] changes.
   Worker? _worker;
@@ -208,6 +211,11 @@ class ChatInfoController extends GetxController {
           return;
         }
       },
+    );
+
+    bio = TextFieldState(
+      text: 'Ретроспектива: 00:00 UTC',
+      onChanged: (s) async {},
     );
 
     scrollController.addListener(_ensureNameDisplayed);

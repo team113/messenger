@@ -83,6 +83,7 @@ class AvatarWidget extends StatefulWidget {
     this.label,
     this.onForbidden,
     this.child,
+    this.shape = BoxShape.circle,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -92,6 +93,7 @@ class AvatarWidget extends StatefulWidget {
     Avatar? avatar,
     AvatarRadius? radius,
     double opacity = 1,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -102,6 +104,7 @@ class AvatarWidget extends StatefulWidget {
             : contact?.users.first.num.val.sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -112,6 +115,7 @@ class AvatarWidget extends StatefulWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (contact == null) {
       return AvatarWidget.fromContact(
@@ -120,6 +124,7 @@ class AvatarWidget extends StatefulWidget {
         avatar: avatar,
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
     }
 
@@ -137,6 +142,7 @@ class AvatarWidget extends StatefulWidget {
             : contact.user.value?.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
     });
   }
@@ -149,6 +155,7 @@ class AvatarWidget extends StatefulWidget {
     double opacity = 1,
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -160,6 +167,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         onForbidden: onForbidden,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -169,6 +177,7 @@ class AvatarWidget extends StatefulWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -179,6 +188,7 @@ class AvatarWidget extends StatefulWidget {
         color: user?.num.val.sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -188,6 +198,7 @@ class AvatarWidget extends StatefulWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -195,6 +206,7 @@ class AvatarWidget extends StatefulWidget {
         key: key,
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
     }
 
@@ -211,6 +223,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         isBlocked: blocked,
+        shape: shape,
       );
     });
   }
@@ -222,6 +235,7 @@ class AvatarWidget extends StatefulWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -238,6 +252,7 @@ class AvatarWidget extends StatefulWidget {
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
@@ -250,6 +265,7 @@ class AvatarWidget extends StatefulWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool isBlocked = false,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -259,6 +275,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         isBlocked: isBlocked,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
@@ -269,12 +286,14 @@ class AvatarWidget extends StatefulWidget {
     double opacity = 1,
     FutureOr<void> Function()? onForbidden,
     monolog = true,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (chat == null) {
       return AvatarWidget(
         key: key,
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
     }
 
@@ -286,6 +305,7 @@ class AvatarWidget extends StatefulWidget {
           chat.me,
           radius: radius,
           opacity: opacity,
+          shape: shape,
         );
       }
 
@@ -307,6 +327,7 @@ class AvatarWidget extends StatefulWidget {
         opacity: opacity,
         isBlocked: blocked,
         onForbidden: onForbidden,
+        shape: shape,
       );
     });
   }
@@ -352,6 +373,8 @@ class AvatarWidget extends StatefulWidget {
   ///
   /// Intended to be used on the [Routes.style] page only.
   final Widget? child;
+
+  final BoxShape shape;
 
   @override
   State<AvatarWidget> createState() => _AvatarWidgetState();
@@ -429,7 +452,11 @@ class _AvatarWidgetState extends State<AvatarWidget> {
             end: Alignment.bottomCenter,
             colors: [gradient.lighten(), gradient],
           ),
-          shape: BoxShape.circle,
+          borderRadius: switch (widget.shape) {
+            BoxShape.circle => null,
+            BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter)
+          },
+          shape: widget.shape,
         ),
         child: Center(
           child: widget.label ??
@@ -491,7 +518,7 @@ class _AvatarWidgetState extends State<AvatarWidget> {
               if (widget.avatar == null) defaultAvatar,
               if (widget.avatar != null || widget.child != null)
                 Positioned.fill(
-                  child: ClipOval(
+                  child: _clip(
                     child: widget.child ??
                         RetryImage(
                           key: _imageKey,
@@ -512,6 +539,17 @@ class _AvatarWidgetState extends State<AvatarWidget> {
         ),
       );
     });
+  }
+
+  Widget _clip({required Widget child}) {
+    return switch (widget.shape) {
+      BoxShape.circle => ClipOval(child: child),
+      BoxShape.rectangle => ClipRRect(
+          borderRadius: BorderRadius.circular(0.035 * _minDiameter),
+          // borderRadius: BorderRadius.circular(15),
+          child: child,
+        ),
+    };
   }
 }
 

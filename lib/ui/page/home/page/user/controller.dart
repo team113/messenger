@@ -233,52 +233,13 @@ class UserController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      approvable: true,
+      // approvable: true,
       onChanged: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserName(s.text);
           } catch (e) {
             s.error.value = e.toString();
-          }
-        }
-      },
-      onSubmitted: (s) async {
-        s.error.value = null;
-        s.focus.unfocus();
-
-        if (s.text == contact.value!.contact.value.name.val) {
-          s.unsubmit();
-          return;
-        }
-
-        UserName? name;
-        try {
-          name = UserName(s.text);
-        } on FormatException catch (_) {
-          s.status.value = RxStatus.empty();
-          s.error.value = 'err_incorrect_input'.l10n;
-          s.unsubmit();
-          return;
-        }
-
-        if (s.error.value == null) {
-          s.status.value = RxStatus.loading();
-          s.editable.value = false;
-
-          try {
-            await _contactService.changeContactName(contact.value!.id, name);
-            s.status.value = RxStatus.empty();
-            s.unsubmit();
-          } on UpdateChatContactNameException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toString();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e.toString());
-            rethrow;
-          } finally {
-            s.editable.value = true;
           }
         }
       },
@@ -348,12 +309,57 @@ class UserController extends GetxController {
     super.onClose();
   }
 
+  Future<void> submitName() async {
+    name.error.value = null;
+    name.focus.unfocus();
+
+    if (name.text == contact.value?.contact.value.name.val) {
+      name.unsubmit();
+      return;
+    }
+
+    UserName? userName;
+    try {
+      userName = UserName(name.text);
+    } on FormatException catch (_) {
+      name.status.value = RxStatus.empty();
+      name.error.value = 'err_incorrect_input'.l10n;
+      name.unsubmit();
+      return;
+    }
+
+    if (name.error.value == null) {
+      if (contactId == null) {
+        await addToContacts(name: userName);
+        return;
+      }
+
+      name.status.value = RxStatus.loading();
+      name.editable.value = false;
+
+      try {
+        await _contactService.changeContactName(contact.value!.id, userName);
+        name.status.value = RxStatus.empty();
+        name.unsubmit();
+      } on UpdateChatContactNameException catch (e) {
+        name.status.value = RxStatus.empty();
+        name.error.value = e.toString();
+      } catch (e) {
+        name.status.value = RxStatus.empty();
+        MessagePopup.error(e.toString());
+        rethrow;
+      } finally {
+        name.editable.value = true;
+      }
+    }
+  }
+
   /// Adds the [user] to the contacts list of the authenticated [MyUser].
-  Future<void> addToContacts() async {
+  Future<void> addToContacts({UserName? name}) async {
     if (contactId == null) {
       status.value = RxStatus.loadingMore();
       try {
-        await _contactService.createChatContact(user!.user.value);
+        await _contactService.createChatContact(user!.user.value, name: name);
       } catch (e) {
         MessagePopup.error(e);
         rethrow;
@@ -618,12 +624,13 @@ class UserController extends GetxController {
           },
         );
 
-        name.unchecked =
-            user?.user.value.name?.val ?? user!.user.value.num.toString();
+        // name.unchecked =
+        //     user?.user.value.name?.val ?? user!.user.value.num.toString();
 
         _worker = ever(user!.user, (user) {
           if (!name.isFocused.value && !name.changed.value) {
-            name.unchecked = user.name?.val ?? user.num.toString();
+            // TODO: from `main` move listening for contact
+            // name.unchecked = user.name?.val ?? user.num.toString();
           }
         });
       }

@@ -110,6 +110,7 @@ class BackgroundPreview extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 if (background != null) ...[
+                  const SizedBox(width: 16),
                   WidgetButton(
                     onPressed: onPick,
                     child: Text(
@@ -117,20 +118,16 @@ class BackgroundPreview extends StatelessWidget {
                       style: style.fonts.small.regular.primary,
                     ),
                   ),
-                  Text(
-                    ' или ',
-                    style: style.fonts.small.regular.secondary,
-                  ),
+                  const Spacer(),
                 ],
                 WidgetButton(
                   onPressed: background == null ? onPick : onRemove,
                   child: Text(
-                    background == null
-                        ? 'btn_upload'.l10n
-                        : 'btn_delete'.l10n.toLowerCase(),
+                    background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
+                if (background != null) const SizedBox(width: 16),
               ],
             ),
           ),

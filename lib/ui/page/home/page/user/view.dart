@@ -135,7 +135,7 @@ class UserView extends StatelessWidget {
                 ],
               ),
             highlighted(index: 0, child: _profile(c, context)),
-            if (c.isBlocked == null) _quick(c, context),
+            // if (c.isBlocked == null) _quick(c, context),
             if (c.paid) _price(c, context),
             _bio(c, context),
             _info(c),
@@ -206,105 +206,9 @@ class UserView extends StatelessWidget {
               key: Key('UserAvatar_${c.id}'),
               loading: c.avatar.value.isLoading,
               error: c.avatar.value.errorMessage,
+              onUpload: c.pickAvatar,
             ),
           ),
-          Obx(() {
-            final List<Widget> children;
-
-            if (c.profileEditing.value) {
-              children = [
-                const SizedBox(height: 4),
-                SelectionContainer.disabled(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      WidgetButton(
-                        key: const Key('UploadAvatar'),
-                        onPressed: c.pickAvatar,
-                        child: Text(
-                          'btn_upload'.l10n,
-                          style: style.fonts.small.regular.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                SelectionContainer.disabled(
-                  child: ReactiveTextField(
-                    state: c.name,
-                    label: 'label_name'.l10n,
-                    hint: c.contact.value?.contact.value.name.val ??
-                        c.user!.user.value.name?.val ??
-                        c.user!.user.value.num.toString(),
-                    formatters: [LengthLimitingTextInputFormatter(100)],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const SizedBox(height: 4),
-                WidgetButton(
-                  onPressed: () {
-                    c.profileEditing.value = false;
-                  },
-                  child: SelectionContainer.disabled(
-                    child: Text(
-                      'Готово',
-                      style: style.fonts.small.regular.primary,
-                    ),
-                  ),
-                ),
-              ];
-            } else {
-              children = [
-                const SizedBox(height: 18),
-                Container(width: double.infinity),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: Text(
-                    c.contact.value?.contact.value.name.val ?? c.name.text,
-                    style: style.fonts.large.regular.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: Text(
-                    c.isBlocked != null
-                        ? 'Вы заблокированы'
-                        : c.user?.user.value.getStatus() ?? '',
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                WidgetButton(
-                  onPressed: () {
-                    c.itemScrollController.scrollTo(
-                      index: c.isBlocked != null ? 1 : 0,
-                      curve: Curves.ease,
-                      duration: const Duration(milliseconds: 600),
-                    );
-                    c.highlight(0);
-                    c.profileEditing.value = true;
-                  },
-                  child: SelectionContainer.disabled(
-                    child: Text(
-                      'Изменить',
-                      style: style.fonts.small.regular.primary,
-                    ),
-                  ),
-                ),
-              ];
-            }
-
-            return AnimatedSizeAndFade(
-              fadeDuration: 250.milliseconds,
-              sizeDuration: 250.milliseconds,
-              child: Column(
-                key: Key(c.profileEditing.value.toString()),
-                children: children,
-              ),
-            );
-          }),
         ],
       );
     });
@@ -314,24 +218,122 @@ class UserView extends StatelessWidget {
   Widget _bio(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    final UserBio? bio = c.user?.user.value.bio;
+    final UserBio? bio = c.isBlocked != null
+        ? UserBio('Вы заблокированы')
+        : c.user?.user.value.bio;
 
-    if (bio != null) {
-      return Block(
-        padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              bio.toString(),
-              style: style.fonts.normal.regular.secondary,
+    return Block(
+      padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
+      children: [
+        Obx(() {
+          final List<Widget> children;
+
+          if (c.profileEditing.value) {
+            children = [
+              const SizedBox(height: 18),
+              SelectionContainer.disabled(
+                child: ReactiveTextField(
+                  state: c.name,
+                  label: 'label_name'.l10n,
+                  hint: c.contact.value?.contact.value.name.val ??
+                      c.user!.user.value.name?.val ??
+                      c.user!.user.value.num.toString(),
+                  formatters: [LengthLimitingTextInputFormatter(100)],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const SizedBox(width: 16),
+                  WidgetButton(
+                    onPressed: () {
+                      c.submitName();
+                      c.profileEditing.value = false;
+                    },
+                    child: SelectionContainer.disabled(
+                      child: Text(
+                        'btn_save'.l10n,
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  WidgetButton(
+                    onPressed: () => c.profileEditing.value = false,
+                    child: SelectionContainer.disabled(
+                      child: Text(
+                        'Отменить',
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
+              ),
+            ];
+          } else {
+            children = [
+              const SizedBox(height: 8),
+              Container(width: double.infinity),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Text(
+                  c.contact.value?.contact.value.name.val ?? c.name.text,
+                  style: style.fonts.larger.regular.onBackground,
+                ),
+              ),
+              const SizedBox(height: 4),
+              if (bio != null) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    bio.toString(),
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                ),
+              ],
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              //   child: Text(
+              //     c.isBlocked != null
+              //         ? 'Вы заблокированы'
+              //         : c.user?.user.value.getStatus() ?? '',
+              //     style: style.fonts.small.regular.secondary,
+              //   ),
+              // ),
+              const SizedBox(height: 12),
+              WidgetButton(
+                onPressed: () {
+                  c.itemScrollController.scrollTo(
+                    index: c.isBlocked != null ? 3 : 2,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 600),
+                  );
+                  c.highlight(1);
+                  c.profileEditing.value = true;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'Изменить',
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+            ];
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: 250.milliseconds,
+            sizeDuration: 250.milliseconds,
+            child: Column(
+              key: Key(c.profileEditing.value.toString()),
+              children: children,
             ),
-          ),
-        ],
-      );
-    } else {
-      return const SizedBox();
-    }
+          );
+        }),
+      ],
+    );
   }
 
   /// Returns the [User.num] visual representation.
@@ -533,83 +535,82 @@ class UserView extends StatelessWidget {
 
     final Widget title;
 
-    if (!c.displayName.value) {
-      title = Row(
-        key: const Key('Profile'),
-        children: [
-          const StyledBackButton(),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(child: Text('label_profile'.l10n)),
+    // if (!c.displayName.value) {
+    //   title = Row(
+    //     key: const Key('Profile'),
+    //     children: [
+    //       const StyledBackButton(),
+    //       const SizedBox(width: 8),
+    //       Expanded(
+    //         child: Padding(
+    //           padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+    //           child: Center(child: Text('label_profile'.l10n)),
+    //         ),
+    //       ),
+    //     ],
+    //   );
+    // } else {
+    title = Row(
+      children: [
+        const StyledBackButton(),
+        Material(
+          elevation: 6,
+          type: MaterialType.circle,
+          shadowColor: style.colors.onBackgroundOpacity27,
+          color: style.colors.onPrimary,
+          child: Center(
+            child: AvatarWidget.fromRxUser(
+              c.user,
+              radius: AvatarRadius.medium,
             ),
           ),
-        ],
-      );
-    } else {
-      title = Row(
-        children: [
-          const StyledBackButton(),
-          Material(
-            elevation: 6,
-            type: MaterialType.circle,
-            shadowColor: style.colors.onBackgroundOpacity27,
-            color: style.colors.onPrimary,
-            child: Center(
-              child: AvatarWidget.fromRxUser(
-                c.user,
-                radius: AvatarRadius.medium,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: DefaultTextStyle.merge(
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: Obx(() {
-                final String subtitle;
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            child: Obx(() {
+              final String subtitle;
 
-                if (c.isBlocked != null) {
-                  subtitle = 'Заблокировано';
-                } else {
-                  final String? status = c.user?.user.value.getStatus();
-                  final StringBuffer buffer = StringBuffer();
+              if (c.isBlocked != null) {
+                subtitle = 'Заблокировано';
+              } else {
+                final String? status = c.user?.user.value.getStatus();
+                final StringBuffer buffer = StringBuffer();
 
-                  if (status != null) {
-                    buffer.write(status);
-                  }
-
-                  subtitle = buffer.toString();
+                if (status != null) {
+                  buffer.write(status);
                 }
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                subtitle = buffer.toString();
+              }
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${c.contact.value?.contact.value.name.val ?? c.user?.user.value.name?.val ?? c.user?.user.value.num}',
+                    style: style.fonts.big.regular.onBackground,
+                  ),
+                  if (subtitle.isNotEmpty)
                     Text(
-                      '${c.contact.value?.contact.value.name.val ?? c.user?.user.value.name?.val ?? c.user?.user.value.num}',
-                      style: style.fonts.big.regular.onBackground,
-                    ),
-                    if (subtitle.isNotEmpty)
-                      Text(
-                        key: Key(
-                          c.user?.user.value.presence?.name.capitalizeFirst ??
-                              '',
-                        ),
-                        subtitle,
-                        style: style.fonts.small.regular.secondary,
-                      )
-                  ],
-                );
-              }),
-            ),
+                      key: Key(
+                        c.user?.user.value.presence?.name.capitalizeFirst ?? '',
+                      ),
+                      subtitle,
+                      style: style.fonts.small.regular.secondary,
+                    )
+                ],
+              );
+            }),
           ),
-          const SizedBox(width: 10),
-        ],
-      );
-    }
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+    // }
 
     return Row(
       children: [
@@ -620,6 +621,22 @@ class UserView extends StatelessWidget {
           ),
         ),
         moneyButton,
+        AnimatedButton(
+          onPressed: () => router.chat(c.user!.user.value.dialog),
+          child: const SvgIcon(SvgIcons.chat),
+        ),
+        const SizedBox(width: 28),
+        AnimatedButton(
+          onPressed: () => c.call(true),
+          child: const SvgIcon(SvgIcons.chatVideoCall),
+        ),
+        const SizedBox(width: 28),
+        AnimatedButton(
+          key: const Key('AudioCall'),
+          onPressed: () => c.call(false),
+          child: const SvgIcon(SvgIcons.chatAudioCall),
+        ),
+        const SizedBox(width: 8),
         editButton,
       ],
     );

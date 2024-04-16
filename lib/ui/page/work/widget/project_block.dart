@@ -26,6 +26,7 @@ import 'interactive_logo.dart';
 class ProjectBlock extends StatelessWidget {
   const ProjectBlock({super.key, this.children = const []});
 
+  /// [Widget]s to display under the [InteractiveLogo], if any.
   final List<Widget> children;
 
   @override

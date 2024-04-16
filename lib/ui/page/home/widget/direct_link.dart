@@ -141,9 +141,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         _state.error.value = 'err_invalid_symbols_in_link'.l10n;
       }
 
-      if (widget.editing != true) {
-        setState(() => _editing = false);
-      }
+      // if (widget.editing != true) {
+      setState(() => _editing = false);
+      widget.onEditing?.call(false);
+      // }
 
       if (slug == null || slug == widget.link?.slug) {
         return;
@@ -234,6 +235,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                const SizedBox(width: 16),
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: WidgetButton(
@@ -250,10 +252,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     ),
                   ),
                 ),
-                Text(
-                  ' или ',
-                  style: style.fonts.small.regular.secondary,
-                ),
+                const Spacer(),
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: WidgetButton(
@@ -266,11 +265,12 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       // widget.onEditing?.call(_editing);
                     },
                     child: Text(
-                      'сохранить',
+                      'btn_save'.l10n,
                       style: style.fonts.small.regular.primary,
                     ),
                   ),
                 ),
+                const SizedBox(width: 16),
               ],
             ),
           ],
@@ -461,6 +461,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              if (widget.canDelete) const SizedBox(width: 16),
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: WidgetButton(
@@ -487,10 +488,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 ),
               ),
               if (widget.canDelete) ...[
-                Text(
-                  ' или ',
-                  style: style.fonts.small.regular.secondary,
-                ),
+                const Spacer(),
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: WidgetButton(
@@ -499,14 +497,12 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       widget.onEditing?.call(_editing);
                     },
                     child: Text(
-                      'изменить',
+                      'Изменить'.l10n,
                       style: style.fonts.small.regular.primary,
-                      // textAlign: widget.onSubmit == null // || !widget.canDelete
-                      //     ? TextAlign.center
-                      //     : TextAlign.left,
                     ),
                   ),
                 ),
+                const SizedBox(width: 16),
               ],
             ],
           ),

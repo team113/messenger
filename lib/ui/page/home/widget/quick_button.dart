@@ -46,7 +46,7 @@ class QuickButton extends StatelessWidget {
     return WidgetButton(
       onPressed: onPressed,
       child: Container(
-        height: 60,
+        height: 48,
         decoration: BoxDecoration(
           color: style.cardColor,
           border: style.cardBorder,
@@ -59,16 +59,16 @@ class QuickButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SvgIcon(icon),
-                const SizedBox(height: 6),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-                  child: FittedBox(
-                    child: Text(
-                      label,
-                      style: style.fonts.small.regular.primary,
-                    ),
-                  ),
-                ),
+                // const SizedBox(height: 6),
+                // Padding(
+                //   padding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+                //   child: FittedBox(
+                //     child: Text(
+                //       label,
+                //       style: style.fonts.small.regular.primary,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

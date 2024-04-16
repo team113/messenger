@@ -94,6 +94,7 @@ class _UserNameFieldState extends State<UserNameField> {
       label: 'label_name'.l10n,
       hint: 'label_name_hint'.l10n,
       filled: true,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
       onSuffixPressed: _state.text.isEmpty
           ? null
           : () {

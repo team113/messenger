@@ -559,6 +559,15 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.legal:
+                    child = card(
+                      key: const Key('LegalButton'),
+                      icon: Icons.style,
+                      title: 'label_legal_info'.l10n,
+                      subtitle: 'btn_legal_info_description'.l10n,
+                    );
+                    break;
+
                   case ProfileTab.styles:
                     child = card(
                       key: const Key('StylesButton'),

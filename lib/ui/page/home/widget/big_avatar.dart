@@ -135,6 +135,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.onDelete != null) const SizedBox(width: 16),
               if (widget.onUpload != null)
                 WidgetButton(
                   key: const Key('UploadAvatar'),
@@ -144,20 +145,18 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
-              if (widget.onUpload != null && widget.onDelete != null)
-                Text(
-                  'space_or_space'.l10n,
-                  style: style.fonts.small.regular.onBackground,
-                ),
-              if (widget.onDelete != null)
+              if (widget.onDelete != null) ...[
+                const Spacer(),
                 WidgetButton(
                   key: const Key('DeleteAvatar'),
                   onPressed: widget.onDelete,
                   child: Text(
-                    'btn_delete'.l10n.toLowerCase(),
+                    'btn_delete'.l10n,
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
+                const SizedBox(width: 16),
+              ],
             ],
           ),
           if (widget.error != null) ...[
@@ -199,6 +198,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             key: _avatarKey,
             radius: AvatarRadius.largest,
             badge: false,
+            shape: BoxShape.rectangle,
           );
           break;
 
@@ -210,6 +210,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             widget.user,
             key: _avatarKey,
             radius: AvatarRadius.largest,
+            shape: BoxShape.rectangle,
           );
           break;
 
@@ -219,6 +220,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             widget.chat,
             key: _avatarKey,
             radius: AvatarRadius.largest,
+            shape: BoxShape.rectangle,
           );
           break;
       }

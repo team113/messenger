@@ -91,7 +91,9 @@ class _UserBioFieldState extends State<UserBioField> {
     return ReactiveTextField(
       key: const Key('BioField'),
       state: _state,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
       label: 'label_description'.l10n,
+      hint: 'label_about'.l10n,
       filled: true,
       maxLines: null,
       formatters: [LengthLimitingTextInputFormatter(4096)],

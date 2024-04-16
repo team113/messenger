@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/consent/view.dart';
 import 'package:messenger/util/web/web_utils.dart';
 
 import '/l10n/l10n.dart';
@@ -64,10 +63,7 @@ class AuthView extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               label: 'btn_work_with_us'.l10n,
               style: style.fonts.small.regular.primary,
-              // onPressed: () => router.work(null),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ConsentView()),
-              ),
+              onPressed: () => router.work(null),
             ),
             const SizedBox(height: 8),
           ],

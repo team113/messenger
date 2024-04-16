@@ -584,6 +584,11 @@ label_ago_date = {$years ->
     *[other] {$years} лет назад
 }
 label_all = Все
+label_anonymous_reports = Анонимные отчёты
+label_anonymous_reports_description =
+    Приложение может собирать анонимно технические данные работы приложения и подробные отчёты об ошибках в случае их возникновения.
+
+    Разрешить приложению собирать и отправлять эти данные?
 label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
@@ -599,6 +604,7 @@ label_audio_call = Аудиозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_audio_notifications = Звуковые уведомления
+label_avatar = Аватар
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}удалил аватар
@@ -801,6 +807,9 @@ label_language = Язык
 label_language_entry = {$code}, {$name}
 label_last_seen = Был(а)
 label_leave_group = Покинуть группу
+label_legal_info = Юридическая информация
+btn_legal_info = Юридическая информация
+btn_legal_info_description = Условия использования, политика конфиденциальности
 label_link_to_chat = Ссылка на чат
 label_load_images = Загружать изображения
 label_login = Логин

@@ -171,7 +171,8 @@ class MyProfileView extends StatelessWidget {
                           child: Column(
                             children: [
                               block(
-                                title: 'label_profile'.l10n,
+                                // title: 'label_avatar'.l10n,
+                                title: 'Аватар',
                                 children: [
                                   Obx(() {
                                     return BigAvatarWidget.myUser(
@@ -183,7 +184,12 @@ class MyProfileView extends StatelessWidget {
                                           : null,
                                     );
                                   }),
-                                  const SizedBox(height: 12),
+                                ],
+                              ),
+                              block(
+                                title: 'label_about'.l10n,
+                                children: [
+                                  // const SizedBox(height: 24),
                                   Paddings.basic(
                                     Obx(() {
                                       return UserNameField(
@@ -192,11 +198,7 @@ class MyProfileView extends StatelessWidget {
                                       );
                                     }),
                                   ),
-                                ],
-                              ),
-                              block(
-                                title: 'label_about'.l10n,
-                                children: [
+                                  const SizedBox(height: 6),
                                   Paddings.basic(
                                     Obx(() {
                                       return UserBioField(
@@ -585,34 +587,23 @@ class MyProfileView extends StatelessWidget {
                         children: [_danger(context, c)],
                       );
 
+                    case ProfileTab.legal:
+                      return SafeArea(
+                        top: false,
+                        left: false,
+                        right: false,
+                        child: _legal(c, context),
+                      );
+
                     case ProfileTab.styles:
                       return const SizedBox();
 
                     case ProfileTab.logout:
-                      final style = Theme.of(context).style;
-
-                      return Block(
-                        children: [
-                          Column(
-                            children: [
-                              Center(
-                                child: StyledCupertinoButton(
-                                  label: 'btn_terms_and_conditions'.l10n,
-                                  style: style.fonts.small.regular.primary,
-                                  onPressed: () => TermsOfUseView.show(context),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Center(
-                                child: StyledCupertinoButton(
-                                  label: 'btn_privacy_policy'.l10n,
-                                  style: style.fonts.small.regular.primary,
-                                  onPressed: () => PrivacyPolicy.show(context),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      return const SafeArea(
+                        top: false,
+                        left: false,
+                        right: false,
+                        child: SizedBox(),
                       );
                   }
                 },
@@ -2279,6 +2270,36 @@ Widget _devices(BuildContext context, MyProfileController c) {
   );
 }
 
+// Returns the buttons for legal related information displaying.
+Widget _legal(MyProfileController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return Block(
+    title: 'label_legal_info'.l10n,
+    children: [
+      Column(
+        children: [
+          Center(
+            child: StyledCupertinoButton(
+              label: 'btn_terms_and_conditions'.l10n,
+              style: style.fonts.small.regular.primary,
+              onPressed: () => TermsOfUseView.show(context),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: StyledCupertinoButton(
+              label: 'btn_privacy_policy'.l10n,
+              style: style.fonts.small.regular.primary,
+              onPressed: () => PrivacyPolicy.show(context),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
 Widget _bar(MyProfileController c, BuildContext context) {
   final style = Theme.of(context).style;
 
@@ -2312,6 +2333,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
       ProfileTab.sections => 'label_show_sections'.l10n,
       ProfileTab.download => 'label_download'.l10n,
       ProfileTab.danger => 'label_danger_zone'.l10n,
+      ProfileTab.legal => 'label_legal_info'.l10n,
       ProfileTab.styles => 'Styles'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };

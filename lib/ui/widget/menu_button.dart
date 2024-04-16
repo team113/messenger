@@ -71,6 +71,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.sections => 'label_show_sections'.l10n,
           ProfileTab.download => 'label_download'.l10n,
           ProfileTab.danger => 'label_danger_zone'.l10n,
+          ProfileTab.legal => 'btn_legal_info'.l10n,
           ProfileTab.styles => 'Styles'.l10n,
           ProfileTab.logout => 'btn_logout'.l10n,
         },
@@ -95,6 +96,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.sections => 'label_configure_navigation_panel'.l10n,
           ProfileTab.download => 'label_application'.l10n,
           ProfileTab.danger => 'label_delete_account'.l10n,
+          ProfileTab.legal => 'btn_legal_info_description'.l10n,
           ProfileTab.styles => 'Colors, typography, elements'.l10n,
           ProfileTab.logout => 'label_end_session'.l10n,
         },
@@ -120,6 +122,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.styles => const SvgIcon(SvgIcons.menuStyle),
           ProfileTab.welcome => const SvgIcon(SvgIcons.menuWelcome),
           ProfileTab.sections => const SvgIcon(SvgIcons.menuNav),
+          ProfileTab.legal => const SvgIcon(SvgIcons.menuNav),
         },
         super(
           key: key ??
@@ -145,6 +148,7 @@ class MenuButton extends StatelessWidget {
                 ProfileTab.danger => const Key('Danger'),
                 ProfileTab.styles => const Key('Styles'),
                 ProfileTab.logout => const Key('Logout'),
+                ProfileTab.legal => const Key('Legal'),
               },
         );
 
@@ -287,6 +291,7 @@ class RectangleIcon extends StatelessWidget {
           ProfileTab.danger => Icons.dangerous,
           ProfileTab.styles => Icons.style,
           ProfileTab.logout => Icons.logout,
+          ProfileTab.legal => Icons.label,
         };
 
   final Color? color;

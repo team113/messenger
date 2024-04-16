@@ -34,7 +34,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -64,6 +63,7 @@ import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
 import 'provider/hive/cache.dart';
+import 'provider/hive/consent.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
 import 'provider/hive/skipped_version.dart';
@@ -73,6 +73,7 @@ import 'routes.dart';
 import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
+import 'ui/page/consent/view.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
@@ -96,37 +97,36 @@ Future<void> main() async {
   );
 
   await Hive.initFlutter('hive');
+  await _initHive();
 
-  // runApp();
+  if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+    await windowManager.ensureInitialized();
+    await windowManager.setMinimumSize(const Size(400, 400));
+
+    final WindowPreferencesHiveProvider preferences = Get.find();
+    final WindowPreferences? prefs = preferences.get();
+
+    if (prefs?.size != null) {
+      await windowManager.setSize(prefs!.size!);
+    }
+
+    if (prefs?.position != null) {
+      await windowManager.setPosition(prefs!.position!);
+    }
+
+    await windowManager.show();
+
+    WebUtils.registerScheme().onError((_, __) => false);
+
+    Get.put(WindowWorker(preferences));
+  }
+
+  await L10n.init();
 
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
-
-    await _initHive();
-
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      await windowManager.ensureInitialized();
-      await windowManager.setMinimumSize(const Size(400, 400));
-
-      final WindowPreferencesHiveProvider preferences = Get.find();
-      final WindowPreferences? prefs = preferences.get();
-
-      if (prefs?.size != null) {
-        await windowManager.setSize(prefs!.size!);
-      }
-
-      if (prefs?.position != null) {
-        await windowManager.setPosition(prefs!.position!);
-      }
-
-      await windowManager.show();
-
-      WebUtils.registerScheme().onError((_, __) => false);
-
-      Get.put(WindowWorker(preferences));
-    }
 
     final graphQlProvider = Get.put(GraphQlProvider());
 
@@ -174,7 +174,6 @@ Future<void> main() async {
     }
 
     authService.init();
-    await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
     Get.put(UpgradeWorker(Get.findOrNull()));
@@ -190,117 +189,111 @@ Future<void> main() async {
     );
   }
 
-  // TODO: Enable Sentry.
-  // No need to initialize the Sentry if no DSN is provided, otherwise useless
-  // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty || kDebugMode) {
-    return appRunner();
-  }
-
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = Config.sentryDsn;
-      options.tracesSampleRate = 1.0;
-      options.release =
-          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.info;
-      options.enablePrintBreadcrumbs = true;
-      options.maxBreadcrumbs = 512;
-      options.autoAppStart = false;
-      options.enableTimeToFullDisplayTracing = true;
-      options.beforeSend = (SentryEvent event, {Hint? hint}) {
-        final exception = event.exceptions?.firstOrNull?.throwable;
-
-        // Connection related exceptions shouldn't be logged.
-        if (exception is ConnectionException ||
-            exception is SocketException ||
-            exception is WebSocketException ||
-            exception is WebSocketChannelException ||
-            exception is HttpException ||
-            exception is ClientException ||
-            exception is DioException ||
-            exception is ResubscriptionRequiredException) {
-          return null;
-        }
-
-        // [Backoff] related exceptions shouldn't be logged.
-        if (exception is OperationCanceledException ||
-            exception.toString() == 'Data is not loaded') {
-          return null;
-        }
-
-        return event;
-      };
-      options.logger = (
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
-        if (exception != null) {
-          if (stackTrace == null) {
-            stackTrace = StackTrace.current;
-          } else {
-            stackTrace = FlutterError.demangleStackTrace(stackTrace);
-          }
-
-          final Iterable<String> lines =
-              stackTrace.toString().trimRight().split('\n').take(100);
-
-          Log.error(
-            [
-              exception.toString(),
-              if (lines.where((e) => e.isNotEmpty).isNotEmpty)
-                FlutterError.defaultStackFilter(lines).join('\n')
-            ].join('\n'),
-          );
-        } else {
-          print('[$level] $message');
-        }
-      };
-    },
-    appRunner: appRunner,
-  );
-
-  // TODO: Remove, when Sentry supports app start measurement for all platforms.
-  // ignore: invalid_use_of_internal_member
-  NativeAppStartIntegration.setAppStartInfo(
-    AppStartInfo(
-      AppStartType.cold,
-      start: DateTime.now().subtract(watch.elapsed),
-      end: DateTime.now(),
-    ),
-  );
-
-  // Transaction indicating Flutter engine has rasterized the first frame.
-  final ISentrySpan ready = Sentry.startTransaction(
-    'ui.app.ready',
-    'ui',
-    autoFinishAfter: const Duration(minutes: 2),
-  )..startChild('ready');
-
-  WidgetsBinding.instance.waitUntilFirstFrameRasterized
-      .then((_) => ready.finish());
-
-  SchedulerBinding.instance.addTimingsCallback((timings) {
-    if (timings.isEmpty) {
-      return;
+  // Initializes and runs [Sentry], if [enabled].
+  Future<void> sentryRunner(bool enabled) async {
+    // No need to initialize the Sentry if no DSN is provided, otherwise useless
+    // messages are printed to the console every time the application starts.
+    if (!enabled || Config.sentryDsn.isEmpty || kDebugMode) {
+      return appRunner();
     }
 
-    final Duration sum =
-        timings.fold(Duration.zero, (p, e) => p + e.buildDuration);
-    final Duration average =
-        Duration(milliseconds: sum.inMilliseconds ~/ timings.length);
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = Config.sentryDsn;
+        options.tracesSampleRate = 1.0;
+        options.release =
+            '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
+        options.debug = true;
+        options.diagnosticLevel = SentryLevel.info;
+        options.enablePrintBreadcrumbs = true;
+        options.maxBreadcrumbs = 512;
+        options.autoAppStart = false;
+        options.enableTimeToFullDisplayTracing = true;
+        options.beforeSend = (SentryEvent event, {Hint? hint}) {
+          final exception = event.exceptions?.firstOrNull?.throwable;
 
-    final transaction = Sentry.getSpan();
-    transaction?.setMeasurement(
-      'buildDuration',
-      average.inMilliseconds,
-      unit: DurationSentryMeasurementUnit.milliSecond,
+          // Connection related exceptions shouldn't be logged.
+          if (exception is ConnectionException ||
+              exception is SocketException ||
+              exception is WebSocketException ||
+              exception is WebSocketChannelException ||
+              exception is HttpException ||
+              exception is ClientException ||
+              exception is DioException ||
+              exception is ResubscriptionRequiredException) {
+            return null;
+          }
+
+          // [Backoff] related exceptions shouldn't be logged.
+          if (exception is OperationCanceledException ||
+              exception.toString() == 'Data is not loaded') {
+            return null;
+          }
+
+          return event;
+        };
+        options.logger = (
+          SentryLevel level,
+          String message, {
+          String? logger,
+          Object? exception,
+          StackTrace? stackTrace,
+        }) {
+          if (exception != null) {
+            if (stackTrace == null) {
+              stackTrace = StackTrace.current;
+            } else {
+              stackTrace = FlutterError.demangleStackTrace(stackTrace);
+            }
+
+            final Iterable<String> lines =
+                stackTrace.toString().trimRight().split('\n').take(100);
+
+            Log.error(
+              [
+                exception.toString(),
+                if (lines.where((e) => e.isNotEmpty).isNotEmpty)
+                  FlutterError.defaultStackFilter(lines).join('\n')
+              ].join('\n'),
+            );
+          } else {
+            print('[$level] $message');
+          }
+        };
+      },
+      appRunner: appRunner,
     );
-  });
+
+    // TODO: Remove, when Sentry supports app start measurement for all platforms.
+    // ignore: invalid_use_of_internal_member
+    NativeAppStartIntegration.setAppStartInfo(
+      AppStartInfo(
+        AppStartType.cold,
+        start: DateTime.now().subtract(watch.elapsed),
+        end: DateTime.now(),
+      ),
+    );
+
+    // Transaction indicating Flutter engine has rasterized the first frame.
+    final ISentrySpan ready = Sentry.startTransaction(
+      'ui.app.ready',
+      'ui',
+      autoFinishAfter: const Duration(minutes: 2),
+      startTimestamp: DateTime.now().subtract(watch.elapsed),
+    )..startChild('ready');
+
+    WidgetsBinding.instance.waitUntilFirstFrameRasterized
+        .then((_) => ready.finish());
+  }
+
+  final consentProvider = Get.findOrNull<ConsentHiveProvider>();
+  final consent = consentProvider == null ? true : consentProvider.get();
+
+  if (consent != null) {
+    await sentryRunner(consent);
+  } else {
+    runApp(MaterialApp(theme: Themes.light(), home: ConsentView(sentryRunner)));
+  }
 }
 
 /// Initializes the [FlutterCallkitIncoming] and displays an incoming call
@@ -520,6 +513,10 @@ Future<void> _initHive() async {
     await Get.put(SkippedVersionHiveProvider()).init();
     await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
+  }
+
+  if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
+    await Get.put(ConsentHiveProvider()).init();
   }
 }
 
