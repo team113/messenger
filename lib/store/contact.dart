@@ -417,17 +417,8 @@ class ContactRepository extends DisposableInterface
     final List<Contact> contacts = await FastContacts.getAllContacts();
 
     for (final Contact contact in contacts) {
-      final UserName name;
       final List<UserPhone> phones = [];
       final List<UserEmail> emails = [];
-
-      if (contact.displayName.length > 1) {
-        name = UserName(contact.displayName);
-      } else {
-        name = UserName(
-          contact.displayName + '_' * (2 - contact.displayName.length),
-        );
-      }
 
       for (var e in contact.phones) {
         try {
@@ -448,7 +439,7 @@ class ContactRepository extends DisposableInterface
       try {
         if (phones.isNotEmpty || emails.isNotEmpty) {
           _graphQlProvider.createChatContact(
-            name: name,
+            name: UserName(contact.displayName.padRight(2, '_')),
             records: [
               ...phones.map((e) => ChatContactRecord(phone: e)),
               ...emails.map((e) => ChatContactRecord(email: e)),
