@@ -920,7 +920,7 @@ jobs:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: peaceiris/actions-gh-pages@v3
+      - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
