@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13.2...v0.1.0-alpha.14) | [Milestone](/../../milestone/21)
+
+### Added
+
+- UI:
+    - [Sentry] usage consent screen on mobile platforms. ([#961])
+
+[#961]: /../../pull/961
+
+
+
+
 ## [0.1.0-alpha.13.2] · 2024-04-11
 [0.1.0-alpha.13.2]: /../../tree/v0.1.0-alpha.13.2
 
@@ -1087,3 +1102,4 @@ All user visible changes to this project will be documented in this file. This p
 [Helm]: https://helm.sh
 [PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org
+[Sentry]: https://sentry.io
