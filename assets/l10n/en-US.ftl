@@ -186,6 +186,7 @@ btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
+btn_do_not_allow = Do not allow
 btn_download = Download
 btn_download_all = Download all
 btn_download_as = Download as

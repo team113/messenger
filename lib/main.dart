@@ -111,6 +111,8 @@ Future<void> main() async {
     Get.put(WindowWorker(preferences));
   }
 
+  await L10n.init();
+
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
@@ -124,7 +126,6 @@ Future<void> main() async {
     router = RouterState(authService);
 
     authService.init();
-    await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
     Get.put(UpgradeWorker(Get.findOrNull()));
@@ -142,9 +143,7 @@ Future<void> main() async {
 
   // Initializes and runs [Sentry], if [enabled].
   Future<void> sentryRunner(bool enabled) async {
-    // No need to initialize the Sentry if no DSN is provided, otherwise useless
-    // messages are printed to the console every time the application starts.
-    if (!enabled || Config.sentryDsn.isEmpty || kDebugMode) {
+    if (!enabled) {
       return appRunner();
     }
 
@@ -238,13 +237,26 @@ Future<void> main() async {
         .then((_) => ready.finish());
   }
 
-  final consentProvider = Get.findOrNull<ConsentHiveProvider>();
-  final consent = consentProvider == null ? true : consentProvider.get();
-
-  if (consent != null) {
-    await sentryRunner(consent);
+  // No need to initialize the Sentry if no DSN is provided, otherwise useless
+  // messages are printed to the console every time the application starts.
+  if (Config.sentryDsn.isEmpty || kDebugMode) {
+    return appRunner();
   } else {
-    runApp(MaterialApp(theme: Themes.light(), home: ConsentView(sentryRunner)));
+    final consentProvider = Get.findOrNull<ConsentHiveProvider>();
+    final consent = consentProvider == null ? true : consentProvider.get();
+
+    if (consent != null) {
+      // If user has already provided the consent, then try running [Sentry].
+      await sentryRunner(consent);
+    } else {
+      // Or otherwise ask the user for the consent of [Sentry] usage.
+      runApp(
+        MaterialApp(
+          theme: Themes.light(),
+          home: ConsentView(sentryRunner),
+        ),
+      );
+    }
   }
 }
 
