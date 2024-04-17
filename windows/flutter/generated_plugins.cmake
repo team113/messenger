@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   desktop_drop
+  device_region
   firebase_core
   flutter_custom_cursor
   medea_flutter_webrtc

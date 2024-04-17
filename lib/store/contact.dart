@@ -19,11 +19,13 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
+import 'package:device_region/device_region.dart';
 import 'package:fast_contacts/fast_contacts.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/page_info.dart';
@@ -418,23 +420,26 @@ class ContactRepository extends DisposableInterface
 
     final List<Contact> contacts = await FastContacts.getAllContacts();
 
+    IsoCode? isoCode;
+    final String? countryCode = await DeviceRegion.getSIMCountryCode();
+    if (countryCode != null) {
+      isoCode = IsoCode.fromJson(countryCode.toUpperCase());
+    }
+
     for (final Contact contact in contacts) {
       final List<UserPhone> phones = [];
       final List<UserEmail> emails = [];
 
       for (var e in contact.phones) {
         try {
-          String phone = e.number.replaceAll(RegExp(r'[- ]'), '');
+          final PhoneNumber phone =
+              PhoneNumber.parse(e.number, callerCountry: isoCode);
 
-          if (phone.startsWith('0')) {
-            phone = '+38$phone';
+          if (!phone.isValid(type: PhoneNumberType.mobile)) {
+            throw const FormatException('Not valid');
           }
 
-          if (!phone.startsWith('+')) {
-            phone = '+$phone';
-          }
-
-          phones.add(UserPhone(phone));
+          phones.add(UserPhone('+${phone.countryCode}${phone.nsn}'));
         } catch (ex) {
           Log.warning(
             'Failed to parse ${e.number} into UserPhone with $ex',
