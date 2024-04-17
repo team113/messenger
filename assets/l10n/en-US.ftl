@@ -24,6 +24,11 @@ alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_by_proceeding_you_accept_terms1 = By proceeding, you agree with the{" "}
+alert_by_proceeding_you_accept_terms2 = Terms of Service
+alert_by_proceeding_you_accept_terms3 = {" "}and{" "}
+alert_by_proceeding_you_accept_terms4 = Privacy Policy
+alert_by_proceeding_you_accept_terms5 = {" "}of the service.
 alert_chat_will_be_blocked1 = Chat{" "}
 alert_chat_will_be_blocked2 = {" "}will be blocked.
 alert_chat_will_be_cleared1 = Chat{" "}
