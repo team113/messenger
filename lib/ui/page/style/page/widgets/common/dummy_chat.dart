@@ -83,7 +83,7 @@ class DummyRxChat extends RxChat {
   Rx<RxStatus> get status => Rx(RxStatus.empty());
 
   @override
-  String get title => 'Title';
+  String get title => Rx('Title').value;
 
   @override
   RxList<User> get typingUsers => RxList();
