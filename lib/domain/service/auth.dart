@@ -411,10 +411,21 @@ class AuthService extends GetxService {
   /// Deletes [Session] of the active [MyUser].
   ///
   /// Returns the path of the authentication page.
-  Future<String> deleteSession() async {
-    Log.debug('deleteSession()', '$runtimeType');
+  ///
+  /// [force] determines whether attempt to delete remote session and unregister
+  /// device from FCM should be performed.
+  Future<String> deleteSession({bool force = false}) async {
+    Log.debug('deleteSession(force: $force)', '$runtimeType');
 
     status.value = RxStatus.loading();
+
+    if (force) {
+      if (userId != null) {
+        _authRepository.removeAccount(userId!);
+      }
+
+      return _unauthorized();
+    }
 
     try {
       FcmRegistrationToken? fcmToken;
@@ -438,6 +449,7 @@ class AuthService extends GetxService {
     } catch (e) {
       printError(info: e.toString());
     }
+
     return _unauthorized();
   }
 
@@ -451,18 +463,6 @@ class AuthService extends GetxService {
     }
 
     return await deleteSession();
-  }
-
-  /// Removes [MyUser] with the provided [id] from the list of available
-  /// accounts on this device.
-  void logoutFrom(UserId id) {
-    Log.debug('logoutFrom($id)', '$runtimeType');
-
-    _authRepository.removeAccount(userId!);
-
-    if (id == userId) {
-      deleteSession();
-    }
   }
 
   /// Validates the current [AccessToken].
