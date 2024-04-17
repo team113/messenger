@@ -207,6 +207,9 @@ class HiveRxChat extends RxChat {
   /// [WebUtils.onStorageChange] determining the [inCall] indicator.
   StreamSubscription? _callSubscription;
 
+  /// [StreamSubscription] to [members] updating the [avatar].
+  StreamSubscription? _membersPaginationSubscription;
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
