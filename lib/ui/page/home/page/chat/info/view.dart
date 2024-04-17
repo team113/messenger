@@ -869,6 +869,7 @@ class ChatInfoView extends StatelessWidget {
             child: title,
           ),
         ),
+        const SizedBox(width: 8),
         AnimatedButton(
           onPressed: () => router.chat(id),
           child: const SvgIcon(SvgIcons.chat),

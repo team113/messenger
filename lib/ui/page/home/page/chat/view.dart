@@ -244,7 +244,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 18),
                           ],
                         ),
                         padding: const EdgeInsets.only(left: 4),

@@ -620,6 +620,7 @@ class UserView extends StatelessWidget {
             child: title,
           ),
         ),
+        const SizedBox(width: 8),
         moneyButton,
         AnimatedButton(
           onPressed: () => router.chat(c.user!.user.value.dialog),
