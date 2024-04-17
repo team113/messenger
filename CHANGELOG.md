@@ -13,11 +13,12 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
+- iOS:
+    - [Sentry] usage consent screen. ([#961])
 - UI:
     - Account deletion page. ([#961])
     - Terms and conditions page. ([#961])
     - Privacy policy page. ([#961])
-    - [Sentry] usage consent screen on mobile platforms. ([#961])
 
 [#961]: /../../pull/961
 

@@ -132,6 +132,7 @@ enum ProfileTab {
   sections,
   download,
   danger,
+  legal,
   logout,
 }
 

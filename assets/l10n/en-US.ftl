@@ -787,6 +787,7 @@ label_language = Language
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
 label_leave_group = Leave group
+label_legal_information = Legal information
 label_link_to_chat = Chat link
 label_load_images = Load images
 label_login = Login

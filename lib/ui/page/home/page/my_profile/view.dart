@@ -317,12 +317,15 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.danger:
                       return block(children: [_danger(context, c)]);
 
+                    case ProfileTab.legal:
+                      return block(children: [_legal(context, c)]);
+
                     case ProfileTab.logout:
-                      return SafeArea(
+                      return const SafeArea(
                         top: false,
                         right: false,
                         left: false,
-                        child: _legal(c, context),
+                        child: SizedBox(),
                       );
                   }
                 },
@@ -1038,29 +1041,25 @@ Widget _storage(BuildContext context, MyProfileController c) {
 }
 
 /// Returns the buttons for legal related information displaying.
-Widget _legal(MyProfileController c, BuildContext context) {
+Widget _legal(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  return Block(
+  return Column(
     children: [
-      Column(
-        children: [
-          Center(
-            child: StyledCupertinoButton(
-              label: 'btn_terms_and_conditions'.l10n,
-              style: style.fonts.small.regular.primary,
-              onPressed: () => TermsOfUseView.show(context),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Center(
-            child: StyledCupertinoButton(
-              label: 'btn_privacy_policy'.l10n,
-              style: style.fonts.small.regular.primary,
-              onPressed: () => PrivacyPolicy.show(context),
-            ),
-          ),
-        ],
+      Center(
+        child: StyledCupertinoButton(
+          label: 'btn_terms_and_conditions'.l10n,
+          style: style.fonts.small.regular.primary,
+          onPressed: () => TermsOfUseView.show(context),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Center(
+        child: StyledCupertinoButton(
+          label: 'btn_privacy_policy'.l10n,
+          style: style.fonts.small.regular.primary,
+          onPressed: () => PrivacyPolicy.show(context),
+        ),
       ),
     ],
   );

@@ -811,6 +811,7 @@ label_kb = {$amount} КБ
 label_language = Язык
 label_language_entry = {$code}, {$name}
 label_leave_group = Покинуть группу
+label_legal_information = Юридическая информация
 label_link_to_chat = Ссылка на чат
 label_load_images = Загружать изображения
 label_login = Логин

@@ -463,7 +463,7 @@ Future<void> _initHive() async {
     await Get.put(DownloadHiveProvider()).init();
   }
 
-  if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
+  if (PlatformUtils.isIOS) {
     await Get.put(ConsentHiveProvider()).init();
   }
 }
