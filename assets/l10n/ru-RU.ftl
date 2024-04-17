@@ -24,6 +24,11 @@ alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
 alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_by_proceeding_you_accept_terms1 = Продолжая, Вы соглашаетесь с{" "}
+alert_by_proceeding_you_accept_terms2 = условиями использования
+alert_by_proceeding_you_accept_terms3 = {" "}и{" "}
+alert_by_proceeding_you_accept_terms4 = политикой кофиденциальности
+alert_by_proceeding_you_accept_terms5 = {" "}сервиса.
 alert_chat_will_be_blocked1 = Чат{" "}
 alert_chat_will_be_blocked2 = {" "}будет заблокирован.
 alert_chat_will_be_cleared1 = Чат{" "}

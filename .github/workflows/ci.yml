@@ -590,16 +590,9 @@ jobs:
 
   docker-push:
     name: docker push
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/stable-design' }}
     needs:
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
       - docker
-      - test-e2e
-      - test-unit
     strategy:
       fail-fast: false
       matrix:
@@ -643,67 +636,16 @@ jobs:
                      || secrets.GITHUB_TOKEN }}
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-        if: ${{ steps.skip.outputs.no == 'true'
-             && startsWith(github.ref, 'refs/tags/v') }}
-      - name: Form version Docker tags
-        id: tags
-        uses: actions/github-script@v7
-        with:
-          result-encoding: string
-          script: |
-            let versions = '${{ steps.semver.outputs.group1 }}';
-            if ('${{ steps.semver.outputs.group5 }}' === '') {
-              versions += ',${{ steps.semver.outputs.group3 }}';
-              if ('${{ steps.semver.outputs.group4 }}' !== '0') {
-                versions += ',${{ steps.semver.outputs.group4 }}';
-              }
-              versions += 'latest';
-            }
-            return versions;
-        if: ${{ steps.skip.outputs.no == 'true'
-             && startsWith(github.ref, 'refs/tags/v') }}
-
       - run: make docker.tags of=build-${{ github.run_number }}
                   registries=${{ matrix.registry }}
-                  tags=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && steps.tags.outputs.result)
-                        ||     'edge' }}
+                  tags=${{ 'stable-design' }}
+                  as=review
         if: ${{ steps.skip.outputs.no == 'true' }}
       - run: make docker.push
                   registries=${{ matrix.registry }}
-                  tags=${{ (startsWith(github.ref, 'refs/tags/v')
-                            && steps.tags.outputs.result)
-                        ||     'edge' }}
+                  tags=${{ 'stable-design' }}
+                  image=review
         if: ${{ steps.skip.outputs.no == 'true' }}
-
-      # On GitHub Container Registry README is automatically updated on pushes.
-      - name: Update README on Docker Hub
-        uses: christian-korneck/update-container-description-action@v1
-        with:
-          provider: dockerhub
-          destination_container_repo: ${{ github.repository }}
-          readme_file: README.md
-        env:
-          DOCKER_USER: ${{ secrets.DOCKERHUB_BOT_USER }}
-          DOCKER_PASS: ${{ secrets.DOCKERHUB_BOT_PASS }}
-        if: ${{ steps.skip.outputs.no == 'true'
-             && matrix.registry == 'docker.io' }}
-      - name: Update README on Quay.io
-        uses: christian-korneck/update-container-description-action@v1
-        with:
-          provider: quay
-          destination_container_repo: ${{ matrix.registry }}/${{ github.repository }}
-          readme_file: README.md
-        env:
-          DOCKER_APIKEY: ${{ secrets.QUAYIO_API_TOKEN }}
-        if: ${{ steps.skip.outputs.no == 'true'
-             && matrix.registry == 'quay.io' }}
 
   helm-push:
     name: helm push

@@ -795,7 +795,6 @@ endif
 			--values=$(helm-chart-vals-dir)/$(helm-cluster).vals.yaml \
 			--values=my.$(helm-cluster).vals.yaml \
 			$(if $(call eq,$(helm-cluster),review),\
-				--set ingress.hosts={"$(helm-review-app-domain)"} \
 				--set image.tag="$(CURRENT_BRANCH)" )\
 			--set deployment.revision=$(shell date +%s) \
 			$(if $(call eq,$(force),yes),--force,)\
@@ -884,6 +883,17 @@ sentry.upload:
 	SENTRY_RELEASE=$(NAME)@$(or $(release),$(sentry-release)) \
 	$(if $(call eq,$(sentry-url),),,SENTRY_URL=$(sentry-url)) \
 	dart run sentry_dart_plugin
+
+
+
+
+fcm-vapid=$(strip $(shell grep 'FCM_VAPID=' .env | cut -d'=' -f2))
+link-prefix=$(strip $(shell grep 'LINK_PREFIX=' .env | cut -d'=' -f2))
+
+deploy:
+	make build platform=web profile=yes \
+	           dart-env=SOCAPP_FCM_VAPID_KEY=$(fcm-vapid),SOCAPP_SENTRY_DSN=$(sentry-dsn),SOCAPP_LINK_PREFIX=$(link-prefix) && \
+	make helm.up cluster=review rebuild=yes buildx=yes
 
 
 
