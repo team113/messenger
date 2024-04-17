@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -59,6 +60,13 @@ class AuthView extends StatelessWidget {
               onPressed: () => router.work(null),
             ),
             const SizedBox(height: 8),
+            if (Config.copyright.isNotEmpty) ...[
+              Text(
+                Config.copyright,
+                style: style.fonts.small.regular.secondary,
+              ),
+              const SizedBox(height: 8),
+            ],
           ],
         );
 

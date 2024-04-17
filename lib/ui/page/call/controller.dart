@@ -27,6 +27,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' show VideoView;
 import 'package:medea_jason/medea_jason.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '/config.dart';
@@ -53,6 +54,7 @@ import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/fixed_timer.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
 import 'screen_share/view.dart';
@@ -176,10 +178,19 @@ class CallController extends GetxController {
   int downButtons = 0;
 
   /// [Participant] that is hovered right now.
+  ///
+  /// [hoveredParticipant] not being `null` means the whole space available for
+  /// [Participant] is being hovered, not accounting the possible paddings, etc.
+  final Rx<Participant?> hoveredParticipant = Rx<Participant?>(null);
+
+  /// [Participant], whose visible part is being hovered right now.
+  ///
+  /// Used to show [CustomMouseCursors.grab] over [RtcVideoView], as it may not
+  /// take the whole [Participant]'s space.
   final Rx<Participant?> hoveredRenderer = Rx<Participant?>(null);
 
-  /// Timeout of a [hoveredRenderer] used to hide it.
-  int hoveredRendererTimeout = 0;
+  /// Timeout of a [hoveredParticipant] used to hide it.
+  int hoveredParticipantTimeout = 0;
 
   /// Minimized view current width.
   late final RxDouble width;
@@ -324,10 +335,10 @@ class CallController extends GetxController {
   /// [User]s service, used to fill a [Participant.user] field.
   final UserService _userService;
 
-  /// [Timer] for updating [duration] of the call.
+  /// [FixedTimer] for updating [duration] of the call.
   ///
   /// Starts once the [state] becomes [OngoingCallState.active].
-  Timer? _durationTimer;
+  FixedTimer? _durationTimer;
 
   /// [Timer] toggling [showUi] value.
   Timer? _uiTimer;
@@ -370,6 +381,10 @@ class CallController extends GetxController {
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
 
+  /// [Worker]s reacting on [CallMember.isConnected] or [CallMember.joinedAt]
+  /// changes playing the [_connected] sound.
+  final Map<CallMemberId, Worker> _memberWorkers = {};
+
   /// Subscription for [OngoingCall.members] changes updating the title.
   StreamSubscription? _titleSubscription;
 
@@ -391,6 +406,13 @@ class CallController extends GetxController {
   /// [Timer]s removing items from the [notifications] after the
   /// [_notificationDuration].
   final List<Timer> _notificationTimers = [];
+
+  /// [Sentry] transaction monitoring this [CallController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.call.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  );
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -549,11 +571,16 @@ class CallController extends GetxController {
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
 
+  /// Returns the name of a new connection sound asset.
+  String get _connected => 'connected.mp3';
+
   /// Returns the name of a reconnect sound asset.
   String get _reconnect => 'reconnect.mp3';
 
   @override
   void onInit() {
+    ISentrySpan span = _ready.startChild('init');
+
     super.onInit();
 
     _currentCall.value.init(getChat: _chatService.get);
@@ -631,15 +658,15 @@ class CallController extends GetxController {
               },
             );
             DateTime begunAt = DateTime.now();
-            _durationTimer = Timer.periodic(
+            _durationTimer = FixedTimer.periodic(
               const Duration(seconds: 1),
-              (_) {
+              () {
                 duration.value = DateTime.now().difference(begunAt);
-                if (hoveredRendererTimeout > 0 &&
+                if (hoveredParticipantTimeout > 0 &&
                     draggedRenderer.value == null) {
-                  --hoveredRendererTimeout;
-                  if (hoveredRendererTimeout == 0) {
-                    hoveredRenderer.value = null;
+                  --hoveredParticipantTimeout;
+                  if (hoveredParticipantTimeout == 0) {
+                    hoveredParticipant.value = null;
                     isCursorHidden.value = true;
                   }
                 }
@@ -676,7 +703,7 @@ class CallController extends GetxController {
 
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
       if (!e) {
-        hoveredRenderer.value = null;
+        hoveredParticipant.value = null;
         if (_uiTimer?.isActive != true) {
           if (displayMore.isTrue) {
             keepUi();
@@ -818,6 +845,8 @@ class CallController extends GetxController {
       }
     }
 
+    span.finish();
+    span = _ready.startChild('chat');
     _initChat();
   }
 
@@ -863,6 +892,7 @@ class CallController extends GetxController {
     }
 
     _membersTracksSubscriptions.forEach((_, v) => v.cancel());
+    _memberWorkers.forEach((_, v) => v.dispose());
     _membersSubscription.cancel();
 
     for (final Timer e in _notificationTimers) {
@@ -2072,7 +2102,13 @@ class CallController extends GetxController {
       } else {
         _updateChat(await chatOrFuture);
       }
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+      rethrow;
     } finally {
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
       void onTracksChanged(
         CallMember member,
         ListChangeNotification<Track> track,
@@ -2094,12 +2130,12 @@ class CallController extends GetxController {
         }
       }
 
-      _membersTracksSubscriptions = _currentCall.value.members.map(
+      _membersTracksSubscriptions = members.map(
         (k, v) =>
             MapEntry(k, v.tracks.changes.listen((c) => onTracksChanged(v, c))),
       );
 
-      _membersSubscription = _currentCall.value.members.changes.listen((e) {
+      _membersSubscription = members.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
             _putTracksFrom(e.value!);
@@ -2109,6 +2145,7 @@ class CallController extends GetxController {
             );
 
             _ensureCorrectGrouping();
+            _playConnected(e.value!);
             break;
 
           case OperationKind.removed:
@@ -2118,6 +2155,7 @@ class CallController extends GetxController {
             focused.removeWhere((m) => m.member.id == e.key);
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
+            _memberWorkers.remove(e.key)?.dispose();
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
@@ -2143,9 +2181,57 @@ class CallController extends GetxController {
         }
       });
 
-      members.forEach((_, value) => _putTracksFrom(value));
+      members.forEach((_, value) {
+        _putTracksFrom(value);
+        _playConnected(value);
+      });
+
       _ensureCorrectGrouping();
     }
+  }
+
+  /// Plays the [_connected] sound or initializes [_memberWorkers] for the
+  /// provided [member].
+  Future<void> _playConnected(CallMember member) async {
+    final CallMember me = _currentCall.value.me;
+
+    if (member.isConnected.isFalse) {
+      _listenToConnected(member);
+    } else if (member.joinedAt.value == null) {
+      _listenToJoinedAt(member);
+    } else if (_currentCall.value.state.value == OngoingCallState.active &&
+        me.joinedAt.value != null &&
+        member.joinedAt.value!.isAfter(me.joinedAt.value!)) {
+      await AudioUtils.once(AudioSource.asset('audio/$_connected'));
+    }
+  }
+
+  /// Initializes [_memberWorkers] for the provided [CallMember.isConnected].
+  void _listenToConnected(CallMember member) {
+    _memberWorkers.remove(member.id)?.dispose();
+    _memberWorkers[member.id] = ever(
+      member.isConnected,
+      (connected) async {
+        if (connected) {
+          _memberWorkers.remove(member.id)?.dispose();
+          await _playConnected(member);
+        }
+      },
+    );
+  }
+
+  /// Initializes [_memberWorkers] for the provided [CallMember.joinedAt].
+  void _listenToJoinedAt(CallMember member) {
+    _memberWorkers.remove(member.id)?.dispose();
+    _memberWorkers[member.id] = ever(
+      member.joinedAt,
+      (joinedAt) async {
+        if (joinedAt != null) {
+          _memberWorkers.remove(member.id)?.dispose();
+          await _playConnected(member);
+        }
+      },
+    );
   }
 
   /// Sets the [chat] to the provided value, updating the title.
@@ -2175,8 +2261,7 @@ class CallController extends GetxController {
 
         updateTitle();
 
-        _titleSubscription =
-            _currentCall.value.members.listen((_) => updateTitle());
+        _titleSubscription = members.listen((_) => updateTitle());
         _durationSubscription = duration.listen((_) => updateTitle());
       }
     }

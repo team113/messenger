@@ -212,6 +212,7 @@ btn_mute_chat = Отключить звук
 btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
+btn_open_separately = открыть отдельно
 btn_participants = Список участников
 btn_participants_desc =
     Список
@@ -232,10 +233,12 @@ btn_save = Сохранить
 btn_save_all = Сохранить всё
 btn_save_to_gallery = Сохранить в галерею
 btn_save_to_gallery_all = Сохранить всё в галерею
+btn_schedule_an_interview = Записаться на интервью
 btn_select = Выбрать
 btn_select_and_delete = Выбрать и удалить
 btn_select_messages = Выбрать сообщения
 btn_send = Отправить
+btn_send_application = Отправить заявку
 btn_set_password = Задать пароль
 btn_settings = Настройки
 btn_share = Поделиться
@@ -592,6 +595,8 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
 label_background = Бэкграунд
+label_besides_freelance_is_an_option_too1 = Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице{" "}
+label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Заблокировать
 label_blocked = Заблокирован
 label_blocked_users = Заблокированные пользователи
@@ -633,7 +638,34 @@ label_chats = Чаты
 label_chats_section_hint = Кнопки аудио и видео звонка
 label_clear_history = Очистить историю
 label_clicks_count = {$count} кликов
+label_code_requirements = Требования к коду
+label_code_requirements_contribution_guide1 = - код должен отвечать правилам{" "}
+label_code_requirements_contribution_guide2 = Contribution Guide
+label_code_requirements_contribution_guide3 = ;
+label_code_requirements_documentation1 = - код должен быть покрыт документацией по правилам{" "}
+label_code_requirements_documentation2 = Effective Dart: Documentation
+label_code_requirements_documentation3 = ;
+label_code_requirements_tests = - код должен быть покрыт модульными, виджет и/или интеграционными тестами (при необходимости).
 label_code_sent_again = Код отправлен повторно.
+label_conditions = Условия
+label_conditions_backend_developer =
+    - ежедневная оплата;
+    - от 2000 EUR;
+    - 4-х, 6-ти или 8-ми часовой рабочий день;
+    - учёт рабочего времени и оплата переработок;
+    - удалённое сотрудничество.
+label_conditions_frontend_developer =
+    - ежедневная оплата;
+    - от 2000 EUR;
+    - 4-х, 6-ти или 8-ми часовой рабочий день;
+    - учёт рабочего времени и оплата переработок;
+    - удалённое сотрудничество.
+label_conditions_ui_ux_designer =
+    - ежедневная оплата;
+    - от 1500 EUR;
+    - 4-х, 6-ти или 8-ми часовой рабочий день;
+    - учёт рабочего времени и оплата переработок;
+    - удалённое сотрудничество.
 label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
@@ -716,6 +748,10 @@ label_favorite_contacts = Избранные
 label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
 label_files_saved_to_gallery = Файлы добавлены в галерею
+label_for_learning_use_our_flutter_incubator1 = В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Flutter, Вы можете воспользоваться нашей{" "}
+label_for_learning_use_our_flutter_incubator2 = корпоративной песочницей.
+label_for_learning_use_our_rust_incubator1 = В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей{" "}
+label_for_learning_use_our_rust_incubator2 = корпоративной песочницей.
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
 label_forwarded_messages = {$count ->
@@ -788,6 +824,11 @@ label_message_editing = Редактирование сообщения
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
 label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас.
 label_microphone_changed = Микрофон был изменён на {$microphone}
+label_money = Деньги
+label_money_freelance =
+    - оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
+    - оплата отправляется на основании договора о предоставлении услуг и/или инвойса;
+    - оплата осуществляется криптовалютой USDT (TRC-20).
 label_monolog_created = Чат создан
 label_mute_for = {$days ->
     [0] {$hours ->
@@ -871,6 +912,18 @@ label_recover_account_description = Укажите Ваш Gapopa ID, логин,
 label_recovery_code = Код восстановления
 label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
 label_recovery_enter_new_password = Пожалуйста, введите новый пароль ниже.
+label_regulations = Регламент
+label_regulations_freelance =
+    1. Выбрать задачу из списка ниже
+    2. Сделать форк проекта и по нему оформить PR (Pull Request)
+    3. Связаться с командой фронтэнда (кнопка ниже) и отправить заявку, указав:
+        - логин на GitHub'е
+        - номер PR (Pull Request)
+        - предполагаемый срок выполнения задачи (дедлайн)
+        - предполагаемый способ решения задачи
+    4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
+    5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
+    6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить участника
 label_repeat_password = Повторите пароль
 label_replies = [{$count} {$count ->
@@ -879,8 +932,34 @@ label_replies = [{$count} {$count ->
     *[other] ответов
     }]
 label_required = Обязательно
+label_requirements = Требуется
+label_requirements_backend_developer =
+    - знание языка Rust;
+    - понимание FFI и UB;
+    - навык оптимизации программ и умение использовать профилировщик;
+    - понимание принципов работы клиент-серверных web-приложений;
+    - понимание принципов проектирования структур баз данных;
+    - понимание принципов DDD и слоенной архитектуры;
+    - навык написания модульных и функциональных тестов;
+    - навык работы с Git;
+    - умение использовать операционные системы типа *nix.
+label_requirements_frontend_developer =
+    - понимание принципов UX дизайна;
+    - знание GraphQL и WebSocket;
+    - умение документировать код;
+    - умение покрывать код юнит и/или интеграционными тестами;
+    - умение читать и понимать техническую литературу на английском языке;
+    - возможность обеспечить качественную аудио и видеосвязь.
+label_requirements_ui_ux_developer =
+    - понимание принципов UI/UX дизайна;
+    - уверенное владение Figma;
+    - возможность обеспечить качественную аудио и видеосвязь.
 label_resend = Отправить код
 label_resend_timeout = Повторить ({$timeout})
+label_review = Ревью
+label_review_freelance =
+    - выполненная задача должна пройти ревью кода;
+    - запрос на ревью выполненной задачи, комментарии, пояснения, аргументы должны размещаться публично на GitHub в соответствующей ветке или пул-реквесте.
 label_screen_sharing = Демонстрация экрана
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
@@ -907,6 +986,7 @@ label_sign_up_code_email_sent =
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
+label_source_code = Исходный код
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
@@ -919,6 +999,36 @@ label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
 label_tab_menu = Меню
+label_tasks = Задачи
+label_tech_stack = Стек технологий
+label_tech_stack_backend_developer =
+    - Язык - Rust;
+    - actix-web - веб-фреймворк;
+    - CockroachDB - база данных;
+    - baza - файловое хранилище;
+    - Medea - медиа сервер;
+    - Firebase - push уведомления;
+    - GraphQL - API;
+    - Cucumber - E2E тестирование.
+label_tech_stack_freelance =
+    - Язык - Dart;
+    - Flutter - фреймворк;
+    - GetX - Dependency Injection и State Management;
+    - Navigator 2.0 (Router) - навигация;
+    - Hive - локальная база данных;
+    - Firebase - push уведомления;
+    - GraphQL и Artemis - связь с бэкэндом;
+    - Gherkin - E2E тестирование.
+label_tech_stack_frontend_developer =
+    - Язык - Dart;
+    - Flutter - фреймворк;
+    - GetX - Dependency Injection и State Management;
+    - Navigator 2.0 (Router) - навигация;
+    - Hive - локальная база данных;
+    - Firebase - push уведомления;
+    - GraphQL и Artemis - связь с бэкэндом;
+    - Gherkin - E2E тестирование.
+label_tech_stack_ui_ux_designer = - Figma - вёрстка и прототипирование.
 label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
 label_transition_count = Переходов: {$count}
@@ -962,7 +1072,28 @@ label_was_added2 = {" "}вступил(а) по прямой ссылке
 label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
+label_we_welcome = Приветствуется
+label_we_welcome_backend_developer =
+    - навык работы с языками C, C++;
+    - навык работы по CQRS+ES парадигме;
+    - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
+    - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message_freelance =
+    Добрый день. Пожалуйста, укажите:
+    - логин на GitHub'е;
+    - номер PR (Pull Request);
+    - предполагаемый срок выполнения задачи (дедлайн);
+    - предполагаемый способ решения задачи.
+label_welcome_message_vacancy =
+    Добрый день.
+    Пожалуйста, отправьте Ваше резюме в формате PDF.
+label_welcome_message_vacancy_24_hours =
+    Добрый день.
+    Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.
 label_work_with_us = Работайте с нами
+label_work_with_us_desc =
+    Работайте
+    с нами
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blocklist = Ваш чёрный список

@@ -29,6 +29,12 @@ part 'crop_area.g.dart';
 /// coordinates should be bigger than the ones of [CropArea.topLeft] point.
 @HiveType(typeId: ModelTypeId.cropArea)
 class CropArea {
+  CropArea({
+    required this.topLeft,
+    required this.bottomRight,
+    this.angle,
+  });
+
   /// Point of a top left corner of this [CropArea].
   @HiveField(0)
   CropPoint topLeft;
@@ -41,16 +47,22 @@ class CropArea {
   @HiveField(2)
   Angle? angle;
 
-  CropArea({
-    required this.topLeft,
-    required this.bottomRight,
-    this.angle,
-  });
+  @override
+  bool operator ==(Object other) =>
+      other is CropArea &&
+      topLeft == other.topLeft &&
+      bottomRight == other.bottomRight &&
+      angle == other.angle;
+
+  @override
+  int get hashCode => Object.hash(topLeft, bottomRight, angle);
 }
 
 /// Point in `(X, Y)` coordinates for an image cropping.
 @HiveType(typeId: ModelTypeId.cropPoint)
 class CropPoint {
+  CropPoint({required this.x, required this.y});
+
   /// X coordinate of this [CropPoint] in pixels.
   @HiveField(0)
   int x;
@@ -59,5 +71,10 @@ class CropPoint {
   @HiveField(1)
   int y;
 
-  CropPoint({required this.x, required this.y});
+  @override
+  bool operator ==(Object other) =>
+      other is CropPoint && x == other.x && y == other.y;
+
+  @override
+  int get hashCode => Object.hash(x, y);
 }

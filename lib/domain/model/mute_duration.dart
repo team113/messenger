@@ -46,4 +46,11 @@ class MuteDuration {
 
   factory MuteDuration.until(PreciseDateTime until) =>
       MuteDuration(until: until);
+
+  @override
+  bool operator ==(Object other) =>
+      other is MuteDuration && until == other.until && forever == other.forever;
+
+  @override
+  int get hashCode => Object.hash(until, forever);
 }

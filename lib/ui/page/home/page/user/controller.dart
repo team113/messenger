@@ -19,7 +19,9 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
@@ -131,6 +133,13 @@ class UserController extends GetxController {
 
   /// Subscription for the [user] changes.
   StreamSubscription? _userSubscription;
+
+  /// [Sentry] transaction monitoring this [UserController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.user.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
 
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
@@ -443,7 +452,12 @@ class UserController extends GetxController {
 
       _userSubscription = user?.updates.listen((_) {});
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
+
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
     } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+
       await MessagePopup.error(e);
       router.pop();
       rethrow;

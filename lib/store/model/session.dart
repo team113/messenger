@@ -33,15 +33,3 @@ class SessionVersion extends NewType<BigInt> {
 
   factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
 }
-
-/// Version of [RememberedSession]'s state.
-///
-/// It increases monotonically, so may be used (and is intended to) for
-/// tracking state's actuality.
-@HiveType(typeId: ModelTypeId.rememberedSessionVersion)
-class RememberedSessionVersion extends NewType<BigInt> {
-  const RememberedSessionVersion(super.val);
-
-  factory RememberedSessionVersion.parse(String val) =>
-      RememberedSessionVersion(BigInt.parse(val));
-}

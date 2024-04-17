@@ -2019,11 +2019,15 @@ class ChatRepository extends DisposableInterface
         var list = (events
                 as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
             .list;
-        yield RecentChatsTop(list.map((e) => _chat(e)).toList());
+        yield RecentChatsTop(
+          list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
+        );
       } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
         var mixin = events
             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-        yield EventRecentChatsUpdated(_chat(mixin.chat));
+        yield EventRecentChatsUpdated(
+          _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
+        );
       } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
         var mixin = events
             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
@@ -2161,10 +2165,11 @@ class ChatRepository extends DisposableInterface
             final HiveRxChat? localChat = chats[localId];
 
             if (localChat != null) {
+              await localChat.updateChat(data.chat);
+
               chats.move(localId, chatId);
               paginated.move(localId, chatId);
 
-              await localChat.updateChat(data.chat);
               entry = localChat;
             }
 

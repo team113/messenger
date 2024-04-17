@@ -37,23 +37,27 @@ class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
     Log.debug('registerAdapters()', '$runtimeType');
 
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
+    Hive.maybeRegisterAdapter(AccessTokenAdapter());
+    Hive.maybeRegisterAdapter(AccessTokenSecretAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RefreshTokenAdapter());
-    Hive.maybeRegisterAdapter(RememberedSessionAdapter());
+    Hive.maybeRegisterAdapter(RefreshTokenSecretAdapter());
     Hive.maybeRegisterAdapter(SessionAdapter());
+    Hive.maybeRegisterAdapter(SessionIdAdapter());
+    Hive.maybeRegisterAdapter(UserAgentAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
   /// Returns the stored [Credentials] from [Hive].
   Credentials? get() {
-    Log.debug('getCredentials()', '$runtimeType');
+    Log.trace('getCredentials()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Stores new [Credentials] to [Hive].
   Future<void> set(Credentials credentials) async {
-    Log.debug('setCredentials($credentials)', '$runtimeType');
+    Log.trace('setCredentials($credentials)', '$runtimeType');
     await putSafe(0, credentials);
   }
 }

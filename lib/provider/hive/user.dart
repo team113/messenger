@@ -43,6 +43,7 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
 
+    Hive.maybeRegisterAdapter(BlocklistCursorAdapter());
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatAdapter());
@@ -69,19 +70,19 @@ class UserHiveProvider extends HiveBaseProvider<HiveUser> {
 
   /// Puts the provided [User] to [Hive].
   Future<void> put(HiveUser user) async {
-    Log.debug('put($user)', '$runtimeType');
+    Log.trace('put($user)', '$runtimeType');
     await putSafe(user.value.id.val, user);
   }
 
   /// Returns a [User] from [Hive] by its [id].
   HiveUser? get(UserId id) {
-    Log.debug('get($id)', '$runtimeType');
+    Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   /// Removes an [User] from [Hive] by its [id].
   Future<void> remove(UserId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
 }

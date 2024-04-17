@@ -206,13 +206,6 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
-      # TODO: Remove, when subosito/flutter-action#278 is fixed:
-      #       https://github.com/subosito/flutter-action/issues/278
-      - name: Export pub environment variable on Windows
-        run: echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
-        shell: bash
-        if: ${{ matrix.platform == 'windows' }}
-
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
@@ -223,10 +216,14 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
-      - run: flutter config --enable-${{ matrix.platform }}-desktop
-        if: ${{ contains('macos windows', matrix.platform) }}
 
       - run: make flutter.pub
+
+      # Running `build_runner` here ensures `PubspecBuilder` and its
+      # `git describe` command returns the valid result without possible
+      # `-dirty` part, that may happen during FCM configuration.
+      - run: make flutter.gen overwrite=true
+        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
 
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
@@ -261,7 +258,7 @@ jobs:
       - run: make flutter.build platform=${{ matrix.platform }} profile=yes
                   dart-env='SOCAPP_FCM_VAPID_KEY=${{ secrets.FCM_VAPID_KEY }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
-                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}'
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}'
         if: ${{ matrix.platform == 'web' }}
 
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
@@ -277,7 +274,7 @@ jobs:
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_MAIN }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
-                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
@@ -396,7 +393,6 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
-      - run: flutter config --enable-linux-desktop
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -417,7 +413,7 @@ jobs:
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_MAIN }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
-                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN || '' }}
+                            SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
 
       - name: Parse application name from Git repository name
@@ -1018,7 +1014,7 @@ jobs:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: peaceiris/actions-gh-pages@v3
+      - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .

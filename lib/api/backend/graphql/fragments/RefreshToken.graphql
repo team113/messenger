@@ -1,0 +1,4 @@
+fragment RefreshToken on RefreshToken {
+    secret
+    expiresAt
+}

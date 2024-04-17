@@ -6,7 +6,40 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.13] · 2024-??-??
+## [0.1.0-alpha.13.2] · 2024-04-11
+[0.1.0-alpha.13.2]: /../../tree/v0.1.0-alpha.13.2
+
+[Diff](/../../compare/v0.1.0-alpha.13.1...v0.1.0-alpha.13.2) | [Milestone](/../../milestone/20)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Active and ended calls displaying invalid duration. ([#944])
+
+[#944]: /../../pull/944
+
+
+
+
+## [0.1.0-alpha.13.1] · 2024-04-10
+[0.1.0-alpha.13.1]: /../../tree/v0.1.0-alpha.13.1
+
+[Diff](/../../compare/v0.1.0-alpha.13...v0.1.0-alpha.13.1) | [Milestone](/../../milestone/19)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned app bar. ([#942], [#939])
+
+[#939]: /../../issues/939
+[#942]: /../../pull/942
+
+
+
+
+## [0.1.0-alpha.13] · 2024-04-09
 [0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
 
 [Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
@@ -16,13 +49,17 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Call ended sound and left alone in group call sound. ([#877], [#809])
+        - Member connected sound. ([#935], [#928])
     - Update available popup. ([#907], [#896])
+    - Work page:
+        - UI/UX designer vacancy. ([#941])
 
 ### Changed
 
 - UI:
     - Chat page:
         - Redesigned editing mode and actions. ([#868])
+        - Blurred previews under wide/narrow images. ([#934])
     - User page:
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
@@ -46,6 +83,8 @@ All user visible changes to this project will be documented in this file. This p
         - Replied calls displaying irrelevant information. ([#919], [#455])
     - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
     - Incoming call notification duplicating. ([#914])
+    - Home page:
+        - Alarm sound when clicking on empty right space. ([#937])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
@@ -73,6 +112,11 @@ All user visible changes to this project will be documented in this file. This p
 [#914]: /../../pull/914
 [#915]: /../../pull/915
 [#919]: /../../pull/919
+[#928]: /../../issues/928
+[#934]: /../../pull/934
+[#935]: /../../pull/935
+[#937]: /../../pull/937
+[#941]: /../../pull/941
 
 
 
