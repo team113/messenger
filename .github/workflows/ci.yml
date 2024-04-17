@@ -157,7 +157,6 @@ jobs:
       - run: make appcast.index out=.cache/appcast.xml
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-
       - uses: actions/upload-artifact@v4
         with:
           name: appcast-${{ github.run_number }}
