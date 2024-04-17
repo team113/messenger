@@ -129,7 +129,8 @@ class AuthService extends GetxService {
           true) {
         await refreshSession();
       } else {
-        router.go(_unauthorized());
+        _unauthorized();
+        router.auth();
         throw e;
       }
     };

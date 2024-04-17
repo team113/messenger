@@ -864,7 +864,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 /// [RouterState]'s extension shortcuts on [Routes] constants.
 extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.auth] page.
-  void auth() => go(Routes.auth);
+  ///
+  /// Closes the current [html.window] if called from a popup.
+  void auth() {
+    if (WebUtils.isPopup) {
+      WebUtils.closeWindow();
+    } else {
+      go(Routes.auth);
+    }
+  }
 
   /// Changes router location to the [Routes.home] page.
   void home({bool? signedUp}) {
