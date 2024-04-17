@@ -17,6 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Account deletion page. ([#961])
     - Terms and conditions page. ([#961])
     - Privacy policy page. ([#961])
+    - [Sentry] usage consent screen on mobile platforms. ([#961])
 
 [#961]: /../../pull/961
 
@@ -1104,3 +1105,4 @@ All user visible changes to this project will be documented in this file. This p
 [Helm]: https://helm.sh
 [PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org
+[Sentry]: https://sentry.io

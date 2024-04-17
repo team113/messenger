@@ -580,6 +580,11 @@ label_ago_date = {$years ->
     *[other] {$years} лет назад
 }
 label_all = Все
+label_anonymous_reports = Анонимные отчёты
+label_anonymous_reports_description =
+    Приложение может собирать анонимно технические данные работы приложения и подробные отчёты об ошибках в случае их возникновения.
+
+    Разрешить приложению собирать и отправлять эти данные?
 label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
