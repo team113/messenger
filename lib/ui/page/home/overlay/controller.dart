@@ -126,7 +126,7 @@ class CallOverlayController extends GetxController {
         case OperationKind.removed:
           calls.removeWhere((e) => e.call == event.value!);
 
-          OngoingCall call = event.value!.value;
+          final OngoingCall call = event.value!.value;
           if (call.callChatItemId == null || call.connected) {
             WebUtils.removeCall(event.key!);
           }

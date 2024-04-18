@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../schema.dart';
+import '/api/backend/schema.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -58,6 +58,9 @@ extension MyUserConversion on MyUserMixin {
                 ? MuteDuration.forever()
                 : MuteDuration.until(
                     (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
+            : null,
+        lastSeenAt: online.$$typename == 'UserOffline'
+            ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
             : null,
       );
 
