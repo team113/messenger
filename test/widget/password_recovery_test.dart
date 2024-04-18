@@ -29,8 +29,8 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
+import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -153,8 +153,6 @@ void main() async {
 
     await tester.tap(find.byKey(const Key('Proceed')));
     await tester.pumpAndSettle();
-
-    await Future.delayed(Duration.zero);
 
     verifyInOrder([
       graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),

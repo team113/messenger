@@ -176,8 +176,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = c.authStatus.value.isSuccess &&
-                      !c.newPassword.isEmpty.value &&
+                  final bool enabled = !c.newPassword.isEmpty.value &&
                       !c.repeatPassword.isEmpty.value;
 
                   return PrimaryButton(
