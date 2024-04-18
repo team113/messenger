@@ -93,7 +93,7 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<void> protect(Future<void> Function() callback) =>
+  static Future<T> protect<T>(Future<T> Function() callback) =>
       _guard.protect(callback);
 
   /// Pushes [title] to browser's window title.
