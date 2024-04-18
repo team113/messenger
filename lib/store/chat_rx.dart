@@ -401,7 +401,6 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.isDialog) {
       _membersPaginationSubscription = members.items.changes.listen((e) async {
-        await Future.delayed(Duration.zero);
         _updateAvatar();
       });
     }
