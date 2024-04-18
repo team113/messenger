@@ -20,7 +20,7 @@ import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 /// Utility class for requesting permissions.
-class PermissionUtil {
+class PermissionUtils {
   /// Mutex for synchronized access to permissions requesting.
   ///
   /// Ensures that only one permission is requested at the same time.

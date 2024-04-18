@@ -446,14 +446,14 @@ class NotificationService extends DisposableService {
         Log.error(e.toString(), '$runtimeType');
       }
     }
-    NotificationSettings settings = await PermissionUtil.notifications();
+    NotificationSettings settings = await PermissionUtils.notifications();
 
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
     // [AndroidUtils.createNotificationChannel], so try again on failure.
     if (PlatformUtils.isAndroid &&
         settings.authorizationStatus != AuthorizationStatus.authorized) {
-      settings = await PermissionUtil.notifications();
+      settings = await PermissionUtils.notifications();
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {

@@ -19,13 +19,9 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
-import 'package:device_region/device_region.dart';
-import 'package:fast_contacts/fast_contacts.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 import '/api/backend/extension/contact.dart';
 import '/api/backend/extension/page_info.dart';
@@ -49,8 +45,6 @@ import '/store/pagination/graphql.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
-import '/util/permission.dart';
-import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
@@ -135,12 +129,6 @@ class ContactRepository extends DisposableInterface
     _initLocalSubscription();
     _initRemoteSubscription();
 
-    if (PlatformUtils.isMobile &&
-        !PlatformUtils.isWeb &&
-        _sessionLocal.getContactsImported() != true) {
-      _importContacts();
-    }
-
     super.onInit();
   }
 
@@ -171,12 +159,24 @@ class ContactRepository extends DisposableInterface
 
   // TODO: Forbid creating multiple ChatContacts with the same User?
   @override
-  Future<void> createChatContact(UserName name, UserId id) async {
-    Log.debug('createChatContact($name, $id)', '$runtimeType');
+  Future<void> createChatContact(
+    UserName name, {
+    UserId? userId,
+    List<UserEmail> emails = const [],
+    List<UserPhone> phones = const [],
+  }) async {
+    Log.debug(
+      'createChatContact($name, $userId, $emails, $phones)',
+      '$runtimeType',
+    );
 
     final response = await _graphQlProvider.createChatContact(
       name: name,
-      records: [ChatContactRecord(userId: id)],
+      records: [
+        if (userId != null) ChatContactRecord(userId: userId),
+        ...emails.map((e) => ChatContactRecord(email: e)),
+        ...phones.map((e) => ChatContactRecord(phone: e)),
+      ],
     );
 
     final events = ChatContactsEventsEvent(
@@ -398,83 +398,6 @@ class ContactRepository extends DisposableInterface
     }
 
     await _contactLocal.remove(id);
-  }
-
-  /// Imports contacts from the device's contact list.
-  Future<void> _importContacts() async {
-    Log.debug('_importContacts()', '$runtimeType');
-
-    PermissionStatus status = await Permission.contacts.status;
-
-    if (status.isPermanentlyDenied || status.isRestricted) {
-      return;
-    }
-
-    if (!status.isGranted) {
-      status = await PermissionUtil.contacts();
-
-      if (!status.isGranted) {
-        return;
-      }
-    }
-
-    final List<Contact> contacts = await FastContacts.getAllContacts();
-
-    IsoCode? isoCode;
-    final String? countryCode = await DeviceRegion.getSIMCountryCode();
-    if (countryCode != null) {
-      isoCode = IsoCode.fromJson(countryCode.toUpperCase());
-    }
-
-    for (final Contact contact in contacts) {
-      final List<UserPhone> phones = [];
-      final List<UserEmail> emails = [];
-
-      for (var e in contact.phones) {
-        try {
-          final PhoneNumber phone =
-              PhoneNumber.parse(e.number, callerCountry: isoCode);
-
-          if (!phone.isValid(type: PhoneNumberType.mobile)) {
-            throw const FormatException('Not valid');
-          }
-
-          phones.add(UserPhone('+${phone.countryCode}${phone.nsn}'));
-        } catch (ex) {
-          Log.warning(
-            'Failed to parse ${e.number} into UserPhone with $ex',
-            '$runtimeType',
-          );
-        }
-      }
-
-      for (var e in contact.emails) {
-        try {
-          emails.add(UserEmail(e.address));
-        } catch (ex) {
-          Log.warning(
-            'Failed to parse ${e.address} into UserEmail with $ex',
-            '$runtimeType',
-          );
-        }
-      }
-
-      try {
-        if (phones.isNotEmpty || emails.isNotEmpty) {
-          _graphQlProvider.createChatContact(
-            name: UserName(contact.displayName.padRight(2, '_')),
-            records: [
-              ...phones.map((e) => ChatContactRecord(phone: e)),
-              ...emails.map((e) => ChatContactRecord(email: e)),
-            ],
-          );
-        }
-      } catch (_) {
-        // No-op.
-      }
-    }
-
-    await _sessionLocal.setContactsImported(true);
   }
 
   /// Searches [ChatContact]s by the provided [UserName].

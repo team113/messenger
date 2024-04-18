@@ -78,12 +78,6 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
     return getSafe(0)?.blocklistSynchronized;
   }
 
-  /// Returns the stored [SessionData.contactsImported] from [Hive].
-  bool? getContactsImported() {
-    Log.trace('getContactsImported()', '$runtimeType');
-    return getSafe(0)?.contactsImported;
-  }
-
   /// Stores a new [FavoriteChatsListVersion] to [Hive].
   Future<void> setFavoriteChatsListVersion(FavoriteChatsListVersion ver) {
     Log.trace('setChatContactsListVersion($ver)', '$runtimeType');
@@ -136,11 +130,5 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
       0,
       (box.get(0) ?? SessionData())..blocklistSynchronized = val,
     );
-  }
-
-  /// Stores a new [SessionData.contactsImported] to [Hive].
-  Future<void> setContactsImported(bool val) async {
-    Log.trace('setContactsImported($val)', '$runtimeType');
-    await putSafe(0, (box.get(0) ?? SessionData())..contactsImported = val);
   }
 }

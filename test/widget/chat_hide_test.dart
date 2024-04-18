@@ -401,6 +401,15 @@ void main() async {
     );
     Get.put(UserService(userRepository));
 
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+        callRectProvider,
+      ),
+    );
+
     Get.put(
       ContactService(
         Get.put<AbstractContactRepository>(
@@ -413,6 +422,7 @@ void main() async {
             sessionProvider,
           ),
         ),
+          settingsRepository,
       ),
     );
 
@@ -423,15 +433,6 @@ void main() async {
       userRepository,
     );
     Get.put(MyUserService(authService, myUserRepository));
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        settingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
 
     final callRepository = CallRepository(
       graphQlProvider,

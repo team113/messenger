@@ -202,6 +202,12 @@ class SettingsRepository extends DisposableInterface
     await _settingsLocal.setWorkWithUsTabEnabled(enabled);
   }
 
+  @override
+  Future<void> setContactsImported(bool val) async {
+    Log.debug('setContactsImported($val)', '$runtimeType');
+    await _settingsLocal.setContactsImported(val);
+  }
+
   /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
   Future<void> _initMediaSubscription() async {
     Log.debug('_initMediaSubscription()', '$runtimeType');

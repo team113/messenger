@@ -87,4 +87,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled);
+
+  /// Sets the [ApplicationSettings.contactsImported] value.
+  Future<void> setContactsImported(bool val);
 }

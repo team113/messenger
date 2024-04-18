@@ -81,6 +81,10 @@ class ApplicationSettings extends HiveObject {
   /// [CustomNavigationBar] of [HomeView].
   @HiveField(9)
   bool workWithUsTabEnabled;
+
+  /// Indicator whether contacts from device's contacts book was imported.
+  @HiveField(10)
+  bool? contactsImported;
 }
 
 /// Possible call buttons position.

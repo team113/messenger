@@ -150,4 +150,13 @@ class ApplicationSettingsHiveProvider
       (box.get(0) ?? ApplicationSettings())..workWithUsTabEnabled = enabled,
     );
   }
+
+  /// Stores a new [ApplicationSettings.contactsImported] to [Hive].
+  Future<void> setContactsImported(bool val) async {
+    Log.trace('setContactsImported($val)', '$runtimeType');
+    await putSafe(
+      0,
+      (box.get(0) ?? ApplicationSettings())..contactsImported = val,
+    );
+  }
 }
