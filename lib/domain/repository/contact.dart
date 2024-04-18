@@ -52,11 +52,8 @@ abstract class AbstractContactRepository {
   /// Clears the stored [paginated].
   Future<void> clearCache();
 
-  /// Creates a new [ChatContact] with the specified [User] in the current
-  /// [MyUser]'s address book.
-  ///
-  /// At least one of [userId], [emails] or [phones] arguments must be specified
-  /// and non-empty.
+  /// Creates a new [ChatContact] with the specified [User], [UserPhone]s and
+  /// [UserEmail]s in the current [MyUser]'s address book.
   Future<void> createChatContact(
     UserName name, {
     UserId? userId,

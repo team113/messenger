@@ -63,7 +63,7 @@ class ContactService extends DisposableService {
       _contactRepository.contacts;
 
   @override
-  Future<void> onInit() async {
+  void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
     if (PlatformUtils.isMobile &&
@@ -202,7 +202,7 @@ class ContactService extends DisposableService {
         Future(() async {
           try {
             if (phones.isNotEmpty || emails.isNotEmpty) {
-              _contactRepository.createChatContact(
+              await _contactRepository.createChatContact(
                 UserName(contact.displayName.padRight(2, '_')),
                 phones: phones,
                 emails: emails,
