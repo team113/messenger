@@ -865,7 +865,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.auth] page.
   ///
-  /// Closes the current [html.window] if called from a popup.
+  /// Invokes [WebUtils.closeWindow], if called from a [WebUtils.isPopup].
   void auth() {
     if (WebUtils.isPopup) {
       WebUtils.closeWindow();

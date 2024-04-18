@@ -170,18 +170,16 @@ class AuthService extends GetxService {
     WebUtils.credentials = creds;
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
       if (e.deleted) {
-        // No-op, as already handled in [_accountSubscription].
+        // No-op, handled in [_accountSubscription].
         return;
       }
 
-      final UserId key = UserId(e.key);
-
-      // Check [_accountProvider] in case these [Credentials] are of a new
-      // account.
+      // Check [_accountProvider] to determine whether these [Credentials] are
+      // of the active account.
       final UserId? current =
           WebUtils.credentials?.userId ?? _accountProvider.userId;
 
-      if (key == current) {
+      if (e.key == current?.val) {
         WebUtils.credentials = e.value;
       }
     });
@@ -413,8 +411,8 @@ class AuthService extends GetxService {
   ///
   /// Returns the path of the authentication page.
   ///
-  /// [force] determines whether attempt to delete remote session and unregister
-  /// device from FCM should be performed.
+  /// If [force] is `true`, then the current [Credentials] will be revoked
+  /// unilaterally and immediately.
   Future<String> deleteSession({bool force = false}) async {
     Log.debug('deleteSession(force: $force)', '$runtimeType');
 
@@ -455,7 +453,7 @@ class AuthService extends GetxService {
   }
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
-  /// available accounts on this device.
+  /// available accounts.
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 

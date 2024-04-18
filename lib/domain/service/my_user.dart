@@ -257,8 +257,11 @@ class MyUserService extends DisposableService {
     await _passwordChangeGuard.protect(() async {
       final bool isTokenValid = await _auth.validateToken();
       if (!isTokenValid) {
-        await _auth.deleteSession();
-        router.auth();
+        try {
+          await _auth.deleteSession();
+        } finally {
+          router.auth();
+        }
       }
     });
   }
@@ -269,7 +272,10 @@ class MyUserService extends DisposableService {
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
-    await _auth.deleteSession(force: true);
-    router.auth();
+    try {
+      await _auth.deleteSession(force: true);
+    } finally {
+      router.auth();
+    }
   }
 }
