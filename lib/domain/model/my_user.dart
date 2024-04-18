@@ -24,6 +24,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'mute_duration.dart';
+import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
 part 'my_user.g.dart';
@@ -49,6 +50,7 @@ class MyUser extends HiveObject {
     required this.online,
     this.muted,
     this.blocklistCount,
+    this.lastSeenAt,
   });
 
   /// Unique ID of this [MyUser].
@@ -150,6 +152,13 @@ class MyUser extends HiveObject {
   @HiveField(16)
   int? blocklistCount;
 
+  /// [PreciseDateTime] this [MyUser] was last seen online at.
+  @HiveField(17)
+  PreciseDateTime? lastSeenAt;
+
+  @override
+  String toString() => '$runtimeType($id)';
+
   /// Returns a copy of this [MyUser].
   MyUser copyWith() => MyUser(
         id: id,
@@ -169,6 +178,7 @@ class MyUser extends HiveObject {
         online: online,
         muted: muted,
         blocklistCount: blocklistCount,
+        lastSeenAt: lastSeenAt,
       );
 }
 

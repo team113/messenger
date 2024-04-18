@@ -33,6 +33,7 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -173,6 +174,12 @@ void main() async {
 
   var credentialsProvider = CredentialsHiveProvider();
   await credentialsProvider.init();
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+
+  accountProvider.set(const UserId('me'));
 
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -186,16 +193,19 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AuthService authService =
-      AuthService(AuthRepository(graphQlProvider), credentialsProvider);
+  AuthService authService = AuthService(
+    AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ),
+    credentialsProvider,
+    accountProvider,
+  );
   authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
-
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
@@ -442,8 +452,13 @@ void main() async {
 
     final authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
+        accountProvider,
       ),
     );
     authService.init();
@@ -466,6 +481,7 @@ void main() async {
         myUserProvider,
         blocklistRepository,
         userRepository,
+        accountProvider,
       ),
     );
     Get.put(MyUserService(authService, myUserRepository));
