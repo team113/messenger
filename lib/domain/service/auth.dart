@@ -359,13 +359,12 @@ class AuthService extends GetxService {
           final Credentials creds =
               await _authRepository.confirmSignUpEmail(code);
           _authorized(creds);
-
         } catch (e) {
           _unauthorized();
           rethrow;
         }
       });
-
+    }
   }
 
   /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
@@ -415,7 +414,6 @@ class AuthService extends GetxService {
         }
       });
     }
-
   }
 
   /// Authorizes the current [Session] from the provided [credentials].
@@ -446,39 +444,36 @@ class AuthService extends GetxService {
     await WebUtils.protect(() async {
       status.value = RxStatus.loading();
 
-    if (force) {
-      if (userId != null) {
-        _authRepository.removeAccount(userId!);
-      }
+      if (force) {
+        if (userId != null) {
+          _authRepository.removeAccount(userId!);
+        }
+      } else {
+        try {
+          FcmRegistrationToken? fcmToken;
 
-      return _unauthorized();
-    }
+          if (PlatformUtils.pushNotifications) {
+            final NotificationSettings settings =
+                await FirebaseMessaging.instance.getNotificationSettings();
 
-    try {
-      FcmRegistrationToken? fcmToken;
+            if (settings.authorizationStatus ==
+                AuthorizationStatus.authorized) {
+              final String? token = await FirebaseMessaging.instance.getToken(
+                vapidKey: Config.vapidKey,
+              );
 
-
-        if (PlatformUtils.pushNotifications) {
-          final NotificationSettings settings =
-              await FirebaseMessaging.instance.getNotificationSettings();
-
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            final String? token = await FirebaseMessaging.instance.getToken(
-              vapidKey: Config.vapidKey,
-            );
-
-            if (token != null) {
-              fcmToken = FcmRegistrationToken(token);
+              if (token != null) {
+                fcmToken = FcmRegistrationToken(token);
+              }
             }
           }
-        }
 
-   await _authRepository.deleteSession(fcmToken);
-      } catch (e) {
-        printError(info: e.toString());
+          await _authRepository.deleteSession(fcmToken);
+        } catch (e) {
+          printError(info: e.toString());
+        }
       }
     });
-
 
     return _unauthorized();
   }
