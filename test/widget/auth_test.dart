@@ -33,6 +33,7 @@ import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -75,13 +76,24 @@ void main() async {
   await credentialsProvider.init();
   await credentialsProvider.clear();
 
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+
   var graphQlProvider = _FakeGraphQlProvider();
-  AuthRepository authRepository = AuthRepository(graphQlProvider);
-  AuthService authService = AuthService(authRepository, credentialsProvider);
+  AuthRepository authRepository = AuthRepository(
+    graphQlProvider,
+    myUserProvider,
+    credentialsProvider,
+  );
+  AuthService authService = AuthService(
+    authRepository,
+    credentialsProvider,
+    accountProvider,
+  );
   authService.init();
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init(userId: const UserId('me'));
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
   var userProvider = UserHiveProvider();
@@ -133,8 +145,13 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
+        accountProvider,
       ),
     );
 

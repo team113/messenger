@@ -66,7 +66,7 @@ class MenuTabController extends GetxController {
     return true;
   }
 
-  /// Logs out the current session and go to the [Routes.auth] page.
+  /// Logs out the current session and goes to the [Routes.auth] page.
   Future<String> logout() => _authService.logout();
 
   /// Sets the [MyUser.presence] to the provided value.

@@ -26,6 +26,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/service/call.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -79,6 +80,11 @@ class PopupCallController extends GetxController {
     );
 
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      Log.debug(
+        'WebUtils.onStorageChange(${e.key}): ${e.newValue}',
+        '$runtimeType',
+      );
+
       if (e.key == null) {
         WebUtils.closeWindow();
       } else if (e.newValue == null) {
@@ -107,6 +113,7 @@ class PopupCallController extends GetxController {
     _storageSubscription?.cancel();
     _stateWorker.dispose();
     _calls.leave(call.value.chatId.value);
+    WebUtils.closeWindow();
     super.dispose();
   }
 

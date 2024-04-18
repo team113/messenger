@@ -127,6 +127,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
         }
         ... on EventUserCameOffline {
             userId
+            at
         }
         ... on EventUserPasswordUpdated {
             userId

@@ -48,16 +48,19 @@ import 'api/backend/schema.dart';
 import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/session.dart';
+import 'domain/model/user.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
+import 'provider/hive/account.dart';
 import 'provider/hive/cache.dart';
 import 'provider/hive/consent.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
+import 'provider/hive/my_user.dart';
 import 'provider/hive/skipped_version.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
@@ -120,9 +123,14 @@ Future<void> main() async {
 
     final graphQlProvider = Get.put(GraphQlProvider());
 
-    Get.put<AbstractAuthRepository>(AuthRepository(graphQlProvider));
-    final authService =
-        Get.put(AuthService(AuthRepository(graphQlProvider), Get.find()));
+    final authRepository = Get.put<AbstractAuthRepository>(AuthRepository(
+      graphQlProvider,
+      Get.find(),
+      Get.find(),
+    ));
+    final authService = Get.put(
+      AuthService(authRepository, Get.find(), Get.find()),
+    );
     router = RouterState(authService);
 
     authService.init();
@@ -287,6 +295,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       message.data['chatId'] != null) {
     SharedPreferences? prefs;
     CredentialsHiveProvider? credentialsProvider;
+    AccountHiveProvider? accountProvider;
     GraphQlProvider? provider;
     StreamSubscription? subscription;
 
@@ -352,10 +361,17 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await Config.init();
       await Hive.initFlutter('hive');
       credentialsProvider = CredentialsHiveProvider();
+      accountProvider = AccountHiveProvider();
 
       await credentialsProvider.init();
-      final Credentials? credentials = credentialsProvider.get();
+      await accountProvider.init();
+
+      final UserId? userId = accountProvider.userId;
+      final Credentials? credentials =
+          userId != null ? credentialsProvider.get(userId) : null;
+
       await credentialsProvider.close();
+      await accountProvider.close();
 
       if (credentials != null) {
         provider = GraphQlProvider();
@@ -466,6 +482,8 @@ Future<void> _initHive() async {
     });
   }
 
+  await Get.put(AccountHiveProvider()).init();
+  await Get.put(MyUserHiveProvider()).init();
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
 
