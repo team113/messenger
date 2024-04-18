@@ -257,14 +257,15 @@ class MyUserService extends DisposableService {
     await _passwordChangeGuard.protect(() async {
       final bool isTokenValid = await _auth.validateToken();
       if (!isTokenValid) {
-        router.go(await _auth.deleteSession());
+        await _auth.deleteSession();
+        router.auth();
       }
     });
   }
 
   /// Callback to be called when the active [MyUser] is deleted.
   ///
-  /// Performs log out and deletes stored [MyUser] value.
+  /// Performs log out.
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 

@@ -194,8 +194,8 @@ class AuthService extends GetxService {
         final Credentials? creds = _credentialsProvider.get(id);
 
         // [creds] may still be `null` here if [Credentials] haven't been put to
-        // [Hive] yet, but still update [WebUtils.credentials] as this case is
-        // handled in [_credentialsSubscription].
+        // [Hive] yet. Still update [WebUtils.credentials] so that this case
+        // can be handled by the [_credentialsSubscription]'s event handler.
         WebUtils.credentials = creds;
       }
     });
