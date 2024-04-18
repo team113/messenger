@@ -294,16 +294,14 @@ class AuthService extends GetxService {
       '$runtimeType',
     );
 
-    await WebUtils.protect(() async {
-      await _authRepository.resetUserPassword(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-        code: code,
-        newPassword: newPassword,
-      );
-    });
+    await _authRepository.resetUserPassword(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+      code: code,
+      newPassword: newPassword,
+    );
   }
 
   /// Creates a new [MyUser] having only [UserId] and [UserNum] fields, and
@@ -359,6 +357,7 @@ class AuthService extends GetxService {
           final Credentials creds =
               await _authRepository.confirmSignUpEmail(code);
           _authorized(creds);
+          status.value = RxStatus.success();
         } catch (e) {
           _unauthorized();
           rethrow;
@@ -506,11 +505,12 @@ class AuthService extends GetxService {
 
   /// Refreshes the current [credentials].
   Future<void> refreshSession() async {
-    final FutureOr<bool> isLocked = WebUtils.isLocked;
-    final bool alreadyRenewing = isLocked is bool ? isLocked : await isLocked;
+    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
+    final bool isLocked =
+        futureOrBool is bool ? futureOrBool : await futureOrBool;
 
     Log.debug(
-      'refreshSession() with `alreadyRenewing`: $alreadyRenewing',
+      'refreshSession() with `isLocked`: $isLocked',
       '$runtimeType',
     );
 
@@ -519,7 +519,7 @@ class AuthService extends GetxService {
       // still wait for the lock to be sure that session was renewed when
       // current `refreshSession()` call resolves.
       await WebUtils.protect(() async {
-        if (alreadyRenewing) {
+        if (isLocked) {
           Log.debug(
             'refreshSession(): acquired the lock, while it was locked, thus should proceed: $_shouldRefresh',
             '$runtimeType',

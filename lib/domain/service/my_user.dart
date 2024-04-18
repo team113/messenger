@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '../../util/web/web_utils.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -121,8 +122,10 @@ class MyUserService extends DisposableService {
 
       passwordStatus.value = RxStatus.loading();
 
-      // TODO: Make sure [AuthService] doesn't its `refreshSession` during that.
-      await _userRepo.updateUserPassword(oldPassword, newPassword);
+      await WebUtils.protect(
+        () async => _userRepo.updateUserPassword(oldPassword, newPassword),
+      );
+
       await _auth.signIn(newPassword, num: myUser.value?.num);
 
       passwordStatus.value = RxStatus.success();
