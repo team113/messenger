@@ -25,6 +25,7 @@ import '/api/backend/schema.dart'
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -37,6 +38,7 @@ import '/provider/gql/exceptions.dart'
         ValidateUserPasswordRecoveryCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/get.dart';
 import '/util/message_popup.dart';
 
 /// Possible [LoginView] flow stage.
@@ -47,6 +49,7 @@ enum LoginViewStage {
   signIn,
   signInWithPassword,
   signUp,
+  signUpWithLogin,
   signUpWithEmail,
   signUpWithEmailCode,
   signUpOrSignIn,
@@ -83,6 +86,62 @@ class LoginController extends GetxController {
 
   /// [TextFieldState] for [ConfirmationCode] for [UserEmail] input.
   late final TextFieldState emailCode;
+
+  late final TextFieldState inLogin = TextFieldState(
+    onChanged: (s) async {
+      s.error.value = null;
+      inPassword.unsubmit();
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserLogin(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_login_input'.l10n;
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          rethrow;
+        }
+      }
+    },
+    onSubmitted: (s) {
+      inPassword.focus.requestFocus();
+      s.unsubmit();
+    },
+  );
+
+  late final TextFieldState inPassword = TextFieldState(
+    onChanged: (s) {
+      s.error.value = null;
+      inRepeat.error.value = null;
+      inRepeat.unsubmit();
+
+      if (s.text != inRepeat.text && inRepeat.isValidated) {
+        inRepeat.error.value = 'err_passwords_mismatch'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      inRepeat.focus.requestFocus();
+      s.unsubmit();
+      await resetUserPassword();
+    },
+  );
+
+  late final TextFieldState inRepeat = TextFieldState(
+    onChanged: (s) {
+      s.error.value = null;
+      inRepeat.error.value = null;
+      inRepeat.unsubmit();
+
+      if (s.text != inPassword.text && inPassword.isValidated) {
+        s.error.value = 'err_passwords_mismatch'.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      inRepeat.focus.requestFocus();
+      s.unsubmit();
+      await signUpWithLogin();
+    },
+  );
 
   /// [LoginView] stage to go back to.
   LoginViewStage? returnTo;
@@ -209,7 +268,9 @@ class LoginController extends GetxController {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
-      onSubmitted: (s) => resetUserPassword(),
+      onSubmitted: (s) async {
+        await resetUserPassword();
+      },
     );
 
     email = TextFieldState(
@@ -385,6 +446,66 @@ class LoginController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  Future<void> signUpWithLogin() async {
+    if (inLogin.error.value != null ||
+        inPassword.error.value != null ||
+        inRepeat.error.value != null) {
+      return;
+    }
+
+    if (UserPassword.tryParse(inPassword.text) == null) {
+      inPassword.error.value = 'err_incorrect_input'.l10n;
+      return;
+    }
+
+    if (UserPassword.tryParse(inRepeat.text) == null) {
+      inRepeat.error.value = 'err_incorrect_input'.l10n;
+      return;
+    }
+
+    if (inPassword.text != inRepeat.text) {
+      inRepeat.error.value = 'err_passwords_mismatch'.l10n;
+      return;
+    }
+
+    inLogin.status.value = RxStatus.loading();
+    inPassword.status.value = RxStatus.loading();
+    inRepeat.status.value = RxStatus.loading();
+
+    try {
+      final UserLogin login = UserLogin(inLogin.text);
+      final UserPassword password = UserPassword(inPassword.text);
+
+      await _authService.register();
+      (onSuccess ?? router.home)(signedUp: true);
+
+      MyUserService? myUserService;
+      do {
+        await Future.delayed(const Duration(milliseconds: 50));
+
+        myUserService = Get.findOrNull<MyUserService>();
+
+        if (myUserService != null) {
+          try {
+            await myUserService.updateUserLogin(login);
+            await myUserService.updateUserPassword(newPassword: password);
+          } catch (e) {
+            MessagePopup.error(e);
+          }
+        }
+      } while (myUserService == null);
+    } on ConnectionException {
+      MessagePopup.error('err_data_transfer'.l10n);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      inLogin.status.value = RxStatus.empty();
+      inPassword.status.value = RxStatus.empty();
+      inRepeat.status.value = RxStatus.empty();
     }
   }
 

@@ -100,6 +100,18 @@ class AuthView extends StatelessWidget {
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
+            key: const Key('StartButton'),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgIcon(SvgIcons.guest),
+            ),
+            onPressed: c.register,
+            child: Text('btn_guest'.l10n),
+          ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
             key: const Key('RegisterButton'),
             maxWidth: 210,
             height: 46,
@@ -122,18 +134,6 @@ class AuthView extends StatelessWidget {
             onPressed: () =>
                 LoginView.show(context, initial: LoginViewStage.signIn),
             child: Text('btn_sign_in'.l10n),
-          ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            key: const Key('StartButton'),
-            maxWidth: 210,
-            height: 46,
-            leading: Transform.translate(
-              offset: const Offset(4, 0),
-              child: const SvgIcon(SvgIcons.guest),
-            ),
-            onPressed: c.register,
-            child: Text('btn_guest'.l10n),
           ),
           const SizedBox(height: 15),
         ];

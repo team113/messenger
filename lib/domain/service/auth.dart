@@ -550,6 +550,9 @@ class AuthService extends GetxService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
+  Future<bool> checkUserLoginOccupied(UserLogin login) =>
+      _authRepository.checkUserLoginOccupied(login);
+
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
     Log.debug('_authorized($creds)', '$runtimeType');

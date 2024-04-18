@@ -1,0 +1,3 @@
+query CheckUserLoginOccupied($login: UserLogin!) {
+    checkUserLoginOccupied(login: $login)
+}
