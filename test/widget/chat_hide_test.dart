@@ -422,7 +422,7 @@ void main() async {
             sessionProvider,
           ),
         ),
-          settingsRepository,
+        settingsRepository,
       ),
     );
 
