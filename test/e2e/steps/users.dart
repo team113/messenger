@@ -90,7 +90,7 @@ final StepDefinitionGeneric logout = then<CustomWorld>(
   (context) async {
     final CustomUser me = context.world.sessions.values
         .firstWhere((e) => e.userId == context.world.me);
-    router.go(await Get.find<AuthService>().deleteSession());
+    router.go(await Get.find<AuthService>().logout());
     me.credentials = null;
   },
   configuration: StepDefinitionConfiguration()

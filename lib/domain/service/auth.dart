@@ -454,6 +454,8 @@ class AuthService extends GetxService {
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
   /// available accounts.
+  ///
+  /// Returns the path of the authentication page.
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 

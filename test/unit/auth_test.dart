@@ -120,7 +120,7 @@ void main() async {
       const AccessTokenSecret('token'),
     );
 
-    await authService.deleteSession();
+    await authService.logout();
 
     expect(authService.status.value.isEmpty, true);
     verify(graphQlProvider.signIn(
@@ -164,7 +164,7 @@ void main() async {
       const AccessTokenSecret('token'),
     );
 
-    await authService.deleteSession();
+    await authService.logout();
 
     expect(authService.status.value.isEmpty, true);
     expect(authService.credentials.value, null);
