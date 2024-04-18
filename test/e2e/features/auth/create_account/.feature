@@ -20,7 +20,7 @@ Feature: Account creation
   Scenario: User creates a new account and deletes it
     When I tap `StartButton` button
     And I wait until `IntroductionView` is present
-    And I tap `CloseButton` button
+    And I tap `ProceedButton` button
 
     When I tap `MenuButton` button
     And I tap `PublicInformation` button
