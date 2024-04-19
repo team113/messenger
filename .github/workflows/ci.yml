@@ -212,8 +212,10 @@ jobs:
 
       - name: Prepare Android signing resources
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d > android/app/keystore.jks
-          echo "${{ secrets.ANDROID_PROPERTIES }}" > android/key.properties
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d \
+          > android/app/keystore.jks
+          echo "${{ secrets.ANDROID_PROPERTIES }}" \
+          > android/key.properties
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
@@ -313,8 +315,10 @@ jobs:
       #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
 
       - name: Cleanup Android signing resources
-        run: rm -rf android/key.properties android/app/keystore.jks
-        if: ${{ always() && runner.os != 'Windows' }}
+        run: rm -rf android/app/keystore.jks
+                    android/key.properties
+        if: ${{ always()
+             && runner.os != 'Windows' }}  # we don't use any for Windows anyway
 
   build-linux:
     name: build (linux)
