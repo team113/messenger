@@ -602,7 +602,9 @@ jobs:
   appcast-push:
     name: appcast push
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["release-github"]
+    needs:
+      - release-github
+      - deploy-docs # To ensure no parallel pushes happen to the `gh-pages`.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
