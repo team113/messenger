@@ -340,7 +340,7 @@ appcast.xml:
 # Create single version item in Sparkle Appcast XML format.
 #
 # Note, that output is not a valid XML yet. To make it valid, use the
-# `appcast.xml` afterwards.
+# `appcast.xml` command afterwards.
 #
 # Usage:
 #	make appcast.item [notes=(release_notes|<notes>)]
