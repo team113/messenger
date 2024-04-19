@@ -36,6 +36,7 @@ import '/ui/worker/cache.dart';
 import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
+import '/util/permission.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -445,16 +446,14 @@ class NotificationService extends DisposableService {
         Log.error(e.toString(), '$runtimeType');
       }
     }
-
-    NotificationSettings settings =
-        await FirebaseMessaging.instance.requestPermission();
+    NotificationSettings settings = await PermissionUtils.notifications();
 
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
     // [AndroidUtils.createNotificationChannel], so try again on failure.
     if (PlatformUtils.isAndroid &&
         settings.authorizationStatus != AuthorizationStatus.authorized) {
-      settings = await FirebaseMessaging.instance.requestPermission();
+      settings = await PermissionUtils.notifications();
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {

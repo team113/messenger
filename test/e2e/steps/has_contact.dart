@@ -21,6 +21,7 @@ import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
+import '../configuration.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -38,9 +39,13 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
 
     for (int i = 0; i < count; i++) {
       futures.add(
-        provider.createChatContact(
-          name: UserName(i.toString().padLeft(2, '0')),
-        ),
+        Future(() async {
+          final CustomUser user = await createUser();
+          await provider.createChatContact(
+            name: UserName(i.toString().padLeft(2, '0')),
+            records: [ChatContactRecord(userId: user.userId)],
+          );
+        }),
       );
     }
 
@@ -68,8 +73,12 @@ final StepDefinitionGeneric hasFavoriteContacts =
 
     for (int i = 0; i < count; i++) {
       Future future = Future(() async {
-        final ChatContactEventsVersionedMixin result = await provider
-            .createChatContact(name: UserName(i.toString().padLeft(2, '0')));
+        final CustomUser user = await createUser();
+        final ChatContactEventsVersionedMixin result =
+            await provider.createChatContact(
+          name: UserName(i.toString().padLeft(2, '0')),
+          records: [ChatContactRecord(userId: user.userId)],
+        );
         final ChatContactId contactId = (result.events.first
                 as ChatContactEventsVersionedMixin$Events$EventChatContactCreated)
             .contactId;

@@ -504,7 +504,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    Get.put(ContactService(contactRepository));
+    Get.put(ContactService(contactRepository, settingsRepository));
     userRepository.getContact = contactRepository.get;
 
     final callRepository = Get.put(

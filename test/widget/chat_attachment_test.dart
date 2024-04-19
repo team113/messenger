@@ -567,7 +567,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    Get.put(ContactService(contactRepository));
+    Get.put(ContactService(contactRepository, settingsRepository));
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));

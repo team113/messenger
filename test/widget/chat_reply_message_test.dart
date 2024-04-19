@@ -601,7 +601,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    Get.put(ContactService(contactRepository));
+    Get.put(ContactService(contactRepository, settingsRepository));
 
     MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,

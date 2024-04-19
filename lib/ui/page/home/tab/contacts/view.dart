@@ -182,6 +182,8 @@ class ContactsTabView extends StatelessWidget {
                           c.search.value?.search.clear();
                           c.search.value?.query.value = '';
                           c.search.value?.search.focus.requestFocus();
+                        } else {
+                          c.toggleSearch(false);
                         }
                       } else if (c.selecting.value) {
                         c.toggleSelecting();

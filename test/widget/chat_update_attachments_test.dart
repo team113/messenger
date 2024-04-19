@@ -612,7 +612,7 @@ void main() async {
 
     Get.put(CacheWorker(cacheInfoProvider, null));
 
-    Get.put(ContactService(contactRepository));
+    Get.put(ContactService(contactRepository, settingsRepository));
 
     await tester.pumpWidget(createWidgetForTesting(
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),

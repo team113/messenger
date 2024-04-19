@@ -52,9 +52,14 @@ abstract class AbstractContactRepository {
   /// Clears the stored [paginated].
   Future<void> clearCache();
 
-  /// Creates a new [ChatContact] with the specified [User] in the current
-  /// [MyUser]'s address book.
-  Future<void> createChatContact(UserName name, UserId id);
+  /// Creates a new [ChatContact] with the specified [User], [UserPhone]s and
+  /// [UserEmail]s in the current [MyUser]'s address book.
+  Future<void> createChatContact(
+    UserName name, {
+    UserId? userId,
+    List<UserEmail> emails = const [],
+    List<UserPhone> phones = const [],
+  });
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
   /// address book.

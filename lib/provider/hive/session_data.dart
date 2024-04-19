@@ -125,7 +125,7 @@ class SessionDataHiveProvider extends HiveBaseProvider<SessionData> {
 
   /// Stores a new [SessionData.blocklistSynchronized] to [Hive].
   Future<void> setBlocklistSynchronized(bool val) async {
-    Log.trace('setBlocklistSynchronized()', '$runtimeType');
+    Log.trace('setBlocklistSynchronized($val)', '$runtimeType');
     await putSafe(
       0,
       (box.get(0) ?? SessionData())..blocklistSynchronized = val,

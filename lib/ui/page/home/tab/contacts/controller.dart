@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -140,6 +141,7 @@ class ContactsTabController extends GetxController {
     scrollController.addListener(_scrollListener);
 
     contacts.value = _contactService.paginated.values
+        .where((e) => e.contact.value.users.isNotEmpty)
         .map((e) => ContactEntry(e))
         .toList()
       ..sort();
@@ -427,10 +429,12 @@ class ContactsTabController extends GetxController {
     _contactsSubscription = _contactService.paginated.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          final entry = ContactEntry(e.value!);
-          contacts.add(entry);
-          contacts.sort();
-          listen(entry);
+          if (e.value!.contact.value.users.isNotEmpty) {
+            final entry = ContactEntry(e.value!);
+            contacts.add(entry);
+            contacts.sort();
+            listen(entry);
+          }
           break;
 
         case OperationKind.removed:
@@ -440,7 +444,14 @@ class ContactsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          contacts.sort();
+          if (e.value!.contact.value.users.isNotEmpty) {
+            if (contacts.none((c) => c.id == e.key)) {
+              final entry = ContactEntry(e.value!);
+              contacts.add(entry);
+            }
+
+            contacts.sort();
+          }
           break;
       }
     });
@@ -474,7 +485,7 @@ class ContactsTabController extends GetxController {
     if (!_scrollIsInvoked) {
       _scrollIsInvoked = true;
 
-      SchedulerBinding.instance.addPostFrameCallback((_) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
         _scrollIsInvoked = false;
 
         if (scrollController.hasClients &&
@@ -482,7 +493,8 @@ class ContactsTabController extends GetxController {
             _contactService.nextLoading.isFalse &&
             scrollController.position.pixels >
                 scrollController.position.maxScrollExtent - 500) {
-          _contactService.next();
+          await _contactService.next();
+          _scrollListener();
         }
       });
     }
@@ -500,14 +512,12 @@ class ContactsTabController extends GetxController {
           return;
         }
 
-        if (!scrollController.hasClients) {
-          return await _ensureScrollable();
-        }
-
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (scrollController.position.maxScrollExtent < 50 &&
-            _contactService.nextLoading.isFalse) {
+        if ((!scrollController.hasClients ||
+                scrollController.position.maxScrollExtent < 50) &&
+            _contactService.nextLoading.isFalse &&
+            hasNext.isTrue) {
           await _contactService.next();
           _ensureScrollable();
         }

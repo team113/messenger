@@ -23,17 +23,23 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/application_settings.dart';
+import 'package:messenger/provider/hive/background.dart';
+import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/favorite_contact.dart';
+import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
+import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -60,6 +66,16 @@ void main() async {
   await favoriteContactHiveProvider.init();
   var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
   await contactSortingHiveProvider.init();
+  var settingsProvider = MediaSettingsHiveProvider();
+  await settingsProvider.init();
+  await settingsProvider.clear();
+  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
+  await applicationSettingsProvider.init();
+  var backgroundProvider = BackgroundHiveProvider();
+  await backgroundProvider.init();
+  var callRectProvider = CallRectHiveProvider();
+  await callRectProvider.init();
+
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -146,8 +162,16 @@ void main() async {
         sessionDataHiveProvider,
       ),
     );
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        settingsProvider,
+        applicationSettingsProvider,
+        backgroundProvider,
+        callRectProvider,
+      ),
+    );
 
-    return Get.put(ContactService(contactRepository));
+    return Get.put(ContactService(contactRepository, settingsRepository));
   }
 
   test('ContactService successfully renames contact', () async {
