@@ -23,7 +23,7 @@ jobs:
   pr:
     if: ${{ github.event_name == 'pull_request' }}
     needs:
-      - appcast-edge
+      - appcast
       - build
       - build-linux
       - copyright
@@ -120,20 +120,15 @@ jobs:
     # Despite this CI job is not always needed, we intentionally keep it running
     # always, because we want the `docker` CI job to depend on it, and GitHub
     # Actions doesn't provide any conditional depending at the moment.
-    #if: ${{ github.ref == 'refs/heads/main'
+    #if: ${{ startsWith(github.ref, 'refs/tags/v')
+    #     || github.ref == 'refs/heads/main'
     #     || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
-      # Skip if this isn't a push to the tags.
-      - id: skip
-        run: |
-          echo "no=${{ startsWith(github.ref, 'refs/tags/v') }}" \
-          >> $GITHUB_OUTPUT
-
       - uses: actions/checkout@v4
+        ref: ${{ startsWith(github.ref, 'refs/tags/v') && 'gh-pages' || '' }}
         with:
-          ref: gh-pages
-        if: ${{ steps.skip.outputs.no == 'true' }}
+          fetch-depth: 0 # for correct versioning via `git describe --tags`
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -141,52 +136,27 @@ jobs:
         with:
           text: ${{ github.ref }}
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-        if: ${{ steps.skip.outputs.no == 'true' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
-      - run: make appcast.item link=$(link) version=${{ steps.semver.outputs.group1 }}
+      - run: mkdir -p appcast/ .cache/
+      - run: make appcast.item
         env:
-          link: ${{ secrets.ARTIFACTS_STABLE }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
+          link: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.ARTIFACTS_STABLE || secrets.ARTIFACTS_MAIN }}
+          notes: ${{ !startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_NOTES || '' }}
+          version: ${{ steps.semver.outputs.group1 }}
 
       - run: |
           cp appcast/${{ steps.semver.outputs.group1 }}.xml \
               .cache/${{ steps.semver.outputs.group1 }}.xml
-        if: ${{ steps.skip.outputs.no == 'true' }}
+          rm -f appcast/appcast.xml
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
-      - run: rm -f appcast/appcast.xml
-      - run: make appcast.index out=.cache/appcast.xml
-        if: ${{ steps.skip.outputs.no == 'true' }}
+      - run: make appcast.xml out=.cache/appcast.xml
 
       - uses: actions/upload-artifact@v4
         with:
           name: appcast-${{ github.run_number }}
           path: .cache/*.xml
-          if-no-files-found: error
-          retention-days: 1
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
-  appcast-edge:
-    name: appcast (edge)
-    # Despite this CI job is not always needed, we intentionally keep it running
-    # always, because we want the `docker` CI job to depend on it, and GitHub
-    # Actions doesn't provide any conditional depending at the moment.
-    #if: ${{ github.ref == 'refs/heads/main'
-    #     || github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # for correct versioning via `git describe --tags`
-
-      - run: make appcast.xml
-        env:
-          link: ${{ secrets.ARTIFACTS_MAIN }}
-          notes: ${{ secrets.APPCAST_NOTES }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: appcast-edge-${{ github.run_number }}
-          path: appcast.xml
           if-no-files-found: error
           retention-days: 1
 
@@ -465,7 +435,7 @@ jobs:
              || startsWith(github.ref, 'refs/tags/v') }}
 
   docker:
-    needs: ["appcast-edge", "appcast", "build", "build-linux"]
+    needs: ["appcast", "build", "build-linux"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -507,12 +477,8 @@ jobs:
         with:
           name: appcast-${{ github.run_number }}
           path: build/web/
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: appcast-edge-${{ github.run_number }}
-          path: build/web/
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') ||
+                github.ref == 'refs/heads/main' }}
 
       - run: make docker.image no-cache=yes
                   tag=build-${{ github.run_number }}

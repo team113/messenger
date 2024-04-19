@@ -320,37 +320,8 @@ endif
 # Create Sparkle Appcast XML.
 #
 # Usage:
-#	make appcast.xml notes=<notes> link=<artifacts-url>
-#	                 [out=(appcast.xml|<output-file>)
-
-appcast-xml-ver = $(shell git describe --tags --dirty --match "v*" --always)
-
-appcast.xml:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel><item><title>$(appcast-xml-ver)</title><description>$(notes)</description><pubDate>$(shell date -R)</pubDate>$(call appcast.xml.release,"macos","messenger-macos.zip")$(call appcast.xml.release,"windows","messenger-windows.zip")$(call appcast.xml.release,"linux","messenger-linux.zip")$(call appcast.xml.release,"android","messenger-android.zip")$(call appcast.xml.release,"ios","messenger-ios.zip")</item></channel></rss>" \
-	> $(or $(out),appcast.xml)
-define appcast.xml.release
-<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
-endef
-
-
-# Create single item in Sparkle Appcast XML format.
-#
-# Usage:
-#	make appcast.item version=<version> link=<artifacts-url>
-#	                  [out=(appcast/<version>.xml|<output-file>)
-
-appcast.item:
-	@echo "<item><title>$(version)</title>$(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1 )><![CDATA[$(shell cat $(xml))]]></description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.item.release,"macos","messenger-macos.zip")$(call appcast.item.release,"windows","messenger-windows.zip")$(call appcast.item.release,"linux","messenger-linux.zip")$(call appcast.item.release,"android","messenger-android.zip")$(call appcast.item.release,"ios","messenger-ios.zip")</item>" \
-	> $(or $(out),appcast/$(version).xml)
-define appcast.item.release
-<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
-endef
-
-
-# Create Sparkle Appcast index XML.
-#
-# Usage:
-#	make appcast.index items=<items> [from=(appcast|<input-directory>)
+#	make appcast.index [items=(appcast/*.xml|<items>)]
+#	                   [from=(appcast|<input-directory>)
 #	                   [out=(appcast.xml|<output-file>)
 
 appcast-index-items = $(or $(items),$(foreach xml,$(wildcard $(or $(from),appcast)/*.xml),$(shell cat $(xml))))
@@ -358,6 +329,27 @@ appcast-index-items = $(or $(items),$(foreach xml,$(wildcard $(or $(from),appcas
 appcast.index:
 	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-index-items)</channel></rss>" \
 	> $(or $(out),appcast.xml)
+
+
+# Create single version item in Sparkle Appcast XML format.
+#
+# Note, that output is not a valid XML yet. To make it valid, use the
+# `appcast.xml` afterwards.
+#
+# Usage:
+#	make appcast.item [notes=(release_notes|<notes>)]
+#	                  version=<version> link=<artifacts-url>
+#	                  [out=(appcast/<version>.xml|<output-file>)
+
+appcast-item-ver = $(or $(version),$(shell git describe --tags --dirty --match "v*" --always))
+appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1 )><![CDATA[$(shell cat $(xml))]]></description>)
+
+appcast.item:
+	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.item.release,"macos","messenger-macos.zip")$(call appcast.item.release,"windows","messenger-windows.zip")$(call appcast.item.release,"linux","messenger-linux.zip")$(call appcast.item.release,"android","messenger-android.zip")$(call appcast.item.release,"ios","messenger-ios.zip")</item>" \
+	> $(or $(out),appcast/$(appcast-item-ver).xml)
+define appcast.item.release
+<enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
+endef
 
 
 
@@ -920,7 +912,7 @@ sentry.upload:
 ##################
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
-        appcast.index appcast.item appcast.xml \
+        appcast.item appcast.xml \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
