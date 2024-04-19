@@ -126,8 +126,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        ref: ${{ startsWith(github.ref, 'refs/tags/v') && 'gh-pages' || '' }}
         with:
+          ref: ${{ startsWith(github.ref, 'refs/tags/v') && 'gh-pages' || '' }}
           fetch-depth: 0 # for correct versioning via `git describe --tags`
 
       - name: Parse semver versions from Git tag
