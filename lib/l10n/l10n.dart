@@ -306,6 +306,7 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.sections => 'label_show_sections'.l10n,
       ProfileTab.download => 'label_download'.l10n,
       ProfileTab.danger => 'label_danger_zone'.l10n,
+      ProfileTab.legal => 'label_legal_information'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };
   }

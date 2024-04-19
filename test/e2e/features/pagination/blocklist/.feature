@@ -23,7 +23,7 @@ Feature: Blocklist pagination
     And I sign in as Alice
     And I wait until `HomeView` is present
 
-    When I tap `CloseButton` button
+    When I tap `ProceedButton` button
     And I tap `MenuButton` button
     And I scroll `MenuListView` until `Blocklist` is present
     And I tap `Blocklist` button

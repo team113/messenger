@@ -24,7 +24,10 @@ import 'interactive_logo.dart';
 
 /// [Block] display the [InteractiveLogo].
 class ProjectBlock extends StatelessWidget {
-  const ProjectBlock({super.key});
+  const ProjectBlock({super.key, this.children = const []});
+
+  /// [Widget]s to display under the [InteractiveLogo], if any.
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +53,7 @@ class ProjectBlock extends StatelessWidget {
         const SizedBox(height: 20),
         const InteractiveLogo(),
         const SizedBox(height: 7),
+        ...children,
       ],
     );
   }

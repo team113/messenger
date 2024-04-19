@@ -24,7 +24,6 @@ import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/work/widget/vacancy_button.dart';
-import '/ui/widget/animated_button.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.work] tab.
@@ -74,19 +73,6 @@ class WorkTabView extends StatelessWidget {
                 const SizedBox(width: 16),
               ],
             ),
-            actions: [
-              AnimatedButton(
-                decorator: (child) => Container(
-                  padding: const EdgeInsets.only(right: 18),
-                  height: double.infinity,
-                  child: Center(child: child),
-                ),
-                onPressed: () {
-                  // No-op.
-                },
-                child: Icon(Icons.more_vert, color: style.colors.primary),
-              ),
-            ],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
