@@ -24,6 +24,11 @@ alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_by_proceeding_you_accept_terms1 = By proceeding, you agree with the{" "}
+alert_by_proceeding_you_accept_terms2 = Terms of Service
+alert_by_proceeding_you_accept_terms3 = {" "}and{" "}
+alert_by_proceeding_you_accept_terms4 = Privacy Policy
+alert_by_proceeding_you_accept_terms5 = {" "}of the service.
 alert_chat_will_be_blocked1 = Chat{" "}
 alert_chat_will_be_blocked2 = {" "}will be blocked.
 alert_chat_will_be_cleared1 = Chat{" "}
@@ -32,6 +37,8 @@ alert_chat_will_be_deleted1 = Chat{" "}
 alert_chat_will_be_deleted2 = {" "}will be deleted.
 
     To restore the chat, please, use the search.
+alert_chat_will_be_reported1 = Chat{" "}
+alert_chat_will_be_reported2 = {" "}will be reported.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
 alert_contact_will_be_removed2 = {" "}will be deleted.
@@ -60,7 +67,10 @@ alert_user_will_be_blocked1 = User{" "}
 alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
+alert_user_will_be_reported1 = User{" "}
+alert_user_will_be_reported2 = {" "}will be reported.
 alert_you_will_leave_group = You will leave the group.
+btn_accept = Accept
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
@@ -170,6 +180,7 @@ btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
 btn_create_group = Create group
+btn_decline = Decline
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
@@ -180,6 +191,7 @@ btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
+btn_do_not_allow = Do not allow
 btn_download = Download
 btn_download_all = Download all
 btn_download_as = Download as
@@ -220,6 +232,7 @@ btn_participants_desc =
 btn_password = Password
 btn_paste = Paste
 btn_personalize = Personalization
+btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
@@ -250,6 +263,7 @@ btn_sticker = Sticker
 btn_submit = Submit
 btn_take_photo = Take photo
 btn_take_video = Take video
+btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_undo_delete = Undo delete
@@ -774,6 +788,7 @@ label_language = Language
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
 label_leave_group = Leave group
+label_legal_information = Legal information
 label_link_to_chat = Chat link
 label_load_images = Load images
 label_login = Login
@@ -861,6 +876,25 @@ label_password_not_set_info = No password has been set for your account. Consequ
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
+label_personal_data_deletion = Delete account
+label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
+label_personal_data_deletion_description =
+    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+
+    The data that will be deleted is:
+    - your avatar;
+    - your name;
+    - your biography;
+    - your login;
+    - all of your emails;
+    - all of your phone numbers;
+    - your contacts list.
+
+    The data that will not be deleted:
+    - your Gapopa ID, as is does not represent personal information;
+    - the messages you have sent, however no one will see you as an author of those messages.
+
+    Not a single user will be able to find, identify or detect the information of your presence within the system.
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
@@ -903,6 +937,7 @@ label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
+label_report = Report
 label_required = Required
 label_requirements = Requirements
 label_requirements_backend_developer =

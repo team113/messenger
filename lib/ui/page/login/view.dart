@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,6 +29,8 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'privacy_policy/view.dart';
+import 'terms_of_use/view.dart';
 import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
@@ -306,7 +309,8 @@ class LoginView extends StatelessWidget {
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
+                _terms(context),
               ];
               break;
 
@@ -388,7 +392,8 @@ class LoginView extends StatelessWidget {
                   icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
                 ),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
+                _terms(context),
               ];
               break;
 
@@ -439,6 +444,42 @@ class LoginView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+
+  /// Builds the legal disclaimer information.
+  Widget _terms(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms1'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms2'.l10n,
+            style: style.fonts.small.regular.primary,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => TermsOfUseView.show(context),
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms3'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms4'.l10n,
+            style: style.fonts.small.regular.primary,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => PrivacyPolicy.show(context),
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms5'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ],
+      ),
     );
   }
 }

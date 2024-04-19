@@ -16,7 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Dialogs missing their avatars in some cases. ([#967], [#964])
+    - Account deletion page. ([#961])
+    - "Terms and conditions" page. ([#961])
+    - "Privacy policy" page. ([#961])
 
+[#961]: /../../pull/961
 [#964]: /../../issues/964
 [#967]: /../../pull/967
 

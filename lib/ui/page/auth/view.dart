@@ -46,12 +46,14 @@ class AuthView extends StatelessWidget {
       builder: (AuthController c) {
         final Widget status = Column(
           children: [
-            const SizedBox(height: 4),
-            StyledCupertinoButton(
-              label: 'btn_download_application'.l10n,
-              style: style.fonts.normal.regular.secondary,
-              onPressed: () => _download(context),
-            ),
+            if (PlatformUtils.isWeb || !PlatformUtils.isMobile) ...[
+              const SizedBox(height: 4),
+              StyledCupertinoButton(
+                label: 'btn_download_application'.l10n,
+                style: style.fonts.normal.regular.secondary,
+                onPressed: () => _download(context),
+              ),
+            ],
             const SizedBox(height: 4),
             StyledCupertinoButton(
               padding: const EdgeInsets.all(8),

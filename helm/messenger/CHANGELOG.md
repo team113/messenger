@@ -6,6 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.2] · 2024-04-19
+[0.1.2]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.2/helm/messenger
+
+### Added
+
+- `/privacy` and `/terms` URI paths to [Nginx] configuration. ([#961])
+
+[#961]: https://github.com/team113/messenger/pull/961
+
+
+
+
 ## [0.1.1] · 2024-01-29
 [0.1.1]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.1/helm/messenger
 
@@ -35,4 +47,5 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+[Nginx]: https://nginx.org
 [Semantic Versioning 2.0.0]: https://semver.org

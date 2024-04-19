@@ -37,6 +37,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/quick_button.dart';
+import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -382,7 +383,7 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(height: 8),
         if (!c.isMonolog)
           ActionButton(
-            onPressed: () {},
+            onPressed: () => _reportChat(c, context),
             text: 'btn_report'.l10n,
             trailing: Transform.translate(
               offset: const Offset(0, -1),
@@ -472,9 +473,7 @@ class ChatInfoView extends StatelessWidget {
           ),
           if (!c.isMonolog)
             ContextMenuButton(
-              onPressed: () {
-                // TODO: Implement.
-              },
+              onPressed: () => _reportChat(c, context),
               label: 'btn_report'.l10n,
               trailing: const SvgIcon(SvgIcons.report),
               inverted: const SvgIcon(SvgIcons.reportWhite),
@@ -687,6 +686,41 @@ class ChatInfoView extends StatelessWidget {
 
     if (result == true) {
       await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup reporting this [Chat].
+  Future<void> _reportChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_reported2'.l10n),
+      ],
+      additional: [
+        const SizedBox(height: 25),
+        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+      ],
+      button: (context) {
+        return Obx(() {
+          return PrimaryButton(
+            title: 'btn_proceed'.l10n,
+            onPressed: c.reporting.isEmpty.value
+                ? null
+                : () => Navigator.of(context).pop(true),
+          );
+        });
+      },
+    );
+
+    if (result == true) {
+      await c.reportChat();
     }
   }
 }
