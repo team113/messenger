@@ -54,6 +54,9 @@ fragment MyUser on MyUser {
     }
     online {
         __typename
+        ... on UserOffline {
+            lastSeenAt
+        }
     }
     presence
     status

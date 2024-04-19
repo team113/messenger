@@ -38,6 +38,7 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -142,7 +143,14 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();
-  credentialsProvider.set(
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
+
+  accountProvider.set(const UserId('me'));
+  credentialsProvider.put(
     Credentials(
       AccessToken(
         const AccessTokenSecret('token'),
@@ -171,7 +179,15 @@ void main() async {
   );
 
   AuthService authService = Get.put(
-    AuthService(AuthRepository(graphQlProvider), credentialsProvider),
+    AuthService(
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
+      credentialsProvider,
+      accountProvider,
+    ),
   );
   authService.init();
 
@@ -223,9 +239,6 @@ void main() async {
   await blocklistProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -428,6 +441,7 @@ void main() async {
         myUserProvider,
         blocklistRepository,
         userRepository,
+        accountProvider,
       ),
     );
     Get.put(MyUserService(authService, myUserRepository));

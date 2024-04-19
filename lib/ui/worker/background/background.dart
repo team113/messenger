@@ -22,7 +22,9 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
+import '/provider/hive/account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -30,10 +32,13 @@ import 'src/main.dart';
 
 /// Worker responsible for a [FlutterBackgroundService] management.
 class BackgroundWorker extends GetxService {
-  BackgroundWorker(this._credentialsProvider);
+  BackgroundWorker(this._credentialsProvider, this._accountProvider);
 
   /// [CredentialsHiveProvider] listening [Credentials] changes.
   final CredentialsHiveProvider _credentialsProvider;
+
+  /// [AccountHiveProvider] used to get the currently active [UserId].
+  final AccountHiveProvider _accountProvider;
 
   /// [FlutterBackgroundService] itself.
   final FlutterBackgroundService _service = FlutterBackgroundService();
@@ -58,39 +63,43 @@ class BackgroundWorker extends GetxService {
   /// [Worker] reacting on the [L10n.chosen] changes.
   Worker? _localizationWorker;
 
+  /// Current [Credentials] being used in this [BackgroundWorker].
+  Credentials? _credentials;
+
+  /// Returns the stored [Credentials] of the currently active [MyUser].
+  Credentials? get _active {
+    final UserId? id = _accountProvider.userId;
+    final Credentials? creds = id != null ? _credentialsProvider.get(id) : null;
+
+    return creds;
+  }
+
   @override
   void onInit() {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       _initService();
 
-      var lastCreds = _credentialsProvider.get();
       _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-        // If session is deleted, then ask the [_service] to stop.
-        if (e.deleted) {
-          lastCreds = null;
-          _service.invoke('stop');
-          _dispose();
-        } else {
-          var creds = e.value as Credentials?;
-          // Otherwise if [Credentials] mismatch is detected, update the
-          // [_service].
-          if (creds?.access.secret != lastCreds?.access.secret ||
-              creds?.refresh.secret != lastCreds?.refresh.secret) {
-            lastCreds = creds;
+        final key = UserId(e.key);
 
-            if (creds == null) {
-              _service.invoke('stop');
-              _dispose();
+        if (key == _credentials?.userId) {
+          // If session is deleted, then ask the [_service] to stop.
+          if (e.deleted) {
+            _service.invoke('stop');
+            _dispose();
+          } else {
+            final Credentials credentials = e.value;
+
+            // Start the service, if not already. Otherwise, send the new
+            // token to it.
+            if (_onDataReceived.isEmpty) {
+              _initService();
             } else {
-              // Start the service, if not already. Otherwise, send the new
-              // token to it.
-              if (_onDataReceived.isEmpty) {
-                _initService();
-              } else {
-                _service.invoke('token', creds.toJson());
-              }
+              _service.invoke('token', credentials.toJson());
             }
           }
+        } else {
+          // No-op, as [Credentials] of non-active [MyUser] were changed.
         }
       });
     }
@@ -119,9 +128,11 @@ class BackgroundWorker extends GetxService {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Do not initialize the service if no [Credentials] are stored.
-    if (_credentialsProvider.get() == null) {
+    if (_active == null) {
       return;
     }
+
+    _credentials = _active;
 
     for (var e in _onDataReceived) {
       e.cancel();
@@ -129,12 +140,11 @@ class BackgroundWorker extends GetxService {
     _onDataReceived.clear();
 
     _onDataReceived.add(_service.on('requireToken').listen((e) {
-      var session = _credentialsProvider.get();
-      FlutterBackgroundService().invoke('token', session!.toJson());
+      FlutterBackgroundService().invoke('token', _credentials!.toJson());
     }));
 
     _onDataReceived.add(_service.on('token').listen((e) {
-      _credentialsProvider.set(Credentials.fromJson(e!));
+      _credentialsProvider.put(Credentials.fromJson(e!));
     }));
 
     await _service.configure(
@@ -182,6 +192,7 @@ class BackgroundWorker extends GetxService {
     _lifecycleWorker = null;
     _localizationWorker?.dispose();
     _localizationWorker = null;
+    _credentials = null;
 
     for (var e in _onDataReceived) {
       e.cancel();

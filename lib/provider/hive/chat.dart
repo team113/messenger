@@ -102,6 +102,7 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RecentChatsCursorAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(ThumbHashAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 
