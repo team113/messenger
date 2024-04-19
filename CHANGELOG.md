@@ -6,19 +6,39 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13.3...v0.1.0-alpha.14) | [Milestone](/../../milestone/22)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Contacts button moved to chats tab app bar. ([#970])
+
+[#970]: /../../pull/970
+
+
+
+
 ## [0.1.0-alpha.13.3] · 2024-04-19
 [0.1.0-alpha.13.3]: /../../tree/v0.1.0-alpha.13.3
 
 [Diff](/../../compare/v0.1.0-alpha.13.2...v0.1.0-alpha.13.3) | [Milestone](/../../milestone/21)
+
+### Added
+
+- UI:
+    - Account deletion page. ([#961])
+    - "Terms and conditions" page. ([#961])
+    - "Privacy policy" page. ([#961])
 
 ### Fixed
 
 - UI:
     - Chats tab:
         - Dialogs missing their avatars in some cases. ([#967], [#964])
-    - Account deletion page. ([#961])
-    - "Terms and conditions" page. ([#961])
-    - "Privacy policy" page. ([#961])
 
 [#961]: /../../pull/961
 [#964]: /../../issues/964
