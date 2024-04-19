@@ -20,6 +20,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -266,7 +267,8 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
+                  hint: 'example@gapopa.com',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
@@ -310,6 +312,16 @@ class LoginView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   hint: 'alphanumeric-login_123',
                   treatErrorAsStatus: false,
+                  onChanged: () {
+                    if (c.inLogin.text.length > 2) {
+                      try {
+                        UserLogin(c.inLogin.text.toLowerCase());
+                      } on FormatException catch (_) {
+                        c.inLogin.error.value =
+                            'err_incorrect_login_input'.l10n;
+                      }
+                    }
+                  },
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField(
@@ -393,6 +405,45 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signInWithEmail:
+              header = ModalPopupHeader(
+                text: 'label_sign_in'.l10n,
+                onBack: () {
+                  c.stage.value = LoginViewStage.signIn;
+                  c.email.unsubmit();
+                },
+              );
+
+              children = [
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  hint: 'example@gapopa.com',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  style: style.fonts.normal.regular.onBackground,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.email.isEmpty.value;
+
+                    return OutlinedRoundedButton(
+                      onPressed: enabled ? () {} : null,
+                      color: style.colors.primary,
+                      maxWidth: double.infinity,
+                      child: Text(
+                        'btn_proceed'.l10n,
+                        style: enabled
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
+                      ),
+                    );
+                  }),
+                ),
+              ];
+              break;
+
             case LoginViewStage.signInWithPassword:
               header = ModalPopupHeader(
                 text: 'label_sign_in_with_password'.l10n,
@@ -419,7 +470,10 @@ class LoginView extends StatelessWidget {
                         ? SvgIcons.visibleOff
                         : SvgIcons.visibleOn,
                   ),
-                  subtitle: WidgetButton(
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(21, 8, 8, 8),
+                  child: WidgetButton(
                     onPressed: () {
                       c.recovery.clear();
                       c.recoveryCode.clear();
@@ -468,6 +522,17 @@ class LoginView extends StatelessWidget {
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithPassword,
                   icon: const SvgIcon(SvgIcons.password),
+                  padding: const EdgeInsets.only(left: 1),
+                ),
+                const SizedBox(height: 16),
+                SignButton(
+                  key: const Key('OtpEmailButton'),
+                  title: 'label_email'.l10n,
+                  subtitle: 'label_one_time_password'.l10n,
+                  dense: true,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signInWithEmail,
+                  icon: const SvgIcon(SvgIcons.email),
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 16),

@@ -24,6 +24,7 @@ class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,
     this.title = '',
+    this.subtitle,
     this.onPressed,
     this.style,
     this.prefix,
@@ -31,6 +32,7 @@ class PrefixButton extends StatelessWidget {
 
   /// Title of this [PrefixButton].
   final String title;
+  final String? subtitle;
 
   /// [TextStyle] of the [title].
   final TextStyle? style;
@@ -76,11 +78,22 @@ class PrefixButton extends StatelessWidget {
                   children: [
                     const SizedBox(width: 8),
                     Expanded(
-                      child: DefaultTextStyle.merge(
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: style,
-                        child: Center(child: Text(title)),
+                      child: Column(
+                        children: [
+                          DefaultTextStyle.merge(
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: style,
+                            child: Center(child: Text(title)),
+                          ),
+                          if (subtitle != null)
+                            DefaultTextStyle.merge(
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: styles.fonts.small.regular.secondary,
+                              child: Center(child: Text(subtitle!)),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -25,13 +25,16 @@ class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
     required this.title,
+    this.subtitle,
     this.icon,
     this.padding = EdgeInsets.zero,
     this.onPressed,
+    this.dense = false,
   });
 
   /// Title of this [SignButton].
   final String title;
+  final String? subtitle;
 
   /// Widget to display as a [PrefixButton.prefix].
   final Widget? icon;
@@ -42,6 +45,8 @@ class SignButton extends StatelessWidget {
   /// Callback, called when this button is pressed.
   final void Function()? onPressed;
 
+  final bool dense;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -49,9 +54,14 @@ class SignButton extends StatelessWidget {
     return Center(
       child: PrefixButton(
         title: title,
-        style: onPressed == null
-            ? style.fonts.medium.regular.secondary
-            : style.fonts.medium.regular.onBackground,
+        subtitle: subtitle,
+        style: dense
+            ? onPressed == null
+                ? style.fonts.small.regular.secondary
+                : style.fonts.small.regular.onBackground
+            : onPressed == null
+                ? style.fonts.medium.regular.secondary
+                : style.fonts.medium.regular.onBackground,
         onPressed: onPressed,
         prefix: icon == null
             ? null
