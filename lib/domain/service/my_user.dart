@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../../util/web/web_utils.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -29,6 +28,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
+import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 

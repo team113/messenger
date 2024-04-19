@@ -440,7 +440,7 @@ class AuthService extends GetxService {
   Future<String> deleteSession({bool force = false}) async {
     Log.debug('deleteSession(force: $force)', '$runtimeType');
 
-    await WebUtils.protect(() async {
+    return await WebUtils.protect(() async {
       status.value = RxStatus.loading();
 
       if (force) {
@@ -472,9 +472,9 @@ class AuthService extends GetxService {
           printError(info: e.toString());
         }
       }
-    });
 
-    return _unauthorized();
+      return _unauthorized();
+    });
   }
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
@@ -495,12 +495,14 @@ class AuthService extends GetxService {
   Future<bool> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    try {
-      await _authRepository.validateToken();
-      return true;
-    } on AuthorizationException {
-      return false;
-    }
+    return WebUtils.protect(() async {
+      try {
+        await _authRepository.validateToken();
+        return true;
+      } on AuthorizationException {
+        return false;
+      }
+    });
   }
 
   /// Refreshes the current [credentials].
