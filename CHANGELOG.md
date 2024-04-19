@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.13.3] · 2024-04-19
+[0.1.0-alpha.13.3]: /../../tree/v0.1.0-alpha.13.3
+
+[Diff](/../../compare/v0.1.0-alpha.13.2...v0.1.0-alpha.13.3) | [Milestone](/../../milestone/21)
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Dialogs missing their avatars in some cases. ([#967], [#964])
+
+[#964]: /../../issues/964
+[#967]: /../../pull/967
+
+
+
+
 ## [0.1.0-alpha.13.2] · 2024-04-11
 [0.1.0-alpha.13.2]: /../../tree/v0.1.0-alpha.13.2
 

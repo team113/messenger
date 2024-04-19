@@ -335,6 +335,7 @@ class MyProfileController extends GetxController {
       allowMultiple: false,
       withData: true,
       withReadStream: false,
+      lockParentWindow: true,
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -379,6 +380,7 @@ class MyProfileController extends GetxController {
         type: FileType.image,
         allowMultiple: false,
         withData: true,
+        lockParentWindow: true,
       );
 
       if (result?.files.isNotEmpty == true) {
