@@ -207,6 +207,9 @@ class HiveRxChat extends RxChat {
   /// [WebUtils.onStorageChange] determining the [inCall] indicator.
   StreamSubscription? _callSubscription;
 
+  /// [StreamSubscription] to [members] updating the [avatar].
+  StreamSubscription? _membersPaginationSubscription;
+
   /// [AwaitableTimer] executing a [ChatRepository.readUntil].
   AwaitableTimer? _readTimer;
 
@@ -371,7 +374,14 @@ class HiveRxChat extends RxChat {
     _initMessagesPagination();
     _initMembersPagination();
 
-    _updateFields().then((_) => chat.value.isDialog ? _updateAvatar() : null);
+    _updateFields();
+
+    if (chat.value.isDialog) {
+      _updateAvatar();
+      _membersPaginationSubscription = members.items.changes.listen((e) async {
+        _updateAvatar();
+      });
+    }
 
     Chat previous = chat.value;
     _worker = ever(chat, (_) {
@@ -420,6 +430,7 @@ class HiveRxChat extends RxChat {
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     _membersSubscription?.cancel();
+    _membersPaginationSubscription?.cancel();
     await _local.close();
     await _sorting.close();
     status.value = RxStatus.empty();
@@ -1290,8 +1301,8 @@ class HiveRxChat extends RxChat {
     }
   }
 
-  /// Updates the [members] and [title] fields based on the [chat] state.
-  Future<void> _updateFields({Chat? previous}) async {
+  /// Updates the [avatar] and [unreadCount] fields based on the [chat] state.
+  void _updateFields({Chat? previous}) {
     Log.trace('_updateFields($previous)', '$runtimeType($id)');
 
     if (!chat.value.isDialog) {
@@ -1346,6 +1357,7 @@ class HiveRxChat extends RxChat {
 
     if (member != null) {
       avatar.value = member.user.value.avatar;
+      _userWorker?.dispose();
       _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
     }
   }
