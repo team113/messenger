@@ -130,6 +130,12 @@ jobs:
           ref: ${{ startsWith(github.ref, 'refs/tags/v') && 'gh-pages' || '' }}
           fetch-depth: 0 # for correct versioning via `git describe --tags`
 
+      - name: Fetch Makefile and release notes from the upstream
+        run: |
+          git checkout ${{ github.ref }} -- Makefile
+          git checkout ${{ github.ref }} -- release_notes/
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
       - name: Parse semver versions from Git tag
         id: semver
         uses: actions-ecosystem/action-regex-match@v2
