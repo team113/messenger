@@ -346,7 +346,7 @@ class WebUtils {
             'mutex',
             allowInterop(
               (_) => callback()
-                  .then((val) => completer.complete(val))
+                  .then((R val) => completer.complete(val))
                   .onError(
                     (e, stackTrace) => completer.completeError(
                       e ?? Exception(),
