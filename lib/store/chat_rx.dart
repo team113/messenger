@@ -378,6 +378,9 @@ class HiveRxChat extends RxChat {
 
     if (chat.value.isDialog) {
       _updateAvatar();
+      _membersPaginationSubscription = members.items.changes.listen((e) async {
+        _updateAvatar();
+      });
     }
 
     Chat previous = chat.value;
@@ -398,12 +401,6 @@ class HiveRxChat extends RxChat {
           break;
       }
     });
-
-    if (chat.value.isDialog) {
-      _membersPaginationSubscription = members.items.changes.listen((e) async {
-        _updateAvatar();
-      });
-    }
 
     _callSubscription = StreamGroup.mergeBroadcast([
       _chatRepository.calls.changes,
@@ -1360,6 +1357,7 @@ class HiveRxChat extends RxChat {
 
     if (member != null) {
       avatar.value = member.user.value.avatar;
+      _userWorker?.dispose();
       _userWorker = ever(member.user, (User u) => avatar.value = u.avatar);
     }
   }

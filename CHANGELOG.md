@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats tab:
-        - Avatar sometimes not displayed for dialogs. ([#967], [#964])
+        - Dialogs missing their avatars in some cases. ([#967], [#964])
 
 [#964]: /../../issues/964
 [#967]: /../../pull/967
