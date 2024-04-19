@@ -20,6 +20,10 @@ slugify = $(strip $(shell echo $(2) | tr [:upper:] [:lower:] \
                                     | cut -c 1-$(1) \
                                     | sed -e 's/^-*//' -e 's/-*$$//'))
 
+# Reverses the provided list.
+reverse = $(if $(wordlist 2,2,$(1)),$(call reverse,\
+               $(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)),$(1))
+
 
 
 
@@ -324,10 +328,12 @@ endif
 #	                 [from=(appcast|<input-directory>)
 #	                 [out=(appcast.xml|<output-file>)
 
-appcast-xml-items = $(or $(items),$(foreach xml,$(wildcard $(or $(from),appcast)/*.xml),$(shell cat $(xml))))
+appcast-xml-items = $(or $(items),$(foreach xml,\
+	$(call reverse,$(wildcard $(or $(from),appcast)/*.xml)),\
+	$(shell cat $(xml))))
 
 appcast.xml:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>" \
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>"\
 	> $(or $(out),appcast.xml)
 
 
@@ -341,8 +347,9 @@ appcast.xml:
 #	                  version=<version> link=<artifacts-url>
 #	                  [out=(appcast/<version>.xml|<output-file>)
 
-appcast-item-ver = $(or $(version),$(shell git describe --tags --dirty --match "v*" --always))
-appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1 )><![CDATA[$(shell cat $(xml))]]></description>)
+appcast-item-ver = $(or $(version),\
+	$(shell git describe --tags --dirty --match "v*" --always))
+appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)><![CDATA[$(shell cat $(xml))]]></description>)
 
 appcast.item:
 	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.item.release,"macos","messenger-macos.zip")$(call appcast.item.release,"windows","messenger-windows.zip")$(call appcast.item.release,"linux","messenger-linux.zip")$(call appcast.item.release,"android","messenger-android.zip")$(call appcast.item.release,"ios","messenger-ios.zip")</item>" \
