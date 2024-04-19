@@ -17,14 +17,13 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/download_button.dart';
+import '/ui/widget/markdown.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/worker/upgrade.dart';
@@ -105,32 +104,7 @@ class UpgradePopupView extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       if (release.description != null)
-                        MarkdownBody(
-                          data: release.description!,
-                          onTapLink: (_, href, __) async =>
-                              await launchUrlString(href!),
-                          styleSheet: MarkdownStyleSheet(
-                            h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
-
-                            // TODO: Exception.
-                            h2: style.fonts.largest.bold.onBackground
-                                .copyWith(fontSize: 20),
-
-                            p: style.fonts.normal.regular.onBackground,
-                            code:
-                                style.fonts.small.regular.onBackground.copyWith(
-                              letterSpacing: 1.2,
-                              backgroundColor: style.colors.secondaryHighlight,
-                            ),
-                            codeblockDecoration: BoxDecoration(
-                              color: style.colors.secondaryHighlight,
-                            ),
-                            codeblockPadding: const EdgeInsets.all(16),
-                            blockquoteDecoration: BoxDecoration(
-                              color: style.colors.secondaryHighlight,
-                            ),
-                          ),
-                        ),
+                        MarkdownWidget(release.description!),
                       const SizedBox(height: 8),
                       Text(
                         release.publishedAt.toRelative(),

@@ -24,6 +24,11 @@ alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
 alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_by_proceeding_you_accept_terms1 = Продолжая, Вы соглашаетесь с{" "}
+alert_by_proceeding_you_accept_terms2 = условиями использования
+alert_by_proceeding_you_accept_terms3 = {" "}и{" "}
+alert_by_proceeding_you_accept_terms4 = политикой кофиденциальности
+alert_by_proceeding_you_accept_terms5 = {" "}сервиса.
 alert_chat_will_be_blocked1 = Чат{" "}
 alert_chat_will_be_blocked2 = {" "}будет заблокирован.
 alert_chat_will_be_cleared1 = Чат{" "}
@@ -32,6 +37,8 @@ alert_chat_will_be_deleted1 = Чат{" "}
 alert_chat_will_be_deleted2 = {" "}будет удалён.
 
     Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
+alert_chat_will_be_reported1 = На чат{" "}
+alert_chat_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_chats_will_be_deleted = Чаты ({$count}) будут удалены. Продолжить?
 alert_contact_will_be_removed1 = Контакт{" "}
 alert_contact_will_be_removed2 = {" "}будет удалён.
@@ -60,7 +67,10 @@ alert_user_will_be_blocked1 = Пользователь{" "}
 alert_user_will_be_blocked2 = {" "}будет заблокирован.
 alert_user_will_be_removed1 = Пользователь{" "}
 alert_user_will_be_removed2 = {" "}будет удалён из группы.
+alert_user_will_be_reported1 = На пользователя{" "}
+alert_user_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_you_will_leave_group = Вы покинете группу.
+btn_accept = Принять
 btn_add = Добавить
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
@@ -170,6 +180,7 @@ btn_copy = Скопировать
 btn_copy_text = Скопировать текст
 btn_create = Создать
 btn_create_group = Создать группу
+btn_decline = Отклонить
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_chat = Удалить чат
@@ -180,6 +191,7 @@ btn_delete_from_contacts = Удалить из контактов
 btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
+btn_do_not_allow = Не разрешать
 btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
@@ -220,6 +232,7 @@ btn_participants_desc =
 btn_password = Пароль
 btn_paste = Вставить
 btn_personalize = Персонализация
+btn_privacy_policy = Политика конфиденциальности
 btn_proceed = Продолжить
 btn_remove = Удалить
 btn_rename = Переименовать
@@ -250,6 +263,7 @@ btn_sticker = Стикер
 btn_submit = Применить
 btn_take_photo = Фото
 btn_take_video = Видео
+btn_terms_and_conditions = Условия использования
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_undo_delete = Отменить удаление
@@ -650,13 +664,13 @@ label_code_sent_again = Код отправлен повторно.
 label_conditions = Условия
 label_conditions_backend_developer =
     - ежедневная оплата;
-    - от 2000 EUR;
+    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок;
     - удалённое сотрудничество.
 label_conditions_frontend_developer =
     - ежедневная оплата;
-    - от 2000 EUR;
+    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок;
     - удалённое сотрудничество.
@@ -798,6 +812,7 @@ label_kb = {$amount} КБ
 label_language = Язык
 label_language_entry = {$code}, {$name}
 label_leave_group = Покинуть группу
+label_legal_information = Юридическая информация
 label_link_to_chat = Ссылка на чат
 label_load_images = Загружать изображения
 label_login = Логин
@@ -888,6 +903,25 @@ label_password_not_set_info = Для Вашего аккаунта не зада
 
     • в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файлов cookie.
 label_password_set = Пароль задан.
+label_personal_data_deletion = Удалить аккаунт
+label_personal_data_deletion_authorize = Чтобы удалить Ваш аккаунт, пожалуйста, авторизуйтесь в форме ниже.
+label_personal_data_deletion_description =
+    Запрос на удаление аккаунта может быть отправлен с данной страницы. Этот процесс НЕОБРАТИМ - Вы не сможете восстановить свой аккаунт.
+
+    Информация, которая будет удалена:
+    - Ваш аватар;
+    - Ваше имя;
+    - Ваша биография;
+    - Ваш логин;
+    - все Ваши e-mail адреса;
+    - все Ваши номера телефонов;
+    - Ваш список контактов.
+
+    Информация, которая не будет удалена:
+    - Ваш Gapopa ID, поскольку он не является персональной информацией;
+    - отправленные Вами сообщения, при этом никто не сможет идентифицировать, что автором этих сообщений были или являетесь Вы.
+
+    Ни один пользователь не сможет найти, идентифицировать или обнаружить информацию о Вашем присутствии в системе.
 label_personalization = Персонализация
 label_phone = Телефон
 label_phone_confirmation_code_was_send =
@@ -931,6 +965,7 @@ label_replies = [{$count} {$count ->
     [few] ответа
     *[other] ответов
     }]
+label_report = Пожаловаться
 label_required = Обязательно
 label_requirements = Требуется
 label_requirements_backend_developer =

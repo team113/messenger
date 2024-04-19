@@ -70,6 +70,7 @@ import 'store/settings.dart';
 import 'store/user.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
+import 'ui/page/erase/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
@@ -99,6 +100,7 @@ class Routes {
   static const menu = '/menu';
   static const user = '/user';
   static const work = '/work';
+  static const erase = '/erase';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -129,6 +131,7 @@ enum ProfileTab {
   sections,
   download,
   danger,
+  legal,
   logout,
 }
 
@@ -277,7 +280,7 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
-    if (to.startsWith(Routes.work)) {
+    if (to.startsWith(Routes.work) || to.startsWith(Routes.erase)) {
       return to;
     }
 
@@ -781,6 +784,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: WorkView(),
         )
       ];
+    } else if (_state.route.startsWith(Routes.erase)) {
+      return const [
+        MaterialPage(
+          key: ValueKey('ErasePage'),
+          name: Routes.erase,
+          child: EraseView(),
+        )
+      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -793,6 +804,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
         _state.route.startsWith(Routes.work) ||
+        _state.route.startsWith(Routes.erase) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();

@@ -136,7 +136,7 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
       final ScrollPosition position = state.position;
 
       if (await isPresent(finder)) {
-        await Scrollable.ensureVisible(finder.evaluate().single);
+        await Scrollable.ensureVisible(finder.evaluate().first);
 
         // If [finder] is present and it's within our view, then break the loop.
         if (tester.getCenter(finder.first).dy <= height - dy ||
