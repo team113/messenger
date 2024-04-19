@@ -180,8 +180,8 @@ class SvgIcons {
 
   static const SvgData contactsSwitch = SvgData(
     'assets/icons/contacts_switch.svg',
-    width: 27.01,
-    height: 23.36,
+    width: 22.4,
+    height: 20.8,
   );
 
   static const SvgData register = SvgData(
