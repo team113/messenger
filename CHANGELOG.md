@@ -15,9 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Home page:
-        - Contacts button moved to chats tab app bar. ([#969])
+        - Contacts button moved to chats tab app bar. ([#970])
 
-[#967]: /../../pull/969
+[#970]: /../../pull/970
 
 
 
