@@ -320,14 +320,14 @@ endif
 # Create Sparkle Appcast XML.
 #
 # Usage:
-#	make appcast.index [items=(appcast/*.xml|<items>)]
-#	                   [from=(appcast|<input-directory>)
-#	                   [out=(appcast.xml|<output-file>)
+#	make appcast.xml [items=(appcast/*.xml|<items>)]
+#	                 [from=(appcast|<input-directory>)
+#	                 [out=(appcast.xml|<output-file>)
 
-appcast-index-items = $(or $(items),$(foreach xml,$(wildcard $(or $(from),appcast)/*.xml),$(shell cat $(xml))))
+appcast-xml-items = $(or $(items),$(foreach xml,$(wildcard $(or $(from),appcast)/*.xml),$(shell cat $(xml))))
 
-appcast.index:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-index-items)</channel></rss>" \
+appcast.xml:
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>" \
 	> $(or $(out),appcast.xml)
 
 
