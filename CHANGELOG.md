@@ -11,6 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.13.3...v0.1.0-alpha.14) | [Milestone](/../../milestone/22)
 
+### Added
+
+- UI:
+    - Support page. ([#971])
+
 ### Changed
 
 - UI:
@@ -18,6 +23,7 @@ All user visible changes to this project will be documented in this file. This p
         - Contacts button moved to chats tab app bar. ([#970])
 
 [#970]: /../../pull/970
+[#971]: /../../pull/971
 
 
 
