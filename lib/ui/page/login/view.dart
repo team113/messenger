@@ -536,7 +536,6 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 16),
-                _terms(context),
               ];
               break;
 

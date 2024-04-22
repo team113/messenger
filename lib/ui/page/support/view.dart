@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/work/widget/project_block.dart';
@@ -18,7 +19,11 @@ class SupportView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: Text('label_support_service'.l10n)),
+      appBar: CustomAppBar(
+        leading: const [StyledBackButton()],
+        title: Text('label_support_service'.l10n),
+        actions: const [SizedBox(width: 24)],
+      ),
       body: ListView(
         children: [
           const ProjectBlock(),

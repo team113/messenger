@@ -115,7 +115,7 @@ class Routes {
 enum HomeTab { work, contacts, chats, menu }
 
 /// List of [Routes.work] page sections.
-enum WorkTab { freelance, frontend, backend, designer }
+enum WorkTab { frontend, backend, freelance }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {
@@ -134,6 +134,7 @@ enum ProfileTab {
   download,
   danger,
   legal,
+  support,
   logout,
 }
 
@@ -949,6 +950,8 @@ extension RouteLinks on RouterState {
   void work(WorkTab? tab, {bool push = false}) => (push
       ? this.push
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
+
+  void support({bool push = false}) => (push ? this.push : go)(Routes.support);
 
   /// Changes router location to the [Routes.style] page.
   ///

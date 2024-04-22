@@ -165,6 +165,7 @@ class MenuTabView extends StatelessWidget {
                       key: key,
                       inverted: inverted,
                       onPressed: switch (tab) {
+                        ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
                             if (await c.confirmLogout()) {
                               router.go(await c.logout());
