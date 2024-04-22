@@ -398,14 +398,14 @@ class AuthService extends GetxService {
           : RxStatus.loadingMore();
       await WebUtils.protect(() async {
         try {
-          final Credentials data = await _authRepository.signIn(
+          final Credentials creds = await _authRepository.signIn(
             password,
             login: login,
             num: num,
             email: email,
             phone: phone,
           );
-          _authorized(data);
+          _authorized(creds);
           status.value = RxStatus.success();
         } catch (e) {
           _unauthorized();
@@ -495,7 +495,7 @@ class AuthService extends GetxService {
   Future<bool> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    return WebUtils.protect(() async {
+    return await WebUtils.protect(() async {
       try {
         await _authRepository.validateToken();
         return true;
@@ -511,32 +511,21 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    Log.debug(
-      'refreshSession() with `isLocked`: $isLocked',
-      '$runtimeType',
-    );
+    if (isLocked) {
+      Log.debug(
+        'refreshSession() acquired the lock, while it was locked, thus was aborted',
+        '$runtimeType',
+      );
+
+      return;
+    }
 
     try {
-      // Do not perform renew since some other task has already renewed it. But
-      // still wait for the lock to be sure that session was renewed when
-      // current `refreshSession()` call resolves.
       await WebUtils.protect(() async {
-        if (isLocked) {
-          Log.debug(
-            'refreshSession(): acquired the lock, while it was locked, thus should proceed: $_shouldRefresh',
-            '$runtimeType',
-          );
-
-          if (!_shouldRefresh) {
-            // [Credentials] are successfully updated.
-            return;
-          }
-        } else {
-          Log.debug(
-            'refreshSession(): acquired the lock, while it was unlocked',
-            '$runtimeType',
-          );
-        }
+        Log.debug(
+          'refreshSession() acquired the lock while it was unlocked',
+          '$runtimeType',
+        );
 
         // Fetch the fresh [WebUtils.credentials], if there are any.
         if (WebUtils.credentials != null &&
@@ -549,16 +538,16 @@ class AuthService extends GetxService {
 
         if (credentials.value == null) {
           router.go(_unauthorized());
-        }
-
-        try {
-          final Credentials data = await _authRepository
-              .refreshSession(credentials.value!.refresh.secret);
-          _authorized(data);
-          status.value = RxStatus.success();
-        } on RefreshSessionException catch (_) {
-          router.go(_unauthorized());
-          rethrow;
+        } else {
+          try {
+            final Credentials data = await _authRepository
+                .refreshSession(credentials.value!.refresh.secret);
+            _authorized(data);
+            status.value = RxStatus.success();
+          } on RefreshSessionException catch (_) {
+            router.go(_unauthorized());
+            rethrow;
+          }
         }
       });
     } on RefreshSessionException catch (_) {
