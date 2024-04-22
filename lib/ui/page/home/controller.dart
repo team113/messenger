@@ -225,12 +225,12 @@ class HomeController extends GetxController {
 
     if (link != null) {
       stage = IntroductionViewStage.link;
+    } else if (signedUp) {
+      stage = IntroductionViewStage.signUp;
     } else if (!myUser.hasPassword &&
         myUser.emails.confirmed.isEmpty &&
         myUser.phones.confirmed.isEmpty) {
       stage = IntroductionViewStage.oneTime;
-    } else if (signedUp) {
-      stage = IntroductionViewStage.signUp;
     }
 
     if (stage != null) {

@@ -323,8 +323,8 @@ err_email_occupied = Specified E-mail is linked to another account. Please, annu
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
-err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
-err_incorrect_login_or_password = Invalid login or password
+err_incorrect_login_input = Login should contain only letters of the latin alphabet, numbers and symbols "-" and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
+err_incorrect_login_or_password = Incorrect account identifier or password.
 err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
@@ -784,7 +784,7 @@ label_introduction_description1 =
 
          • you click the button "Sign out".
 
-    To save access to your account, please set a password, e-mail or phone number in the{" "}
+    To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
 label_kb = {$amount} KB
@@ -919,7 +919,7 @@ label_reason = Reason
 label_recent = Recent
 label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
-label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
+label_recover_account_description = Specify your Gapopa ID, login or E-mail.
 label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_recovery_enter_new_password = Please enter the new password below.
@@ -991,7 +991,7 @@ label_set_password = Set password
 label_settings = Settings
 label_show_sections = Show sections
 label_sign_in = Sign in
-label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sign_in_input = Gapopa ID, login, E-mail
 label_sign_in_with_password = Sign in with password
 label_sign_up = Sign up
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
