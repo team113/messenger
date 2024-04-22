@@ -30,6 +30,6 @@ Feature: Chat transitions
 
     When I sign in as Alice
     And I am in "Thoughts" group
-    And I tap `CloseButton` button
+    And I tap `ProceedButton` button
     And I tap "How are you?" reply of "I am fine" message
     Then I see "How are you?" message

@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.13.2
+version: 0.1.0-alpha.13.3
 publish_to: none
 
 environment:
@@ -35,6 +35,7 @@ dependencies:
   flutter_background_service: ^2.4.6
   flutter_background_service_android: ^3.0.3
   flutter_background_service_ios: ^2.4.0
+  flutter_callkit_incoming: ^2.0.3
   flutter_custom_cursor: ^0.0.4
   flutter_callkit_incoming: ^2.0.3
   flutter_list_view:

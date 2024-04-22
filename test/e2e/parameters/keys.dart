@@ -125,6 +125,7 @@ enum WidgetKey {
   PhonesExpandable,
   PresenceDropdown,
   Proceed,
+  ProceedButton,
   PublicInformation,
   RecoveryCodeField,
   RecoveryField,

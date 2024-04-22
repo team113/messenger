@@ -145,7 +145,7 @@ class IntroductionView extends StatelessWidget {
                 _terms(context),
                 const SizedBox(height: 25 / 2),
                 OutlinedRoundedButton(
-                  key: const Key('SetPasswordButton'),
+                  key: const Key('ProceedButton'),
                   maxWidth: double.infinity,
                   onPressed: Navigator.of(context).pop,
                   color: style.colors.primary,

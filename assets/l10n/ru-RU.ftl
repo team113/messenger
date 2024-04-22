@@ -199,6 +199,7 @@ btn_download_as = Скачать как
 btn_download_application = Скачать приложение
 btn_edit = Редактировать
 btn_email = E-mail
+btn_feedback = Пожелания и предложения
 btn_file = Файл
 btn_forgot_password = Забыли пароль?
 btn_forward = Переслать
@@ -240,6 +241,8 @@ btn_rename = Переименовать
 btn_reply = Ответить
 btn_reply_message = Ответить на сообщение
 btn_report = Пожаловаться
+btn_report_a_concern = Сообщить о нарушении
+btn_report_a_bug = Сообщить о технической проблеме
 btn_resend = Повторить
 btn_resend_code = Отправить код ещё раз
 btn_resend_message = Повторить отправку
@@ -670,13 +673,13 @@ label_code_sent_again = Код отправлен повторно.
 label_conditions = Условия
 label_conditions_backend_developer =
     - ежедневная оплата;
-    - от 2000 EUR;
+    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок;
     - удалённое сотрудничество.
 label_conditions_frontend_developer =
     - ежедневная оплата;
-    - от 2000 EUR;
+    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок;
     - удалённое сотрудничество.
@@ -692,6 +695,7 @@ label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
 label_contact = Контакт
 label_contact_information = Контактная информация
+label_contact_us_via_provided_email = Пожалуйста, свяжитесь с нами по эмейлу {$email}.
 label_contacts = Контакты
 label_copied = Скопировано
 label_copy = Копировать
@@ -967,6 +971,8 @@ label_regulations_freelance =
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить участника
 label_repeat_password = Повторите пароль
+label_replace_this_text_with_concern = Пожалуйста, поделитесь здесь проблемой, которую Вы заметили.
+label_replace_this_text_with_feedback = Пожалуйста, поделитесь своими наблюдениями или предложениями.
 label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа
@@ -1037,6 +1043,7 @@ label_subtitle_participants = {$count} {$count ->
     [few] участника
     *[other] участников
 }
+label_support_service = Служба поддержки
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_contacts = Контакты
@@ -1132,6 +1139,7 @@ label_welcome_message_vacancy =
 label_welcome_message_vacancy_24_hours =
     Добрый день.
     Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.
+label_what_we_can_help_you_with = Чем мы можем Вам помочь?
 label_work_with_us = Работайте с нами
 label_work_with_us_desc =
     Работайте

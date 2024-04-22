@@ -336,6 +336,19 @@ class ChatsTabView extends StatelessWidget {
                       return Row(
                         children: [
                           AnimatedButton(
+                            key: const Key('ContactsButton'),
+                            onPressed: () => router.tab = HomeTab.contacts,
+                            decorator: (child) {
+                              return Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 12),
+                                height: double.infinity,
+                                child: child,
+                              );
+                            },
+                            child: const SvgIcon(SvgIcons.contactsSwitch),
+                          ),
+                          AnimatedButton(
                             key: const Key('SearchButton'),
                             onPressed: () => c.startSearch(),
                             decorator: (child) {
@@ -346,13 +359,7 @@ class ChatsTabView extends StatelessWidget {
                                 child: child,
                               );
                             },
-                            child: SizedBox(
-                              width: 20,
-                              child: SafeAnimatedSwitcher(
-                                duration: 250.milliseconds,
-                                child: const SvgIcon(SvgIcons.search),
-                              ),
-                            ),
+                            child: const SvgIcon(SvgIcons.search),
                           ),
                           ContextMenuRegion(
                             key: const Key('ChatsMenu'),

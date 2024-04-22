@@ -199,6 +199,7 @@ btn_download_as_all = Download all as
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
+btn_feedback = Feedback
 btn_file = File
 btn_forgot_password = Forgot password?
 btn_forward = Forward
@@ -240,6 +241,8 @@ btn_rename = Rename
 btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
+btn_report_a_concern = Report a concern
+btn_report_a_bug = Report a bug
 btn_resend = Resend
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
@@ -646,13 +649,13 @@ label_code_sent_again = The code has been re-sent.
 label_conditions = Conditions
 label_conditions_backend_developer =
     - Daily payments;
-    - From 2000 EUR per month;
+    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices;
     - Remote work.
 label_conditions_frontend_developer =
     - Daily payments;
-    - From 2000 EUR per month;
+    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices;
     - Remote work.
@@ -668,6 +671,7 @@ label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact = Contact
 label_contact_information = Contact information
+label_contact_us_via_provided_email = Please, contact us by email {$email}.
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
@@ -940,6 +944,8 @@ label_regulations_freelance =
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
+label_replace_this_text_with_concern = Please, replace this text with the concern you want to share.
+label_replace_this_text_with_feedback = Please, replace this text with the feedback you want to share.
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
@@ -1007,6 +1013,7 @@ label_subtitle_participants = {$count} {$count ->
     [1] participant
     *[other] participants
 }
+label_support_service = Support service
 label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
@@ -1102,6 +1109,7 @@ label_welcome_message_vacancy =
 label_welcome_message_vacancy_24_hours =
     Good afternoon.
     Please upload your resume in PDF format. Within 24 hours you will be sent the date and time of the interview.
+label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
 label_work_with_us_desc =
     Work
