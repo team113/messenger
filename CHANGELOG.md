@@ -21,6 +21,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Contacts button moved to chats tab app bar. ([#970])
+    - Auth page:
+        - Redesigned footer. ([#971])
     - Work page:
         - Removed UI/UX designer vacancy. ([#971])
 
