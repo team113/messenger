@@ -320,6 +320,9 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.legal:
                       return block(children: [_legal(context, c)]);
 
+                    case ProfileTab.support:
+                      return const SizedBox();
+
                     case ProfileTab.logout:
                       return const SafeArea(
                         top: false,
