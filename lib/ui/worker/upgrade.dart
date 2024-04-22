@@ -87,8 +87,38 @@ class UpgradeWorker extends DisposableService {
         final Iterable<XmlElement> items = channel.findElements('item');
 
         if (items.isNotEmpty) {
+          final List<XmlElement> releases = items.sorted(
+            (a, b) {
+              final String? aTitle = a.getElement('title')?.innerText;
+              final String? bTitle = b.getElement('title')?.innerText;
+
+              if (aTitle != null && bTitle == null) {
+                return 1;
+              } else if (aTitle == null && bTitle != null) {
+                return -1;
+              } else if (aTitle != null && bTitle != null) {
+                return aTitle.compareTo(bTitle);
+              } else {
+                return 0;
+              }
+            },
+          );
+
+          final Iterable<XmlElement> higher = releases.where((e) {
+            String? version = e.getElement('title')?.innerText;
+            if (version == null) {
+              return false;
+            }
+
+            if (version.startsWith('v')) {
+              version = version.substring(1);
+            }
+
+            return true; // Compare with `Pubspec.ref`.
+          });
+
           final Release release =
-              Release.fromXml(items.first, language: L10n.chosen.value);
+              Release.fromXml(releases.first, language: L10n.chosen.value);
 
           Log.debug(
             'Comparing `${release.name}` to `${Pubspec.ref}`',
@@ -264,5 +294,36 @@ extension Rfc822ToDateTime on DateTime {
     final String zone = splits.elementAtOrNull(i + 4) ?? '+0000';
 
     return DateTime.tryParse('$year-$month-$day $time $zone');
+  }
+}
+
+class SemVer implements Comparable<SemVer> {
+  SemVer(this.major, this.minor, this.patch, {this.suffix});
+
+  factory SemVer.parse(String value) {
+    final split = value.split('.');
+    final int major = int.tryParse(split.elementAtOrNull(0) ?? '') ?? 0;
+    final int minor = int.tryParse(split.elementAtOrNull(1) ?? '') ?? 0;
+    final int patch = int.tryParse(split.elementAtOrNull(2) ?? '') ?? 0;
+
+    return SemVer(
+      major,
+      minor,
+      patch,
+    );
+  }
+
+  final int major;
+  final int minor;
+  final int patch;
+  final String? suffix;
+
+  final RegExp regExp = RegExp(
+    r'^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$',
+  );
+
+  @override
+  int compareTo(SemVer other) {
+    throw UnimplementedError();
   }
 }
