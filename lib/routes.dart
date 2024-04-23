@@ -102,11 +102,10 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
+  static const nowhere = '/nowhere';
   static const support = '/support';
   static const user = '/user';
   static const work = '/work';
-  static const erase = '/erase';
-  static const nowhere = '/nowhere';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
