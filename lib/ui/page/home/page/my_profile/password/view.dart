@@ -144,8 +144,10 @@ class ChangePasswordView extends StatelessWidget {
                     ),
                     const SizedBox(height: 25),
                     Obx(() {
-                      bool enabled;
-                      if (c.myUser.value?.hasPassword == true) {
+                      final bool enabled;
+                      if (c.passwordStatus.value.isLoading) {
+                        enabled = false;
+                      } else if (c.myUser.value?.hasPassword == true) {
                         enabled = !c.oldPassword.isEmpty.value &&
                             !c.newPassword.isEmpty.value &&
                             !c.repeatPassword.isEmpty.value;
@@ -153,8 +155,6 @@ class ChangePasswordView extends StatelessWidget {
                         enabled = !c.newPassword.isEmpty.value &&
                             !c.repeatPassword.isEmpty.value;
                       }
-
-                      enabled = c.passwordStatus.value.isSuccess && enabled;
 
                       return OutlinedRoundedButton(
                         key: const Key('Proceed'),

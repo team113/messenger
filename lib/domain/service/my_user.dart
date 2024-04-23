@@ -28,7 +28,6 @@ import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
-import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -122,10 +121,7 @@ class MyUserService extends DisposableService {
 
       passwordStatus.value = RxStatus.loading();
 
-      await WebUtils.protect(
-        () async => _userRepo.updateUserPassword(oldPassword, newPassword),
-      );
-
+      await _userRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(newPassword, num: myUser.value?.num);
 
       passwordStatus.value = RxStatus.success();
@@ -282,10 +278,6 @@ class MyUserService extends DisposableService {
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
-    try {
-      await _auth.deleteSession(force: true);
-    } finally {
-      router.auth();
-    }
+    await _auth.deleteSession(force: true);
   }
 }

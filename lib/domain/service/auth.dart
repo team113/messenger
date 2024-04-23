@@ -440,37 +440,40 @@ class AuthService extends GetxService {
   Future<String> deleteSession({bool force = false}) async {
     Log.debug('deleteSession(force: $force)', '$runtimeType');
 
+    if (force) {
+      if (userId != null) {
+        _authRepository.removeAccount(userId!);
+      }
+
+      final String path = _unauthorized();
+      router.auth();
+      return path;
+    }
+
     return await WebUtils.protect(() async {
       status.value = RxStatus.loading();
 
-      if (force) {
-        if (userId != null) {
-          _authRepository.removeAccount(userId!);
-        }
-      } else {
-        try {
-          FcmRegistrationToken? fcmToken;
+      try {
+        FcmRegistrationToken? fcmToken;
 
-          if (PlatformUtils.pushNotifications) {
-            final NotificationSettings settings =
-                await FirebaseMessaging.instance.getNotificationSettings();
+        if (PlatformUtils.pushNotifications) {
+          final NotificationSettings settings =
+              await FirebaseMessaging.instance.getNotificationSettings();
 
-            if (settings.authorizationStatus ==
-                AuthorizationStatus.authorized) {
-              final String? token = await FirebaseMessaging.instance.getToken(
-                vapidKey: Config.vapidKey,
-              );
+          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            final String? token = await FirebaseMessaging.instance.getToken(
+              vapidKey: Config.vapidKey,
+            );
 
-              if (token != null) {
-                fcmToken = FcmRegistrationToken(token);
-              }
+            if (token != null) {
+              fcmToken = FcmRegistrationToken(token);
             }
           }
-
-          await _authRepository.deleteSession(fcmToken);
-        } catch (e) {
-          printError(info: e.toString());
         }
+
+        await _authRepository.deleteSession(fcmToken);
+      } catch (e) {
+        printError(info: e.toString());
       }
 
       return _unauthorized();
@@ -480,9 +483,13 @@ class AuthService extends GetxService {
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
   /// available accounts.
   ///
-  /// Returns the path of the authentication page.
+  /// Navigates to the authentication page.
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
+
+    // Navigate to [Routes.auth] without waiting for the [deleteSession].
+    _unauthorized();
+    router.auth();
 
     if (userId != null) {
       _authRepository.removeAccount(userId!);
@@ -513,7 +520,7 @@ class AuthService extends GetxService {
 
     if (isLocked) {
       Log.debug(
-        'refreshSession() acquired the lock, while it was locked, thus was aborted',
+        'refreshSession(): acquired the lock, while it was locked, thus was aborted',
         '$runtimeType',
       );
 
@@ -523,7 +530,7 @@ class AuthService extends GetxService {
     try {
       await WebUtils.protect(() async {
         Log.debug(
-          'refreshSession() acquired the lock while it was unlocked',
+          'refreshSession(): acquired the lock, while it was unlocked',
           '$runtimeType',
         );
 
