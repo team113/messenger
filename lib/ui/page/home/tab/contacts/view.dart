@@ -252,11 +252,6 @@ class ContactsTabView extends StatelessWidget {
                             //   ),
                             // ),
                             ContextMenuButton(
-                              label: 'btn_create_group'.l10n,
-                              onPressed: () {},
-                              trailing: const SvgIcon(SvgIcons.group),
-                            ),
-                            ContextMenuButton(
                               key: const Key('SelectChatButton'),
                               label: 'btn_select_and_delete'.l10n,
                               onPressed: c.toggleSelecting,
