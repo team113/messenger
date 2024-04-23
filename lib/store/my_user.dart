@@ -82,7 +82,6 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [Hive] storage providing the [UserId] of the currently active [MyUser].
   final AccountHiveProvider _accountLocal;
 
-  // TODO: Но действительно ли они `authenticated`, они могут быть тухлыми. Не misleading ли такая документация?
   /// [Hive] storage providing the [Credentials] of authenticated [MyUser]s.
   final CredentialsHiveProvider _credentialsLocal;
 

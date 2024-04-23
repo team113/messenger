@@ -76,6 +76,9 @@ class AuthService extends GetxService {
   /// if necessary.
   Timer? _refreshTimer;
 
+  ///
+  final Map<UserId, Timer> _refreshTimers = {};
+
   /// [_refreshTimer] interval.
   final Duration _refreshTaskInterval = const Duration(seconds: 30);
 
@@ -98,11 +101,17 @@ class AuthService extends GetxService {
   UserId? get userId => credentials.value?.userId;
 
   /// Indicates whether the [credentials] require a refresh.
-  bool get _shouldRefresh =>
-      credentials.value?.access.expireAt
-          .subtract(_accessTokenMinTtl)
-          .isBefore(PreciseDateTime.now().toUtc()) ==
-      true;
+  ///
+  /// If no [credentials] are provided, then credentials of an active account
+  /// are used.
+  bool _shouldRefresh([Credentials? credentials]) {
+    final Credentials? creds = credentials ?? this.credentials.value;
+
+    return creds?.access.expireAt
+            .subtract(_accessTokenMinTtl)
+            .isBefore(PreciseDateTime.now().toUtc()) ==
+        true;
+  }
 
   @override
   void onClose() {
@@ -530,7 +539,7 @@ class AuthService extends GetxService {
             '$runtimeType',
           );
 
-          if (!_shouldRefresh) {
+          if (!_shouldRefresh()) {
             // [Credentials] are successfully updated.
             return;
           }
@@ -581,6 +590,42 @@ class AuthService extends GetxService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
+  /// Initializes the refresh timers for all the authenticated [MyUser]s.
+  void _initRefreshTimers() {
+    Log.debug('_initRefreshTimers()', '$runtimeType');
+
+    _refreshTimers.forEach((_, t) => t.cancel());
+    _refreshTimers.clear();
+
+    final Iterable<Credentials> creds = _credentialsProvider.valuesSafe;
+
+    for (final Credentials cred in creds) {
+      // TODO: проверить точно ли тут будет работать? вроде бы null тут лежать не может никак?
+      if (cred.userId == credentials.value?.userId) {
+        continue;
+      }
+
+      // Refresh the [credentials] manually for the first time.
+      _refresh(cred);
+
+      _refreshTimers[cred.userId] = Timer.periodic(
+        _refreshTaskInterval,
+        (_) => _refresh(cred),
+      );
+    }
+  }
+
+  Future<void> _refresh(Credentials creds) async {
+    if (_shouldRefresh(creds)) {
+      try {
+        final Credentials newCreds = await _authRepository
+            .refreshSession(creds.refresh.secret, raw: true);
+
+        await _credentialsProvider.put(newCreds);
+      } catch (e) {}
+    }
+  }
+
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
     Log.debug('_authorized($creds)', '$runtimeType');
@@ -592,9 +637,11 @@ class AuthService extends GetxService {
     credentials.value = creds;
     _refreshTimer?.cancel();
 
+    _initRefreshTimers();
+
     // TODO: Offload refresh task to the background process?
     _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
-      if (credentials.value?.refresh != null && _shouldRefresh) {
+      if (credentials.value?.refresh != null && _shouldRefresh()) {
         refreshSession();
       }
     });
