@@ -218,10 +218,6 @@ class UserView extends StatelessWidget {
   Widget _bio(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    final UserBio? bio = c.isBlocked != null
-        ? UserBio('Вы заблокированы')
-        : c.user?.user.value.bio;
-
     return Block(
       padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
       children: [
@@ -283,26 +279,7 @@ class UserView extends StatelessWidget {
                   style: style.fonts.larger.regular.onBackground,
                 ),
               ),
-              const SizedBox(height: 4),
-              if (bio != null) ...[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    bio.toString(),
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                ),
-              ],
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-              //   child: Text(
-              //     c.isBlocked != null
-              //         ? 'Вы заблокированы'
-              //         : c.user?.user.value.getStatus() ?? '',
-              //     style: style.fonts.small.regular.secondary,
-              //   ),
-              // ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               WidgetButton(
                 onPressed: () {
                   c.itemScrollController.scrollTo(
@@ -338,6 +315,8 @@ class UserView extends StatelessWidget {
 
   /// Returns the [User.num] visual representation.
   Widget _info(UserController c) {
+    final UserBio? bio = c.isBlocked != null ? null : c.user?.user.value.bio;
+
     return Block(
       title: 'Информация',
       children: [
@@ -357,6 +336,10 @@ class UserView extends StatelessWidget {
             ),
           ),
         ),
+        if (bio != null)
+          Paddings.basic(
+            InfoTile(title: 'label_about'.l10n, content: bio.toString()),
+          ),
         // Paddings.basic(
         //   const InfoTile(
         //     title: 'E-mail',
