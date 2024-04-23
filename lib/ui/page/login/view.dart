@@ -267,7 +267,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
-                  hint: 'example@gapopa.com',
+                  hint: 'example@domain.com',
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,

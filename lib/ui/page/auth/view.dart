@@ -79,14 +79,20 @@ class AuthView extends StatelessWidget {
                             color: style.colors.onBackgroundOpacity20,
                           ),
                         ],
-                        StyledCupertinoButton(
-                          label:
-                              '${L10n.chosen.value?.locale.languageCode.toUpperCase()}, ${L10n.chosen.value?.name}',
-                          style: style.fonts.small.regular.secondary,
-                          onPressed: () async {
-                            await LanguageSelectionView.show(context, null);
-                          },
-                        ),
+                        Obx(() {
+                          final Language? chosen = L10n.chosen.value;
+
+                          return StyledCupertinoButton(
+                            label: 'label_language_entry'.l10nfmt({
+                              'code': chosen?.locale.languageCode.toUpperCase(),
+                              'name': chosen?.name,
+                            }),
+                            style: style.fonts.small.regular.secondary,
+                            onPressed: () async {
+                              await LanguageSelectionView.show(context, null);
+                            },
+                          );
+                        }),
                       ],
                     ),
                     if (Config.copyright.isNotEmpty) ...[
@@ -211,7 +217,7 @@ class AuthView extends StatelessWidget {
                         const SizedBox(height: 8),
                         Expanded(child: Center(child: column)),
                         const SizedBox(height: 8),
-                        status,
+                        SafeArea(top: false, child: status),
                       ],
                     ),
                   ),

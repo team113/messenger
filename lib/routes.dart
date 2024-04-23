@@ -951,6 +951,7 @@ extension RouteLinks on RouterState {
       ? this.push
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
 
+  /// Changes router location to the [Routes.support] page.
   void support({bool push = false}) => (push ? this.push : go)(Routes.support);
 
   /// Changes router location to the [Routes.style] page.
