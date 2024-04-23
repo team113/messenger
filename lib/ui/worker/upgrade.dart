@@ -301,8 +301,19 @@ class SemVer implements Comparable<SemVer> {
   SemVer(this.major, this.minor, this.patch, {this.suffix});
 
   factory SemVer.parse(String value) {
-    final split = value.split('.');
-    final int major = int.tryParse(split.elementAtOrNull(0) ?? '') ?? 0;
+    final match = _regExp.allMatches(value).firstOrNull;
+
+    print(match?.groups([1, 2, 3, 4, 5]));
+
+    if (match == null) {
+      throw const FormatException('Does not match validation RegExp');
+    }
+
+    final String? suffix = match.group(5);
+
+    final int major = int.tryParse(match.group(4) ?? '') ?? 0;
+
+    final split = match.group(2)?.split('.') ?? [];
     final int minor = int.tryParse(split.elementAtOrNull(1) ?? '') ?? 0;
     final int patch = int.tryParse(split.elementAtOrNull(2) ?? '') ?? 0;
 
@@ -310,6 +321,7 @@ class SemVer implements Comparable<SemVer> {
       major,
       minor,
       patch,
+      suffix: suffix,
     );
   }
 
@@ -318,12 +330,34 @@ class SemVer implements Comparable<SemVer> {
   final int patch;
   final String? suffix;
 
-  final RegExp regExp = RegExp(
-    r'^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$',
+  static final RegExp _regExp = RegExp(
+    r'^(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$',
   );
 
   @override
   int compareTo(SemVer other) {
-    throw UnimplementedError();
+    var result = major.compareTo(other.major);
+    if (result == 0) {
+      result = minor.compareTo(other.minor);
+      if (result == 0) {
+        result = patch.compareTo(other.patch);
+        if (result == 0) {
+          if (suffix != null && other.suffix == null) {
+            return 1;
+          } else if (suffix == null && other.suffix != null) {
+            return -1;
+          } else if (suffix == null && other.suffix == null) {
+            return 0;
+          } else if (suffix != null && other.suffix != null) {
+            return suffix!.compareTo(other.suffix!);
+          }
+        }
+      }
+    }
+
+    return result;
   }
+
+  @override
+  String toString() => '$major.$minor.$patch${suffix ?? ''}';
 }
