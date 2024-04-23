@@ -354,9 +354,9 @@ class AuthService extends GetxService {
       status.value = RxStatus.loading();
       await WebUtils.protect(() async {
         try {
-          final Credentials creds =
+          final Credentials data =
               await _authRepository.confirmSignUpEmail(code);
-          _authorized(creds);
+          _authorized(data);
           status.value = RxStatus.success();
         } catch (e) {
           _unauthorized();
@@ -445,14 +445,11 @@ class AuthService extends GetxService {
         _authRepository.removeAccount(userId!);
       }
 
-      // Optimistically set `empty` [status] to allow transition to [Routes.auth].
-      status.value = RxStatus.empty();
-
       return _unauthorized();
     }
 
     return await WebUtils.protect(() async {
-      status.value = RxStatus.loading();
+      status.value = RxStatus.empty();
 
       try {
         FcmRegistrationToken? fcmToken;
@@ -488,7 +485,7 @@ class AuthService extends GetxService {
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 
-    // Optimistically set `empty` [status] to allow transition to [Routes.auth].
+    // Set status to `empty` to allow transition to the [Routes.auth] page.
     status.value = RxStatus.empty();
 
     if (userId != null) {

@@ -331,14 +331,14 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<R> protect<R>(Future<R> Function() callback) async {
+  static Future<T> protect<T>(Future<T> Function() callback) async {
     return await _guard.protect(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
         return await callback();
       }
 
-      final Completer<R> completer = Completer();
+      final Completer<T> completer = Completer();
 
       try {
         await promiseToFuture(
@@ -346,7 +346,7 @@ class WebUtils {
             'mutex',
             allowInterop(
               (_) => callback()
-                  .then((R val) => completer.complete(val))
+                  .then((T val) => completer.complete(val))
                   .onError(
                     (e, stackTrace) => completer.completeError(
                       e ?? Exception(),
