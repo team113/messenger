@@ -278,6 +278,10 @@ class MyUserService extends DisposableService {
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
-    await _auth.deleteSession(force: true);
+    try {
+      await _auth.deleteSession(force: true);
+    } finally {
+      router.auth();
+    }
   }
 }

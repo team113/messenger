@@ -445,9 +445,10 @@ class AuthService extends GetxService {
         _authRepository.removeAccount(userId!);
       }
 
-      final String path = _unauthorized();
-      router.auth();
-      return path;
+      // Optimistically set `empty` [status] to allow transition to [Routes.auth].
+      status.value = RxStatus.empty();
+
+      return _unauthorized();
     }
 
     return await WebUtils.protect(() async {
@@ -483,13 +484,12 @@ class AuthService extends GetxService {
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
   /// available accounts.
   ///
-  /// Navigates to the authentication page.
+  /// Returns the path of the authentication page.
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 
-    // Navigate to [Routes.auth] without waiting for the [deleteSession].
-    _unauthorized();
-    router.auth();
+    // Optimistically set `empty` [status] to allow transition to [Routes.auth].
+    status.value = RxStatus.empty();
 
     if (userId != null) {
       _authRepository.removeAccount(userId!);
