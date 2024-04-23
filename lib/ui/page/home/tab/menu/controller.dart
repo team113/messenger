@@ -17,14 +17,17 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/util/message_popup.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
@@ -48,6 +51,9 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Returns currently authenticated [MyUser]s.
+  RxMap<UserId, Rx<MyUser?>> get accounts => _myUserService.myUsers;
+
   @override
   void onClose() {
     scrollController.dispose();
@@ -66,8 +72,36 @@ class MenuTabController extends GetxController {
     return true;
   }
 
-  /// Logs out the current session and goes to the [Routes.auth] page.
-  Future<String> logout() => _authService.logout();
+  /// Logs out the current session and switches to the next account or goes to
+  /// [Routes.auth] page, if none.
+  Future<void> logout() async {
+    router.go(Routes.nowhere);
+
+    final String toLogin = await _authService.logout();
+
+    if (accounts.length < 2) {
+      router.go(toLogin);
+    } else {
+      final UserId? me = _authService.userId ?? myUser.value?.id;
+      final UserId? next = accounts.keys.firstWhereOrNull(
+        (id) => id != me,
+      );
+
+      try {
+        if (next != null) {
+          await _authService.signInToSavedAccount(next);
+        } else {
+          await _authService.register();
+        }
+      } catch (e) {
+        await Future.delayed(1.seconds);
+        MessagePopup.error(e);
+      }
+
+      await Future.delayed(500.milliseconds);
+      router.home();
+    }
+  }
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>

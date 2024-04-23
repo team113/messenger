@@ -466,6 +466,37 @@ class AuthService extends GetxService {
     return await deleteSession();
   }
 
+  /// Authorizes the [Session] if there are any saved [Credentials] for the
+  /// given [id].
+  Future<void> signInToSavedAccount(UserId id) async {
+    Log.debug('signInToSavedAccount($id)', '$runtimeType');
+
+    Credentials? credentials = _credentialsProvider.get(id);
+    if (credentials != null) {
+      // Check if the [credentials] are valid.
+
+      // TODO: ошибка рефреша -> отметить аккаунт тухлым + вывести ошибку + предложить войти
+      credentials =
+          await _authRepository.refreshSession(credentials.refresh.secret);
+
+      status.value = RxStatus.loadingMore();
+      await WebUtils.protect(() async {
+        _authorized(credentials!);
+        _credentialsProvider.put(credentials);
+        _accountProvider.set(credentials.userId);
+        status.value = RxStatus.success();
+      });
+    } else {
+      // TODO: нет credentials -> аккаунт тухлый -> предложить в него войти + отметить его тухлым, если ещё не отмечен
+    }
+  }
+
+  /// Deletes the [MyUser] identified by the provided [id] from the accounts.
+  Future<void> removeAccount(UserId id) async {
+    Log.debug('removeAccount($id)', '$runtimeType');
+    await _authRepository.removeAccount(id);
+  }
+
   /// Validates the current [AccessToken].
   Future<bool> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');

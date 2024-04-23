@@ -527,6 +527,7 @@ void main() async {
       blocklistRepository,
       userRepository,
       accountProvider,
+      credentialsProvider,
     );
     Get.put(MyUserService(authService, myUserRepository));
 

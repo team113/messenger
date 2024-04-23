@@ -68,6 +68,7 @@ import 'store/contact.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
+import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
@@ -76,6 +77,7 @@ import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
+import 'ui/widget/progress_indicator.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
@@ -101,6 +103,7 @@ class Routes {
   static const user = '/user';
   static const work = '/work';
   static const erase = '/erase';
+  static const nowhere = '/nowhere';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -462,6 +465,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: Center(child: Text('Restarting...')),
         ),
       ];
+    } else if (_state.route == Routes.nowhere) {
+      return [
+        MaterialPage(
+          key: const ValueKey('NowherePage'),
+          name: Routes.nowhere,
+          child: Scaffold(
+            backgroundColor: Theme.of(router.context!).style.colors.background,
+            body: const Center(child: CustomProgressIndicator.big()),
+          ),
+        ),
+      ];
     } else if (_state.route == Routes.style) {
       return [
         const MaterialPage(
@@ -589,6 +603,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   blocklistRepository,
                   userRepository,
+                  Get.find(),
                   Get.find(),
                 ),
               );
@@ -742,6 +757,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
+                Get.find(),
                 Get.find(),
               ),
             );

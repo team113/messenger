@@ -38,6 +38,7 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/account.dart';
 import '/provider/hive/blocklist.dart';
+import '/provider/hive/credentials.dart';
 import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
@@ -57,10 +58,14 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._blocklistRepo,
     this._userRepo,
     this._accountLocal,
+    this._credentialsLocal,
   );
 
   @override
   late final Rx<MyUser?> myUser;
+
+  @override
+  final RxMap<UserId, Rx<MyUser?>> myUsers = RxMap({});
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -76,6 +81,10 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [Hive] storage providing the [UserId] of the currently active [MyUser].
   final AccountHiveProvider _accountLocal;
+
+  // TODO: Но действительно ли они `authenticated`, они могут быть тухлыми. Не misleading ли такая документация?
+  /// [Hive] storage providing the [Credentials] of authenticated [MyUser]s.
+  final CredentialsHiveProvider _credentialsLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -124,6 +133,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onUserDeleted = onUserDeleted;
 
     myUser = Rx<MyUser?>(_active?.value);
+
+    _populateMyUsers();
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -620,6 +631,24 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
+  /// Updates [myUsers] according to the current [_credentialsLocal] values.
+  void _populateMyUsers() {
+    // Log.debug('_populateMyUsers()', '$runtimeType');
+
+    final Iterable<UserId> authenticatedIds =
+        _credentialsLocal.valuesSafe.map((e) => e.userId);
+
+    myUsers.value = {
+      for (final HiveMyUser u in _myUserLocal.valuesSafe)
+        if (authenticatedIds.contains(u.value.id))
+          u.value.id: myUsers[u.value.id] ?? Rx(u.value),
+    };
+
+    Log.debug(
+        '_populateMyUsers() ${myUsers.values.map((e) => e.value?.name?.val ?? e.value?.num.val)}',
+        '$runtimeType');
+  }
+
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
@@ -675,6 +704,8 @@ class MyUserRepository implements AbstractMyUserRepository {
       } else {
         // No-op, as those events aren't of the currently active [MyUser].
       }
+
+      _populateMyUsers();
     }
   }
 

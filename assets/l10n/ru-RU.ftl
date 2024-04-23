@@ -72,6 +72,10 @@ alert_user_will_be_reported2 = {" "}будет отправлена жалоба
 alert_you_will_leave_group = Вы покинете группу.
 btn_accept = Принять
 btn_add = Добавить
+btn_add_account = Добавить аккаунт
+btn_add_account_with_break =
+    Добавить
+    аккаунт
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
 btn_add_participant_desc =
@@ -170,6 +174,9 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Сменить
+btn_change_account_with_break =
+    Сменить
+    аккаунт
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_clear_cache = Очистить кэш
@@ -514,8 +521,11 @@ label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
 label_account = Аккаунт
+label_accounts = Ваши аккаунты
 label_account_created = Аккаунт создан
 label_actions = Действия
+label_active_account = Текущий
+label_add_account = Добавить аккаунт
 label_add_additional_email = Добавить дополнительный E-mail
 label_add_additional_number = Добавить дополнительный телефон
 label_add_chat_member = Добавление участника
@@ -749,6 +759,7 @@ label_duration_second_short = с
 label_edit = Редактировать
 label_email = E-mail
 label_email_not_verified = E-mail не верифицирован
+label_email_or_password_not_set = E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.
 label_email_example = example@gmail.com
 label_email_visible = Ваш E-mail видят:{" "}
 label_empty_message = Пустое сообщение

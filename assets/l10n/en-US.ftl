@@ -72,6 +72,10 @@ alert_user_will_be_reported2 = {" "}will be reported.
 alert_you_will_leave_group = You will leave the group.
 btn_accept = Accept
 btn_add = Add
+btn_add_account = Add account
+btn_add_account_with_break =
+    Add
+    account
 btn_add_member = Add member
 btn_add_participant = Add participant
 btn_add_participant_desc =
@@ -170,6 +174,9 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
+btn_change_account_with_break =
+    Change
+    account
 btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_clear_cache = Clear cache
@@ -503,8 +510,11 @@ label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
 label_account = Account
+label_accounts = Your accounts
 label_account_created = Account is created
 label_actions = Actions
+label_active_account = Active
+label_add_account = Add account
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
 label_add_chat_member = Add member
@@ -724,6 +734,7 @@ label_duration_second_short = s
 label_edit = Edit
 label_email = E-mail
 label_email_not_verified = E-mail not verified
+label_email_or_password_not_set = E-mail or phone number are not set. Access to the account will be lost.
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
@@ -869,7 +880,7 @@ label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
-label_password_not_set = Password not set. Access to the account will be lost.
+label_password_not_set = Password is not set. Access to the account will be lost.
 label_password_not_set_info = No password has been set for your account. Consequently:
 
     • access to your account will be lost forever when you close the current window;

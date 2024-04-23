@@ -28,7 +28,9 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'accounts/view.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.menu] tab.
@@ -114,6 +116,27 @@ class MenuTabView extends StatelessWidget {
               ),
             ),
             leading: const [SizedBox(width: 20)],
+            actions: [
+              WidgetButton(
+                behavior: HitTestBehavior.translucent,
+                onPressed: () => AccountsView.show(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Obx(() {
+                    final bool hasMultipleAccounts = c.accounts.length > 1;
+                    final String label = hasMultipleAccounts
+                        ? 'btn_change_account_with_break'
+                        : 'btn_add_account_with_break';
+
+                    return Text(
+                      label.l10n,
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
@@ -167,8 +190,7 @@ class MenuTabView extends StatelessWidget {
                       onPressed: switch (tab) {
                         ProfileTab.logout => () async {
                             if (await c.confirmLogout()) {
-                              router.go(await c.logout());
-                              router.tab = HomeTab.chats;
+                              c.logout();
                             }
                           },
                         (_) => () {

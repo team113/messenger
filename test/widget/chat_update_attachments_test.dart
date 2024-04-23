@@ -601,6 +601,7 @@ void main() async {
             blocklistRepository,
             userRepository,
             accountProvider,
+            credentialsProvider,
           ),
         ),
       ),
