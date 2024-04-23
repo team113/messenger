@@ -1077,6 +1077,24 @@ class ChatView extends StatelessWidget {
           child: child,
         );
       });
+    } else if (element is BotElement) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: style.colors.accept,
+                width: 1,
+              ),
+              color: style.systemMessageColor,
+            ),
+            child: Text(element.string, style: style.systemMessageStyle),
+          ),
+        ),
+      );
     }
 
     return const SizedBox();

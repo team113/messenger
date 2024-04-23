@@ -784,7 +784,7 @@ class ChatController extends GetxController {
             if (_lastVisibleItem != null &&
                 status.value.isSuccess &&
                 !status.value.isLoadingMore) {
-              ListElement element =
+              final ListElement element =
                   elements.values.elementAt(_lastVisibleItem!.index);
 
               // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
@@ -924,6 +924,24 @@ class ChatController extends GetxController {
 
         if (_lastSeenItem.value != null) {
           readChat(_lastSeenItem.value);
+        }
+      }
+
+      if (chat?.chat.value.isDialog ?? false) {
+        final recipient = chat!.chat.value.members.any(
+          (e) =>
+              e.user.id != me &&
+              (e.user.name?.val == 'alex2' ||
+                  e.user.name?.val == 'Alex' ||
+                  e.user.name?.val == 'nikita'),
+        );
+
+        if (recipient) {
+          final element = BotElement(
+            'Translated dialog. English - Russian. Translation cost: 99I per 100 symbols.',
+            at: PreciseDateTime.now(),
+          );
+          elements[element.id] = element;
         }
       }
 
@@ -2303,6 +2321,15 @@ class LoaderElement extends ListElement {
             const ChatItemId('0'),
           ),
         );
+}
+
+/// [ListElement] representing a [ChatInfo].
+class BotElement extends ListElement {
+  BotElement(this.string, {required PreciseDateTime at})
+      : super(ListElementId(at, const ChatItemId('0')));
+
+  /// [ChatItem] of this [BotElement].
+  final String string;
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
