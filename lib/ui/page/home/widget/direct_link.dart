@@ -90,7 +90,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   void initState() {
     _state = TextFieldState(
       text: widget.link?.slug.val,
-      approvable: true,
       submitted: widget.link != null,
       debounce: true,
       onChanged: (s) {
@@ -104,43 +103,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           }
         }
       },
-      onSubmitted: (s) async {
-        final ChatDirectLinkSlug? slug = ChatDirectLinkSlug.tryParse(s.text);
-
-        if (s.text.isNotEmpty) {
-          if (slug == null) {
-            s.error.value = 'err_invalid_symbols_in_link'.l10n;
-          }
-
-          if (slug == null || slug == widget.link?.slug) {
-            setState(() => _editing = false);
-            widget.onEditing?.call(_editing);
-            return;
-          }
-        }
-
-        if (s.error.value == null) {
-          s.editable.value = false;
-          s.status.value = RxStatus.loading();
-
-          try {
-            await widget.onSubmit?.call(slug);
-            s.status.value = RxStatus.success();
-            await Future.delayed(const Duration(seconds: 1));
-            s.status.value = RxStatus.empty();
-          } on CreateChatDirectLinkException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toMessage();
-          } catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = 'err_data_transfer'.l10n;
-            s.unsubmit();
-            rethrow;
-          } finally {
-            s.editable.value = true;
-          }
-        }
-      },
+      onSubmitted: (s) async => await _submitLink(),
     );
 
     if (widget.link == null) {
@@ -182,25 +145,64 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       child = Padding(
         key: const Key('Editing'),
         padding: const EdgeInsets.only(top: 8.0),
-        child: Obx(() {
-          final bool deletable = !_state.isEmpty.value &&
-              _state.error.value == null &&
-              _state.text.isNotEmpty;
+        child: Column(
+          children: [
+            Obx(() {
+              final bool deletable = !_state.isEmpty.value &&
+                  _state.error.value == null &&
+                  _state.text.isNotEmpty;
 
-          return ReactiveTextField(
-            key: const Key('LinkField'),
-            state: _state,
-            clearable: true,
-            onSuffixPressed: deletable
-                ? () async {
-                    await widget.onSubmit?.call(null);
-                    setState(() => _editing = false);
-                  }
-                : null,
-            trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
-            label: '${Config.link}/',
-          );
-        }),
+              return ReactiveTextField(
+                key: const Key('LinkField'),
+                state: _state,
+                clearable: true,
+                onSuffixPressed: deletable
+                    ? () async {
+                        await widget.onSubmit?.call(null);
+                        setState(() => _editing = false);
+                      }
+                    : null,
+                trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
+                label: '${Config.link}/',
+              );
+            }),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 16),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: WidgetButton(
+                    onPressed: () {
+                      if (widget.link != null) {
+                        _state.text = widget.link?.slug.val ?? _state.text;
+                      }
+                      setState(() => _editing = false);
+                      widget.onEditing?.call(_editing);
+                    },
+                    child: Text(
+                      'btn_cancel'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: WidgetButton(
+                    onPressed: _submitLink,
+                    child: Text(
+                      'btn_save'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+            ),
+          ],
+        ),
       );
     } else if (widget.link == null) {
       child = Column(
@@ -370,22 +372,43 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             ],
           ),
           const SizedBox(height: 12),
-          WidgetButton(
-            onPressed: () {
-              final share = '${Config.link}/${_state.text}';
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(width: 16),
+              WidgetButton(
+                onPressed: () {
+                  final share = '${Config.link}/${_state.text}';
 
-              if (PlatformUtils.isMobile) {
-                Share.share(share);
-              } else {
-                PlatformUtils.copy(text: share);
-                MessagePopup.success('label_copied'.l10n);
-              }
-            },
-            child: Text(
-              PlatformUtils.isMobile ? 'btn_share'.l10n : 'btn_copy'.l10n,
-              style: style.fonts.small.regular.primary,
-            ),
-          )
+                  if (PlatformUtils.isMobile) {
+                    Share.share(share);
+                  } else {
+                    PlatformUtils.copy(text: share);
+                    MessagePopup.success('label_copied'.l10n);
+                  }
+                },
+                child: Text(
+                  PlatformUtils.isMobile ? 'btn_share'.l10n : 'btn_copy'.l10n,
+                  style: style.fonts.small.regular.primary,
+                ),
+              ),
+              const Spacer(),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: WidgetButton(
+                  onPressed: () {
+                    setState(() => _editing = true);
+                    widget.onEditing?.call(_editing);
+                  },
+                  child: Text(
+                    'btn_edit'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+            ],
+          ),
         ],
       );
     }
@@ -419,5 +442,44 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         ),
       ),
     );
+  }
+
+  /// Submits the [_state] as the new [ChatDirectLinkSlug].
+  Future<void> _submitLink() async {
+    final ChatDirectLinkSlug? slug = ChatDirectLinkSlug.tryParse(_state.text);
+
+    if (_state.text.isNotEmpty) {
+      if (slug == null) {
+        _state.error.value = 'err_invalid_symbols_in_link'.l10n;
+      }
+
+      if (slug == null || slug == widget.link?.slug) {
+        setState(() => _editing = false);
+        widget.onEditing?.call(_editing);
+        return;
+      }
+    }
+
+    if (_state.error.value == null) {
+      _state.editable.value = false;
+      _state.status.value = RxStatus.loading();
+
+      try {
+        await widget.onSubmit?.call(slug);
+        _state.status.value = RxStatus.success();
+        await Future.delayed(const Duration(seconds: 1));
+        _state.status.value = RxStatus.empty();
+      } on CreateChatDirectLinkException catch (e) {
+        _state.status.value = RxStatus.empty();
+        _state.error.value = e.toMessage();
+      } catch (e) {
+        _state.status.value = RxStatus.empty();
+        _state.error.value = 'err_data_transfer'.l10n;
+        _state.unsubmit();
+        rethrow;
+      } finally {
+        _state.editable.value = true;
+      }
+    }
   }
 }

@@ -587,6 +587,7 @@ label_audio_call = Audio call{$by ->
         *[other] {" "}by {$by}
     }
 label_audio_notifications = Audio notifications
+label_avatar = Avatar
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}removed avatar
@@ -784,6 +785,7 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
+label_info = Info
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 

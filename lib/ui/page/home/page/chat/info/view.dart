@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -36,10 +37,9 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
-import '/ui/page/home/widget/quick_button.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/member_tile.dart';
@@ -48,7 +48,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -86,27 +85,46 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
+          Widget highlighted({
+            required int index,
+            required Widget child,
+          }) {
+            return HighlightedContainer(
+              highlight: c.highlighted.value == index,
+              child: child,
+            );
+          }
+
+          final List<Widget> blocks = [
+            const SizedBox(height: 8),
+            highlighted(index: 0, child: _profile(c, context)),
+            highlighted(index: 1, child: _status(c, context)),
+            if (!c.isMonolog) ...[
+              highlighted(
+                index: 2,
+                child: SelectionContainer.disabled(child: _link(c, context)),
+              ),
+              SelectionContainer.disabled(child: _members(c, context)),
+            ],
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
+            const SizedBox(height: 8),
+          ];
+
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
               child: SelectionArea(
-                child: ListView(
-                  controller: c.scrollController,
+                child: ScrollablePositionedList.builder(
                   key: const Key('ChatInfoScrollable'),
-                  children: [
-                    const SizedBox(height: 8),
-                    _profile(c, context),
-                    _quick(c, context),
-                    if (!c.isMonolog) ...[
-                      SelectionContainer.disabled(child: _link(c, context)),
-                      SelectionContainer.disabled(child: _members(c, context)),
-                    ],
-                    SelectionContainer.disabled(
-                      child: Block(children: [_actions(c, context)]),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  initialScrollIndex: 0,
                 ),
               ),
             ),
@@ -118,16 +136,8 @@ class ChatInfoView extends StatelessWidget {
 
   /// Builds the [Block] displaying a [ChatAvatar], if any, and [ChatName].
   Widget _profile(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Block(
-      overlay: [
-        EditBlockButton(
-          key: const Key('EditProfileButton'),
-          onPressed: c.profileEditing.toggle,
-          editing: c.profileEditing.value,
-        ),
-      ],
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
         SelectionContainer.disabled(
           child: BigAvatarWidget.chat(
@@ -135,78 +145,10 @@ class ChatInfoView extends StatelessWidget {
             key: Key('ChatAvatar_${c.chat!.id}'),
             loading: c.avatar.value.isLoading,
             error: c.avatar.value.errorMessage,
+            onUpload: c.pickAvatar,
+            onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
           ),
         ),
-        Obx(() {
-          final List<Widget> children;
-
-          if (c.profileEditing.value) {
-            children = [
-              const SizedBox(height: 4),
-              SelectionContainer.disabled(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WidgetButton(
-                      key: const Key('UploadAvatar'),
-                      onPressed: c.pickAvatar,
-                      child: Text(
-                        'btn_upload'.l10n,
-                        style: style.fonts.small.regular.primary,
-                      ),
-                    ),
-                    if (c.chat?.avatar.value != null) ...[
-                      Text(
-                        'space_or_space'.l10n,
-                        style: style.fonts.small.regular.onBackground,
-                      ),
-                      WidgetButton(
-                        key: const Key('DeleteAvatar'),
-                        onPressed: c.deleteAvatar,
-                        child: Text(
-                          'btn_delete'.l10n.toLowerCase(),
-                          style: style.fonts.small.regular.primary,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-              SelectionContainer.disabled(
-                child: ReactiveTextField(
-                  key: const Key('RenameChatField'),
-                  state: c.name,
-                  label: 'label_name'.l10n,
-                  hint: c.chat?.title,
-                  formatters: [LengthLimitingTextInputFormatter(100)],
-                ),
-              ),
-              const SizedBox(height: 4),
-            ];
-          } else {
-            children = [
-              const SizedBox(height: 18),
-              Container(width: double.infinity),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: Text(
-                  c.chat?.title ?? c.name.text,
-                  style: style.fonts.large.regular.onBackground,
-                ),
-              ),
-            ];
-          }
-
-          return AnimatedSizeAndFade(
-            fadeDuration: 250.milliseconds,
-            sizeDuration: 250.milliseconds,
-            child: Column(
-              key: Key(c.profileEditing.value.toString()),
-              children: children,
-            ),
-          );
-        }),
       ],
     );
   }
@@ -218,13 +160,6 @@ class ChatInfoView extends StatelessWidget {
     return Block(
       title: 'label_direct_chat_link'.l10n,
       padding: Block.defaultPadding.copyWith(bottom: 10),
-      overlay: [
-        EditBlockButton(
-          key: const Key('EditLinkButton'),
-          onPressed: c.linkEditing.toggle,
-          editing: c.linkEditing.value,
-        ),
-      ],
       children: [
         Obx(() {
           return Column(
@@ -250,7 +185,18 @@ class ChatInfoView extends StatelessWidget {
                 },
                 background: c.background.value,
                 editing: c.linkEditing.value,
-                onEditing: (b) => c.linkEditing.value = b,
+                onEditing: (b) {
+                  if (b) {
+                    c.itemScrollController.scrollTo(
+                      index: 3,
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                    );
+                    c.highlight(2);
+                  }
+
+                  c.linkEditing.value = b;
+                },
               ),
             ],
           );
@@ -261,25 +207,12 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the [Block] displaying the [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Block(
       padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
       title: 'label_participants'
           .l10nfmt({'count': c.chat!.chat.value.membersCount}),
-      overlay: [
-        Positioned(
-          top: 0,
-          right: 0,
-          child: AnimatedButton(
-            key: const Key('AddMemberButton'),
-            decorator: (child) => Padding(
-              padding: const EdgeInsets.fromLTRB(2, 4, 2, 2),
-              child: child,
-            ),
-            onPressed: () => AddChatMemberView.show(context, chatId: id),
-            child: const SvgIcon(SvgIcons.addMemberSmall),
-          ),
-        ),
-      ],
       children: [
         Obx(() {
           final List<RxUser> members = [];
@@ -371,16 +304,136 @@ class ChatInfoView extends StatelessWidget {
             ],
           );
         }),
+        const SizedBox(height: 16),
+        WidgetButton(
+          onPressed: () => AddChatMemberView.show(context, chatId: id),
+          child: Text(
+            'btn_add_participant'.l10n,
+            style: style.fonts.small.regular.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _status(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Block(
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
+      children: [
+        Obx(() {
+          final List<Widget> children;
+
+          if (c.profileEditing.value) {
+            children = [
+              const SizedBox(height: 18),
+              SelectionContainer.disabled(
+                child: ReactiveTextField(
+                  key: const Key('RenameChatField'),
+                  state: c.name,
+                  label: 'label_name'.l10n,
+                  hint: c.chat?.title,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  formatters: [LengthLimitingTextInputFormatter(100)],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SelectionContainer.disabled(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 16),
+                    WidgetButton(
+                      onPressed: () {
+                        c.submitName();
+                        c.profileEditing.value = false;
+                      },
+                      child: Text(
+                        'btn_save'.l10n,
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                    const Spacer(),
+                    WidgetButton(
+                      onPressed: () {
+                        c.name.text = c.chat!.chat.value.name?.val ?? '';
+                        c.profileEditing.value = false;
+                      },
+                      child: SelectionContainer.disabled(
+                        child: Text(
+                          'btn_cancel'.l10n,
+                          style: style.fonts.small.regular.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+            ];
+          } else {
+            children = [
+              Container(width: double.infinity),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Text(
+                  c.chat?.title ?? c.name.text,
+                  style: style.fonts.larger.regular.onBackground,
+                ),
+              ),
+              const SizedBox(height: 12),
+              WidgetButton(
+                onPressed: () {
+                  c.itemScrollController.scrollTo(
+                    index: 2,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 600),
+                  );
+                  c.highlight(1);
+                  c.profileEditing.value = true;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'btn_edit'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+            ];
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: 250.milliseconds,
+            sizeDuration: 250.milliseconds,
+            child: Column(
+              key: Key(c.profileEditing.value.toString()),
+              children: children,
+            ),
+          );
+        }),
       ],
     );
   }
 
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
+        ActionButton(
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
+          ),
+        ),
         if (!c.isMonolog)
           ActionButton(
             onPressed: () => _reportChat(c, context),
@@ -509,129 +562,84 @@ class ChatInfoView extends StatelessWidget {
 
     final Widget title;
 
-    if (!c.displayName.value) {
-      title = Row(
-        key: const Key('Profile'),
-        children: [
-          const StyledBackButton(),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(child: Text('label_profile'.l10n)),
-            ),
+    title = Row(
+      children: [
+        const StyledBackButton(),
+        Material(
+          elevation: 6,
+          type: MaterialType.circle,
+          shadowColor: style.colors.onBackgroundOpacity27,
+          color: style.colors.onPrimary,
+          child: AvatarWidget.fromRxChat(
+            c.chat,
+            radius: AvatarRadius.medium,
           ),
-        ],
-      );
-    } else {
-      title = Row(
-        children: [
-          const StyledBackButton(),
-          Material(
-            elevation: 6,
-            type: MaterialType.circle,
-            shadowColor: style.colors.onBackgroundOpacity27,
-            color: style.colors.onPrimary,
-            child: AvatarWidget.fromRxChat(
-              c.chat,
-              radius: AvatarRadius.medium,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: DefaultTextStyle.merge(
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Obx(() {
-                    return Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            c.chat!.title,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.big.regular.onBackground,
-                          ),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.chat!.title,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: style.fonts.big.regular.onBackground,
                         ),
-                        Obx(() {
-                          if (c.chat?.chat.value.muted == null) {
-                            return const SizedBox();
-                          }
+                      ),
+                      Obx(() {
+                        if (c.chat?.chat.value.muted == null) {
+                          return const SizedBox();
+                        }
 
-                          return const Padding(
-                            padding: EdgeInsets.only(left: 5),
-                            child: SvgIcon(SvgIcons.muted),
-                          );
-                        }),
-                      ],
-                    );
-                  }),
-                  ChatSubtitle(c.chat!, c.me),
-                ],
-              ),
+                        return const Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: SvgIcon(SvgIcons.muted),
+                        );
+                      }),
+                    ],
+                  );
+                }),
+                ChatSubtitle(c.chat!, c.me),
+              ],
             ),
           ),
-          const SizedBox(width: 10),
-        ],
-      );
-    }
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
 
     return Row(
       children: [
-        Expanded(
-          child: SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            child: title,
-          ),
+        Expanded(child: title),
+        const SizedBox(width: 8),
+        AnimatedButton(
+          onPressed: () => router.chat(id),
+          child: const SvgIcon(SvgIcons.chat),
+        ),
+        const SizedBox(width: 28),
+        AnimatedButton(
+          onPressed: () => c.call(true),
+          child: const SvgIcon(SvgIcons.chatVideoCall),
+        ),
+        const SizedBox(width: 28),
+        AnimatedButton(
+          key: const Key('AudioCall'),
+          onPressed: () => c.call(false),
+          child: const SvgIcon(SvgIcons.chatAudioCall),
         ),
         editButton,
       ],
-    );
-  }
-
-  /// Returns the [QuickButton] for quick actions to do with this [Chat].
-  Widget _quick(ChatInfoController c, BuildContext context) {
-    return SelectionContainer.disabled(
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          constraints:
-              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: QuickButton(
-                  label: 'label_chat'.l10n,
-                  icon: SvgIcons.chat,
-                  onPressed: () => router.chat(id),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: QuickButton(
-                  label: 'btn_audio'.l10n,
-                  icon: SvgIcons.chatAudioCall,
-                  onPressed: () => c.call(false),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: QuickButton(
-                  label: 'btn_video'.l10n,
-                  icon: SvgIcons.chatVideoCall,
-                  onPressed: () => c.call(true),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

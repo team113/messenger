@@ -197,7 +197,7 @@ btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
 btn_download_application = Скачать приложение
-btn_edit = Редактировать
+btn_edit = Изменить
 btn_email = E-mail
 btn_feedback = Пожелания и предложения
 btn_file = Файл
@@ -611,6 +611,7 @@ label_audio_call = Аудиозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_audio_notifications = Звуковые уведомления
+label_avatar = Аватар
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}удалил аватар
@@ -809,6 +810,7 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
+label_info = Информация
 label_introduction_description1 =
     Доступ к гостевому аккаунту сохраняется в течение одного года или пока:
 

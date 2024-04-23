@@ -165,7 +165,7 @@ class RecentChatTile extends StatelessWidget {
       final style = Theme.of(context).style;
 
       final Chat chat = rxChat.chat.value;
-      final bool isRoute = chat.isRoute(router.route, me);
+      final bool isRoute = router.routes.any((e) => chat.isRoute(e, me));
       final bool inverted = selected || (invertible && isRoute);
 
       return Slidable(

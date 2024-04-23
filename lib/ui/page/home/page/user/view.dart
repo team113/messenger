@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -33,11 +34,11 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/page/home/widget/quick_button.dart';
 import '/ui/page/login/widget/primary_button.dart';
-import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -45,7 +46,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
 
@@ -78,39 +78,48 @@ class UserView extends StatelessWidget {
             );
           }
 
+          Widget highlighted({
+            required int index,
+            required Widget child,
+          }) {
+            return HighlightedContainer(
+              highlight: c.highlighted.value == index,
+              child: child,
+            );
+          }
+
+          final List<Widget> blocks = [
+            const SizedBox(height: 8),
+            if (c.isBlocked != null)
+              Block(
+                title: 'label_user_is_blocked'.l10n,
+                children: [
+                  BlocklistRecordWidget(c.isBlocked!, onUnblock: c.unblock),
+                ],
+              ),
+            highlighted(index: 0, child: _profile(c, context)),
+            _bio(c, context),
+            _info(c),
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
+            const SizedBox(height: 8),
+          ];
+
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
-              child: Obx(() {
-                return SelectionArea(
-                  child: ListView(
-                    key: const Key('UserScrollable'),
-                    controller: c.scrollController,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (c.isBlocked != null)
-                        Block(
-                          title: 'label_user_is_blocked'.l10n,
-                          children: [
-                            BlocklistRecordWidget(
-                              c.isBlocked!,
-                              onUnblock: c.unblock,
-                            ),
-                          ],
-                        ),
-                      _profile(c, context),
-                      _quick(c, context),
-                      _bio(c, context),
-                      Block(children: [_num(c)]),
-                      SelectionContainer.disabled(
-                        child: Block(children: [_actions(c, context)]),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                );
-              }),
+              child: SelectionArea(
+                child: ScrollablePositionedList.builder(
+                  key: const Key('UserScrollable'),
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                ),
+              ),
             ),
           );
         });
@@ -120,18 +129,9 @@ class UserView extends StatelessWidget {
 
   /// Builds a [Block] displaying a [User.avatar] and [User.name].
   Widget _profile(UserController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       return Block(
-        overlay: [
-          if (c.contact.value != null)
-            EditBlockButton(
-              key: const Key('EditProfileButton'),
-              onPressed: c.profileEditing.toggle,
-              editing: c.profileEditing.value,
-            ),
-        ],
+        padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
         children: [
           SelectionContainer.disabled(
             child: BigAvatarWidget.user(
@@ -141,69 +141,6 @@ class UserView extends StatelessWidget {
               error: c.avatar.value.errorMessage,
             ),
           ),
-          Obx(() {
-            final List<Widget> children;
-
-            if (c.profileEditing.value) {
-              children = [
-                const SizedBox(height: 4),
-                SelectionContainer.disabled(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      WidgetButton(
-                        key: const Key('UploadAvatar'),
-                        onPressed: c.pickAvatar,
-                        child: Text(
-                          'btn_upload'.l10n,
-                          style: style.fonts.small.regular.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                SelectionContainer.disabled(
-                  child: ReactiveTextField(
-                    state: c.name,
-                    label: 'label_name'.l10n,
-                    hint: c.user!.title,
-                    formatters: [LengthLimitingTextInputFormatter(100)],
-                  ),
-                ),
-                const SizedBox(height: 4),
-              ];
-            } else {
-              children = [
-                const SizedBox(height: 18),
-                Container(width: double.infinity),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: Text(
-                    c.contact.value?.contact.value.name.val ?? c.name.text,
-                    style: style.fonts.large.regular.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: Text(
-                    c.user?.user.value.getStatus() ?? '',
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                ),
-              ];
-            }
-
-            return AnimatedSizeAndFade(
-              fadeDuration: 250.milliseconds,
-              sizeDuration: 250.milliseconds,
-              child: Column(
-                key: Key(c.profileEditing.value.toString()),
-                children: children,
-              ),
-            );
-          }),
         ],
       );
     });
@@ -213,35 +150,119 @@ class UserView extends StatelessWidget {
   Widget _bio(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    final UserBio? bio = c.user?.user.value.bio;
+    return Block(
+      padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
+      children: [
+        Obx(() {
+          final List<Widget> children;
 
-    if (bio != null) {
-      return Block(
-        padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              bio.toString(),
-              style: style.fonts.normal.regular.secondary,
+          if (c.profileEditing.value) {
+            children = [
+              const SizedBox(height: 18),
+              SelectionContainer.disabled(
+                child: ReactiveTextField(
+                  state: c.name,
+                  label: 'label_name'.l10n,
+                  hint: c.user!.title,
+                  formatters: [LengthLimitingTextInputFormatter(100)],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const SizedBox(width: 16),
+                  WidgetButton(
+                    onPressed: () {
+                      c.submitName();
+                      c.profileEditing.value = false;
+                    },
+                    child: SelectionContainer.disabled(
+                      child: Text(
+                        'btn_save'.l10n,
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  WidgetButton(
+                    onPressed: () => c.profileEditing.value = false,
+                    child: SelectionContainer.disabled(
+                      child: Text(
+                        'btn_cancel'.l10n,
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
+              ),
+            ];
+          } else {
+            children = [
+              const SizedBox(height: 8),
+              Container(width: double.infinity),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Text(
+                  c.contact.value?.contact.value.name.val ?? c.name.text,
+                  style: style.fonts.larger.regular.onBackground,
+                ),
+              ),
+              const SizedBox(height: 8),
+              WidgetButton(
+                onPressed: () {
+                  c.itemScrollController.scrollTo(
+                    index: c.isBlocked != null ? 3 : 2,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 600),
+                  );
+                  c.highlight(1);
+                  c.profileEditing.value = true;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'btn_edit'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+            ];
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: 250.milliseconds,
+            sizeDuration: 250.milliseconds,
+            child: Column(
+              key: Key(c.profileEditing.value.toString()),
+              children: children,
             ),
-          ),
-        ],
-      );
-    } else {
-      return const SizedBox();
-    }
+          );
+        }),
+      ],
+    );
   }
 
-  /// Returns the [User.num] visual representation.
-  Widget _num(UserController c) {
-    return Paddings.basic(
-      InfoTile(
-        key: const Key('NumCopyable'),
-        title: 'label_num'.l10n,
-        content: c.user!.user.value.num.toString(),
-        trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
-      ),
+  /// Returns the [User.num] and [User.bio] visual representation.
+  Widget _info(UserController c) {
+    final UserBio? bio = c.user?.user.value.bio;
+
+    return Block(
+      title: 'label_info'.l10n,
+      children: [
+        Paddings.basic(
+          InfoTile(
+            title: 'Gapopa ID',
+            content: c.user!.user.value.num.toString(),
+            trailing: CopyOrShareButton(
+              c.user!.user.value.num.toString(),
+            ),
+          ),
+        ),
+        if (bio != null)
+          Paddings.basic(
+            InfoTile(title: 'label_about'.l10n, content: bio.toString()),
+          ),
+      ],
     );
   }
 
@@ -356,8 +377,8 @@ class UserView extends StatelessWidget {
             ),
           ],
           ContextMenuButton(
-            onPressed: () => _reportUser(c, context),
             label: 'btn_report'.l10n,
+            onPressed: () => _reportUser(c, context),
             trailing: const SvgIcon(SvgIcons.report),
             inverted: const SvgIcon(SvgIcons.reportWhite),
           ),
@@ -380,79 +401,74 @@ class UserView extends StatelessWidget {
 
     final Widget title;
 
-    if (!c.displayName.value) {
-      title = Row(
-        key: const Key('Profile'),
-        children: [
-          const StyledBackButton(),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(child: Text('label_profile'.l10n)),
+    title = Row(
+      children: [
+        const StyledBackButton(),
+        Material(
+          elevation: 6,
+          type: MaterialType.circle,
+          shadowColor: style.colors.onBackgroundOpacity27,
+          color: style.colors.onPrimary,
+          child: Center(
+            child: AvatarWidget.fromRxUser(
+              c.user,
+              radius: AvatarRadius.medium,
             ),
           ),
-        ],
-      );
-    } else {
-      title = Row(
-        children: [
-          const StyledBackButton(),
-          Material(
-            elevation: 6,
-            type: MaterialType.circle,
-            shadowColor: style.colors.onBackgroundOpacity27,
-            color: style.colors.onPrimary,
-            child: Center(
-              child: AvatarWidget.fromRxUser(
-                c.user,
-                radius: AvatarRadius.medium,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: DefaultTextStyle.merge(
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: Obx(() {
-                final String? subtitle = c.user?.user.value.getStatus();
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            child: Obx(() {
+              final String? subtitle = c.user?.user.value.getStatus();
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    c.user!.title,
+                    style: style.fonts.big.regular.onBackground,
+                  ),
+                  if (subtitle?.isNotEmpty == true)
                     Text(
-                      c.user!.title,
-                      style: style.fonts.big.regular.onBackground,
-                    ),
-                    if (subtitle?.isNotEmpty == true)
-                      Text(
-                        key: Key(
-                          c.user?.user.value.presence?.name.capitalizeFirst ??
-                              '',
-                        ),
-                        subtitle!,
-                        style: style.fonts.small.regular.secondary,
-                      )
-                  ],
-                );
-              }),
-            ),
+                      key: Key(
+                        c.user?.user.value.presence?.name.capitalizeFirst ?? '',
+                      ),
+                      subtitle!,
+                      style: style.fonts.small.regular.secondary,
+                    )
+                ],
+              );
+            }),
           ),
-          const SizedBox(width: 10),
-        ],
-      );
-    }
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
 
     return Row(
       children: [
-        Expanded(
-          child: SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            child: title,
-          ),
+        Expanded(child: title),
+        const SizedBox(width: 8),
+        AnimatedButton(
+          onPressed: () => router.chat(c.user!.user.value.dialog),
+          child: const SvgIcon(SvgIcons.chat),
         ),
+        const SizedBox(width: 28),
+        AnimatedButton(
+          onPressed: () => c.call(true),
+          child: const SvgIcon(SvgIcons.chatVideoCall),
+        ),
+        const SizedBox(width: 28),
+        AnimatedButton(
+          key: const Key('AudioCall'),
+          onPressed: () => c.call(false),
+          child: const SvgIcon(SvgIcons.chatAudioCall),
+        ),
+        const SizedBox(width: 8),
         editButton,
       ],
     );
@@ -531,48 +547,6 @@ class UserView extends StatelessWidget {
         ],
       );
     });
-  }
-
-  /// Returns the [QuickButton] for quick actions to do with this [User].
-  Widget _quick(UserController c, BuildContext context) {
-    return SelectionContainer.disabled(
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          constraints:
-              context.isNarrow ? null : const BoxConstraints(maxWidth: 400),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: QuickButton(
-                  label: 'label_chat'.l10n,
-                  icon: SvgIcons.chat,
-                  onPressed: c.openChat,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: QuickButton(
-                  label: 'btn_audio'.l10n,
-                  icon: SvgIcons.chatAudioCall,
-                  onPressed: () => c.call(false),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: QuickButton(
-                  label: 'btn_video'.l10n,
-                  icon: SvgIcons.chatVideoCall,
-                  onPressed: () => c.call(true),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   /// Opens a confirmation popup hiding the [Chat]-dialog with the [User].

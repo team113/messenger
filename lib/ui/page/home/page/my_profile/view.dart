@@ -125,6 +125,7 @@ class MyProfileView extends StatelessWidget {
                           child: Column(
                             children: [
                               block(
+                                title: 'label_avatar'.l10n,
                                 children: [
                                   Obx(() {
                                     return BigAvatarWidget.myUser(
@@ -136,7 +137,11 @@ class MyProfileView extends StatelessWidget {
                                           : null,
                                     );
                                   }),
-                                  const SizedBox(height: 12),
+                                ],
+                              ),
+                              block(
+                                title: 'label_about'.l10n,
+                                children: [
                                   Paddings.basic(
                                     Obx(() {
                                       return UserNameField(
@@ -145,11 +150,7 @@ class MyProfileView extends StatelessWidget {
                                       );
                                     }),
                                   ),
-                                ],
-                              ),
-                              block(
-                                title: 'label_about'.l10n,
-                                children: [
+                                  const SizedBox(height: 6),
                                   Paddings.basic(
                                     Obx(() {
                                       return UserBioField(
