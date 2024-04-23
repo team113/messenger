@@ -357,20 +357,20 @@ class UserView extends StatelessWidget {
             ),
           ),
         ),
-        Paddings.basic(
-          const InfoTile(
-            title: 'E-mail',
-            content: 'hello@example.com',
-            trailing: CopyOrShareButton('hello@example.com'),
-          ),
-        ),
-        Paddings.basic(
-          const InfoTile(
-            title: 'Phone',
-            content: '+1 234 5678 90',
-            trailing: CopyOrShareButton('+1 234 5678 90'),
-          ),
-        ),
+        // Paddings.basic(
+        //   const InfoTile(
+        //     title: 'E-mail',
+        //     content: 'hello@example.com',
+        //     trailing: CopyOrShareButton('hello@example.com'),
+        //   ),
+        // ),
+        // Paddings.basic(
+        //   const InfoTile(
+        //     title: 'Phone',
+        //     content: '+1 234 5678 90',
+        //     trailing: CopyOrShareButton('+1 234 5678 90'),
+        //   ),
+        // ),
       ],
     );
   }
