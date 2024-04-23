@@ -154,7 +154,7 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                   ? widget.disabled ?? style.colors.secondaryHighlight
                   : _hovered
                       ? Color.alphaBlend(
-                          style.colors.onBackgroundOpacity7,
+                          style.colors.onBackgroundOpacity2,
                           widget.color ?? style.colors.onPrimary,
                         )
                       : widget.color ?? style.colors.onPrimary,
