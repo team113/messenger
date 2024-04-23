@@ -144,7 +144,7 @@ class AuthView extends StatelessWidget {
               offset: const Offset(4, 0),
               child: const SvgIcon(SvgIcons.guest),
             ),
-             onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+            onPressed: c.authStatus.value.isEmpty ? c.register : () {},
             child: Text('btn_guest'.l10n),
           ),
           const SizedBox(height: 15),
