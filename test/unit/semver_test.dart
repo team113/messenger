@@ -68,6 +68,9 @@ void main() {
 
     str = '0';
     expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
+
+    str = '-1.2.3';
+    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
   });
 
   test('SemVer correctly compares the versions', () async {
@@ -75,5 +78,40 @@ void main() {
     expect(SemVer(1, 2, 3).compareTo(SemVer(1, 2, 3)), 0);
     expect(SemVer(0, 1, 0).compareTo(SemVer(0, 1, 1)), -1);
     expect(SemVer(0, 1, 1).compareTo(SemVer(0, 1, 0)), 1);
+    expect(SemVer(0, 1, 0, '-alpha').compareTo(SemVer(0, 1, 0)), 1);
+    expect(SemVer(0, 1, 0, '-alpha').compareTo(SemVer(0, 1, 0, '-alpha')), 0);
+    expect(SemVer(0, 1, 0, '-alpha').compareTo(SemVer(0, 1, 0, '-beta')), -1);
+    expect(SemVer(0, 1, 0, '-beta').compareTo(SemVer(0, 1, 0, '-alpha')), 1);
+    expect(SemVer(0, 1, 0, '-beta.2').compareTo(SemVer(0, 1, 0, '-beta.1')), 1);
+    expect(
+      SemVer(0, 1, 0, '-beta.10').compareTo(SemVer(0, 1, 0, '-beta.1')),
+      1,
+    );
+    expect(
+      SemVer(0, 1, 0, '-beta.10').compareTo(SemVer(0, 1, 0, '-beta.11')),
+      -1,
+    );
+    expect(
+      SemVer(0, 1, 0, '-beta.10.1').compareTo(SemVer(0, 1, 0, '-beta.10')),
+      1,
+    );
+    expect(
+      SemVer(0, 1, 0, '-alpha.132.12').compareTo(SemVer(0, 1, 0, '-beta.1')),
+      -1,
+    );
+    expect(SemVer(0, 1, 0, '-beta.5').compareTo(SemVer(0, 1, 0, '-rc.1')), -1);
+    expect(SemVer(0, 1, 0, '-beta.5').compareTo(SemVer(0, 1, 0, '-rc')), -1);
+    expect(SemVer(0, 1, 0, '-rc.1').compareTo(SemVer(0, 1, 0, '-beta.5')), 1);
+    expect(SemVer(0, 1, 0, '-rc').compareTo(SemVer(0, 1, 0, '-beta.5')), 1);
+    expect(SemVer(0, 1, 0, '-rc.1').compareTo(SemVer(0, 1, 0, '-rc')), 1);
+    expect(SemVer(0, 1, 0, '-rc.2').compareTo(SemVer(0, 1, 0, '-rc.1')), 1);
+    expect(SemVer(0, 1, 0, '-rc').compareTo(SemVer(0, 1, 0, '-rc')), 0);
+  });
+
+  test('SemVer correctly detects the critical versions', () async {
+    expect(SemVer(0, 1, 0).isCritical(SemVer(0, 1, 0)), false);
+    expect(SemVer(0, 1, 1).isCritical(SemVer(0, 1, 0)), false);
+    expect(SemVer(0, 1, 0).isCritical(SemVer(0, 1, 1)), false);
+    expect(SemVer(0, 2, 0).isCritical(SemVer(0, 1, 0)), true);
   });
 }

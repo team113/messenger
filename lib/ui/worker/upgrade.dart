@@ -298,7 +298,7 @@ extension Rfc822ToDateTime on DateTime {
 }
 
 class SemVer implements Comparable<SemVer> {
-  SemVer(this.major, this.minor, this.patch, {this.suffix});
+  SemVer(this.major, this.minor, this.patch, [this.suffix]);
 
   factory SemVer.parse(String value) {
     final match = _regExp.allMatches(value).firstOrNull;
@@ -317,12 +317,7 @@ class SemVer implements Comparable<SemVer> {
     final int minor = int.tryParse(split.elementAtOrNull(1) ?? '') ?? 0;
     final int patch = int.tryParse(split.elementAtOrNull(2) ?? '') ?? 0;
 
-    return SemVer(
-      major,
-      minor,
-      patch,
-      suffix: suffix,
-    );
+    return SemVer(major, minor, patch, suffix);
   }
 
   final int major;
@@ -360,4 +355,20 @@ class SemVer implements Comparable<SemVer> {
 
   @override
   String toString() => '$major.$minor.$patch${suffix ?? ''}';
+
+  /// Indicates whether this [SemVer] is considered critical compared to the
+  /// [other].
+  bool isCritical(SemVer other) {
+    if (major != other.major) {
+      return true;
+    }
+
+    if (major == 0) {
+      if (minor != other.minor) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
