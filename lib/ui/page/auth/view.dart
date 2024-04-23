@@ -124,19 +124,17 @@ class AuthView extends StatelessWidget {
             child: Text('btn_sign_in'.l10n),
           ),
           const SizedBox(height: 15),
-          Obx(
-            () => OutlinedRoundedButton(
-              key: const Key('StartButton'),
-              maxWidth: 210,
-              height: 46,
-              leading: Transform.translate(
-                offset: const Offset(4, 0),
-                child: const SvgIcon(SvgIcons.guest),
-              ),
-              onPressed: c.authStatus.value.isEmpty ? c.register : () {},
-              child: Text('btn_guest'.l10n),
-            ),
-          ),
+          Obx(() => OutlinedRoundedButton(
+                key: const Key('StartButton'),
+                maxWidth: 210,
+                height: 46,
+                leading: Transform.translate(
+                  offset: const Offset(4, 0),
+                  child: const SvgIcon(SvgIcons.guest),
+                ),
+                onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+                child: Text('btn_guest'.l10n),
+              )),
           const SizedBox(height: 15),
         ];
 
