@@ -103,6 +103,13 @@ class Config {
   /// Optional copyright to display at the bottom of [Routes.auth] page.
   static String copyright = '';
 
+  /// Email address of the support service displayed on the [Routes.support]
+  /// page.
+  static String support = 'admin@gapopa.com';
+
+  /// URL of the repository (or anything else) for users to report bugs to.
+  static String repository = 'https://github.com/team113/messenger/issues';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -190,6 +197,14 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_LEGAL_COPYRIGHT')
         : (document['legal']?['copyright'] ?? copyright);
 
+    support = const bool.hasEnvironment('SOCAPP_LEGAL_SUPPORT')
+        ? const String.fromEnvironment('SOCAPP_LEGAL_SUPPORT')
+        : (document['legal']?['support'] ?? support);
+
+    repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
+        ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
+        : (document['legal']?['repository'] ?? repository);
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -253,6 +268,8 @@ class Config {
             copyright = remote['legal']?[Uri.base.host]['copyright'] ??
                 remote['legal']?['copyright'] ??
                 copyright;
+            support = remote['legal']?['support'] ?? support;
+            repository = remote['legal']?['repository'] ?? repository;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],

@@ -1148,6 +1148,12 @@ class SvgIcons {
     height: 32,
   );
 
+  static const SvgData menuSupport = SvgData(
+    'assets/icons/menu_help.svg',
+    width: 32,
+    height: 32,
+  );
+
   static const List<SvgData> head = [
     SvgData(
       'assets/images/logo/head_0.svg',
