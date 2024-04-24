@@ -117,23 +117,17 @@ jobs:
 
   appcast:
     name: appcast
-    # Despite this CI job is not always needed, we intentionally keep it running
-    # always, because we want the `docker` CI job to depend on it, and GitHub
-    # Actions doesn't provide any conditional depending at the moment.
-    #if: ${{ startsWith(github.ref, 'refs/tags/v')
-    #     || github.ref == 'refs/heads/main'
-    #     || github.event_name == 'pull_request' }}
+    if: ${{ startsWith(github.ref, 'refs/tags/v')
+        || github.ref == 'refs/heads/main'
+        || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ startsWith(github.ref, 'refs/tags/v') && 'gh-pages' || '' }}
           fetch-depth: 0 # for correct versioning via `git describe --tags`
 
-      - name: Fetch Makefile and release notes from the upstream
-        run: |
-          git checkout ${{ github.ref }} -- Makefile
-          git checkout ${{ github.ref }} -- release_notes/
+      - name: Fetch existing Appcast XMLs from gh-pages
+        run: git checkout gh-pages -- appcast/
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - name: Parse semver versions from Git tag
@@ -144,25 +138,19 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
-      - run: mkdir -p appcast/ .cache/
-      - run: make appcast.item
+      - run: mkdir -p appcast/
+      - run: make appcast.xml.item
         env:
           link: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.ARTIFACTS_STABLE || secrets.ARTIFACTS_MAIN }}
           notes: ${{ !startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_NOTES || '' }}
           version: ${{ steps.semver.outputs.group1 }}
 
-      - run: |
-          cp appcast/${{ steps.semver.outputs.group1 }}.xml \
-              .cache/${{ steps.semver.outputs.group1 }}.xml
-          rm -f appcast/appcast.xml
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-
-      - run: make appcast.xml out=.cache/appcast.xml
+      - run: make appcast.xml
 
       - uses: actions/upload-artifact@v4
         with:
           name: appcast-${{ github.run_number }}
-          path: .cache/*.xml
+          path: appcast/
           if-no-files-found: error
           retention-days: 1
 
@@ -493,10 +481,15 @@ jobs:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
 
+      # TODO: Refactor when actions/download-artifact#176 is implemented:
+      #       https://github.com/actions/download-artifact/issues/176
       - uses: actions/download-artifact@v4
         with:
           name: appcast-${{ github.run_number }}
-          path: build/web/
+          path: appcast/
+        if: ${{ startsWith(github.ref, 'refs/tags/v') ||
+                github.ref == 'refs/heads/main' }}
+      - run: cp appcast/appcast.xml build/web/appcast.xml
         if: ${{ startsWith(github.ref, 'refs/tags/v') ||
                 github.ref == 'refs/heads/main' }}
 
@@ -618,44 +611,6 @@ jobs:
   #############
   # Releasing #
   #############
-
-  appcast-push:
-    name: appcast push
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["release-github"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-
-      - name: Parse semver versions from Git tag
-        id: semver
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.ref }}
-          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
-
-      - run: mkdir -p appcast/
-      - run: rm -f appcast/appcast.xml
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: appcast-${{ github.run_number }}
-          path: appcast/
-
-      - name: Update Appcast index
-        run: |
-          set -ex
-
-          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
-          git config --local user.name 'github-actions[bot]'
-
-          git checkout --orphan orphan-gh-pages
-          git add --all
-          git commit -m 'Release ${{ steps.semver.outputs.group1 }} version'
-          git branch -M orphan-gh-pages gh-pages
-          git push --force origin gh-pages
 
   docker-push:
     name: docker push
@@ -875,6 +830,41 @@ jobs:
           git branch -M orphan-gh-pages gh-pages
           git push --force origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
+
+  release-appcast:
+    name: release (Appcast XML)
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - deploy-docs # To ensure no parallel pushes to `gh-pages` might happen.
+      - release-github
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Parse semver versions from Git tag
+        id: semver
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref }}
+          regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
+
+      - run: rm -rf appcast
+      - uses: actions/download-artifact@v4
+        with:
+          name: appcast-${{ github.run_number }}
+          path: appcast/
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          commit_message: ${{ github.event.head_commit.message }}
+          force_orphan: true
+          keep_files: true
+          user_name: github-actions[bot]
+          user_email: github-actions[bot]@users.noreply.github.com
 
   release-github:
     name: release (GitHub)

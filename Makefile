@@ -326,7 +326,7 @@ endif
 # Usage:
 #	make appcast.xml [items=(appcast/*.xml|<items>)]
 #	                 [from=(appcast|<input-directory>)
-#	                 [out=(appcast.xml|<output-file>)
+#	                 [out=(appcast/appcast.xml|<output-file>)
 
 appcast-xml-items = $(or $(items),$(foreach xml,\
 	$(call reverse,$(wildcard $(or $(from),appcast)/*.xml)),\
@@ -334,7 +334,7 @@ appcast-xml-items = $(or $(items),$(foreach xml,\
 
 appcast.xml:
 	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>"\
-	> $(or $(out),appcast.xml)
+	> $(or $(out),appcast/appcast.xml)
 
 
 # Create single version item in Sparkle Appcast XML format.
@@ -343,18 +343,18 @@ appcast.xml:
 # `appcast.xml` command afterwards.
 #
 # Usage:
-#	make appcast.item [notes=(release_notes|<notes>)]
-#	                  version=<version> link=<artifacts-url>
-#	                  [out=(appcast/<version>.xml|<output-file>)
+#	make appcast.xml.item [notes=(release_notes|<notes>)]
+#	                      version=<version> link=<artifacts-url>
+#	                      [out=(appcast/<version>.xml|<output-file>)
 
 appcast-item-ver = $(or $(version),\
 	$(shell git describe --tags --dirty --match "v*" --always))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)><![CDATA[$(shell cat $(xml))]]></description>)
 
-appcast.item:
-	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.item.release,"macos","messenger-macos.zip")$(call appcast.item.release,"windows","messenger-windows.zip")$(call appcast.item.release,"linux","messenger-linux.zip")$(call appcast.item.release,"android","messenger-android.zip")$(call appcast.item.release,"ios","messenger-ios.zip")</item>" \
+appcast.xml.item:
+	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","messenger-macos.zip")$(call appcast.xml.item.release,"windows","messenger-windows.zip")$(call appcast.xml.item.release,"linux","messenger-linux.zip")$(call appcast.xml.item.release,"android","messenger-android.zip")$(call appcast.xml.item.release,"ios","messenger-ios.zip")</item>" \
 	> $(or $(out),appcast/$(appcast-item-ver).xml)
-define appcast.item.release
+define appcast.xml.item.release
 <enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
 endef
 
@@ -919,7 +919,7 @@ sentry.upload:
 ##################
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
-        appcast.item appcast.xml \
+        appcast.xml appcast.xml.item \
         clean.e2e clean.flutter clean.test.e2e \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
