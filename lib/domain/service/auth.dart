@@ -387,12 +387,16 @@ class AuthService extends GetxService {
   /// The created [Session] expires in 1 day after creation.
   ///
   /// Throws [CreateSessionException].
+  ///
+  /// If [waitForLock] is `true`, then signing in will wait for [WebUtils]' lock
+  /// release instead of aborting this operation.
   Future<void> signIn(
     UserPassword password, {
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    bool waitForLock = false,
   }) async {
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
@@ -400,7 +404,7 @@ class AuthService extends GetxService {
 
     // Proceed only if [isLocked] is `false`, as this operation meant to be
     // invoked only during unauthorized phase.
-    if (isLocked) {
+    if (isLocked && !waitForLock) {
       return;
     }
 
@@ -459,34 +463,32 @@ class AuthService extends GetxService {
       return _unauthorized();
     }
 
-    return await WebUtils.protect(() async {
-      status.value = RxStatus.empty();
+    status.value = RxStatus.empty();
 
-      try {
-        FcmRegistrationToken? fcmToken;
+    try {
+      FcmRegistrationToken? fcmToken;
 
-        if (PlatformUtils.pushNotifications) {
-          final NotificationSettings settings =
-              await FirebaseMessaging.instance.getNotificationSettings();
+      if (PlatformUtils.pushNotifications) {
+        final NotificationSettings settings =
+            await FirebaseMessaging.instance.getNotificationSettings();
 
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            final String? token = await FirebaseMessaging.instance.getToken(
-              vapidKey: Config.vapidKey,
-            );
+        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          final String? token = await FirebaseMessaging.instance.getToken(
+            vapidKey: Config.vapidKey,
+          );
 
-            if (token != null) {
-              fcmToken = FcmRegistrationToken(token);
-            }
+          if (token != null) {
+            fcmToken = FcmRegistrationToken(token);
           }
         }
-
-        await _authRepository.deleteSession(fcmToken);
-      } catch (e) {
-        printError(info: e.toString());
       }
 
-      return _unauthorized();
-    });
+      await _authRepository.deleteSession(fcmToken);
+    } catch (e) {
+      printError(info: e.toString());
+    }
+
+    return _unauthorized();
   }
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
@@ -509,14 +511,12 @@ class AuthService extends GetxService {
   Future<bool> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    return await WebUtils.protect(() async {
-      try {
-        await _authRepository.validateToken();
-        return true;
-      } on AuthorizationException {
-        return false;
-      }
-    });
+    try {
+      await _authRepository.validateToken();
+      return true;
+    } on AuthorizationException {
+      return false;
+    }
   }
 
   /// Refreshes the current [credentials].
@@ -525,21 +525,32 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    if (isLocked) {
-      Log.debug(
-        'refreshSession(): acquired the lock, while it was locked, thus was aborted',
-        '$runtimeType',
-      );
-
-      return;
-    }
+    Log.debug(
+      'refreshSession() with `isLocked`: $isLocked',
+      '$runtimeType',
+    );
 
     try {
+      // Do not perform renew since some other task has already renewed it. But
+      // still wait for the lock to be sure that session was renewed when
+      // current `refreshSession()` call resolves.
       await WebUtils.protect(() async {
-        Log.debug(
-          'refreshSession(): acquired the lock, while it was unlocked',
-          '$runtimeType',
-        );
+        if (isLocked) {
+          Log.debug(
+            'refreshSession(): acquired the lock, while it was locked, thus should proceed: $_shouldRefresh',
+            '$runtimeType',
+          );
+
+          if (!_shouldRefresh) {
+            // [Credentials] are successfully updated.
+            return;
+          }
+        } else {
+          Log.debug(
+            'refreshSession(): acquired the lock, while it was unlocked',
+            '$runtimeType',
+          );
+        }
 
         // Fetch the fresh [WebUtils.credentials], if there are any.
         if (WebUtils.credentials != null &&

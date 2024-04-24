@@ -69,9 +69,6 @@ class ChangePasswordController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Returns the current password changing status.
-  Rx<RxStatus> get passwordStatus => _myUserService.passwordStatus;
-
   @override
   void onInit() {
     oldPassword = TextFieldState(

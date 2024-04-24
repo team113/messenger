@@ -412,11 +412,12 @@ class LoginView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 25 / 2),
-                Obx(() => PrimaryButton(
-                      title: 'btn_guest'.l10n,
-                      onPressed:
-                          c.authStatus.value.isEmpty ? c.register : () {},
-                    )),
+                Obx(() {
+                  return PrimaryButton(
+                    title: 'btn_guest'.l10n,
+                    onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+                  );
+                }),
                 const SizedBox(height: 16),
               ];
               break;

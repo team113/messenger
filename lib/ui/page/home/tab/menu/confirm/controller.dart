@@ -62,9 +62,6 @@ class ConfirmLogoutController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUser.myUser;
 
-  /// Returns the current password changing status.
-  Rx<RxStatus> get passwordStatus => _myUser.passwordStatus;
-
   @override
   void onInit() {
     hasPassword = RxBool(myUser.value?.hasPassword ?? false);

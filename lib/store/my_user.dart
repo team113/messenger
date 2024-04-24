@@ -44,7 +44,6 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
-import '/util/web/web_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
 import 'model/my_user.dart';
@@ -236,23 +235,21 @@ class MyUserRepository implements AbstractMyUserRepository {
     UserPassword? oldPassword,
     UserPassword newPassword,
   ) async {
-    await WebUtils.protect(() async {
-      Log.debug('updateUserPassword(***, ***)', '$runtimeType');
+    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
-      final bool? hasPassword = myUser.value?.hasPassword;
+    final bool? hasPassword = myUser.value?.hasPassword;
 
-      myUser.update((u) => u?.hasPassword = true);
+    myUser.update((u) => u?.hasPassword = true);
 
-      try {
-        await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
-      } catch (_) {
-        if (hasPassword != null) {
-          myUser.update((u) => u?.hasPassword = hasPassword);
-        }
-
-        rethrow;
+    try {
+      await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+    } catch (_) {
+      if (hasPassword != null) {
+        myUser.update((u) => u?.hasPassword = hasPassword);
       }
-    });
+
+      rethrow;
+    }
   }
 
   @override
