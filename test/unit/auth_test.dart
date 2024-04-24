@@ -216,17 +216,30 @@ void main() async {
       accountProvider,
     ));
 
-    when(graphQlProvider.recoverUserPassword(
-            UserLogin('login'), null, null, null))
-        .thenAnswer((realInvocation) => Future.value());
+    when(
+      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
+    ).thenAnswer((_) => Future.value());
 
-    when(graphQlProvider.validateUserPasswordRecoveryCode(
-            UserLogin('login'), null, null, null, ConfirmationCode('1234')))
-        .thenAnswer((realInvocation) => Future.value());
+    when(
+      graphQlProvider.validateUserPasswordRecoveryCode(
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1234'),
+      ),
+    ).thenAnswer((_) => Future.value());
 
-    when(graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-            ConfirmationCode('1234'), UserPassword('123456')))
-        .thenAnswer((realInvocation) => Future.value());
+    when(
+      graphQlProvider.resetUserPassword(
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1234'),
+        UserPassword('123456'),
+      ),
+    ).thenAnswer((_) => Future.value());
 
     await authService.recoverUserPassword(login: UserLogin('login'));
     await authService.validateUserPasswordRecoveryCode(
@@ -241,9 +254,20 @@ void main() async {
     verifyInOrder([
       graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
       graphQlProvider.validateUserPasswordRecoveryCode(
-          UserLogin('login'), null, null, null, ConfirmationCode('1234')),
-      graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-          ConfirmationCode('1234'), UserPassword('123456')),
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1234'),
+      ),
+      graphQlProvider.resetUserPassword(
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1234'),
+        UserPassword('123456'),
+      ),
     ]);
   });
 
@@ -262,45 +286,75 @@ void main() async {
       accountProvider,
     ));
 
-    when(graphQlProvider.recoverUserPassword(
-            UserLogin('login'), null, null, null))
-        .thenAnswer((realInvocation) => Future.value());
+    when(
+      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
+    ).thenAnswer((_) => Future.value());
 
-    when(graphQlProvider.validateUserPasswordRecoveryCode(
-            UserLogin('login'), null, null, null, ConfirmationCode('1111')))
-        .thenThrow(const ValidateUserPasswordRecoveryCodeException(
-            ValidateUserPasswordRecoveryErrorCode.wrongCode));
+    when(
+      graphQlProvider.validateUserPasswordRecoveryCode(
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1111'),
+      ),
+    ).thenThrow(
+      const ValidateUserPasswordRecoveryCodeException(
+        ValidateUserPasswordRecoveryErrorCode.wrongCode,
+      ),
+    );
 
-    when(graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-            ConfirmationCode('1111'), UserPassword('123456')))
-        .thenThrow(const ResetUserPasswordException(
-            ResetUserPasswordErrorCode.wrongCode));
+    when(
+      graphQlProvider.resetUserPassword(
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1111'),
+        UserPassword('123456'),
+      ),
+    ).thenThrow(
+      const ResetUserPasswordException(ResetUserPasswordErrorCode.wrongCode),
+    );
 
     await authService.recoverUserPassword(login: UserLogin('login'));
 
     expect(
-        () async => await authService.validateUserPasswordRecoveryCode(
-              login: UserLogin('login'),
-              code: ConfirmationCode('1111'),
-            ),
-        throwsA(isA<ValidateUserPasswordRecoveryCodeException>()));
+      () async => await authService.validateUserPasswordRecoveryCode(
+        login: UserLogin('login'),
+        code: ConfirmationCode('1111'),
+      ),
+      throwsA(isA<ValidateUserPasswordRecoveryCodeException>()),
+    );
 
     expect(
-        () async => await authService.resetUserPassword(
-              login: UserLogin('login'),
-              code: ConfirmationCode('1111'),
-              newPassword: UserPassword('123456'),
-            ),
-        throwsA(isA<ResetUserPasswordException>()));
+      () async => await authService.resetUserPassword(
+        login: UserLogin('login'),
+        code: ConfirmationCode('1111'),
+        newPassword: UserPassword('123456'),
+      ),
+      throwsA(isA<ResetUserPasswordException>()),
+    );
 
     await Future.delayed(Duration.zero);
 
     verifyInOrder([
       graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
       graphQlProvider.validateUserPasswordRecoveryCode(
-          UserLogin('login'), null, null, null, ConfirmationCode('1111')),
-      graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-          ConfirmationCode('1111'), UserPassword('123456'))
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1111'),
+      ),
+      graphQlProvider.resetUserPassword(
+        UserLogin('login'),
+        null,
+        null,
+        null,
+        ConfirmationCode('1111'),
+        UserPassword('123456'),
+      )
     ]);
   });
 }

@@ -314,21 +314,25 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    if (!isLocked) {
-      Log.debug('register()', '$runtimeType');
-
-      status.value = RxStatus.loading();
-      return WebUtils.protect(() async {
-        try {
-          final Credentials data = await _authRepository.signUp();
-          _authorized(data);
-          status.value = RxStatus.success();
-        } catch (e) {
-          _unauthorized();
-          rethrow;
-        }
-      });
+    // Proceed only if [isLocked] is `false`, as this operation meant to be
+    // invoked only during unauthorized phase.
+    if (isLocked) {
+      return;
     }
+
+    Log.debug('register()', '$runtimeType');
+
+    status.value = RxStatus.loading();
+    return WebUtils.protect(() async {
+      try {
+        final Credentials data = await _authRepository.signUp();
+        _authorized(data);
+        status.value = RxStatus.success();
+      } catch (e) {
+        _unauthorized();
+        rethrow;
+      }
+    });
   }
 
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
@@ -348,22 +352,26 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    if (!isLocked) {
-      Log.debug('confirmSignUpEmail($code)', '$runtimeType');
-
-      status.value = RxStatus.loading();
-      await WebUtils.protect(() async {
-        try {
-          final Credentials data =
-              await _authRepository.confirmSignUpEmail(code);
-          _authorized(data);
-          status.value = RxStatus.success();
-        } catch (e) {
-          _unauthorized();
-          rethrow;
-        }
-      });
+    // Proceed only if [isLocked] is `false`, as this operation meant to be
+    // invoked only during unauthorized phase.
+    if (isLocked) {
+      return;
     }
+
+    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
+
+    status.value = RxStatus.loading();
+
+    await WebUtils.protect(() async {
+      try {
+        final Credentials data = await _authRepository.confirmSignUpEmail(code);
+        _authorized(data);
+        status.value = RxStatus.success();
+      } catch (e) {
+        _unauthorized();
+        rethrow;
+      }
+    });
   }
 
   /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
@@ -390,29 +398,32 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    if (!isLocked) {
-      Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
-
-      status.value = credentials.value == null
-          ? RxStatus.loading()
-          : RxStatus.loadingMore();
-      await WebUtils.protect(() async {
-        try {
-          final Credentials creds = await _authRepository.signIn(
-            password,
-            login: login,
-            num: num,
-            email: email,
-            phone: phone,
-          );
-          _authorized(creds);
-          status.value = RxStatus.success();
-        } catch (e) {
-          _unauthorized();
-          rethrow;
-        }
-      });
+    // Proceed only if [isLocked] is `false`, as this operation meant to be
+    // invoked only during unauthorized phase.
+    if (isLocked) {
+      return;
     }
+
+    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
+
+    status.value =
+        credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
+    await WebUtils.protect(() async {
+      try {
+        final Credentials creds = await _authRepository.signIn(
+          password,
+          login: login,
+          num: num,
+          email: email,
+          phone: phone,
+        );
+        _authorized(creds);
+        status.value = RxStatus.success();
+      } catch (e) {
+        _unauthorized();
+        rethrow;
+      }
+    });
   }
 
   /// Authorizes the current [Session] from the provided [credentials].
@@ -485,7 +496,6 @@ class AuthService extends GetxService {
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
 
-    // Set status to `empty` to allow transition to the [Routes.auth] page.
     status.value = RxStatus.empty();
 
     if (userId != null) {
