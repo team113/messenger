@@ -719,6 +719,8 @@ class ChatController extends GetxController {
     );
   }
 
+  bool hasBot = false;
+
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
     ISentrySpan span = _ready.startChild('fetch');
@@ -928,7 +930,7 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog ?? false) {
-        final recipient = chat!.chat.value.members.any(
+        hasBot = chat!.chat.value.members.any(
           (e) =>
               e.user.id != me &&
               (e.user.name?.val == 'alex2' ||
@@ -936,12 +938,18 @@ class ChatController extends GetxController {
                   e.user.name?.val == 'nikita'),
         );
 
-        if (recipient) {
-          final element = BotElement(
-            'Translated dialog. English - Russian. Translation cost: 99I per 100 symbols.',
+        if (hasBot) {
+          final info = BotInfoElement(
+            'Translated dialog. English - Russian. Translation cost: \$1.110681 (€0.99) per 100 symbols.',
             at: PreciseDateTime.now(),
           );
-          elements[element.id] = element;
+          elements[info.id] = info;
+
+          final action = BotActionElement(
+            'Submit',
+            at: PreciseDateTime.now().add(const Duration(milliseconds: 1)),
+          );
+          elements[action.id] = action;
         }
       }
 
@@ -2324,11 +2332,20 @@ class LoaderElement extends ListElement {
 }
 
 /// [ListElement] representing a [ChatInfo].
-class BotElement extends ListElement {
-  BotElement(this.string, {required PreciseDateTime at})
+class BotInfoElement extends ListElement {
+  BotInfoElement(this.string, {required PreciseDateTime at})
       : super(ListElementId(at, const ChatItemId('0')));
 
-  /// [ChatItem] of this [BotElement].
+  /// [String] of this [BotInfoElement].
+  final String string;
+}
+
+/// [ListElement] representing a [ChatInfo].
+class BotActionElement extends ListElement {
+  BotActionElement(this.string, {required PreciseDateTime at})
+      : super(ListElementId(at, const ChatItemId('0')));
+
+  /// [String] of this [BotActionElement].
   final String string;
 }
 

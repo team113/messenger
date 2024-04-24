@@ -1077,21 +1077,46 @@ class ChatView extends StatelessWidget {
           child: child,
         );
       });
-    } else if (element is BotElement) {
+    } else if (element is BotInfoElement) {
+      const Color color = Color.fromARGB(255, 149, 209, 149);
+
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(
-                color: style.colors.accept,
-                width: 1,
-              ),
+              border: Border.all(color: color, width: 0.5),
               color: style.systemMessageColor,
             ),
             child: Text(element.string, style: style.systemMessageStyle),
+          ),
+        ),
+      );
+    } else if (element is BotActionElement) {
+      const Color color = Color.fromARGB(255, 149, 209, 149);
+
+      return SelectionContainer.disabled(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+          child: Center(
+            child: WidgetButton(
+              onPressed: () {},
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: style.systemMessageColor, width: 1),
+                  color: color,
+                ),
+                child: Text(
+                  element.string,
+                  style: style.fonts.small.regular.onPrimary,
+                ),
+              ),
+            ),
           ),
         ),
       );
@@ -1432,6 +1457,7 @@ class ChatView extends StatelessWidget {
             c.animateTo(item.id, item: item, addToHistory: false),
         canForward: true,
         onAttachmentError: c.chat?.updateAttachments,
+        symbols: c.hasBot,
       );
     });
   }
