@@ -217,7 +217,7 @@ class AuthView extends StatelessWidget {
                         const SizedBox(height: 8),
                         Expanded(child: Center(child: column)),
                         const SizedBox(height: 8),
-                        status,
+                        SafeArea(top: false, child: status),
                       ],
                     ),
                   ),
