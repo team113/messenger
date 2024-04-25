@@ -127,7 +127,7 @@ jobs:
           fetch-depth: 0 # for correct versioning via `git describe --tags`
 
       - name: Fetch existing Appcast XMLs from gh-pages
-        run: git checkout gh-pages -- appcast/
+        run: git checkout origin/gh-pages -- appcast/
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - name: Parse semver versions from Git tag
