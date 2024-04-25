@@ -333,7 +333,6 @@ appcast-xml-items = $(or $(items),$(foreach xml,\
 	$(shell cat $(xml))))
 
 appcast.xml:
-	@rm -rf appcast/appcast.xml
 	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>"\
 	> $(or $(out),appcast/appcast.xml)
 

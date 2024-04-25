@@ -145,6 +145,7 @@ jobs:
           notes: ${{ !startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_NOTES || '' }}
           version: ${{ steps.semver.outputs.group1 }}
 
+      - run: rm -f appcast/appcast.xml
       - run: make appcast.xml
 
       - uses: actions/upload-artifact@v4
