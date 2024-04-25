@@ -8,6 +8,10 @@ comma := ,
 eq = $(if $(or $(1),$(2)),$(and $(findstring $(1),$(2)),\
                                 $(findstring $(2),$(1))),1)
 
+# Reverses the provided list.
+reverse = $(if $(wordlist 2,2,$(1)),$(call reverse,\
+               $(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)),$(1))
+
 # Recursively lists all files in the given directory with the given pattern.
 rwildcard = $(strip $(wildcard $(1)$(2))\
                     $(foreach d,$(wildcard $(1)*),$(call rwildcard,$(d)/,$(2))))
@@ -19,10 +23,6 @@ slugify = $(strip $(shell echo $(2) | tr [:upper:] [:lower:] \
                                     | tr -c [:alnum:] - \
                                     | cut -c 1-$(1) \
                                     | sed -e 's/^-*//' -e 's/-*$$//'))
-
-# Reverses the provided list.
-reverse = $(if $(wordlist 2,2,$(1)),$(call reverse,\
-               $(wordlist 2,$(words $(1)),$(1))) $(firstword $(1)),$(1))
 
 
 
@@ -321,7 +321,7 @@ endif
 # Sparkle Appcast commands #
 ############################
 
-# Create Sparkle Appcast XML.
+# Create full Sparkle Appcast XML out of separate `items`.
 #
 # Usage:
 #	make appcast.xml [items=(appcast/*.xml|<items>)]
@@ -330,21 +330,23 @@ endif
 
 appcast-xml-items = $(or $(items),$(foreach xml,\
 	$(call reverse,$(wildcard $(or $(from),appcast)/*.xml)),\
-	$(shell cat $(xml))))
+		$(shell cat $(xml))))
 
 appcast.xml:
-	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>"\
+	@echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\" xmlns:sparkle=\"http://www.andymatuschak.org/xml-namespaces/sparkle\"><channel>$(appcast-xml-items)</channel></rss>" \
 	> $(or $(out),appcast/appcast.xml)
 
 
-# Create single version item in Sparkle Appcast XML format.
+# Create single item of Sparkle Appcast XML format.
 #
-# Note, that output is not a valid XML yet. To make it valid, use the
-# `appcast.xml` command afterwards.
+# WARNING: Output doesn't represent a valid Sparkle Appcast XML yet, only a
+#          piece of it. To make it valid, use the `appcast.xml` command
+#          afterwards.
 #
 # Usage:
-#	make appcast.xml.item [notes=(release_notes|<notes>)]
-#	                      version=<version> link=<artifacts-url>
+#	make appcast.xml.item link=<artifacts-url>
+#	                      [notes=($(cat release_notes/*.md)|<notes>)]
+#	                      [version=($(git describe --tags)|<version>)]
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
 appcast-item-ver = $(or $(version),\

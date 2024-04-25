@@ -116,19 +116,11 @@ jobs:
   ############
 
   appcast:
-    name: appcast
-    if: ${{ startsWith(github.ref, 'refs/tags/v')
-        || github.ref == 'refs/heads/main'
-        || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # for correct versioning via `git describe --tags`
-
-      - name: Fetch existing Appcast XMLs from gh-pages
-        run: git checkout origin/gh-pages -- appcast/
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -138,14 +130,23 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
         if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
+      - name: Fetch existing Appcast XMLs from gh-pages
+        run: git checkout origin/gh-pages -- appcast/
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
       - run: mkdir -p appcast/
+      - run: rm -f appcast/appcast.xml
+
       - run: make appcast.xml.item
         env:
-          link: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.ARTIFACTS_STABLE || secrets.ARTIFACTS_MAIN }}
-          notes: ${{ !startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_NOTES || '' }}
-          version: ${{ steps.semver.outputs.group1 }}
-
-      - run: rm -f appcast/appcast.xml
+          link: ${{ (startsWith(github.ref, 'refs/tags/v')
+                     && secrets.ARTIFACTS_STABLE)
+                 ||     secrets.ARTIFACTS_MAIN }}
+          notes: ${{ (!startsWith(github.ref, 'refs/tags/v')
+                      && secrets.APPCAST_NOTES)
+                  ||     '' }}
+          version: ${{ (startsWith(github.ref, 'refs/tags/v')
+                        && steps.semver.outputs.group1)
+                    ||     '' }}
       - run: make appcast.xml
 
       - uses: actions/upload-artifact@v4
@@ -488,11 +489,12 @@ jobs:
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
-        if: ${{ startsWith(github.ref, 'refs/tags/v') ||
-                github.ref == 'refs/heads/main' }}
-      - run: cp appcast/appcast.xml build/web/appcast.xml
-        if: ${{ startsWith(github.ref, 'refs/tags/v') ||
-                github.ref == 'refs/heads/main' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v')
+             || github.ref == 'refs/heads/main' }}
+      - run: cp appcast/appcast.xml
+                build/web/appcast.xml
+        if: ${{ startsWith(github.ref, 'refs/tags/v')
+             || github.ref == 'refs/heads/main' }}
 
       - run: make docker.image no-cache=yes
                   tag=build-${{ github.run_number }}
@@ -833,10 +835,10 @@ jobs:
         if: ${{ steps.skip.outputs.no == 'true' }}
 
   release-appcast:
-    name: release (Appcast XML)
+    name: release (Sparkle Appcast XML)
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs:
-      - deploy-docs # To ensure no parallel pushes to `gh-pages` might happen.
+      - deploy-docs  # ensure no parallel pushes to `gh-pages` happens
       - release-github
     runs-on: ubuntu-latest
     steps:
@@ -851,7 +853,7 @@ jobs:
           text: ${{ github.ref }}
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
 
-      - run: rm -rf appcast
+      - run: rm -rf appcast/
       - uses: actions/download-artifact@v4
         with:
           name: appcast-${{ github.run_number }}
