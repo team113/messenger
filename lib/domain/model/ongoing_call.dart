@@ -1613,16 +1613,16 @@ class OngoingCall {
             devices.output().firstOrNull;
       }
 
-      audioDevice.value = devices
+      audioDevice.value ??= devices
               .audio()
               .firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
           devices.audio().firstOrNull;
 
-      videoDevice.value = devices
+      videoDevice.value ??= devices
           .video()
           .firstWhereOrNull((e) => e.id() == _preferredVideoDevice);
 
-      screenDevice.value = displays
+      screenDevice.value ??= displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
       if (outputDevice.value != null) {
