@@ -354,7 +354,7 @@ class AuthService extends GetxService {
 
     // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
     // this operation is meant to be invoked only during unauthorized phase.
-    if (isLocked && credentials.value != null) {
+    if (isLocked || credentials.value != null) {
       return;
     }
 
@@ -404,6 +404,7 @@ class AuthService extends GetxService {
 
     // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
     // this operation is meant to be invoked only during unauthorized phase.
+    // If [force] is `true`, then proceed anyway.
     if (!force && (isLocked || credentials.value != null)) {
       return;
     }
