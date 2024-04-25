@@ -408,7 +408,10 @@ class AuthService extends GetxService {
       return;
     }
 
-    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
+    Log.debug(
+      'signIn(***, $login, $num, $email, $phone, force: $force)',
+      '$runtimeType',
+    );
 
     status.value =
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();

@@ -116,7 +116,7 @@ class MyUserService extends DisposableService {
         return;
       }
 
-      // TODO: Ensure[AuthService] doesn't call `refreshSession` during that.
+      // TODO: Ensure [AuthService] doesn't call `refreshSession` during that.
       await _userRepo.updateUserPassword(oldPassword, newPassword);
       await _auth.signIn(
         newPassword,
