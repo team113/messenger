@@ -57,6 +57,7 @@ class MyUserService extends DisposableService {
       onPasswordUpdated: _onPasswordUpdated,
       onUserDeleted: _onUserDeleted,
     );
+    _userRepo.myUser.value = _auth.user;
     super.onInit();
   }
 

@@ -33,7 +33,7 @@ mutation SignIn(
         ... on CreateSessionOk {
             user {
                 __typename
-                id
+                ...MyUser
             }
             accessToken {
                 __typename

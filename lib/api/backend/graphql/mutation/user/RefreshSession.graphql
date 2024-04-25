@@ -21,7 +21,7 @@ mutation RefreshSession($secret: RefreshTokenSecret!) {
         ... on CreateSessionOk {
             user {
                 __typename
-                id
+                ...MyUser
             }
             session {
                 __typename
