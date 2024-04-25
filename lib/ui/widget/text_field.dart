@@ -595,14 +595,14 @@ class TextFieldState extends ReactiveFieldState {
   /// - submit action of [TextEditingController] was emitted;
   /// - [focus] node changed its focus;
   /// - setter or [submit] was manually called.
-  Function(TextFieldState)? onChanged;
+  final void Function(TextFieldState)? onChanged;
 
   /// Callback, called when the [text] is submitted.
   ///
   /// This callback is fired only when the [text] value was not yet submitted:
   /// - submit action of [TextEditingController] was emitted;
   /// - [submit] was manually called.
-  final Function(TextFieldState)? onSubmitted;
+  final void Function(TextFieldState)? onSubmitted;
 
   @override
   final RxBool changed = RxBool(false);
@@ -668,9 +668,12 @@ class TextFieldState extends ReactiveFieldState {
           _debounce?.cancel();
           onChanged?.call(this);
         }
-        _previousSubmit = controller.text;
-        onSubmitted?.call(this);
-        changed.value = false;
+
+        if (error.value == null) {
+          _previousSubmit = controller.text;
+          onSubmitted?.call(this);
+          changed.value = false;
+        }
       }
     }
   }

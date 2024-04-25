@@ -83,12 +83,9 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a members [ListView].
   final ScrollController membersScrollController = ScrollController();
 
-  /// Indicator whether the [Chat.directLink] editing mode is enabled.
-  final RxBool linkEditing = RxBool(false);
-
   /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
   /// enabled.
-  final RxBool profileEditing = RxBool(false);
+  final RxBool nameEditing = RxBool(false);
 
   /// [Chat.name] field state.
   late final TextFieldState name;
@@ -162,36 +159,13 @@ class ChatInfoController extends GetxController {
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
       onChanged: (s) async {
-        s.error.value = null;
-
-        try {
-          if (s.text.isNotEmpty) {
-            ChatName(s.text);
-          }
-        } on FormatException {
-          s.error.value = 'err_incorrect_input'.l10n;
-        }
-
-        if (s.error.value == null) {
-          final ChatName? name = ChatName.tryParse(s.text);
-          if (chat?.chat.value.name == name) {
-            return;
-          }
-
-          s.status.value = RxStatus.loading();
-          s.editable.value = false;
-
+        if (s.text.isNotEmpty) {
           try {
-            await _chatService.renameChat(chat!.chat.value.id, name);
-            s.unsubmit();
-          } on RenameChatException catch (e) {
-            s.error.value = e.toString();
+            ChatName(s.text);
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
           } catch (e) {
-            MessagePopup.error(e.toString());
-            rethrow;
-          } finally {
-            s.status.value = RxStatus.empty();
-            s.editable.value = true;
+            s.error.value = e.toString();
           }
         }
       },
@@ -384,6 +358,39 @@ class ChatInfoController extends GetxController {
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
   Future<void> deleteChatDirectLink() async {
     await _chatService.deleteChatDirectLink(chatId);
+  }
+
+  /// Submits the [name] field.
+  Future<void> submitName() async {
+    ChatName? name;
+    try {
+      name = this.name.text.isEmpty ? null : ChatName(this.name.text);
+    } on FormatException catch (_) {
+      this.name.status.value = RxStatus.empty();
+      this.name.error.value = 'err_incorrect_input'.l10n;
+      this.name.unsubmit();
+      return;
+    }
+
+    if (this.name.error.value == null) {
+      this.name.status.value = RxStatus.loading();
+      this.name.editable.value = false;
+
+      try {
+        await _chatService.renameChat(chat!.chat.value.id, name);
+        this.name.status.value = RxStatus.empty();
+        this.name.unsubmit();
+      } on RenameChatException catch (e) {
+        this.name.status.value = RxStatus.empty();
+        this.name.error.value = e.toString();
+      } catch (e) {
+        this.name.status.value = RxStatus.empty();
+        MessagePopup.error(e.toString());
+        rethrow;
+      } finally {
+        this.name.editable.value = true;
+      }
+    }
   }
 
   /// Fetches the [chat].

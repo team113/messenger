@@ -103,7 +103,7 @@ class UserController extends GetxController {
   late final TextFieldState name;
 
   /// Indicator whether the editing mode is enabled.
-  final RxBool profileEditing = RxBool(false);
+  final RxBool nameEditing = RxBool(false);
 
   /// Status of a [block] progression.
   ///
@@ -164,37 +164,14 @@ class UserController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      onChanged: (s) async {
-        s.error.value = null;
-        s.focus.unfocus();
-
-        if (s.text == contact.value!.contact.value.name.val) {
-          s.unsubmit();
-          return;
-        }
-
-        final UserName? name = UserName.tryParse(s.text);
-        if (name == null) {
-          s.status.value = RxStatus.empty();
-          s.error.value = 'err_incorrect_input'.l10n;
-          s.unsubmit();
-        } else {
-          s.status.value = RxStatus.loading();
-          s.editable.value = false;
-
+      onChanged: (s) {
+        if (s.text.isNotEmpty) {
           try {
-            await _contactService.changeContactName(contact.value!.id, name);
-            s.status.value = RxStatus.empty();
-            s.unsubmit();
-          } on UpdateChatContactNameException catch (e) {
-            s.status.value = RxStatus.empty();
-            s.error.value = e.toString();
+            UserName(s.text);
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
           } catch (e) {
-            s.status.value = RxStatus.empty();
-            MessagePopup.error(e.toString());
-            rethrow;
-          } finally {
-            s.editable.value = true;
+            s.error.value = e.toString();
           }
         }
       },
@@ -210,7 +187,7 @@ class UserController extends GetxController {
       if (user != null) {
         _contactWorker = ever(contact, (contact) {
           if (contact == null) {
-            profileEditing.value = false;
+            nameEditing.value = false;
           }
 
           _updateWorker();
@@ -447,6 +424,49 @@ class UserController extends GetxController {
       avatar.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Submits the [name] field.
+  Future<void> submitName() async {
+    name.error.value = null;
+    name.focus.unfocus();
+
+    if (name.text == contact.value?.contact.value.name.val) {
+      name.unsubmit();
+      nameEditing.value = false;
+      return;
+    }
+
+    UserName? userName;
+    try {
+      userName = UserName(name.text);
+    } on FormatException catch (_) {
+      name.status.value = RxStatus.empty();
+      name.error.value = 'err_incorrect_input'.l10n;
+      name.unsubmit();
+      return;
+    }
+
+    if (name.error.value == null) {
+      name.status.value = RxStatus.loading();
+      name.editable.value = false;
+
+      try {
+        nameEditing.value = false;
+        await _contactService.changeContactName(contact.value!.id, userName);
+        name.status.value = RxStatus.empty();
+        name.unsubmit();
+      } on UpdateChatContactNameException catch (e) {
+        name.status.value = RxStatus.empty();
+        name.error.value = e.toString();
+      } catch (e) {
+        name.status.value = RxStatus.empty();
+        MessagePopup.error(e.toString());
+        rethrow;
+      } finally {
+        name.editable.value = true;
+      }
     }
   }
 

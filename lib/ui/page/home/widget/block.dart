@@ -37,7 +37,6 @@ class Block extends StatelessWidget {
     this.background,
     this.headline,
     this.maxWidth = 400,
-    this.overlay = const [],
   });
 
   /// Optional header of this [Block].
@@ -72,12 +71,6 @@ class Block extends StatelessWidget {
 
   /// Maximum width this [Block] should occupy.
   final double maxWidth;
-
-  /// [Widget]s to display above this [Block].
-  ///
-  /// It's allowed to use [Positioned], as these [Widget]s are placed inside a
-  /// [Stack].
-  final List<Widget> overlay;
 
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
@@ -152,7 +145,6 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(headline!, style: _headlineStyle(context)),
                   ),
-                ...overlay,
               ],
             ),
           ),
