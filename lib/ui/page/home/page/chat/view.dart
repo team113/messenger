@@ -347,6 +347,20 @@ class ChatView extends StatelessWidget {
                                       right: 10,
                                     ),
                                     actions: [
+                                      ContextMenuButton(
+                                        label: 'Bot: ${c.botEnabled.value}',
+                                        onPressed: () {
+                                          c.botEnabled.toggle();
+                                          c.elements.refresh();
+                                        },
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'Debug: ${c.showCommands.value}',
+                                        onPressed: () {
+                                          c.showCommands.toggle();
+                                          c.elements.refresh();
+                                        },
+                                      ),
                                       if (c.callPosition ==
                                           CallButtonsPosition.contextMenu) ...[
                                         ContextMenuButton(
@@ -807,6 +821,19 @@ class ChatView extends StatelessWidget {
       Rx<ChatItem> e;
 
       if (element is ChatMessageElement) {
+        if ((element.item.value as ChatMessage).text?.val.startsWith('/') ??
+            false) {
+          if (!c.showCommands.value) {
+            return Padding(
+              padding: EdgeInsets.only(
+                top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
+                bottom: isLast ? ChatController.lastItemBottomOffset : 0,
+              ),
+              child: const SizedBox(),
+            );
+          }
+        }
+
         e = element.item;
       } else if (element is ChatCallElement) {
         e = element.item;
@@ -889,6 +916,16 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  actions: [
+                    if (c.botEnabled.value)
+                      ContextMenuButton(
+                        onPressed: () => c.postCommand(
+                          '/translate',
+                          repliesTo: e.value,
+                        ),
+                        label: 'Translate',
+                      ),
+                  ],
                 ),
               ),
             );

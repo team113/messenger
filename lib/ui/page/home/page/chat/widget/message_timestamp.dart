@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../../widget/widget_button.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
@@ -36,6 +37,7 @@ class MessageTimestamp extends StatelessWidget {
     this.delivered = false,
     this.inverted = false,
     this.fontSize,
+    this.onPressed,
   });
 
   /// [PreciseDateTime] to display in this [MessageTimestamp].
@@ -66,6 +68,8 @@ class MessageTimestamp extends StatelessWidget {
   /// Optional font size of this [MessageTimestamp].
   final double? fontSize;
 
+  final void Function()? onPressed;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -77,63 +81,66 @@ class MessageTimestamp extends StatelessWidget {
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SelectionContainer.disabled(
-          child: Text(
-            date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
-            style: (inverted
-                    ? style.fonts.smaller.regular.onPrimary
-                    : style.fonts.smaller.regular.secondary)
-                .copyWith(
-              fontSize:
-                  fontSize ?? style.fonts.smaller.regular.onBackground.fontSize,
+    return WidgetButton(
+      onPressed: onPressed,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SelectionContainer.disabled(
+            child: Text(
+              date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
+              style: (inverted
+                      ? style.fonts.smaller.regular.onPrimary
+                      : style.fonts.smaller.regular.secondary)
+                  .copyWith(
+                fontSize: fontSize ??
+                    style.fonts.smaller.regular.onBackground.fontSize,
+              ),
             ),
           ),
-        ),
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
-          const SizedBox(width: 3),
-          SizedBox(
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                      ? 'Sending'
-                      : isRead
-                          ? isHalfRead
-                              ? 'HalfRead'
-                              : 'Read'
-                          : 'Sent',
+          if (status != null &&
+              (isSent || isDelivered || isRead || isSending || isError)) ...[
+            const SizedBox(width: 3),
+            SizedBox(
+              key: Key(
+                isError
+                    ? 'Error'
+                    : isSending
+                        ? 'Sending'
+                        : isRead
+                            ? isHalfRead
+                                ? 'HalfRead'
+                                : 'Read'
+                            : 'Sent',
+              ),
+              width: 17,
+              child: SvgIcon(
+                isRead
+                    ? isHalfRead
+                        ? inverted
+                            ? SvgIcons.halfReadWhite
+                            : SvgIcons.halfRead
+                        : inverted
+                            ? SvgIcons.readWhite
+                            : SvgIcons.read
+                    : isDelivered
+                        ? inverted
+                            ? SvgIcons.deliveredWhite
+                            : SvgIcons.delivered
+                        : isError
+                            ? SvgIcons.error
+                            : isSending
+                                ? inverted
+                                    ? SvgIcons.sendingWhite
+                                    : SvgIcons.sending
+                                : inverted
+                                    ? SvgIcons.sentWhite
+                                    : SvgIcons.sent,
+              ),
             ),
-            width: 17,
-            child: SvgIcon(
-              isRead
-                  ? isHalfRead
-                      ? inverted
-                          ? SvgIcons.halfReadWhite
-                          : SvgIcons.halfRead
-                      : inverted
-                          ? SvgIcons.readWhite
-                          : SvgIcons.read
-                  : isDelivered
-                      ? inverted
-                          ? SvgIcons.deliveredWhite
-                          : SvgIcons.delivered
-                      : isError
-                          ? SvgIcons.error
-                          : isSending
-                              ? inverted
-                                  ? SvgIcons.sendingWhite
-                                  : SvgIcons.sending
-                              : inverted
-                                  ? SvgIcons.sentWhite
-                                  : SvgIcons.sent,
-            ),
-          ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

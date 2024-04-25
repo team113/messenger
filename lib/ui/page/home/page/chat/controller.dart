@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
@@ -214,6 +215,9 @@ class ChatController extends GetxController {
 
   /// Height of a [LoaderElement] displayed in the message list.
   static const double loaderHeight = 64;
+
+  final RxBool showCommands = RxBool(false);
+  final RxBool botEnabled = RxBool(false);
 
   /// [ListElementId] of an item from the [elements] that should be highlighted.
   final Rx<ListElementId?> highlighted = Rx<ListElementId?>(null);
@@ -930,7 +934,7 @@ class ChatController extends GetxController {
       }
 
       if (chat?.chat.value.isDialog ?? false) {
-        hasBot = chat!.chat.value.members.any(
+        botEnabled.value = chat!.chat.value.members.any(
           (e) =>
               e.user.id != me &&
               (e.user.name?.val == 'alex2' ||
@@ -938,18 +942,19 @@ class ChatController extends GetxController {
                   e.user.name?.val == 'nikita'),
         );
 
-        if (hasBot) {
+        if (botEnabled.value) {
           final info = BotInfoElement(
             'Translated dialog. English - Russian. Translation cost: \$1.110681 (€0.99) per 100 symbols.',
             at: PreciseDateTime.now(),
           );
           elements[info.id] = info;
 
-          final action = BotActionElement(
-            'Submit',
-            at: PreciseDateTime.now().add(const Duration(milliseconds: 1)),
-          );
-          elements[action.id] = action;
+          // final action = BotActionElement(
+          //   'Submit',
+          //   at: PreciseDateTime.now().add(const Duration(milliseconds: 1)),
+          // );
+
+          // elements[action.id] = action;
         }
       }
 
@@ -1019,6 +1024,39 @@ class ChatController extends GetxController {
         MessagePopup.error(e);
         rethrow;
       }
+    }
+  }
+
+  Future<void> postCommand(String command, {ChatItem? repliesTo}) async {
+    await _chatService.sendChatMessage(
+      id,
+      text: ChatMessageText(command),
+      repliesTo: [if (repliesTo != null) repliesTo],
+    );
+
+    if (command == '/translate' && repliesTo is ChatMessage) {
+      await _chatService.sendChatMessage(
+        id,
+        text: ChatMessageText(
+          '[@bot]${jsonEncode(
+            {
+              'text':
+                  'Detected language: English. Translation to Russian costs \$1.1 per 100 symbols.\nYour message contains ${repliesTo.text?.val.length} symbols, which will cost in total: \$${1.1 / 100 * (repliesTo.text?.val.length ?? 0)}',
+              'actions': [
+                {
+                  'text': 'Pay and proceed',
+                  'command': '/proceed',
+                },
+                {
+                  'text': 'Change language',
+                  'command': '/language',
+                }
+              ],
+            },
+          )}',
+        ),
+        repliesTo: [repliesTo],
+      );
     }
   }
 

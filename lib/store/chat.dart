@@ -866,6 +866,7 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      throw Exception();
       var response = await _graphQlProvider.uploadAttachment(
         upload,
         onSendProgress: (now, max) => attachment.progress.value = now / max,

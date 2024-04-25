@@ -231,3 +231,61 @@ class ChatItemKey implements Comparable<ChatItemKey> {
   @override
   int get hashCode => Object.hash(id, at);
 }
+
+/// Command in a [Chat].
+@HiveType(typeId: ModelTypeId.chatCommand)
+class ChatCommand extends ChatItem {
+  ChatCommand(
+    super.id,
+    super.chatId,
+    super.author,
+    super.at, {
+    super.status,
+    this.repliesTo,
+    this.text,
+  });
+
+  @HiveField(5)
+  ChatItemQuote? repliesTo;
+
+  @HiveField(6)
+  ChatMessageText? text;
+}
+
+/// Command in a [Chat].
+@HiveType(typeId: ModelTypeId.botInfo)
+class BotInfo extends ChatItem {
+  BotInfo(
+    super.id,
+    super.chatId,
+    super.author,
+    super.at, {
+    super.status,
+    this.repliesTo,
+    this.text,
+    this.actions,
+  });
+
+  @HiveField(5)
+  ChatItemQuote? repliesTo;
+
+  @HiveField(6)
+  ChatMessageText? text;
+
+  @HiveField(7)
+  List<BotAction>? actions;
+}
+
+@HiveType(typeId: ModelTypeId.botAction)
+class BotAction {
+  BotAction({
+    required this.text,
+    required this.command,
+  });
+
+  @HiveField(0)
+  String text;
+
+  @HiveField(1)
+  String command;
+}

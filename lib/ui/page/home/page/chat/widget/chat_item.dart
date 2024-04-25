@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -26,6 +27,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../../../domain/service/chat.dart';
+import '../../../../../widget/outlined_rounded_button.dart';
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -92,6 +95,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDownloadAs,
     this.onSave,
     this.onSelect,
+    this.actions = const [],
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -165,6 +169,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
+
+  final List<ContextMenuItem> actions;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -297,12 +303,7 @@ class ChatItemWidget extends StatefulWidget {
                                   ),
                                 ),
                               )
-                            : Icon(
-                                Icons.error,
-                                key: const Key('Error'),
-                                size: 48,
-                                color: style.colors.danger,
-                              ),
+                            : const SizedBox(key: Key('Error')),
                       ),
               )
             ],
@@ -371,6 +372,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// [_text] and [_galleryKeys].
   Worker? _worker;
 
+  ChatCommand? _command;
+  BotInfo? _bot;
+
   /// Indicates whether this [ChatItem] was read by any [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
@@ -436,6 +440,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       style: style.fonts.medium.regular.onBackground,
       child: Obx(() {
         if (widget.item.value is ChatMessage) {
+          if (_command != null) {
+            return _renderAsChatCommand(context);
+          }
+
+          if (_bot != null) {
+            return _renderAsBotInfo(context);
+          }
+
           return _renderAsChatMessage(context);
         } else if (widget.item.value is ChatForward) {
           throw Exception(
@@ -742,6 +754,170 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _renderAsChatCommand(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final ChatMessage msg = widget.item.value as ChatMessage;
+    final ChatCommand command = _command!;
+
+    Widget replied(ChatItemQuote e) {
+      final FutureOr<RxUser?>? user = widget.getUser?.call(e.author);
+
+      return FutureBuilder<RxUser?>(
+        future: user is Future<RxUser?> ? user : null,
+        builder: (_, snapshot) {
+          final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
+
+          final Color color = data?.user.value.id == widget.me
+              ? style.colors.primary
+              : style.colors.userColors[(data?.user.value.num.val.sum() ?? 3) %
+                  style.colors.userColors.length];
+
+          if (e is ChatMessageQuote) {
+            return Container(
+              decoration: const BoxDecoration(
+                border: Border(left: BorderSide(color: Colors.blue)),
+              ),
+              padding: const EdgeInsets.all(2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    data?.title ?? 'dot'.l10n * 3,
+                    style: style.fonts.smallest.regular.onBackground
+                        .copyWith(color: color),
+                  ),
+                  if (e.text != null)
+                    Text(
+                      e.text!.val,
+                      style: style.fonts.smallest.regular.onBackground,
+                    ),
+                ],
+              ),
+            );
+          }
+
+          return const SizedBox();
+        },
+      );
+    }
+
+    return _rounded(
+      context,
+      (_, constraints) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.white.withOpacity(0.4),
+          ),
+          padding: const EdgeInsets.all(2),
+          child: IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...msg.repliesTo.map(
+                  (e) {
+                    return WidgetButton(
+                      onPressed: () => widget.onRepliedTap?.call(e),
+                      child: replied(e),
+                    );
+                  },
+                ),
+                Text(
+                  '/${command.text}',
+                  style: style.fonts.smallest.regular.onBackground,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _renderAsBotInfo(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final ChatMessage msg = widget.item.value as ChatMessage;
+    final BotInfo info = _bot!;
+
+    const Color color = Color.fromARGB(255, 149, 209, 149);
+
+    return _rounded(
+      context,
+      (_, constraints) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: color, width: 0.5),
+                color: style.systemMessageColor,
+              ),
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...msg.repliesTo.map(
+                      (e) {
+                        return WidgetButton(
+                          onPressed: () => widget.onRepliedTap?.call(e),
+                          child: _repliedMessage(e, constraints),
+                        );
+                      },
+                    ),
+                    Text('${info.text}', style: style.systemMessageStyle),
+                    if (info.actions != null) ...[
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 2,
+                        runSpacing: 2,
+                        children: info.actions!.map((e) {
+                          return SelectionContainer.disabled(
+                            child: WidgetButton(
+                              onPressed: () async {
+                                final ChatService chatService = Get.find();
+                                await chatService.sendChatMessage(
+                                  msg.chatId,
+                                  text: ChatMessageText(e.command),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: style.systemMessageColor,
+                                    width: 1,
+                                  ),
+                                  color: color,
+                                ),
+                                child: Text(
+                                  e.text,
+                                  style: style.fonts.small.regular.onPrimary,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -1423,7 +1599,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ? null
             : (d) {
                 if (_draggingStarted && !_dragging) {
-                  if (_offset.dx == 0 && d.delta.dx > 0) {
+                  if (_offset.dx == 0 && d.delta.dx < 0) {
                     _dragging = true;
                   } else {
                     _draggingStarted = false;
@@ -1433,13 +1609,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 if (_dragging) {
                   // Distance [_totalOffset] should exceed in order for
                   // dragging to start.
-                  const int delta = 10;
+                  const int delta = -10;
 
-                  if (_totalOffset.dx > delta) {
+                  if (_totalOffset.dx < delta) {
                     _offset += d.delta;
 
-                    if (_offset.dx > 30 + delta &&
-                        _offset.dx - d.delta.dx < 30 + delta) {
+                    if (_offset.dx < -30 + delta &&
+                        _offset.dx - d.delta.dx > -30 + delta) {
                       HapticFeedback.selectionClick();
                       widget.onReply?.call();
                     }
@@ -1507,6 +1683,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             ? Alignment.bottomRight
                             : Alignment.bottomLeft,
                         actions: [
+                          ...widget.actions,
                           ContextMenuButton(
                             label: PlatformUtils.isMobile
                                 ? 'btn_info'.l10n
@@ -1730,6 +1907,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               widget.chat.value?.lastDelivery.isBefore(item.at) == false ||
                   isMonolog,
           inverted: inverted,
+          onPressed: item.status.value == SendingStatus.error ? () {} : null,
         ),
       );
     });
@@ -1749,6 +1927,41 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       final msg = widget.item.value as ChatMessage;
       attachments = msg.attachments.length;
       text = msg.text;
+
+      if (text?.val.startsWith('/') ?? false) {
+        _command = ChatCommand(
+          msg.id,
+          msg.chatId,
+          msg.author,
+          msg.at,
+          repliesTo: msg.repliesTo.firstOrNull,
+          text: ChatMessageText(text!.val.substring(1)),
+        );
+      } else if (text?.val.startsWith('[@bot]') ?? false) {
+        Map<String, dynamic>? decoded;
+
+        try {
+          decoded = jsonDecode(text!.val.substring('[@bot]'.length));
+        } catch (_) {
+          // No-op.
+        }
+
+        if (decoded != null) {
+          _bot = BotInfo(
+            msg.id,
+            msg.chatId,
+            msg.author,
+            msg.at,
+            text: decoded['text'] == null
+                ? null
+                : ChatMessageText(decoded['text']),
+            repliesTo: msg.repliesTo.firstOrNull,
+            actions: (decoded['actions'] as List?)?.map((e) {
+              return BotAction(text: e['text'], command: e['command']);
+            }).toList(),
+          );
+        }
+      }
     }
 
     _worker = ever(widget.item, (ChatItem item) {
