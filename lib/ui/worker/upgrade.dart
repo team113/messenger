@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:pub_semver/pub_semver.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
@@ -297,74 +298,100 @@ extension Rfc822ToDateTime on DateTime {
   }
 }
 
-class SemVer implements Comparable<SemVer> {
-  SemVer(this.major, this.minor, this.patch, [this.suffix]);
-
-  factory SemVer.parse(String value) {
-    final match = _regExp.allMatches(value).firstOrNull;
-
-    print(match?.groups([1, 2, 3, 4, 5]));
-
-    if (match == null) {
-      throw const FormatException('Does not match validation RegExp');
+extension CriticalVersionExtension on Version {
+  /// Indicates whether this [Version] is considered critical compared to the
+  /// [other].
+  ///
+  /// Algorithm determining whether the [other] is consider critical follows the
+  /// rules, which is easier to demonstrate with the following examples:
+  /// - 0.1.0 -> 0.1.1 => `false`;
+  /// - 0.1.0 -> 0.2.0 => `true`;
+  /// - 0.1.0 -> 1.0.0 => `true`;
+  /// - 1.0.0 -> 1.0.1 => `false`;
+  /// - 1.0.0 -> 1.1.0 => `false`.
+  ///
+  /// And the suffixes:
+  /// - 0.1.0-alpha -> 0.1.0 => `true`;
+  /// - 0.1.0-alpha -> 0.1.0.alpha.1 => `true`;
+  /// - 0.1.0-alpha.1 -> 0.1.0.alpha.2 => `true`;
+  /// - 0.1.0-alpha.2 -> 0.1.0.alpha.2.1 => `false`;
+  /// - 0.1.0-alpha.3 -> 0.1.0.beta.1 => `true`;
+  /// - 0.1.0 -> 0.2.0-rc => `false`;
+  /// - 0.1.0 -> 1.0.0-beta => `false`;
+  /// - 1.0.0-beta -> 1.0.0-rc => `true`.
+  bool isCritical(Version other) {
+    if (this > other) {
+      return false;
     }
 
-    final String? suffix = match.group(5);
+    // if (suffix != other.suffix) {
+    //   if (suffix != null && other.suffix == null) {
+    //     return true;
+    //   } else if (suffix == null && other.suffix != null) {
+    //     return false;
+    //   } else if (suffix != null && other.suffix != null) {
+    //     final compare = suffix!.compareTo(other.suffix!) < 0;
+    //     if (compare) {
+    //       final String? aVersion = suffix!.contains('.')
+    //           ? suffix!.substring(suffix!.indexOf('.') + 1)
+    //           : null;
+    //       final String? aRelease = aVersion == null
+    //           ? suffix
+    //           : suffix!.substring(0, suffix!.indexOf('.'));
 
-    final int major = int.tryParse(match.group(4) ?? '') ?? 0;
+    //       final String? bVersion = other.suffix!.contains('.')
+    //           ? other.suffix!.substring(other.suffix!.indexOf('.') + 1)
+    //           : null;
+    //       final String? bRelease = bVersion == null
+    //           ? other.suffix
+    //           : other.suffix!.substring(0, other.suffix!.indexOf('.'));
 
-    final split = match.group(2)?.split('.') ?? [];
-    final int minor = int.tryParse(split.elementAtOrNull(1) ?? '') ?? 0;
-    final int patch = int.tryParse(split.elementAtOrNull(2) ?? '') ?? 0;
+    //       // Check if minor...
+    //       if (aRelease == bRelease) {
+    //         print(
+    //             'aRelease($aRelease) vs bRelease($bRelease), aVersion($aVersion) vs bVersion($bVersion)');
+    //         if (aVersion != null && bVersion != null) {
+    //           final aNumber = double.tryParse(aVersion) ?? 0;
+    //           final bNumber = double.tryParse(bVersion) ?? 0;
+    //           return aNumber.floor() < bNumber.floor() ||
+    //               !bVersion.contains('.');
+    //         }
+    //       }
+    //     }
 
-    return SemVer(major, minor, patch, suffix);
-  }
+    //     return compare;
+    //   }
+    // }
 
-  final int major;
-  final int minor;
-  final int patch;
-  final String? suffix;
+    if (preRelease.isEmpty && other.preRelease.isNotEmpty) {
+      return false;
+    } else if (preRelease.isNotEmpty && other.preRelease.isEmpty) {
+      return true;
+    } else if (preRelease.isNotEmpty && other.preRelease.isNotEmpty) {
+      if (const ListEquality().equals(preRelease, other.preRelease)) {
+        return false;
+      }
 
-  static final RegExp _regExp = RegExp(
-    r'^(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$',
-  );
+      final first = preRelease.first;
+      final second = other.preRelease.first;
 
-  @override
-  int compareTo(SemVer other) {
-    var result = major.compareTo(other.major);
-    if (result == 0) {
-      result = minor.compareTo(other.minor);
-      if (result == 0) {
-        result = patch.compareTo(other.patch);
-        if (result == 0) {
-          if (suffix != null && other.suffix == null) {
-            return 1;
-          } else if (suffix == null && other.suffix != null) {
-            return -1;
-          } else if (suffix == null && other.suffix == null) {
-            return 0;
-          } else if (suffix != null && other.suffix != null) {
-            return suffix!.compareTo(other.suffix!);
-          }
+      if (first is Comparable && second is Comparable) {
+        if (first == second) {
+          final third = preRelease.elementAtOrNull(1);
+          final fourth = other.preRelease.elementAtOrNull(1);
+          // TODO: Compare digit etc...
+        } else {
+          return first.compareTo(second) < 0;
         }
       }
     }
 
-    return result;
-  }
-
-  @override
-  String toString() => '$major.$minor.$patch${suffix ?? ''}';
-
-  /// Indicates whether this [SemVer] is considered critical compared to the
-  /// [other].
-  bool isCritical(SemVer other) {
-    if (major != other.major) {
+    if (major < other.major) {
       return true;
     }
 
     if (major == 0) {
-      if (minor != other.minor) {
+      if (minor < other.minor) {
         return true;
       }
     }
@@ -372,3 +399,136 @@ class SemVer implements Comparable<SemVer> {
     return false;
   }
 }
+
+// class SemVer implements Comparable<SemVer> {
+//   SemVer(this.major, this.minor, this.patch, [this.suffix]);
+
+//   factory SemVer.parse(String value) {
+//     final match = _regExp.allMatches(value).firstOrNull;
+
+//     print(match?.groups([1, 2, 3, 4, 5]));
+
+//     if (match == null) {
+//       throw const FormatException('Does not match validation RegExp');
+//     }
+
+//     final String? suffix = match.group(5);
+
+//     final int major = int.tryParse(match.group(4) ?? '') ?? 0;
+
+//     final split = match.group(2)?.split('.') ?? [];
+//     final int minor = int.tryParse(split.elementAtOrNull(1) ?? '') ?? 0;
+//     final int patch = int.tryParse(split.elementAtOrNull(2) ?? '') ?? 0;
+
+//     return SemVer(major, minor, patch, suffix);
+//   }
+
+//   final int major;
+//   final int minor;
+//   final int patch;
+//   final String? suffix;
+
+//   static final RegExp _regExp = RegExp(
+//     r'^(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$',
+//   );
+
+//   @override
+//   int compareTo(SemVer other) {
+//     var result = major.compareTo(other.major);
+//     if (result == 0) {
+//       result = minor.compareTo(other.minor);
+//       if (result == 0) {
+//         result = patch.compareTo(other.patch);
+//         if (result == 0) {
+//           if (suffix != null && other.suffix == null) {
+//             return 1;
+//           } else if (suffix == null && other.suffix != null) {
+//             return -1;
+//           } else if (suffix == null && other.suffix == null) {
+//             return 0;
+//           } else if (suffix != null && other.suffix != null) {
+//             return suffix!.compareTo(other.suffix!);
+//           }
+//         }
+//       }
+//     }
+
+//     return result;
+//   }
+
+//   @override
+//   String toString() => '$major.$minor.$patch${suffix ?? ''}';
+
+//   /// Indicates whether this [SemVer] is considered critical compared to the
+//   /// [other].
+//   ///
+//   /// Algorithm determining whether the [other] is consider critical follows the
+//   /// rules, which is easier to demonstrate with the following examples:
+//   /// - 0.1.0 -> 0.1.1 => `false`;
+//   /// - 0.1.0 -> 0.2.0 => `true`;
+//   /// - 0.1.0 -> 1.0.0 => `true`;
+//   /// - 1.0.0 -> 1.0.1 => `false`;
+//   /// - 1.0.0 -> 1.1.0 => `false`.
+//   ///
+//   /// And the suffixes:
+//   /// - 0.1.0-alpha -> 0.1.0 => `true`;
+//   /// - 0.1.0-alpha -> 0.1.0.alpha.1 => `true`;
+//   /// - 0.1.0-alpha.1 -> 0.1.0.alpha.2 => `true`;
+//   /// - 0.1.0-alpha.2 -> 0.1.0.alpha.2.1 => `false`;
+//   /// - 0.1.0-alpha.3 -> 0.1.0.beta.1 => `true`;
+//   /// - 0.1.0 -> 0.2.0-rc => `false`;
+//   /// - 0.1.0 -> 1.0.0-beta => `false`;
+//   /// - 1.0.0-beta -> 1.0.0-rc => `true`.
+//   bool isCritical(SemVer other) {
+//     if (suffix != other.suffix) {
+//       if (suffix != null && other.suffix == null) {
+//         return true;
+//       } else if (suffix == null && other.suffix != null) {
+//         return false;
+//       } else if (suffix != null && other.suffix != null) {
+//         final compare = suffix!.compareTo(other.suffix!) < 0;
+//         if (compare) {
+//           final String? aVersion = suffix!.contains('.')
+//               ? suffix!.substring(suffix!.indexOf('.') + 1)
+//               : null;
+//           final String? aRelease = aVersion == null
+//               ? suffix
+//               : suffix!.substring(0, suffix!.indexOf('.'));
+
+//           final String? bVersion = other.suffix!.contains('.')
+//               ? other.suffix!.substring(other.suffix!.indexOf('.') + 1)
+//               : null;
+//           final String? bRelease = bVersion == null
+//               ? other.suffix
+//               : other.suffix!.substring(0, other.suffix!.indexOf('.'));
+
+//           // Check if minor...
+//           if (aRelease == bRelease) {
+//             print(
+//                 'aRelease($aRelease) vs bRelease($bRelease), aVersion($aVersion) vs bVersion($bVersion)');
+//             if (aVersion != null && bVersion != null) {
+//               final aNumber = double.tryParse(aVersion) ?? 0;
+//               final bNumber = double.tryParse(bVersion) ?? 0;
+//               return aNumber.floor() < bNumber.floor() ||
+//                   !bVersion.contains('.');
+//             }
+//           }
+//         }
+
+//         return compare;
+//       }
+//     }
+
+//     if (major < other.major) {
+//       return true;
+//     }
+
+//     if (major == 0) {
+//       if (minor < other.minor) {
+//         return true;
+//       }
+//     }
+
+//     return false;
+//   }
+// }

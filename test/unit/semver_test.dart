@@ -21,97 +21,80 @@ import 'package:messenger/ui/worker/upgrade.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('SemVer correctly parses versions', () async {
-    var str = '0.1.0';
-    var ver = SemVer.parse(str);
-    expect(ver.toString(), str);
-    expect(ver.major, 0);
-    expect(ver.minor, 1);
-    expect(ver.patch, 0);
-    expect(ver.suffix, null);
-
-    str = '1.2.3';
-    ver = SemVer.parse(str);
-    expect(ver.toString(), str);
-    expect(ver.major, 1);
-    expect(ver.minor, 2);
-    expect(ver.patch, 3);
-    expect(ver.suffix, null);
-
-    str = '1.2.3-alpha.1';
-    ver = SemVer.parse(str);
-    expect(ver.toString(), str);
-    expect(ver.major, 1);
-    expect(ver.minor, 2);
-    expect(ver.patch, 3);
-    expect(ver.suffix, '-alpha.1');
-
-    str = '123.456.789-beta.2512';
-    ver = SemVer.parse(str);
-    expect(ver.toString(), str);
-    expect(ver.major, 123);
-    expect(ver.minor, 456);
-    expect(ver.patch, 789);
-    expect(ver.suffix, '-beta.2512');
-
-    str = 'not.a.sem-ver';
-    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
-
-    str = '1.awd.123.fwq';
-    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
-
-    str = '0';
-    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
-
-    str = '0.1';
-    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
-
-    str = '0';
-    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
-
-    str = '-1.2.3';
-    expect(() => SemVer.parse(str), throwsA(isA<FormatException>()));
-  });
-
-  test('SemVer correctly compares the versions', () async {
-    expect(SemVer(0, 1, 0).compareTo(SemVer(0, 1, 0)), 0);
-    expect(SemVer(1, 2, 3).compareTo(SemVer(1, 2, 3)), 0);
-    expect(SemVer(0, 1, 0).compareTo(SemVer(0, 1, 1)), -1);
-    expect(SemVer(0, 1, 1).compareTo(SemVer(0, 1, 0)), 1);
-    expect(SemVer(0, 1, 0, '-alpha').compareTo(SemVer(0, 1, 0)), 1);
-    expect(SemVer(0, 1, 0, '-alpha').compareTo(SemVer(0, 1, 0, '-alpha')), 0);
-    expect(SemVer(0, 1, 0, '-alpha').compareTo(SemVer(0, 1, 0, '-beta')), -1);
-    expect(SemVer(0, 1, 0, '-beta').compareTo(SemVer(0, 1, 0, '-alpha')), 1);
-    expect(SemVer(0, 1, 0, '-beta.2').compareTo(SemVer(0, 1, 0, '-beta.1')), 1);
-    expect(
-      SemVer(0, 1, 0, '-beta.10').compareTo(SemVer(0, 1, 0, '-beta.1')),
-      1,
-    );
-    expect(
-      SemVer(0, 1, 0, '-beta.10').compareTo(SemVer(0, 1, 0, '-beta.11')),
-      -1,
-    );
-    expect(
-      SemVer(0, 1, 0, '-beta.10.1').compareTo(SemVer(0, 1, 0, '-beta.10')),
-      1,
-    );
-    expect(
-      SemVer(0, 1, 0, '-alpha.132.12').compareTo(SemVer(0, 1, 0, '-beta.1')),
-      -1,
-    );
-    expect(SemVer(0, 1, 0, '-beta.5').compareTo(SemVer(0, 1, 0, '-rc.1')), -1);
-    expect(SemVer(0, 1, 0, '-beta.5').compareTo(SemVer(0, 1, 0, '-rc')), -1);
-    expect(SemVer(0, 1, 0, '-rc.1').compareTo(SemVer(0, 1, 0, '-beta.5')), 1);
-    expect(SemVer(0, 1, 0, '-rc').compareTo(SemVer(0, 1, 0, '-beta.5')), 1);
-    expect(SemVer(0, 1, 0, '-rc.1').compareTo(SemVer(0, 1, 0, '-rc')), 1);
-    expect(SemVer(0, 1, 0, '-rc.2').compareTo(SemVer(0, 1, 0, '-rc.1')), 1);
-    expect(SemVer(0, 1, 0, '-rc').compareTo(SemVer(0, 1, 0, '-rc')), 0);
-  });
-
   test('SemVer correctly detects the critical versions', () async {
-    expect(SemVer(0, 1, 0).isCritical(SemVer(0, 1, 0)), false);
-    expect(SemVer(0, 1, 1).isCritical(SemVer(0, 1, 0)), false);
-    expect(SemVer(0, 1, 0).isCritical(SemVer(0, 1, 1)), false);
-    expect(SemVer(0, 2, 0).isCritical(SemVer(0, 1, 0)), true);
+    expect(SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0)), true);
+    expect(SemVer(0, 1, 0).isCritical(SemVer(0, 2, 0, '-alpha.1')), false);
+    expect(SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 2, 0)), true);
+
+    expect(SemVer(0, 1, 0).isCritical(SemVer(1, 0, 0, '-alpha.5')), false);
+    expect(SemVer(0, 1, 0, '-alpha.5').isCritical(SemVer(1, 0, 0)), true);
+    expect(SemVer(0, 1, 0).isCritical(SemVer(1, 0, 0)), true);
+    expect(SemVer(1, 0, 0).isCritical(SemVer(2, 0, 0, '-beta.2')), false);
+    expect(SemVer(1, 0, 0).isCritical(SemVer(2, 0, 0, '-rc.4')), false);
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-alpha.2')),
+      true,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-alpha.1')),
+      false,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.2').isCritical(SemVer(0, 1, 0, '-alpha.1')),
+      false,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-beta.1')),
+      true,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-rc.1')),
+      true,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-rc.1')),
+      true,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-alpha')),
+      false,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha').isCritical(SemVer(0, 1, 0, '-alpha.1')),
+      true,
+    );
+
+    expect(
+      SemVer(0, 1, 0, '-alpha.1').isCritical(SemVer(0, 1, 0, '-alpha.1.1')),
+      false,
+    );
+
+    expect(
+      SemVer(1, 23, 4, '-beta.54').isCritical(SemVer(1, 23, 4, '-alpha.54.9')),
+      false,
+    );
+
+    expect(
+      SemVer(1, 23, 4, '-beta.54').isCritical(SemVer(1, 23, 4, '-beta.54.9')),
+      false,
+    );
+
+    expect(
+      SemVer(1, 23, 4, '-beta.54').isCritical(SemVer(1, 23, 4, '-beta.55.6')),
+      true,
+    );
+
+    expect(
+      SemVer(1, 23, 4, '-beta.54.6').isCritical(SemVer(1, 23, 4, '-beta.55.6')),
+      true,
+    );
   });
 }
