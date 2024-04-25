@@ -511,6 +511,7 @@ class AuthService extends GetxService {
   /// Refreshes the current [credentials].
   Future<void> refreshSession() async {
     if (userId == null) {
+      // ignore: avoid_print
       print('\n\n REFRESH SESSION ABORTED: NO USER ID \n\n');
     }
     final FutureOr<bool> isLocked = WebUtils.isLockedFor(userId!);
@@ -618,11 +619,15 @@ class AuthService extends GetxService {
   Future<void> _refresh(Credentials creds) async {
     if (_shouldRefresh(creds)) {
       try {
-        final Credentials newCreds = await _authRepository
-            .refreshSession(creds.refresh.secret, raw: true);
+        final Credentials newCreds = await _authRepository.refreshSession(
+          creds.refresh.secret,
+          raw: true,
+        );
 
         await _credentialsProvider.put(newCreds);
-      } catch (e) {}
+      } catch (e) {
+        // TODO: при ошибках метим аккаунт тухлым
+      }
     }
   }
 
@@ -650,6 +655,7 @@ class AuthService extends GetxService {
   }
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
+  // TODO: возможно кстати тут стоит выполнять логику по переключению в другой аккаунт, если из прошлого вышибло? а где ещё можно?
   String _unauthorized() {
     Log.debug('_unauthorized()', '$runtimeType');
 
