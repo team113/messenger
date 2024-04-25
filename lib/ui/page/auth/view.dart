@@ -22,6 +22,7 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/language/view.dart';
 import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/download_button.dart';
@@ -46,29 +47,65 @@ class AuthView extends StatelessWidget {
       builder: (AuthController c) {
         final Widget status = Column(
           children: [
-            if (PlatformUtils.isWeb || !PlatformUtils.isMobile) ...[
-              const SizedBox(height: 4),
-              StyledCupertinoButton(
-                label: 'btn_download_application'.l10n,
-                style: style.fonts.normal.regular.secondary,
-                onPressed: () => _download(context),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+              child: FittedBox(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        StyledCupertinoButton(
+                          label: 'btn_work_with_us'.l10n,
+                          style: style.fonts.small.regular.secondary,
+                          onPressed: () => router.work(null),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          width: 1,
+                          height: 12,
+                          color: style.colors.onBackgroundOpacity20,
+                        ),
+                        if (PlatformUtils.isWeb || !PlatformUtils.isMobile) ...[
+                          StyledCupertinoButton(
+                            label: 'btn_download'.l10n,
+                            style: style.fonts.small.regular.secondary,
+                            onPressed: () => _download(context),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            width: 1,
+                            height: 12,
+                            color: style.colors.onBackgroundOpacity20,
+                          ),
+                        ],
+                        Obx(() {
+                          final Language? chosen = L10n.chosen.value;
+
+                          return StyledCupertinoButton(
+                            label: 'label_language_entry'.l10nfmt({
+                              'code': chosen?.locale.languageCode.toUpperCase(),
+                              'name': chosen?.name,
+                            }),
+                            style: style.fonts.small.regular.secondary,
+                            onPressed: () async {
+                              await LanguageSelectionView.show(context, null);
+                            },
+                          );
+                        }),
+                      ],
+                    ),
+                    if (Config.copyright.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        Config.copyright,
+                        style: style.fonts.small.regular.secondary,
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ],
-            const SizedBox(height: 4),
-            StyledCupertinoButton(
-              padding: const EdgeInsets.all(8),
-              label: 'btn_work_with_us'.l10n,
-              style: style.fonts.small.regular.secondary,
-              onPressed: () => router.work(null),
             ),
-            const SizedBox(height: 8),
-            if (Config.copyright.isNotEmpty) ...[
-              Text(
-                Config.copyright,
-                style: style.fonts.small.regular.secondary,
-              ),
-              const SizedBox(height: 8),
-            ],
           ],
         );
 
@@ -100,6 +137,18 @@ class AuthView extends StatelessWidget {
         List<Widget> footer = [
           const SizedBox(height: 25),
           OutlinedRoundedButton(
+            key: const Key('StartButton'),
+            maxWidth: 210,
+            height: 46,
+            leading: Transform.translate(
+              offset: const Offset(4, 0),
+              child: const SvgIcon(SvgIcons.guest),
+            ),
+            onPressed: c.register,
+            child: Text('btn_guest'.l10n),
+          ),
+          const SizedBox(height: 15),
+          OutlinedRoundedButton(
             key: const Key('RegisterButton'),
             maxWidth: 210,
             height: 46,
@@ -122,18 +171,6 @@ class AuthView extends StatelessWidget {
             onPressed: () =>
                 LoginView.show(context, initial: LoginViewStage.signIn),
             child: Text('btn_sign_in'.l10n),
-          ),
-          const SizedBox(height: 15),
-          OutlinedRoundedButton(
-            key: const Key('StartButton'),
-            maxWidth: 210,
-            height: 46,
-            leading: Transform.translate(
-              offset: const Offset(4, 0),
-              child: const SvgIcon(SvgIcons.guest),
-            ),
-            onPressed: c.register,
-            child: Text('btn_guest'.l10n),
           ),
           const SizedBox(height: 15),
         ];
@@ -180,7 +217,7 @@ class AuthView extends StatelessWidget {
                         const SizedBox(height: 8),
                         Expanded(child: Center(child: column)),
                         const SizedBox(height: 8),
-                        status,
+                        SafeArea(top: false, child: status),
                       ],
                     ),
                   ),

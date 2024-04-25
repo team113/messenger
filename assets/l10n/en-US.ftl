@@ -199,6 +199,7 @@ btn_download_as_all = Download all as
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
+btn_feedback = Feedback
 btn_file = File
 btn_forgot_password = Forgot password?
 btn_forward = Forward
@@ -209,6 +210,7 @@ btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Gift
 btn_guest = Guest
+btn_help = Help
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -239,6 +241,8 @@ btn_rename = Rename
 btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
+btn_report_a_concern = Report a concern
+btn_report_a_bug = Report a bug
 btn_resend = Resend
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
@@ -320,8 +324,8 @@ err_email_occupied = Specified E-mail is linked to another account. Please, annu
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
-err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
-err_incorrect_login_or_password = Invalid login or password
+err_incorrect_login_input = Login should contain only letters of the latin alphabet, numbers and symbols "-" and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
+err_incorrect_login_or_password = Incorrect account identifier or password.
 err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
@@ -662,6 +666,7 @@ label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact = Contact
 label_contact_information = Contact information
+label_contact_us_via_provided_email = Please, contact us by email {$email}.
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
@@ -777,10 +782,9 @@ label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 
          • you delete cookies / cache;
-
          • you click the button "Sign out".
 
-    To save access to your account, please set a password, e-mail or phone number in the{" "}
+    To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
 label_kb = {$amount} KB
@@ -915,7 +919,7 @@ label_reason = Reason
 label_recent = Recent
 label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
-label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
+label_recover_account_description = Specify your Gapopa ID, login or E-mail.
 label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_recovery_enter_new_password = Please enter the new password below.
@@ -933,6 +937,8 @@ label_regulations_freelance =
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
+label_replace_this_text_with_concern = Please, replace this text with the concern you want to share.
+label_replace_this_text_with_feedback = Please, replace this text with the feedback you want to share.
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
@@ -985,7 +991,7 @@ label_set_password = Set password
 label_settings = Settings
 label_show_sections = Show sections
 label_sign_in = Sign in
-label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sign_in_input = Gapopa ID, login, E-mail
 label_sign_in_with_password = Sign in with password
 label_sign_up = Sign up
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
@@ -1000,6 +1006,7 @@ label_subtitle_participants = {$count} {$count ->
     [1] participant
     *[other] participants
 }
+label_support_service = Support service
 label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
@@ -1095,6 +1102,7 @@ label_welcome_message_vacancy =
 label_welcome_message_vacancy_24_hours =
     Good afternoon.
     Please upload your resume in PDF format. Within 24 hours you will be sent the date and time of the interview.
+label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
 label_work_with_us_desc =
     Work

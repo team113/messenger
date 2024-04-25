@@ -59,7 +59,8 @@ class MenuButton extends StatelessWidget {
           ProfileTab.download => 'label_application'.l10n,
           ProfileTab.danger => 'label_delete_account'.l10n,
           ProfileTab.legal => 'btn_terms_and_conditions'.l10n,
-          ProfileTab.logout => 'label_end_session'.l10n,
+          ProfileTab.support => null,
+          ProfileTab.logout => null,
         },
         leading = switch (tab) {
           ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
@@ -78,6 +79,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
           ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
           ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
+          ProfileTab.support => const SvgIcon(SvgIcons.menuSupport),
         },
         super(
           key: key ??
@@ -97,6 +99,7 @@ class MenuButton extends StatelessWidget {
                 ProfileTab.download => const Key('Download'),
                 ProfileTab.danger => const Key('DangerZone'),
                 ProfileTab.legal => const Key('Legal'),
+                ProfileTab.support => const Key('Support'),
                 ProfileTab.logout => const Key('LogoutButton'),
               },
         );

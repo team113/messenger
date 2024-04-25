@@ -6,18 +6,28 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.14] · 2024-??-??
-[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+## [0.1.0-alpha.13.4] · 2024-04-23
+[0.1.0-alpha.13.4]: /../../tree/v0.1.0-alpha.13.4
 
-[Diff](/../../compare/v0.1.0-alpha.13.3...v0.1.0-alpha.14) | [Milestone](/../../milestone/22)
+[Diff](/../../compare/v0.1.0-alpha.13.3...v0.1.0-alpha.13.4) | [Milestone](/../../milestone/22)
+
+### Added
+
+- UI:
+    - Support page. ([#971])
 
 ### Changed
 
 - UI:
     - Home page:
         - Contacts button moved to chats tab app bar. ([#970])
+    - Auth page:
+        - Redesigned footer. ([#971])
+    - Work page:
+        - Removed UI/UX designer vacancy. ([#971])
 
 [#970]: /../../pull/970
+[#971]: /../../pull/971
 
 
 
