@@ -314,9 +314,9 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    // Proceed only if [isLocked] is `false`, as this operation meant to be
-    // invoked only during unauthorized phase.
-    if (isLocked) {
+    // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
+    // this operation is meant to be invoked only during unauthorized phase.
+    if (isLocked || credentials.value != null) {
       return;
     }
 
@@ -352,9 +352,9 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    // Proceed only if [isLocked] is `false`, as this operation meant to be
-    // invoked only during unauthorized phase.
-    if (isLocked) {
+    // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
+    // this operation is meant to be invoked only during unauthorized phase.
+    if (isLocked && credentials.value != null) {
       return;
     }
 
@@ -388,23 +388,23 @@ class AuthService extends GetxService {
   ///
   /// Throws [CreateSessionException].
   ///
-  /// If [waitForLock] is `true`, then signing in will wait for [WebUtils]' lock
-  /// release instead of aborting this operation.
+  /// If [force] is `true`, then signing in will be performed unconditionally
+  /// after the [WebUtils]' lock is released.
   Future<void> signIn(
     UserPassword password, {
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
-    bool waitForLock = false,
+    bool force = false,
   }) async {
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    // Proceed only if [isLocked] is `false`, as this operation meant to be
-    // invoked only during unauthorized phase.
-    if (isLocked && !waitForLock) {
+    // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
+    // this operation is meant to be invoked only during unauthorized phase.
+    if (!force && (isLocked || credentials.value != null)) {
       return;
     }
 
