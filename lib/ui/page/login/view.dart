@@ -267,6 +267,7 @@ class LoginView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
@@ -337,7 +338,10 @@ class LoginView extends StatelessWidget {
                         ? SvgIcons.visibleOff
                         : SvgIcons.visibleOn,
                   ),
-                  subtitle: WidgetButton(
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(21, 8, 8, 8),
+                  child: WidgetButton(
                     onPressed: () {
                       c.recovery.clear();
                       c.recoveryCode.clear();
@@ -389,7 +393,6 @@ class LoginView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 16),
-                _terms(context),
               ];
               break;
 

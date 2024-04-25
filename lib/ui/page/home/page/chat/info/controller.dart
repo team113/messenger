@@ -23,7 +23,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -299,9 +301,32 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  // TODO: Replace with GraphQL mutation when implemented.
   /// Reports the [chat].
   Future<void> reportChat() async {
-    // TODO: Implement.
+    String? encodeQueryParameters(Map<String, String> params) {
+      return params.entries
+          .map((e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+    }
+
+    try {
+      await launchUrl(
+        Uri(
+          scheme: 'mailto',
+          path: Config.support,
+          query: encodeQueryParameters({
+            'subject': '[App] Report on ChatId($chatId)',
+            'body': '${reporting.text}\n\n',
+          }),
+        ),
+      );
+    } catch (e) {
+      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
+        'email': Config.support,
+      }));
+    }
   }
 
   /// Clears all the [ChatItem]s of the [chat].

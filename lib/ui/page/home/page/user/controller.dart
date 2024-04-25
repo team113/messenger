@@ -22,8 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
@@ -283,9 +285,32 @@ class UserController extends GetxController {
     }
   }
 
+  // TODO: Replace with GraphQL mutation when implemented.
   /// Reports the [user].
   Future<void> report() async {
-    // TODO: Implement.
+    String? encodeQueryParameters(Map<String, String> params) {
+      return params.entries
+          .map((e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+    }
+
+    try {
+      await launchUrl(
+        Uri(
+          scheme: 'mailto',
+          path: Config.support,
+          query: encodeQueryParameters({
+            'subject': '[App] Report on UserId($id)',
+            'body': '${reporting.text}\n\n',
+          }),
+        ),
+      );
+    } catch (e) {
+      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
+        'email': Config.support,
+      }));
+    }
   }
 
   /// Removes the [user] from the blocklist of the authenticated [MyUser].
