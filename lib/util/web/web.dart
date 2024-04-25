@@ -40,11 +40,12 @@ import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
-import '../platform_utils.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
 html.Navigator _navigator = html.window.navigator;
@@ -122,7 +123,7 @@ external Future<dynamic> _requestLock(
 );
 
 @JS('getLocks')
-external Future<dynamic> _queryLock();
+external Future<dynamic> _getLocks();
 
 @JS('locksAvailable')
 external bool _locksAvailable();
@@ -133,8 +134,9 @@ class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex] guarding the [protect] method.
-  static final Mutex _guard = Mutex();
+  /// [Mutex]es guarding the [protect] method for each of the available
+  /// accounts.
+  static final Map<UserId, Mutex> _guards = {};
 
   /// Indicator whether [cameraPermission] has finished successfully.
   ///
@@ -291,27 +293,35 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
-  /// Sets the provided [Credentials] to the browser's storage.
-  static set credentials(Credentials? creds) {
-    if (creds == null) {
-      html.window.localStorage.remove('credentials');
-    } else {
-      html.window.localStorage['credentials'] = json.encode(creds.toJson());
-    }
+  /// Removes [Credentials] of the user with the provided [UserId] from the
+  /// browser's storage.
+  static void removeCredentials(UserId userId) {
+    html.window.localStorage.remove('credentials_$userId');
   }
 
-  /// Returns the stored in browser's storage [Credentials].
-  static Credentials? get credentials {
-    if (html.window.localStorage['credentials'] == null) {
+  /// Puts the provided [Credentials] to the browser's storage.
+  static void putCredentials(Credentials creds) {
+    html.window.localStorage['credentials_${creds.userId}'] = json.encode(
+      creds.toJson(),
+    );
+  }
+
+  /// Returns the stored in browser's storage [Credentials] of the user with
+  /// the provided [UserId].
+  static Credentials? getCredentials(UserId userId) {
+    if (html.window.localStorage['credentials_$userId'] == null) {
       return null;
     } else {
-      var decoded = json.decode(html.window.localStorage['credentials']!);
+      var decoded = json.decode(
+        html.window.localStorage['credentials_$userId']!,
+      );
       return Credentials.fromJson(decoded);
     }
   }
 
-  /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked async {
+  /// Indicates whether the [protect] is currently locked for the user with the
+  /// provided [UserId].
+  static FutureOr<bool> isLockedFor(UserId userId) async {
     // Web Locks API is unavailable for some reason, so proceed without it.
     if (!_locksAvailable()) {
       return false;
@@ -320,33 +330,38 @@ class WebUtils {
     bool held = false;
 
     try {
-      final locks = await promiseToFuture(_queryLock());
-      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
+      final locks = await promiseToFuture(_getLocks());
+      held = (locks as List?)?.any((e) => e.name == 'mutex_$userId') == true;
     } catch (e) {
       held = false;
     }
 
-    return _guard.isLocked || held;
+    return _guards[userId]?.isLocked ?? false || held;
   }
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<void> protect(Future<void> Function() callback) async {
-    await _guard.protect(() async {
+  static Future<T> protect<T>(
+    Future<T> Function() callback, {
+    required UserId userId,
+  }) async {
+    _guards[userId] ??= Mutex();
+
+    return await _guards[userId]!.protect(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
         return await callback();
       }
 
-      final Completer completer = Completer();
+      final Completer<T> completer = Completer();
 
       try {
         await promiseToFuture(
           _requestLock(
-            'mutex',
+            'mutex_$userId',
             allowInterop(
               (_) => callback()
-                  .then((_) => completer.complete())
+                  .then((T val) => completer.complete(val))
                   .onError(
                     (e, stackTrace) => completer.completeError(
                       e ?? Exception(),
@@ -364,7 +379,7 @@ class WebUtils {
         }
       }
 
-      await completer.future;
+      return await completer.future;
     });
   }
 

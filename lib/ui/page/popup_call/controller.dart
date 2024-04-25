@@ -58,7 +58,7 @@ class PopupCallController extends GetxController {
   @override
   void onInit() {
     WebStoredCall? stored = WebUtils.getCall(chatId);
-    if (stored == null || WebUtils.credentials == null) {
+    if (stored == null || WebUtils.getCredentials(me) == null) {
       return WebUtils.closeWindow();
     }
 

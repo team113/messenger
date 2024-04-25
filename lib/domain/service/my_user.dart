@@ -121,7 +121,7 @@ class MyUserService extends DisposableService {
 
       // TODO: Make sure [AuthService] doesn't its `refreshSession` during that.
       await _userRepo.updateUserPassword(oldPassword, newPassword);
-      await _auth.signIn(newPassword, num: myUser.value?.num);
+      await _auth.signIn(newPassword, num: myUser.value?.num, force: true);
     });
   }
 

@@ -33,6 +33,7 @@ import 'package:win32/win32.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
@@ -44,8 +45,9 @@ class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex] guarding the [protect] method.
-  static final Mutex _guard = Mutex();
+  /// [Mutex]es guarding the [protect] method for each of the available
+  /// accounts.
+  static final Map<UserId, Mutex> _guards = {};
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -80,21 +82,34 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
-  /// Sets the provided [Credentials] to the browser's storage.
-  static set credentials(Credentials? creds) {
+  /// Removes [Credentials] of the user with the provided [UserId] from the
+  /// browser's storage.
+  static void removeCredentials(UserId userId) {
     // No-op.
   }
 
-  /// Returns the stored in browser's storage [Credentials].
-  static Credentials? get credentials => null;
+  /// Puts the provided [Credentials] to the browser's storage.
+  static void putCredentials(Credentials creds) {
+    // No-op.
+  }
+
+  /// Returns the stored in browser's storage [Credentials] of the user with
+  /// the provided [UserId].
+  static Credentials? getCredentials(UserId userId) => null;
 
   /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
+  static FutureOr<bool> isLockedFor(UserId id) =>
+      _guards[id]?.isLocked ?? false;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<void> protect(Future<void> Function() callback) =>
-      _guard.protect(callback);
+  static Future<T> protect<T>(
+    Future<T> Function() callback, {
+    required UserId userId,
+  }) {
+    _guards[userId] ??= Mutex();
+    return _guards[userId]!.protect(callback);
+  }
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
