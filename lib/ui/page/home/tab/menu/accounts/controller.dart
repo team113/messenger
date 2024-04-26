@@ -327,6 +327,7 @@ class AccountsController extends GetxController {
         num: userNum,
         email: userEmail,
         phone: userPhone,
+        force: true,
       );
 
       router.go(Routes.nowhere);
@@ -381,17 +382,28 @@ class AccountsController extends GetxController {
     }
   }
 
-  /// Switches to the account with the given [id] or creates a new one, if
-  /// `null`.
-  Future<void> switchTo(UserId? id) async {
+  /// Switches to the account with the given [id].
+  Future<void> switchTo(UserId id) async {
     router.go(Routes.nowhere);
 
     try {
-      if (id == null) {
-        await _authService.register();
-      } else {
-        await _authService.signInToSavedAccount(id);
-      }
+      await _authService.signInToSavedAccount(id);
+    } catch (e) {
+      Future.delayed(const Duration(milliseconds: 1000)).then((v) {
+        MessagePopup.error(e);
+      });
+    }
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    router.home();
+  }
+
+  /// Creates a new account and switches to it.
+  Future<void> register() async {
+    router.go(Routes.nowhere);
+    try {
+      await _authService.register(force: true);
     } catch (e) {
       Future.delayed(const Duration(milliseconds: 1000)).then((v) {
         MessagePopup.error(e);

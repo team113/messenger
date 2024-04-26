@@ -139,8 +139,8 @@ class AuthService extends GetxService {
     }
 
     // TODO: Подумать, надо ли. Допустим, мы тут входим в приложение из второй
-    // вкладки, а в первой только-только сделали refreshSession. В `Hive` могут
-    // же быть менее актуальные данные, чем в `localStorage`?
+    // вкладки, а в первой только-только сделали refreshSession.
+    //
     // Зачем вообще такого рода синхронизация тут нужна была?
     WebUtils.putCredentials(creds);
 
@@ -253,16 +253,21 @@ class AuthService extends GetxService {
   /// he doesn't re-sign in within that period of time.
   ///
   /// If [status] is already authorized, then this method does nothing.
-  Future<void> register() async {
-    Log.debug('register()', '$runtimeType');
+  Future<void> register({
+    bool force = false,
+  }) async {
+    Log.debug('register(force: $force)', '$runtimeType');
+
+    // If [force] is `true`, then [WebUtils.protect] is ignored.
+    final Function protect = force ? (fn) => fn() : WebUtils.protect;
 
     status.value = RxStatus.loading();
 
-    await WebUtils.protect(() async {
+    await protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase, or otherwise the
       // dependencies will be broken as of now.
-      if (_hasAuthorization) {
+      if (!force && _hasAuthorization) {
         return;
       }
 
@@ -271,7 +276,9 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        _unauthorized();
+        if (!force) {
+          _unauthorized();
+        }
         rethrow;
       }
     });
@@ -291,16 +298,22 @@ class AuthService extends GetxService {
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   ///
   /// If [status] is already authorized, then this method does nothing.
-  Future<void> confirmSignUpEmail(ConfirmationCode code) async {
+  Future<void> confirmSignUpEmail(
+    ConfirmationCode code, {
+    bool force = false,
+  }) async {
     Log.debug('confirmSignUpEmail($code)', '$runtimeType');
+
+    // If [force] is `true`, then [WebUtils.protect] is ignored.
+    final Function protect = force ? (fn) => fn() : WebUtils.protect;
 
     status.value = RxStatus.loading();
 
-    await WebUtils.protect(() async {
+    await protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase, or otherwise the
       // dependencies will be broken as of now.
-      if (_hasAuthorization) {
+      if (!force && _hasAuthorization) {
         return;
       }
 
@@ -309,7 +322,9 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        _unauthorized();
+        if (!force) {
+          _unauthorized();
+        }
         rethrow;
       }
     });
@@ -370,7 +385,9 @@ class AuthService extends GetxService {
         _authorized(creds);
         status.value = RxStatus.success();
       } catch (e) {
-        _unauthorized();
+        if (!force) {
+          _unauthorized();
+        }
         rethrow;
       }
     });

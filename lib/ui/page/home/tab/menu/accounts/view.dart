@@ -317,6 +317,26 @@ class AccountsView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: Center(
                     child: OutlinedRoundedButton(
+                      key: const Key('StartButton'),
+                      maxWidth: 290,
+                      height: 46,
+                      leading: Transform.translate(
+                        offset: const Offset(4, 0),
+                        child: const SvgIcon(SvgIcons.guest),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        c.register();
+                      },
+                      child: Text('btn_guest'.l10n),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Center(
+                    child: OutlinedRoundedButton(
                       key: const Key('SignUpButton'),
                       maxWidth: 290,
                       height: 46,
@@ -343,26 +363,6 @@ class AccountsView extends StatelessWidget {
                       ),
                       onPressed: () => c.stage.value = AccountsViewStage.signIn,
                       child: Text('btn_sign_in'.l10n),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Center(
-                    child: OutlinedRoundedButton(
-                      key: const Key('StartButton'),
-                      maxWidth: 290,
-                      height: 46,
-                      leading: Transform.translate(
-                        offset: const Offset(4, 0),
-                        child: const SvgIcon(SvgIcons.guest),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        c.switchTo(null);
-                      },
-                      child: Text('btn_guest'.l10n),
                     ),
                   ),
                 ),
