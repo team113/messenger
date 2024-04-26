@@ -304,93 +304,122 @@ extension CriticalVersionExtension on Version {
   ///
   /// Algorithm determining whether the [other] is consider critical follows the
   /// rules, which is easier to demonstrate with the following examples:
-  /// - 0.1.0 -> 0.1.1 => `false`;
-  /// - 0.1.0 -> 0.2.0 => `true`;
-  /// - 0.1.0 -> 1.0.0 => `true`;
-  /// - 1.0.0 -> 1.0.1 => `false`;
-  /// - 1.0.0 -> 1.1.0 => `false`.
+  /// - `0.1.0` -> `0.1.1` => `false`;
+  /// - `0.1.0` -> `0.2.0` => `true`;
+  /// - `0.1.0` -> `1.0.0` => `true`;
+  /// - `1.0.0` -> `1.0.1` => `false`;
+  /// - `1.0.0` -> `1.1.0` => `false`.
   ///
   /// And the suffixes:
-  /// - 0.1.0-alpha -> 0.1.0 => `true`;
-  /// - 0.1.0-alpha -> 0.1.0.alpha.1 => `true`;
-  /// - 0.1.0-alpha.1 -> 0.1.0.alpha.2 => `true`;
-  /// - 0.1.0-alpha.2 -> 0.1.0.alpha.2.1 => `false`;
-  /// - 0.1.0-alpha.3 -> 0.1.0.beta.1 => `true`;
-  /// - 0.1.0 -> 0.2.0-rc => `false`;
-  /// - 0.1.0 -> 1.0.0-beta => `false`;
-  /// - 1.0.0-beta -> 1.0.0-rc => `true`.
+  /// - `0.1.0-alpha` -> `0.1.0` => `true`;
+  /// - `0.1.0-alpha` -> `0.1.0.alpha.1` => `true`;
+  /// - `0.1.0-alpha.1` -> `0.1.0.alpha.2` => `true`;
+  /// - `0.1.0-alpha.2` -> `0.1.0.alpha.2.1` => `false`;
+  /// - `0.1.0-alpha.3` -> `0.1.0.beta.1` => `true`;
+  /// - `0.1.0` -> `0.2.0-rc` => `false`;
+  /// - `0.1.0` -> `1.0.0-beta` => `false`;
+  /// - `1.0.0-beta` -> `1.0.0-rc` => `true`.
   bool isCritical(Version other) {
+    // If ours version is higher than the [other], then this isn't a critical
+    // release.
     if (this > other) {
       return false;
     }
 
-    // if (suffix != other.suffix) {
-    //   if (suffix != null && other.suffix == null) {
-    //     return true;
-    //   } else if (suffix == null && other.suffix != null) {
-    //     return false;
-    //   } else if (suffix != null && other.suffix != null) {
-    //     final compare = suffix!.compareTo(other.suffix!) < 0;
-    //     if (compare) {
-    //       final String? aVersion = suffix!.contains('.')
-    //           ? suffix!.substring(suffix!.indexOf('.') + 1)
-    //           : null;
-    //       final String? aRelease = aVersion == null
-    //           ? suffix
-    //           : suffix!.substring(0, suffix!.indexOf('.'));
-
-    //       final String? bVersion = other.suffix!.contains('.')
-    //           ? other.suffix!.substring(other.suffix!.indexOf('.') + 1)
-    //           : null;
-    //       final String? bRelease = bVersion == null
-    //           ? other.suffix
-    //           : other.suffix!.substring(0, other.suffix!.indexOf('.'));
-
-    //       // Check if minor...
-    //       if (aRelease == bRelease) {
-    //         print(
-    //             'aRelease($aRelease) vs bRelease($bRelease), aVersion($aVersion) vs bVersion($bVersion)');
-    //         if (aVersion != null && bVersion != null) {
-    //           final aNumber = double.tryParse(aVersion) ?? 0;
-    //           final bNumber = double.tryParse(bVersion) ?? 0;
-    //           return aNumber.floor() < bNumber.floor() ||
-    //               !bVersion.contains('.');
-    //         }
-    //       }
-    //     }
-
-    //     return compare;
-    //   }
-    // }
-
+    // First of all, compare pre-releases.
+    //
     if (preRelease.isEmpty && other.preRelease.isNotEmpty) {
+      // If the compared version is a pre-release and ours isn't, then the
+      // compared is never critical, as we shouldn't update to pre-releases from
+      // stable version.
+      //
+      // Example: `1.0.0` -> `2.0.0-alpha.1` => `false`.
       return false;
     } else if (preRelease.isNotEmpty && other.preRelease.isEmpty) {
+      // If our version is a pre-release and the compared one isn't, then the
+      // compared is considered critical.
+      //
+      // Example: `1.0.0-alpha.1` -> `1.0.0` => `true`.
       return true;
     } else if (preRelease.isNotEmpty && other.preRelease.isNotEmpty) {
+      // Both versions contain pre-release labels, thus compare their respective
+      // major/minor numbers first.
+      //
+      // Differences in major number are always considered critical.
+      //
+      // Example: `1.0.0-alpha` -> `2.0.0-alpha` => `true`.
+      if (major < other.major) {
+        return true;
+      }
+
+      if (major == 0) {
+        // If major is `0`, then differences in minor number are considered
+        // critical.
+        //
+        // Example: `0.1.0-alpha` -> `0.2.0-alpha` => `true`.
+        if (minor < other.minor) {
+          return true;
+        }
+      }
+
+      // If pre-releases are equal to each other, then this isn't a critical
+      // release.
       if (const ListEquality().equals(preRelease, other.preRelease)) {
         return false;
       }
 
-      final first = preRelease.first;
-      final second = other.preRelease.first;
+      final ourFirst = preRelease.first;
+      final theirFirst = other.preRelease.first;
 
-      if (first is Comparable && second is Comparable) {
-        if (first == second) {
-          final third = preRelease.elementAtOrNull(1);
-          final fourth = other.preRelease.elementAtOrNull(1);
-          // TODO: Compare digit etc...
+      if (ourFirst is Comparable && theirFirst is Comparable) {
+        // First pre-release parts are equal (`alpha` and `alpha`, for example).
+        if (ourFirst == theirFirst) {
+          final ourSecond = preRelease.elementAtOrNull(1);
+          final theirSecond = other.preRelease.elementAtOrNull(1);
+
+          if (ourSecond is Comparable && theirSecond is Comparable) {
+            // Second pre-release parts are equal (`1` and `1`, for example).
+            if (ourSecond == theirSecond) {
+              // If the second parts are equal, then the deeper parts are
+              // different, which isn't considered a critical release.
+              //
+              // Example: `0.1.0-alpha.1` -> `0.1.0-alpha.1.1` => `false`.
+              // Example: `0.1.0-alpha.1.1.2` -> `0.1.0-alpha.1.1.3` => `false`.
+              // Example: `0.1.0-alpha.1.5` -> `0.1.0-alpha.1.6` => `false`.
+              return false;
+            } else {
+              // If our second pre-release part is lower than the second
+              // pre-release part of the other version, then this is critical.
+              //
+              // Example: `0.1.0-alpha.1` -> `0.1.0-alpha.2` => `true`.
+              return ourSecond.compareTo(theirSecond) < 0;
+            }
+          }
         } else {
-          return first.compareTo(second) < 0;
+          // If our first pre-release part is lower than the first pre-release
+          // part of the other version, then this is critical.
+          //
+          // Example: `0.1.0-alpha` -> `0.1.0-beta` => `true`.
+          return ourFirst.compareTo(theirFirst) < 0;
         }
       }
     }
 
+    // If the compared versions contain no pre-releases, then proceed comparing
+    // major/minor numbers.
+    //
+    // Differences in major number are always considered critical.
+    //
+    // Example: `1.0.0` -> `2.0.0` => `true`.
     if (major < other.major) {
       return true;
     }
 
     if (major == 0) {
+      // If major is `0`, then differences in minor number are considered
+      // critical.
+      //
+      // Example: `0.1.0` -> `0.2.0` => `true`.
       if (minor < other.minor) {
         return true;
       }

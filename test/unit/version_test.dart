@@ -158,6 +158,58 @@ void main() {
     expect(Version(0, 1, 0, pre: 'rc').isCritical(Version(0, 1, 0)), true);
     expect(
       Version(0, 1, 0, pre: 'rc').isCritical(Version(1, 0, 0, pre: 'rc')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.1')
+          .isCritical(Version(0, 1, 0, pre: 'alpha.2')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.1')
+          .isCritical(Version(0, 1, 0, pre: 'alpha.1.1')),
+      false,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.55.4')
+          .isCritical(Version(0, 1, 0, pre: 'beta.1')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.55.4')
+          .isCritical(Version(0, 1, 0, pre: 'beta.56.6')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'beta.54.3')
+          .isCritical(Version(0, 1, 0, pre: 'beta.54.12')),
+      false,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha').isCritical(Version(0, 1, 0, pre: 'rc')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.54').isCritical(Version(0, 1, 0, pre: 'rc')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'rc').isCritical(Version(0, 1, 0, pre: 'alpha.54')),
+      false,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'beta.54.3')
+          .isCritical(Version(0, 1, 1, pre: 'beta.54.12')),
+      false,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'beta.54.3')
+          .isCritical(Version(0, 2, 0, pre: 'beta.54.12')),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.1')
+          .isCritical(Version(0, 1, 0, pre: 'alpha.1', build: '1')),
       false,
     );
   });
