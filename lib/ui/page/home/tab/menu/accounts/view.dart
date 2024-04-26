@@ -38,6 +38,7 @@ import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
+import '/routes.dart';
 
 /// View for authenticated [MyUser]s management.
 ///
@@ -393,9 +394,10 @@ class AccountsView extends StatelessWidget {
                         myUser: myUser,
                         user: user,
                         onTap: () {
-                          Navigator.of(context).pop();
                           if (c.myUser.value?.id != user.id) {
+                            Navigator.of(context).pop();
                             c.switchTo(user.id);
+                            router.tab = HomeTab.chats;
                           }
                         },
                         trailing: [

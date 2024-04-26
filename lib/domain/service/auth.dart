@@ -668,7 +668,7 @@ class AuthService extends GetxService {
           final Credentials? creds = _credentialsProvider.get(id);
           if (creds == null) {
             Log.debug(
-              '_initRefreshTimers($id): no credentials found, killing timer',
+              '_initRefreshTimers(): no credentials found for user $id, killing timer',
               '$runtimeType',
             );
 
@@ -750,8 +750,10 @@ class AuthService extends GetxService {
 
           // TODO: А что если они менее свежие? Может так быть? Такая же история
           // в [refreshSession].
+          // TODO: Почему тут именно так это делается? Почему не как при рефреше?...
           if (received.access.secret != current?.access.secret &&
               (received.userId == current?.userId || !authorized)) {
+            // Should apply this [Credentials] as ones of the active account.
             _authRepository.token = received.access.secret;
             _authRepository.applyToken();
             credentials.value = received;
@@ -759,6 +761,14 @@ class AuthService extends GetxService {
 
             if (!authorized) {
               router.home();
+            }
+          } else if (received.userId != current?.userId) {
+            // [Credentials] for another account were updated, just save them.
+            final Credentials? saved =
+                _credentialsProvider.get(received.userId);
+            if (saved == null ||
+                saved.access.secret != received.access.secret) {
+              _credentialsProvider.put(received);
             }
           }
         } else {

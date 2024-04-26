@@ -644,8 +644,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     };
 
     Log.debug(
-        '_populateMyUsers() ${myUsers.values.map((e) => e.value?.name?.val ?? e.value?.num.val)}',
-        '$runtimeType');
+      '_populateMyUsers() ${myUsers.values.map((e) => e.value?.name ?? e.value?.num)}',
+      '$runtimeType',
+    );
   }
 
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
