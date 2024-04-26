@@ -162,6 +162,7 @@ class ChatInfoView extends StatelessWidget {
                   children: [
                     const SizedBox(width: 16),
                     WidgetButton(
+                      key: const Key('SaveNameButton'),
                       onPressed: () {
                         c.submitName();
                         c.nameEditing.value = false;
@@ -202,6 +203,7 @@ class ChatInfoView extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               WidgetButton(
+                key: const Key('EditNameButton'),
                 onPressed: () {
                   c.nameEditing.value = true;
                 },

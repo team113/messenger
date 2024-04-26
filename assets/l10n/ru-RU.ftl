@@ -803,6 +803,7 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
+label_info = Информация
 label_introduction_description1 =
     Доступ к гостевому аккаунту сохраняется в течение одного года или пока:
 

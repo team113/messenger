@@ -175,6 +175,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: WidgetButton(
+                    key: const Key('SaveLinkButton'),
                     onPressed: _submitLink,
                     child: Text(
                       'btn_save'.l10n,
@@ -226,6 +227,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 children: [
                   const SizedBox(height: 14),
                   WidgetButton(
+                    key: const Key('CreateLinkButton'),
                     onPressed: () {
                       _state.text = _generated;
                       setState(() => _editing = true);

@@ -120,6 +120,7 @@ class UserView extends StatelessWidget {
   Widget _avatar(UserController c, BuildContext context) {
     return Obx(() {
       return Block(
+        padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
         children: [
           SelectionContainer.disabled(
             child: BigAvatarWidget.user(
@@ -139,7 +140,6 @@ class UserView extends StatelessWidget {
   Widget _profile(UserController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    final UserBio? bio = c.user?.user.value.bio;
     return Block(
       padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
       children: [
@@ -193,24 +193,18 @@ class UserView extends StatelessWidget {
             ];
           } else {
             children = [
+              const SizedBox(height: 8),
+              Container(width: double.infinity),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: Text(
                   c.contact.value?.contact.value.name.val ?? c.name.text,
-                  style: style.fonts.large.regular.onBackground,
+                  style: style.fonts.larger.regular.onBackground,
                 ),
               ),
-              const SizedBox(height: 4),
-              if (bio != null)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    bio.toString(),
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                ),
+              const SizedBox(height: 8),
               if (c.contactId != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 1),
                 WidgetButton(
                   onPressed: () {
                     c.nameEditing.value = true;
@@ -239,15 +233,29 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns the [User.num] visual representation.
-  Widget _num(UserController c) {
-    return Paddings.basic(
-      InfoTile(
-        key: const Key('NumCopyable'),
-        title: 'label_num'.l10n,
-        content: c.user!.user.value.num.toString(),
-        trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
-      ),
+  /// Returns the [User.num] and [User.bio] visual representation.
+  Widget _info(UserController c) {
+    final UserBio? bio = c.user?.user.value.bio;
+
+    return Block(
+      title: 'label_info'.l10n,
+      children: [
+        Paddings.basic(
+          InfoTile(
+            key: const Key('NumCopyable'),
+            title: 'label_num'.l10n,
+            content: c.user!.user.value.num.toString(),
+            trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
+          ),
+        ),
+        if(bio != null)
+        Paddings.basic(
+          InfoTile(
+            title: 'label_about'.l10n,
+            content: bio.val,
+          ),
+        ),
+      ],
     );
   }
 

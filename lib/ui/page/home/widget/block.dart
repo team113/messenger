@@ -18,8 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/animated_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'highlighted_container.dart';
 
@@ -165,53 +163,5 @@ class Block extends StatelessWidget {
     }
 
     return style.fonts.small.regular.secondaryHighlightDarkest;
-  }
-}
-
-/// [SvgIcons.editSmall] button to put into [Block.overlay].
-///
-/// Returns [Positioned], meaning it must be placed inside a [Stack].
-class EditBlockButton extends StatelessWidget {
-  const EditBlockButton({
-    Key? key,
-    this.onPressed,
-    this.editing = false,
-  })  : _key = key,
-        super(key: null);
-
-  /// Callback, called when button is pressed.
-  final void Function()? onPressed;
-
-  /// Indicator whether an [SvgIcons.closeSmallPrimary] should be displayed
-  /// instead.
-  final bool editing;
-
-  /// [Key] to uniquely identify the [AnimatedButton].
-  final Key? _key;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      right: 0,
-      top: 0,
-      child: Center(
-        child: AnimatedButton(
-          key: _key,
-          onPressed: onPressed,
-          decorator: (child) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-              child: child,
-            );
-          },
-          child: editing
-              ? const Padding(
-                  padding: EdgeInsets.all(2),
-                  child: SvgIcon(SvgIcons.closeSmallPrimary),
-                )
-              : const SvgIcon(SvgIcons.editSmall),
-        ),
-      ),
-    );
   }
 }
