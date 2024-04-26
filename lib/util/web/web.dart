@@ -341,13 +341,8 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<T> protect<T>(
-    Future<T> Function() callback, {
-    required UserId userId,
-  }) async {
-    _guards[userId] ??= Mutex();
-
-    return await _guards[userId]!.protect(() async {
+  static Future<T> protect<T>(Future<T> Function() callback) async {
+    return await _guard.protect(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
         return await callback();
@@ -358,7 +353,7 @@ class WebUtils {
       try {
         await promiseToFuture(
           _requestLock(
-            'mutex_$userId',
+            'mutex',
             allowInterop(
               (_) => callback()
                   .then((T val) => completer.complete(val))

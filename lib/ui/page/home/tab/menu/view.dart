@@ -195,6 +195,8 @@ class MenuTabView extends StatelessWidget {
                         ProfileTab.logout => () async {
                             if (await c.confirmLogout()) {
                               c.logout();
+                              router.auth();
+                              router.tab = HomeTab.chats;
                             }
                           },
                         (_) => () {

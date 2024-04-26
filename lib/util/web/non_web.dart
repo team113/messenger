@@ -103,13 +103,8 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<T> protect<T>(
-    Future<T> Function() callback, {
-    required UserId userId,
-  }) {
-    _guards[userId] ??= Mutex();
-    return _guards[userId]!.protect(callback);
-  }
+  static Future<T> protect<T>(Future<T> Function() callback) =>
+      _guard.protect(callback);
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
