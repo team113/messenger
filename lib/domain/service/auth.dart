@@ -155,12 +155,18 @@ class AuthService extends GetxService {
         if (e.newValue != null) {
           final Credentials creds =
               Credentials.fromJson(json.decode(e.newValue!));
+          final bool authorized = _hasAuthorization;
+
           if (creds.access.secret != credentials.value?.access.secret &&
-              creds.userId == credentials.value?.userId) {
+              (creds.userId == credentials.value?.userId || !authorized)) {
             _authRepository.token = creds.access.secret;
             _authRepository.applyToken();
             credentials.value = creds;
             status.value = RxStatus.success();
+
+            if (!authorized) {
+              router.home();
+            }
           }
         } else {
           if (!WebUtils.isPopup) {
