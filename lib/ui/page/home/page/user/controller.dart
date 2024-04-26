@@ -21,6 +21,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -92,6 +93,13 @@ class UserController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
@@ -113,6 +121,10 @@ class UserController extends GetxController {
   /// - `status.isLoading`, meaning [block] is executing.
   /// - `status.isEmpty`, meaning no [block] is executing.
   final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
+
+  /// Index of an item from the profile's [ScrollablePositionedList] that should
+  /// be highlighted.
+  final RxnInt highlighted = RxnInt();
 
   /// [UserService] fetching the [user].
   final UserService _userService;
@@ -142,6 +154,13 @@ class UserController extends GetxController {
     'ui',
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
+
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
@@ -488,6 +507,16 @@ class UserController extends GetxController {
         name.editable.value = true;
       }
     }
+  }
+
+  /// Highlights the item with the provided [index].
+  void highlight(int index) {
+    highlighted.value = index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlighted.value = null;
+    });
   }
 
   /// Fetches the [user] value from the [_userService].

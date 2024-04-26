@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -33,6 +34,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/login/widget/primary_button.dart';
@@ -76,39 +78,42 @@ class UserView extends StatelessWidget {
             );
           }
 
+          final List<Widget> blocks = [
+            const SizedBox(height: 8),
+            if (c.isBlocked != null)
+              Block(
+                title: 'label_user_is_blocked'.l10n,
+                children: [
+                  BlocklistRecordWidget(
+                    c.isBlocked!,
+                    onUnblock: c.unblock,
+                  ),
+                ],
+              ),
+            _avatar(c, context),
+            _name(c, context, index: c.isBlocked != null ? 3 : 2),
+            _info(c),
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
+            const SizedBox(height: 8),
+          ];
+
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
-              child: Obx(() {
-                return SelectionArea(
-                  contextMenuBuilder: (_, __) => const SizedBox(),
-                  child: ListView(
-                    key: const Key('UserScrollable'),
-                    controller: c.scrollController,
-                    children: [
-                      const SizedBox(height: 8),
-                      if (c.isBlocked != null)
-                        Block(
-                          title: 'label_user_is_blocked'.l10n,
-                          children: [
-                            BlocklistRecordWidget(
-                              c.isBlocked!,
-                              onUnblock: c.unblock,
-                            ),
-                          ],
-                        ),
-                      _avatar(c, context),
-                      _profile(c, context),
-                      Block(children: [_num(c)]),
-                      SelectionContainer.disabled(
-                        child: Block(children: [_actions(c, context)]),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                );
-              }),
+              child: SelectionArea(
+                contextMenuBuilder: (_, __) => const SizedBox(),
+                child: ScrollablePositionedList.builder(
+                  key: const Key('UserScrollable'),
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                ),
+              ),
             ),
           );
         });
@@ -136,100 +141,120 @@ class UserView extends StatelessWidget {
     });
   }
 
-  /// Returns the [User.status] and [User.name] visual representation.
-  Widget _profile(UserController c, BuildContext context) {
+  /// Returns the [User.name] visual representation.
+  Widget _name(
+    UserController c,
+    BuildContext context, {
+    required int index,
+  }) {
     final style = Theme.of(context).style;
 
-    return Block(
-      padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
-      children: [
-        Obx(() {
-          final List<Widget> children;
+    return HighlightedContainer(
+      highlight: c.highlighted.value == index,
+      child: Block(
+        padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
+        children: [
+          Obx(() {
+            final List<Widget> children;
 
-          if (c.nameEditing.value) {
-            children = [
-              const SizedBox(height: 18),
-              SelectionContainer.disabled(
-                child: ReactiveTextField(
-                  state: c.name,
-                  label: 'label_name'.l10n,
-                  hint: c.user!.title,
-                  formatters: [LengthLimitingTextInputFormatter(100)],
+            if (c.nameEditing.value) {
+              children = [
+                const SizedBox(height: 18),
+                SelectionContainer.disabled(
+                  child: ReactiveTextField(
+                    state: c.name,
+                    label: 'label_name'.l10n,
+                    hint: c.user!.title,
+                    formatters: [LengthLimitingTextInputFormatter(100)],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const SizedBox(width: 16),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const SizedBox(width: 16),
+                    WidgetButton(
+                      onPressed: () {
+                        c.submitName();
+                      },
+                      child: SelectionContainer.disabled(
+                        child: Text(
+                          'btn_save'.l10n,
+                          style: style.fonts.small.regular.primary,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    WidgetButton(
+                      onPressed: () {
+                        c.name.unchecked =
+                            c.contact.value?.contact.value.name.val ??
+                                c.name.text;
+                        c.nameEditing.value = false;
+                      },
+                      child: SelectionContainer.disabled(
+                        child: Text(
+                          'btn_cancel'.l10n,
+                          style: style.fonts.small.regular.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                ),
+              ];
+            } else {
+              children = [
+                const SizedBox(height: 8),
+                Container(width: double.infinity),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Text(
+                    c.contact.value?.contact.value.name.val ?? c.name.text,
+                    style: style.fonts.larger.regular.onBackground,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (c.contactId != null) ...[
+                  const SizedBox(height: 1),
                   WidgetButton(
                     onPressed: () {
-                      c.submitName();
+                      final firstPosition =
+                          c.positionsListener.itemPositions.value.firstOrNull;
+
+                      if (firstPosition?.index == index &&
+                          firstPosition!.itemLeadingEdge < 0) {
+                        c.itemScrollController.scrollTo(
+                          index: index,
+                          curve: Curves.ease,
+                          duration: const Duration(milliseconds: 600),
+                        );
+                        c.highlight(index);
+                      }
+
+                      c.nameEditing.value = true;
                     },
                     child: SelectionContainer.disabled(
                       child: Text(
-                        'btn_save'.l10n,
+                        'btn_change'.l10n,
                         style: style.fonts.small.regular.primary,
                       ),
                     ),
                   ),
-                  const Spacer(),
-                  WidgetButton(
-                    onPressed: () {
-                      c.name.unchecked =
-                          c.contact.value?.contact.value.name.val ??
-                              c.name.text;
-                      c.nameEditing.value = false;
-                    },
-                    child: SelectionContainer.disabled(
-                      child: Text(
-                        'btn_cancel'.l10n,
-                        style: style.fonts.small.regular.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                ],
-              ),
-            ];
-          } else {
-            children = [
-              const SizedBox(height: 8),
-              Container(width: double.infinity),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: Text(
-                  c.contact.value?.contact.value.name.val ?? c.name.text,
-                  style: style.fonts.larger.regular.onBackground,
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (c.contactId != null) ...[
-                const SizedBox(height: 1),
-                WidgetButton(
-                  onPressed: () {
-                    c.nameEditing.value = true;
-                  },
-                  child: SelectionContainer.disabled(
-                    child: Text(
-                      'btn_change'.l10n,
-                      style: style.fonts.small.regular.primary,
-                    ),
-                  ),
-                ),
-              ]
-            ];
-          }
+                ]
+              ];
+            }
 
-          return AnimatedSizeAndFade(
-            fadeDuration: 250.milliseconds,
-            sizeDuration: 250.milliseconds,
-            child: Column(
-              key: Key(c.nameEditing.value.toString()),
-              children: children,
-            ),
-          );
-        }),
-      ],
+            return AnimatedSizeAndFade(
+              fadeDuration: 250.milliseconds,
+              sizeDuration: 250.milliseconds,
+              child: Column(
+                key: Key(c.nameEditing.value.toString()),
+                children: children,
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 

@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -36,6 +38,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -83,28 +86,47 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
+          // Returns [HighlightedContainer] with the provided [child].
+          Widget highlighted({
+            required int index,
+            required Widget child,
+          }) {
+            return HighlightedContainer(
+              highlight: c.highlighted.value == index,
+              child: child,
+            );
+          }
+
+          final List<Widget> blocks = [
+            const SizedBox(height: 8),
+            _avatar(c, context),
+            highlighted(index: 2, child: _name(c, context)),
+            if (!c.isMonolog) ...[
+              highlighted(
+                index: 3,
+                child: SelectionContainer.disabled(child: _link(c, context)),
+              ),
+              SelectionContainer.disabled(child: _members(c, context)),
+            ],
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
+            const SizedBox(height: 8),
+          ];
+
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
               child: SelectionArea(
                 contextMenuBuilder: (_, __) => const SizedBox(),
-                child: ListView(
-                  controller: c.scrollController,
+                child: ScrollablePositionedList.builder(
                   key: const Key('ChatInfoScrollable'),
-                  children: [
-                    const SizedBox(height: 8),
-                    _avatar(c, context),
-                    _name(c, context),
-                    if (!c.isMonolog) ...[
-                      SelectionContainer.disabled(child: _link(c, context)),
-                      SelectionContainer.disabled(child: _members(c, context)),
-                    ],
-                    SelectionContainer.disabled(
-                      child: Block(children: [_actions(c, context)]),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => blocks[i],
                 ),
               ),
             ),
@@ -205,6 +227,19 @@ class ChatInfoView extends StatelessWidget {
               WidgetButton(
                 key: const Key('EditNameButton'),
                 onPressed: () {
+                  final firstPosition =
+                      c.positionsListener.itemPositions.value.firstOrNull;
+
+                  if (firstPosition?.index == 2 &&
+                      firstPosition!.itemLeadingEdge < 0) {
+                    c.itemScrollController.scrollTo(
+                      index: 2,
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                    );
+                    c.highlight(2);
+                  }
+
                   c.nameEditing.value = true;
                 },
                 child: SelectionContainer.disabled(
@@ -261,6 +296,18 @@ class ChatInfoView extends StatelessWidget {
                 background: c.background.value,
                 onEditing: (b) {
                   if (b) {
+                    final firstPosition =
+                        c.positionsListener.itemPositions.value.firstOrNull;
+
+                    if (firstPosition?.index == 3 &&
+                        firstPosition!.itemLeadingEdge < 0) {
+                      c.itemScrollController.scrollTo(
+                        index: 3,
+                        curve: Curves.ease,
+                        duration: const Duration(milliseconds: 600),
+                      );
+                      c.highlight(3);
+                    }
                   }
                 },
               ),

@@ -216,6 +216,19 @@ class MyProfileView extends StatelessWidget {
                               background: c.background.value,
                               onEditing: (b) {
                                 if (b) {
+                                  final firstPosition = c.positionsListener
+                                      .itemPositions.value.firstOrNull;
+
+                                  if (firstPosition?.index == i &&
+                                      firstPosition!.itemLeadingEdge < 0) {
+                                    c.itemScrollController.scrollTo(
+                                      index: i,
+                                      curve: Curves.ease,
+                                      duration:
+                                          const Duration(milliseconds: 600),
+                                    );
+                                    c.highlight(ProfileTab.link);
+                                  }
                                 }
                               },
                             );
