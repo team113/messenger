@@ -17,6 +17,7 @@
 
 import 'package:hive/hive.dart';
 
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
