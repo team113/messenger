@@ -52,8 +52,13 @@ mixin AuthGraphQlMixin {
   Future<SignUp$Mutation> signUp() async {
     Log.debug('signUp()', '$runtimeType');
 
-    final QueryResult result = await client
-        .mutate(MutationOptions(document: SignUpMutation().document));
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'SignUp',
+        document: SignUpMutation().document,
+      ),
+      raw: const RawClientOptions(),
+    );
     return SignUp$Mutation.fromJson(result.data!);
   }
 
@@ -76,11 +81,14 @@ mixin AuthGraphQlMixin {
 
     if (token != null) {
       final variables = DeleteSessionArguments(id: id, password: password);
-      final QueryResult result = await client.mutate(MutationOptions(
-        operationName: 'DeleteSession',
-        document: DeleteSessionMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ));
+      final QueryResult result = await client.mutate(
+        MutationOptions(
+          operationName: 'DeleteSession',
+          document: DeleteSessionMutation(variables: variables).document,
+          variables: variables.toJson(),
+        ),
+        raw: RawClientOptions(token),
+      );
       GraphQlProviderExceptions.fire(result);
     }
   }
@@ -107,10 +115,7 @@ mixin AuthGraphQlMixin {
     UserEmail? email,
     UserPhone? phone,
   ) async {
-    Log.debug(
-      'signIn(***, $login, $num, $email, $phone)',
-      '$runtimeType',
-    );
+    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
     final variables = SignInArguments(
       password: password,
@@ -143,11 +148,12 @@ mixin AuthGraphQlMixin {
   Future<ValidateToken$Query> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    final QueryResult res = await client.query(
-      QueryOptions(
+    final QueryResult res = await client.mutate(
+      MutationOptions(
         operationName: 'ValidateToken',
         document: ValidateTokenQuery().document,
       ),
+      raw: RawClientOptions(token),
     );
     return ValidateToken$Query.fromJson(res.data!);
   }
@@ -252,6 +258,7 @@ mixin AuthGraphQlMixin {
         document: RecoverUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: const RawClientOptions(),
     );
   }
 
@@ -302,9 +309,11 @@ mixin AuthGraphQlMixin {
         variables: variables.toJson(),
       ),
       onException: (data) => ValidateUserPasswordRecoveryCodeException(
-          ValidateUserPasswordRecoveryCode$Mutation.fromJson(data)
-                  .validateUserPasswordRecoveryCode
-              as ValidateUserPasswordRecoveryErrorCode),
+        ValidateUserPasswordRecoveryCode$Mutation.fromJson(data)
+                .validateUserPasswordRecoveryCode
+            as ValidateUserPasswordRecoveryErrorCode,
+      ),
+      raw: const RawClientOptions(),
     );
   }
 
@@ -367,6 +376,7 @@ mixin AuthGraphQlMixin {
                 as ResetUserPassword$Mutation$ResetUserPassword$ResetUserPasswordError)
             .code,
       ),
+      raw: const RawClientOptions(),
     );
   }
 }
