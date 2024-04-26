@@ -9,7 +9,7 @@
 /artifacts/
 
 # Releasing related
-/appcast.xml
+/appcast/
 
 # Development related
 /my.*.vals.yaml
