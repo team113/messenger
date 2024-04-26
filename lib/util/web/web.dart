@@ -134,9 +134,8 @@ class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex]es guarding the [protect] method for each of the available
-  /// accounts.
-  static final Map<UserId, Mutex> _guards = {};
+  /// [Mutex] guarding the [protect] method.
+  static final Mutex _guard = Mutex();
 
   /// Indicator whether [cameraPermission] has finished successfully.
   ///
@@ -319,9 +318,8 @@ class WebUtils {
     }
   }
 
-  /// Indicates whether the [protect] is currently locked for the user with the
-  /// provided [UserId].
-  static FutureOr<bool> isLockedFor(UserId userId) async {
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked async {
     // Web Locks API is unavailable for some reason, so proceed without it.
     if (!_locksAvailable()) {
       return false;
@@ -331,12 +329,12 @@ class WebUtils {
 
     try {
       final locks = await promiseToFuture(_getLocks());
-      held = (locks as List?)?.any((e) => e.name == 'mutex_$userId') == true;
+      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
     } catch (e) {
       held = false;
     }
 
-    return _guards[userId]?.isLocked ?? false || held;
+    return _guard.isLocked || held;
   }
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or

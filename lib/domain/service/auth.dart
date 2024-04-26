@@ -21,8 +21,8 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
-import 'package:mutex/mutex.dart';
 
+import '../../provider/hive/my_user.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -73,10 +73,6 @@ class AuthService extends GetxService {
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
 
-  /// [Mutex] used to synchronize access to mutations for signing in, singing up
-  /// and logging out.
-  final Mutex _authGuard = Mutex();
-
   /// [Timer] used to periodically check the [Session.expireAt] and refresh it
   /// if necessary.
   Timer? _refreshTimer;
@@ -122,8 +118,8 @@ class AuthService extends GetxService {
   String? init() {
     Log.debug('init()', '$runtimeType');
 
-    // Try to refresh session, otherwise just force logout.
     _authRepository.authExceptionHandler = (e) async {
+      // Try to refresh session, otherwise just force logout.
       if (credentials.value?.refresh.expireAt
               .isAfter(PreciseDateTime.now().toUtc()) ==
           true) {
@@ -135,77 +131,38 @@ class AuthService extends GetxService {
       }
     };
 
+    _initializeCredentialsSubscriptions();
+
     final UserId? userId = _accountProvider.userId;
-    Credentials? creds =
+    final Credentials? creds =
         userId != null ? _credentialsProvider.get(userId) : null;
-    AccessToken? access = creds?.access;
-    RefreshToken? refresh = creds?.refresh;
 
-    // Listen to the [Credentials] changes.
-    _storageSubscription = WebUtils.onStorageChange.listen((e) {
-      Log.debug(
-        '_storageSubscription(${e.key}): received new credentials',
-        '$runtimeType',
-      );
-
-      if (e.key == 'credentials') {
-        if (e.newValue != null) {
-          final Credentials creds =
-              Credentials.fromJson(json.decode(e.newValue!));
-          final bool authorized = _hasAuthorization;
-
-          if (creds.access.secret != credentials.value?.access.secret &&
-              (creds.userId == credentials.value?.userId || !authorized)) {
-            _authRepository.token = creds.access.secret;
-            _authRepository.applyToken();
-            credentials.value = creds;
-            status.value = RxStatus.success();
-
-            if (!authorized) {
-              router.home();
-            }
-          }
-        } else {
-          if (!WebUtils.isPopup) {
-            router.go(_unauthorized());
-          }
-        }
-      }
-    });
-
-    if (creds != null) {
-      // TODO: А что, если `null`? Нужно как-то удалить, наверное, оттуда их, но как? Нет `userId`.
-      WebUtils.putCredentials(creds);
+    if (creds == null) {
+      return _unauthorized();
     }
 
-    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      if (e.deleted) {
-        WebUtils.removeCredentials(UserId(e.key as String));
-      } else {
-        WebUtils.putCredentials(e.value);
-      }
-    });
+    // TODO: Подумать, надо ли. Допустим, мы тут входим в приложение из второй
+    // вкладки, а в первой только-только сделали refreshSession. В `Hive` могут
+    // же быть менее актуальные данные, чем в `localStorage`?
+    // Зачем вообще такого рода синхронизация тут нужна была?
+    WebUtils.putCredentials(creds);
 
-    if (access == null) {
-      return _unauthorized();
+    final AccessToken access = creds.access;
+    final RefreshToken refresh = creds.refresh;
+
+    if (access.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
+      _authorized(creds);
+      status.value = RxStatus.success();
+      return null;
+    } else if (refresh.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
+      _authorized(creds);
+      if (_shouldRefresh(creds)) {
+        refreshSession();
+      }
+      status.value = RxStatus.success();
+      return null;
     } else {
-      if (refresh == null) {
-        if (access.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
-          _authorized(creds!);
-          status.value = RxStatus.success();
-          return null;
-        }
-      } else if (refresh.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
-        _authorized(creds!);
-        if (access.expireAt
-            .subtract(_accessTokenMinTtl)
-            .isBefore(PreciseDateTime.now().toUtc())) {
-          refreshSession();
-        }
-        status.value = RxStatus.success();
-        return null;
-      }
-
+      // Neither [AccessToken] nor [RefreshToken] are valid, should logout.
       return _unauthorized();
     }
   }
@@ -301,10 +258,6 @@ class AuthService extends GetxService {
   /// If [status] is already authorized, then this method does nothing.
   Future<void> register() async {
     Log.debug('register()', '$runtimeType');
-
-    if (!status.value.isEmpty) {
-      return;
-    }
 
     status.value = RxStatus.loading();
 
@@ -436,13 +389,10 @@ class AuthService extends GetxService {
         await _authRepository.refreshSession(credentials.refresh.secret);
 
     status.value = RxStatus.loadingMore();
-    await WebUtils.protect(
-      () async {
-        _authorized(credentials);
-        status.value = RxStatus.success();
-      },
-      userId: credentials.userId,
-    );
+    await WebUtils.protect(() async {
+      _authorized(credentials);
+      status.value = RxStatus.success();
+    });
   }
 
   /// Deletes [Session] of the active [MyUser].
@@ -507,32 +457,32 @@ class AuthService extends GetxService {
   }
 
   /// Authorizes the [Session] if there are any saved [Credentials] for the
-  /// given [id].
+  /// given [UserId].
   Future<void> signInToSavedAccount(UserId userId) async {
     Log.debug('signInToSavedAccount($userId)', '$runtimeType');
 
     Credentials? credentials = _credentialsProvider.get(userId);
     if (credentials != null) {
-      // Check if the [credentials] are valid.
+      try {
+        // Check if the [credentials] are valid.
+        credentials = await _authRepository.refreshSession(
+          credentials.refresh.secret,
+          raw: true,
+        );
+      } catch (e) {
+        // TODO: ошибка рефреша == аккаунт тухлый
+        // + пометить его
+        // + предлложить войти
+      }
 
-      // TODO: ошибка рефреша -> отметить аккаунт тухлым + вывести ошибку + предложить войти
-      credentials = await _authRepository.refreshSession(
-        credentials.refresh.secret,
-        raw: true,
-      );
-
-      status.value = RxStatus.loadingMore();
-      await WebUtils.protect(
-        () async {
-          _authorized(credentials!);
-          _credentialsProvider.put(credentials);
-          _accountProvider.set(credentials.userId);
-          status.value = RxStatus.success();
-        },
-        userId: userId,
-      );
+      await WebUtils.protect(() async {
+        _authorized(credentials!);
+        status.value = RxStatus.success();
+      });
     } else {
-      // TODO: нет credentials -> аккаунт тухлый -> предложить в него войти + отметить его тухлым, если ещё не отмечен
+      // TODO: нет credentials == аккаунт тухлый
+      // + пометить его
+      // + предлложить войти
     }
   }
 
@@ -556,13 +506,24 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Refreshes the current [credentials].
-  Future<void> refreshSession() async {
+  /// Refreshes [updatingCreds] or the current [credentials], if none provided.
+  Future<void> refreshSession({Credentials? updatingCreds}) async {
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    Log.debug('refreshSession() with `isLocked`: $isLocked', '$runtimeType');
+    updatingCreds ??= credentials.value;
+
+    final provider = Get.find<MyUserHiveProvider>();
+    final myUser = updatingCreds != null
+        ? provider.get(updatingCreds.userId)?.value
+        : null;
+    final name = myUser?.name ?? myUser?.num ?? updatingCreds?.userId;
+
+    Log.debug(
+      'refreshSession($name) with `isLocked`: $isLocked',
+      '$runtimeType',
+    );
 
     try {
       // Do not perform renew since some other task has already renewed it. But
@@ -571,52 +532,89 @@ class AuthService extends GetxService {
       await WebUtils.protect(() async {
         if (isLocked) {
           Log.debug(
-            'refreshSession(): acquired the lock, while it was locked, thus should proceed: $_shouldRefresh',
+            'refreshSession($name): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(updatingCreds)}',
             '$runtimeType',
           );
 
-          if (!_shouldRefresh()) {
+          if (!_shouldRefresh(updatingCreds)) {
             // [Credentials] are successfully updated.
             return;
           }
         } else {
           Log.debug(
-            'refreshSession(): acquired the lock, while it was unlocked',
+            'refreshSession($name): acquired the lock, while it was unlocked',
             '$runtimeType',
           );
         }
 
-        // Fetch the fresh [WebUtils.credentials], if there are any.
-        if (WebUtils.credentials != null &&
-            WebUtils.credentials?.access.secret !=
-                credentials.value?.access.secret) {
-          _authorized(WebUtils.credentials!);
-          status.value = RxStatus.success();
+        final UserId? userId = updatingCreds?.userId ?? _accountProvider.userId;
+
+        if (userId == null) {
+          // [userId] being `null` here means that we're trying to update the
+          // active account's [Credentials], but the account storage is empty,
+          // meaning unauthorized state. Thus logout.
+          Log.debug(
+            'refreshSession($name): no active account, set to unauthorized state',
+            '$runtimeType',
+          );
+
+          _unauthorized();
           return;
         }
 
-        if (credentials.value == null) {
+        // Fetch the fresh [Credentials] from browser's storage, if there are
+        // any.
+        final Credentials? webStoredCreds = WebUtils.getCredentials(userId);
+        if (webStoredCreds != null) {
+          final bool isMoreFresh = updatingCreds != null
+              ? webStoredCreds.refresh.expireAt
+                  .isAfter(updatingCreds.refresh.expireAt)
+              : true;
+
+          if (isMoreFresh) {
+            _authorized(webStoredCreds);
+            status.value = RxStatus.success();
+            return;
+          }
+        }
+
+        if (updatingCreds == null) {
           router.go(_unauthorized());
         } else {
           try {
-            final Credentials data = await _authRepository
-                .refreshSession(credentials.value!.refresh.secret);
+            // TODO: Don't use [AccountHiveProvider] here if possible since it's
+            //       for the `repository`s layer.
+            final Credentials data = await _authRepository.refreshSession(
+              updatingCreds.refresh.secret,
+              raw: updatingCreds.userId != _accountProvider.userId,
+            );
+
             _authorized(data);
             status.value = RxStatus.success();
-          } on RefreshSessionException catch (_) {
-            router.go(_unauthorized());
-            rethrow;
+          } on RefreshSessionException catch (e) {
+            if (updatingCreds.userId == _accountProvider.userId) {
+              router.go(_unauthorized());
+              rethrow;
+            } else {
+              Log.debug(
+                'refreshSession($name): Exception occurred: $e',
+                '$runtimeType',
+              );
+            }
           }
         }
       });
     } on RefreshSessionException catch (_) {
-      // No-op, already handled in the [WebUtils.protect].
+      // No-op, already handled in the callback passed to [WebUtils.protect].
     } catch (e) {
-      Log.debug('refreshSession(): Exception occurred: $e', '$runtimeType');
+      Log.debug(
+        'refreshSession($name): Exception occurred: $e',
+        '$runtimeType',
+      );
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(const Duration(seconds: 2));
-      await refreshSession();
+      await refreshSession(updatingCreds: updatingCreds);
     }
   }
 
@@ -634,36 +632,17 @@ class AuthService extends GetxService {
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
-    final Iterable<Credentials> creds = _credentialsProvider.valuesSafe;
+    final Iterable<Credentials> allCreds = _credentialsProvider.valuesSafe;
 
-    for (final Credentials cred in creds) {
-      // TODO: проверить точно ли тут будет работать? вроде бы null тут лежать не может никак?
-      if (cred.userId == credentials.value?.userId) {
-        continue;
-      }
-
-      // Refresh the [credentials] manually for the first time.
-      _refresh(cred);
-
-      _refreshTimers[cred.userId] = Timer.periodic(
+    for (final Credentials creds in allCreds) {
+      _refreshTimers[creds.userId] = Timer.periodic(
         _refreshTaskInterval,
-        (_) => _refresh(cred),
+        (_) {
+          if (_shouldRefresh(creds)) {
+            refreshSession(updatingCreds: creds);
+          }
+        },
       );
-    }
-  }
-
-  Future<void> _refresh(Credentials creds) async {
-    if (_shouldRefresh(creds)) {
-      try {
-        final Credentials newCreds = await _authRepository.refreshSession(
-          creds.refresh.secret,
-          raw: true,
-        );
-
-        await _credentialsProvider.put(newCreds);
-      } catch (e) {
-        // TODO: при ошибках метим аккаунт тухлым
-      }
     }
   }
 
@@ -679,13 +658,6 @@ class AuthService extends GetxService {
     _refreshTimer?.cancel();
 
     _initRefreshTimers();
-
-    // TODO: Offload refresh task to the background process?
-    _refreshTimer = Timer.periodic(_refreshTaskInterval, (timer) {
-      if (credentials.value?.refresh != null && _shouldRefresh()) {
-        refreshSession();
-      }
-    });
 
     status.value = RxStatus.loadingMore();
   }
@@ -720,5 +692,48 @@ class AuthService extends GetxService {
             .subtract(_accessTokenMinTtl)
             .isBefore(PreciseDateTime.now().toUtc()) ==
         true;
+  }
+
+  /// Initializes the subscriptions to the [Credentials] changes in browser's
+  /// storage and [Hive].
+  void _initializeCredentialsSubscriptions() {
+    _storageSubscription = WebUtils.onStorageChange.listen((e) {
+      Log.debug(
+        '_storageSubscription(${e.key}): received new credentials',
+        '$runtimeType',
+      );
+
+      if (e.key == 'credentials') {
+        if (e.newValue != null) {
+          final Credentials creds =
+              Credentials.fromJson(json.decode(e.newValue!));
+          final bool authorized = _hasAuthorization;
+
+          if (creds.access.secret != credentials.value?.access.secret &&
+              (creds.userId == credentials.value?.userId || !authorized)) {
+            _authRepository.token = creds.access.secret;
+            _authRepository.applyToken();
+            credentials.value = creds;
+            status.value = RxStatus.success();
+
+            if (!authorized) {
+              router.home();
+            }
+          }
+        } else {
+          if (!WebUtils.isPopup) {
+            router.go(_unauthorized());
+          }
+        }
+      }
+    });
+
+    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
+      if (e.deleted) {
+        WebUtils.removeCredentials(UserId(e.key as String));
+      } else {
+        WebUtils.putCredentials(e.value);
+      }
+    });
   }
 }

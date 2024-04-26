@@ -45,9 +45,8 @@ class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex]es guarding the [protect] method for each of the available
-  /// accounts.
-  static final Map<UserId, Mutex> _guards = {};
+  /// [Mutex] guarding the [protect] method.
+  static final Mutex _guard = Mutex();
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -98,8 +97,7 @@ class WebUtils {
   static Credentials? getCredentials(UserId userId) => null;
 
   /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> isLockedFor(UserId id) =>
-      _guards[id]?.isLocked ?? false;
+  static FutureOr<bool> get isLocked => _guard.isLocked;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
