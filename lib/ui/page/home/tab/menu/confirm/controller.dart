@@ -86,6 +86,10 @@ class ConfirmLogoutController extends GetxController {
           repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
+      onSubmitted: (s) {
+        repeat.focus.requestFocus();
+        s.unsubmit();
+      },
     );
 
     repeat = TextFieldState(
@@ -108,6 +112,7 @@ class ConfirmLogoutController extends GetxController {
           repeat.error.value = 'err_passwords_mismatch'.l10n;
         }
       },
+      onSubmitted: (s) => setPassword(),
     );
 
     super.onInit();
