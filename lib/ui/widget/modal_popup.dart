@@ -203,6 +203,7 @@ class ModalPopupHeader extends StatelessWidget {
                     child: Text(
                       text!,
                       style: style.fonts.big.regular.onBackground,
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),

@@ -88,47 +88,34 @@ class UpgradeWorker extends DisposableService {
         final Iterable<XmlElement> items = channel.findElements('item');
 
         if (items.isNotEmpty) {
-          final List<XmlElement> releases = items.sorted(
-            (a, b) {
-              final String? aTitle = a.getElement('title')?.innerText;
-              final String? bTitle = b.getElement('title')?.innerText;
-
-              if (aTitle != null && bTitle == null) {
-                return 1;
-              } else if (aTitle == null && bTitle != null) {
-                return -1;
-              } else if (aTitle != null && bTitle != null) {
-                return aTitle.compareTo(bTitle);
-              } else {
-                return 0;
-              }
-            },
-          );
-
-          final Iterable<XmlElement> higher = releases.where((e) {
-            String? version = e.getElement('title')?.innerText;
-            if (version == null) {
-              return false;
-            }
-
-            if (version.startsWith('v')) {
-              version = version.substring(1);
-            }
-
-            return true; // Compare with `Pubspec.ref`.
-          });
-
           final Release release =
-              Release.fromXml(releases.first, language: L10n.chosen.value);
+              Release.fromXml(items.first, language: L10n.chosen.value);
 
           Log.debug(
             'Comparing `${release.name}` to `${Pubspec.ref}`',
             '$runtimeType',
           );
 
-          final bool skipped = _skippedLocal?.get() == release.name;
+          Version? ours;
+          try {
+            ours = Version.parse(Pubspec.ref ?? '');
+          } catch (e) {
+            // No-op.
+          }
+
+          Version? their;
+          try {
+            their = Version.parse(release.name);
+          } catch (e) {
+            // No-op.
+          }
+
+          final bool critical = ours?.isCritical(their) ?? false;
+          print('ours: $ours vs their: $their, critical: $critical');
+          final bool skipped =
+              !critical && _skippedLocal?.get() == release.name;
           if (release.name != Pubspec.ref && !skipped) {
-            _schedulePopup(release);
+            _schedulePopup(release, critical: critical);
           }
         }
       }
@@ -138,12 +125,16 @@ class UpgradeWorker extends DisposableService {
   }
 
   /// Schedules an [UpgradePopupView] prompt displaying.
-  void _schedulePopup(Release release) {
+  void _schedulePopup(Release release, {bool critical = false}) {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
     Future.delayed(_popupDelay, () {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
-        await UpgradePopupView.show(router.context!, release: release);
+        await UpgradePopupView.show(
+          router.context!,
+          release: release,
+          critical: critical,
+        );
       });
     });
   }
@@ -298,9 +289,11 @@ extension Rfc822ToDateTime on DateTime {
   }
 }
 
+/// Extension adding ability to determine critical [Version]s, meaning the ones
+/// user can't skip.
 extension CriticalVersionExtension on Version {
   /// Indicates whether this [Version] is considered critical compared to the
-  /// [other].
+  /// [other], meaning the one user can't skip.
   ///
   /// Algorithm determining whether the [other] is consider critical follows the
   /// rules, which is easier to demonstrate with the following examples:
@@ -319,7 +312,11 @@ extension CriticalVersionExtension on Version {
   /// - `0.1.0` -> `0.2.0-rc` => `false`;
   /// - `0.1.0` -> `1.0.0-beta` => `false`;
   /// - `1.0.0-beta` -> `1.0.0-rc` => `true`.
-  bool isCritical(Version other) {
+  bool isCritical(Version? other) {
+    if (other == null) {
+      return false;
+    }
+
     // If ours version is higher than the [other], then this isn't a critical
     // release.
     if (this > other) {

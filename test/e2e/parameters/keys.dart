@@ -164,8 +164,9 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
-  UserScrollable,
+  UpgradePopup,
   UsernameField,
+  UserScrollable,
   VerifyEmail,
   VerifyPhone,
 }

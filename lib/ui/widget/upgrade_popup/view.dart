@@ -31,14 +31,26 @@ import 'controller.dart';
 
 /// Upgrade to [Release] prompt modal.
 class UpgradePopupView extends StatelessWidget {
-  const UpgradePopupView(this.release, {super.key});
+  const UpgradePopupView(this.release, {super.key, this.critical = false});
 
   /// [Release] to prompt to upgrade to.
   final Release release;
 
+  /// Indicator whether this [release] is considered critical, meaning the one
+  /// user can't skip.
+  final bool critical;
+
   /// Displays an [UpgradePopupView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {required Release release}) {
-    return ModalPopup.show(context: context, child: UpgradePopupView(release));
+  static Future<T?> show<T>(
+    BuildContext context, {
+    required Release release,
+    bool critical = false,
+  }) {
+    return ModalPopup.show(
+      context: context,
+      child: UpgradePopupView(release, critical: critical),
+      isDismissible: !critical,
+    );
   }
 
   @override
@@ -46,6 +58,7 @@ class UpgradePopupView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
+      key: const Key('UpgradePopup'),
       init: UpgradePopupController(Get.find()),
       builder: (UpgradePopupController c) {
         return Obx(() {
@@ -91,7 +104,12 @@ class UpgradePopupView extends StatelessWidget {
               break;
 
             case UpgradePopupScreen.notice:
-              header = ModalPopupHeader(text: 'label_update_is_available'.l10n);
+              header = ModalPopupHeader(
+                text: critical
+                    ? 'label_critical_update_is_available'.l10n
+                    : 'label_update_is_available'.l10n,
+                close: !critical,
+              );
               children = [
                 Flexible(
                   child: ListView(
@@ -118,22 +136,24 @@ class UpgradePopupView extends StatelessWidget {
                   padding: ModalPopup.padding(context),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('Skip'),
-                          maxWidth: double.infinity,
-                          onPressed: () {
-                            c.skip(release);
-                            Navigator.of(context).pop(false);
-                          },
-                          color: style.colors.onBackgroundOpacity7,
-                          child: Text(
-                            'btn_skip'.l10n,
-                            style: style.fonts.medium.regular.onBackground,
+                      if (!critical) ...[
+                        Expanded(
+                          child: OutlinedRoundedButton(
+                            key: const Key('Skip'),
+                            maxWidth: double.infinity,
+                            onPressed: () {
+                              c.skip(release);
+                              Navigator.of(context).pop(false);
+                            },
+                            color: style.colors.onBackgroundOpacity7,
+                            child: Text(
+                              'btn_skip'.l10n,
+                              style: style.fonts.medium.regular.onBackground,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
+                        const SizedBox(width: 8),
+                      ],
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('Download'),
