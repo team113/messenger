@@ -170,7 +170,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-        BoxShape shape = BoxShape.circle,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -189,7 +189,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
-        BoxShape shape = BoxShape.circle,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -223,7 +223,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-        BoxShape shape = BoxShape.circle,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -269,7 +269,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     FutureOr<void> Function()? onForbidden,
-        BoxShape shape = BoxShape.circle,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -498,9 +498,9 @@ class AvatarWidget extends StatelessWidget {
     return switch (shape) {
       BoxShape.circle => ClipOval(child: child),
       BoxShape.rectangle => ClipRRect(
-        borderRadius: BorderRadius.circular(0.035 * _minDiameter),
-        child: child,
-      ),
+          borderRadius: BorderRadius.circular(0.035 * _minDiameter),
+          child: child,
+        ),
     };
   }
 }

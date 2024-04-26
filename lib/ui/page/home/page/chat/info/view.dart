@@ -155,7 +155,6 @@ class ChatInfoView extends StatelessWidget {
                   formatters: [LengthLimitingTextInputFormatter(100)],
                 ),
               ),
-
               const SizedBox(height: 16),
               SelectionContainer.disabled(
                 child: Row(

@@ -283,7 +283,9 @@ class UserView extends StatelessWidget {
                 contact ? SvgIcons.deleteContact : SvgIcons.addContact,
               ),
               inverted: SvgIcon(
-                contact ? SvgIcons.deleteContactWhite : SvgIcons.addContactWhite,
+                contact
+                    ? SvgIcons.deleteContactWhite
+                    : SvgIcons.addContactWhite,
               ),
             ),
             ContextMenuButton(

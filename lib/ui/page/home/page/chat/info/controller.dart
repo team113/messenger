@@ -98,9 +98,6 @@ class ChatInfoController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// Indicator whether [AppBar] should display the [ChatName] and [ChatAvatar].
-  final RxBool displayName = RxBool(false);
-
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
 
@@ -172,8 +169,6 @@ class ChatInfoController extends GetxController {
         }
       },
     );
-
-    scrollController.addListener(_ensureNameDisplayed);
 
     super.onInit();
   }
@@ -500,11 +495,5 @@ class ChatInfoController extends GetxController {
         }
       });
     }
-  }
-
-  /// Ensures the [displayName] is either `true` or `false` based on the
-  /// [scrollController].
-  void _ensureNameDisplayed() {
-    displayName.value = scrollController.position.pixels >= 250;
   }
 }
