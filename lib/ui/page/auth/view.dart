@@ -136,17 +136,19 @@ class AuthView extends StatelessWidget {
         // Footer part of the page.
         List<Widget> footer = [
           const SizedBox(height: 25),
-          OutlinedRoundedButton(
-            key: const Key('StartButton'),
-            maxWidth: 210,
-            height: 46,
-            leading: Transform.translate(
-              offset: const Offset(4, 0),
-              child: const SvgIcon(SvgIcons.guest),
-            ),
-            onPressed: c.register,
-            child: Text('btn_guest'.l10n),
-          ),
+          Obx(() {
+            return OutlinedRoundedButton(
+              key: const Key('StartButton'),
+              maxWidth: 210,
+              height: 46,
+              leading: Transform.translate(
+                offset: const Offset(4, 0),
+                child: const SvgIcon(SvgIcons.guest),
+              ),
+              onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+              child: Text('btn_guest'.l10n),
+            );
+          }),
           const SizedBox(height: 15),
           OutlinedRoundedButton(
             key: const Key('RegisterButton'),
