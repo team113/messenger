@@ -248,13 +248,13 @@ class UserView extends StatelessWidget {
             trailing: CopyOrShareButton(c.user!.user.value.num.toString()),
           ),
         ),
-        if(bio != null)
-        Paddings.basic(
-          InfoTile(
-            title: 'label_about'.l10n,
-            content: bio.val,
+        if (bio != null)
+          Paddings.basic(
+            InfoTile(
+              title: 'label_about'.l10n,
+              content: bio.val,
+            ),
           ),
-        ),
       ],
     );
   }
