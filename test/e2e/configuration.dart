@@ -50,6 +50,7 @@ import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
+import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
@@ -146,6 +147,7 @@ import 'world/custom_world.dart';
 final FlutterTestConfiguration gherkinTestConfiguration =
     FlutterTestConfiguration()
       ..stepDefinitions = [
+        appcastIsAvailable,
         attachFile,
         blockedCountUsers,
         cancelFileDownload,

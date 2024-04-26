@@ -16,8 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' show Get;
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/config.dart';
 import 'package:messenger/pubspec.g.dart';
+import 'package:messenger/ui/worker/upgrade.dart';
+import 'package:messenger/util/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '../world/custom_world.dart';
@@ -27,19 +31,24 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Given appcast is available
-final StepDefinitionGeneric haveInternetWithDelay = given<CustomWorld>(
+final StepDefinitionGeneric appcastIsAvailable = given<CustomWorld>(
   'appcast is available',
   (context) async {
+    Config.appcast = 'http://localhost/appcast.xml';
+
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is InterceptorsWrapper);
 
     (await PlatformUtils.dio).interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          if (options.path.endsWith('appcast.xml')) {
+          print('onRequest: ${options.path} ${options.baseUrl}');
+
+          if (options.path == 'http://localhost/appcast.xml') {
             return handler.resolve(
               Response(
                 requestOptions: options,
+                statusCode: 200,
                 data: '''
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
@@ -65,5 +74,9 @@ final StepDefinitionGeneric haveInternetWithDelay = given<CustomWorld>(
         },
       ),
     );
+
+    // Force [UpgradeWorker] to check for updates.
+    final worker = Get.findOrNull<UpgradeWorker>();
+    await worker?.fetchUpdates();
   },
 );

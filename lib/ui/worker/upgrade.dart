@@ -17,6 +17,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/scheduler.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:xml/xml.dart';
@@ -49,7 +50,7 @@ class UpgradeWorker extends DisposableService {
 
     // Web gets its updates out of the box with a simple page refresh.
     if (!PlatformUtils.isWeb) {
-      _fetchUpdates();
+      fetchUpdates();
     }
 
     super.onReady();
@@ -63,8 +64,9 @@ class UpgradeWorker extends DisposableService {
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
   /// detected.
-  Future<void> _fetchUpdates() async {
-    Log.debug('_fetchUpdates()', '$runtimeType');
+  @visibleForTesting
+  Future<void> fetchUpdates() async {
+    Log.debug('fetchUpdates()', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
       return;

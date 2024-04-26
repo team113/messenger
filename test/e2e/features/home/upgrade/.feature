@@ -19,7 +19,18 @@ Feature: Upgrade popup
 
   Scenario: Upgrade popup is displayed
     Given appcast is available
-    And I am Alice
 
     When I wait for app to settle
     Then I wait until `UpgradePopup` is present
+
+    When I tap `Skip` button
+    Then I wait until `UpgradePopup` is absent
+
+# Scenario: Critical upgrade popup is displayed
+#   Given appcast is available
+
+#   When I wait for app to settle
+#   Then I wait until `UpgradePopup` is present
+
+#   When I tap `Skip` button
+#   Then I wait until `UpgradePopup` is absent
