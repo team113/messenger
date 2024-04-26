@@ -74,6 +74,7 @@ import 'ui/page/erase/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
+import 'ui/page/support/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
@@ -95,12 +96,13 @@ class Routes {
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
+  static const erase = '/erase';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
+  static const support = '/support';
   static const user = '/user';
   static const work = '/work';
-  static const erase = '/erase';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -113,7 +115,7 @@ class Routes {
 enum HomeTab { work, contacts, chats, menu }
 
 /// List of [Routes.work] page sections.
-enum WorkTab { freelance, frontend, backend, designer }
+enum WorkTab { frontend, backend, freelance }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {
@@ -132,6 +134,7 @@ enum ProfileTab {
   download,
   danger,
   legal,
+  support,
   logout,
 }
 
@@ -280,7 +283,9 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
-    if (to.startsWith(Routes.work) || to.startsWith(Routes.erase)) {
+    if (to.startsWith(Routes.work) ||
+        to.startsWith(Routes.erase) ||
+        to.startsWith(Routes.support)) {
       return to;
     }
 
@@ -792,6 +797,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: EraseView(),
         )
       ];
+    } else if (_state.route.startsWith(Routes.support)) {
+      return const [
+        MaterialPage(
+          key: ValueKey('SupportPage'),
+          name: Routes.support,
+          child: SupportView(),
+        )
+      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -805,6 +818,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.user) ||
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.erase) ||
+        _state.route.startsWith(Routes.support) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -936,6 +950,9 @@ extension RouteLinks on RouterState {
   void work(WorkTab? tab, {bool push = false}) => (push
       ? this.push
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
+
+  /// Changes router location to the [Routes.support] page.
+  void support({bool push = false}) => (push ? this.push : go)(Routes.support);
 
   /// Changes router location to the [Routes.style] page.
   ///
