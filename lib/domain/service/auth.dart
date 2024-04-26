@@ -595,26 +595,35 @@ class AuthService extends GetxService {
         if (updatingCreds == null) {
           router.go(_unauthorized());
         } else {
+          final bool areMine = updatingCreds.userId == _accountProvider.userId;
+
           try {
             // TODO: Don't use [AccountHiveProvider] here if possible since it's
             //       for the `repository`s layer.
             final Credentials data = await _authRepository.refreshSession(
               updatingCreds.refresh.secret,
-              raw: updatingCreds.userId != _accountProvider.userId,
+              raw: !areMine,
             );
 
-            _authorized(data);
+            if (areMine) {
+              _authorized(data);
+            } else {
+              // [Credentials] not currently active account were update, just
+              // save them.
+              _credentialsProvider.put(data);
+            }
             status.value = RxStatus.success();
           } on RefreshSessionException catch (e) {
-            if (updatingCreds.userId == _accountProvider.userId) {
+            Log.debug(
+              'refreshSession($name): Exception occurred: $e, areMine: $areMine',
+              '$runtimeType',
+            );
+
+            if (areMine) {
               router.go(_unauthorized());
-              rethrow;
-            } else {
-              Log.debug(
-                'refreshSession($name): Exception occurred: $e',
-                '$runtimeType',
-              );
             }
+
+            rethrow;
           }
         }
       });
@@ -676,7 +685,6 @@ class AuthService extends GetxService {
   }
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
-  // TODO: возможно кстати тут стоит выполнять логику по переключению в другой аккаунт, если из прошлого вышибло? а где ещё можно?
   String _unauthorized() {
     Log.debug('_unauthorized()', '$runtimeType');
 
