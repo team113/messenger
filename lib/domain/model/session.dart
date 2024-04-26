@@ -21,12 +21,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
-import 'avatar.dart';
-import 'crop_area.dart';
-import 'file.dart';
-import 'mute_duration.dart';
 import 'precise_date_time/precise_date_time.dart';
-import 'user_call_cover.dart';
 
 part 'session.g.dart';
 
@@ -144,7 +139,7 @@ class RefreshTokenSecret extends NewType<String> {
 /// [MyUser] credentials.
 @HiveType(typeId: ModelTypeId.credentials)
 class Credentials {
-  const Credentials(this.access, this.refresh, this.userId, [this.user]);
+  const Credentials(this.access, this.refresh, this.userId);
 
   /// Created or refreshed [AccessToken] for authenticating the [Session].
   ///
@@ -160,10 +155,6 @@ class Credentials {
   @HiveField(2)
   final UserId userId;
 
-  /// Object of the currently authenticated [MyUser].
-  @HiveField(3)
-  final MyUser? user;
-
   /// Constructs [Credentials] from the provided [data].
   factory Credentials.fromJson(Map<dynamic, dynamic> data) {
     return Credentials(
@@ -176,165 +167,6 @@ class Credentials {
         PreciseDateTime.parse(data['refresh']['expireAt']),
       ),
       UserId(data['userId']),
-      MyUser(
-        id: data['user']['id'],
-        num: UserNum(data['user']['num']),
-        login: UserLogin(data['user']['login']),
-        emails: MyUserEmails(
-          confirmed: (data['user']['emails']['confirmed'] as List<String>)
-              .map((e) => UserEmail(e))
-              .toList(),
-          unconfirmed: data['user']['emails']['unconfirmed'],
-        ),
-        phones: MyUserPhones(
-          confirmed: (data['user']['phones']['confirmed'] as List<String>)
-              .map((e) => UserPhone(e))
-              .toList(),
-          unconfirmed: data['user']['phones']['unconfirmed'],
-        ),
-        name: UserName(data['user']['name']),
-        bio: UserBio(data['user']['bio']),
-        avatar: data['user']['avatar'] != null
-            ? UserAvatar(
-                crop: data['user']['avatar']['crop'] != null
-                    ? CropArea(
-                        topLeft: CropPoint(
-                            x: data['user']['avatar']['crop']['topLeft']['x'],
-                            y: data['user']['avatar']['crop']['topLeft']['y']),
-                        bottomRight: CropPoint(
-                            x: data['user']['avatar']['crop']['bottomRight']
-                                ['x'],
-                            y: data['user']['avatar']['crop']['bottomRight']
-                                ['y']),
-                      )
-                    : null,
-                full: ImageFile(
-                  relativeRef: data['user']['avatar']['full']['relativeRef'],
-                  width: data['user']['avatar']['full']['width'],
-                  height: data['user']['avatar']['full']['height'],
-                  checksum: data['user']['avatar']['full']['checksum'],
-                  size: data['user']['avatar']['full']['size'],
-                  thumbhash:
-                      ThumbHash(data['user']['avatar']['full']['thumbhash']),
-                ),
-                big: ImageFile(
-                  relativeRef: data['user']['avatar']['big']['relativeRef'],
-                  width: data['user']['avatar']['big']['width'],
-                  height: data['user']['avatar']['big']['height'],
-                  checksum: data['user']['avatar']['big']['checksum'],
-                  size: data['user']['avatar']['big']['size'],
-                  thumbhash:
-                      ThumbHash(data['user']['avatar']['big']['thumbhash']),
-                ),
-                medium: ImageFile(
-                  relativeRef: data['user']['avatar']['medium']['relativeRef'],
-                  width: data['user']['avatar']['medium']['width'],
-                  height: data['user']['avatar']['medium']['height'],
-                  checksum: data['user']['avatar']['medium']['checksum'],
-                  size: data['user']['avatar']['medium']['size'],
-                  thumbhash:
-                      ThumbHash(data['user']['avatar']['medium']['thumbhash']),
-                ),
-                small: ImageFile(
-                  relativeRef: data['user']['avatar']['small']['relativeRef'],
-                  width: data['user']['avatar']['small']['width'],
-                  height: data['user']['avatar']['small']['height'],
-                  checksum: data['user']['avatar']['small']['checksum'],
-                  size: data['user']['avatar']['small']['size'],
-                  thumbhash:
-                      ThumbHash(data['user']['avatar']['small']['thumbhash']),
-                ),
-                original: ImageFile(
-                  relativeRef: data['user']['avatar']['original']
-                      ['relativeRef'],
-                  width: data['user']['avatar']['original']['width'],
-                  height: data['user']['avatar']['original']['height'],
-                  checksum: data['user']['avatar']['original']['checksum'],
-                  size: data['user']['avatar']['original']['size'],
-                  thumbhash: ThumbHash(
-                      data['user']['avatar']['original']['thumbhash']),
-                ),
-              )
-            : null,
-        callCover: data['user']['callCover'] != null
-            ? UserCallCover(
-                crop: data['user']['callCover']['crop'] != null
-                    ? CropArea(
-                        topLeft: CropPoint(
-                            x: data['user']['callCover']['crop']['topLeft']
-                                ['x'],
-                            y: data['user']['callCover']['crop']['topLeft']
-                                ['y']),
-                        bottomRight: CropPoint(
-                            x: data['user']['callCover']['crop']['bottomRight']
-                                ['x'],
-                            y: data['user']['callCover']['crop']['bottomRight']
-                                ['y']),
-                      )
-                    : null,
-                full: ImageFile(
-                  relativeRef: data['user']['callCover']['full']['relativeRef'],
-                  width: data['user']['callCover']['full']['width'],
-                  height: data['user']['callCover']['full']['height'],
-                  checksum: data['user']['callCover']['full']['checksum'],
-                  size: data['user']['callCover']['full']['size'],
-                  thumbhash: ThumbHash(
-                    data['user']['callCover']['full']['thumbhash'],
-                  ),
-                ),
-                vertical: ImageFile(
-                  relativeRef: data['user']['callCover']['vertical']
-                      ['relativeRef'],
-                  width: data['user']['callCover']['vertical']['width'],
-                  height: data['user']['callCover']['vertical']['height'],
-                  checksum: data['user']['callCover']['vertical']['checksum'],
-                  size: data['user']['callCover']['vertical']['size'],
-                  thumbhash: ThumbHash(
-                    data['user']['callCover']['big']['thumbhash'],
-                  ),
-                ),
-                square: ImageFile(
-                  relativeRef: data['user']['callCover']['original']
-                      ['relativeRef'],
-                  width: data['user']['callCover']['original']['width'],
-                  height: data['user']['callCover']['original']['height'],
-                  checksum: data['user']['callCover']['original']['checksum'],
-                  size: data['user']['callCover']['original']['size'],
-                  thumbhash: ThumbHash(
-                    data['user']['callCover']['original']['thumbhash'],
-                  ),
-                ),
-                original: ImageFile(
-                  relativeRef: data['user']['callCover']['original']
-                      ['relativeRef'],
-                  width: data['user']['callCover']['original']['width'],
-                  height: data['user']['callCover']['original']['height'],
-                  checksum: data['user']['callCover']['original']['checksum'],
-                  size: data['user']['callCover']['original']['size'],
-                  thumbhash: ThumbHash(
-                    data['user']['callCover']['original']['thumbhash'],
-                  ),
-                ),
-              )
-            : null,
-        presenceIndex: data['user']['presenceIndex'],
-        online: data['user']['online'],
-        hasPassword: data['user']['hasPassword'],
-        chatDirectLink: data['user']['chatDirectLink'] != null
-            ? ChatDirectLink(
-                slug: data['user']['chatDirectLink']['slug'],
-                usageCount: data['user']['chatDirectLink']['usageCount'],
-              )
-            : null,
-        muted: data['user']['muted'] != null
-            ? MuteDuration(
-                until: data['user']['muted']['until'],
-                forever: data['user']['muted']['forever'],
-              )
-            : null,
-        status: UserTextStatus(data['user']['status']),
-        unreadChatsCount: data['user']['unreadChatsCount'],
-      ),
     );
   }
 
@@ -350,144 +182,6 @@ class Credentials {
         'expireAt': refresh.expireAt.toString(),
       },
       'userId': userId.val,
-      'user': user != null ? {
-        'id': user!.id.val,
-        'num': user!.num.val,
-        'login': user!.login?.val,
-        'emails': {
-          'confirmed': user!.emails.confirmed.map((e) => e.val).toList(),
-          'unconfirmed': user!.emails.unconfirmed?.val,
-        },
-        'phones': {
-          'confirmed': user!.phones.confirmed.map((e) => e.val).toList(),
-          'unconfirmed': user!.phones.unconfirmed?.val
-        },
-        'name': user!.name?.val,
-        'bio': user!.bio?.val,
-        'avatar': user!.avatar != null
-            ? {
-                'crop': user!.avatar?.crop != null
-                    ? {
-                        'topLeft': {
-                          'x': user!.avatar?.crop?.topLeft.x,
-                          'y': user!.avatar?.crop?.topLeft.y,
-                        },
-                        'bottomRight': {
-                          'x': user!.avatar?.crop?.bottomRight.x,
-                          'y': user!.avatar?.crop?.bottomRight.y,
-                        },
-                        'angle': user!.avatar?.crop?.angle?.name,
-                      }
-                    : null,
-                'original': {
-                  'relativeRef': user!.avatar?.original.relativeRef,
-                  'width': user!.avatar?.original.width,
-                  'height': user!.avatar?.original.height,
-                  'checksum': user!.avatar?.original.checksum,
-                  'size': user!.avatar?.original.size,
-                  'thumbhash': user!.avatar?.original.thumbhash?.val,
-                },
-                'full': {
-                  'relativeRef': user!.avatar?.full.relativeRef,
-                  'width': user!.avatar?.full.width,
-                  'height': user!.avatar?.full.height,
-                  'checksum': user!.avatar?.full.checksum,
-                  'size': user!.avatar?.full.size,
-                  'thumbhash': user!.avatar?.full.thumbhash?.val,
-                },
-                'big': {
-                  'relativeRef': user!.avatar?.big.relativeRef,
-                  'width': user!.avatar?.big.width,
-                  'height': user!.avatar?.big.height,
-                  'checksum': user!.avatar?.big.checksum,
-                  'size': user!.avatar?.big.size,
-                  'thumbhash': user!.avatar?.big.thumbhash?.val,
-                },
-                'medium': {
-                  'relativeRef': user!.avatar?.medium.relativeRef,
-                  'width': user!.avatar?.medium.width,
-                  'height': user!.avatar?.medium.height,
-                  'checksum': user!.avatar?.medium.checksum,
-                  'size': user!.avatar?.medium.size,
-                  'thumbhash': user!.avatar?.medium.thumbhash?.val,
-                },
-                'small': {
-                  'relativeRef': user!.avatar?.small.relativeRef,
-                  'width': user!.avatar?.small.width,
-                  'height': user!.avatar?.small.height,
-                  'checksum': user!.avatar?.small.checksum,
-                  'size': user!.avatar?.small.size,
-                  'thumbhash': user!.avatar?.small.thumbhash?.val,
-                }
-              }
-            : null,
-        'callCover': user!.callCover != null
-            ? {
-                'crop': user!.callCover?.crop != null
-                    ? {
-                        'topLeft': {
-                          'x': user!.callCover?.crop?.topLeft.x,
-                          'y': user!.callCover?.crop?.topLeft.y,
-                        },
-                        'bottomRight': {
-                          'x': user!.callCover?.crop?.bottomRight.x,
-                          'y': user!.callCover?.crop?.bottomRight.y,
-                        },
-                        'angle': user!.callCover?.crop?.angle?.name,
-                      }
-                    : null,
-                'original': {
-                  'relativeRef': user!.callCover?.original.relativeRef,
-                  'width': user!.callCover?.original.width,
-                  'height': user!.callCover?.original.height,
-                  'checksum': user!.callCover?.original.checksum,
-                  'size': user!.callCover?.original.size,
-                  'thumbhash': user!.callCover?.original.thumbhash?.val
-                },
-                'full': {
-                  'relativeRef': user!.callCover?.full.relativeRef,
-                  'width': user!.callCover?.full.width,
-                  'height': user!.callCover?.full.height,
-                  'checksum': user!.callCover?.full.checksum,
-                  'size': user!.callCover?.full.size,
-                  'thumbhash': user!.callCover?.full.thumbhash?.val
-                },
-                'vertical': {
-                  'relativeRef': user!.callCover?.vertical.relativeRef,
-                  'width': user!.callCover?.vertical.width,
-                  'height': user!.callCover?.vertical.height,
-                  'checksum': user!.callCover?.vertical.checksum,
-                  'size': user!.callCover?.vertical.size,
-                  'thumbhash': user!.callCover?.vertical.thumbhash?.val
-                },
-                'square': {
-                  'relativeRef': user!.callCover?.square.relativeRef,
-                  'width': user!.callCover?.square.width,
-                  'height': user!.callCover?.square.height,
-                  'checksum': user!.callCover?.square.checksum,
-                  'size': user!.callCover?.square.size,
-                  'thumbhash': user!.callCover?.square.thumbhash?.val
-                }
-              }
-            : null,
-        'hasPassword': user!.hasPassword,
-        'muted': user!.muted != null
-            ? {
-                'until': user!.muted?.until?.val,
-                'forever': user!.muted?.forever,
-              }
-            : null,
-        'online': user!.online,
-        'chatDirectLink': user!.chatDirectLink != null
-            ? {
-                'slug': user!.chatDirectLink!.slug.val,
-                'usageCount': user!.chatDirectLink!.usageCount,
-              }
-            : null,
-        'presenceIndex': user!.presenceIndex,
-        'status': user!.status?.val,
-        'unreadChatsCount': user!.unreadChatsCount,
-      } : null,
     };
   }
 }

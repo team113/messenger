@@ -97,9 +97,6 @@ class AuthService extends GetxService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
-  /// Returns the currently authorized [Credentials.user].
-  MyUser? get user => credentials.value?.user;
-
   /// Indicates whether the [credentials] require a refresh.
   bool get _shouldRefresh =>
       credentials.value?.access.expireAt
