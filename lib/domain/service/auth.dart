@@ -608,7 +608,7 @@ class AuthService extends GetxService {
             if (areMine) {
               _authorized(data);
             } else {
-              // [Credentials] not currently active account were update, just
+              // [Credentials] of not currently active account were update, just
               // save them.
               _credentialsProvider.put(data);
             }
@@ -621,6 +621,9 @@ class AuthService extends GetxService {
 
             if (areMine) {
               router.go(_unauthorized());
+            } else {
+              // Remove stale [Credentials].
+              _credentialsProvider.remove(updatingCreds.userId);
             }
 
             rethrow;
@@ -655,12 +658,25 @@ class AuthService extends GetxService {
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
-    final Iterable<Credentials> allCreds = _credentialsProvider.valuesSafe;
+    final Iterable<UserId> accounts =
+        _credentialsProvider.keysSafe.map((e) => UserId(e));
 
-    for (final Credentials creds in allCreds) {
-      _refreshTimers[creds.userId] = Timer.periodic(
+    for (final UserId id in accounts) {
+      _refreshTimers[id] = Timer.periodic(
         _refreshTaskInterval,
         (_) {
+          final Credentials? creds = _credentialsProvider.get(id);
+          if (creds == null) {
+            Log.debug(
+              '_initRefreshTimers($id): no credentials found, killing timer',
+              '$runtimeType',
+            );
+
+            // Cancel the timer to avoid memory leaks.
+            _refreshTimers.remove(id)?.cancel();
+            return;
+          }
+
           if (_shouldRefresh(creds)) {
             refreshSession(updatingCreds: creds);
           }
@@ -711,8 +727,8 @@ class AuthService extends GetxService {
 
     return creds?.access.expireAt
             .subtract(_accessTokenMinTtl)
-            .isBefore(PreciseDateTime.now().toUtc()) ==
-        true;
+            .isBefore(PreciseDateTime.now().toUtc()) ??
+        false;
   }
 
   /// Initializes the subscriptions to the [Credentials] changes in browser's
@@ -724,17 +740,21 @@ class AuthService extends GetxService {
         '$runtimeType',
       );
 
-      if (e.key == 'credentials') {
+      if (e.key?.startsWith('credentials_') ?? false) {
         if (e.newValue != null) {
-          final Credentials creds =
+          final Credentials received =
               Credentials.fromJson(json.decode(e.newValue!));
+          final Credentials? current = credentials.value;
+
           final bool authorized = _hasAuthorization;
 
-          if (creds.access.secret != credentials.value?.access.secret &&
-              (creds.userId == credentials.value?.userId || !authorized)) {
-            _authRepository.token = creds.access.secret;
+          // TODO: А что если они менее свежие? Может так быть? Такая же история
+          // в [refreshSession].
+          if (received.access.secret != current?.access.secret &&
+              (received.userId == current?.userId || !authorized)) {
+            _authRepository.token = received.access.secret;
             _authRepository.applyToken();
-            credentials.value = creds;
+            credentials.value = received;
             status.value = RxStatus.success();
 
             if (!authorized) {
@@ -742,7 +762,12 @@ class AuthService extends GetxService {
             }
           }
         } else {
-          if (!WebUtils.isPopup) {
+          final bool currentAreNull = credentials.value == null;
+          final bool currentDeleted = currentAreNull
+              ? true
+              : (e.key?.endsWith(credentials.value!.userId.val) ?? false);
+
+          if ((currentAreNull || currentDeleted) && !WebUtils.isPopup) {
             router.go(_unauthorized());
           }
         }
