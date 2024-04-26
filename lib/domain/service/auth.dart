@@ -73,10 +73,6 @@ class AuthService extends GetxService {
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
 
-  /// [Timer] used to periodically check the [Session.expireAt] and refresh it
-  /// if necessary.
-  Timer? _refreshTimer;
-
   /// Map of [Timer]s used to periodically check and refresh [Session]s of
   /// available accounts.
   final Map<UserId, Timer> _refreshTimers = {};
@@ -107,7 +103,8 @@ class AuthService extends GetxService {
 
     _storageSubscription?.cancel();
     _credentialsSubscription?.cancel();
-    _refreshTimer?.cancel();
+    _refreshTimers.forEach((_, t) => t.cancel());
+    _refreshTimers.clear();
   }
 
   /// Initializes this service.
@@ -655,7 +652,6 @@ class AuthService extends GetxService {
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
-    _refreshTimer?.cancel();
 
     _initRefreshTimers();
 
@@ -670,13 +666,13 @@ class AuthService extends GetxService {
     final UserId? id = _accountProvider.userId;
     if (id != null) {
       _credentialsProvider.remove(id);
+      _refreshTimers.remove(id)?.cancel();
     }
 
     _accountProvider.clear();
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();
-    _refreshTimer?.cancel();
 
     return Routes.auth;
   }
