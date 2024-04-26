@@ -916,6 +916,10 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onAction: (b) => c.postCommand(
+                    b.command,
+                    repliesTo: e.value,
+                  ),
                   actions: [
                     if (c.botEnabled.value)
                       ContextMenuButton(
@@ -926,6 +930,9 @@ class ChatView extends StatelessWidget {
                         label: 'Translate',
                       ),
                   ],
+                  infos: element is ChatMessageElement
+                      ? element.infos.values.toList()
+                      : [],
                 ),
               ),
             );

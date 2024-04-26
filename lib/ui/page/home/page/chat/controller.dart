@@ -217,7 +217,7 @@ class ChatController extends GetxController {
   static const double loaderHeight = 64;
 
   final RxBool showCommands = RxBool(false);
-  final RxBool botEnabled = RxBool(false);
+  final RxBool botEnabled = RxBool(true);
 
   /// [ListElementId] of an item from the [elements] that should be highlighted.
   final Rx<ListElementId?> highlighted = Rx<ListElementId?>(null);
@@ -1034,29 +1034,60 @@ class ChatController extends GetxController {
       repliesTo: [if (repliesTo != null) repliesTo],
     );
 
-    if (command == '/translate' && repliesTo is ChatMessage) {
-      await _chatService.sendChatMessage(
-        id,
-        text: ChatMessageText(
-          '[@bot]${jsonEncode(
-            {
-              'text':
-                  'Detected language: English. Translation to Russian costs \$1.1 per 100 symbols.\nYour message contains ${repliesTo.text?.val.length} symbols, which will cost in total: \$${1.1 / 100 * (repliesTo.text?.val.length ?? 0)}',
-              'actions': [
-                {
-                  'text': 'Pay and proceed',
-                  'command': '/proceed',
-                },
-                {
-                  'text': 'Change language',
-                  'command': '/language',
-                }
-              ],
-            },
-          )}',
-        ),
-        repliesTo: [repliesTo],
-      );
+    if (repliesTo is ChatMessage) {
+      if (command == '/translate') {
+        await _chatService.sendChatMessage(
+          id,
+          text: ChatMessageText(
+            '[@bot]${jsonEncode(
+              {
+                'title': 'Translation',
+                'text':
+                    'Detected: English. Your message contains ${repliesTo.text?.val.length} symbols, which will cost in total: \$${1.1 / 100 * (repliesTo.text?.val.length ?? 0)}',
+                'actions': [
+                  {
+                    'text': 'Order translation',
+                    'command': '/proceed',
+                  },
+                  {
+                    'text': 'Change language',
+                    'command': '/language',
+                  }
+                ],
+              },
+            )}',
+          ),
+          repliesTo: [repliesTo],
+        );
+      } else if (command == '/proceed') {
+        await _chatService.sendChatMessage(
+          id,
+          text: ChatMessageText(
+            '[@bot]${jsonEncode(
+              {
+                'title': 'Translation',
+                'text': 'Translating... 💭',
+              },
+            )}',
+          ),
+          repliesTo: [repliesTo],
+        );
+
+        await Future.delayed(const Duration(seconds: 5));
+
+        await _chatService.sendChatMessage(
+          id,
+          text: ChatMessageText(
+            '[@bot]${jsonEncode(
+              {
+                'title': 'Translation',
+                'text': 'Translated ✅',
+              },
+            )}',
+          ),
+          repliesTo: [repliesTo],
+        );
+      }
     }
   }
 
@@ -1765,6 +1796,21 @@ class ChatController extends GetxController {
           next.note.value == null) {
         insert = false;
         next.note.value = e;
+      } else {
+        final BotInfo? info = BotInfo.parse(item);
+        final ChatItemQuote? quote = info?.repliesTo;
+
+        if (quote != null) {
+          insert = false;
+
+          final items =
+              elements.entries.where((e) => e.key.id == quote.original?.id);
+          for (var e in items.map((e) => e.value)) {
+            if (e is ChatMessageElement) {
+              e.infos[info!.title] = info;
+            }
+          }
+        }
       }
 
       if (insert) {
@@ -2292,11 +2338,20 @@ abstract class ListElement {
 
 /// [ListElement] representing a [ChatMessage].
 class ChatMessageElement extends ListElement {
-  ChatMessageElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id));
+  ChatMessageElement(
+    this.item, {
+    List<BotInfo> infos = const [],
+  })  : infos = RxMap.from(
+          Map.fromEntries(
+            infos.map((e) => MapEntry(e.title, e)).toList(),
+          ),
+        ),
+        super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
+
+  final RxMap<String, BotInfo> infos;
 }
 
 /// [ListElement] representing a [ChatCall].

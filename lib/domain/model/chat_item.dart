@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -262,9 +264,40 @@ class BotInfo extends ChatItem {
     super.at, {
     super.status,
     this.repliesTo,
+    required this.title,
     this.text,
     this.actions,
   });
+
+  static BotInfo? parse(ChatMessage msg) {
+    if (msg.text?.val.startsWith('[@bot]') ?? false) {
+      Map<String, dynamic>? decoded;
+
+      try {
+        decoded = jsonDecode(msg.text!.val.substring('[@bot]'.length));
+      } catch (_) {
+        // No-op.
+      }
+
+      if (decoded != null) {
+        return BotInfo(
+          msg.id,
+          msg.chatId,
+          msg.author,
+          msg.at,
+          text:
+              decoded['text'] == null ? null : ChatMessageText(decoded['text']),
+          repliesTo: msg.repliesTo.firstOrNull,
+          actions: (decoded['actions'] as List?)?.map((e) {
+            return BotAction(text: e['text'], command: e['command']);
+          }).toList(),
+          title: decoded['title'] ?? 'Bot',
+        );
+      }
+    }
+
+    return null;
+  }
 
   @HiveField(5)
   ChatItemQuote? repliesTo;
@@ -274,6 +307,9 @@ class BotInfo extends ChatItem {
 
   @HiveField(7)
   List<BotAction>? actions;
+
+  @HiveField(8)
+  String title;
 }
 
 @HiveType(typeId: ModelTypeId.botAction)

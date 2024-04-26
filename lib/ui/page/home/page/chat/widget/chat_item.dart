@@ -96,6 +96,8 @@ class ChatItemWidget extends StatefulWidget {
     this.onSave,
     this.onSelect,
     this.actions = const [],
+    this.infos = const [],
+    this.onAction,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -171,6 +173,10 @@ class ChatItemWidget extends StatefulWidget {
   final void Function()? onSelect;
 
   final List<ContextMenuItem> actions;
+
+  final List<BotInfo> infos;
+
+  final Function(BotAction)? onAction;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -839,8 +845,88 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     );
   }
 
+  Widget _botInfo(BuildContext context, BotInfo e) {
+    final style = Theme.of(context).style;
+
+    final ChatMessage msg = widget.item.value as ChatMessage;
+
+    const Color color = Color.fromARGB(255, 149, 209, 149);
+
+    final InputBorder border = OutlineInputBorder(
+      borderSide: BorderSide(
+        color: style.primaryBorder.top.color,
+        width: style.primaryBorder.top.width,
+      ),
+      borderRadius: BorderRadius.circular(15),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          label: Text(
+            e.title,
+            // style: style.fonts.small.regular.secondary,
+          ),
+          floatingLabelStyle: style.fonts.small.regular.secondary,
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.34),
+          floatingLabelAlignment: FloatingLabelAlignment.center,
+          focusedBorder: border,
+          errorBorder: border,
+          enabledBorder: border,
+          disabledBorder: border,
+          focusedErrorBorder: border,
+          contentPadding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+          isCollapsed: true,
+          // contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          border: border,
+        ),
+        child: Column(
+          children: [
+            Text('${e.text}', style: style.fonts.smallest.regular.secondary),
+            if (e.actions != null) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 2,
+                runSpacing: 2,
+                children: e.actions!.map((e) {
+                  return SelectionContainer.disabled(
+                    child: WidgetButton(
+                      onPressed: () => widget.onAction?.call(e),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: style.systemMessageColor,
+                            width: 1,
+                          ),
+                          color: color,
+                        ),
+                        child: Text(
+                          e.text,
+                          style: style.fonts.smallest.regular.onPrimary,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _renderAsBotInfo(BuildContext context) {
     final style = Theme.of(context).style;
+
+    // return const SizedBox();
 
     final ChatMessage msg = widget.item.value as ChatMessage;
     final BotInfo info = _bot!;
@@ -1137,48 +1223,54 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         return Container(
           padding: const EdgeInsets.fromLTRB(5, 0, 2, 0),
-          child: Stack(
-            children: [
-              IntrinsicWidth(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  decoration: BoxDecoration(
-                    color: _fromMe
-                        ? _isRead
-                            ? style.readMessageColor
-                            : style.unreadMessageColor
-                        : style.messageColor,
-                    borderRadius: BorderRadius.circular(15),
-                    border: _fromMe
-                        ? _isRead
-                            ? style.secondaryBorder
-                            : Border.all(
-                                color: style.readMessageColor,
-                                width: 0.5,
-                              )
-                        : style.primaryBorder,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: children,
-                  ),
-                ),
+          child: IntrinsicWidth(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                color: _fromMe
+                    ? _isRead
+                        ? style.readMessageColor
+                        : style.unreadMessageColor
+                    : style.messageColor,
+                borderRadius: BorderRadius.circular(15),
+                border: _fromMe
+                    ? _isRead
+                        ? style.secondaryBorder
+                        : Border.all(
+                            color: style.readMessageColor,
+                            width: 0.5,
+                          )
+                    : style.primaryBorder,
               ),
-              Positioned(
-                right: timeInBubble ? 6 : 8,
-                bottom: 4,
-                child: timeInBubble
-                    ? Container(
-                        padding: const EdgeInsets.only(left: 4, right: 4),
-                        decoration: BoxDecoration(
-                          color: style.colors.onBackgroundOpacity50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: _timestamp(msg, true),
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: children,
+                      ),
+                      Positioned(
+                        right: timeInBubble ? 6 : 8,
+                        bottom: 4,
+                        child: timeInBubble
+                            ? Container(
+                                padding:
+                                    const EdgeInsets.only(left: 4, right: 4),
+                                decoration: BoxDecoration(
+                                  color: style.colors.onBackgroundOpacity50,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: _timestamp(msg, true),
+                              )
+                            : _timestamp(msg),
                       )
-                    : _timestamp(msg),
-              )
-            ],
+                    ],
+                  ),
+                  ...widget.infos.map((e) => _botInfo(context, e)),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -1937,31 +2029,32 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           repliesTo: msg.repliesTo.firstOrNull,
           text: ChatMessageText(text!.val.substring(1)),
         );
-      } else if (text?.val.startsWith('[@bot]') ?? false) {
-        Map<String, dynamic>? decoded;
-
-        try {
-          decoded = jsonDecode(text!.val.substring('[@bot]'.length));
-        } catch (_) {
-          // No-op.
-        }
-
-        if (decoded != null) {
-          _bot = BotInfo(
-            msg.id,
-            msg.chatId,
-            msg.author,
-            msg.at,
-            text: decoded['text'] == null
-                ? null
-                : ChatMessageText(decoded['text']),
-            repliesTo: msg.repliesTo.firstOrNull,
-            actions: (decoded['actions'] as List?)?.map((e) {
-              return BotAction(text: e['text'], command: e['command']);
-            }).toList(),
-          );
-        }
       }
+      // else if (text?.val.startsWith('[@bot]') ?? false) {
+      //   Map<String, dynamic>? decoded;
+
+      //   try {
+      //     decoded = jsonDecode(text!.val.substring('[@bot]'.length));
+      //   } catch (_) {
+      //     // No-op.
+      //   }
+
+      //   if (decoded != null) {
+      //     _bot = BotInfo(
+      //       msg.id,
+      //       msg.chatId,
+      //       msg.author,
+      //       msg.at,
+      //       text: decoded['text'] == null
+      //           ? null
+      //           : ChatMessageText(decoded['text']),
+      //       repliesTo: msg.repliesTo.firstOrNull,
+      //       actions: (decoded['actions'] as List?)?.map((e) {
+      //         return BotAction(text: e['text'], command: e['command']);
+      //       }).toList(),
+      //     );
+      //   }
+      // }
     }
 
     _worker = ever(widget.item, (ChatItem item) {
