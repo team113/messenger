@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13.4...v0.1.0-alpha.14) | [Milestone](/../../milestone/23)
+
+### Fixed
+
+- UI:
+    - Home page:
+        - Own avatar displaying with question marks when signing in or signing up. ([#978], [#950])
+
+[#950]: /../../issues/950
+[#978]: /../../pull/978
+
+
+
+
 ## [0.1.0-alpha.13.4] · 2024-04-23
 [0.1.0-alpha.13.4]: /../../tree/v0.1.0-alpha.13.4
 

@@ -179,14 +179,16 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.newPassword.isEmpty.value ||
-                          c.repeatPassword.isEmpty.value
-                      ? null
-                      : c.resetUserPassword,
-                ),
+                Obx(() {
+                  final bool enabled = !c.newPassword.isEmpty.value &&
+                      !c.repeatPassword.isEmpty.value;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_proceed'.l10n,
+                    onPressed: enabled ? c.resetUserPassword : null,
+                  );
+                }),
               ];
               break;
 
@@ -239,8 +241,9 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled =
-                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
+                  final bool enabled = !c.emailCode.isEmpty.value &&
+                      c.codeTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),
@@ -493,7 +496,8 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   final bool enabled = !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
-                      c.signInTimeout.value == 0;
+                      c.signInTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
@@ -551,7 +555,12 @@ class LoginView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 25 / 2),
-                PrimaryButton(title: 'btn_guest'.l10n, onPressed: c.register),
+                Obx(() {
+                  return PrimaryButton(
+                    title: 'btn_guest'.l10n,
+                    onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+                  );
+                }),
                 const SizedBox(height: 16),
               ];
               break;

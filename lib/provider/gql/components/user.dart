@@ -38,6 +38,8 @@ import '/util/log.dart';
 mixin UserGraphQlMixin {
   GraphQlClient get client;
 
+  AccessTokenSecret? get token;
+
   /// Returns the current authenticated [MyUser].
   ///
   /// ### Authentication
@@ -351,9 +353,11 @@ mixin UserGraphQlMixin {
         variables: variables.toJson(),
       ),
       onException: (data) => UpdateUserPasswordException(
-          (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
-                  as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
-              .code),
+        (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
+                as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
+            .code,
+      ),
+      raw: RawClientOptions(token),
     );
     return UpdateUserPassword$Mutation.fromJson(res.data!).updateUserPassword
         as MyUserEventsVersionedMixin?;
