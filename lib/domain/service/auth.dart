@@ -104,6 +104,9 @@ class AuthService extends GetxService {
           .isBefore(PreciseDateTime.now().toUtc()) ==
       true;
 
+  /// Indicates whether this [AuthService] is considered authorized.
+  bool get _hasAuthorization => credentials.value != null;
+
   @override
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
@@ -239,7 +242,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'recoverUserPassword($login, $num, $email, $phone)',
+      'recoverUserPassword(login: $login, num: $num, email: ***, phone: ***)',
       '$runtimeType',
     );
 
@@ -262,7 +265,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'validateUserPasswordRecoveryCode($login, $num, $email, $phone)',
+      'validateUserPasswordRecoveryCode(code: $code, login: $login, num: $num, email: ***, phone: ***)',
       '$runtimeType',
     );
 
@@ -290,7 +293,7 @@ class AuthService extends GetxService {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
+      'resetUserPassword(code: $code, newPassword: ***, login: $login, num: $num, email: ***, phone: ***)',
       '$runtimeType',
     );
 
@@ -309,21 +312,21 @@ class AuthService extends GetxService {
   ///
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
+  ///
+  /// If [status] is already authorized, then this method does nothing.
   Future<void> register() async {
-    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
-
-    // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
-    // this operation is meant to be invoked only during unauthorized phase.
-    if (isLocked || credentials.value != null) {
-      return;
-    }
-
     Log.debug('register()', '$runtimeType');
 
     status.value = RxStatus.loading();
-    return WebUtils.protect(() async {
+
+    await WebUtils.protect(() async {
+      // If service is already authorized, then no-op, as this operation is
+      // meant to be invoked only during unauthorized phase, or otherwise the
+      // dependencies will be broken as of now.
+      if (_hasAuthorization) {
+        return;
+      }
+
       try {
         final Credentials data = await _authRepository.signUp();
         _authorized(data);
@@ -342,27 +345,26 @@ class AuthService extends GetxService {
   ///
   /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
   Future<void> signUpWithEmail(UserEmail email) async {
-    Log.debug('signUpWithEmail($email)', '$runtimeType');
+    Log.debug('signUpWithEmail(***)', '$runtimeType');
     await _authRepository.signUpWithEmail(email);
   }
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
+  ///
+  /// If [status] is already authorized, then this method does nothing.
   Future<void> confirmSignUpEmail(ConfirmationCode code) async {
-    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
-
-    // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
-    // this operation is meant to be invoked only during unauthorized phase.
-    if (isLocked || credentials.value != null) {
-      return;
-    }
-
     Log.debug('confirmSignUpEmail($code)', '$runtimeType');
 
     status.value = RxStatus.loading();
 
     await WebUtils.protect(() async {
+      // If service is already authorized, then no-op, as this operation is
+      // meant to be invoked only during unauthorized phase, or otherwise the
+      // dependencies will be broken as of now.
+      if (_hasAuthorization) {
+        return;
+      }
+
       try {
         final Credentials data = await _authRepository.confirmSignUpEmail(code);
         _authorized(data);
@@ -388,8 +390,10 @@ class AuthService extends GetxService {
   ///
   /// Throws [CreateSessionException].
   ///
-  /// If [force] is `true`, then signing in will be performed unconditionally
-  /// after the [WebUtils]' lock is released.
+  /// If [status] is already authorized, then this method does nothing, however
+  /// this logic can be ignored by specifying [force] as `true`, but be careful,
+  /// as this also ignores possible [WebUtils.protect] races - you may want to
+  /// lock it before invoking this method to be async-safe.
   Future<void> signIn(
     UserPassword password, {
     UserLogin? login,
@@ -398,25 +402,24 @@ class AuthService extends GetxService {
     UserPhone? phone,
     bool force = false,
   }) async {
-    final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
-
-    // Proceed only if [isLocked] is `false` and [credentials] are `null`, as
-    // this operation is meant to be invoked only during unauthorized phase.
-    // If [force] is `true`, then proceed anyway.
-    if (!force && (isLocked || credentials.value != null)) {
-      return;
-    }
-
     Log.debug(
-      'signIn(***, $login, $num, $email, $phone, force: $force)',
+      'signIn(***, login: $login, num: $num, email: ***, phone: ***, force: $force)',
       '$runtimeType',
     );
 
+    // If [force] is `true`, then [WebUtils.protect] is ignored.
+    final Function protect = force ? (fn) => fn() : WebUtils.protect;
+
     status.value =
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
-    await WebUtils.protect(() async {
+    await protect(() async {
+      // If service is already authorized, then no-op, as this operation is
+      // meant to be invoked only during unauthorized phase, or otherwise the
+      // dependencies will be broken as of now.
+      if (!force && _hasAuthorization) {
+        return;
+      }
+
       try {
         final Credentials creds = await _authRepository.signIn(
           password,
@@ -437,7 +440,7 @@ class AuthService extends GetxService {
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
   Future<void> signInWith(Credentials credentials) async {
-    Log.debug('signInWith($credentials)', '$runtimeType');
+    Log.debug('signInWith(credentials)', '$runtimeType');
 
     // Check if the [credentials] are valid.
     credentials =
@@ -459,6 +462,8 @@ class AuthService extends GetxService {
   Future<String> deleteSession({bool force = false}) async {
     Log.debug('deleteSession(force: $force)', '$runtimeType');
 
+    status.value = RxStatus.empty();
+
     if (force) {
       if (userId != null) {
         _authRepository.removeAccount(userId!);
@@ -467,32 +472,32 @@ class AuthService extends GetxService {
       return _unauthorized();
     }
 
-    status.value = RxStatus.empty();
+    return await WebUtils.protect(() async {
+      try {
+        FcmRegistrationToken? fcmToken;
 
-    try {
-      FcmRegistrationToken? fcmToken;
+        if (PlatformUtils.pushNotifications) {
+          final NotificationSettings settings =
+              await FirebaseMessaging.instance.getNotificationSettings();
 
-      if (PlatformUtils.pushNotifications) {
-        final NotificationSettings settings =
-            await FirebaseMessaging.instance.getNotificationSettings();
+          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            final String? token = await FirebaseMessaging.instance.getToken(
+              vapidKey: Config.vapidKey,
+            );
 
-        if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-          final String? token = await FirebaseMessaging.instance.getToken(
-            vapidKey: Config.vapidKey,
-          );
-
-          if (token != null) {
-            fcmToken = FcmRegistrationToken(token);
+            if (token != null) {
+              fcmToken = FcmRegistrationToken(token);
+            }
           }
         }
+
+        await _authRepository.deleteSession(fcmToken);
+      } catch (e) {
+        printError(info: e.toString());
       }
 
-      await _authRepository.deleteSession(fcmToken);
-    } catch (e) {
-      printError(info: e.toString());
-    }
-
-    return _unauthorized();
+      return _unauthorized();
+    });
   }
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
@@ -501,8 +506,6 @@ class AuthService extends GetxService {
   /// Returns the path of the authentication page.
   Future<String> logout() async {
     Log.debug('logout()', '$runtimeType');
-
-    status.value = RxStatus.empty();
 
     if (userId != null) {
       _authRepository.removeAccount(userId!);
@@ -515,12 +518,14 @@ class AuthService extends GetxService {
   Future<bool> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    try {
-      await _authRepository.validateToken();
-      return true;
-    } on AuthorizationException {
-      return false;
-    }
+    return await WebUtils.protect(() async {
+      try {
+        await _authRepository.validateToken();
+        return true;
+      } on AuthorizationException {
+        return false;
+      }
+    });
   }
 
   /// Refreshes the current [credentials].
@@ -529,10 +534,7 @@ class AuthService extends GetxService {
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    Log.debug(
-      'refreshSession() with `isLocked`: $isLocked',
-      '$runtimeType',
-    );
+    Log.debug('refreshSession() with `isLocked`: $isLocked', '$runtimeType');
 
     try {
       // Do not perform renew since some other task has already renewed it. But

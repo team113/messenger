@@ -416,6 +416,8 @@ class MyProfileController extends GetxController {
   Future<void> deleteAccount() async {
     try {
       await _myUserService.deleteMyUser();
+      router.auth();
+      router.tab = HomeTab.chats;
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;

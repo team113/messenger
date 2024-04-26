@@ -28,6 +28,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
+import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -116,13 +117,12 @@ class MyUserService extends DisposableService {
         return;
       }
 
-      // TODO: Ensure [AuthService] doesn't call `refreshSession` during that.
-      await _userRepo.updateUserPassword(oldPassword, newPassword);
-      await _auth.signIn(
-        newPassword,
-        num: myUser.value?.num,
-        force: true,
-      );
+      await WebUtils.protect(() async {
+        await _userRepo.updateUserPassword(oldPassword, newPassword);
+
+        // TODO: Replace `force` with something more granular and correct.
+        await _auth.signIn(newPassword, num: myUser.value?.num, force: true);
+      });
     });
   }
 
