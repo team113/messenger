@@ -188,9 +188,7 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
         : (document['user']?['agent']?['version'] ?? '');
 
-    userAgentVersion = version.isNotEmpty
-        ? version
-        : (Pubspec.ref ?? Config.version ?? Pubspec.version);
+    userAgentVersion = version.isNotEmpty ? version : Pubspec.ref;
 
     clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
         ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
