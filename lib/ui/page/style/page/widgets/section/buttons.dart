@@ -281,19 +281,23 @@ class ButtonsSection {
           ],
         ),
       ),
-      const Headlines(
+      Headlines(
         children: [
           (
             headline: 'DownloadButton.windows',
-            widget: DownloadButton.windows(),
+            widget: const DownloadButton.windows(),
           ),
           (
             headline: 'DownloadButton.macos',
-            widget: DownloadButton.macos(),
+            widget: const DownloadButton.macos(),
           ),
           (
             headline: 'DownloadButton.linux',
-            widget: DownloadButton.linux(),
+            widget: const DownloadButton.linux(),
+          ),
+          (
+            headline: 'DownloadButton.ios',
+            widget: const DownloadButton.ios(),
           ),
           (
             headline: 'DownloadButton.appStore',
@@ -305,7 +309,7 @@ class ButtonsSection {
           ),
           (
             headline: 'DownloadButton.android',
-            widget: DownloadButton.android(),
+            widget: const DownloadButton.android(),
           ),
         ],
       ),

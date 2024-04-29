@@ -18,7 +18,9 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
+import '/config.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/login/widget/primary_button.dart';
@@ -27,6 +29,7 @@ import '/ui/widget/markdown.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/worker/upgrade.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// Upgrade to [Release] prompt modal.
@@ -84,14 +87,30 @@ class UpgradePopupView extends StatelessWidget {
                   release.assets.firstWhereOrNull((e) => e.os == 'ios');
 
               children = [
-                if (windows != null) DownloadButton.windows(link: windows.url),
-                const SizedBox(height: 8),
-                if (macos != null) DownloadButton.macos(link: macos.url),
-                const SizedBox(height: 8),
-                if (linux != null) DownloadButton.linux(link: linux.url),
-                const SizedBox(height: 8),
-                if (ios != null) DownloadButton.appStore(link: ios.url),
-                const SizedBox(height: 8),
+                if (windows != null) ...[
+                  DownloadButton.windows(link: windows.url),
+                  const SizedBox(height: 8),
+                ],
+                if (macos != null) ...[
+                  DownloadButton.macos(link: macos.url),
+                  const SizedBox(height: 8),
+                ],
+                if (linux != null) ...[
+                  DownloadButton.linux(link: linux.url),
+                  const SizedBox(height: 8),
+                ],
+                if (Config.appStoreLink.isNotEmpty) ...[
+                  DownloadButton.appStore(),
+                  const SizedBox(height: 8),
+                ],
+                if (ios != null) ...[
+                  DownloadButton.ios(link: ios.url),
+                  const SizedBox(height: 8),
+                ],
+                if (Config.googlePlayLink.isNotEmpty) ...[
+                  DownloadButton.googlePlay(),
+                  const SizedBox(height: 8),
+                ],
                 if (android != null) DownloadButton.android(link: android.url),
               ]
                   .map(
@@ -157,8 +176,17 @@ class UpgradePopupView extends StatelessWidget {
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('DownloadButton'),
-                          onPressed: () =>
-                              c.screen.value = UpgradePopupScreen.download,
+                          onPressed: Config.downloadable
+                              ? () =>
+                                  c.screen.value = UpgradePopupScreen.download
+                              : PlatformUtils.isIOS &&
+                                      Config.appStoreLink.isNotEmpty
+                                  ? () => launchUrlString(Config.appStoreLink)
+                                  : PlatformUtils.isAndroid &&
+                                          Config.googlePlayLink.isNotEmpty
+                                      ? () =>
+                                          launchUrlString(Config.googlePlayLink)
+                                      : null,
                           title: 'btn_download'.l10n,
                         ),
                       ),

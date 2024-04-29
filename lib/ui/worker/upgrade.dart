@@ -98,30 +98,31 @@ class UpgradeWorker extends DisposableService {
             '$runtimeType',
           );
 
-          Version? ours;
-          try {
-            ours = Version.parse(Pubspec.ref ?? '');
-          } catch (e) {
-            // No-op.
-          }
+          if (release.name != Pubspec.ref) {
+            Version? ours;
+            try {
+              ours = Version.parse(Pubspec.ref ?? '');
+            } catch (e) {
+              // No-op.
+            }
 
-          Version? their;
-          try {
-            their = Version.parse(release.name);
-          } catch (e) {
-            // No-op.
-          }
+            Version? their;
+            try {
+              their = Version.parse(release.name);
+            } catch (e) {
+              // No-op.
+            }
 
-          final bool critical = ours?.isCritical(their) ?? false;
-          Log.debug(
-            'Whether `$ours` is considered critical relative to `$their`: $critical',
-            '$runtimeType',
-          );
+            final bool critical = ours?.isCritical(their) ?? false;
+            Log.debug(
+              'Whether `$ours` is considered critical relative to `$their`: $critical',
+              '$runtimeType',
+            );
 
-          final bool skipped =
-              !critical && _skippedLocal?.get() == release.name;
-          if (release.name != Pubspec.ref && !skipped) {
-            _schedulePopup(release, critical: critical);
+            final bool skipped = _skippedLocal?.get() == release.name;
+            if (critical || (!skipped && Config.downloadable)) {
+              _schedulePopup(release, critical: critical);
+            }
           }
         }
       }
