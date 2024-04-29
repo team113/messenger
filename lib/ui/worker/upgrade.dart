@@ -101,7 +101,7 @@ class UpgradeWorker extends DisposableService {
           if (release.name != Pubspec.ref) {
             Version? ours;
             try {
-              ours = VersionExtension.parse(Pubspec.ref ?? '');
+              ours = VersionExtension.parse(Pubspec.ref);
             } catch (e) {
               // No-op.
             }
@@ -116,7 +116,7 @@ class UpgradeWorker extends DisposableService {
             // Shouldn't prompt user with versions lower than current.
             final bool lower = ours != null && their != null
                 ? ours < their
-                : Pubspec.ref?.compareTo(release.name) == -1;
+                : Pubspec.ref.compareTo(release.name) == -1;
             Log.debug(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',

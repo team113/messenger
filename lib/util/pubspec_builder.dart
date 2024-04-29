@@ -71,14 +71,14 @@ class PubspecBuilder implements Builder {
           ref = ref.substring(0, ref.length - 1);
         }
 
-        buffer.write('  static const String? ref = \'$ref\';\n');
+        buffer.write('  static const String ref = \'$ref\';\n');
       } else {
         // ignore: avoid_print
         print(
           '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
         );
 
-        buffer.write('  static const String? ref = null;\n');
+        buffer.write('  static const String ref = version;\n');
       }
     } catch (e) {
       // ignore: avoid_print
@@ -86,7 +86,7 @@ class PubspecBuilder implements Builder {
         '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable failed: ${e.toString()}',
       );
 
-      buffer.write('  static const String? ref = null;\n');
+      buffer.write('  static const String ref = version;\n');
     }
 
     buffer.write('}\n');
