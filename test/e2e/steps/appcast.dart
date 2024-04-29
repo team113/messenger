@@ -27,11 +27,13 @@ import 'package:messenger/util/platform_utils.dart';
 import '../parameters/appcast_version.dart';
 import '../world/custom_world.dart';
 
-/// Mocks the [Dio] to response to `/appcast.xml` request with a hardcoded
+/// Mocks the [Dio] to respond to `/appcast.xml` request with a hardcoded
 /// Sparkle Appcast XML.
 ///
 /// Examples:
-/// - Given appcast is available
+/// - Given appcast is with current available
+/// - Given appcast is with newer available
+/// - Given appcast is with critical available
 final StepDefinitionGeneric appcastIsAvailable =
     given1<AppcastVersion, CustomWorld>(
   'appcast with {version} version is available',
