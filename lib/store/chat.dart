@@ -897,17 +897,12 @@ class ChatRepository extends DisposableInterface
   ) async {
     Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
 
+    // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
+    // link right away.
+    await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+
     final HiveRxChat? chat = chats[chatId];
-    final ChatDirectLink? link = chat?.chat.value.directLink;
-
     chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
-
-    try {
-      await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
-    } catch (_) {
-      chat?.chat.update((c) => c?.directLink = link);
-      rethrow;
-    }
   }
 
   @override
