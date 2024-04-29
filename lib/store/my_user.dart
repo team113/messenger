@@ -634,13 +634,9 @@ class MyUserRepository implements AbstractMyUserRepository {
   void _populateMyUsers() {
     // Log.debug('_populateMyUsers()', '$runtimeType');
 
-    final Iterable<UserId> authenticatedIds =
-        _credentialsLocal.valuesSafe.map((e) => e.userId);
-
     myUsers.value = {
       for (final HiveMyUser u in _myUserLocal.valuesSafe)
-        if (authenticatedIds.contains(u.value.id))
-          u.value.id: myUsers[u.value.id] ?? Rx(u.value),
+        u.value.id: myUsers[u.value.id] ?? Rx(u.value),
     };
 
     Log.debug(
