@@ -30,6 +30,7 @@ void main() {
     expect(ver.minor, 1);
     expect(ver.patch, 0);
     expect(ver.preRelease, []);
+    expect(ver.build, []);
 
     str = '1.2.3';
     ver = Version.parse(str);
@@ -38,6 +39,7 @@ void main() {
     expect(ver.minor, 2);
     expect(ver.patch, 3);
     expect(ver.preRelease, []);
+    expect(ver.build, []);
 
     str = '1.2.3-alpha.1';
     ver = Version.parse(str);
@@ -46,6 +48,7 @@ void main() {
     expect(ver.minor, 2);
     expect(ver.patch, 3);
     expect(ver.preRelease, ['alpha', 1]);
+    expect(ver.build, []);
 
     str = '123.456.789-beta.2512';
     ver = Version.parse(str);
@@ -54,6 +57,16 @@ void main() {
     expect(ver.minor, 456);
     expect(ver.patch, 789);
     expect(ver.preRelease, ['beta', 2512]);
+    expect(ver.build, []);
+
+    str = '123.456.789-beta.2512+123.3';
+    ver = VersionExtension.parse(str);
+    expect(ver.toString(), str);
+    expect(ver.major, 123);
+    expect(ver.minor, 456);
+    expect(ver.patch, 789);
+    expect(ver.preRelease, ['beta', 2512]);
+    expect(ver.build, [123, 3]);
 
     str = 'not.a.sem-ver';
     expect(() => Version.parse(str), throwsA(isA<FormatException>()));
@@ -72,6 +85,51 @@ void main() {
 
     str = '-1.2.3';
     expect(() => Version.parse(str), throwsA(isA<FormatException>()));
+  });
+
+  test('VersionExtension correctly parses versions', () async {
+    var str = '0.1.0';
+    var ver = VersionExtension.parse(str);
+    expect(ver.major, 0);
+    expect(ver.minor, 1);
+    expect(ver.patch, 0);
+    expect(ver.preRelease, []);
+    expect(ver.build, []);
+
+    str = '1.2.3';
+    ver = VersionExtension.parse(str);
+    expect(ver.major, 1);
+    expect(ver.minor, 2);
+    expect(ver.patch, 3);
+    expect(ver.preRelease, []);
+    expect(ver.build, []);
+
+    str = '1.2.3-alpha.1';
+    ver = VersionExtension.parse(str);
+    expect(ver.toString(), str);
+    expect(ver.major, 1);
+    expect(ver.minor, 2);
+    expect(ver.patch, 3);
+    expect(ver.preRelease, ['alpha', 1]);
+    expect(ver.build, []);
+
+    str = '123.456.789-beta.2512';
+    ver = VersionExtension.parse(str);
+    expect(ver.toString(), str);
+    expect(ver.major, 123);
+    expect(ver.minor, 456);
+    expect(ver.patch, 789);
+    expect(ver.preRelease, ['beta', 2512]);
+    expect(ver.build, []);
+
+    str = '123.456.789-beta.2512+123.3';
+    ver = VersionExtension.parse(str);
+    expect(ver.toString(), str);
+    expect(ver.major, 123);
+    expect(ver.minor, 456);
+    expect(ver.patch, 789);
+    expect(ver.preRelease, ['beta', 2512]);
+    expect(ver.build, [123, 3]);
   });
 
   test('Version correctly compares the versions', () async {
@@ -135,6 +193,21 @@ void main() {
     );
     expect(
       Version(0, 1, 0, pre: 'rc') == Version(0, 1, 0, pre: 'rc'),
+      true,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'alpha.13.4') < Version(0, 1, 0, pre: 'alpha.13.5'),
+      true,
+    );
+
+    expect(
+      VersionExtension.parse('0.1.0-alpha.13-15-g0e28f1c14e-dirty') <
+          VersionExtension.parse('0.1.0-alpha.14'),
+      true,
+    );
+    expect(
+      VersionExtension.parse('0.1.0-alpha.13-15') <
+          VersionExtension.parse('0.1.0-alpha.14'),
       true,
     );
   });

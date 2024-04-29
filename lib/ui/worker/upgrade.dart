@@ -101,18 +101,28 @@ class UpgradeWorker extends DisposableService {
           if (release.name != Pubspec.ref) {
             Version? ours;
             try {
-              ours = Version.parse(Pubspec.ref ?? '');
+              ours = VersionExtension.parse(Pubspec.ref ?? '');
             } catch (e) {
               // No-op.
             }
 
             Version? their;
             try {
-              their = Version.parse(release.name);
+              their = VersionExtension.parse(release.name);
             } catch (e) {
               // No-op.
             }
 
+            // Shouldn't prompt user with versions lower than current.
+            final bool lower = ours != null && their != null
+                ? ours < their
+                : Pubspec.ref?.compareTo(release.name) == -1;
+            Log.debug(
+              'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
+              '$runtimeType',
+            );
+
+            // Critical releases must always be displayed and can't be skipped.
             final bool critical = ours?.isCritical(their) ?? false;
             Log.debug(
               'Whether `$ours` is considered critical relative to `$their`: $critical',
@@ -120,7 +130,7 @@ class UpgradeWorker extends DisposableService {
             );
 
             final bool skipped = _skippedLocal?.get() == release.name;
-            if (critical || (!skipped && Config.downloadable)) {
+            if (critical || (lower && !skipped && Config.downloadable)) {
               _schedulePopup(release, critical: critical);
             }
           }
@@ -443,5 +453,33 @@ extension CriticalVersionExtension on Version {
     // Example: `1.0.0` -> `1.0.1` => `false`.
     // Example: `1.0.0` -> `1.2.3` => `false`.
     return false;
+  }
+}
+
+/// Extension adding [Version]s parsing with hyphens in pre-releases parsed as
+/// separate parts.
+extension VersionExtension on Version {
+  /// Returns the [Version] parsed from the [text] with the hyphens in
+  /// pre-releases being parsed as a separate parts, if any.
+  ///
+  /// Example: `0.1.0-alpha.13-5-qwe` -> `preRelease: ['alpha', 13, 5, 'qwe']`.
+  ///
+  /// This is required due to [PubspecBuilder] using `git describe --tags`,
+  /// which returns hyphens instead of dots, and replacing that behavior seems a
+  /// bigger evil than this.
+  static Version parse(String text) {
+    final Version parsed = Version.parse(text);
+
+    return Version(
+      parsed.major,
+      parsed.minor,
+      parsed.patch,
+      pre: parsed.preRelease.isEmpty
+          ? null
+          : parsed.preRelease
+              .map((e) => e is String ? e.replaceAll('-', '.') : e)
+              .join('.'),
+      build: parsed.build.isEmpty ? null : parsed.build.join('.'),
+    );
   }
 }

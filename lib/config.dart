@@ -169,7 +169,7 @@ class Config {
         : (document['downloads']?['directory'] ?? downloads);
 
     downloadable = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
-        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+        ? const bool.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
         : (document['downloads']?['downloadable'] ?? downloadable);
 
     appStoreLink = const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE')
