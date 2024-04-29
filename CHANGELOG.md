@@ -11,13 +11,20 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.13.4...v0.1.0-alpha.14) | [Milestone](/../../milestone/23)
 
+### Changed
+
+- UI:
+    - Update available popup displaying critical updates. ([#973], [#896])
+
 ### Fixed
 
 - UI:
     - Home page:
         - Own avatar displaying with question marks when signing in or signing up. ([#978], [#950])
 
+[#896]: /../../issues/896
 [#950]: /../../issues/950
+[#973]: /../../pull/973
 [#978]: /../../pull/978
 
 
