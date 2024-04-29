@@ -18,6 +18,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned editing mode. ([#980], [#948])
     - User page:
         - Redesigned editing mode. ([#980], [#948])
+    - Profile page:
+        - Redesigned editing mode. ([#980], [#948])
 
 ### Fixed
 
