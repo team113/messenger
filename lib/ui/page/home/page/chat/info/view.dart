@@ -19,6 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
@@ -474,6 +475,7 @@ class ChatInfoView extends StatelessWidget {
     final Widget editButton = Obx(key: const Key('MoreButton'), () {
       final bool favorite = c.chat?.chat.value.favoritePosition != null;
       final bool hasCall = c.chat?.chat.value.ongoingCall != null;
+      final bool muted = c.chat?.chat.value.muted != null;
 
       return ContextMenuRegion(
         key: c.moreKey,
@@ -524,6 +526,26 @@ class ChatInfoView extends StatelessWidget {
                   : SvgIcons.unfavoriteSmallWhite,
             ),
           ),
+          if (!c.isMonolog)
+            ContextMenuButton(
+              key: Key(
+                muted ? 'UnmuteChatButton' : 'MuteChatButton',
+              ),
+              label: muted
+                  ? PlatformUtils.isMobile
+                      ? 'btn_unmute'.l10n
+                      : 'btn_unmute_chat'.l10n
+                  : PlatformUtils.isMobile
+                      ? 'btn_mute'.l10n
+                      : 'btn_mute_chat'.l10n,
+              trailing: SvgIcon(
+                muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+              ),
+              inverted: SvgIcon(
+                muted ? SvgIcons.unmuteSmallWhite : SvgIcons.muteSmallWhite,
+              ),
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+            ),
           if (!c.isMonolog)
             ContextMenuButton(
               onPressed: () => _reportChat(c, context),

@@ -1529,26 +1529,26 @@ class SvgIcons {
 
   static const SvgData addContact = SvgData(
     'assets/icons/add_contact.svg',
-    width: 21.01,
-    height: 19.43,
+    width: 21.13,
+    height: 19.93,
   );
 
   static const SvgData addContactWhite = SvgData(
     'assets/icons/add_contact_white.svg',
-    width: 21.01,
-    height: 19.43,
+    width: 21.13,
+    height: 19.93,
   );
 
   static const SvgData deleteContact = SvgData(
     'assets/icons/delete_contact.svg',
-    width: 21.01,
-    height: 19.43,
+    width: 20.25,
+    height: 19.05,
   );
 
   static const SvgData deleteContactWhite = SvgData(
     'assets/icons/delete_contact_white.svg',
-    width: 21.01,
-    height: 19.43,
+    width: 20.25,
+    height: 19.05,
   );
 
   static const SvgData group = SvgData(
@@ -1891,5 +1891,17 @@ class SvgIcons {
     'assets/icons/work_designer.svg',
     width: 32,
     height: 32,
+  );
+
+  static const SvgData addParticipant = SvgData(
+    'assets/icons/add_participant.svg',
+    width: 21.48,
+    height: 21,
+  );
+
+  static const SvgData addParticipantWhite = SvgData(
+    'assets/icons/add_participant_white.svg',
+    width: 21.48,
+    height: 21,
   );
 }

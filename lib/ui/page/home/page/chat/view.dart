@@ -57,6 +57,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'forward/view.dart';
+import 'info/add_member/controller.dart';
 import 'message_field/controller.dart';
 import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
@@ -347,19 +348,33 @@ class ChatView extends StatelessWidget {
                                       right: 10,
                                     ),
                                     actions: [
-                                      ContextMenuButton(
-                                        label: 'Bot: ${c.botEnabled.value}',
-                                        onPressed: () {
-                                          c.botEnabled.toggle();
-                                          c.elements.refresh();
-                                        },
-                                      ),
+                                      // ContextMenuButton(
+                                      //   label: 'Bot: ${c.botEnabled.value}',
+                                      //   onPressed: () {
+                                      //     c.botEnabled.toggle();
+                                      //     c.elements.refresh();
+                                      //   },
+                                      // ),
                                       ContextMenuButton(
                                         label: 'Debug: ${c.showCommands.value}',
                                         onPressed: () {
                                           c.showCommands.toggle();
                                           c.elements.refresh();
                                         },
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_add_participant'.l10n,
+                                        onPressed: () async =>
+                                            await AddChatMemberView.show(
+                                          context,
+                                          chatId: id,
+                                        ),
+                                        trailing: const SvgIcon(
+                                          SvgIcons.addParticipant,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.addParticipantWhite,
+                                        ),
                                       ),
                                       if (c.callPosition ==
                                           CallButtonsPosition.contextMenu) ...[
@@ -921,7 +936,10 @@ class ChatView extends StatelessWidget {
                     repliesTo: e.value,
                   ),
                   actions: [
-                    if (c.botEnabled.value)
+                    // if (c.botEnabled.value)
+                    if (c.chat?.bots
+                            .any((e) => e.title == 'Translation Service') ==
+                        true)
                       ContextMenuButton(
                         onPressed: () => c.postCommand(
                           '/translate',
@@ -1501,7 +1519,7 @@ class ChatView extends StatelessWidget {
             c.animateTo(item.id, item: item, addToHistory: false),
         canForward: true,
         onAttachmentError: c.chat?.updateAttachments,
-        symbols: c.hasBot,
+        // symbols: c.hasBot,
       );
     });
   }

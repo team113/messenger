@@ -977,6 +977,19 @@ class HiveRxChat extends RxChat {
   }
 
   @override
+  final RxList<RxUser> bots = RxList();
+
+  @override
+  Future<void> addBot(RxUser user) async {
+    bots.add(user);
+  }
+
+  @override
+  Future<void> removeBot(RxUser user) async {
+    bots.remove(user);
+  }
+
+  @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
   /// Puts the provided [member] to the [members].

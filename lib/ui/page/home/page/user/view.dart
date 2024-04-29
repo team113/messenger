@@ -19,6 +19,11 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/config.dart';
+import 'package:messenger/domain/model/my_user.dart';
+import 'package:messenger/domain/repository/user.dart';
+import 'package:messenger/ui/page/home/page/chat/info/add_member/view.dart';
+import 'package:messenger/ui/widget/member_tile.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/domain/model/chat.dart';
@@ -59,7 +64,14 @@ class UserView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
+      init: UserController(
+        id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       tag: id.val,
       global: !Get.isRegistered<UserController>(tag: id.val),
       builder: (UserController c) {
@@ -100,6 +112,14 @@ class UserView extends StatelessWidget {
             highlighted(index: 0, child: _profile(c, context)),
             _bio(c, context),
             _info(c),
+            Obx(() {
+              final RxUser user = c.user!;
+              if (user.dialog.value != null) {
+                return _members(c, context);
+              }
+
+              return const SizedBox();
+            }),
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
             ),
@@ -262,6 +282,115 @@ class UserView extends StatelessWidget {
           Paddings.basic(
             InfoTile(title: 'label_about'.l10n, content: bio.toString()),
           ),
+      ],
+    );
+  }
+
+  /// Returns the [Block] displaying the [Chat.members].
+  Widget _members(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+    final RxChat dialog = c.user!.dialog.value!;
+
+    return Block(
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      title: 'label_participants'.l10nfmt({'count': 2}),
+      children: [
+        Obx(() {
+          final List<RxUser> members = [];
+
+          for (var u in dialog.members.values) {
+            if (u.user.id != c.me) {
+              members.add(u.user);
+            }
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 500),
+                child: ListView.builder(
+                  key: const Key('ChatMembers'),
+                  shrinkWrap: true,
+                  itemCount: members.length + 1,
+                  itemBuilder: (_, i) {
+                    i--;
+
+                    Widget child;
+
+                    final bool hasCall = dialog.chat.value.ongoingCall != null;
+
+                    if (i == -1) {
+                      final MyUser? myUser = c.myUser.value;
+                      final bool inCall = dialog.inCall.value == true;
+
+                      child = MemberTile(
+                        myUser: myUser,
+                        inCall: hasCall ? inCall : null,
+                        onCall: inCall
+                            ? () {
+                                if (myUser != null) {
+                                  c.removeChatCallMember(myUser.id);
+                                }
+                              }
+                            : c.joinCall,
+                      );
+                    } else {
+                      final RxUser member = members[i];
+
+                      final bool inCall = dialog.chat.value.ongoingCall?.members
+                              .any((u) => u.user.id == member.id) ==
+                          true;
+
+                      child = MemberTile(
+                        user: member,
+                        inCall: hasCall ? inCall : null,
+                        onTap: () =>
+                            router.chat(member.user.value.dialog, push: true),
+                        onCall: inCall
+                            ? () => c.removeChatCallMember(member.id)
+                            : () => c.redialChatCallMember(member.id),
+                      );
+                    }
+
+                    child = Padding(
+                      padding: const EdgeInsets.only(right: 10, left: 10),
+                      child: child,
+                    );
+
+                    if (i == members.length - 1 &&
+                        dialog.members.hasNext.value) {
+                      child = Column(
+                        children: [
+                          child,
+                          CustomProgressIndicator(
+                            key: const Key('MembersLoading'),
+                            value: Config.disableInfiniteAnimations ? 0 : null,
+                          )
+                        ],
+                      );
+                    }
+
+                    return child;
+                  },
+                ),
+              ),
+            ],
+          );
+        }),
+        const SizedBox(height: 16),
+        SelectionContainer.disabled(
+          child: WidgetButton(
+            onPressed: () async => await AddChatMemberView.show(
+              context,
+              chatId: dialog.id,
+            ),
+            child: Text(
+              'btn_add_participant'.l10n,
+              style: style.fonts.small.regular.primary,
+            ),
+          ),
+        ),
       ],
     );
   }

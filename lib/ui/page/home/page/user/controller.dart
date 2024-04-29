@@ -21,6 +21,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -51,6 +52,8 @@ import '/provider/gql/exceptions.dart'
         FavoriteChatContactException,
         HideChatException,
         JoinChatCallException,
+        RedialChatCallMemberException,
+        RemoveChatCallMemberException,
         ToggleChatMuteException,
         UnfavoriteChatContactException,
         UnfavoriteChatException,
@@ -70,6 +73,7 @@ class UserController extends GetxController {
     this._contactService,
     this._chatService,
     this._callService,
+    this._myUserService,
   );
 
   /// ID of the [User] this [UserController] represents.
@@ -140,6 +144,8 @@ class UserController extends GetxController {
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
 
+  final MyUserService _myUserService;
+
   /// [Worker] reacting on the [RxUser.contact] changes updating the [_worker].
   Worker? _contactWorker;
 
@@ -174,6 +180,8 @@ class UserController extends GetxController {
   ///
   /// Only meaningful, if [user] is non-`null`.
   Rx<RxChatContact?> get contact => user!.contact;
+
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns [ChatContactId] of the [contact].
   ///
@@ -287,6 +295,35 @@ class UserController extends GetxController {
 
   /// Drops the [OngoingCall] happening in the [RxUser.dialog].
   Future<void> dropCall() => _callService.leave(user!.user.value.dialog);
+
+  /// Redials the [User] identified by its [userId].
+  Future<void> redialChatCallMember(UserId userId) async {
+    if (userId == me) {
+      await _callService.join(user!.user.value.dialog);
+      return;
+    }
+
+    try {
+      await _callService.redialChatCallMember(user!.user.value.dialog, userId);
+    } on RedialChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the specified [User] from a [OngoingCall] happening in the [chat].
+  Future<void> removeChatCallMember(UserId userId) async {
+    try {
+      await _callService.removeChatCallMember(user!.user.value.dialog, userId);
+    } on RemoveChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
   /// Blocks the [user] for the authenticated [MyUser].
   Future<void> block() async {

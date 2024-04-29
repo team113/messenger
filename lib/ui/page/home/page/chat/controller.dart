@@ -217,7 +217,7 @@ class ChatController extends GetxController {
   static const double loaderHeight = 64;
 
   final RxBool showCommands = RxBool(false);
-  final RxBool botEnabled = RxBool(true);
+  // final RxBool botEnabled = RxBool(true);
 
   /// [ListElementId] of an item from the [elements] that should be highlighted.
   final Rx<ListElementId?> highlighted = Rx<ListElementId?>(null);
@@ -723,8 +723,6 @@ class ChatController extends GetxController {
     );
   }
 
-  bool hasBot = false;
-
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
     ISentrySpan span = _ready.startChild('fetch');
@@ -933,30 +931,30 @@ class ChatController extends GetxController {
         }
       }
 
-      if (chat?.chat.value.isDialog ?? false) {
-        botEnabled.value = chat!.chat.value.members.any(
-          (e) =>
-              e.user.id != me &&
-              (e.user.name?.val == 'alex2' ||
-                  e.user.name?.val == 'Alex' ||
-                  e.user.name?.val == 'nikita'),
-        );
+      // if (chat?.chat.value.isDialog ?? false) {
+      //   botEnabled.value = chat!.chat.value.members.any(
+      //     (e) =>
+      //         e.user.id != me &&
+      //         (e.user.name?.val == 'alex2' ||
+      //             e.user.name?.val == 'Alex' ||
+      //             e.user.name?.val == 'nikita'),
+      //   );
 
-        if (botEnabled.value) {
-          final info = BotInfoElement(
-            'Translated dialog. English - Russian. Translation cost: \$1.110681 (€0.99) per 100 symbols.',
-            at: PreciseDateTime.now(),
-          );
-          elements[info.id] = info;
+      //   if (botEnabled.value) {
+      //     final info = BotInfoElement(
+      //       'Translated dialog. English - Russian. Translation cost: \$1.110681 (€0.99) per 100 symbols.',
+      //       at: PreciseDateTime.now(),
+      //     );
+      //     elements[info.id] = info;
 
-          // final action = BotActionElement(
-          //   'Submit',
-          //   at: PreciseDateTime.now().add(const Duration(milliseconds: 1)),
-          // );
+      //     // final action = BotActionElement(
+      //     //   'Submit',
+      //     //   at: PreciseDateTime.now().add(const Duration(milliseconds: 1)),
+      //     // );
 
-          // elements[action.id] = action;
-        }
-      }
+      //     // elements[action.id] = action;
+      //   }
+      // }
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _ensureScrollable();

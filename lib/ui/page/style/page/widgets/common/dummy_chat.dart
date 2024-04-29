@@ -17,6 +17,7 @@
 
 import 'package:get/get.dart';
 
+import '../../../../../../domain/repository/user.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -133,4 +134,20 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Future<void> addBot(RxUser user) {
+    // TODO: implement addBot
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement bots
+  RxList<RxUser> get bots => RxList();
+
+  @override
+  Future<void> removeBot(RxUser user) {
+    // TODO: implement removeBot
+    throw UnimplementedError();
+  }
 }

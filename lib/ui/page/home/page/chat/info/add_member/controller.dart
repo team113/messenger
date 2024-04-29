@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../../../../../../../routes.dart';
 import '/api/backend/schema.graphql.dart' show AddChatMemberErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -110,7 +111,29 @@ class AddChatMemberController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
-    pop?.call();
+    if (chat.value?.chat.value.isGroup == false) {
+      if (ids.length == 1) {
+        final user = await _userService.get(ids.first);
+        if (user?.isBot == true) {
+          chat.value?.addBot(user!);
+          return;
+        }
+      }
+
+      try {
+        chat.value = await _chatService.createGroupChat(ids);
+        pop?.call();
+
+        router.chat(chat.value!.id);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      } finally {
+        status.value = RxStatus.empty();
+      }
+
+      return;
+    }
 
     try {
       final Iterable<Future> futures = ids.map(

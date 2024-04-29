@@ -192,6 +192,7 @@ class ContactTile extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (user?.isBot == true) const Text('Bot'),
                   ...trailing,
                 ],
               ),

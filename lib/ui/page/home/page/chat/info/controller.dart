@@ -22,6 +22,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -420,6 +421,33 @@ class ChatInfoController extends GetxController {
     try {
       await _callService.redialChatCallMember(chatId, userId);
     } on RedialChatCallMemberException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
+    try {
+      await _chatService.toggleChatMute(
+        chat?.id ?? chatId,
+        MuteDuration.forever(),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? chatId, null);
+    } on ToggleChatMuteException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

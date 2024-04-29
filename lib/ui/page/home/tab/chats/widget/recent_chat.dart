@@ -191,6 +191,14 @@ class RecentChatTile extends StatelessWidget {
           dimmed: blocked,
           status: [
             const SizedBox(height: 28),
+            if (chat.isBot == true) ...[
+              Icon(
+                Icons.smart_toy,
+                size: 20,
+                color:
+                    inverted ? style.colors.onPrimary : style.colors.secondary,
+              ),
+            ],
             if (trailing == null) ...[
               _ongoingCall(context, inverted: inverted),
               if (blocked) ...[
