@@ -142,8 +142,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 clearable: true,
                 onSuffixPressed: deletable
                     ? () async {
-                        setState(() => _editing = false);
                         await widget.onSubmit?.call(null);
+                        setState(() => _editing = false);
                       }
                     : null,
                 trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
