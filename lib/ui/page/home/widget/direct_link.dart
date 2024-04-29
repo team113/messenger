@@ -442,24 +442,31 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     }
 
     if (_state.error.value == null) {
-      setState(() => _editing = false);
-      widget.onEditing?.call(false);
-
       if (slug == widget.link?.slug) {
+        setState(() => _editing = false);
+        widget.onEditing?.call(false);
         return;
       }
 
       _state.editable.value = false;
+      _state.status.value = RxStatus.loading();
 
       try {
         await widget.onSubmit?.call(slug);
+        _state.status.value = RxStatus.success();
+        await Future.delayed(const Duration(milliseconds: 300));
+        _state.status.value = RxStatus.empty();
       } on CreateChatDirectLinkException catch (e) {
+        _state.status.value = RxStatus.empty();
         _state.error.value = e.toMessage();
       } catch (e) {
+        _state.status.value = RxStatus.empty();
         _state.error.value = 'err_data_transfer'.l10n;
         _state.unsubmit();
         rethrow;
       } finally {
+        setState(() => _editing = false);
+        widget.onEditing?.call(false);
         _state.editable.value = true;
       }
     }
