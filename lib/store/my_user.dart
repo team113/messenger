@@ -463,20 +463,16 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> deleteChatDirectLink() async {
     Log.debug('deleteChatDirectLink()', '$runtimeType');
 
-    await _debounce(
-      field: MyUserField.chatDirectLink,
-      current: () => myUser.value?.chatDirectLink,
-      saved: () => _active?.value.chatDirectLink,
-      value: null,
-      mutation: (value, previous) async {
-        if (value != null) {
-          return await _graphQlProvider.createUserDirectLink(value.slug);
-        } else {
-          return await _graphQlProvider.deleteUserDirectLink();
-        }
-      },
-      update: (v, p) => myUser.update((u) => u?.chatDirectLink = v),
-    );
+    final ChatDirectLink? link = myUser.value?.chatDirectLink;
+
+    myUser.update((u) => u?.chatDirectLink = null);
+
+    try {
+      await _graphQlProvider.deleteUserDirectLink();
+    } catch (_) {
+      myUser.update((u) => u?.chatDirectLink = link);
+      rethrow;
+    }
   }
 
   @override
@@ -674,13 +670,6 @@ class MyUserRepository implements AbstractMyUserRepository {
 
           if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
             value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
-          }
-
-          if (_pool.lockedWith(
-            MyUserField.chatDirectLink,
-            value?.chatDirectLink,
-          )) {
-            value?.chatDirectLink = myUser.value?.chatDirectLink;
           }
 
           myUser.value = value;
@@ -1241,5 +1230,4 @@ enum MyUserField {
   presence,
   email,
   phone,
-  chatDirectLink,
 }

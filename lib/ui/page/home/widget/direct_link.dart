@@ -142,8 +142,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 clearable: true,
                 onSuffixPressed: deletable
                     ? () async {
-                        await widget.onSubmit?.call(null);
                         setState(() => _editing = false);
+                        await widget.onSubmit?.call(null);
                       }
                     : null,
                 trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
@@ -453,7 +453,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
       try {
         await widget.onSubmit?.call(slug);
-        
+
         _state.status.value = RxStatus.success();
         await Future.delayed(const Duration(milliseconds: 300));
         _state.status.value = RxStatus.empty();
