@@ -55,8 +55,8 @@ final StepDefinitionGeneric appcastIsAvailable =
   <channel>
     <item>
       <title>v${switch (version) {
-                  AppcastVersion.current => Pubspec.version,
-                  AppcastVersion.newer => '${Pubspec.version}+1',
+                  AppcastVersion.current => Pubspec.ref,
+                  AppcastVersion.newer => '${Pubspec.ref}+1',
                   AppcastVersion.critical => '999.0.0',
                 }}</title>
       <description>Description</description>
