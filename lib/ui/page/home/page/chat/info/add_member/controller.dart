@@ -116,6 +116,7 @@ class AddChatMemberController extends GetxController {
         final user = await _userService.get(ids.first);
         if (user?.isBot == true) {
           chat.value?.addBot(user!);
+          pop?.call();
           return;
         }
       }
