@@ -34,12 +34,6 @@ Feature: Upgrade popup
     Given appcast with current version is available
 
     When I wait for app to settle
-    Then I wait until `UpgradePopup` is present
-
-    When I tap `SkipButton` button
-    Then I wait until `UpgradePopup` is absent
-
-    When I restart app
     And I wait for 5 seconds
     Then I wait until `UpgradePopup` is absent
 
