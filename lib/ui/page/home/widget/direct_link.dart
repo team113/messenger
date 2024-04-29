@@ -142,8 +142,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 clearable: true,
                 onSuffixPressed: deletable
                     ? () async {
-                        setState(() => _editing = false);
                         await widget.onSubmit?.call(null);
+                        setState(() => _editing = false);
                       }
                     : null,
                 trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
@@ -442,9 +442,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     }
 
     if (_state.error.value == null) {
-      setState(() => _editing = false);
-      widget.onEditing?.call(false);
-
       if (slug == widget.link?.slug) {
         return;
       }
@@ -453,6 +450,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
       try {
         await widget.onSubmit?.call(slug);
+
+        setState(() => _editing = false);
+        widget.onEditing?.call(false);
       } on CreateChatDirectLinkException catch (e) {
         _state.error.value = e.toMessage();
       } catch (e) {
