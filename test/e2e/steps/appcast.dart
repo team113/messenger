@@ -24,6 +24,7 @@ import 'package:messenger/ui/worker/upgrade.dart';
 import 'package:messenger/util/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import '../parameters/appcast_version.dart';
 import '../world/custom_world.dart';
 
 /// Mocks the [Dio] to response to `/appcast.xml` request with a hardcoded
@@ -31,9 +32,10 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Given appcast is available
-final StepDefinitionGeneric appcastIsAvailable = given<CustomWorld>(
-  'appcast is available',
-  (context) async {
+final StepDefinitionGeneric appcastIsAvailable =
+    given1<AppcastVersion, CustomWorld>(
+  'appcast with {version} version is available',
+  (version, context) async {
     Config.appcast = 'http://localhost/appcast.xml';
 
     PlatformUtils.client?.interceptors
@@ -42,8 +44,6 @@ final StepDefinitionGeneric appcastIsAvailable = given<CustomWorld>(
     (await PlatformUtils.dio).interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print('onRequest: ${options.path} ${options.baseUrl}');
-
           if (options.path == 'http://localhost/appcast.xml') {
             return handler.resolve(
               Response(
@@ -54,7 +54,11 @@ final StepDefinitionGeneric appcastIsAvailable = given<CustomWorld>(
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
     <item>
-      <title>v${Pubspec.ref}+1</title>
+      <title>v${switch (version) {
+                  AppcastVersion.current => Pubspec.version,
+                  AppcastVersion.newer => '${Pubspec.version}+1',
+                  AppcastVersion.critical => '999.0.0',
+                }}</title>
       <description>Description</description>
       <pubDate>Fri, 26 Apr 2024 09:43:16 +0000</pubDate>
       <enclosure sparkle:os="macos" url="messenger-macos.zip" />

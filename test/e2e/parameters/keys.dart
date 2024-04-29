@@ -153,6 +153,7 @@ enum WidgetKey {
   ShowBlocklist,
   SignInButton,
   Signing,
+  SkipButton,
   StartButton,
   SuccessStage,
   Unblock,

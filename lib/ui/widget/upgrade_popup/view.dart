@@ -139,7 +139,7 @@ class UpgradePopupView extends StatelessWidget {
                       if (!critical) ...[
                         Expanded(
                           child: OutlinedRoundedButton(
-                            key: const Key('Skip'),
+                            key: const Key('SkipButton'),
                             maxWidth: double.infinity,
                             onPressed: () {
                               c.skip(release);
@@ -156,7 +156,7 @@ class UpgradePopupView extends StatelessWidget {
                       ],
                       Expanded(
                         child: PrimaryButton(
-                          key: const Key('Download'),
+                          key: const Key('DownloadButton'),
                           onPressed: () =>
                               c.screen.value = UpgradePopupScreen.download,
                           title: 'btn_download'.l10n,

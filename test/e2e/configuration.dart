@@ -33,6 +33,7 @@ import 'hook/performance.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
+import 'parameters/appcast_version.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
 import 'parameters/credentials.dart';
@@ -308,6 +309,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..semanticsEnabled = false
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
+        AppcastVersionParameter(),
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
         CredentialsParameter(),

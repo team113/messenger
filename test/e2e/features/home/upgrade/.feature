@@ -17,20 +17,35 @@
 
 Feature: Upgrade popup
 
-  Scenario: Upgrade popup is displayed
-    Given appcast is available
+  Scenario: Versions prompted in upgrade popups can be skipped
+    Given appcast with newer version is available
 
     When I wait for app to settle
     Then I wait until `UpgradePopup` is present
 
-    When I tap `Skip` button
+    When I tap `SkipButton` button
     Then I wait until `UpgradePopup` is absent
 
-# Scenario: Critical upgrade popup is displayed
-#   Given appcast is available
+    When I restart app
+    And I wait for 5 seconds
+    Then I wait until `UpgradePopup` is absent
 
-#   When I wait for app to settle
-#   Then I wait until `UpgradePopup` is present
+  Scenario: Upgrade popups aren't displayed for current version
+    Given appcast with current version is available
 
-#   When I tap `Skip` button
-#   Then I wait until `UpgradePopup` is absent
+    When I wait for app to settle
+    Then I wait until `UpgradePopup` is present
+
+    When I tap `SkipButton` button
+    Then I wait until `UpgradePopup` is absent
+
+    When I restart app
+    And I wait for 5 seconds
+    Then I wait until `UpgradePopup` is absent
+
+  Scenario: Critical upgrade popup can't be skipped
+    Given appcast with critical version is available
+
+    When I wait for app to settle
+    Then I wait until `UpgradePopup` is present
+    And I wait until `SkipButton` is absent

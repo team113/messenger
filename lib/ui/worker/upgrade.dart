@@ -113,7 +113,11 @@ class UpgradeWorker extends DisposableService {
           }
 
           final bool critical = ours?.isCritical(their) ?? false;
-          print('ours: $ours vs their: $their, critical: $critical');
+          Log.debug(
+            'Whether `$ours` is considered critical relative to `$their`: $critical',
+            '$runtimeType',
+          );
+
           final bool skipped =
               !critical && _skippedLocal?.get() == release.name;
           if (release.name != Pubspec.ref && !skipped) {
@@ -291,8 +295,8 @@ extension Rfc822ToDateTime on DateTime {
   }
 }
 
-/// Extension adding ability to determine critical [Version]s, meaning the ones
-/// user can't skip.
+/// Extension adding ability to determine critical [Version]s, the ones user
+/// can't skip.
 extension CriticalVersionExtension on Version {
   /// Indicates whether this [Version] is considered critical compared to the
   /// [other], meaning the one user can't skip.
@@ -310,7 +314,8 @@ extension CriticalVersionExtension on Version {
   /// - `0.1.0-alpha` -> `0.1.0.alpha.1` => `true`;
   /// - `0.1.0-alpha.1` -> `0.1.0.alpha.2` => `true`;
   /// - `0.1.0-alpha.2` -> `0.1.0.alpha.2.1` => `false`;
-  /// - `0.1.0-alpha.3` -> `0.1.0.beta.1` => `true`;
+  /// - `0.1.0-alpha.2.1` -> `0.1.0.alpha.2.16` => `false`;
+  /// - `0.1.0-alpha.3` -> `0.1.0.beta.3` => `true`;
   /// - `0.1.0` -> `0.2.0-rc` => `false`;
   /// - `0.1.0` -> `1.0.0-beta` => `false`;
   /// - `1.0.0-beta` -> `1.0.0-rc` => `true`.
@@ -326,11 +331,10 @@ extension CriticalVersionExtension on Version {
     }
 
     // First of all, compare pre-releases.
-    //
     if (preRelease.isEmpty && other.preRelease.isNotEmpty) {
       // If the compared version is a pre-release and ours isn't, then the
       // compared is never critical, as we shouldn't update to pre-releases from
-      // stable version.
+      // stable versions.
       //
       // Example: `1.0.0` -> `2.0.0-alpha.1` => `false`.
       return false;
@@ -359,6 +363,14 @@ extension CriticalVersionExtension on Version {
         if (minor < other.minor) {
           return true;
         }
+      }
+
+      // If both versions are different patches and have pre-releases, then this
+      // is a critical release.
+      //
+      // Example: `0.1.0-alpha.1` -> `0.1.1-alpha.1` => `true`.
+      if (patch != other.patch) {
+        return true;
       }
 
       // If pre-releases are equal to each other, then this isn't a critical
@@ -424,139 +436,11 @@ extension CriticalVersionExtension on Version {
       }
     }
 
+    // Otherwise this isn't a critical release.
+    //
+    // Example: `0.1.0` -> `0.1.1` => `false`.
+    // Example: `1.0.0` -> `1.0.1` => `false`.
+    // Example: `1.0.0` -> `1.2.3` => `false`.
     return false;
   }
 }
-
-// class SemVer implements Comparable<SemVer> {
-//   SemVer(this.major, this.minor, this.patch, [this.suffix]);
-
-//   factory SemVer.parse(String value) {
-//     final match = _regExp.allMatches(value).firstOrNull;
-
-//     print(match?.groups([1, 2, 3, 4, 5]));
-
-//     if (match == null) {
-//       throw const FormatException('Does not match validation RegExp');
-//     }
-
-//     final String? suffix = match.group(5);
-
-//     final int major = int.tryParse(match.group(4) ?? '') ?? 0;
-
-//     final split = match.group(2)?.split('.') ?? [];
-//     final int minor = int.tryParse(split.elementAtOrNull(1) ?? '') ?? 0;
-//     final int patch = int.tryParse(split.elementAtOrNull(2) ?? '') ?? 0;
-
-//     return SemVer(major, minor, patch, suffix);
-//   }
-
-//   final int major;
-//   final int minor;
-//   final int patch;
-//   final String? suffix;
-
-//   static final RegExp _regExp = RegExp(
-//     r'^(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$',
-//   );
-
-//   @override
-//   int compareTo(SemVer other) {
-//     var result = major.compareTo(other.major);
-//     if (result == 0) {
-//       result = minor.compareTo(other.minor);
-//       if (result == 0) {
-//         result = patch.compareTo(other.patch);
-//         if (result == 0) {
-//           if (suffix != null && other.suffix == null) {
-//             return 1;
-//           } else if (suffix == null && other.suffix != null) {
-//             return -1;
-//           } else if (suffix == null && other.suffix == null) {
-//             return 0;
-//           } else if (suffix != null && other.suffix != null) {
-//             return suffix!.compareTo(other.suffix!);
-//           }
-//         }
-//       }
-//     }
-
-//     return result;
-//   }
-
-//   @override
-//   String toString() => '$major.$minor.$patch${suffix ?? ''}';
-
-//   /// Indicates whether this [SemVer] is considered critical compared to the
-//   /// [other].
-//   ///
-//   /// Algorithm determining whether the [other] is consider critical follows the
-//   /// rules, which is easier to demonstrate with the following examples:
-//   /// - 0.1.0 -> 0.1.1 => `false`;
-//   /// - 0.1.0 -> 0.2.0 => `true`;
-//   /// - 0.1.0 -> 1.0.0 => `true`;
-//   /// - 1.0.0 -> 1.0.1 => `false`;
-//   /// - 1.0.0 -> 1.1.0 => `false`.
-//   ///
-//   /// And the suffixes:
-//   /// - 0.1.0-alpha -> 0.1.0 => `true`;
-//   /// - 0.1.0-alpha -> 0.1.0.alpha.1 => `true`;
-//   /// - 0.1.0-alpha.1 -> 0.1.0.alpha.2 => `true`;
-//   /// - 0.1.0-alpha.2 -> 0.1.0.alpha.2.1 => `false`;
-//   /// - 0.1.0-alpha.3 -> 0.1.0.beta.1 => `true`;
-//   /// - 0.1.0 -> 0.2.0-rc => `false`;
-//   /// - 0.1.0 -> 1.0.0-beta => `false`;
-//   /// - 1.0.0-beta -> 1.0.0-rc => `true`.
-//   bool isCritical(SemVer other) {
-//     if (suffix != other.suffix) {
-//       if (suffix != null && other.suffix == null) {
-//         return true;
-//       } else if (suffix == null && other.suffix != null) {
-//         return false;
-//       } else if (suffix != null && other.suffix != null) {
-//         final compare = suffix!.compareTo(other.suffix!) < 0;
-//         if (compare) {
-//           final String? aVersion = suffix!.contains('.')
-//               ? suffix!.substring(suffix!.indexOf('.') + 1)
-//               : null;
-//           final String? aRelease = aVersion == null
-//               ? suffix
-//               : suffix!.substring(0, suffix!.indexOf('.'));
-
-//           final String? bVersion = other.suffix!.contains('.')
-//               ? other.suffix!.substring(other.suffix!.indexOf('.') + 1)
-//               : null;
-//           final String? bRelease = bVersion == null
-//               ? other.suffix
-//               : other.suffix!.substring(0, other.suffix!.indexOf('.'));
-
-//           // Check if minor...
-//           if (aRelease == bRelease) {
-//             print(
-//                 'aRelease($aRelease) vs bRelease($bRelease), aVersion($aVersion) vs bVersion($bVersion)');
-//             if (aVersion != null && bVersion != null) {
-//               final aNumber = double.tryParse(aVersion) ?? 0;
-//               final bNumber = double.tryParse(bVersion) ?? 0;
-//               return aNumber.floor() < bNumber.floor() ||
-//                   !bVersion.contains('.');
-//             }
-//           }
-//         }
-
-//         return compare;
-//       }
-//     }
-
-//     if (major < other.major) {
-//       return true;
-//     }
-
-//     if (major == 0) {
-//       if (minor < other.minor) {
-//         return true;
-//       }
-//     }
-
-//     return false;
-//   }
-// }

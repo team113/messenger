@@ -186,6 +186,11 @@ void main() {
       false,
     );
     expect(
+      Version(0, 1, 0, pre: 'alpha.1')
+          .isCritical(Version(0, 1, 1, pre: 'alpha.1')),
+      true,
+    );
+    expect(
       Version(0, 1, 0, pre: 'alpha').isCritical(Version(0, 1, 0, pre: 'rc')),
       true,
     );
@@ -199,8 +204,13 @@ void main() {
     );
     expect(
       Version(0, 1, 0, pre: 'beta.54.3')
-          .isCritical(Version(0, 1, 1, pre: 'beta.54.12')),
+          .isCritical(Version(0, 1, 0, pre: 'beta.54.12')),
       false,
+    );
+    expect(
+      Version(0, 1, 0, pre: 'beta.54.3')
+          .isCritical(Version(0, 1, 1, pre: 'beta.54.12')),
+      true,
     );
     expect(
       Version(0, 1, 0, pre: 'beta.54.3')
