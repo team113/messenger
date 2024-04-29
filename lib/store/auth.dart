@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/api/backend/extension/credentials.dart';
+import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -83,6 +84,9 @@ class AuthRepository implements AbstractAuthRepository {
     Log.debug('signUp()', '$runtimeType');
 
     final response = await _graphQlProvider.signUp();
+
+    _myUserProvider.put(response.createUser.user.toHive());
+
     return response.toModel();
   }
 
@@ -101,6 +105,9 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response =
         await _graphQlProvider.signIn(password, login, num, email, phone);
+
+    _myUserProvider.put(response.user.toHive());
+
     return response.toModel();
   }
 
@@ -111,6 +118,8 @@ class AuthRepository implements AbstractAuthRepository {
     _signUpCredentials = null;
 
     final response = await _graphQlProvider.signUp();
+
+    _myUserProvider.put(response.createUser.user.toHive());
 
     _signUpCredentials = response.toModel();
 

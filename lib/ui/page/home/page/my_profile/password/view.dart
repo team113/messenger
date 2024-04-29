@@ -145,7 +145,9 @@ class ChangePasswordView extends StatelessWidget {
                     const SizedBox(height: 25),
                     Obx(() {
                       final bool enabled;
-                      if (c.myUser.value?.hasPassword == true) {
+                      if (c.repeatPassword.status.value.isLoading) {
+                        enabled = false;
+                      } else if (c.myUser.value?.hasPassword == true) {
                         enabled = !c.oldPassword.isEmpty.value &&
                             !c.newPassword.isEmpty.value &&
                             !c.repeatPassword.isEmpty.value;
