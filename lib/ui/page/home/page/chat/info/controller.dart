@@ -402,6 +402,15 @@ class ChatInfoController extends GetxController {
 
   /// Submits the [name] field.
   Future<void> submitName() async {
+    this.name.error.value = null;
+    this.name.focus.unfocus();
+
+    if (this.name.text == chat?.chat.value.name?.val) {
+      this.name.unsubmit();
+      nameEditing.value = false;
+      return;
+    }
+
     ChatName? name;
     try {
       name = this.name.text.isEmpty ? null : ChatName(this.name.text);
@@ -413,6 +422,8 @@ class ChatInfoController extends GetxController {
     }
 
     if (this.name.error.value == null) {
+      nameEditing.value = false;
+
       this.name.status.value = RxStatus.loading();
       this.name.editable.value = false;
 

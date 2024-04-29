@@ -159,14 +159,13 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Block(
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
         Obx(() {
           final List<Widget> children;
 
           if (c.nameEditing.value) {
             children = [
-              const SizedBox(height: 18),
+              const SizedBox(height: 10),
               SelectionContainer.disabled(
                 child: ReactiveTextField(
                   key: const Key('RenameChatField'),
@@ -185,10 +184,7 @@ class ChatInfoView extends StatelessWidget {
                     const SizedBox(width: 16),
                     WidgetButton(
                       key: const Key('SaveNameButton'),
-                      onPressed: () {
-                        c.submitName();
-                        c.nameEditing.value = false;
-                      },
+                      onPressed: c.submitName,
                       child: Text(
                         'btn_save'.l10n,
                         style: style.fonts.small.regular.primary,
@@ -323,7 +319,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Block(
-      padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      padding: Block.defaultPadding.copyWith(right: 0, left: 0),
       title: 'label_participants'
           .l10nfmt({'count': c.chat!.chat.value.membersCount}),
       children: [
@@ -419,6 +415,7 @@ class ChatInfoView extends StatelessWidget {
         }),
         const SizedBox(height: 16),
         WidgetButton(
+          key: const Key('AddMemberButton'),
           onPressed: () => AddChatMemberView.show(context, chatId: id),
           child: Text(
             'btn_add_member'.l10n,

@@ -142,8 +142,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 clearable: true,
                 onSuffixPressed: deletable
                     ? () async {
-                        await widget.onSubmit?.call(null);
                         setState(() => _editing = false);
+                        await widget.onSubmit?.call(null);
                       }
                     : null,
                 trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
@@ -439,29 +439,23 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       } on FormatException {
         _state.error.value = 'err_invalid_symbols_in_link'.l10n;
       }
-
-      setState(() => _editing = false);
-      widget.onEditing?.call(false);
-
-      if (slug == null || slug == widget.link?.slug) {
-        return;
-      }
     }
 
     if (_state.error.value == null) {
+      setState(() => _editing = false);
+      widget.onEditing?.call(false);
+
+      if (slug == widget.link?.slug) {
+        return;
+      }
+
       _state.editable.value = false;
-      _state.status.value = RxStatus.loading();
 
       try {
         await widget.onSubmit?.call(slug);
-        _state.status.value = RxStatus.success();
-        await Future.delayed(const Duration(seconds: 1));
-        _state.status.value = RxStatus.empty();
       } on CreateChatDirectLinkException catch (e) {
-        _state.status.value = RxStatus.empty();
         _state.error.value = e.toMessage();
       } catch (e) {
-        _state.status.value = RxStatus.empty();
         _state.error.value = 'err_data_transfer'.l10n;
         _state.unsubmit();
         rethrow;

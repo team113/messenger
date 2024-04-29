@@ -452,25 +452,40 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
 
-    await _graphQlProvider.createUserDirectLink(slug);
-
-    myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
+    await _debounce(
+      field: MyUserField.chatDirectLink,
+      current: () => myUser.value?.chatDirectLink,
+      saved: () => _active?.value.chatDirectLink,
+      value: ChatDirectLink(slug: slug),
+      mutation: (value, previous) async {
+        if (value != null) {
+          return await _graphQlProvider.createUserDirectLink(value.slug);
+        } else {
+          return await _graphQlProvider.deleteUserDirectLink();
+        }
+      },
+      update: (v, p) => myUser.update((u) => u?.chatDirectLink = v),
+    );
   }
 
   @override
   Future<void> deleteChatDirectLink() async {
     Log.debug('deleteChatDirectLink()', '$runtimeType');
 
-    final ChatDirectLink? link = myUser.value?.chatDirectLink;
-
-    myUser.update((u) => u?.chatDirectLink = null);
-
-    try {
-      await _graphQlProvider.deleteUserDirectLink();
-    } catch (_) {
-      myUser.update((u) => u?.chatDirectLink = link);
-      rethrow;
-    }
+    await _debounce(
+      field: MyUserField.chatDirectLink,
+      current: () => myUser.value?.chatDirectLink,
+      saved: () => _active?.value.chatDirectLink,
+      value: null,
+      mutation: (value, previous) async {
+        if (value != null) {
+          return await _graphQlProvider.createUserDirectLink(value.slug);
+        } else {
+          return await _graphQlProvider.deleteUserDirectLink();
+        }
+      },
+      update: (v, p) => myUser.update((u) => u?.chatDirectLink = v),
+    );
   }
 
   @override
@@ -668,6 +683,13 @@ class MyUserRepository implements AbstractMyUserRepository {
 
           if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
             value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
+          }
+
+          if (_pool.lockedWith(
+            MyUserField.chatDirectLink,
+            value?.chatDirectLink,
+          )) {
+            value?.chatDirectLink = myUser.value?.chatDirectLink;
           }
 
           myUser.value = value;
@@ -1228,4 +1250,5 @@ enum MyUserField {
   presence,
   email,
   phone,
+  chatDirectLink,
 }

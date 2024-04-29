@@ -105,7 +105,7 @@ class Block extends StatelessWidget {
               enabledBorder: border,
               disabledBorder: border,
               focusedErrorBorder: border,
-              contentPadding: const EdgeInsets.all(12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               border: border,
             ),
             child: Stack(
@@ -121,6 +121,7 @@ class Block extends StatelessWidget {
                       crossAxisAlignment: crossAxisAlignment,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        SizedBox(height: title != null ? 6 : 10),
                         if (title != null) ...[
                           Center(
                             child: Container(
@@ -132,9 +133,10 @@ class Block extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                         ],
                         ...children,
+                        const SizedBox(height: 4),
                       ],
                     ),
                   ),

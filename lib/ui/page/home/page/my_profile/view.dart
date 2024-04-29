@@ -239,15 +239,13 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.background:
                       return block(
                         children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return BackgroundPreview(
-                                c.background.value,
-                                onPick: c.pickBackground,
-                                onRemove: c.removeBackground,
-                              );
-                            }),
-                          )
+                          Obx(() {
+                            return BackgroundPreview(
+                              c.background.value,
+                              onPick: c.pickBackground,
+                              onRemove: c.removeBackground,
+                            );
+                          }),
                         ],
                       );
 

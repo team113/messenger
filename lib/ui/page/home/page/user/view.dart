@@ -125,7 +125,6 @@ class UserView extends StatelessWidget {
   Widget _avatar(UserController c, BuildContext context) {
     return Obx(() {
       return Block(
-        padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
         children: [
           SelectionContainer.disabled(
             child: BigAvatarWidget.user(
@@ -152,14 +151,13 @@ class UserView extends StatelessWidget {
     return HighlightedContainer(
       highlight: c.highlighted.value == index,
       child: Block(
-        padding: Block.defaultPadding.copyWith(top: 8, bottom: 8),
         children: [
           Obx(() {
             final List<Widget> children;
 
             if (c.nameEditing.value) {
               children = [
-                const SizedBox(height: 18),
+                const SizedBox(height: 10),
                 SelectionContainer.disabled(
                   child: ReactiveTextField(
                     state: c.name,
@@ -173,9 +171,7 @@ class UserView extends StatelessWidget {
                   children: [
                     const SizedBox(width: 16),
                     WidgetButton(
-                      onPressed: () {
-                        c.submitName();
-                      },
+                      onPressed: c.submitName,
                       child: SelectionContainer.disabled(
                         child: Text(
                           'btn_save'.l10n,
@@ -204,7 +200,6 @@ class UserView extends StatelessWidget {
               ];
             } else {
               children = [
-                const SizedBox(height: 8),
                 Container(width: double.infinity),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
