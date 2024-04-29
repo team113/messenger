@@ -267,7 +267,6 @@ class ChatInfoView extends StatelessWidget {
 
     return Block(
       title: 'label_direct_chat_link'.l10n,
-      padding: Block.defaultPadding.copyWith(bottom: 10),
       children: [
         Obx(() {
           return Column(
