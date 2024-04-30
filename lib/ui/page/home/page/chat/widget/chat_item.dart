@@ -56,8 +56,8 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_digits.dart';
-import '/util/platform_utils.dart';
 import '/util/fixed_timer.dart';
+import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
@@ -178,6 +178,7 @@ class ChatItemWidget extends StatefulWidget {
     Iterable<GalleryAttachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
+    bool disableGallery = false,
   }) {
     final style = Theme.of(context).style;
 
@@ -245,6 +246,7 @@ class ChatItemWidget extends StatefulWidget {
           onTap: isLocal
               ? null
               : () {
+                  if (disableGallery) return;
                   final Iterable<GalleryAttachment> attachments =
                       onGallery?.call() ?? media;
 
@@ -874,6 +876,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
                         onGallery: widget.onGallery,
+                        disableGallery: menu,
                       )
                     : SizedBox(
                         width: media.length * 120,
@@ -889,6 +892,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: widget.onGallery,
+                                  disableGallery: menu,
                                 ),
                               )
                               .toList(),
