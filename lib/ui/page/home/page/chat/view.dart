@@ -1152,7 +1152,7 @@ class ChatView extends StatelessWidget {
               border: Border.all(color: color, width: 0.5),
               color: style.systemMessageColor,
             ),
-            child: Row(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(element.string, style: style.systemMessageStyle),
