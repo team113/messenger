@@ -177,7 +177,11 @@ class Chat extends HiveObject implements Comparable<Chat> {
   /// Indicates whether this [Chat] is a group.
   bool get isGroup => kind == ChatKind.group;
 
-  bool get isBot => isDialog && members.any((e) => e.user.bio?.val == 'bot');
+  bool get isBot =>
+      isDialog &&
+      members.any(
+        (e) => e.user.bio?.val.startsWith('bot') == true,
+      );
 
   /// Returns an [UserAvatar] of this [Chat].
   UserAvatar? getUserAvatar(UserId? me) {

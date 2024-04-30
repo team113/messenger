@@ -304,6 +304,10 @@ class UserView extends StatelessWidget {
             }
           }
 
+          for (var u in dialog.bots) {
+            members.add(u);
+          }
+
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -350,6 +354,11 @@ class UserView extends StatelessWidget {
                         onCall: inCall
                             ? () => c.removeChatCallMember(member.id)
                             : () => c.redialChatCallMember(member.id),
+                        onKick: member.isBot
+                            ? () async {
+                                dialog.removeBot(member);
+                              }
+                            : null,
                       );
                     }
 

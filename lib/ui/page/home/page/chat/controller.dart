@@ -351,6 +351,8 @@ class ChatController extends GetxController {
   /// [Paginated] of [ChatItem]s to display in the [elements].
   Paginated<ChatItemId, Rx<ChatItem>>? _fragment;
 
+  StreamSubscription? _botsSubscription;
+
   /// [Paginated]es used by this [ChatController].
   final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
 
@@ -532,6 +534,7 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+    _botsSubscription?.cancel();
 
     edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
     send.field.focus.removeListener(_stopTypingOnUnfocus);
@@ -930,6 +933,23 @@ class ChatController extends GetxController {
           readChat(_lastSeenItem.value);
         }
       }
+
+      for (var e in chat?.bots ?? <RxUser>[]) {
+        _addBotInfo(e);
+      }
+
+      _botsSubscription = chat?.bots.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _addBotInfo(e.element);
+            break;
+
+          case OperationKind.updated:
+          case OperationKind.removed:
+            // No-op.
+            break;
+        }
+      });
 
       // if (chat?.chat.value.isDialog ?? false) {
       //   botEnabled.value = chat!.chat.value.members.any(
@@ -2058,6 +2078,27 @@ class ChatController extends GetxController {
         }
       }
     });
+  }
+
+  void _addBotInfo(RxUser e) {
+    if ((e.user.value.bio?.val.length ?? 0) > 'bot '.length) {
+      final String? about = e.user.value.bio?.val.substring('bot '.length);
+
+      Map<String, dynamic>? decoded;
+      try {
+        decoded = jsonDecode(about!.substring('[@bot]'.length));
+      } catch (_) {
+        // No-op.
+      }
+
+      if (decoded?['text'] != null) {
+        final info = BotInfoElement(
+          decoded!['text']!,
+          at: PreciseDateTime.now(),
+        );
+        elements[info.id] = info;
+      }
+    }
   }
 
   /// Ensures the [ChatView] is scrollable.

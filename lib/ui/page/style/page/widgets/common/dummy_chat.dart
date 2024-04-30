@@ -142,8 +142,7 @@ class DummyRxChat extends RxChat {
   }
 
   @override
-  // TODO: implement bots
-  RxList<RxUser> get bots => RxList();
+  RxObsList<RxUser> get bots => RxObsList();
 
   @override
   Future<void> removeBot(RxUser user) {

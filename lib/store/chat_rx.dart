@@ -977,11 +977,11 @@ class HiveRxChat extends RxChat {
   }
 
   @override
-  final RxList<RxUser> bots = RxList();
+  final RxObsList<RxUser> bots = RxObsList();
 
   @override
   Future<void> addBot(RxUser user) async {
-    bots.add(user);
+    bots.addIf(!bots.contains(user), user);
   }
 
   @override
@@ -1171,7 +1171,7 @@ class HiveRxChat extends RxChat {
       }
 
       if (members.rawLength == chat.value.membersCount) {
-        members.pagination?.hasNext.value = false;
+        members.pagination?.hasNext.value = false; // TODO: Still displayed?
         members.pagination?.hasPrevious.value = false;
         members.status.value = RxStatus.success();
       }

@@ -152,7 +152,7 @@ class User extends HiveObject {
   String get title =>
       contacts.firstOrNull?.name.val ?? name?.val ?? num.toString();
 
-  bool get isBot => bio?.val == 'bot';
+  bool get isBot => bio?.val.startsWith('bot') == true;
 
   @override
   String toString() => '$runtimeType($id)';

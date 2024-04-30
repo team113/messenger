@@ -299,7 +299,7 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
-  RxList<RxUser> get bots;
+  RxObsList<RxUser> get bots;
   Future<void> addBot(RxUser user);
   Future<void> removeBot(RxUser user);
 

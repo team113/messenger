@@ -316,7 +316,10 @@ class UserController extends GetxController {
   /// Removes the specified [User] from a [OngoingCall] happening in the [chat].
   Future<void> removeChatCallMember(UserId userId) async {
     try {
-      await _callService.removeChatCallMember(user!.user.value.dialog, userId);
+      await _callService.removeChatCallMember(
+        user!.user.value.dialog,
+        userId,
+      );
     } on RemoveChatCallMemberException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
