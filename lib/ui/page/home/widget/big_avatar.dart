@@ -126,7 +126,11 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                           ),
                           color: style.colors.onBackgroundOpacity13,
                         ),
-                        child: const Center(child: CustomProgressIndicator()),
+                        child: const Center(
+                          child: RepaintBoundary(
+                            child: CustomProgressIndicator(),
+                          ),
+                        ),
                       )
                     : const SizedBox.shrink(),
               ),
