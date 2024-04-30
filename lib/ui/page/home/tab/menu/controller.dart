@@ -89,7 +89,7 @@ class MenuTabController extends GetxController {
 
       try {
         if (next != null) {
-          await _authService.signInToSavedAccount(next);
+          await _authService.switchAccount(next);
         } else {
           await _authService.register();
         }

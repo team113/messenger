@@ -38,7 +38,6 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/account.dart';
 import '/provider/hive/blocklist.dart';
-import '/provider/hive/credentials.dart';
 import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
@@ -58,7 +57,6 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._blocklistRepo,
     this._userRepo,
     this._accountLocal,
-    this._credentialsLocal,
   );
 
   @override
@@ -81,9 +79,6 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [Hive] storage providing the [UserId] of the currently active [MyUser].
   final AccountHiveProvider _accountLocal;
-
-  /// [Hive] storage providing the [Credentials] of authenticated [MyUser]s.
-  final CredentialsHiveProvider _credentialsLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -115,7 +110,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Returns the currently active [HiveMyUser] from [Hive].
   HiveMyUser? get _active {
-    final UserId? userId = _accountLocal.userId;
+    final UserId? userId = myUser.value?.id;
     final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
 
     return saved;
@@ -131,7 +126,10 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    myUser = Rx<MyUser?>(_active?.value);
+    final UserId? userId = _accountLocal.userId;
+    final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
+
+    myUser = Rx<MyUser?>(saved?.value);
 
     _populateMyUsers();
 

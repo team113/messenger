@@ -609,7 +609,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   blocklistRepository,
                   userRepository,
                   Get.find(),
-                  Get.find(),
                 ),
               );
 
@@ -762,7 +761,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
-                Get.find(),
                 Get.find(),
               ),
             );

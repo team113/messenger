@@ -387,7 +387,7 @@ class AccountsController extends GetxController {
     router.go(Routes.nowhere);
 
     try {
-      await _authService.signInToSavedAccount(id);
+      await _authService.switchAccount(id);
     } catch (e) {
       Future.delayed(const Duration(milliseconds: 1000)).then((v) {
         MessagePopup.error(e);
@@ -403,7 +403,7 @@ class AccountsController extends GetxController {
   Future<void> register() async {
     router.go(Routes.nowhere);
     try {
-      await _authService.register(force: true);
+      await _authService.register(newAccount: true);
     } catch (e) {
       Future.delayed(const Duration(milliseconds: 1000)).then((v) {
         MessagePopup.error(e);
