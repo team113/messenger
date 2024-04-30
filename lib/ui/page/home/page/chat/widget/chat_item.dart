@@ -137,7 +137,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a gallery list is required.
   ///
-  /// If not specified, then only media in this [item] will be in a gallery.
+  /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
+  /// tapped.
   final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
@@ -178,7 +179,6 @@ class ChatItemWidget extends StatefulWidget {
     Iterable<GalleryAttachment> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
-    bool disableGallery = false,
   }) {
     final style = Theme.of(context).style;
 
@@ -246,9 +246,13 @@ class ChatItemWidget extends StatefulWidget {
           onTap: isLocal
               ? null
               : () {
-                  if (disableGallery) return;
-                  final Iterable<GalleryAttachment> attachments =
-                      onGallery?.call() ?? media;
+                  if (onGallery == null) {
+                    // [onTap] still needs to be invoked to ensure [ContextMenu]
+                    // doesn't get closed, when this is being built within it.
+                    return;
+                  }
+
+                  final Iterable<GalleryAttachment> attachments = onGallery();
 
                   int initial = attachments.indexed
                       .firstWhere((a) => a.$2.attachment == e)
@@ -875,8 +879,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         filled: false,
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
-                        onGallery: widget.onGallery,
-                        disableGallery: menu,
+                        onGallery: menu ? null : widget.onGallery,
                       )
                     : SizedBox(
                         width: media.length * 120,
@@ -891,8 +894,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   galleries,
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
-                                  onGallery: widget.onGallery,
-                                  disableGallery: menu,
+                                  onGallery: menu ? null : widget.onGallery,
                                 ),
                               )
                               .toList(),
