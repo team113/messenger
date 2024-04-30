@@ -236,7 +236,7 @@ jobs:
       # TODO: Use `split-debug-info` for Windows once Sentry supports it:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
-      - run: make flutter.build platform=${{ matrix.platform }}
+      - run: make flutter.build platform=${{ matrix.platform }} profile=yes
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
@@ -381,7 +381,7 @@ jobs:
 
       # TODO: Use `split-debug-info` when Sentry supports Linux debug symbols.
       #       https://github.com/getsentry/sentry-dart/issues/433
-      - run: make flutter.build platform=linux
+      - run: make flutter.build platform=linux profile=yes
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
