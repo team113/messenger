@@ -82,7 +82,7 @@ abstract class AbstractAuthRepository {
   Future<void> resendSignUpEmail();
 
   /// Validates the current [AccessToken].
-  Future<void> validateToken();
+  Future<void> validateToken(Credentials credentials);
 
   /// Refreshes the current [AccessToken].
   ///

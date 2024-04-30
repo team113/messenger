@@ -145,15 +145,15 @@ mixin AuthGraphQlMixin {
   /// ### Authentication
   ///
   /// Mandatory.
-  Future<ValidateToken$Query> validateToken() async {
-    Log.debug('validateToken()', '$runtimeType');
+  Future<ValidateToken$Query> validateToken(Credentials creds) async {
+    Log.debug('validateToken($creds)', '$runtimeType');
 
     final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'ValidateToken',
         document: ValidateTokenQuery().document,
       ),
-      raw: RawClientOptions(token),
+      raw: RawClientOptions(creds.access.secret),
     );
     return ValidateToken$Query.fromJson(res.data!);
   }

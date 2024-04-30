@@ -184,4 +184,7 @@ class Credentials {
       'userId': userId.val,
     };
   }
+
+  @override
+  String toString() => 'Credentials(userId: $userId)';
 }

@@ -180,9 +180,9 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> validateToken() async {
-    Log.debug('validateToken()', '$runtimeType');
-    await _graphQlProvider.validateToken();
+  Future<void> validateToken(Credentials credentials) async {
+    Log.debug('validateToken($credentials)', '$runtimeType');
+    await _graphQlProvider.validateToken(credentials);
   }
 
   @override
