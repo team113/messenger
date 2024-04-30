@@ -453,9 +453,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
       try {
         await widget.onSubmit?.call(slug);
-
-        _state.status.value = RxStatus.success();
-        await Future.delayed(const Duration(milliseconds: 300));
         _state.status.value = RxStatus.empty();
       } on CreateChatDirectLinkException catch (e) {
         _state.status.value = RxStatus.empty();

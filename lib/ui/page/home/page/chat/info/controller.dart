@@ -28,6 +28,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
@@ -83,10 +84,10 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  /// [ItemScrollController] of the page's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
 
-  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  /// [ItemPositionsListener] of the page's [ScrollablePositionedList].
   final ItemPositionsListener positionsListener =
       ItemPositionsListener.create();
 
@@ -109,7 +110,7 @@ class ChatInfoController extends GetxController {
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
 
-  /// Index of an item from the profile's [ScrollablePositionedList] that should
+  /// Index of an item from the page's [ScrollablePositionedList] that should
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
 
@@ -376,6 +377,33 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Mutes the [chat].
+  Future<void> muteChat() async {
+    try {
+      await _chatService.toggleChatMute(
+        chat?.id ?? chatId,
+        MuteDuration.forever(),
+      );
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Unmutes the [chat].
+  Future<void> unmuteChat() async {
+    try {
+      await _chatService.toggleChatMute(chat?.id ?? chatId, null);
+    } on ToggleChatMuteException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
   /// Removes the specified [User] from a [OngoingCall] happening in the [chat].
   Future<void> removeChatCallMember(UserId userId) async {
     try {
@@ -402,44 +430,44 @@ class ChatInfoController extends GetxController {
 
   /// Submits the [name] field.
   Future<void> submitName() async {
-    this.name.error.value = null;
-    this.name.focus.unfocus();
+    name.error.value = null;
+    name.focus.unfocus();
 
-    if (this.name.text == chat?.chat.value.name?.val) {
-      this.name.unsubmit();
+    if (name.text == chat?.chat.value.name?.val) {
+      name.unsubmit();
       nameEditing.value = false;
       return;
     }
 
-    ChatName? name;
+    ChatName? chatName;
     try {
-      name = this.name.text.isEmpty ? null : ChatName(this.name.text);
+      chatName = name.text.isEmpty ? null : ChatName(name.text);
     } on FormatException catch (_) {
-      this.name.status.value = RxStatus.empty();
-      this.name.error.value = 'err_incorrect_input'.l10n;
-      this.name.unsubmit();
+      name.status.value = RxStatus.empty();
+      name.error.value = 'err_incorrect_input'.l10n;
+      name.unsubmit();
       return;
     }
 
-    if (this.name.error.value == null) {
+    if (name.error.value == null) {
       nameEditing.value = false;
 
-      this.name.status.value = RxStatus.loading();
-      this.name.editable.value = false;
+      name.status.value = RxStatus.loading();
+      name.editable.value = false;
 
       try {
-        await _chatService.renameChat(chat!.chat.value.id, name);
-        this.name.status.value = RxStatus.empty();
-        this.name.unsubmit();
+        await _chatService.renameChat(chat!.chat.value.id, chatName);
+        name.status.value = RxStatus.empty();
+        name.unsubmit();
       } on RenameChatException catch (e) {
-        this.name.status.value = RxStatus.empty();
-        this.name.error.value = e.toString();
+        name.status.value = RxStatus.empty();
+        name.error.value = e.toString();
       } catch (e) {
-        this.name.status.value = RxStatus.empty();
+        name.status.value = RxStatus.empty();
         MessagePopup.error(e.toString());
         rethrow;
       } finally {
-        this.name.editable.value = true;
+        name.editable.value = true;
       }
     }
   }

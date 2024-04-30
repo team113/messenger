@@ -216,11 +216,17 @@ class MyProfileView extends StatelessWidget {
                               background: c.background.value,
                               onEditing: (b) {
                                 if (b) {
-                                  final firstPosition = c.positionsListener
-                                      .itemPositions.value.firstOrNull;
+                                  final ItemPosition? first = c
+                                      .positionsListener
+                                      .itemPositions
+                                      .value
+                                      .firstOrNull;
 
-                                  if (firstPosition?.index == i &&
-                                      firstPosition!.itemLeadingEdge < 0) {
+                                  // If the [Block] containing this widget isn't
+                                  // fully visible, then animate to it's
+                                  // beginning.
+                                  if (first?.index == i &&
+                                      first!.itemLeadingEdge < 0) {
                                     c.itemScrollController.scrollTo(
                                       index: i,
                                       curve: Curves.ease,

@@ -127,6 +127,9 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                           color: style.colors.onBackgroundOpacity13,
                         ),
                         child: const Center(
+                          // TODO: Remove, when flutter/flutter##120874 is
+                          //       fixed:
+                          //       https://github.com/flutter/flutter/issues/120874
                           child: RepaintBoundary(
                             child: CustomProgressIndicator(),
                           ),

@@ -49,6 +49,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -223,11 +224,12 @@ class ChatInfoView extends StatelessWidget {
               WidgetButton(
                 key: const Key('EditNameButton'),
                 onPressed: () {
-                  final firstPosition =
+                  final ItemPosition? first =
                       c.positionsListener.itemPositions.value.firstOrNull;
 
-                  if (firstPosition?.index == 2 &&
-                      firstPosition!.itemLeadingEdge < 0) {
+                  // If the [Block] containing this button isn't fully
+                  // visible, then animate to it's beginning.
+                  if (first?.index == 2 && first!.itemLeadingEdge < 0) {
                     c.itemScrollController.scrollTo(
                       index: 2,
                       curve: Curves.ease,
@@ -291,11 +293,12 @@ class ChatInfoView extends StatelessWidget {
                 background: c.background.value,
                 onEditing: (b) {
                   if (b) {
-                    final firstPosition =
+                    final ItemPosition? first =
                         c.positionsListener.itemPositions.value.firstOrNull;
 
-                    if (firstPosition?.index == 3 &&
-                        firstPosition!.itemLeadingEdge < 0) {
+                    // If the [Block] containing this widget isn't fully
+                    // visible, then animate to it's beginning.
+                    if (first?.index == 3 && first!.itemLeadingEdge < 0) {
                       c.itemScrollController.scrollTo(
                         index: 3,
                         curve: Curves.ease,
@@ -470,6 +473,7 @@ class ChatInfoView extends StatelessWidget {
     // [SvgIcons.more] buttons with its [ContextMenuRegion].
     final Widget moreButton = Obx(key: const Key('MoreButton'), () {
       final bool favorite = c.chat?.chat.value.favoritePosition != null;
+      final bool muted = c.chat?.chat.value.muted != null;
 
       return AnimatedButton(
         child: ContextMenuRegion(
@@ -493,13 +497,33 @@ class ChatInfoView extends StatelessWidget {
                     : SvgIcons.unfavoriteSmallWhite,
               ),
             ),
-            if (!c.isMonolog)
+            if (!c.isMonolog) ...[
+              ContextMenuButton(
+                key: Key(
+                  muted ? 'UnmuteChatButton' : 'MuteChatButton',
+                ),
+                label: muted
+                    ? PlatformUtils.isMobile
+                        ? 'btn_unmute'.l10n
+                        : 'btn_unmute_chat'.l10n
+                    : PlatformUtils.isMobile
+                        ? 'btn_mute'.l10n
+                        : 'btn_mute_chat'.l10n,
+                trailing: SvgIcon(
+                  muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                ),
+                inverted: SvgIcon(
+                  muted ? SvgIcons.unmuteSmallWhite : SvgIcons.muteSmallWhite,
+                ),
+                onPressed: muted ? c.unmuteChat : c.muteChat,
+              ),
               ContextMenuButton(
                 onPressed: () => _reportChat(c, context),
                 label: 'btn_report'.l10n,
                 trailing: const SvgIcon(SvgIcons.report),
                 inverted: const SvgIcon(SvgIcons.reportWhite),
               ),
+            ],
             ContextMenuButton(
               onPressed: () => _clearChat(c, context),
               label: 'btn_clear_history'.l10n,

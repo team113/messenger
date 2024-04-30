@@ -213,11 +213,12 @@ class UserView extends StatelessWidget {
                   const SizedBox(height: 1),
                   WidgetButton(
                     onPressed: () {
-                      final firstPosition =
+                      final ItemPosition? first =
                           c.positionsListener.itemPositions.value.firstOrNull;
 
-                      if (firstPosition?.index == index &&
-                          firstPosition!.itemLeadingEdge < 0) {
+                      // If the [Block] containing this button isn't fully
+                      // visible, then animate to it's beginning.
+                      if (first?.index == index && first!.itemLeadingEdge < 0) {
                         c.itemScrollController.scrollTo(
                           index: index,
                           curve: Curves.ease,
@@ -270,10 +271,7 @@ class UserView extends StatelessWidget {
         ),
         if (bio != null)
           Paddings.basic(
-            InfoTile(
-              title: 'label_about'.l10n,
-              content: bio.val,
-            ),
+            InfoTile(title: 'label_about'.l10n, content: bio.val),
           ),
       ],
     );
@@ -396,10 +394,7 @@ class UserView extends StatelessWidget {
           shadowColor: style.colors.onBackgroundOpacity27,
           color: style.colors.onPrimary,
           child: Center(
-            child: AvatarWidget.fromRxUser(
-              c.user,
-              radius: AvatarRadius.medium,
-            ),
+            child: AvatarWidget.fromRxUser(c.user, radius: AvatarRadius.medium),
           ),
         ),
         const SizedBox(width: 10),
