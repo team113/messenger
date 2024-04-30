@@ -1152,7 +1152,44 @@ class ChatView extends StatelessWidget {
               border: Border.all(color: color, width: 0.5),
               color: style.systemMessageColor,
             ),
-            child: Text(element.string, style: style.systemMessageStyle),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(element.string, style: style.systemMessageStyle),
+                if (element.actions.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 2,
+                    runSpacing: 2,
+                    children: element.actions.map((e) {
+                      return SelectionContainer.disabled(
+                        child: WidgetButton(
+                          onPressed: () => c.postCommand(e.command),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: style.systemMessageColor,
+                                width: 1,
+                              ),
+                              color: color,
+                            ),
+                            child: Text(
+                              e.text,
+                              style: style.fonts.smallest.regular.onPrimary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       );

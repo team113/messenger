@@ -2095,6 +2095,10 @@ class ChatController extends GetxController {
         final info = BotInfoElement(
           decoded!['text']!,
           at: PreciseDateTime.now(),
+          actions: (decoded['actions'] as List?)?.map((e) {
+                return BotAction(text: e['text'], command: e['command']);
+              }).toList() ??
+              [],
         );
         elements[info.id] = info;
       }
@@ -2465,11 +2469,16 @@ class LoaderElement extends ListElement {
 
 /// [ListElement] representing a [ChatInfo].
 class BotInfoElement extends ListElement {
-  BotInfoElement(this.string, {required PreciseDateTime at})
-      : super(ListElementId(at, const ChatItemId('0')));
+  BotInfoElement(
+    this.string, {
+    required PreciseDateTime at,
+    this.actions = const [],
+  }) : super(ListElementId(at, const ChatItemId('0')));
 
   /// [String] of this [BotInfoElement].
   final String string;
+
+  final List<BotAction> actions;
 }
 
 /// [ListElement] representing a [ChatInfo].
