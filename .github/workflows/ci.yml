@@ -236,11 +236,12 @@ jobs:
       # TODO: Use `split-debug-info` for Windows once Sentry supports it:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
-      - run: make flutter.build platform=${{ matrix.platform }} profile=yes
+      - run: make flutter.build platform=${{ matrix.platform }}
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LOG_LEVEL=debug
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_EDGE }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_EDGE }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_EDGE }}
@@ -381,11 +382,12 @@ jobs:
 
       # TODO: Use `split-debug-info` when Sentry supports Linux debug symbols.
       #       https://github.com/getsentry/sentry-dart/issues/433
-      - run: make flutter.build platform=linux profile=yes
+      - run: make flutter.build platform=linux
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+                            SOCAPP_LOG_LEVEL=debug
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_EDGE }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_EDGE }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_EDGE }}
