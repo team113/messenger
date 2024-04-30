@@ -793,11 +793,6 @@ class AuthService extends GetxService {
             return;
           }
 
-          Log.debug(
-            '_initRefreshTimers(): refreshing for $id',
-            '$runtimeType',
-          );
-
           if (_shouldRefresh(creds)) {
             refreshSession(updatingCreds: creds);
           }

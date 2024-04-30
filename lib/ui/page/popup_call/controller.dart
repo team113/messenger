@@ -88,7 +88,8 @@ class PopupCallController extends GetxController {
       if (e.key == null) {
         WebUtils.closeWindow();
       } else if (e.newValue == null) {
-        if (e.key == 'credentials' || e.key == 'call_${call.value.chatId}') {
+        if (e.key == 'credentials_$me' ||
+            e.key == 'call_${call.value.chatId}') {
           WebUtils.closeWindow();
         }
       } else if (e.key == 'call_${call.value.chatId}') {
