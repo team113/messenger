@@ -26,11 +26,15 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Own avatar displaying with question marks when signing in or signing up. ([#978], [#950])
+    - Chat page:
+        - Tapping on image opens gallery when being in context menu. ([#983], [#979])
 
 [#948]: /../../issues/948
 [#950]: /../../issues/950
 [#978]: /../../pull/978
+[#979]: /../../issues/979
 [#980]: /../../pull/980
+[#983]: /../../pull/983
 
 
 
