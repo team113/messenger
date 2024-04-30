@@ -241,6 +241,7 @@ class LoginController extends GetxController {
 
             stage.value = LoginViewStage.signUpWithEmail;
           } catch (_) {
+            s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             _setResendEmailTimer(false);
             s.unsubmit();
@@ -286,6 +287,7 @@ class LoginController extends GetxController {
             _setCodeTimer();
           }
         } catch (_) {
+          s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
           s.unsubmit();
@@ -360,14 +362,17 @@ class LoginController extends GetxController {
           break;
 
         case CreateSessionErrorCode.artemisUnknown:
+          password.resubmitOnError.value = true;
           password.error.value = 'err_data_transfer'.l10n;
           rethrow;
       }
     } on ConnectionException {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
     } catch (e) {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -441,6 +446,7 @@ class LoginController extends GetxController {
       recovery.error.value = 'err_account_not_found'.l10n;
     } catch (e) {
       recovery.unsubmit();
+      recovery.resubmitOnError.value = true;
       recovery.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -483,6 +489,7 @@ class LoginController extends GetxController {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
       recoveryCode.unsubmit();
+      recoveryCode.resubmitOnError.value = true;
       recoveryCode.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -551,6 +558,7 @@ class LoginController extends GetxController {
     } on ResetUserPasswordException catch (e) {
       repeatPassword.error.value = e.toMessage();
     } catch (e) {
+      repeatPassword.resubmitOnError.value = true;
       repeatPassword.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -570,6 +578,7 @@ class LoginController extends GetxController {
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
+      emailCode.resubmitOnError.value = true;
       emailCode.error.value = 'err_data_transfer'.l10n;
       _setResendEmailTimer(false);
       rethrow;

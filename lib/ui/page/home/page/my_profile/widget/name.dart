@@ -64,6 +64,7 @@ class _UserNameFieldState extends State<UserNameField> {
           await widget.onSubmit?.call(UserName.tryParse(s.text));
           s.status.value = RxStatus.empty();
         } catch (e) {
+          s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
           rethrow;

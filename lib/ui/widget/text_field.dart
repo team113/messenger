@@ -668,9 +668,12 @@ class TextFieldState extends ReactiveFieldState {
           _debounce?.cancel();
           onChanged?.call(this);
         }
-        _previousSubmit = controller.text;
-        onSubmitted?.call(this);
-        changed.value = false;
+
+        if (error.value == null || resubmitOnError.isTrue) {
+          _previousSubmit = controller.text;
+          onSubmitted?.call(this);
+          changed.value = false;
+        }
       }
     }
   }

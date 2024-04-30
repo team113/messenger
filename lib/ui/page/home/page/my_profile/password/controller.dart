@@ -190,6 +190,7 @@ class ChangePasswordController extends GetxController {
       } on UpdateUserPasswordException catch (e) {
         oldPassword.error.value = e.toMessage();
       } catch (e) {
+        repeatPassword.resubmitOnError.value = true;
         repeatPassword.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {

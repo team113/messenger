@@ -131,9 +131,11 @@ class EraseController extends GetxController {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on ConnectionException {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
     } catch (e) {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {

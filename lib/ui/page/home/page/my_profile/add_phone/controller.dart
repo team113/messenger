@@ -99,6 +99,7 @@ class AddPhoneController extends GetxController {
           } on ConfirmUserPhoneException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
+            s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             s.unsubmit();
             rethrow;

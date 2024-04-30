@@ -96,6 +96,7 @@ class AddEmailController extends GetxController {
           } on ConfirmUserEmailException catch (e) {
             s.error.value = e.toMessage();
           } catch (e) {
+            s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             s.unsubmit();
             rethrow;
