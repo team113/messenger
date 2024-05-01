@@ -601,9 +601,7 @@ class MenuTabView extends StatelessWidget {
                         ),
                       ),
                       onPressed: () async {
-                        if (await c.confirmLogout()) {
-                          await c.logout();
-                        }
+                        await c.confirmLogout();
                       },
                     );
                     break;

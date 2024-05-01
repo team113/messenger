@@ -23,7 +23,7 @@ alert_are_you_sure_want_to_delete_email =
 alert_are_you_sure_want_to_delete_phone =
     Вы действительно хотите удалить этот номер телефона?
 alert_are_you_sure_want_to_log_out1 = Вы действительно хотите выйти из аккаунта{" "}
-alert_are_you_sure_want_to_log_out2 = ?
+alert_are_you_sure_want_to_log_out2 = {" "}на данном устройстве?
 alert_chat_will_be_blocked1 = Чат{" "}
 alert_chat_will_be_blocked2 = {" "}будет заблокирован.
 alert_chat_will_be_cleared1 = Чат{" "}
@@ -803,6 +803,7 @@ label_introduction_description1 =
 label_introduction_description2 = настройках
 label_introduction_description3 = {" "}задайте пароль, e-mail или номер телефона.
 label_kb = {$amount} КБ
+label_keep_credentials = Сохранить данные
 label_language = Язык
 label_language_entry = {$code}, {$name}
 label_last_seen = Был(а)
@@ -940,6 +941,7 @@ label_recovery_code = Код восстановления
 label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail/телефон, указанный для данного аккаунта. Пожалуйста, введите код ниже.
 label_sign_in_code_sent1 = Проверочный код отправлен на{" "}
 label_sign_in_code_sent2 = . Пожалуйста, введите код ниже.
+label_sign_in_required = Выполнить вход
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
 label_sign_up_code_phone_sent =

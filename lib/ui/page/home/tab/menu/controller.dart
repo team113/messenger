@@ -64,40 +64,6 @@ class MenuTabController extends GetxController {
     return true;
   }
 
-  /// Logs out the current session and go to the [Routes.auth] page.
-  Future<void> logout() async {
-    if (accounts.length <= 1) {
-      router.go(await _authService.logout());
-      router.tab = HomeTab.chats;
-    } else {
-      final active =
-          accounts.firstWhereOrNull((e) => e.myUser.id == myUser.value?.id);
-      if (active != null) {
-        await _authService.deleteAccount(active);
-      }
-
-      final List<Account> allowed = accounts.where((e) => e != active).toList()
-        ..sort();
-
-      final Account? next = allowed.firstOrNull;
-      if (next != null) {
-        router.go(Routes.nowhere);
-
-        try {
-          await _authService.signInWith(next.credentials);
-        } catch (e) {
-          Future.delayed(const Duration(milliseconds: 1000)).then((v) {
-            MessagePopup.error(e);
-          });
-        }
-
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        router.home();
-      }
-    }
-  }
-
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>
       _myUserService.updateUserPresence(presence);

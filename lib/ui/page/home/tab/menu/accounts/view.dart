@@ -30,7 +30,9 @@ import 'package:messenger/ui/page/auth/widget/cupertino_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/chat_item.dart';
 import 'package:messenger/ui/page/home/page/user/controller.dart';
 import 'package:messenger/ui/page/home/widget/contact_tile.dart';
+import 'package:messenger/ui/page/login/controller.dart' show LoginViewStage;
 import 'package:messenger/ui/page/login/qr_code/view.dart';
+import 'package:messenger/ui/page/login/view.dart';
 import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/page/login/widget/sign_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
@@ -825,14 +827,26 @@ class AccountsView extends StatelessWidget {
               if (c.status.value.isLoading) {
                 tiles.add(const Center(child: CircularProgressIndicator()));
               } else {
+                int i = 0;
+
                 for (var e in c.accounts) {
+                  final bool expired = i >= 2;
+
                   tiles.add(
                     Padding(
                       padding: ModalPopup.padding(context),
                       child: ContactTile(
                         myUser: e.myUser,
                         user: e.user,
-                        onTap: () {
+                        onTap: () async {
+                          if (expired) {
+                            await LoginView.show(
+                              context,
+                              initial: LoginViewStage.signIn,
+                            );
+                            return;
+                          }
+
                           Navigator.of(context).pop();
                           if (c.myUser.value?.id != e.myUser.id) {
                             c.switchTo(e.account);
@@ -894,14 +908,19 @@ class AccountsView extends StatelessWidget {
                               }
                             },
                             child: c.myUser.value?.id == e.myUser.id
-                                ? const SvgIcon(SvgIcons.logoutWhite)
-                                : const SvgIcon(SvgIcons.logout),
+                                ? const SvgIcon(SvgIcons.delete19White)
+                                : const SvgIcon(SvgIcons.delete19),
                           ),
                         ],
                         selected: c.myUser.value?.id == e.myUser.id,
                         subtitle: [
                           const SizedBox(height: 5),
-                          if (c.myUser.value?.id == e.myUser.id)
+                          if (expired)
+                            Text(
+                              'label_sign_in_required'.l10n,
+                              style: style.fonts.small.regular.danger,
+                            )
+                          else if (c.myUser.value?.id == e.myUser.id)
                             Text(
                               'Active',
                               style: style.fonts.small.regular.onPrimary,
@@ -917,6 +936,8 @@ class AccountsView extends StatelessWidget {
                       ),
                     ),
                   );
+
+                  ++i;
                 }
               }
 

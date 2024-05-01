@@ -397,7 +397,7 @@ class AuthService extends GetxService {
 
   // TODO: Clean Hive storage on logout.
   /// Deletes [Session] of the currently authenticated [MyUser].
-  Future<String> logout() async {
+  Future<String> logout({bool removeAccount = true}) async {
     Log.debug('logout()', '$runtimeType');
 
     status.value = RxStatus.loading();
@@ -420,12 +420,14 @@ class AuthService extends GetxService {
         }
       }
 
-      await _authRepository.logout(fcmToken);
+      if (removeAccount) {
+        await _authRepository.logout(fcmToken);
+      }
     } catch (e) {
       printError(info: e.toString());
     }
 
-    return _unauthorized();
+    return _unauthorized(removeAccount: removeAccount);
   }
 
   /// Validates the current [AccessToken].
@@ -490,6 +492,7 @@ class AuthService extends GetxService {
           _accountProvider.put(Account(data.$1, data.$2));
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
+          router.refreshException = true;
           router.go(_unauthorized());
           rethrow;
         }
@@ -535,10 +538,10 @@ class AuthService extends GetxService {
   }
 
   /// Sets authorized [status] to `isEmpty` (aka "unauthorized").
-  String _unauthorized() {
+  String _unauthorized({bool removeAccount = true}) {
     Log.debug('_unauthorized()', '$runtimeType');
 
-    if (credentials.value != null) {
+    if (removeAccount && credentials.value != null) {
       _accountProvider.remove(credentials.value!.userId);
     }
 

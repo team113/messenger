@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/widget/rectangle_button.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -188,11 +189,21 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                 ],
+                Obx(() {
+                  return RectangleButton(
+                    label: 'label_keep_credentials'.l10n,
+                    tappable: true,
+                    radio: true,
+                    selected: !c.eraseCredentials.value,
+                    onPressed: c.eraseCredentials.toggle,
+                  );
+                }),
+                const SizedBox(height: 16),
                 if (c.hasPassword.value) ...[
                   OutlinedRoundedButton(
                     key: const Key('ConfirmLogoutButton'),
                     maxWidth: double.infinity,
-                    onPressed: () => Navigator.of(context).pop(true),
+                    onPressed: c.logout,
                     color: style.colors.primary,
                     child: Text(
                       'btn_logout'.l10n,
@@ -206,7 +217,7 @@ class ConfirmLogoutView extends StatelessWidget {
                         child: OutlinedRoundedButton(
                           key: const Key('ConfirmLogoutButton'),
                           maxWidth: double.infinity,
-                          onPressed: () => Navigator.of(context).pop(true),
+                          onPressed: c.logout,
                           color: style.colors.secondaryHighlight,
                           child: Text(
                             'btn_logout'.l10n,

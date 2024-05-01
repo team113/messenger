@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/account.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/service/auth.dart';
@@ -26,12 +27,21 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+enum AuthScreen {
+  accounts,
+  signIn,
+}
+
 /// [Routes.auth] page controller.
 class AuthController extends GetxController {
   AuthController(this._auth);
 
   /// Current [AnimatedLogo] animation frame.
   final RxInt logoFrame = RxInt(0);
+
+  late final Rx<AuthScreen> screen = Rx(
+    _auth.accounts.isEmpty ? AuthScreen.signIn : AuthScreen.accounts,
+  );
 
   /// Authorization service used for signing up.
   final AuthService _auth;
@@ -41,6 +51,8 @@ class AuthController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  RxList<Account> get accounts => _auth.accounts;
 
   @override
   void onReady() {
@@ -54,6 +66,10 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
+  Future<void> delete(Account account) async {
+    await _auth.deleteAccount(account);
+  }
+
   /// Registers and redirects to the [Routes.home] page.
   Future<void> register() async {
     try {
@@ -63,6 +79,11 @@ class AuthController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  Future<void> signInAs(Account account) async {
+    await _auth.signInWith(account.credentials);
+    router.home();
   }
 
   /// Resets the [logoFrame] and starts the blinking animation.
