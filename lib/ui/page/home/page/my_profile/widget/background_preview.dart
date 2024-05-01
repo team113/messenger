@@ -115,7 +115,7 @@ class BackgroundPreview extends StatelessWidget {
                   onPressed: background == null ? onPick : onRemove,
                   child: Text(
                     background == null ? 'btn_upload'.l10n : 'btn_delete'.l10n,
-                    style: style.fonts.smaller.regular.primary,
+                    style: style.fonts.small.regular.primary,
                   ),
                 ),
               ],

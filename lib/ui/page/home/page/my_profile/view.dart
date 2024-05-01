@@ -106,14 +106,12 @@ class MyProfileView extends StatelessWidget {
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
                     String? title,
-                    List<Widget> overlay = const [],
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
                         title: title ?? tab.l10n,
                         highlight: c.highlightIndex.value == i,
-                        overlay: overlay,
                         children: children,
                       );
                     });
@@ -138,7 +136,11 @@ class MyProfileView extends StatelessWidget {
                                           : null,
                                     );
                                   }),
-                                  const SizedBox(height: 12),
+                                ],
+                              ),
+                              block(
+                                title: 'label_about'.l10n,
+                                children: [
                                   Paddings.basic(
                                     Obx(() {
                                       return UserNameField(
@@ -147,11 +149,7 @@ class MyProfileView extends StatelessWidget {
                                       );
                                     }),
                                   ),
-                                ],
-                              ),
-                              block(
-                                title: 'label_about'.l10n,
-                                children: [
+                                  const SizedBox(height: 6),
                                   Paddings.basic(
                                     Obx(() {
                                       return UserBioField(
@@ -204,50 +202,58 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      return Obx(() {
-                        return block(
-                          title: 'label_your_direct_link'.l10n,
-                          overlay: [
-                            EditBlockButton(
-                              key: const Key('EditLinkButton'),
-                              onPressed: c.linkEditing.toggle,
-                              editing: c.linkEditing.value,
-                            ),
-                          ],
-                          children: [
-                            Obx(() {
-                              return DirectLinkField(
-                                c.myUser.value?.chatDirectLink,
-                                onSubmit: (s) async {
-                                  if (s == null) {
-                                    c.linkEditing.value = false;
-                                    await c.deleteChatDirectLink();
-                                  } else {
-                                    await c.createChatDirectLink(s);
-                                    c.linkEditing.value = false;
+                      return block(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: (s) async {
+                                if (s == null) {
+                                  await c.deleteChatDirectLink();
+                                } else {
+                                  await c.createChatDirectLink(s);
+                                }
+                              },
+                              background: c.background.value,
+                              onEditing: (b) {
+                                if (b) {
+                                  final ItemPosition? first = c
+                                      .positionsListener
+                                      .itemPositions
+                                      .value
+                                      .firstOrNull;
+
+                                  // If the [Block] containing this widget isn't
+                                  // fully visible, then animate to it's
+                                  // beginning.
+                                  if (first?.index == i &&
+                                      first!.itemLeadingEdge < 0) {
+                                    c.itemScrollController.scrollTo(
+                                      index: i,
+                                      curve: Curves.ease,
+                                      duration:
+                                          const Duration(milliseconds: 600),
+                                    );
+                                    c.highlight(ProfileTab.link);
                                   }
-                                },
-                                background: c.background.value,
-                                onEditing: (b) => c.linkEditing.value = b,
-                                editing: c.linkEditing.value,
-                              );
-                            }),
-                          ],
-                        );
-                      });
+                                }
+                              },
+                            );
+                          }),
+                        ],
+                      );
 
                     case ProfileTab.background:
                       return block(
                         children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return BackgroundPreview(
-                                c.background.value,
-                                onPick: c.pickBackground,
-                                onRemove: c.removeBackground,
-                              );
-                            }),
-                          )
+                          Obx(() {
+                            return BackgroundPreview(
+                              c.background.value,
+                              onPick: c.pickBackground,
+                              onRemove: c.removeBackground,
+                            );
+                          }),
                         ],
                       );
 

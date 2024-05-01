@@ -782,6 +782,7 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
+label_info = Info
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 

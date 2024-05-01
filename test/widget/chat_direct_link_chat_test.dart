@@ -457,7 +457,7 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    final editLink = find.byKey(const Key('EditLinkButton'));
+    final editLink = find.byKey(const Key('CreateLinkButton'));
     await tester.dragUntilVisible(
       editLink,
       find.byKey(const Key('ChatInfoScrollable')),
@@ -465,29 +465,11 @@ void main() async {
     );
 
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('EditLinkButton')));
+    await tester.tap(find.byKey(const Key('CreateLinkButton')));
     await tester.pumpAndSettle();
 
-    final link = find.byKey(const Key('LinkField'), skipOffstage: false);
-    await tester.dragUntilVisible(
-      link,
-      find.byKey(const Key('ChatInfoScrollable')),
-      const Offset(1, 0),
-    );
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(link);
-    await tester.pumpAndSettle();
-
-    await tester.enterText(link, 'newlink');
-    await tester.pumpAndSettle();
-
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-
+    await tester.tap(find.byKey(const Key('SaveLinkButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.byIcon(Icons.check), findsNothing);
 
     verify(graphQlProvider.createChatDirectLink(
       any,
