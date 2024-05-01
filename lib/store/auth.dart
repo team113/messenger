@@ -55,6 +55,11 @@ class AuthRepository implements AbstractAuthRepository {
   /// successful [confirmSignUpEmail].
   Credentials? _signUpCredentials;
 
+  // TODO: Temporary solution, wait for support from backend.
+  /// [HiveMyUser] created with [signUpWithEmail] returned in successful
+  /// [confirmSignUpEmail].
+  HiveMyUser? _signedUpUser;
+
   @override
   set token(AccessTokenSecret? token) {
     Log.debug('set token($token)', '$runtimeType');
@@ -119,7 +124,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response = await _graphQlProvider.signUp();
 
-    _myUserProvider.put(response.createUser.user.toHive());
+    _signedUpUser = response.createUser.user.toHive();
 
     _signUpCredentials = response.toModel();
 
@@ -137,12 +142,16 @@ class AuthRepository implements AbstractAuthRepository {
 
     if (_signUpCredentials == null) {
       throw ArgumentError.notNull('_signUpCredentials');
+    } else if (_signedUpUser == null) {
+      throw ArgumentError.notNull('_signedUpUser');
     }
 
     await _graphQlProvider.confirmEmailCode(
       code,
       raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
+    _myUserProvider.put(_signedUpUser!);
+
     return _signUpCredentials!;
   }
 
