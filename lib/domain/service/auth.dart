@@ -574,13 +574,14 @@ class AuthService extends GetxService {
   /// Switches to the account with the provided [UserId] using the persisted
   /// [Credentials].
   ///
-  /// Succeeds as no-op if the required [Credentials] are absent or stale.
-  Future<void> switchAccount(UserId userId) async {
+  /// Returns `true` if the account was successfully switched, otherwise returns
+  /// `false`.
+  Future<bool> switchAccount(UserId userId) async {
     Log.debug('switchAccount($userId)', '$runtimeType');
 
     final Credentials? creds = allCredentials[userId]?.value;
     if (creds == null) {
-      return;
+      return false;
     }
 
     status.value = RxStatus.loading();
@@ -591,7 +592,7 @@ class AuthService extends GetxService {
       } catch (_) {
         // If any error occurs, these [Credentials] were removed during a
         // [refreshSession] call, so just rethrow.
-        rethrow;
+        return false;
       }
     }
 
@@ -607,8 +608,12 @@ class AuthService extends GetxService {
           _authorized(freshCredentials);
           status.value = RxStatus.success();
         });
+
+        return true;
       }
     }
+
+    return false;
   }
 
   /// Deletes the [MyUser] identified by the provided [id] from the accounts.

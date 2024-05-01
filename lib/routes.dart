@@ -972,6 +972,9 @@ extension RouteLinks on RouterState {
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void style({bool push = false}) => (push ? this.push : go)(Routes.style);
+
+  /// Changes router location to the [Routes.nowhere] page.
+  void nowhere() => go(Routes.nowhere);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

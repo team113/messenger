@@ -210,11 +210,11 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
+          router.go(Routes.nowhere);
           await _authService.confirmSignUpEmail(
             ConfirmationCode(emailCode.text),
+            newAccount: true,
           );
-
-          router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
         } on ConfirmUserEmailException catch (e) {
@@ -401,29 +401,30 @@ class AccountsController extends GetxController {
 
   /// Switches to the account with the given [id].
   Future<void> switchTo(UserId id) async {
-    router.go(Routes.nowhere);
-
     try {
-      await _authService.switchAccount(id);
-      await Future.delayed(500.milliseconds);
-      router.home();
+      final bool succeeded = await _authService.switchAccount(id);
+      if (succeeded) {
+        router.go(Routes.nowhere);
+        await Future.delayed(500.milliseconds);
+        router.home();
+      } else {
+        MessagePopup.error('This account is unavailable.');
+      }
     } catch (e) {
-      router.me();
+      await Future.delayed(500.milliseconds);
       MessagePopup.error(e);
     }
   }
 
   /// Creates a new account and switches to it.
   Future<void> register() async {
-    router.go(Routes.nowhere);
-
     try {
       await _authService.register(newAccount: true);
+      router.nowhere();
       await Future.delayed(500.milliseconds);
       router.home();
     } catch (e) {
-      router.home();
-      await Future.delayed(1.seconds);
+      await Future.delayed(500.milliseconds);
       MessagePopup.error(e);
     }
   }
