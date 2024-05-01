@@ -84,7 +84,7 @@ class AuthService extends GetxService {
   /// should be considered as stale.
   final RxMap<UserId, Rx<Credentials>> allCredentials = RxMap();
 
-  /// Puts the provided [creds] into the [allCredentials].
+  /// Puts the provided [creds] to [allCredentials].
   void _putCredentials(Credentials creds) {
     if (allCredentials.containsKey(creds.userId)) {
       allCredentials[creds.userId]?.value = creds;
@@ -149,14 +149,14 @@ class AuthService extends GetxService {
       }
     };
 
-    // Listen to the [Credentials] changes.
+    // Listen to the [Credentials] changes to stay synchronized with another
+    // tabs.
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
-      Log.debug(
-        '_storageSubscription(${e.key}): received new credentials',
-        '$runtimeType',
-      );
-
       if (e.key?.startsWith('credentials_') ?? false) {
+        Log.debug(
+          '_storageSubscription(${e.key}): received a credentials update',
+          '$runtimeType',
+        );
         if (e.newValue != null) {
           final Credentials received =
               Credentials.fromJson(json.decode(e.newValue!));
@@ -208,6 +208,9 @@ class AuthService extends GetxService {
     });
 
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
+      print(
+        '[AuthService] _credentialsSubscription deleted: ${e.deleted}, ${e.key}',
+      );
       if (e.deleted) {
         WebUtils.removeCredentials(UserId(e.key as String));
       } else {
@@ -227,6 +230,8 @@ class AuthService extends GetxService {
       WebUtils.putCredentials(e);
       _putCredentials(e);
     }
+
+    print('[AuthService] allCredentials: ${allCredentials.keys}');
 
     final AccessToken access = creds.access;
     final RefreshToken refresh = creds.refresh;
@@ -349,22 +354,20 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   ///
-  /// If [status] is already authorized, then this method does nothing.
+  /// If [status] is already authorized, then this method does nothing, however
+  /// this logic can be ignored by specifying either [newAccount] as `true`.
   Future<void> register({
-    bool force = false,
+    bool newAccount = false,
   }) async {
-    Log.debug('register(force: $force)', '$runtimeType');
-
-    // If [force] is `true`, then [WebUtils.protect] is ignored.
-    final Function protect = force ? (fn) => fn() : WebUtils.protect;
+    Log.debug('register(newAccount: $newAccount)', '$runtimeType');
 
     status.value = RxStatus.loading();
 
-    await protect(() async {
+    await WebUtils.protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase, or otherwise the
       // dependencies will be broken as of now.
-      if (!force && _hasAuthorization) {
+      if (!newAccount && _hasAuthorization) {
         return;
       }
 
@@ -373,7 +376,7 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        if (!force) {
+        if (!newAccount) {
           _unauthorized();
         }
         rethrow;
@@ -397,20 +400,20 @@ class AuthService extends GetxService {
   /// If [status] is already authorized, then this method does nothing.
   Future<void> confirmSignUpEmail(
     ConfirmationCode code, {
-    bool force = false,
+    bool newAccount = false,
   }) async {
-    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
-
-    // If [force] is `true`, then [WebUtils.protect] is ignored.
-    final Function protect = force ? (fn) => fn() : WebUtils.protect;
+    Log.debug(
+      'confirmSignUpEmail($code, newAccount: $newAccount)',
+      '$runtimeType',
+    );
 
     status.value = RxStatus.loading();
 
-    await protect(() async {
+    await WebUtils.protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase, or otherwise the
       // dependencies will be broken as of now.
-      if (!force && _hasAuthorization) {
+      if (!newAccount && _hasAuthorization) {
         return;
       }
 
@@ -419,7 +422,7 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        if (!force) {
+        if (!newAccount) {
           _unauthorized();
         }
         rethrow;
@@ -442,9 +445,10 @@ class AuthService extends GetxService {
   /// Throws [CreateSessionException].
   ///
   /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying [force] as `true`, but be careful,
-  /// as this also ignores possible [WebUtils.protect] races - you may want to
-  /// lock it before invoking this method to be async-safe.
+  /// this logic can be ignored by specifying either [force] or [newAccount] as
+  /// `true`. But be careful, [force] set to `true` also ignores possible
+  /// [WebUtils.protect] races - you may want to lock it before invoking this
+  /// method to be async-safe.
   Future<void> signIn(
     UserPassword password, {
     UserLogin? login,
@@ -452,9 +456,10 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
     bool force = false,
+    bool newAccount = false,
   }) async {
     Log.debug(
-      'signIn(***, login: $login, num: $num, email: ***, phone: ***, force: $force)',
+      'signIn(***, login: $login, num: $num, email: ***, phone: ***, force: $force, newAccount: $newAccount)',
       '$runtimeType',
     );
 
@@ -465,9 +470,9 @@ class AuthService extends GetxService {
         credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
     await protect(() async {
       // If service is already authorized, then no-op, as this operation is
-      // meant to be invoked only during unauthorized phase, or otherwise the
-      // dependencies will be broken as of now.
-      if (!force && _hasAuthorization) {
+      // meant to be invoked only during unauthorized phase or to sign in to a
+      // new account , or otherwise the dependencies will be broken as of now.
+      if (!force && !newAccount && _hasAuthorization) {
         return;
       }
 
@@ -482,7 +487,7 @@ class AuthService extends GetxService {
         _authorized(creds);
         status.value = RxStatus.success();
       } catch (e) {
-        if (!force) {
+        if (!newAccount) {
           _unauthorized();
         }
         rethrow;
@@ -567,33 +572,43 @@ class AuthService extends GetxService {
     return await deleteSession();
   }
 
-  /// Authorizes the [Session] if there are any saved [Credentials] for the
-  /// given [UserId].
+  /// Switches to the account with the provided [UserId] using the persisted
+  /// [Credentials].
+  ///
+  /// Succeeds as no-op if the required [Credentials] are absent or stale.
   Future<void> switchAccount(UserId userId) async {
-    Log.debug('signInToSavedAccount($userId)', '$runtimeType');
+    Log.debug('switchAccount($userId)', '$runtimeType');
 
     final Credentials? creds = allCredentials[userId]?.value;
     if (creds == null) {
       return;
     }
 
-    final bool areFresh = await validateToken(creds);
-    if (!areFresh) {
+    status.value = RxStatus.loading();
+
+    if (_shouldRefresh(creds)) {
       try {
-        await refreshSession(updatingCreds: creds);
+        await refreshSession(userId: userId);
       } catch (_) {
-        // If any error occurs, these [Credentials] were removed during
-        // [refreshSession] call, so just return.
-        return;
+        // If any error occurs, these [Credentials] were removed during a
+        // [refreshSession] call, so just rethrow.
+        rethrow;
       }
     }
 
-    final Credentials? freshCredentials = WebUtils.getCredentials(userId);
+    final Credentials? freshCredentials = allCredentials[userId]?.value;
+
     if (freshCredentials != null) {
-      await WebUtils.protect(() async {
-        _authorized(freshCredentials);
-        status.value = RxStatus.success();
-      });
+      // TODO: This workarounds the situation when the password for another
+      //       account was changed or the account was deleted. We should have a
+      //       remote subscription to [MyUser] events for each of the accounts.
+      final bool areValid = await validateToken(freshCredentials);
+      if (areValid) {
+        await WebUtils.protect(() async {
+          _authorized(freshCredentials);
+          status.value = RxStatus.success();
+        });
+      }
     }
   }
 
@@ -626,20 +641,19 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Refreshes [updatingCreds] or the current [credentials], if none provided.
-  Future<void> refreshSession({Credentials? updatingCreds}) async {
+  /// Refreshes [Credentials] of the account with the provided [UserId] or of
+  /// the active one, if [userId] is not provided.
+  Future<void> refreshSession({UserId? userId}) async {
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
 
-    // If [updatingCreds] were not provided, then use the current [credentials].
-    updatingCreds ??= credentials.value;
+    userId ??= this.userId;
+    final bool areCurrent = userId == this.userId;
 
     final provider = Get.find<MyUserHiveProvider>();
-    final myUser = updatingCreds != null
-        ? provider.get(updatingCreds.userId)?.value
-        : null;
-    final name = myUser?.name ?? myUser?.num ?? updatingCreds?.userId;
+    final myUser = userId != null ? provider.get(userId)?.value : null;
+    final name = myUser?.name ?? myUser?.num ?? userId;
 
     Log.debug(
       'refreshSession($name) with `isLocked`: $isLocked',
@@ -647,20 +661,19 @@ class AuthService extends GetxService {
     );
 
     try {
-      // Do not perform renew since some other task has already renewed it. But
-      // still wait for the lock to be sure that session was renewed when
-      // current `refreshSession()` call resolves.
+      // Wait for the lock to be released and check the [Credentials] again as
+      // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        updatingCreds = allCredentials[updatingCreds?.userId]?.value;
+        final Credentials? oldCreds = allCredentials[userId]?.value;
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($name): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(updatingCreds)}',
+            'refreshSession($name): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
 
-          if (!_shouldRefresh(updatingCreds)) {
-            // [Credentials] are successfully updated.
+          if (!_shouldRefresh(oldCreds)) {
+            // [Credentials] are fresh.
             return;
           }
         } else {
@@ -670,74 +683,65 @@ class AuthService extends GetxService {
           );
         }
 
-        if (updatingCreds == null) {
-          Log.debug(
-            'refreshSession($name): no active account, set to unauthorized state',
-            '$runtimeType',
-          );
-
-          _unauthorized();
+        if (oldCreds == null) {
+          // These [Credentials] were removed while we've been waiting for the
+          // lock to be released.
+          if (areCurrent) {
+            router.go(_unauthorized());
+          }
           return;
         }
 
         // Fetch the fresh [Credentials] from browser's storage, if there are
         // any.
         final Credentials? webStoredCreds =
-            WebUtils.getCredentials(updatingCreds!.userId);
+            WebUtils.getCredentials(oldCreds.userId);
 
-        if (webStoredCreds != null) {
-          if (webStoredCreds.userId == credentials.value?.userId) {
-            if (webStoredCreds.access.secret !=
-                credentials.value?.access.secret) {
-              _authorized(webStoredCreds);
-              status.value = RxStatus.success();
-              return;
-            }
+        if (webStoredCreds != null &&
+            webStoredCreds.access.secret != oldCreds.access.secret) {
+          if (areCurrent) {
+            _authorized(webStoredCreds);
+            status.value = RxStatus.success();
           } else {
+            // [Credentials] of another account were refreshed.
             _putCredentials(webStoredCreds);
           }
+          return;
         }
 
-        if (updatingCreds == null) {
-          router.go(_unauthorized());
-        } else {
-          final bool areMine =
-              updatingCreds!.userId == credentials.value?.userId;
+        try {
+          final Credentials data = await _authRepository.refreshSession(
+            oldCreds.refresh.secret,
+            raw: !areCurrent,
+          );
 
-          try {
-            final Credentials data = await _authRepository.refreshSession(
-              updatingCreds!.refresh.secret,
-              raw: !areMine,
-            );
-
-            if (areMine) {
-              _authorized(data);
-            } else {
-              // [Credentials] of not currently active account were updated,
-              // just save them.
-              //
-              // Saving to [Hive] is safe here, as this callback is guarded by
-              // [WebUtils.protect].
-              await _credentialsProvider.put(data);
-              _putCredentials(data);
-            }
-            status.value = RxStatus.success();
-          } on RefreshSessionException catch (e) {
-            Log.debug(
-              'refreshSession($name): Exception occurred: $e, areMine: $areMine',
-              '$runtimeType',
-            );
-
-            if (areMine) {
-              router.go(_unauthorized());
-            } else {
-              // Remove stale [Credentials].
-              _credentialsProvider.remove(updatingCreds!.userId);
-              allCredentials.remove(updatingCreds!.userId);
-            }
-
-            rethrow;
+          if (areCurrent) {
+            _authorized(data);
+          } else {
+            // [Credentials] of not currently active account were updated,
+            // just save them.
+            //
+            // Saving to [Hive] is safe here, as this callback is guarded by
+            // the [WebUtils.protect] lock.
+            await _credentialsProvider.put(data);
+            _putCredentials(data);
           }
+          status.value = RxStatus.success();
+        } on RefreshSessionException catch (e) {
+          Log.debug(
+            'refreshSession($name): Exception occurred: $e, areCurrent: $areCurrent',
+            '$runtimeType',
+          );
+
+          if (areCurrent) {
+            router.go(_unauthorized());
+          } else {
+            // Remove stale [Credentials].
+            _credentialsProvider.remove(oldCreds.userId);
+            allCredentials.remove(oldCreds.userId);
+          }
+
+          rethrow;
         }
       });
     } on RefreshSessionException catch (_) {
@@ -750,7 +754,7 @@ class AuthService extends GetxService {
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(const Duration(seconds: 2));
-      await refreshSession(updatingCreds: updatingCreds);
+      await refreshSession(userId: userId);
     }
   }
 
@@ -785,7 +789,7 @@ class AuthService extends GetxService {
           }
 
           if (_shouldRefresh(creds)) {
-            refreshSession(updatingCreds: creds);
+            refreshSession(userId: id);
           }
         },
       );
@@ -812,14 +816,21 @@ class AuthService extends GetxService {
   String _unauthorized() {
     Log.debug('_unauthorized()', '$runtimeType');
 
-    final UserId? id = _accountProvider.userId;
+    final UserId? id = userId;
     if (id != null) {
       _credentialsProvider.remove(id);
       _refreshTimers.remove(id)?.cancel();
       allCredentials.remove(id);
     }
 
-    _accountProvider.clear();
+    if (id == _accountProvider.userId) {
+      // TODO: This workaounds the situation when another tab on Web has already
+      //       rewritten the value in [_accountProvider] during switching to
+      //       another account but the tab this code is running on still uses
+      //       the [credentials] of an old one, which is an expected behavior.
+      _accountProvider.clear();
+    }
+
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();
@@ -829,8 +840,8 @@ class AuthService extends GetxService {
 
   /// Indicates whether the [credentials] require a refresh.
   ///
-  /// If [credentials] are not provided, then credentials of an active account
-  /// are used.
+  /// If [credentials] are not provided, then ones of the current session are
+  /// checked.
   bool _shouldRefresh([Credentials? credentials]) {
     final Credentials? creds = credentials ?? this.credentials.value;
 
