@@ -110,7 +110,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Returns the currently active [HiveMyUser] from [Hive].
   HiveMyUser? get _active {
-    final UserId? userId = myUser.value?.id;
+    final UserId? userId = _accountLocal.userId;
     final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
 
     return saved;
@@ -126,10 +126,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    final UserId? userId = _accountLocal.userId;
-    final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
-
-    myUser = Rx<MyUser?>(saved?.value);
+    myUser = Rx<MyUser?>(_active?.value);
 
     _populateMyUsers();
 
