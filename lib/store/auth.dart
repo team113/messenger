@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
+
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
@@ -40,6 +42,9 @@ class AuthRepository implements AbstractAuthRepository {
     this._myUserProvider,
     this._credentialsProvider,
   );
+
+  @override
+  final RxList<Session> sessions = RxList();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -160,15 +165,21 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> deleteSession([
-    FcmRegistrationToken? fcmRegistrationToken,
-  ]) async {
-    Log.debug('deleteSession($fcmRegistrationToken)', '$runtimeType');
+  Future<void> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    FcmRegistrationToken? fcmToken,
+  }) async {
+    Log.debug('deleteSession($fcmToken)', '$runtimeType');
 
-    if (fcmRegistrationToken != null) {
-      await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
+    if (fcmToken != null) {
+      await _graphQlProvider.unregisterFcmDevice(fcmToken);
     }
-    await _graphQlProvider.deleteSession();
+    await _graphQlProvider.deleteSession(id: id, password: password);
+
+    if (id != null) {
+      sessions.removeWhere((e) => e.id == id);
+    }
   }
 
   @override
@@ -266,5 +277,12 @@ class AuthRepository implements AbstractAuthRepository {
 
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
+  }
+
+  @override
+  Future<void> updateSessions() async {
+    Log.debug('updateSessions()', '$runtimeType');
+    sessions.value =
+        (await _graphQlProvider.sessions()).map((e) => e.toModel()).toList();
   }
 }

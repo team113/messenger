@@ -32,8 +32,10 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -51,7 +53,11 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService, this._settingsRepo);
+  MyProfileController(
+    this._myUserService,
+    this._authService,
+    this._settingsRepo,
+  );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -101,8 +107,14 @@ class MyProfileController extends GetxController {
   /// the [AppBar].
   final RxBool displayName = RxBool(false);
 
+  /// Indicator whether the [sessions] are being updated.
+  final RxBool sessionsUpdating = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
+
+  /// [AuthService] used to get [sessions] value.
+  final AuthService _authService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -140,6 +152,9 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
+  /// Returns the list of active [Session]s.
+  RxList<Session> get sessions => _authService.sessions;
+
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
@@ -150,6 +165,10 @@ class MyProfileController extends GetxController {
       } catch (_) {
         // No-op, shouldn't break the view.
       }
+    }
+
+    if (sessions.isEmpty) {
+      updateSessions();
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -461,6 +480,16 @@ class MyProfileController extends GetxController {
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled) =>
       _settingsRepo.setWorkWithUsTabEnabled(enabled);
+
+  /// Updates the [sessions] value.
+  Future<void> updateSessions() async {
+    try {
+      sessionsUpdating.value = true;
+      await _authService.updateSessions();
+    } finally {
+      sessionsUpdating.value = false;
+    }
+  }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///

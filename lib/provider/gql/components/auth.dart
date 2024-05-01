@@ -87,6 +87,10 @@ mixin AuthGraphQlMixin {
           document: DeleteSessionMutation(variables: variables).document,
           variables: variables.toJson(),
         ),
+        onException: (data) => DeleteSessionException(
+          DeleteSession$Mutation.fromJson(data).deleteSession
+              as DeleteSessionErrorCode,
+        ),
         raw: RawClientOptions(token),
       );
       GraphQlProviderExceptions.fire(result);

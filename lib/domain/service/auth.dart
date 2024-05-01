@@ -97,6 +97,9 @@ class AuthService extends GetxService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
+  /// Returns reactive list of active [Session]s.
+  RxList<Session> get sessions => _authRepository.sessions;
+
   /// Indicates whether the [credentials] require a refresh.
   bool get _shouldRefresh =>
       credentials.value?.access.expireAt
@@ -465,45 +468,55 @@ class AuthService extends GetxService {
   ///
   /// If [force] is `true`, then the current [Credentials] will be revoked
   /// unilaterally and immediately.
-  Future<String> deleteSession({bool force = false}) async {
-    Log.debug('deleteSession(force: $force)', '$runtimeType');
+  Future<String?> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    bool force = false,
+  }) async {
+    Log.debug('deleteSession(force: $id, $password, $force)', '$runtimeType');
 
-    status.value = RxStatus.empty();
+    if(id == null) {
+      status.value = RxStatus.empty();
 
-    if (force) {
-      if (userId != null) {
-        _authRepository.removeAccount(userId!);
-      }
-
-      return _unauthorized();
-    }
-
-    return await WebUtils.protect(() async {
-      try {
-        FcmRegistrationToken? fcmToken;
-
-        if (PlatformUtils.pushNotifications) {
-          final NotificationSettings settings =
-              await FirebaseMessaging.instance.getNotificationSettings();
-
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            final String? token = await FirebaseMessaging.instance.getToken(
-              vapidKey: Config.vapidKey,
-            );
-
-            if (token != null) {
-              fcmToken = FcmRegistrationToken(token);
-            }
-          }
+      if (force) {
+        if (userId != null) {
+          _authRepository.removeAccount(userId!);
         }
 
-        await _authRepository.deleteSession(fcmToken);
-      } catch (e) {
-        printError(info: e.toString());
+        return _unauthorized();
       }
 
-      return _unauthorized();
-    });
+      return await WebUtils.protect(() async {
+        try {
+          FcmRegistrationToken? fcmToken;
+
+          if (PlatformUtils.pushNotifications) {
+            final NotificationSettings settings =
+            await FirebaseMessaging.instance.getNotificationSettings();
+
+            if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+              final String? token = await FirebaseMessaging.instance.getToken(
+                vapidKey: Config.vapidKey,
+              );
+
+              if (token != null) {
+                fcmToken = FcmRegistrationToken(token);
+              }
+            }
+          }
+
+          await _authRepository.deleteSession(fcmToken: fcmToken);
+        } catch (e) {
+          printError(info: e.toString());
+        }
+
+        return _unauthorized();
+      });
+    } else {
+      await _authRepository.deleteSession(id: id, password: password);
+
+      return null;
+    }
   }
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of
@@ -517,7 +530,7 @@ class AuthService extends GetxService {
       _authRepository.removeAccount(userId!);
     }
 
-    return await deleteSession();
+    return (await deleteSession())!;
   }
 
   /// Validates the current [AccessToken].
@@ -605,6 +618,12 @@ class AuthService extends GetxService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
+  /// Updates the [sessions] list.
+  Future<void> updateSessions() async {
+    Log.debug('updateSessions()', '$runtimeType');
+    return await _authRepository.updateSessions();
+  }
+
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
     Log.debug('_authorized($creds)', '$runtimeType');
@@ -637,6 +656,7 @@ class AuthService extends GetxService {
 
     _accountProvider.clear();
     _authRepository.token = null;
+    _authRepository.sessions.clear();
     credentials.value = null;
     status.value = RxStatus.empty();
     _refreshTimer?.cancel();

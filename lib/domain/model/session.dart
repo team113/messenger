@@ -68,6 +68,65 @@ class SessionId extends NewType<String> {
 @HiveType(typeId: ModelTypeId.userAgent)
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
+
+  /// Returns the device name path of this [UserAgent].
+  String get deviceName {
+    if (val.startsWith('Gapopa')) {
+      int i = val.indexOf('(');
+      if (i != -1) {
+        final String value = val.substring(i + 1, val.length - 1);
+
+        final List<String> parts = value.split(';');
+        if (value.contains('macOS') ||
+            value.contains('Android') ||
+            value.contains('iOS')) {
+          if (parts.length > 1) {
+            return parts[parts.length - 2].trim();
+          }
+        } else if (value.contains('Windows')) {
+          if (parts.isNotEmpty) {
+            return parts[0].split(' ').take(3).join('  ');
+          }
+        } else {
+          // Linux
+          if (parts.isNotEmpty) {
+            return parts[0].split(' ').take(2).join('  ');
+          }
+        }
+      }
+    } else {
+      final List<String> parts = val.split(' ');
+
+      int? i;
+
+      i = parts.indexWhere(
+        (e) =>
+            e.startsWith('Firefox') ||
+            e.startsWith('Edg') ||
+            e.startsWith('OPR') ||
+            e.startsWith('Opera') ||
+            e.startsWith('YaBrowser'),
+      );
+
+      if (i == -1) {
+        i = parts.indexWhere((e) => e.startsWith('Chrome'));
+      }
+
+      if (i == -1) {
+        i = parts.indexWhere((e) => e.startsWith('Safari'));
+      }
+
+      if (i != -1) {
+        return parts[i]
+            .split('/')
+            .join(' ')
+            .replaceAll('OPR', 'Opera')
+            .replaceAll('YaBrowser', 'Yandex Browser');
+      }
+    }
+
+    return val;
+  }
 }
 
 /// Token used for authenticating a [Session].

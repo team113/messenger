@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
@@ -36,7 +35,7 @@ class ChangePasswordView extends StatelessWidget {
   const ChangePasswordView({super.key});
 
   /// Displays a [ChangePasswordView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, {UserEmail? email}) {
+  static Future<T?> show<T>(BuildContext context) {
     return ModalPopup.show(context: context, child: const ChangePasswordView());
   }
 
