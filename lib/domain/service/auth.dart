@@ -208,8 +208,9 @@ class AuthService extends GetxService {
     });
 
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      print(
-        '[AuthService] _credentialsSubscription deleted: ${e.deleted}, ${e.key}',
+      Log.debug(
+        '_credentialsSubscription event deleted: ${e.deleted}, ${e.key}',
+        '$runtimeType',
       );
       if (e.deleted) {
         WebUtils.removeCredentials(UserId(e.key as String));
@@ -230,8 +231,6 @@ class AuthService extends GetxService {
       WebUtils.putCredentials(e);
       _putCredentials(e);
     }
-
-    print('[AuthService] allCredentials: ${allCredentials.keys}');
 
     final AccessToken access = creds.access;
     final RefreshToken refresh = creds.refresh;
