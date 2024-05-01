@@ -191,14 +191,14 @@ class AuthService extends GetxService {
             }
           }
         } else {
-          final UserId? userId = allCredentials.keys
+          final UserId? deletedId = allCredentials.keys
               .firstWhereOrNull((k) => e.key?.endsWith(k.val) ?? false);
 
-          allCredentials.remove(userId);
+          allCredentials.remove(deletedId);
 
           final bool currentAreNull = credentials.value == null;
           final bool currentDeleted =
-              userId != null && userId == credentials.value?.userId;
+              deletedId != null && deletedId == this.userId;
 
           if ((currentAreNull || currentDeleted) && !WebUtils.isPopup) {
             router.go(_unauthorized());
@@ -219,17 +219,17 @@ class AuthService extends GetxService {
       }
     });
 
+    for (final Credentials e in _credentialsProvider.valuesSafe) {
+      WebUtils.putCredentials(e);
+      _putCredentials(e);
+    }
+
     final UserId? userId = _accountProvider.userId;
     final Credentials? creds =
         userId != null ? _credentialsProvider.get(userId) : null;
 
     if (creds == null) {
       return _unauthorized();
-    }
-
-    for (final Credentials e in _credentialsProvider.valuesSafe) {
-      WebUtils.putCredentials(e);
-      _putCredentials(e);
     }
 
     final AccessToken access = creds.access;
