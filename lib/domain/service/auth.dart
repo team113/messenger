@@ -163,25 +163,21 @@ class AuthService extends GetxService {
           Credentials? current = credentials.value;
           final bool authorized = _hasAuthorization;
 
-          if (received.userId == current?.userId) {
-            // Check whether these [Credentials] are actually new.
-            if (received.access.secret != current?.access.secret) {
-              // These [Credentials] are of the active account, so just apply
-              // them as saving to [Hive] has already been performed by another
-              // tab.
-              _authRepository.token = received.access.secret;
-              _authRepository.applyToken();
-              credentials.value = received;
-              _putCredentials(received);
-              status.value = RxStatus.success();
-
-              if (!authorized) {
-                router.home();
-              }
-            }
-          } else if (!authorized) {
-            _authorized(received);
+          if (!authorized ||
+              received.userId == current?.userId &&
+                  received.access.secret != current?.access.secret) {
+            // These [Credentials] should be treated as current ones, so just
+            // apply them as saving to [Hive] has already been performed by
+            // another tab.
+            _authRepository.token = received.access.secret;
+            _authRepository.applyToken();
+            credentials.value = received;
+            _putCredentials(received);
             status.value = RxStatus.success();
+
+            if (!authorized) {
+              router.home();
+            }
           } else {
             current = allCredentials[received.userId]?.value;
             if (current == null ||
