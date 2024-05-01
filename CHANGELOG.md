@@ -11,6 +11,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.13.4...v0.1.0-alpha.14) | [Milestone](/../../milestone/23)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned avatar, name and link editing. ([#980], [#948])
+    - User page:
+        - Redesigned avatar and name editing. ([#980], [#948])
+    - Profile page:
+        - Redesigned avatar and link editing. ([#980], [#948])
+
 ### Fixed
 
 - UI:
@@ -19,9 +29,11 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Tapping on image opens gallery when being in context menu. ([#983], [#979])
 
+[#948]: /../../issues/948
 [#950]: /../../issues/950
 [#978]: /../../pull/978
 [#979]: /../../issues/979
+[#980]: /../../pull/980
 [#983]: /../../pull/983
 
 
