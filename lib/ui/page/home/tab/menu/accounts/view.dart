@@ -390,91 +390,99 @@ class AccountsView extends StatelessWidget {
                   tiles.add(
                     Padding(
                       padding: ModalPopup.padding(context),
-                      child: ContactTile(
-                        myUser: myUser,
-                        user: user,
-                        onTap: () {
-                          if (c.myUser.value?.id != user.id) {
-                            Navigator.of(context).pop();
-                            c.switchTo(user.id);
-                            router.tab = HomeTab.chats;
-                          }
-                        },
-                        trailing: [
-                          AnimatedButton(
-                            decorator: (child) => Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                              child: child,
-                            ),
-                            onPressed: () async {
-                              final result = await MessagePopup.alert(
-                                'btn_logout'.l10n,
-                                description: [
-                                  TextSpan(
-                                    style: style.fonts.medium.regular.secondary,
-                                    children: [
-                                      TextSpan(
-                                        text:
-                                            'alert_are_you_sure_want_to_log_out1'
-                                                .l10n,
-                                      ),
-                                      TextSpan(
-                                        style: style
-                                            .fonts.medium.regular.onBackground,
-                                        text: myUser?.name?.val ??
-                                            myUser?.num.toString(),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            'alert_are_you_sure_want_to_log_out2'
-                                                .l10n,
-                                      ),
-                                      if (!(myUser?.hasPassword ?? true)) ...[
-                                        const TextSpan(text: '\n\n'),
-                                        TextSpan(
-                                          text: 'label_password_not_set'.l10n,
-                                        ),
-                                      ],
-                                      if (myUser?.emails.confirmed.isEmpty ??
-                                          false) ...[
-                                        const TextSpan(text: '\n\n'),
+                      child: Obx(() {
+                        final bool authorized = c.sessions.contains(user.id);
+
+                        return ContactTile(
+                          myUser: myUser,
+                          user: user,
+                          darken: authorized ? 0 : 0.06,
+                          onTap: authorized
+                              ? () {
+                                  if (c.myUser.value?.id != user.id) {
+                                    Navigator.of(context).pop();
+                                    c.switchTo(user.id);
+                                    router.tab = HomeTab.chats;
+                                  }
+                                }
+                              : null,
+                          trailing: [
+                            AnimatedButton(
+                              decorator: (child) => Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                                child: child,
+                              ),
+                              onPressed: () async {
+                                final result = await MessagePopup.alert(
+                                  'btn_logout'.l10n,
+                                  description: [
+                                    TextSpan(
+                                      style:
+                                          style.fonts.medium.regular.secondary,
+                                      children: [
                                         TextSpan(
                                           text:
-                                              'label_email_or_password_not_set'
+                                              'alert_are_you_sure_want_to_log_out1'
                                                   .l10n,
                                         ),
+                                        TextSpan(
+                                          style: style.fonts.medium.regular
+                                              .onBackground,
+                                          text: myUser?.name?.val ??
+                                              myUser?.num.toString(),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              'alert_are_you_sure_want_to_log_out2'
+                                                  .l10n,
+                                        ),
+                                        if (!(myUser?.hasPassword ?? true)) ...[
+                                          const TextSpan(text: '\n\n'),
+                                          TextSpan(
+                                            text: 'label_password_not_set'.l10n,
+                                          ),
+                                        ],
+                                        if (myUser?.emails.confirmed.isEmpty ??
+                                            false) ...[
+                                          const TextSpan(text: '\n\n'),
+                                          TextSpan(
+                                            text:
+                                                'label_email_or_password_not_set'
+                                                    .l10n,
+                                          ),
+                                        ],
                                       ],
-                                    ],
-                                  )
-                                ],
-                              );
+                                    )
+                                  ],
+                                );
 
-                              if (result == true) {
-                                c.deleteAccount(user.id);
-                              }
-                            },
-                            child: c.myUser.value?.id == myUser?.id
-                                ? const SvgIcon(SvgIcons.logoutWhite)
-                                : const SvgIcon(SvgIcons.logout),
-                          ),
-                        ],
-                        selected: c.myUser.value?.id == myUser?.id,
-                        subtitle: [
-                          const SizedBox(height: 5),
-                          if (c.myUser.value?.id == myUser?.id)
-                            Text(
-                              'label_active_account'.l10n,
-                              style: style.fonts.small.regular.onPrimary,
-                            )
-                          else
-                            Obx(() {
-                              return Text(
-                                user.user.value.getStatus() ?? '',
-                                style: style.fonts.small.regular.secondary,
-                              );
-                            })
-                        ],
-                      ),
+                                if (result == true) {
+                                  c.deleteAccount(user.id);
+                                }
+                              },
+                              child: c.myUser.value?.id == myUser?.id
+                                  ? const SvgIcon(SvgIcons.logoutWhite)
+                                  : const SvgIcon(SvgIcons.logout),
+                            ),
+                          ],
+                          selected: c.myUser.value?.id == myUser?.id,
+                          subtitle: [
+                            const SizedBox(height: 5),
+                            if (c.myUser.value?.id == myUser?.id)
+                              Text(
+                                'label_active_account'.l10n,
+                                style: style.fonts.small.regular.onPrimary,
+                              )
+                            else
+                              Obx(() {
+                                return Text(
+                                  user.user.value.getStatus() ?? '',
+                                  style: style.fonts.small.regular.secondary,
+                                );
+                              })
+                          ],
+                        );
+                      }),
                     ),
                   );
                 }

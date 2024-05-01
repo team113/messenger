@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
@@ -103,8 +104,12 @@ class AccountsController extends GetxController {
   /// Reactive map of authenticated [MyUser]s.
   RxMap<UserId, Rx<MyUser?>> get _accounts => _myUserService.myUsers;
 
+  RxMap<UserId, Rx<Credentials>> get _sessions => _authService.allCredentials;
+
   /// Reactive list of [MyUser]s paired with the corresponding [User]s.
   final RxList<AccountData> accounts = RxList();
+
+  final RxSet<UserId> sessions = RxSet();
 
   /// [MyUserService] to obtain [_accounts] and [myUser].
   final MyUserService _myUserService;
@@ -121,12 +126,22 @@ class AccountsController extends GetxController {
   /// [Worker] updating the [accounts] list.
   Worker? _myUsersWorker;
 
+  Worker? _sessionsWorker;
+
   @override
   void onInit() {
     _myUsersWorker ??= ever(_accounts, (_) {
       _populateUsers();
       accounts.refresh();
     });
+
+    _sessionsWorker ??= ever(
+      _sessions,
+      (v) {
+        sessions.clear();
+        sessions.addAll(v.keys);
+      },
+    );
 
     login = TextFieldState(
       onChanged: (s) {
@@ -237,6 +252,8 @@ class AccountsController extends GetxController {
 
     _populateUsers();
 
+    sessions.addAll(_sessions.keys);
+
     super.onInit();
   }
 
@@ -245,7 +262,7 @@ class AccountsController extends GetxController {
   void _populateUsers() async {
     status.value = RxStatus.loading();
 
-    final values = <AccountData>[];
+    final List<AccountData> values = [];
 
     for (final e in _accounts.entries) {
       final UserId id = e.key;
@@ -321,6 +338,7 @@ class AccountsController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
+      router.go(Routes.nowhere);
       await _authService.signIn(
         userPassword,
         login: userLogin,
@@ -330,7 +348,6 @@ class AccountsController extends GetxController {
         force: true,
       );
 
-      router.go(Routes.nowhere);
       await Future.delayed(const Duration(milliseconds: 500));
       router.home();
     } on CreateSessionException catch (e) {
@@ -388,31 +405,27 @@ class AccountsController extends GetxController {
 
     try {
       await _authService.switchAccount(id);
+      await Future.delayed(500.milliseconds);
+      router.home();
     } catch (e) {
-      Future.delayed(const Duration(milliseconds: 1000)).then((v) {
-        MessagePopup.error(e);
-      });
+      router.me();
+      MessagePopup.error(e);
     }
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    router.home();
   }
 
   /// Creates a new account and switches to it.
   Future<void> register() async {
     router.go(Routes.nowhere);
+
     try {
       await _authService.register(newAccount: true);
+      await Future.delayed(500.milliseconds);
+      router.home();
     } catch (e) {
-      Future.delayed(const Duration(milliseconds: 1000)).then((v) {
-        MessagePopup.error(e);
-      });
+      router.home();
+      await Future.delayed(1.seconds);
+      MessagePopup.error(e);
     }
-
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    router.home();
   }
 
   /// Starts or stops the [_signInTimer] based on [enabled] value.
