@@ -120,6 +120,7 @@ class ChangePasswordController extends GetxController {
       onChanged: (s) {
         newPassword.error.value = null;
         repeatPassword.error.value = null;
+        repeatPassword.resubmitOnError.value = false;
 
         if (s.text.isNotEmpty) {
           try {

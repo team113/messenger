@@ -40,7 +40,10 @@ class EraseController extends GetxController {
 
   /// [TextFieldState] of a password text input.
   late final TextFieldState password = TextFieldState(
-    onChanged: (s) => s.error.value = null,
+    onChanged: (s) {
+      s.error.value = null;
+      s.resubmitOnError.value = false;
+    },
     onSubmitted: (s) => signIn(),
   );
 

@@ -72,6 +72,7 @@ class AddEmailController extends GetxController {
     code = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
+        s.resubmitOnError.value = false;
 
         if (s.text.isNotEmpty) {
           try {

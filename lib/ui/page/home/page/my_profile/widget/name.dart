@@ -48,6 +48,7 @@ class _UserNameFieldState extends State<UserNameField> {
     text: widget.name?.val,
     onChanged: (s) async {
       s.error.value = null;
+      s.resubmitOnError.value = false;
 
       if (s.text.isNotEmpty) {
         try {

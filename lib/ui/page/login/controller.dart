@@ -173,18 +173,25 @@ class LoginController extends GetxController {
     password = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
+        s.resubmitOnError.value = false;
         s.unsubmit();
       },
       onSubmitted: (s) => signIn(),
     );
 
     recovery = TextFieldState(
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+        s.resubmitOnError.value = false;
+      },
       onSubmitted: (s) => recoverAccess(),
     );
 
     recoveryCode = TextFieldState(
-      onChanged: (s) => s.error.value = null,
+      onChanged: (s) {
+        s.error.value = null;
+        s.resubmitOnError.value = false;
+      },
       onSubmitted: (s) => validateCode(),
     );
 
@@ -203,6 +210,7 @@ class LoginController extends GetxController {
     repeatPassword = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
+        s.resubmitOnError.value = false;
         newPassword.error.value = null;
 
         if (s.text != newPassword.text && newPassword.isValidated) {
@@ -215,6 +223,7 @@ class LoginController extends GetxController {
     email = TextFieldState(
       onChanged: (s) {
         s.error.value = null;
+        s.resubmitOnError.value = false;
 
         if (s.text.isNotEmpty) {
           try {
@@ -254,6 +263,9 @@ class LoginController extends GetxController {
     );
 
     emailCode = TextFieldState(
+      onChanged: (s) {
+        s.resubmitOnError.value = false;
+      },
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
