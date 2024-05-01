@@ -354,19 +354,19 @@ class AuthService extends GetxService {
   /// he doesn't re-sign in within that period of time.
   ///
   /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying either [newAccount] as `true`.
+  /// this logic can be ignored by specifying either [switching] as `true`.
   Future<void> register({
-    bool newAccount = false,
+    bool switching = false,
   }) async {
-    Log.debug('register(newAccount: $newAccount)', '$runtimeType');
+    Log.debug('register(switching: $switching)', '$runtimeType');
 
-    status.value = RxStatus.loading();
+    status.value = switching ? RxStatus.loadingMore() : RxStatus.loading();
 
     await WebUtils.protect(() async {
       // If service is already authorized, then no-op, as this operation is
-      // meant to be invoked only during unauthorized phase, or otherwise the
-      // dependencies will be broken as of now.
-      if (!newAccount && _hasAuthorization) {
+      // meant to be invoked only during unauthorized phase or account
+      // switching, or otherwise the dependencies will be broken as of now.
+      if (!switching && _hasAuthorization) {
         return;
       }
 
@@ -375,7 +375,9 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        if (!newAccount) {
+        if (switching) {
+          status.value = RxStatus.success();
+        } else {
           _unauthorized();
         }
         rethrow;
@@ -399,20 +401,20 @@ class AuthService extends GetxService {
   /// If [status] is already authorized, then this method does nothing.
   Future<void> confirmSignUpEmail(
     ConfirmationCode code, {
-    bool newAccount = false,
+    bool switching = false,
   }) async {
     Log.debug(
-      'confirmSignUpEmail($code, newAccount: $newAccount)',
+      'confirmSignUpEmail($code, switching: $switching)',
       '$runtimeType',
     );
 
-    status.value = RxStatus.loading();
+    status.value = switching ? RxStatus.loadingMore() : RxStatus.loading();
 
     await WebUtils.protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase, or otherwise the
       // dependencies will be broken as of now.
-      if (!newAccount && _hasAuthorization) {
+      if (!switching && _hasAuthorization) {
         return;
       }
 
@@ -421,9 +423,12 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        if (!newAccount) {
+        if (switching) {
+          status.value = RxStatus.success();
+        } else {
           _unauthorized();
         }
+
         rethrow;
       }
     });
@@ -444,7 +449,7 @@ class AuthService extends GetxService {
   /// Throws [CreateSessionException].
   ///
   /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying either [force] or [newAccount] as
+  /// this logic can be ignored by specifying either [force] or [switching] as
   /// `true`. But be careful, [force] set to `true` also ignores possible
   /// [WebUtils.protect] races - you may want to lock it before invoking this
   /// method to be async-safe.
@@ -455,10 +460,10 @@ class AuthService extends GetxService {
     UserEmail? email,
     UserPhone? phone,
     bool force = false,
-    bool newAccount = false,
+    bool switching = false,
   }) async {
     Log.debug(
-      'signIn(***, login: $login, num: $num, email: ***, phone: ***, force: $force, newAccount: $newAccount)',
+      'signIn(***, login: $login, num: $num, email: ***, phone: ***, force: $force, switching: $switching)',
       '$runtimeType',
     );
 
@@ -466,12 +471,12 @@ class AuthService extends GetxService {
     final Function protect = force ? (fn) => fn() : WebUtils.protect;
 
     status.value =
-        credentials.value == null ? RxStatus.loading() : RxStatus.loadingMore();
+        switching || force ? RxStatus.loadingMore() : RxStatus.loading();
     await protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase or to sign in to a
       // new account , or otherwise the dependencies will be broken as of now.
-      if (!force && !newAccount && _hasAuthorization) {
+      if (!force && !switching && _hasAuthorization) {
         return;
       }
 
@@ -486,9 +491,12 @@ class AuthService extends GetxService {
         _authorized(creds);
         status.value = RxStatus.success();
       } catch (e) {
-        if (!newAccount) {
+        if (switching) {
+          status.value = RxStatus.success();
+        } else {
           _unauthorized();
         }
+
         rethrow;
       }
     });
@@ -586,19 +594,16 @@ class AuthService extends GetxService {
 
     status.value = RxStatus.loading();
 
-    if (_shouldRefresh(creds)) {
-      try {
-        await refreshSession(userId: userId);
-      } catch (_) {
-        // If any error occurs, these [Credentials] were removed during a
-        // [refreshSession] call, so just rethrow.
+    try {
+      if (_shouldRefresh(creds)) {
+        await refreshSession();
+      }
+
+      final Credentials? freshCredentials = allCredentials[userId]?.value;
+      if (freshCredentials == null) {
         return false;
       }
-    }
 
-    final Credentials? freshCredentials = allCredentials[userId]?.value;
-
-    if (freshCredentials != null) {
       // TODO: This workarounds the situation when the password for another
       //       account was changed or the account was deleted. We should have a
       //       remote subscription to [MyUser] events for each of the accounts.
@@ -611,6 +616,9 @@ class AuthService extends GetxService {
 
         return true;
       }
+    } catch (_) {
+      status.value = RxStatus.success();
+      rethrow;
     }
 
     return false;
@@ -731,9 +739,9 @@ class AuthService extends GetxService {
             _putCredentials(data);
           }
           status.value = RxStatus.success();
-        } on RefreshSessionException catch (e) {
+        } on RefreshSessionException catch (_) {
           Log.debug(
-            'refreshSession($name): Exception occurred: $e, areCurrent: $areCurrent',
+            'refreshSession($name): RefreshSessionException occurred, removing credentials'
             '$runtimeType',
           );
 
