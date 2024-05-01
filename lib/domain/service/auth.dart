@@ -208,9 +208,6 @@ class AuthService extends GetxService {
     });
 
     _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      print(
-        '[AuthService] _credentialsSubscription deleted: ${e.deleted}, ${e.key}',
-      );
       if (e.deleted) {
         WebUtils.removeCredentials(UserId(e.key as String));
       } else {
@@ -230,8 +227,6 @@ class AuthService extends GetxService {
       WebUtils.putCredentials(e);
       _putCredentials(e);
     }
-
-    print('[AuthService] allCredentials: ${allCredentials.keys}');
 
     final AccessToken access = creds.access;
     final RefreshToken refresh = creds.refresh;
@@ -577,8 +572,6 @@ class AuthService extends GetxService {
   Future<void> switchAccount(UserId userId) async {
     Log.debug('signInToSavedAccount($userId)', '$runtimeType');
 
-    print('[AuthService] allCredentials: ${allCredentials.keys}');
-
     final Credentials? creds = allCredentials[userId]?.value;
     if (creds == null) {
       return;
@@ -666,8 +659,6 @@ class AuthService extends GetxService {
             '$runtimeType',
           );
 
-          // TODO: А если они не просрочены, но более не валидны? Как это
-          // работало раньше?...
           if (!_shouldRefresh(updatingCreds)) {
             // [Credentials] are successfully updated.
             return;

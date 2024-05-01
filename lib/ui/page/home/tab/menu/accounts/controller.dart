@@ -418,7 +418,7 @@ class AccountsController extends GetxController {
     router.go(Routes.nowhere);
 
     try {
-      await _authService.register(newAccount: true);
+      await _authService.register(force: true);
       await Future.delayed(500.milliseconds);
       router.home();
     } catch (e) {
