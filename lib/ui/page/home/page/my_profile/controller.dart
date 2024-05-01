@@ -94,9 +94,6 @@ class MyProfileController extends GetxController {
   /// Index of an item from [ProfileTab] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
-  /// Indicator whether the [MyUser.chatDirectLink] editing mode is enabled.
-  final RxBool linkEditing = RxBool(false);
-
   /// Indicator whether [MyUser.name] and [MyUser.avatar] should be displayed in
   /// the [AppBar].
   final RxBool displayName = RxBool(false);
@@ -171,7 +168,7 @@ class MyProfileController extends GetxController {
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
 
-          _highlight(tab);
+          highlight(tab);
         }
       },
     );
@@ -462,6 +459,16 @@ class MyProfileController extends GetxController {
   Future<void> setWorkWithUsTabEnabled(bool enabled) =>
       _settingsRepo.setWorkWithUsTabEnabled(enabled);
 
+  /// Highlights the provided [tab].
+  Future<void> highlight(ProfileTab? tab) async {
+    highlightIndex.value = tab?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
+  }
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
   /// If [file] is `null`, then deletes the [MyUser.avatar] and
@@ -480,16 +487,6 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
-  }
-
-  /// Highlights the provided [tab].
-  Future<void> _highlight(ProfileTab? tab) async {
-    highlightIndex.value = tab?.index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () {
-      highlightIndex.value = null;
-    });
   }
 
   /// Ensures the [displayName] is either `true` or `false` based on the

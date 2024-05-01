@@ -81,6 +81,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.label,
     this.onForbidden,
+    this.shape = BoxShape.circle,
     this.child,
   });
 
@@ -148,6 +149,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -159,6 +161,7 @@ class AvatarWidget extends StatelessWidget {
         radius: radius,
         opacity: opacity,
         onForbidden: onForbidden,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -167,6 +170,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -175,6 +179,7 @@ class AvatarWidget extends StatelessWidget {
         color: user?.num.val.sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -184,6 +189,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -191,6 +197,7 @@ class AvatarWidget extends StatelessWidget {
         key: key,
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
     }
 
@@ -204,6 +211,7 @@ class AvatarWidget extends StatelessWidget {
         color: user.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       ),
     );
   }
@@ -215,6 +223,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
+    BoxShape shape = BoxShape.circle,
   }) =>
       AvatarWidget(
         key: key,
@@ -231,6 +240,7 @@ class AvatarWidget extends StatelessWidget {
         color: chat?.colorDiscriminant(me).sum(),
         radius: radius,
         opacity: opacity,
+        shape: shape,
       );
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
@@ -259,6 +269,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     FutureOr<void> Function()? onForbidden,
+    BoxShape shape = BoxShape.circle,
   }) {
     if (chat == null) {
       return AvatarWidget(
@@ -275,6 +286,7 @@ class AvatarWidget extends StatelessWidget {
           chat.me,
           radius: radius,
           opacity: opacity,
+          shape: shape,
         );
       }
 
@@ -291,6 +303,7 @@ class AvatarWidget extends StatelessWidget {
         radius: radius,
         opacity: opacity,
         onForbidden: onForbidden,
+        shape: shape,
       );
     });
   }
@@ -327,6 +340,9 @@ class AvatarWidget extends StatelessWidget {
 
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
+
+  /// [BoxShape] of this [AvatarWidget].
+  final BoxShape shape;
 
   /// [Widget] to display inside this [AvatarWidget].
   ///
@@ -400,7 +416,11 @@ class AvatarWidget extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [gradient.lighten(), gradient],
           ),
-          shape: BoxShape.circle,
+          borderRadius: switch (shape) {
+            BoxShape.circle => null,
+            BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter)
+          },
+          shape: shape,
         ),
         child: Center(
           child: label ??
@@ -451,7 +471,7 @@ class AvatarWidget extends StatelessWidget {
               if (avatar == null) defaultAvatar,
               if (avatar != null || child != null)
                 Positioned.fill(
-                  child: ClipOval(
+                  child: _clip(
                     child: child ??
                         RetryImage(
                           image!.url,
@@ -471,6 +491,17 @@ class AvatarWidget extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// Returns a [ClipRRect] or [ClipOval] widget based on the [shape].
+  Widget _clip({required Widget child}) {
+    return switch (shape) {
+      BoxShape.circle => ClipOval(child: child),
+      BoxShape.rectangle => ClipRRect(
+          borderRadius: BorderRadius.circular(0.035 * _minDiameter),
+          child: child,
+        ),
+    };
   }
 }
 
