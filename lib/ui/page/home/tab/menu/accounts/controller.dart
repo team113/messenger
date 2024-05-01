@@ -210,11 +210,14 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          router.go(Routes.nowhere);
           await _authService.confirmSignUpEmail(
             ConfirmationCode(emailCode.text),
-            newAccount: true,
+            switching: true,
           );
+
+          // Change the route only after the mutation end away as errors should
+          // be handled within the same modal.
+          router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
         } on ConfirmUserEmailException catch (e) {
@@ -338,16 +341,16 @@ class AccountsController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
-      router.go(Routes.nowhere);
       await _authService.signIn(
         userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
         phone: userPhone,
-        force: true,
+        switching: true,
       );
 
+      router.nowhere();
       await Future.delayed(const Duration(milliseconds: 500));
       router.home();
     } on CreateSessionException catch (e) {
@@ -381,36 +384,42 @@ class AccountsController extends GetxController {
     }
   }
 
-  /// Deletes the account with the given [id] and switches to another one, if
-  /// any left.
+  /// Deletes the account with the provided [UserId] from the list.
+  ///
+  /// Also performs logout if deleting the current account.
   Future<void> deleteAccount(UserId id) async {
-    await _authService.removeAccount(id);
-
     if (id == _authService.userId) {
-      final Iterable<AccountData> others =
-          accounts.where((e) => e.user.id != id);
+      _authService.logout();
 
-      if (others.isEmpty) {
-        await _authService.logout();
-        router.auth();
-      } else {
-        await switchTo(others.first.user.id);
-      }
+      router.auth();
+      router.tab = HomeTab.chats;
+    } else {
+      await _authService.removeAccount(id);
     }
   }
 
   /// Switches to the account with the given [id].
   Future<void> switchTo(UserId id) async {
     try {
+      router.nowhere();
+
       final bool succeeded = await _authService.switchAccount(id);
       if (succeeded) {
-        router.go(Routes.nowhere);
         await Future.delayed(500.milliseconds);
+        router.tab = HomeTab.chats;
         router.home();
       } else {
-        MessagePopup.error('This account is unavailable.');
+        await Future.delayed(500.milliseconds);
+        router.home();
+        await Future.delayed(500.milliseconds);
+        // TODO: Локализацию для этого попапа надо прописать, и, наверное, не в виде ошибки можно сделать, а покрасивее.
+        MessagePopup.error(
+          'This account is unavailable. \n\n The password could\'ve been changed or the account was deleted.',
+        );
       }
     } catch (e) {
+      await Future.delayed(500.milliseconds);
+      router.home();
       await Future.delayed(500.milliseconds);
       MessagePopup.error(e);
     }
@@ -418,12 +427,16 @@ class AccountsController extends GetxController {
 
   /// Creates a new account and switches to it.
   Future<void> register() async {
+    router.nowhere();
+
     try {
-      await _authService.register(newAccount: true);
-      router.nowhere();
+      await _authService.register(switching: true);
       await Future.delayed(500.milliseconds);
+      router.tab = HomeTab.chats;
       router.home();
     } catch (e) {
+      await Future.delayed(500.milliseconds);
+      router.home();
       await Future.delayed(500.milliseconds);
       MessagePopup.error(e);
     }
