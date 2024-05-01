@@ -87,26 +87,12 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
-          // Returns [HighlightedContainer] with the provided [child].
-          Widget highlighted({
-            required int index,
-            required Widget child,
-          }) {
-            return HighlightedContainer(
-              highlight: c.highlighted.value == index,
-              child: child,
-            );
-          }
-
           final List<Widget> blocks = [
             const SizedBox(height: 8),
             _avatar(c, context),
-            highlighted(index: 2, child: _name(c, context)),
+            _name(c, context),
             if (!c.isMonolog) ...[
-              highlighted(
-                index: 3,
-                child: SelectionContainer.disabled(child: _link(c, context)),
-              ),
+              SelectionContainer.disabled(child: _link(c, context)),
               SelectionContainer.disabled(child: _members(c, context)),
             ],
             SelectionContainer.disabled(
@@ -127,7 +113,12 @@ class ChatInfoView extends StatelessWidget {
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
                   itemCount: blocks.length,
-                  itemBuilder: (_, i) => blocks[i],
+                  itemBuilder: (_, i) => Obx(() {
+                    return HighlightedContainer(
+                      highlight: c.highlighted.value == i,
+                      child: blocks[i],
+                    );
+                  }),
                 ),
               ),
             ),
@@ -481,7 +472,7 @@ class ChatInfoView extends StatelessWidget {
           selector: c.moreKey,
           alignment: Alignment.topRight,
           enablePrimaryTap: true,
-          margin: const EdgeInsets.only(bottom: 4, left: 20),
+          margin: const EdgeInsets.only(bottom: 4, left: 6),
           actions: [
             ContextMenuButton(
               label: favorite
@@ -499,9 +490,7 @@ class ChatInfoView extends StatelessWidget {
             ),
             if (!c.isMonolog) ...[
               ContextMenuButton(
-                key: Key(
-                  muted ? 'UnmuteChatButton' : 'MuteChatButton',
-                ),
+                key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
                 label: muted
                     ? PlatformUtils.isMobile
                         ? 'btn_unmute'.l10n

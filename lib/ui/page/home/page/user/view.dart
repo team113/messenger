@@ -108,7 +108,12 @@ class UserView extends StatelessWidget {
                 child: ScrollablePositionedList.builder(
                   key: const Key('UserScrollable'),
                   itemCount: blocks.length,
-                  itemBuilder: (_, i) => blocks[i],
+                  itemBuilder: (_, i) => Obx(() {
+                    return HighlightedContainer(
+                      highlight: c.highlighted.value == i,
+                      child: blocks[i],
+                    );
+                  }),
                   scrollController: c.scrollController,
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
@@ -135,6 +140,7 @@ class UserView extends StatelessWidget {
               onUpload: c.contactId != null ? c.pickAvatar : null,
             ),
           ),
+          if (c.contactId == null) const SizedBox(height: 10),
         ],
       );
     });
@@ -148,109 +154,106 @@ class UserView extends StatelessWidget {
   }) {
     final style = Theme.of(context).style;
 
-    return HighlightedContainer(
-      highlight: c.highlighted.value == index,
-      child: Block(
-        children: [
-          Obx(() {
-            final List<Widget> children;
+    return Block(
+      children: [
+        Obx(() {
+          final List<Widget> children;
 
-            if (c.nameEditing.value) {
-              children = [
-                const SizedBox(height: 10),
-                SelectionContainer.disabled(
-                  child: ReactiveTextField(
-                    state: c.name,
-                    label: 'label_name'.l10n,
-                    hint: c.user!.title,
-                    formatters: [LengthLimitingTextInputFormatter(100)],
-                  ),
+          if (c.nameEditing.value) {
+            children = [
+              const SizedBox(height: 10),
+              SelectionContainer.disabled(
+                child: ReactiveTextField(
+                  state: c.name,
+                  label: 'label_name'.l10n,
+                  hint: c.user!.title,
+                  formatters: [LengthLimitingTextInputFormatter(100)],
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const SizedBox(width: 16),
-                    WidgetButton(
-                      onPressed: c.submitName,
-                      child: SelectionContainer.disabled(
-                        child: Text(
-                          'btn_save'.l10n,
-                          style: style.fonts.small.regular.primary,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    WidgetButton(
-                      onPressed: () {
-                        c.name.unchecked =
-                            c.contact.value?.contact.value.name.val ??
-                                c.name.text;
-                        c.nameEditing.value = false;
-                      },
-                      child: SelectionContainer.disabled(
-                        child: Text(
-                          'btn_cancel'.l10n,
-                          style: style.fonts.small.regular.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                ),
-              ];
-            } else {
-              children = [
-                Container(width: double.infinity),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: Text(
-                    c.contact.value?.contact.value.name.val ?? c.name.text,
-                    style: style.fonts.larger.regular.onBackground,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (c.contactId != null) ...[
-                  const SizedBox(height: 1),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const SizedBox(width: 16),
                   WidgetButton(
-                    onPressed: () {
-                      final ItemPosition? first =
-                          c.positionsListener.itemPositions.value.firstOrNull;
-
-                      // If the [Block] containing this button isn't fully
-                      // visible, then animate to it's beginning.
-                      if (first?.index == index && first!.itemLeadingEdge < 0) {
-                        c.itemScrollController.scrollTo(
-                          index: index,
-                          curve: Curves.ease,
-                          duration: const Duration(milliseconds: 600),
-                        );
-                        c.highlight(index);
-                      }
-
-                      c.nameEditing.value = true;
-                    },
+                    onPressed: c.submitName,
                     child: SelectionContainer.disabled(
                       child: Text(
-                        'btn_change'.l10n,
+                        'btn_save'.l10n,
                         style: style.fonts.small.regular.primary,
                       ),
                     ),
                   ),
-                ]
-              ];
-            }
-
-            return AnimatedSizeAndFade(
-              fadeDuration: 250.milliseconds,
-              sizeDuration: 250.milliseconds,
-              child: Column(
-                key: Key(c.nameEditing.value.toString()),
-                children: children,
+                  const Spacer(),
+                  WidgetButton(
+                    onPressed: () {
+                      c.name.unchecked =
+                          c.contact.value?.contact.value.name.val ??
+                              c.name.text;
+                      c.nameEditing.value = false;
+                    },
+                    child: SelectionContainer.disabled(
+                      child: Text(
+                        'btn_cancel'.l10n,
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                ],
               ),
-            );
-          }),
-        ],
-      ),
+            ];
+          } else {
+            children = [
+              Container(width: double.infinity),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Text(
+                  c.contact.value?.contact.value.name.val ?? c.name.text,
+                  style: style.fonts.larger.regular.onBackground,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (c.contactId != null) ...[
+                const SizedBox(height: 1),
+                WidgetButton(
+                  onPressed: () {
+                    final ItemPosition? first =
+                        c.positionsListener.itemPositions.value.firstOrNull;
+
+                    // If the [Block] containing this button isn't fully
+                    // visible, then animate to it's beginning.
+                    if (first?.index == index && first!.itemLeadingEdge < 0) {
+                      c.itemScrollController.scrollTo(
+                        index: index,
+                        curve: Curves.ease,
+                        duration: const Duration(milliseconds: 600),
+                      );
+                      c.highlight(index);
+                    }
+
+                    c.nameEditing.value = true;
+                  },
+                  child: SelectionContainer.disabled(
+                    child: Text(
+                      'btn_change'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                ),
+              ]
+            ];
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: 250.milliseconds,
+            sizeDuration: 250.milliseconds,
+            child: Column(
+              key: Key(c.nameEditing.value.toString()),
+              children: children,
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -295,7 +298,7 @@ class UserView extends StatelessWidget {
           selector: c.moreKey,
           alignment: Alignment.topRight,
           enablePrimaryTap: true,
-          margin: const EdgeInsets.only(bottom: 4, left: 20),
+          margin: const EdgeInsets.only(bottom: 4, left: 5),
           actions: [
             ContextMenuButton(
               key: contact
