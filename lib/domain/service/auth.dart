@@ -86,16 +86,13 @@ class AuthService extends GetxService {
 
   /// Puts the provided [creds] to [allCredentials].
   void _putCredentials(Credentials creds) {
+    Log.debug('_putCredentials($creds)', '$runtimeType');
+
     if (allCredentials.containsKey(creds.userId)) {
       allCredentials[creds.userId]?.value = creds;
     } else {
       allCredentials[creds.userId] = Rx(creds);
     }
-
-    Log.debug(
-      '_putCredentials($creds), result: ${allCredentials.keys}',
-      '$runtimeType',
-    );
   }
 
   /// [_refreshTimer] interval.
@@ -251,7 +248,7 @@ class AuthService extends GetxService {
   /// Returns authorization status of the [MyUser] identified by the provided
   /// [UserId].
   ///
-  /// Returns authorization status of active [MyUser] if [userId] is not
+  /// Returns authorization status of the active [MyUser] if [userId] is not
   /// provided.
   bool isAuthorized([UserId? userId]) {
     if (userId == null || userId == credentials.value?.userId) {
