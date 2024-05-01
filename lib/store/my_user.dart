@@ -36,7 +36,6 @@ import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/account.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
@@ -55,15 +54,18 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._graphQlProvider,
     this._myUserLocal,
     this._blocklistRepo,
-    this._userRepo,
-    this._accountLocal,
-  );
+    this._userRepo, {
+    required UserId? me,
+  }) : _me = me;
 
   @override
   late final Rx<MyUser?> myUser;
 
   @override
   final RxMap<UserId, Rx<MyUser?>> myUsers = RxMap({});
+
+  /// [UserId] of the currently active [MyUser].
+  final UserId? _me;
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -76,9 +78,6 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
-
-  /// [Hive] storage providing the [UserId] of the currently active [MyUser].
-  final AccountHiveProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -109,12 +108,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   final EventPool<MyUserField> _pool = EventPool();
 
   /// Returns the currently active [HiveMyUser] from [Hive].
-  HiveMyUser? get _active {
-    final UserId? userId = _accountLocal.userId;
-    final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
-
-    return saved;
-  }
+  HiveMyUser? get _active => _me != null ? _myUserLocal.get(_me) : null;
 
   @override
   Future<void> init({

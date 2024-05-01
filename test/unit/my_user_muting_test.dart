@@ -169,7 +169,7 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
-      accountProvider,
+      me: accountProvider.userId,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     await Future.delayed(Duration.zero);
@@ -228,7 +228,7 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
-      accountProvider,
+      me: accountProvider.userId,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
