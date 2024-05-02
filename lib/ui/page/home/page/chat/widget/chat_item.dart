@@ -885,7 +885,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: Column(
           children: [
             // Text('${e.text}', style: style.fonts.smallest.regular.secondary),
-            if (e.text != null) MarkdownWidget(e.text!.val),
+            if (e.text != null)
+              MarkdownWidget(
+                e.text!.val,
+                style: style.systemMessageStyle,
+              ),
             if (e.actions != null && e.text != null) const SizedBox(height: 4),
             if (e.actions != null) ...[
               Wrap(
@@ -941,83 +945,70 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     const Color color = Color(0xFFddf1f4);
     // const Color color = Color.fromARGB(255, 161, 255, 183);
 
-    return _rounded(
-      context,
-      (_, constraints) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: color, width: 0.5),
-                // color: style.systemMessageColor,
-                color: color,
-              ),
-              child: IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ...msg.repliesTo.map(
-                      (e) {
-                        return WidgetButton(
-                          onPressed: () => widget.onRepliedTap?.call(e),
-                          child: _repliedMessage(e, constraints),
-                        );
-                      },
-                    ),
-                    if (info.text != null)
-                      MarkdownWidget(
-                        info.text!.val,
-                        style: style.systemMessageStyle,
-                      ),
-                    // Text('${info.text}', style: style.systemMessageStyle),
-                    if (info.actions != null) ...[
-                      const SizedBox(height: 4),
-                      Wrap(
-                        spacing: 2,
-                        runSpacing: 2,
-                        children: info.actions!.map((e) {
-                          return SelectionContainer.disabled(
-                            child: WidgetButton(
-                              onPressed: () async {
-                                final ChatService chatService = Get.find();
-                                await chatService.sendChatMessage(
-                                  msg.chatId,
-                                  text: ChatMessageText(e.command),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                    color: style.systemMessageColor,
-                                    width: 1,
-                                  ),
-                                  color: color,
-                                ),
-                                child: Text(
-                                  e.text,
-                                  style: style.fonts.small.regular.onPrimary,
-                                ),
-                              ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: color, width: 0.5),
+            // color: style.systemMessageColor,
+            color: color,
+          ),
+          child: IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (info.text != null)
+                  MarkdownWidget(
+                    info.text!.val,
+                    style: style.systemMessageStyle,
+                  ),
+                // Text('${info.text}', style: style.systemMessageStyle),
+                if (info.actions != null) ...[
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 2,
+                    runSpacing: 2,
+                    children: info.actions!.map((e) {
+                      return SelectionContainer.disabled(
+                        child: WidgetButton(
+                          onPressed: () async {
+                            final ChatService chatService = Get.find();
+                            await chatService.sendChatMessage(
+                              msg.chatId,
+                              text: ChatMessageText(e.command),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                color: style.systemMessageColor,
+                                width: 1,
+                              ),
+                              color: color,
+                            ),
+                            child: Text(
+                              e.text,
+                              style: style.fonts.small.regular.onPrimary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

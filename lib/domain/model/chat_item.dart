@@ -321,6 +321,8 @@ class BotInfo extends ChatItem {
       }
 
       if (decoded != null) {
+        final title = decoded[L10n.chosen.value!.toString()]?['title'] ??
+            decoded['title'];
         final text =
             decoded[L10n.chosen.value!.toString()]?['text'] ?? decoded['text'];
         final actions = decoded[L10n.chosen.value!.toString()]?['actions'] ??
@@ -336,7 +338,7 @@ class BotInfo extends ChatItem {
           actions: (actions as List?)?.map((e) {
             return BotAction(text: e['text'], command: e['command']);
           }).toList(),
-          title: decoded['title'] ?? 'Bot',
+          title: title ?? 'Bot',
         );
       }
     }
