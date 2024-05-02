@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.13.4...v0.1.0-alpha.14) | [Milestone](/../../milestone/23)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Account switching. ([#975], [#312])
+
 ### Changed
 
 - UI:
@@ -29,8 +35,10 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Tapping on image opens gallery when being in context menu. ([#983], [#979])
 
+[#312]: /../../issues/312
 [#948]: /../../issues/948
 [#950]: /../../issues/950
+[#975]: /../../pull/975
 [#978]: /../../pull/978
 [#979]: /../../issues/979
 [#980]: /../../pull/980
