@@ -96,7 +96,7 @@ class AddEmailController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserEmailException catch (e) {
-            if(e.code == ConfirmUserEmailErrorCode.occupied) {
+            if (e.code == ConfirmUserEmailErrorCode.occupied) {
               s.resubmitOnError.value = true;
             }
 
