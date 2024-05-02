@@ -513,7 +513,7 @@ abstract class ReactiveFieldState {
   final RxBool resubmitOnError = RxBool(false);
 
   /// Indicator whether this [ReactiveFieldState] can be [submit]ted.
-  final RxBool submitable = RxBool(false);
+  final RxBool submitable = RxBool(true);
 
   /// Submits this [ReactiveFieldState].
   void submit() {
