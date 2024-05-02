@@ -43,8 +43,8 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
     context.world.me = me.userId;
 
-    await Get.find<AuthService>()
-        .signIn(password, num: context.world.sessions[user.name]?.userNum);
+    await Get.find<AuthService>().signIn(password,
+        num: context.world.sessions[user.name]?.userNum, force: true);
 
     router.home();
 
@@ -71,8 +71,8 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
     } catch (_) {
       var password = UserPassword('123');
 
-      await Get.find<AuthService>()
-          .signIn(password, num: context.world.sessions[user.name]!.userNum);
+      await Get.find<AuthService>().signIn(password,
+          num: context.world.sessions[user.name]!.userNum, force: true);
     }
 
     router.home();
