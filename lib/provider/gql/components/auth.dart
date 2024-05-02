@@ -140,7 +140,7 @@ mixin AuthGraphQlMixin {
         as SignIn$Mutation$CreateSession$CreateSessionOk;
   }
 
-  /// Validates the current authorization token.
+  /// Validates the authorization token of the provided [Credentials].
   ///
   /// ### Authentication
   ///

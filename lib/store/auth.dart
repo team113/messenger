@@ -56,8 +56,8 @@ class AuthRepository implements AbstractAuthRepository {
   Credentials? _signUpCredentials;
 
   // TODO: Temporary solution, wait for support from backend.
-  /// [HiveMyUser] created with [signUpWithEmail] returned in successful
-  /// [confirmSignUpEmail].
+  /// [HiveMyUser] created with [signUpWithEmail] and put to [Hive] in
+  /// successful [confirmSignUpEmail].
   HiveMyUser? _signedUpUser;
 
   @override

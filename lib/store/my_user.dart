@@ -633,6 +633,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   void _populateMyUsers() {
     Log.debug('_populateMyUsers()', '$runtimeType');
 
+    final Iterable<MyUser> stored = _myUserLocal.valuesSafe.map((u) => u.value);
+
+    myUsers.removeWhere((key, _) => !stored.map((u) => u.id).contains(key));
+
     for (final HiveMyUser u in _myUserLocal.valuesSafe) {
       if (myUsers[u.value.id] == null) {
         myUsers[u.value.id] = Rx<MyUser?>(u.value);

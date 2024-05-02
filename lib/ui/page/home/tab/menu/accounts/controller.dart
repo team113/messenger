@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
-import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
@@ -59,7 +58,7 @@ class AccountsController extends GetxController {
   /// [AccountsViewStage] currently being displayed.
   late final Rx<AccountsViewStage> stage;
 
-  /// [MyUser.num]'s copyable [TextFieldState].
+  /// [MyUser.login]'s copyable [TextFieldState].
   late final TextFieldState login;
 
   /// [TextFieldState] for a password input.
@@ -74,7 +73,7 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// Current status of account list initialization.
+  /// Current status of the account list initialization.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Amount of [signIn] unsuccessful submitting attempts.
@@ -92,25 +91,23 @@ class AccountsController extends GetxController {
   /// Timeout of a [resendEmail] next invoke attempt.
   final RxInt resendEmailTimeout = RxInt(0);
 
+  /// Reactive list of [MyUser]s paired with the corresponding [User]s.
+  final RxList<AccountData> accounts = RxList();
+
+  /// Reactive set with [UserId]s of authorized accounts.
+  ///
+  /// Accounts whose [UserId]s are present in this set are available for
+  /// switching.
+  final RxSet<UserId> sessions = RxSet();
+
   /// [Timer] disabling [emailCode] submitting for [codeTimeout].
   Timer? _codeTimer;
 
   /// [Timer] disabling [signIn] invoking for [signInTimeout].
   Timer? _signInTimer;
 
-  /// [Timer] used to disable resend code button [resendEmailTimeout].
+  /// [Timer] used to disable resend code button for [resendEmailTimeout].
   Timer? _resendEmailTimer;
-
-  /// Reactive map of authenticated [MyUser]s.
-  RxMap<UserId, Rx<MyUser?>> get _accounts => _myUserService.myUsers;
-
-  RxMap<UserId, Rx<Credentials>> get _sessions => _authService.allCredentials;
-
-  /// Reactive list of [MyUser]s paired with the corresponding [User]s.
-  final RxList<AccountData> accounts = RxList();
-
-  /// Reactive set with [UserId]s of authorized accounts.
-  final RxSet<UserId> sessions = RxSet();
 
   /// [MyUserService] to obtain [_accounts] and [myUser].
   final MyUserService _myUserService;
@@ -135,13 +132,12 @@ class AccountsController extends GetxController {
 
   @override
   void onInit() {
-    _myUsersWorker ??= ever(_accounts, (_) {
+    _myUsersWorker ??= ever(_myUserService.myUsers, (_) {
       _populateUsers();
-      accounts.refresh();
     });
 
     _sessionsWorker ??= ever(
-      _sessions,
+      _authService.allCredentials,
       (v) {
         sessions.clear();
         sessions.addAll(v.keys);
@@ -220,8 +216,8 @@ class AccountsController extends GetxController {
             switching: true,
           );
 
-          // Change the route only after the mutation end away as errors should
-          // be handled within the same modal.
+          // Change the route only after the mutation end as possible errors
+          // should be handled within the same modal.
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
@@ -261,7 +257,7 @@ class AccountsController extends GetxController {
 
     _populateUsers();
 
-    sessions.addAll(_sessions.keys);
+    sessions.addAll(_authService.allCredentials.keys);
 
     super.onInit();
   }
@@ -273,7 +269,7 @@ class AccountsController extends GetxController {
 
     final List<AccountData> values = [];
 
-    for (final e in _accounts.entries) {
+    for (final e in _myUserService.myUsers.entries) {
       final UserId id = e.key;
       final Rx<MyUser?> myUser = e.value;
 
@@ -308,7 +304,6 @@ class AccountsController extends GetxController {
     });
 
     accounts.value = values;
-
     status.value = RxStatus.success();
   }
 

@@ -23,7 +23,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 
-import '../../provider/hive/my_user.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -656,12 +655,8 @@ class AuthService extends GetxService {
     userId ??= this.userId;
     final bool areCurrent = userId == this.userId;
 
-    final provider = Get.find<MyUserHiveProvider>();
-    final myUser = userId != null ? provider.get(userId)?.value : null;
-    final name = myUser?.name ?? myUser?.num ?? userId;
-
     Log.debug(
-      'refreshSession($name) with `isLocked`: $isLocked',
+      'refreshSession($userId) with `isLocked`: $isLocked',
       '$runtimeType',
     );
 
@@ -673,7 +668,7 @@ class AuthService extends GetxService {
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($name): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
 
@@ -683,7 +678,7 @@ class AuthService extends GetxService {
           }
         } else {
           Log.debug(
-            'refreshSession($name): acquired the lock, while it was unlocked',
+            'refreshSession($userId): acquired the lock, while it was unlocked',
             '$runtimeType',
           );
         }
@@ -734,7 +729,7 @@ class AuthService extends GetxService {
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
           Log.debug(
-            'refreshSession($name): RefreshSessionException occurred, removing credentials'
+            'refreshSession($userId): RefreshSessionException occurred, removing credentials'
             '$runtimeType',
           );
 
@@ -753,9 +748,7 @@ class AuthService extends GetxService {
       // No-op, already handled in the callback passed to [WebUtils.protect].
     } catch (e) {
       Log.debug(
-        'refreshSession($name): Exception occurred: $e',
-        '$runtimeType',
-      );
+          'refreshSession($userId): Exception occurred: $e', '$runtimeType');
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(const Duration(seconds: 2));
