@@ -46,7 +46,7 @@ class _UserNameFieldState extends State<UserNameField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.name?.val,
-    onChanged: (s) async {
+    onFocus: (s) async {
       s.error.value = null;
       s.resubmitOnError.value = false;
 

@@ -160,8 +160,8 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     login = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
+      onChanged: (_) {
+        password.error.value = null;
         password.unsubmit();
       },
       onSubmitted: (s) {
@@ -171,7 +171,7 @@ class LoginController extends GetxController {
     );
 
     password = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
         s.unsubmit();
@@ -180,7 +180,7 @@ class LoginController extends GetxController {
     );
 
     recovery = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
       },
@@ -188,7 +188,7 @@ class LoginController extends GetxController {
     );
 
     recoveryCode = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
       },
@@ -196,8 +196,7 @@ class LoginController extends GetxController {
     );
 
     newPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
+      onChanged: (_) {
         repeatPassword.error.value = null;
         repeatPassword.unsubmit();
       },
@@ -208,7 +207,7 @@ class LoginController extends GetxController {
     );
 
     repeatPassword = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
         newPassword.error.value = null;
@@ -221,7 +220,7 @@ class LoginController extends GetxController {
     );
 
     email = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
 
@@ -263,7 +262,7 @@ class LoginController extends GetxController {
     );
 
     emailCode = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.resubmitOnError.value = false;
       },
       onSubmitted: (s) async {
@@ -285,6 +284,9 @@ class LoginController extends GetxController {
               }
               s.status.value = RxStatus.empty();
               break;
+
+            case ConfirmUserEmailErrorCode.occupied:
+              s.resubmitOnError.value = true;
 
             default:
               s.error.value = 'err_wrong_recovery_code'.l10n;
@@ -600,12 +602,14 @@ class LoginController extends GetxController {
   /// Starts or stops the [_signInTimer] based on [enabled] value.
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
+      password.submitable.value = false;
       signInTimeout.value = 30;
       _signInTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) {
           signInTimeout.value--;
           if (signInTimeout.value <= 0) {
+            password.submitable.value = true;
             signInTimeout.value = 0;
             _signInTimer?.cancel();
             _signInTimer = null;
@@ -613,6 +617,7 @@ class LoginController extends GetxController {
         },
       );
     } else {
+      password.submitable.value = true;
       signInTimeout.value = 0;
       _signInTimer?.cancel();
       _signInTimer = null;
@@ -644,12 +649,14 @@ class LoginController extends GetxController {
   /// Starts or stops the [_codeTimer] based on [enabled] value.
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
+      emailCode.submitable.value = false;
       codeTimeout.value = 30;
       _codeTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) {
           codeTimeout.value--;
           if (codeTimeout.value <= 0) {
+            emailCode.submitable.value = true;
             codeTimeout.value = 0;
             _codeTimer?.cancel();
             _codeTimer = null;
@@ -657,6 +664,7 @@ class LoginController extends GetxController {
         },
       );
     } else {
+      emailCode.submitable.value = true;
       codeTimeout.value = 0;
       _codeTimer?.cancel();
       _codeTimer = null;

@@ -67,7 +67,7 @@ class ConfirmLogoutController extends GetxController {
     hasPassword = RxBool(myUser.value?.hasPassword ?? false);
 
     password = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         password.error.value = null;
         repeat.error.value = null;
 
@@ -93,7 +93,7 @@ class ConfirmLogoutController extends GetxController {
     );
 
     repeat = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         password.error.value = null;
         repeat.error.value = null;
 

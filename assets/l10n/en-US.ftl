@@ -309,7 +309,7 @@ err_call_popup_was_blocked =
 err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied.
-err_code_limit_exceed =
+err_code_limit_exceeded =
     Exceeded limit of sending recovery code. Try again in 1 hour.
 err_contact_not_group = Chat with the provided ID is not a group
 err_contact_too_many = Contact can\'t be created with more than 20 users

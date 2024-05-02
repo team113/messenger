@@ -187,7 +187,7 @@ class MyProfileController extends GetxController {
 
     phone = TextFieldState(
       approvable: true,
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
 
@@ -247,7 +247,7 @@ class MyProfileController extends GetxController {
 
     email = TextFieldState(
       approvable: true,
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.resubmitOnError.value = false;
 

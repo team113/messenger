@@ -52,7 +52,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
-    onChanged: (s) async {
+    onFocus: (s) async {
       s.error.value = null;
       if (s.text.isNotEmpty) {
         try {

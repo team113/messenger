@@ -309,7 +309,7 @@ err_call_popup_was_blocked =
 err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята.
-err_code_limit_exceed =
+err_code_limit_exceeded =
     Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
 err_contact_not_group = Чат с указанным ID не является группой

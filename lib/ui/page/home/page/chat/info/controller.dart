@@ -177,7 +177,7 @@ class ChatInfoController extends GetxController {
 
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
-      onChanged: (s) async {
+      onFocus: (s) async {
         if (s.text.isNotEmpty) {
           try {
             ChatName(s.text);

@@ -44,7 +44,7 @@ class _UserBioFieldState extends State<UserBioField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.bio?.val ?? '',
-    onChanged: (s) {
+    onFocus: (s) {
       s.error.value = null;
 
       if (s.text.isNotEmpty) {

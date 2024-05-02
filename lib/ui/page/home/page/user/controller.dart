@@ -182,7 +182,7 @@ class UserController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserName(s.text);

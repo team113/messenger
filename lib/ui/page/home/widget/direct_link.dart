@@ -85,8 +85,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     _state = TextFieldState(
       text: widget.link?.slug.val,
       submitted: widget.link != null,
-      debounce: true,
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
 
         if (s.text.isNotEmpty) {

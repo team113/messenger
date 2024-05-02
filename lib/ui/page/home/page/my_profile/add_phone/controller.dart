@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show ConfirmUserPhoneErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
@@ -73,7 +74,7 @@ class AddPhoneController extends GetxController {
   @override
   void onInit() {
     code = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
 
         if (s.text.isNotEmpty) {
@@ -97,6 +98,10 @@ class AddPhoneController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserPhoneException catch (e) {
+            if(e.code == ConfirmUserPhoneErrorCode.occupied) {
+              s.resubmitOnError.value = true;
+            }
+
             s.error.value = e.toMessage();
           } catch (e) {
             s.resubmitOnError.value = true;
