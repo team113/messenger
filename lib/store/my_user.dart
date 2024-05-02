@@ -631,17 +631,15 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Updates [myUsers] when [_localSubscription] emits a new event.
   void _populateMyUsers() {
-    // Log.debug('_populateMyUsers()', '$runtimeType');
+    Log.debug('_populateMyUsers()', '$runtimeType');
 
-    myUsers.value = {
-      for (final HiveMyUser u in _myUserLocal.valuesSafe)
-        u.value.id: myUsers[u.value.id] ?? Rx(u.value),
-    };
-
-    Log.debug(
-      '_populateMyUsers() ${myUsers.values.map((e) => e.value?.name ?? e.value?.num)}',
-      '$runtimeType',
-    );
+    for (final HiveMyUser u in _myUserLocal.valuesSafe) {
+      if (myUsers[u.value.id] == null) {
+        myUsers[u.value.id] = Rx<MyUser?>(u.value);
+      } else {
+        myUsers[u.value.id]?.value = u.value;
+      }
+    }
   }
 
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.

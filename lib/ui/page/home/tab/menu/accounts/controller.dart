@@ -74,6 +74,7 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
+  /// Current status of account list initialization.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Amount of [signIn] unsuccessful submitting attempts.
@@ -108,6 +109,7 @@ class AccountsController extends GetxController {
   /// Reactive list of [MyUser]s paired with the corresponding [User]s.
   final RxList<AccountData> accounts = RxList();
 
+  /// Reactive set with [UserId]s of authorized accounts.
   final RxSet<UserId> sessions = RxSet();
 
   /// [MyUserService] to obtain [_accounts] and [myUser].
@@ -416,10 +418,7 @@ class AccountsController extends GetxController {
         await Future.delayed(500.milliseconds);
         router.home();
         await Future.delayed(500.milliseconds);
-        // TODO: Локализацию для этого попапа надо прописать, и, наверное, не в виде ошибки можно сделать, а покрасивее.
-        MessagePopup.error(
-          'This account is unavailable. \n\n The password could\'ve been changed or the account was deleted.',
-        );
+        MessagePopup.error('err_account_unavailable'.l10n);
       }
     } catch (e) {
       await Future.delayed(500.milliseconds);
