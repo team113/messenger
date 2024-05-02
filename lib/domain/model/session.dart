@@ -69,7 +69,7 @@ class SessionId extends NewType<String> {
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
 
-  /// Returns the device name path of this [UserAgent].
+  /// Returns the device name part of this [UserAgent].
   String get deviceName {
     if (val.startsWith('Gapopa')) {
       int i = val.indexOf('(');
@@ -85,12 +85,12 @@ class UserAgent extends NewType<String> {
           }
         } else if (value.contains('Windows')) {
           if (parts.isNotEmpty) {
-            return parts[0].split(' ').take(3).join('  ');
+            return parts[0].split(' ').take(3).join(' ');
           }
         } else {
           // Linux
           if (parts.isNotEmpty) {
-            return parts[0].split(' ').take(2).join('  ');
+            return parts[0].split(' ').take(2).join(' ');
           }
         }
       }

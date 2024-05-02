@@ -854,6 +854,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
         trailing: session.isCurrent
             ? null
             : WidgetButton(
+                key: const Key('DeleteSessionButton'),
                 onPressed: () => DeleteSessionView.show(context, session),
                 child: const SvgIcon(SvgIcons.delete),
               ),
@@ -899,7 +900,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
         Obx(() {
           if (c.sessionsUpdating.isFalse) {
             return WidgetButton(
-              onPressed: c.sessionsUpdating.isFalse ? c.updateSessions : null,
+              onPressed: c.updateSessions,
               child: Text(
                 'btn_refresh'.l10n,
                 style: style.fonts.small.regular.primary,

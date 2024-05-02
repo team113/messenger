@@ -51,8 +51,6 @@ class DeleteSessionView extends StatelessWidget {
 
     return GetBuilder(
       init: DeleteSessionController(
-        session,
-        Get.find(),
         Get.find(),
         pop: context.popModal,
       ),
@@ -81,6 +79,7 @@ class DeleteSessionView extends StatelessWidget {
                       ),
                       const SizedBox(height: 21),
                       ReactiveTextField(
+                        key: const Key('PasswordField'),
                         state: c.password,
                         label: 'label_current_password'.l10n,
                         obscure: c.obscurePassword.value,
@@ -94,9 +93,9 @@ class DeleteSessionView extends StatelessWidget {
                       ),
                       const SizedBox(height: 21),
                       OutlinedRoundedButton(
-                        key: const Key('Close'),
+                        key: const Key('ProceedButton'),
                         maxWidth: double.infinity,
-                        onPressed: c.deleteSession,
+                        onPressed: () => c.deleteSession(session),
                         color: style.colors.primary,
                         child: Text(
                           'btn_proceed'.l10n,

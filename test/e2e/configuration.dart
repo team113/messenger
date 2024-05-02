@@ -183,6 +183,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
+        hasSession,
         iAm,
         iAmInChatNamed,
         iAmInChatWith,

@@ -62,7 +62,8 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Invalidates a [Session] of the [MyUser] identified by the [token].
+  /// Invalidates a [Session] with the provided [id] if any or otherwise
+  /// [Session] of the [MyUser] identified by the [token].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
   /// via Firebase Cloud Messaging, if [fcmToken] is provided.

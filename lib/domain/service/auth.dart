@@ -462,7 +462,8 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Deletes [Session] of the active [MyUser].
+  /// Deletes [Session] with the provided [id] if any or otherwise [Session] of
+  /// the active [MyUser].
   ///
   /// Returns the path of the authentication page.
   ///

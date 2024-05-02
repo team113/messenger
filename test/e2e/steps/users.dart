@@ -21,6 +21,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
@@ -43,8 +44,7 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
     context.world.me = me.userId;
 
-    await Get.find<AuthService>()
-        .signIn(password, num: context.world.sessions[user.name]?.userNum);
+    await Get.find<AuthService>().signInWith(await me.credentials);
 
     router.home();
 
@@ -133,6 +133,24 @@ final countUsers = given2<int, TestUser, CustomWorld>(
     for (int i = 0; i < count; i++) {
       await createUser(user: user, world: context.world);
     }
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Adds an active session for the provided [TestUser].
+///
+/// Examples:
+/// - `Alice has another active session`
+final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
+  '{user} has another active session',
+  (TestUser testUser, context) async {
+    final provider = GraphQlProvider();
+
+    CustomUser user = context.world.sessions[testUser.name]!;
+
+    await provider.signIn(user.password!, null, user.userNum, null, null);
+    provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

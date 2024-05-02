@@ -24,7 +24,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
-import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
@@ -34,12 +33,7 @@ export 'view.dart';
 
 /// Controller of a [DeleteSessionView].
 class DeleteSessionController extends GetxController {
-  DeleteSessionController(
-    this._session,
-    this._myUserService,
-    this._authService, {
-    this.pop,
-  });
+  DeleteSessionController(this._authService, {this.pop});
 
   /// [TextFieldState] of the [MyUser]'s password.
   late final TextFieldState password;
@@ -47,24 +41,12 @@ class DeleteSessionController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// Indicator whether [MyUser] has a password set.
-  late bool hasPassword;
-
   /// Callback, called when an [DeleteSessionView] this controller is bound to
   /// should be popped from the [Navigator].
   final void Function()? pop;
 
-  /// [Session] to delete.
-  final Session _session;
-
-  /// [MyUserService] updating the [MyUser]'s password.
-  final MyUserService _myUserService;
-
-  /// [MyUserService] updating the [MyUser]'s password.
+  /// [AuthService] used to delete a [Session].
   final AuthService _authService;
-
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
@@ -85,21 +67,18 @@ class DeleteSessionController extends GetxController {
       },
     );
 
-    hasPassword = myUser.value?.hasPassword ?? false;
-
     super.onInit();
   }
 
-  /// Validates and updates current [myUser]'s password with the one specified
-  /// in the [newPassword] and [repeatPassword] fields.
-  Future<void> deleteSession() async {
+  /// Deletes the provided [session].
+  Future<void> deleteSession(Session session) async {
     if (password.error.value == null) {
       password.editable.value = false;
       password.status.value = RxStatus.loading();
 
       try {
         await _authService.deleteSession(
-          id: _session.id,
+          id: session.id,
           password: UserPassword(password.text),
         );
         pop?.call();
