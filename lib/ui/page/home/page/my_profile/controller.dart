@@ -69,6 +69,10 @@ class MyProfileController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]
+  /// section.
+  final ScrollController devicesScrollController = ScrollController();
+
   /// [ItemScrollController] of the profile's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
 
@@ -488,6 +492,7 @@ class MyProfileController extends GetxController {
     });
   }
 
+  // TODO: Remove, when backend supports real-time updates.
   /// Updates the [sessions] value.
   Future<void> updateSessions() async {
     try {

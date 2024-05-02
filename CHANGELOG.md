@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Profile page:
-        - Connected devices list. ([#986], [#566])
+        - Active sessions list. ([#986], [#566])
 
 ### Changed
 

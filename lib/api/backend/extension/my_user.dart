@@ -93,9 +93,9 @@ extension BlocklistRecordConversion on BlocklistRecordMixin {
       HiveBlocklistRecord(toModel(), cursor);
 }
 
-/// Extension adding [Session] models construction from a [SessionMixin].
+/// Extension adding [Session] model construction from a [SessionMixin].
 extension SessionExtension on SessionMixin {
-  /// Constructs the new [Session] from this [SessionMixin].
+  /// Constructs a new [Session] from this [SessionMixin].
   Session toModel() {
     return Session(
       id: id,

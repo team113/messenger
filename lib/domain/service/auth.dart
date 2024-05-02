@@ -97,7 +97,7 @@ class AuthService extends GetxService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
-  /// Returns reactive list of active [Session]s.
+  /// Returns the reactive list of active [Session]s.
   RxList<Session> get sessions => _authRepository.sessions;
 
   /// Indicates whether the [credentials] require a refresh.
@@ -464,7 +464,7 @@ class AuthService extends GetxService {
     return credentials;
   }
 
-  /// Deletes [Session] with the provided [id] if any or otherwise [Session] of
+  /// Deletes [Session] with the provided [id], if any, or otherwise [Session] of
   /// the active [MyUser].
   ///
   /// Returns the path of the authentication page.
@@ -476,51 +476,49 @@ class AuthService extends GetxService {
     UserPassword? password,
     bool force = false,
   }) async {
-    Log.debug('deleteSession(force: $id, $password, $force)', '$runtimeType');
+    Log.debug('deleteSession($id, $password, force: $force)', '$runtimeType');
 
-    if (id == null) {
-      status.value = RxStatus.empty();
-
-      if (force) {
-        if (userId != null) {
-          _authRepository.removeAccount(userId!);
-        }
-
-        return _unauthorized();
-      }
-
-      return await WebUtils.protect(() async {
-        try {
-          FcmRegistrationToken? fcmToken;
-
-          if (PlatformUtils.pushNotifications) {
-            final NotificationSettings settings =
-                await FirebaseMessaging.instance.getNotificationSettings();
-
-            if (settings.authorizationStatus ==
-                AuthorizationStatus.authorized) {
-              final String? token = await FirebaseMessaging.instance.getToken(
-                vapidKey: Config.vapidKey,
-              );
-
-              if (token != null) {
-                fcmToken = FcmRegistrationToken(token);
-              }
-            }
-          }
-
-          await _authRepository.deleteSession(fcmToken: fcmToken);
-        } catch (e) {
-          printError(info: e.toString());
-        }
-
-        return _unauthorized();
-      });
-    } else {
+    if (id != null) {
       await _authRepository.deleteSession(id: id, password: password);
-
       return null;
     }
+
+    status.value = RxStatus.empty();
+
+    if (force) {
+      if (userId != null) {
+        _authRepository.removeAccount(userId!);
+      }
+
+      return _unauthorized();
+    }
+
+    return await WebUtils.protect(() async {
+      try {
+        FcmRegistrationToken? fcmToken;
+
+        if (PlatformUtils.pushNotifications) {
+          final NotificationSettings settings =
+              await FirebaseMessaging.instance.getNotificationSettings();
+
+          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            final String? token = await FirebaseMessaging.instance.getToken(
+              vapidKey: Config.vapidKey,
+            );
+
+            if (token != null) {
+              fcmToken = FcmRegistrationToken(token);
+            }
+          }
+        }
+
+        await _authRepository.deleteSession(fcmToken: fcmToken);
+      } catch (e) {
+        printError(info: e.toString());
+      }
+
+      return _unauthorized();
+    });
   }
 
   /// Deletes [Session] of the active [MyUser] and removes it from the list of

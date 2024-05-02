@@ -841,7 +841,6 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.devices] section.
 Widget _devices(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
-  final ScrollController controller = ScrollController();
 
   Widget device(Session session) {
     return Padding(
@@ -869,9 +868,9 @@ Widget _devices(BuildContext context, MyProfileController c) {
         ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: 500),
           child: Scrollbar(
-            controller: controller,
+            controller: c.devicesScrollController,
             child: Obx(() {
-              List<Session> sessions = c.sessions.toList();
+              final List<Session> sessions = c.sessions.toList();
 
               final Session? current =
                   sessions.firstWhereOrNull((e) => e.isCurrent);
@@ -882,7 +881,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
               }
 
               return ListView.builder(
-                controller: controller,
+                controller: c.devicesScrollController,
                 shrinkWrap: true,
                 itemCount: sessions.length,
                 itemBuilder: (_, i) {
