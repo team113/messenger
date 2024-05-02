@@ -106,7 +106,8 @@ class AccountsView extends StatelessWidget {
                 Obx(() {
                   final bool enabled = !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
-                      c.signInTimeout.value == 0;
+                      c.signInTimeout.value == 0 &&
+                      !c.password.status.value.isLoading;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
@@ -210,8 +211,10 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled =
-                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
+                  final bool enabled = !c.emailCode.isEmpty.value &&
+                      c.codeTimeout.value == 0 &&
+                      !c.emailCode.status.value.isLoading;
+
                   return PrimaryButton(
                     key: const Key('Proceed'),
                     title: c.codeTimeout.value == 0
@@ -316,20 +319,26 @@ class AccountsView extends StatelessWidget {
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: Center(
-                    child: OutlinedRoundedButton(
-                      key: const Key('StartButton'),
-                      maxWidth: 290,
-                      height: 46,
-                      leading: Transform.translate(
-                        offset: const Offset(4, 0),
-                        child: const SvgIcon(SvgIcons.guest),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        c.register();
-                      },
-                      child: Text('btn_guest'.l10n),
-                    ),
+                    child: Obx(() {
+                      final bool enabled = c.authStatus.value.isSuccess;
+
+                      return OutlinedRoundedButton(
+                        key: const Key('StartButton'),
+                        maxWidth: 290,
+                        height: 46,
+                        leading: Transform.translate(
+                          offset: const Offset(4, 0),
+                          child: const SvgIcon(SvgIcons.guest),
+                        ),
+                        onPressed: enabled
+                            ? () {
+                                Navigator.of(context).pop();
+                                c.register();
+                              }
+                            : () {},
+                        child: Text('btn_guest'.l10n),
+                      );
+                    }),
                   ),
                 ),
                 const SizedBox(height: 15),

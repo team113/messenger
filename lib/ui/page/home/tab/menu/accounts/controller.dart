@@ -74,7 +74,6 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// Current authentication status.
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Amount of [signIn] unsuccessful submitting attempts.
@@ -120,13 +119,17 @@ class AccountsController extends GetxController {
   /// [UserService] used to retrieve [User]s.
   final UserService _userService;
 
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUserService.myUser;
-
   /// [Worker] updating the [accounts] list.
   Worker? _myUsersWorker;
 
+  /// [Worker] updating the [sessions] list.
   Worker? _sessionsWorker;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Current authentication status.
+  Rx<RxStatus> get authStatus => _authService.status;
 
   @override
   void onInit() {
@@ -247,6 +250,7 @@ class AccountsController extends GetxController {
           }
         } catch (_) {
           s.error.value = 'err_data_transfer'.l10n;
+          s.status.value = RxStatus.empty();
           s.unsubmit();
           rethrow;
         }
