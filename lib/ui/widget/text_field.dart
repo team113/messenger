@@ -325,7 +325,7 @@ class ReactiveTextField extends StatelessWidget {
                       ? CupertinoTextSelectionControls()
                       : null,
               controller: state.controller,
-              style: this.style,
+              style: this.style ?? style.fonts.medium.regular.onBackground,
               focusNode: state.focus,
               onChanged: (s) {
                 state.isEmpty.value = s.isEmpty;
