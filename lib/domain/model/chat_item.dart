@@ -16,9 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
@@ -159,10 +161,49 @@ class ChatItemId extends NewType<String> {
   bool get isLocal => val.startsWith('local.');
 }
 
+class ChatBotText {
+  const ChatBotText({
+    this.title,
+    required this.text,
+    this.actions = const [],
+  });
+
+  final String? title;
+  final String text;
+  final List<BotAction> actions;
+
+  Map<String, dynamic> toMap() {
+    return {
+      if (title != null) 'title': title,
+      'text': text,
+      if (actions.isNotEmpty)
+        'actions':
+            actions.map((e) => {'text': e.text, 'command': e.command}).toList(),
+    };
+  }
+}
+
 /// Text of a [ChatMessage].
 @HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(super.val);
+
+  factory ChatMessageText.bot({
+    String? title,
+    Map<Locale, ChatBotText> localized = const {},
+    ChatBotText? text,
+  }) {
+    return ChatMessageText(
+      '[@bot]${jsonEncode(
+        {
+          for (var e in localized.entries) ...{
+            e.key.toLanguageTag(): e.value.toMap(),
+          },
+          ...text?.toMap() ?? {},
+        },
+      )}',
+    );
+  }
 
   /// Maximum allowed number of characters in this [ChatMessageText].
   static const int maxLength = 8192;
@@ -280,15 +321,19 @@ class BotInfo extends ChatItem {
       }
 
       if (decoded != null) {
+        final text =
+            decoded[L10n.chosen.value!.toString()]?['text'] ?? decoded['text'];
+        final actions = decoded[L10n.chosen.value!.toString()]?['actions'] ??
+            decoded['actions'];
+
         return BotInfo(
           msg.id,
           msg.chatId,
           msg.author,
           msg.at,
-          text:
-              decoded['text'] == null ? null : ChatMessageText(decoded['text']),
+          text: text == null ? null : ChatMessageText(text),
           repliesTo: msg.repliesTo.firstOrNull,
-          actions: (decoded['actions'] as List?)?.map((e) {
+          actions: (actions as List?)?.map((e) {
             return BotAction(text: e['text'], command: e['command']);
           }).toList(),
           title: decoded['title'] ?? 'Bot',
@@ -314,14 +359,14 @@ class BotInfo extends ChatItem {
 
 @HiveType(typeId: ModelTypeId.botAction)
 class BotAction {
-  BotAction({
+  const BotAction({
     required this.text,
     required this.command,
   });
 
   @HiveField(0)
-  String text;
+  final String text;
 
   @HiveField(1)
-  String command;
+  final String command;
 }

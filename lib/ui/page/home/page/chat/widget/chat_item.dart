@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/widget/markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../../domain/service/chat.dart';
@@ -415,7 +416,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void initState() {
     _populateWorker();
-
     super.initState();
   }
 
@@ -884,9 +884,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ),
         child: Column(
           children: [
-            Text('${e.text}', style: style.fonts.smallest.regular.secondary),
+            // Text('${e.text}', style: style.fonts.smallest.regular.secondary),
+            if (e.text != null) MarkdownWidget(e.text!.val),
+            if (e.actions != null && e.text != null) const SizedBox(height: 4),
             if (e.actions != null) ...[
-              const SizedBox(height: 4),
               Wrap(
                 spacing: 2,
                 runSpacing: 2,
@@ -931,7 +932,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final ChatMessage msg = widget.item.value as ChatMessage;
     final BotInfo info = _bot!;
 
-    const Color color = Color.fromARGB(255, 149, 209, 149);
+    // const Color color = Color.fromARGB(255, 149, 209, 149);
+    // const Color color = Color(0xFFb68ad1);
+    // const Color color = Color(0xFF1f8429);
+    // const Color color = Color(0xFFD2E3F9);
+    // const Color color = Color.fromARGB(255, 228, 228, 228);
+
+    const Color color = Color(0xFFddf1f4);
+    // const Color color = Color.fromARGB(255, 161, 255, 183);
 
     return _rounded(
       context,
@@ -944,7 +952,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: color, width: 0.5),
-                color: style.systemMessageColor,
+                // color: style.systemMessageColor,
+                color: color,
               ),
               child: IntrinsicWidth(
                 child: Column(
@@ -958,7 +967,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         );
                       },
                     ),
-                    Text('${info.text}', style: style.systemMessageStyle),
+                    if (info.text != null)
+                      MarkdownWidget(
+                        info.text!.val,
+                        style: style.systemMessageStyle,
+                      ),
+                    // Text('${info.text}', style: style.systemMessageStyle),
                     if (info.actions != null) ...[
                       const SizedBox(height: 4),
                       Wrap(
@@ -2029,32 +2043,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           repliesTo: msg.repliesTo.firstOrNull,
           text: ChatMessageText(text!.val.substring(1)),
         );
+      } else if (msg.repliesTo.isEmpty &&
+          (text?.val.startsWith('[@bot]') ?? false)) {
+        _bot = BotInfo.parse(msg);
       }
-      // else if (text?.val.startsWith('[@bot]') ?? false) {
-      //   Map<String, dynamic>? decoded;
-
-      //   try {
-      //     decoded = jsonDecode(text!.val.substring('[@bot]'.length));
-      //   } catch (_) {
-      //     // No-op.
-      //   }
-
-      //   if (decoded != null) {
-      //     _bot = BotInfo(
-      //       msg.id,
-      //       msg.chatId,
-      //       msg.author,
-      //       msg.at,
-      //       text: decoded['text'] == null
-      //           ? null
-      //           : ChatMessageText(decoded['text']),
-      //       repliesTo: msg.repliesTo.firstOrNull,
-      //       actions: (decoded['actions'] as List?)?.map((e) {
-      //         return BotAction(text: e['text'], command: e['command']);
-      //       }).toList(),
-      //     );
-      //   }
-      // }
     }
 
     _worker = ever(widget.item, (ChatItem item) {

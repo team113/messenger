@@ -1056,37 +1056,44 @@ class ChatController extends GetxController {
       if (command == '/translate') {
         await _chatService.sendChatMessage(
           id,
-          text: ChatMessageText(
-            '[@bot]${jsonEncode(
-              {
-                'title': 'Translation',
-                'text':
+          text: ChatMessageText.bot(
+            localized: {
+              const Locale('en', 'US'): ChatBotText(
+                title: 'Translation',
+                text:
                     'Detected: English. Your message contains ${repliesTo.text?.val.length} symbols, which will cost in total: \$${1.1 / 100 * (repliesTo.text?.val.length ?? 0)}',
-                'actions': [
-                  {
-                    'text': 'Order translation',
-                    'command': '/proceed',
-                  },
-                  {
-                    'text': 'Change language',
-                    'command': '/language',
-                  }
+                actions: const [
+                  BotAction(text: 'Order translation', command: '/proceed'),
+                  BotAction(text: 'Change language', command: '/language'),
                 ],
-              },
-            )}',
+              ),
+              const Locale('ru', 'RU'): ChatBotText(
+                title: 'Перевод',
+                text:
+                    'Определён: Русский. Ваше сообщение содержит ${repliesTo.text?.val.length} символов, перевод будет стоить: \$${1.1 / 100 * (repliesTo.text?.val.length ?? 0)}',
+                actions: const [
+                  BotAction(text: 'Заказать перевод', command: '/proceed'),
+                  BotAction(text: 'Изменить язык', command: '/language'),
+                ],
+              ),
+            },
           ),
           repliesTo: [repliesTo],
         );
       } else if (command == '/proceed') {
         await _chatService.sendChatMessage(
           id,
-          text: ChatMessageText(
-            '[@bot]${jsonEncode(
-              {
-                'title': 'Translation',
-                'text': 'Translating... 💭',
-              },
-            )}',
+          text: ChatMessageText.bot(
+            localized: {
+              const Locale('en', 'US'): const ChatBotText(
+                title: 'Translation',
+                text: 'Translating... 💭',
+              ),
+              const Locale('ru', 'RU'): const ChatBotText(
+                title: 'Перевод',
+                text: 'Переводим... 💭',
+              ),
+            },
           ),
           repliesTo: [repliesTo],
         );
@@ -1095,13 +1102,17 @@ class ChatController extends GetxController {
 
         await _chatService.sendChatMessage(
           id,
-          text: ChatMessageText(
-            '[@bot]${jsonEncode(
-              {
-                'title': 'Translation',
-                'text': 'Translated ✅',
-              },
-            )}',
+          text: ChatMessageText.bot(
+            localized: {
+              const Locale('en', 'US'): const ChatBotText(
+                title: 'Translation',
+                text: 'Translated ✅',
+              ),
+              const Locale('ru', 'RU'): const ChatBotText(
+                title: 'Перевод',
+                text: 'Переведено ✅',
+              ),
+            },
           ),
           repliesTo: [repliesTo],
         );
@@ -2091,11 +2102,16 @@ class ChatController extends GetxController {
         // No-op.
       }
 
-      if (decoded?['text'] != null) {
+      final text =
+          decoded?[L10n.chosen.value!.toString()]?['text'] ?? decoded?['text'];
+      final actions = decoded?[L10n.chosen.value!.toString()]?['actions'] ??
+          decoded?['actions'];
+
+      if (text != null) {
         final info = BotInfoElement(
-          decoded!['text']!,
+          text,
           at: PreciseDateTime.now(),
-          actions: (decoded['actions'] as List?)?.map((e) {
+          actions: (actions as List?)?.map((e) {
                 return BotAction(text: e['text'], command: e['command']);
               }).toList() ??
               [],

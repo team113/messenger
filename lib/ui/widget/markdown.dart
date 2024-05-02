@@ -23,10 +23,12 @@ import '/themes.dart';
 
 /// [MarkdownBody] stylized with the [Style].
 class MarkdownWidget extends StatelessWidget {
-  const MarkdownWidget(this.body, {super.key});
+  const MarkdownWidget(this.body, {super.key, this.style});
 
   /// Text to parse and render as a markdown.
   final String body;
+
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class MarkdownWidget extends StatelessWidget {
         // TODO: Exception.
         h2: style.fonts.largest.bold.onBackground.copyWith(fontSize: 20),
 
-        p: style.fonts.normal.regular.onBackground,
+        p: this.style ?? style.fonts.normal.regular.onBackground,
         code: style.fonts.small.regular.onBackground.copyWith(
           letterSpacing: 1.2,
           backgroundColor: style.colors.secondaryHighlight,

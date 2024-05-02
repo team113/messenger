@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
@@ -982,6 +983,23 @@ class HiveRxChat extends RxChat {
   @override
   Future<void> addBot(RxUser user) async {
     bots.addIf(!bots.contains(user), user);
+
+    await postChatMessage(
+      text: ChatMessageText.bot(
+        localized: {
+          const Locale('en', 'US'): const ChatBotText(
+            title: 'Translation',
+            text:
+                'Translation service is enabled. Please, [connect your translation.com](https://translation.com) account.',
+          ),
+          const Locale('ru', 'RU'): const ChatBotText(
+            title: 'Перевод',
+            text:
+                'Переводческий сервис подключен. Пожалуйста, [привяжите Ваш translation.com](https://translation.com) аккаунт.',
+          ),
+        },
+      ),
+    );
   }
 
   @override

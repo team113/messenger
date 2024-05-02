@@ -1141,6 +1141,7 @@ class ChatView extends StatelessWidget {
       });
     } else if (element is BotInfoElement) {
       const Color color = Color.fromARGB(255, 149, 209, 149);
+      // const Color color = Color(0xFFddf1f4);
 
       return Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
@@ -1150,7 +1151,7 @@ class ChatView extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: color, width: 0.5),
-              color: style.systemMessageColor,
+              color: const Color(0xFFddf1f4),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

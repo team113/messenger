@@ -111,16 +111,16 @@ class AddChatMemberController extends GetxController {
   Future<void> addMembers(List<UserId> ids) async {
     status.value = RxStatus.loading();
 
-    if (chat.value?.chat.value.isGroup == false) {
-      if (ids.length == 1) {
-        final user = await _userService.get(ids.first);
-        if (user?.isBot == true) {
-          chat.value?.addBot(user!);
-          pop?.call();
-          return;
-        }
+    if (ids.length == 1) {
+      final user = await _userService.get(ids.first);
+      if (user?.isBot == true) {
+        chat.value?.addBot(user!);
+        pop?.call();
+        return;
       }
+    }
 
+    if (chat.value?.chat.value.isGroup == false) {
       try {
         chat.value = await _chatService.createGroupChat(ids);
         pop?.call();
