@@ -1555,9 +1555,7 @@ class RegisterFcmDeviceException
 }
 
 /// Exception of `Mutation.deleteSession` described in the [code].
-class DeleteSessionException
-    with LocalizedExceptionMixin
-    implements Exception {
+class DeleteSessionException with LocalizedExceptionMixin implements Exception {
   const DeleteSessionException(this.code);
 
   /// Reason of why the mutation has failed.

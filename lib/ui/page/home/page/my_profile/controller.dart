@@ -487,7 +487,7 @@ class MyProfileController extends GetxController {
       highlightIndex.value = null;
     });
   }
-    
+
   /// Updates the [sessions] value.
   Future<void> updateSessions() async {
     try {

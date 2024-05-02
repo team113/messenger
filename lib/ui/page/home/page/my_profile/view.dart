@@ -885,12 +885,12 @@ Widget _devices(BuildContext context, MyProfileController c) {
                 shrinkWrap: true,
                 itemCount: sessions.length,
                 itemBuilder: (_, i) {
-                    return Column(
-                      children: [
-                        device(sessions[i]),
-                        const SizedBox(height: 25),
-                      ],
-                    );
+                  return Column(
+                    children: [
+                      device(sessions[i]),
+                      const SizedBox(height: 25),
+                    ],
+                  );
                 },
               );
             }),
@@ -908,7 +908,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
           } else {
             return const SizedBox.square(
               dimension: 17,
-              child: CircularProgressIndicator(strokeWidth: 2,),
+              child: CircularProgressIndicator(strokeWidth: 2),
             );
           }
         }),

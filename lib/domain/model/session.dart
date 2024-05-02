@@ -95,7 +95,7 @@ class UserAgent extends NewType<String> {
         }
       }
     } else {
-      final List<String> parts = val.split(' ');
+      List<String> parts = val.split(' ');
 
       int? i;
 
@@ -105,6 +105,7 @@ class UserAgent extends NewType<String> {
             e.startsWith('Edg') ||
             e.startsWith('OPR') ||
             e.startsWith('Opera') ||
+            e.startsWith('SamsungBrowser') ||
             e.startsWith('YaBrowser'),
       );
 
@@ -117,11 +118,22 @@ class UserAgent extends NewType<String> {
       }
 
       if (i != -1) {
-        return parts[i]
-            .split('/')
-            .join(' ')
-            .replaceAll('OPR', 'Opera')
-            .replaceAll('YaBrowser', 'Yandex Browser');
+        parts = parts[i].split('/');
+
+        if (parts.length > 1) {
+          String name = parts[0];
+          String version = parts[1];
+
+          name = name
+              .replaceAll('OPR', 'Opera')
+              .replaceAll('SamsungBrowser', 'Samsung Browser')
+              .replaceAll('Edg', 'Microsoft Edge')
+              .replaceAll('YaBrowser', 'Yandex Browser');
+
+          version = version.split('.')[0];
+
+          return '$name $version';
+        }
       }
     }
 

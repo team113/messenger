@@ -475,7 +475,7 @@ class AuthService extends GetxService {
   }) async {
     Log.debug('deleteSession(force: $id, $password, $force)', '$runtimeType');
 
-    if(id == null) {
+    if (id == null) {
       status.value = RxStatus.empty();
 
       if (force) {
@@ -492,9 +492,10 @@ class AuthService extends GetxService {
 
           if (PlatformUtils.pushNotifications) {
             final NotificationSettings settings =
-            await FirebaseMessaging.instance.getNotificationSettings();
+                await FirebaseMessaging.instance.getNotificationSettings();
 
-            if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+            if (settings.authorizationStatus ==
+                AuthorizationStatus.authorized) {
               final String? token = await FirebaseMessaging.instance.getToken(
                 vapidKey: Config.vapidKey,
               );
