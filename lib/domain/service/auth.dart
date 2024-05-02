@@ -346,7 +346,7 @@ class AuthService extends GetxService {
   /// he doesn't re-sign in within that period of time.
   ///
   /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying either [switching] as `true`.
+  /// this logic can be ignored by specifying [switching] as `true`.
   Future<void> register({
     bool switching = false,
   }) async {
@@ -390,7 +390,8 @@ class AuthService extends GetxService {
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   ///
-  /// If [status] is already authorized, then this method does nothing.
+  /// If [status] is already authorized, then this method does nothing, however
+  /// this logic can be ignored by specifying [switching] as `true`.
   Future<void> confirmSignUpEmail(
     ConfirmationCode code, {
     bool switching = false,
