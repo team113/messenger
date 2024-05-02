@@ -44,7 +44,8 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
     context.world.me = me.userId;
 
-    await Get.find<AuthService>().signInWith(await me.credentials);
+    me.credentials =
+        await Get.find<AuthService>().signInWith(await me.credentials);
 
     router.home();
 
