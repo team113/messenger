@@ -50,18 +50,13 @@ class DeleteSessionView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: DeleteSessionController(
-        Get.find(),
-        pop: context.popModal,
-      ),
+      init: DeleteSessionController(Get.find(), pop: context.popModal),
       builder: (DeleteSessionController c) {
         return Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(
-                text: 'label_delete_device'.l10n,
-              ),
+              ModalPopupHeader(text: 'label_delete_device'.l10n),
               const SizedBox(height: 13),
               Flexible(
                 child: Padding(

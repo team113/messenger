@@ -168,6 +168,9 @@ class MyProfileController extends GetxController {
       }
     }
 
+    // [List.isEmpty] can be used as an indicator to fetch the [Session]s here,
+    // as our current [Session] must be on the list, so the length must be at
+    // least 1 to be up to date.
     if (sessions.isEmpty) {
       updateSessions();
     }
@@ -495,8 +498,9 @@ class MyProfileController extends GetxController {
   // TODO: Remove, when backend supports real-time updates.
   /// Updates the [sessions] value.
   Future<void> updateSessions() async {
+    sessionsUpdating.value = true;
+
     try {
-      sessionsUpdating.value = true;
       await _authService.updateSessions();
     } finally {
       sessionsUpdating.value = false;

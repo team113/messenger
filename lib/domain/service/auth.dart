@@ -448,7 +448,7 @@ class AuthService extends GetxService {
 
   /// Authorizes the current [Session] from the provided [credentials].
   @visibleForTesting
-  Future<Credentials> signInWith(Credentials credentials) async {
+  Future<void> signInWith(Credentials credentials) async {
     Log.debug('signInWith(credentials)', '$runtimeType');
 
     // Check if the [credentials] are valid.
@@ -460,12 +460,10 @@ class AuthService extends GetxService {
       _authorized(credentials);
       status.value = RxStatus.success();
     });
-
-    return credentials;
   }
 
-  /// Deletes [Session] with the provided [id], if any, or otherwise [Session] of
-  /// the active [MyUser].
+  /// Deletes [Session] with the provided [id], if any, or otherwise [Session]
+  /// of the active [MyUser].
   ///
   /// Returns the path of the authentication page.
   ///
@@ -532,7 +530,7 @@ class AuthService extends GetxService {
       _authRepository.removeAccount(userId!);
     }
 
-    return (await deleteSession())!;
+    return await deleteSession() ?? Routes.auth;
   }
 
   /// Validates the current [AccessToken].

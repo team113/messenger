@@ -44,8 +44,9 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
     context.world.me = me.userId;
 
-    me.credentials =
-        await Get.find<AuthService>().signInWith(await me.credentials);
+    final AuthService authService = Get.find<AuthService>();
+    await authService.signInWith(await me.credentials);
+    me.credentials = authService.credentials.value;
 
     router.home();
 
@@ -139,7 +140,7 @@ final countUsers = given2<int, TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Adds an active session for the provided [TestUser].
+/// Signs in as the provided [TestUser] to create additional [Session] for them.
 ///
 /// Examples:
 /// - `Alice has another active session`
