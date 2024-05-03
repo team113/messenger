@@ -594,8 +594,10 @@ endif
 ifeq ($(wildcard .cache/baza),)
 	@mkdir -p .cache/baza/data/
 	@mkdir -p .cache/baza/cache/
+	@mkdir -p .cache/cockroachdb/data/
 	@chmod 0777 .cache/baza/data/
 	@chmod 0777 .cache/baza/cache/
+	@chmod 0777 .cache/cockroachdb/data/
 endif
 ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
