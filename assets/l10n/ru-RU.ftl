@@ -73,7 +73,7 @@ alert_you_will_leave_group = Вы покинете группу.
 btn_accept = Принять
 btn_add = Добавить
 btn_add_account = Добавить аккаунт
-btn_add_account_with_break =
+btn_add_account_with_desc =
     Добавить
     аккаунт
 btn_add_member = Добавить участника
@@ -173,7 +173,7 @@ btn_cancel = Отменить
 btn_call_video_on_desc =
     Включить
     камеру
-btn_change_account_with_break =
+btn_change_account_desc =
     Сменить
     аккаунт
 btn_change = Изменить

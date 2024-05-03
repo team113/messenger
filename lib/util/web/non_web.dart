@@ -81,6 +81,9 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked => _guard.isLocked;
+
   /// Removes [Credentials] of the user with the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {
@@ -95,9 +98,6 @@ class WebUtils {
   /// Returns the stored in browser's storage [Credentials] of the user with
   /// the provided [UserId].
   static Credentials? getCredentials(UserId userId) => null;
-
-  /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.

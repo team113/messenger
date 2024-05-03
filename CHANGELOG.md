@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Profile page:
-        - Account switching. ([#975], [#312])
+        - Accounts switching. ([#975], [#312])
 
 ### Changed
 

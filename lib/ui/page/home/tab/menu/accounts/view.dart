@@ -462,7 +462,7 @@ class AccountsView extends StatelessWidget {
                                 );
 
                                 if (result == true) {
-                                  c.deleteAccount(user.id);
+                                  await c.deleteAccount(user.id);
                                 }
                               },
                               child: c.myUser.value?.id == myUser?.id
@@ -521,10 +521,7 @@ class AccountsView extends StatelessWidget {
                     child: ListView(
                       shrinkWrap: true,
                       physics: const ClampingScrollPhysics(),
-                      children: [
-                        ...children,
-                        const SizedBox(height: 16),
-                      ],
+                      children: [...children, const SizedBox(height: 16)],
                     ),
                   ),
                 ],

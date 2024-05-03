@@ -29,7 +29,7 @@ abstract class AbstractMyUserRepository {
   Rx<MyUser?> get myUser;
 
   /// Returns a reactive map of [MyUser]s.
-  RxMap<UserId, Rx<MyUser?>> get myUsers;
+  RxMap<UserId, Rx<MyUser>> get myUsers;
 
   /// Initializes the repository.
   ///

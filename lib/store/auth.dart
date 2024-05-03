@@ -125,7 +125,6 @@ class AuthRepository implements AbstractAuthRepository {
     final response = await _graphQlProvider.signUp();
 
     _signedUpUser = response.createUser.user.toHive();
-
     _signUpCredentials = response.toModel();
 
     await _graphQlProvider.addUserEmail(
@@ -150,6 +149,7 @@ class AuthRepository implements AbstractAuthRepository {
       code,
       raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
+
     _myUserProvider.put(_signedUpUser!);
 
     return _signUpCredentials!;
@@ -197,7 +197,7 @@ class AuthRepository implements AbstractAuthRepository {
   @override
   Future<Credentials> refreshSession(
     RefreshTokenSecret secret, {
-    bool raw = false,
+    bool reconnect = true,
   }) {
     Log.debug('refreshSession($secret)', '$runtimeType');
 
@@ -205,10 +205,12 @@ class AuthRepository implements AbstractAuthRepository {
       final response =
           (await _graphQlProvider.refreshSession(secret)).refreshSession
               as RefreshSession$Mutation$RefreshSession$CreateSessionOk;
-      if (!raw) {
+
+      if (reconnect) {
         _graphQlProvider.token = response.accessToken.secret;
         _graphQlProvider.reconnect();
       }
+
       return response.toModel();
     });
   }

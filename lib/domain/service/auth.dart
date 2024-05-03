@@ -713,7 +713,7 @@ class AuthService extends GetxService {
         try {
           final Credentials data = await _authRepository.refreshSession(
             oldCreds.refresh.secret,
-            raw: !areCurrent,
+            reconnect: areCurrent,
           );
 
           if (areCurrent) {

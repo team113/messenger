@@ -50,7 +50,7 @@ class MyUserService extends DisposableService {
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
   /// Returns a reactive map of all authenticated [MyUser]s available.
-  RxMap<UserId, Rx<MyUser?>> get myUsers => _userRepo.myUsers;
+  RxMap<UserId, Rx<MyUser>> get myUsers => _userRepo.myUsers;
 
   @override
   void onInit() {

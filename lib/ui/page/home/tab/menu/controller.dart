@@ -49,8 +49,8 @@ class MenuTabController extends GetxController {
   /// Current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Returns currently authenticated [MyUser]s.
-  RxMap<UserId, Rx<MyUser?>> get accounts => _myUserService.myUsers;
+  /// Returns the currently authenticated [MyUser]s.
+  RxMap<UserId, Rx<MyUser>> get accounts => _myUserService.myUsers;
 
   @override
   void onClose() {

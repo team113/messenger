@@ -125,8 +125,8 @@ class MenuTabView extends StatelessWidget {
                   child: Obx(() {
                     final bool hasMultipleAccounts = c.accounts.length > 1;
                     final String label = hasMultipleAccounts
-                        ? 'btn_change_account_with_break'
-                        : 'btn_add_account_with_break';
+                        ? 'btn_change_account_desc'
+                        : 'btn_add_account_with_desc';
 
                     return Text(
                       label.l10n,

@@ -65,7 +65,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   // TODO: Should be synchronized across multiple tabs on Web as they all share
   //       the same [Hive] box for [MyUser]s.
   @override
-  final RxMap<UserId, Rx<MyUser?>> myUsers = RxMap({});
+  final RxMap<UserId, Rx<MyUser>> myUsers = RxMap();
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -638,10 +638,11 @@ class MyUserRepository implements AbstractMyUserRepository {
     myUsers.removeWhere((key, _) => !stored.map((u) => u.id).contains(key));
 
     for (final HiveMyUser u in _myUserLocal.valuesSafe) {
-      if (myUsers[u.value.id] == null) {
-        myUsers[u.value.id] = Rx<MyUser?>(u.value);
+      final Rx<MyUser>? myUser = myUsers[u.value.id];
+      if (myUser == null) {
+        myUsers[u.value.id] = Rx<MyUser>(u.value);
       } else {
-        myUsers[u.value.id]?.value = u.value;
+        myUser.value = u.value;
       }
     }
   }

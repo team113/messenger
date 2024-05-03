@@ -292,6 +292,25 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked async {
+    // Web Locks API is unavailable for some reason, so proceed without it.
+    if (!_locksAvailable()) {
+      return false;
+    }
+
+    bool held = false;
+
+    try {
+      final locks = await promiseToFuture(_getLocks());
+      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
+    } catch (e) {
+      held = false;
+    }
+
+    return _guard.isLocked || held;
+  }
+
   /// Removes [Credentials] of the user with the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {
@@ -316,25 +335,6 @@ class WebUtils {
       );
       return Credentials.fromJson(decoded);
     }
-  }
-
-  /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked async {
-    // Web Locks API is unavailable for some reason, so proceed without it.
-    if (!_locksAvailable()) {
-      return false;
-    }
-
-    bool held = false;
-
-    try {
-      final locks = await promiseToFuture(_getLocks());
-      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
-    } catch (e) {
-      held = false;
-    }
-
-    return _guard.isLocked || held;
   }
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or

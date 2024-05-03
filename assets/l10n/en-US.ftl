@@ -73,7 +73,7 @@ alert_you_will_leave_group = You will leave the group.
 btn_accept = Accept
 btn_add = Add
 btn_add_account = Add account
-btn_add_account_with_break =
+btn_add_account_with_desc =
     Add
     account
 btn_add_member = Add member
@@ -174,7 +174,7 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
-btn_change_account_with_break =
+btn_change_account_desc =
     Change
     account
 btn_change_avatar = Change avatar

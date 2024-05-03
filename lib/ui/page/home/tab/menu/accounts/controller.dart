@@ -216,7 +216,7 @@ class AccountsController extends GetxController {
             switching: true,
           );
 
-          // Change the route only after the mutation end as possible errors
+          // Change the route only after the mutation ends, as possible errors
           // should be handled within the same modal.
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
@@ -342,6 +342,7 @@ class AccountsController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
+
       await _authService.signIn(
         userPassword,
         login: userLogin,
@@ -391,7 +392,6 @@ class AccountsController extends GetxController {
   Future<void> deleteAccount(UserId id) async {
     if (id == _authService.userId) {
       _authService.logout();
-
       router.auth();
       router.tab = HomeTab.chats;
     } else {
