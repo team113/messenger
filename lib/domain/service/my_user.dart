@@ -28,6 +28,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/my_user.dart';
 import '/routes.dart';
 import '/util/log.dart';
+import '/util/obs/rxmap.dart';
 import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
@@ -50,7 +51,7 @@ class MyUserService extends DisposableService {
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
   /// Returns a reactive map of all authenticated [MyUser]s available.
-  RxMap<UserId, Rx<MyUser>> get myUsers => _userRepo.myUsers;
+  RxObsMap<UserId, Rx<MyUser>> get myUsers => _userRepo.myUsers;
 
   @override
   void onInit() {

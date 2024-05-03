@@ -42,6 +42,7 @@ import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
+import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'blocklist.dart';
@@ -65,7 +66,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   // TODO: Should be synchronized across multiple tabs on Web as they all share
   //       the same [Hive] box for [MyUser]s.
   @override
-  final RxMap<UserId, Rx<MyUser>> myUsers = RxMap();
+  final RxObsMap<UserId, Rx<MyUser>> myUsers = RxObsMap();
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;

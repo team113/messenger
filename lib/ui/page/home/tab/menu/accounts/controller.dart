@@ -32,6 +32,7 @@ import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 
 typedef AccountData = ({Rx<MyUser?> myUser, RxUser user});
 
@@ -132,8 +133,31 @@ class AccountsController extends GetxController {
 
   @override
   void onInit() {
-    _myUsersWorker ??= ever(_myUserService.myUsers, (_) {
-      _populateUsers();
+    _myUserService.myUsers.changes.listen((e) async {
+      final UserId? id = e.key;
+      final Rx<MyUser>? myUser = e.value;
+
+      switch (e.op) {
+        case OperationKind.added:
+          final FutureOr<RxUser?> futureOrUser = _userService.get(id!);
+          final RxUser? user =
+              futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+
+          if (user != null) {
+            accounts.add((myUser: myUser!, user: user));
+          }
+
+          accounts.sort(_compareAccounts);
+          break;
+
+        case OperationKind.removed:
+          accounts.removeWhere((e) => e.user.id == id);
+          break;
+
+        case OperationKind.updated:
+          // No-op.
+          break;
+      }
     });
 
     _sessionsWorker ??= ever(
@@ -271,16 +295,13 @@ class AccountsController extends GetxController {
 
     for (final e in _myUserService.myUsers.entries) {
       final UserId id = e.key;
-      final Rx<MyUser?> myUser = e.value;
+      final Rx<MyUser> myUser = e.value;
 
-      if (myUser.value != null) {
-        final FutureOr<RxUser?> futureOrUser = _userService.get(id);
-        final user =
-            futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+      final FutureOr<RxUser?> futureOrUser = _userService.get(id);
+      final user = futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
 
-        if (user != null) {
-          values.add((myUser: myUser, user: user));
-        }
+      if (user != null) {
+        values.add((myUser: myUser, user: user));
       }
     }
 
@@ -519,5 +540,26 @@ class AccountsController extends GetxController {
       _setResendEmailTimer(false);
       rethrow;
     }
+  }
+
+  /// Compares two [AccountData]s based on the last seen time and the online
+  /// status.
+  int _compareAccounts(AccountData a, AccountData b) {
+    if (_authService.credentials.value?.userId == a.user.id) {
+      return -1;
+    } else if (_authService.credentials.value?.userId == b.user.id) {
+      return 1;
+    } else if (a.user.user.value.online && !b.user.user.value.online) {
+      return -1;
+    } else if (!a.user.user.value.online && b.user.user.value.online) {
+      return 1;
+    } else if (a.user.user.value.lastSeenAt == null ||
+        b.user.user.value.lastSeenAt == null) {
+      return -1;
+    }
+
+    return -a.user.user.value.lastSeenAt!.compareTo(
+      b.user.user.value.lastSeenAt!,
+    );
   }
 }

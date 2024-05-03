@@ -26,6 +26,7 @@ import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/util/obs/rxmap.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
@@ -50,7 +51,7 @@ class MenuTabController extends GetxController {
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns the currently authenticated [MyUser]s.
-  RxMap<UserId, Rx<MyUser>> get accounts => _myUserService.myUsers;
+  RxObsMap<UserId, Rx<MyUser>> get accounts => _myUserService.myUsers;
 
   @override
   void onClose() {

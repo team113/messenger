@@ -22,6 +22,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
+import '/util/obs/rxmap.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
@@ -29,7 +30,7 @@ abstract class AbstractMyUserRepository {
   Rx<MyUser?> get myUser;
 
   /// Returns a reactive map of [MyUser]s.
-  RxMap<UserId, Rx<MyUser>> get myUsers;
+  RxObsMap<UserId, Rx<MyUser>> get myUsers;
 
   /// Initializes the repository.
   ///
