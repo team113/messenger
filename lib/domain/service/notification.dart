@@ -114,7 +114,7 @@ class NotificationService extends DisposableService {
     Future<void> Function(RemoteMessage message)? onBackground,
   }) async {
     Log.debug(
-      'init($language, $firebaseOptions, onResponse, onBackground)',
+      'init($language, firebaseOptions, onResponse, onBackground)',
       '$runtimeType',
     );
 
@@ -394,13 +394,21 @@ class NotificationService extends DisposableService {
       '$runtimeType',
     );
 
+    try {
+      await Firebase.initializeApp(options: options);
+    } catch (e) {
+      if (e.toString().contains('[core/duplicate-app]')) {
+        // No-op.
+      } else {
+        rethrow;
+      }
+    }
+
     FirebaseMessaging.onMessageOpenedApp.listen(onResponse);
 
     if (onBackground != null) {
       FirebaseMessaging.onBackgroundMessage(onBackground);
     }
-
-    await Firebase.initializeApp(options: options);
 
     final RemoteMessage? initial =
         await FirebaseMessaging.instance.getInitialMessage();

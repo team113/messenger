@@ -1,0 +1,4 @@
+fragment AccessToken on AccessToken {
+    secret
+    expiresAt
+}

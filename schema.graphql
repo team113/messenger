@@ -17,15 +17,39 @@
 
 directive @specifiedBy(url: String!) on SCALAR
 
+"""Token used for authenticating a `Session`."""
+type AccessToken {
+  """
+  `DateTime` of this `AccessToken` expiration.
+
+  Once expired, it's not usable anymore and the `Session` should be
+  refreshed via `Mutation.refreshSession` to get a new `AccessToken`.
+
+  Client applications are supposed to use this field for tracking
+  `AccessToken`'s expiration and refresh the `Session` before an
+  authentication error occurs.
+  """
+  expiresAt: DateTime!
+
+  """
+  Secret part of this `AccessToken`.
+
+  This one should be used as a [Bearer authentication token][1].
+
+  [1]: https://tools.ietf.org/html/rfc6750#section-2.1
+  """
+  secret: AccessTokenSecret!
+}
+
 """
-Type of a `Session`'s access token.
+Type of `AccessToken`'s secret.
 
 Its values are always considered to be non-empty and represent a
 [valid Base64 string][1].
 
 [1]: https://base64.guru/learn/base64-characters
 """
-scalar AccessToken
+scalar AccessTokenSecret
 
 """Error of performing `Mutation.addChatMember`."""
 type AddChatMemberError {
@@ -1707,8 +1731,7 @@ enum ClearChatErrorCode {
 union ClearChatResult = ChatEventsVersioned | ClearChatError
 
 """
-Type of a code used for email addresses confirmation, password recovery,
-etc.
+Code used for email addresses confirmation, password recovery, etc.
 
 Its values are always considered to be 4-digit strings.
 """
@@ -2034,48 +2057,40 @@ enum CreateSessionErrorCode {
   WRONG_PASSWORD
 }
 
-"""Result of a successful performing `Mutation.createSession`."""
+"""
+Result of successful performing `Mutation.createSession`,
+`Mutation.refreshSession` or `Mutation.createUser`.
+"""
 type CreateSessionOk {
   """
-  Created `RememberedSession` for a `Session` renewal.
-
-  It will expire in 365 days (~1 year) after creation.
-  """
-  remembered: RememberedSession!
-
-  """
-  Created `Session`.
+  Created or refreshed `AccessToken` for authenticating the `Session`.
 
   It will expire in 30 minutes after creation.
   """
+  accessToken: AccessToken!
+
+  """
+  Created or refreshed `RefreshToken` for refreshing the `Session`.
+
+  Use it instead of the previous one for the next
+  `Mutation.refreshSession` execution.
+
+  Expiration of the refreshed `RefreshToken` is not prolonged comparing to
+  the previous one, and remains the same for all the `RefreshToken`s
+  obtained via `Mutation.refreshSession`. Use the `Mutation.createSession`
+  to obtain a `RefreshToken` with new expiration.
+  """
+  refreshToken: RefreshToken!
+
+  """Created or refreshed `Session`."""
   session: Session!
 
-  """`MyUser` that the `Session` was created for."""
+  """`MyUser` owning the `Session`."""
   user: MyUser!
 }
 
 """Result of performing `Mutation.createSession`."""
 union CreateSessionResult = CreateSessionError | CreateSessionOk
-
-"""Result of a successful performing `Mutation.createUser`."""
-type CreateUserResult {
-  """
-  `RememberedSession` of the created `MyUser`.
-
-  It will expire in 365 days (~1 year) after `MyUser` creation.
-  """
-  remembered: RememberedSession!
-
-  """
-  `Session` of the created `MyUser`.
-
-  It will expire in 30 minutes after `MyUser` creation.
-  """
-  session: Session!
-
-  """Created `MyUser`."""
-  user: MyUser!
-}
 
 """
 Area for an image cropping.
@@ -2290,6 +2305,16 @@ enum DeleteChatMessageErrorCode {
 """Result of performing `Mutation.deleteChatMessage`."""
 union DeleteChatMessageResult = ChatEventsVersioned | DeleteChatMessageError
 
+"""Possible error codes of performing `Mutation.deleteSession`."""
+enum DeleteSessionErrorCode {
+  """
+  Provided password is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_PASSWORD
+}
+
 """Error of performing `Mutation.editChatMessage`."""
 type EditChatMessageError {
   """Code indicating why this error has happened."""
@@ -2418,16 +2443,18 @@ type EventChatCallAnswerTimeoutPassed implements ChatCallEvent & ChatEvent {
   """
   `User` whose answer timeout was reached.
 
-  If `null`, then the answer timeout was reached for all `User`s being
-  `ChatMember`s.
+  If `null`, then the answer timeout was reached for all the dialed
+  `ChatMember`s, not listed in the `ChatMembersDialedAll.answeredMembers`
+  or the `ChatMembersDialedConcrete.concrete` fields.
   """
   user: User
 
   """
   ID of the `User` whose answer timeout was reached.
 
-  If `null`, then the answer timeout was reached for all the `User`s being
-  `ChatMember`s.
+  If `null`, then the answer timeout was reached for all the dialed
+  `ChatMember`s, not listed in the `ChatMembersDialedAll.answeredMembers`
+  or the `ChatMembersDialedConcrete.concrete` fields.
   """
   userId: UserId
 }
@@ -3176,7 +3203,7 @@ type EventRecentChatsTopChatDeleted {
 """Event of a `Chat` becoming the topmost in `Query.recentChats` list."""
 type EventRecentChatsTopChatUpdated {
   """`Chat` becoming the topmost one."""
-  chat: Chat!
+  chat: RecentChatsEdge!
 }
 
 """Event of a `UserAvatar` being deleted."""
@@ -3317,6 +3344,15 @@ type EventUserEmailDeleted {
   userId: UserId!
 }
 
+"""Event of a `UserLogin` being deleted."""
+type EventUserLoginDeleted {
+  """`DateTime` when the `UserLogin` was deleted."""
+  at: DateTime!
+
+  """ID of the `User` whose `UserLogin` was deleted."""
+  userId: UserId!
+}
+
 """Event of a `UserLogin` being updated."""
 type EventUserLoginUpdated {
   """`DateTime` when the `UserLogin` was updated."""
@@ -3325,7 +3361,7 @@ type EventUserLoginUpdated {
   """New `UserLogin`."""
   login: UserLogin!
 
-  """ID of the `User` whose log`UserLogin`in was updated."""
+  """ID of the `User` whose `UserLogin` was updated."""
   userId: UserId!
 }
 
@@ -3898,7 +3934,7 @@ type ImageAttachment implements Attachment {
 
   """
   `small` view `ImageFile` of this `ImageAttachment`, scaled
-  proportionally to `30px` of its maximum dimension (either width or
+  proportionally to `60px` of its maximum dimension (either width or
   height).
   """
   small: ImageFile!
@@ -4552,8 +4588,8 @@ type Mutation {
 
   Represents a sign-in action.
 
-  The created `Session` has expiration, which may be prolonged via
-  `Mutation.renewSession`.
+  `AccessToken` of the created `Session` may be prolonged via
+  `Mutation.refreshSession`.
 
   [`User-Agent` HTTP header][0] must be specified for this action and meet
   the `UserAgent` scalar format.
@@ -4589,9 +4625,10 @@ type Mutation {
   Creates a new `MyUser` having only `id` and unique `num` fields, along
   with a `Session` for him (valid for the returned expiration).
 
-  The created `Session` may be prolonged via `Mutation.renewSession`.
+  `AccessToken` of the created `Session` may be prolonged via
+  `Mutation.refreshSession`.
 
-  Once the created `Session` expires and cannot be prolonged, the created
+  Once the created `Session` expires and cannot be refreshed, the created
   `MyUser` looses its access, if he doesn't provide a password via
   `Mutation.updateUserPassword` within that period of time.
 
@@ -4608,7 +4645,7 @@ type Mutation {
 
   [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
-  createUser: CreateUserResult!
+  createUser: CreateSessionOk!
 
   """
   Declines the ongoing `ChatCall` in the specified `Chat` by the
@@ -4786,8 +4823,7 @@ type Mutation {
 
   **This action cannot be reverted.**
 
-  Also deletes all the `Session`s and `RememberedSession`s of the
-  authenticated `MyUser`.
+  Also deletes all the `Session`s of the authenticated `MyUser`.
 
   ## Authentication
 
@@ -4805,9 +4841,8 @@ type Mutation {
   deleteMyUser: MyUserEventsVersioned!
 
   """
-  Destroys the `Session` (and the associated `RememberedSession`, if
-  exists) identified by the provided `AccessToken` of the authenticated
-  `MyUser`.
+  Destroys the specified `Session` of the authenticated `MyUser`, or the
+  current one (if its `id` is not specified).
 
   ## Authentication
 
@@ -4815,17 +4850,27 @@ type Mutation {
 
   ## Result
 
-  Always returns `true` on success.
+  Always returns `null` on success.
 
   ## Idempotent
 
-  Succeeds as no-op if the `Session` with the provided `AccessToken` has
-  been deleted already.
+  Succeeds as no-op if the specified `Session` has been deleted already.
   """
   deleteSession(
-    """`AccessToken` of the `Session` to destroy."""
-    token: AccessToken!
-  ): Boolean!
+    """
+    ID of the `Session` to destroy.
+
+    Only makes sense if the `password` is provided.
+    """
+    id: SessionId
+
+    """
+    Password of `MyUser` to confirm the `Session` destroying with.
+
+    Only makes sense if the `id` is provided.
+    """
+    password: UserPassword
+  ): DeleteSessionErrorCode
 
   """
   Deletes the provided `email` address from the `MyUser.emails` field of
@@ -5352,15 +5397,24 @@ type Mutation {
   ): Boolean!
 
   """
-  Redials a `User` who left or declined the ongoing `ChatCall` in the
-  specified `Chat`-group by the authenticated `MyUser`.
+  Redials a `ChatMember` who left or declined the ongoing `ChatCall` in
+  the specified `Chat`-group by the authenticated `MyUser`.
 
   For using this mutation the authenticated `MyUser` must be a member of
   the ongoing `ChatCall`.
 
-  Redialed `User` should see the `ChatCall.answered` indicator as `false`,
-  and the ongoing `ChatCall` appearing in his `Query.incomingChatCallsTop`
-  and `Subscription.incomingChatCallsTopEvents` again.
+  Redialed `ChatMember` should see the `ChatCall.answered` indicator as
+  `false`, and the ongoing `ChatCall` appearing in his
+  `Query.incomingChatCallsTop` and
+  `Subscription.incomingChatCallsTopEvents` again.
+
+  Redialed `ChatMember` can be found in the
+  `ChatMembersDialedConcrete.concrete` list, and once the answer timeout
+  passes, the `Subscription.chatCallEvents` emits the
+  `EventChatCallAnswerTimeoutPassed` with the `user` field pointing to
+  him, meaning that he is not dialed anymore. Any received
+  `EventChatCallAnswerTimeoutPassed`, with the `user` field set to `null`,
+  should be ignored for explicitly redialed `ChatMember`s.
 
   ## Authentication
 
@@ -5373,9 +5427,9 @@ type Mutation {
 
   ## Idempotent
 
-  Succeeds as no-op (and returns no `ChatEvent`) if the redialed `User`
-  didn't decline or leave the `ChatCall` yet, or has been redialed
-  already.
+  Succeeds as no-op (and returns no `ChatEvent`) if the redialed
+  `ChatMember` didn't decline or leave the `ChatCall` yet, or has been
+  redialed already.
   """
   redialChatCallMember(
     """ID of the `Chat` where the `ChatCall` is going on."""
@@ -5384,6 +5438,44 @@ type Mutation {
     """ID of the `User` (being `ChatMember`) to be redialed."""
     memberId: UserId!
   ): RedialChatCallMemberResult
+
+  """
+  Refreshes a `Session` of the `MyUser` identified by the provided
+  `RefreshTokenSecret`.
+
+  Invalidates the provided `RefreshTokenSecret` and returns a new one
+  for the same `RefreshToken`, which should be used instead.
+
+  The refreshed `AccessToken` has its own expiration, so to refresh it
+  again, use this mutation with the new returned `RefreshTokenSecret`
+  (omit using old ones).
+
+  `RefreshToken` doesn't change at all, only the new `RefreshTokenSecret`
+  is generated for it, which means its expiration is not prolonged
+  comparing to the `AccessToken`. Once the `RefreshToken` is expired, the
+  `Session` cannot be either refreshed or accessed anymore. To create a
+  new `Session` use the `Mutation.createSession`.
+
+  [`User-Agent` HTTP header][0] must be specified for this action and meet
+  the `UserAgent` scalar format.
+
+  ## Authentication
+
+  None.
+
+  ## Non-idempotent
+
+  Each time creates a new `AccessToken` and generates a new
+  `RefreshTokenSecret` for the `RefreshToken`.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
+  """
+  refreshSession(
+    """
+    `RefreshTokenSecret` for mutation authentication and `MyUser` identification.
+    """
+    secret: RefreshTokenSecret!
+  ): RefreshSessionResult!
 
   """
   Registers a device (Android, iOS, or Web) for receiving notifications
@@ -5472,8 +5564,16 @@ type Mutation {
 
   ## Result
 
-  Only the following `ChatEvent` may be produced on success:
-  - `EventChatItemPosted` (`ChatInfo` with `ChatInfoActionMemberRemoved`).
+  Only the following `ChatEvent`s may be produced on success:
+  - `EventChatItemPosted` (`ChatInfo` with `ChatInfoActionMemberRemoved`);
+  - `EventChatCallDeclined` (if the authenticated `MyUser` removed himself
+    from the group's ongoing `ChatCall`, not answered by him yet);
+  - `EventChatCallMemberUndialed` (if the removed `User` was dialed, but
+    didn't answer the group's ongoing `ChatCall`);
+  - `EventChatCallMemberLeft` (if the removed `User` participated in the
+    group's ongoing `ChatCall`);
+  - `EventChatCallFinished` (if the removed `User` was the last member of
+    the group's ongoing `ChatCall`).
 
   ## Idempotent
 
@@ -5518,42 +5618,6 @@ type Mutation {
     """
     name: ChatName
   ): RenameChatResult
-
-  """
-  Renews a `Session` of the `MyUser` identified by the provided
-  `RefreshToken`.
-
-  Invalidates the provided `RefreshToken` and returns a new one, which
-  should be used instead.
-
-  The renewed `Session` has its own expiration after renewal, so to renew
-  it again use this mutation with the new returned `RefreshToken` (omit
-  using old ones).
-
-  The expiration of the renewed `RememberedSession` is not prolonged
-  comparing to the previous one, and remains the same for all the
-  `RememberedSession`s obtained via `Mutation.renewSession`. Use
-  `Mutation.createSession` to reset expiration of a `RememberedSession`.
-
-  [`User-Agent` HTTP header][0] must be specified for this action and meet
-  the `UserAgent` scalar format.
-
-  ## Authentication
-
-  None.
-
-  ## Non-idempotent
-
-  Each time creates a new `Session` and generates a new `RefreshToken`.
-
-  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
-  """
-  renewSession(
-    """
-    `RefreshToken` for mutation authentication and `MyUser` identification.
-    """
-    token: RefreshToken!
-  ): RenewSessionResult!
 
   """
   Resends a new `ConfirmationCode` to the `MyUser.emails.unconfirmed`
@@ -5657,10 +5721,26 @@ type Mutation {
   `MyUser`.
 
   Once this mutation succeeds the `EventChatCallStarted` is fired to all
-  `Chat` members via `Subscription.chatEvents`, and it's required to use
-  `Subscription.chatCallEvents` (use the `StartChatCallOk.deviceId`
+  `ChatMember`s via `Subscription.chatEvents`, and it's required to use
+  the `Subscription.chatCallEvents` (use the `StartChatCallOk.deviceId`
   returned by this mutation) for the authenticated `MyUser` to be able to
-  react on all `ChatCallEvent`s happening during the started `ChatCall`.
+  react to all the `ChatCallEvent`s happening during the started
+  `ChatCall`.
+
+  Firing an `EventChatCallStarted` means that all the `ChatMember`s, at
+  the moment of the `ChatCall` beginning, are dialed until the
+  `EventChatCallAnswerTimeoutPassed` happens (with the `user` field set to
+  `null`), or they take an explicit action about the `ChatCall` (accept it
+  or decline it). Any `User`, joining the `Chat` after the
+  `EventChatCallStarted`, is not dialed automatically, and if needed,
+  should be explicitly dialed via `Mutation.redialChatCallMember`, and so,
+  will have its own `EventChatCallAnswerTimeoutPassed` with the `user`
+  field pointing to him.
+
+  Firing an `EventChatCallAnswerTimeoutPassed` (with the `user` field set
+  to `null`) means that all the dialed `ChatMember`s, not listed in the
+  `ChatMembersDialedAll.answeredMembers` or the
+  `ChatMembersDialedConcrete.concrete` fields, are not dialed anymore.
 
   ## Lifecycle
 
@@ -5690,7 +5770,7 @@ type Mutation {
 
   ## Result
 
-  Only of the following `ChatEvent`s may be produced on success:
+  Only the following `ChatEvent`s may be produced on success:
   - `EventChatItemPosted` (if no `ChatCall` exists);
   - `EventChatCallStarted` (if no `ChatCall` exists);
   - `EventChatCallMemberJoined` (if `ChatCall` exists already).
@@ -6196,7 +6276,8 @@ type Mutation {
   ): UpdateUserCallCoverResult
 
   """
-  Updates the `MyUser.login` field of the authenticated `MyUser`.
+  Updates or resets the `MyUser.login` field of the authenticated
+  `MyUser`.
 
   ## Authentication
 
@@ -6204,8 +6285,9 @@ type Mutation {
 
   ## Result
 
-  Only the following `MyUserEvent` may be produced on success:
-  - `EventUserLoginUpdated`.
+  One of the following `MyUserEvent`s may be produced on success:
+  - `EventUserLoginUpdated` (if `login` argument is specified);
+  - `EventUserLoginDeleted` (if `login` argument is absent or is `null`).
 
   ## Idempotent
 
@@ -6213,8 +6295,12 @@ type Mutation {
   `MyUser` uses the provided `login` already.
   """
   updateUserLogin(
-    """Login to update `MyUser` with."""
-    login: UserLogin!
+    """
+    Login to update `MyUser` with.
+
+    If absent or is `null` then the `MyUser.login` field will be reset.
+    """
+    login: UserLogin
   ): UpdateUserLoginResult
 
   """
@@ -6624,7 +6710,7 @@ type MyUser {
 }
 
 """Events happening with `MyUser`."""
-union MyUserEvent = EventBlocklistRecordAdded | EventBlocklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
+union MyUserEvent = EventBlocklistRecordAdded | EventBlocklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserLoginDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
 
 """Events emitted by `Subscription.myUserEvents`."""
 union MyUserEvents = MyUser | MyUserEventsVersioned | SubscriptionInitialized
@@ -7504,6 +7590,21 @@ type Query {
   ): UsersConnection!
 
   """
+  Returns all active `Session`s of the authenticated `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `Session`s are sorted primarily by their last activity
+  `DateTime`, and secondary by their IDs (if the last activity `DateTime`
+  is the same), in descending order.
+  """
+  sessions: [Session!]!
+
+  """
   Returns a `User` by its `id`.
 
   ## Authentication
@@ -7624,7 +7725,7 @@ type RecentChatsTop {
   and secondary by their IDs (if the last updating `DateTime` is the
   same), in descending order.
   """
-  list: [Chat!]!
+  list: [RecentChatsEdge!]!
 }
 
 """Events emitted by `Subscription.recentChatsTopEvents`."""
@@ -7677,15 +7778,64 @@ enum RedialChatCallMemberErrorCode {
 """Result of performing `Mutation.redialChatCallMember`."""
 union RedialChatCallMemberResult = ChatCallEventsVersioned | RedialChatCallMemberError
 
+"""Error of performing `Mutation.refreshSession`."""
+type RefreshSessionError {
+  """Code indicating why this error has happened."""
+  code: RefreshSessionErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.refreshSession`."""
+enum RefreshSessionErrorCode {
+  """
+  Provided `RefreshTokenSecret` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_REFRESH_TOKEN
+}
+
+"""Result of performing `Mutation.refreshSession`."""
+union RefreshSessionResult = CreateSessionOk | RefreshSessionError
+
+"""Token used for refreshing a `Session`."""
+type RefreshToken {
+  """
+  `DateTime` of this `RefreshToken` expiration.
+
+  Once expired, it's not usable anymore and a new `Session` should be
+  created via `Mutation.createSession` to get a new `RefreshToken`.
+
+  Client applications are supposed to use this field for tracking
+  `RefreshToken`'s expiration and sign out `MyUser`s properly.
+
+  Expiration of a `RefreshToken` is not prolonged on refreshing, and
+  remains the same for all the `RefreshToken`s obtained via
+  `Mutation.refreshSession`. Use the `Mutation.createSession` to obtain a
+  `RefreshToken` with new expiration.
+  """
+  expiresAt: DateTime!
+
+  """
+  Secret part of this `RefreshToken`.
+
+  This one should be used for refreshing the `Session` via
+  `Mutation.refreshSession` and is **NOT** usable as a
+  [Bearer authentication token][1].
+
+  [1]: https://tools.ietf.org/html/rfc6750#section-2.1
+  """
+  secret: RefreshTokenSecret!
+}
+
 """
-Type of a `RememberedSession`'s refresh token.
+Type of `RefreshToken`'s secret.
 
 Its values are always considered to be non-empty and represent a
 [valid Base64 string][1].
 
 [1]: https://base64.guru/learn/base64-characters
 """
-scalar RefreshToken
+scalar RefreshTokenSecret
 
 """Possible error codes of performing `Mutation.registerFcmDevice`."""
 enum RegisterFcmDeviceErrorCode {
@@ -7703,49 +7853,6 @@ enum RegisterFcmDeviceErrorCode {
   """
   UNKNOWN_REGISTRATION_TOKEN
 }
-
-"""
-Remembered session of a `MyUser`, which allows to renew his `Session`s.
-"""
-type RememberedSession {
-  """
-  `DateTime` of this `RememberedSession` expiration.
-
-  Once expired, it's not usable anymore and a new `RememberedSession`
-  should be created via `Mutation.createSession`.
-
-  Client applications are supposed to use this field for tracking
-  `RememberedSession`'s expiration and sign out `MyUser`s properly.
-  """
-  expireAt: DateTime!
-
-  """
-  Unique `RefreshToken` of this `RememberedSession`.
-
-  This one should be used for a `Session` renewal via
-  `Mutation.renewSession` and is **NOT** usable as a
-  [Bearer authentication token][1].
-
-  [1]: https://tools.ietf.org/html/rfc6750#section-2.1
-  """
-  token: RefreshToken!
-
-  """
-  Version of this `RememberedSession`'s state.
-
-  It increases monotonically, so may be used (and is intended to) for
-  tracking state's actuality.
-  """
-  ver: RememberedSessionVersion!
-}
-
-"""
-Version of `RememberedSession`'s state.
-
-It increases monotonically, so may be used (and is intended to) for tracking
-state's actuality.
-"""
-scalar RememberedSessionVersion
 
 """Error of performing `Mutation.removeChatCallMember`."""
 type RemoveChatCallMemberError {
@@ -7832,52 +7939,6 @@ enum RenameChatErrorCode {
 """Result of performing `Mutation.renameChat`."""
 union RenameChatResult = ChatEventsVersioned | RenameChatError
 
-"""Error of performing `Mutation.renewSession`."""
-type RenewSessionError {
-  """Code indicating why this error has happened."""
-  code: RenewSessionErrorCode!
-}
-
-"""Possible error codes of performing `Mutation.renewSession`."""
-enum RenewSessionErrorCode {
-  """
-  Provided `RefreshToken` is wrong.
-
-  Status code: 403 Forbidden.
-  """
-  WRONG_REFRESH_TOKEN
-}
-
-"""Result of successful performing `Mutation.renewSession`."""
-type RenewSessionOk {
-  """
-  Renewed `RememberedSession`.
-
-  Use it instead of previous one for the next `Mutation.renewSession`
-  execution.
-
-  The expiration `DateTime` of the renewed `RememberedSession` is not
-  prolonged comparing to the previous one, and remains the same for the
-  all `RememberedSession`s obtained via `Mutation.renewSession`.
-  Use `Mutation.createSession` if you need to reset expiration `DateTime`
-  of a `RememberedSession`.
-  """
-  remembered: RememberedSession!
-
-  """
-  Renewed `Session`.
-
-  It will expire in 30 minutes after creation.
-  """
-  session: Session!
-
-  """`MyUser` that the `Session` was renewed for."""
-  user: MyUser!
-}
-
-"""Result of performing `Mutation.renewSession`."""
-union RenewSessionResult = RenewSessionError | RenewSessionOk
-
 """
 Possible error codes of performing `Mutation.resendUserEmailConfirmation`.
 """
@@ -7937,26 +7998,20 @@ union ResetUserPasswordResult = MyUserEventsVersioned | ResetUserPasswordError
 
 """Session of a `MyUser` being signed-in."""
 type Session {
-  """
-  `DateTime` of this `Session` expiration.
+  """Unique ID of this `Session`."""
+  id: SessionId!
 
-  Once expired, it's not usable anymore and a new `Session` should be
-  created via `Mutation.createSession` or `Mutation.renewSession`.
-
-  Client applications are supposed to use this field for tracking
-  `Session`'s expiration and renewing it before an authentication error
-  occur.
-  """
-  expireAt: DateTime!
+  """Indicator whether this `Session` is `MyUser`'s current `Session`."""
+  isCurrent: Boolean!
 
   """
-  Unique authentication token of this `Session`.
-
-  This one should be used as a [Bearer authentication token][1].
-
-  [1]: https://tools.ietf.org/html/rfc6750#section-2.1
+  `DateTime` when this `Session` was activated last time (either created
+  or refreshed).
   """
-  token: AccessToken!
+  lastActivatedAt: DateTime!
+
+  """`UserAgent` of the device, that used this `Session` last time."""
+  userAgent: UserAgent!
 
   """
   Version of this `Session`'s state.
@@ -7966,6 +8021,9 @@ type Session {
   """
   ver: SessionVersion!
 }
+
+"""Type of `Session`'s ID."""
+scalar SessionId
 
 """
 Version of `Session`'s state.
@@ -9275,6 +9333,19 @@ type User {
   """
   ver: UserVersion!
 }
+
+"""
+Type of `MyUser`'s [user agent].
+
+Its values are always considered to be non-empty, and meet the following
+requirements:
+- consist only from [ASCII] characters;
+- contain at least one non-space-like character.
+
+[ASCII]: https://en.wikipedia.org/wiki/ASCII
+[user agent]: https://en.wikipedia.org/wiki/User_agent
+"""
+scalar UserAgent
 
 """Avatar of a `User`."""
 type UserAvatar {

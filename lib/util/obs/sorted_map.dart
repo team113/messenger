@@ -62,8 +62,8 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
   operator []=(K key, V value) {
     _values.remove(_keys[key]);
 
-    _keys[key] = value;
     _values.add(value);
+    _keys[key] = value;
   }
 
   @override
@@ -91,6 +91,6 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
       return compare;
     }
 
-    return (_, __) => 1;
+    return (_, __) => -1;
   }
 }

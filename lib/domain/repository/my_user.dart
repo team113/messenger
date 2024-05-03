@@ -41,7 +41,7 @@ abstract class AbstractMyUserRepository {
   /// Disposes the repository.
   void dispose();
 
-  /// Clears the stored [MyUser].
+  /// Deletes the stored [MyUser]s.
   Future<void> clearCache();
 
   /// Updates [MyUser.name] field for the authenticated [MyUser].
@@ -57,7 +57,7 @@ abstract class AbstractMyUserRepository {
   Future<void> updateUserBio(UserBio? bio);
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
-  Future<void> updateUserLogin(UserLogin login);
+  Future<void> updateUserLogin(UserLogin? login);
 
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence);

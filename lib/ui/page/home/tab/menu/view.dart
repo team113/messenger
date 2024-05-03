@@ -22,7 +22,6 @@ import '/api/backend/schema.dart' show Presence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
@@ -102,23 +101,10 @@ class MenuTabView extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       child: Obx(() {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              c.myUser.value?.name?.val ??
-                                  c.myUser.value?.num.toString() ??
-                                  'dot'.l10n * 3,
-                              style: style.fonts.big.regular.onBackground,
-                            ),
-                            Obx(() {
-                              return Text(
-                                c.myUser.value?.bio?.val ?? 'label_online'.l10n,
-                                style: style.fonts.small.regular.secondary,
-                              );
-                            }),
-                          ],
+                        return Text(
+                          c.myUser.value?.name?.val ??
+                              c.myUser.value?.num.toString() ??
+                              'dot'.l10n * 3,
                         );
                       }),
                     ),
@@ -127,9 +113,7 @@ class MenuTabView extends StatelessWidget {
                 ],
               ),
             ),
-            leading: context.isNarrow
-                ? const [StyledBackButton()]
-                : const [SizedBox(width: 20)],
+            leading: const [SizedBox(width: 20)],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
@@ -179,11 +163,16 @@ class MenuTabView extends StatelessWidget {
                     child: MenuButton.tab(
                       tab,
                       key: key,
-                      inverted: inverted,
+                      inverted: switch (tab) {
+                        ProfileTab.support => router.route == Routes.support,
+                        (_) => inverted,
+                      },
                       onPressed: switch (tab) {
+                        ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
                             if (await c.confirmLogout()) {
-                              router.go(await c.logout());
+                              c.logout();
+                              router.auth();
                               router.tab = HomeTab.chats;
                             }
                           },

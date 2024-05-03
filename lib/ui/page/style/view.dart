@@ -25,6 +25,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/keep_alive.dart';
 import '/ui/page/style/controller.dart';
 import '/ui/page/style/widget/style_card.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -68,7 +69,7 @@ class StyleView extends StatelessWidget {
                   onPressed: c.inverted.toggle,
                   child: Container(
                     padding: const EdgeInsets.only(right: 12),
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: SizedBox(
                         width: 23,
@@ -111,7 +112,7 @@ class StyleView extends StatelessWidget {
         Positioned.fill(
           child: IgnorePointer(
             child: Obx(() {
-              return AnimatedSwitcher(
+              return SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
                 child: SvgImage.asset(
                   key: Key(c.inverted.value ? 'dark' : 'light'),

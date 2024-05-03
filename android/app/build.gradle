@@ -22,6 +22,10 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def properties = new Properties()
+def propertiesFile = rootProject.file('key.properties')
+def hasProperties = propertiesFile.exists()
+
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
@@ -52,12 +56,25 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        if (hasProperties) {
+            release {
+                    propertiesFile.withInputStream { properties.load(it) }
+                    storeFile file("$properties.storeFile")
+                    storePassword "$properties.storePassword"
+                    keyAlias "$properties.keyAlias"
+                    keyPassword "$properties.keyPassword"
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release`
-            // works.
-            signingConfig signingConfigs.debug
+            if (hasProperties) {
+                signingConfig signingConfigs.release
+            } else {
+                signingConfig signingConfigs.debug
+            }
         }
     }
 }

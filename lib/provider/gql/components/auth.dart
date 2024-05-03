@@ -29,16 +29,14 @@ import '/util/log.dart';
 mixin AuthGraphQlMixin {
   GraphQlClient get client;
 
-  AccessToken? get token;
+  AccessTokenSecret? get token;
 
-  set token(AccessToken? value);
+  set token(AccessTokenSecret? value);
 
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
   ///
-  /// The created [Session] may be prolonged via [renewSession] if the
-  /// `remember` argument is specified (so the [RememberedSession] is returned
-  /// as well).
+  /// The created [Session] should be prolonged via [refreshSession].
   ///
   /// Once the created [Session] expires and cannot be prolonged, the created
   /// [MyUser] looses its access, if he doesn't provide a password via
@@ -54,12 +52,18 @@ mixin AuthGraphQlMixin {
   Future<SignUp$Mutation> signUp() async {
     Log.debug('signUp()', '$runtimeType');
 
-    final QueryResult result = await client
-        .mutate(MutationOptions(document: SignUpMutation().document));
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'SignUp',
+        document: SignUpMutation().document,
+      ),
+      raw: const RawClientOptions(),
+    );
     return SignUp$Mutation.fromJson(result.data!);
   }
 
-  /// Deletes an authorized [Session] by the stored [token].
+  /// Destroys the specified [Session] of the authenticated [MyUser], or the
+  /// current one (if its [id] is not specified).
   ///
   /// ### Authentication
   ///
@@ -67,21 +71,24 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Always returns `true` on success.
+  /// Always returns `null` on success.
   ///
   /// ### Idempotent
   ///
-  /// Succeeds as no-op if the [Session] with the provided [AccessToken] has
-  /// been deleted already.
-  Future<void> deleteSession() async {
-    Log.debug('deleteSession()', '$runtimeType');
+  /// Succeeds as no-op if the specified [Session] has been deleted already.
+  Future<void> deleteSession({SessionId? id, UserPassword? password}) async {
+    Log.debug('deleteSession($id, password)', '$runtimeType');
 
     if (token != null) {
-      final variables = DeleteSessionArguments(token: token!);
-      final QueryResult result = await client.query(QueryOptions(
-        document: DeleteSessionMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ));
+      final variables = DeleteSessionArguments(id: id, password: password);
+      final QueryResult result = await client.mutate(
+        MutationOptions(
+          operationName: 'DeleteSession',
+          document: DeleteSessionMutation(variables: variables).document,
+          variables: variables.toJson(),
+        ),
+        raw: RawClientOptions(token),
+      );
       GraphQlProviderExceptions.fire(result);
     }
   }
@@ -92,7 +99,7 @@ mixin AuthGraphQlMixin {
   /// Represents a sign-in action.
   ///
   /// The created [Session] has expiration, which may be prolonged via
-  /// [renewSession].
+  /// [refreshSession].
   ///
   /// ### Authentication
   ///
@@ -108,10 +115,7 @@ mixin AuthGraphQlMixin {
     UserEmail? email,
     UserPhone? phone,
   ) async {
-    Log.debug(
-      'signIn(***, $login, $num, $email, $phone)',
-      '$runtimeType',
-    );
+    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
     final variables = SignInArguments(
       password: password,
@@ -122,6 +126,7 @@ mixin AuthGraphQlMixin {
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
+        operationName: 'SignIn',
         document: SignInMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -143,25 +148,34 @@ mixin AuthGraphQlMixin {
   Future<ValidateToken$Query> validateToken() async {
     Log.debug('validateToken()', '$runtimeType');
 
-    final QueryResult res = await client
-        .query(QueryOptions(document: ValidateTokenQuery().document));
+    final QueryResult res = await client.mutate(
+      MutationOptions(
+        operationName: 'ValidateToken',
+        document: ValidateTokenQuery().document,
+      ),
+      raw: RawClientOptions(token),
+    );
     return ValidateToken$Query.fromJson(res.data!);
   }
 
-  /// Renews a [Session] of the authenticated [MyUser] identified by the
-  /// provided [RefreshToken].
+  /// Refreshes a [Session] of the [MyUser] identified by the provided
+  /// [RefreshTokenSecret].
   ///
-  /// Invalidates the provided [RefreshToken] and returns a new one, which
-  /// should be used instead.
+  /// Invalidates the provided [RefreshTokenSecret] and returns a new one for
+  /// the same [RefreshToken], which should be used instead.
   ///
-  /// The renewed [Session] has its own expiration after renewal, so to renew it
-  /// again use this mutation with the new returned [RefreshToken] (omit using
-  /// old ones).
+  /// The refreshed [AccessToken] has its own expiration, so to refresh it
+  /// again, use this mutation with the new returned [RefreshTokenSecret] (omit
+  /// using old ones).
   ///
-  /// The expiration of the renewed [RememberedSession] is not prolonged
-  /// comparing to the previous one, and remains the same for all the
-  /// [RememberedSession]s obtained via [renewSession]. Use [signIn] to reset
-  /// expiration of a [RememberedSession].
+  /// [RefreshToken] doesn't change at all, only the new [RefreshTokenSecret] is
+  /// generated for it, which means its expiration is not prolonged comparing to
+  /// the [AccessToken]. Once the [RefreshToken] is expired, the [Session]
+  /// cannot be either refreshed or accessed anymore. To create a new [Session]
+  /// use the [signIn].
+  ///
+  /// `User-Agent` HTTP header must be specified for this action and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -169,23 +183,28 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Non-idempotent
   ///
-  /// Each time creates a new [Session] and generates a new [RefreshToken].
-  Future<RenewSession$Mutation> renewSession(RefreshToken token) async {
-    Log.debug('renewSession($token)', '$runtimeType');
+  /// Each time creates a new [AccessToken] and generates a new
+  /// [RefreshTokenSecret] for the [RefreshToken].
+  Future<RefreshSession$Mutation> refreshSession(
+    RefreshTokenSecret secret,
+  ) async {
+    Log.debug('refreshSession($secret)', '$runtimeType');
 
-    final variables = RenewSessionArguments(token: token);
+    final variables = RefreshSessionArguments(secret: secret);
     final QueryResult result = await client.mutate(
       MutationOptions(
-        document: RenewSessionMutation(variables: variables).document,
+        operationName: 'RefreshSession',
+        document: RefreshSessionMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => RenewSessionException(
-          (RenewSession$Mutation.fromJson(data).renewSession
-                  as RenewSession$Mutation$RenewSession$RenewSessionError)
-              .code),
+      onException: (data) => RefreshSessionException(
+        (RefreshSession$Mutation.fromJson(data).refreshSession
+                as RefreshSession$Mutation$RefreshSession$RefreshSessionError)
+            .code,
+      ),
       raw: const RawClientOptions(),
     );
-    return RenewSession$Mutation.fromJson(result.data!);
+    return RefreshSession$Mutation.fromJson(result.data!);
   }
 
   /// Initiates password recovery for a [MyUser] identified by the provided
@@ -233,12 +252,13 @@ mixin AuthGraphQlMixin {
       email: email,
       phone: phone,
     );
-    await client.query(
-      QueryOptions(
+    await client.mutate(
+      MutationOptions(
         operationName: 'RecoverUserPassword',
         document: RecoverUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
+      raw: const RawClientOptions(),
     );
   }
 
@@ -281,17 +301,19 @@ mixin AuthGraphQlMixin {
       phone: phone,
       code: code,
     );
-    await client.query(
-      QueryOptions(
+    await client.mutate(
+      MutationOptions(
         operationName: 'ValidateUserPasswordRecoveryCode',
         document: ValidateUserPasswordRecoveryCodeMutation(variables: variables)
             .document,
         variables: variables.toJson(),
       ),
-      (data) => ValidateUserPasswordRecoveryCodeException(
-          ValidateUserPasswordRecoveryCode$Mutation.fromJson(data)
-                  .validateUserPasswordRecoveryCode
-              as ValidateUserPasswordRecoveryErrorCode),
+      onException: (data) => ValidateUserPasswordRecoveryCodeException(
+        ValidateUserPasswordRecoveryCode$Mutation.fromJson(data)
+                .validateUserPasswordRecoveryCode
+            as ValidateUserPasswordRecoveryErrorCode,
+      ),
+      raw: const RawClientOptions(),
     );
   }
 
@@ -354,6 +376,7 @@ mixin AuthGraphQlMixin {
                 as ResetUserPassword$Mutation$ResetUserPassword$ResetUserPasswordError)
             .code,
       ),
+      raw: const RawClientOptions(),
     );
   }
 }

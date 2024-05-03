@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,6 +29,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/util/platform_utils.dart';
+import '/util/fixed_timer.dart';
 
 /// Subtitle visual representation of a [RxChat].
 class ChatSubtitle extends StatefulWidget {
@@ -64,8 +63,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
   /// changes.
   ChatItemId? _previousCall;
 
-  /// [Timer] for updating [_duration] of a [Chat.ongoingCall], if any.
-  Timer? _durationTimer;
+  /// [FixedTimer] for updating [_duration] of a [Chat.ongoingCall], if any.
+  FixedTimer? _durationTimer;
 
   /// Worker invoking the [_updateTimer] on the [RxChat.chat] changes.
   Worker? _chatWorker;
@@ -221,9 +220,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       _durationTimer = null;
 
       if (chat.ongoingCall != null) {
-        _durationTimer = Timer.periodic(
+        _durationTimer = FixedTimer.periodic(
           const Duration(seconds: 1),
-          (_) {
+          () {
             if (chat.ongoingCall?.conversationStartedAt != null) {
               _duration = DateTime.now().difference(
                 chat.ongoingCall!.conversationStartedAt!.val,

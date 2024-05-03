@@ -19,9 +19,11 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
     show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
@@ -92,9 +94,6 @@ class MyProfileController extends GetxController {
   /// Index of an item from [ProfileTab] that should be highlighted.
   final RxnInt highlightIndex = RxnInt(null);
 
-  /// Indicator whether the [MyUser.chatDirectLink] editing mode is enabled.
-  final RxBool linkEditing = RxBool(false);
-
   /// Indicator whether [MyUser.name] and [MyUser.avatar] should be displayed in
   /// the [AppBar].
   final RxBool displayName = RxBool(false);
@@ -118,6 +117,13 @@ class MyProfileController extends GetxController {
   /// [Timer] resetting the [highlightIndex] value after the [_highlightTimeout]
   /// has passed.
   Timer? _highlightTimer;
+
+  /// [Sentry] transaction monitoring this [MyProfileController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.my_profile.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -162,7 +168,7 @@ class MyProfileController extends GetxController {
           );
           Future.delayed(Duration.zero, () => ignorePositions = false);
 
-          _highlight(tab);
+          highlight(tab);
         }
       },
     );
@@ -303,6 +309,12 @@ class MyProfileController extends GetxController {
   }
 
   @override
+  void onReady() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    super.onReady();
+  }
+
+  @override
   void onClose() {
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
@@ -320,6 +332,7 @@ class MyProfileController extends GetxController {
       allowMultiple: false,
       withData: true,
       withReadStream: false,
+      lockParentWindow: true,
     );
 
     if (result != null && result.files.isNotEmpty) {
@@ -364,6 +377,7 @@ class MyProfileController extends GetxController {
         type: FileType.image,
         allowMultiple: false,
         withData: true,
+        lockParentWindow: true,
       );
 
       if (result?.files.isNotEmpty == true) {
@@ -399,7 +413,7 @@ class MyProfileController extends GetxController {
   Future<void> deleteAccount() async {
     try {
       await _myUserService.deleteMyUser();
-      router.go(Routes.auth);
+      router.auth();
       router.tab = HomeTab.chats;
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
@@ -434,7 +448,7 @@ class MyProfileController extends GetxController {
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
   /// Throws [UpdateUserLoginException].
-  Future<void> updateUserLogin(UserLogin login) async {
+  Future<void> updateUserLogin(UserLogin? login) async {
     await _myUserService.updateUserLogin(login);
   }
 
@@ -444,6 +458,16 @@ class MyProfileController extends GetxController {
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled) =>
       _settingsRepo.setWorkWithUsTabEnabled(enabled);
+
+  /// Highlights the provided [tab].
+  Future<void> highlight(ProfileTab? tab) async {
+    highlightIndex.value = tab?.index;
+
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(_highlightTimeout, () {
+      highlightIndex.value = null;
+    });
+  }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
@@ -463,16 +487,6 @@ class MyProfileController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
-  }
-
-  /// Highlights the provided [tab].
-  Future<void> _highlight(ProfileTab? tab) async {
-    highlightIndex.value = tab?.index;
-
-    _highlightTimer?.cancel();
-    _highlightTimer = Timer(_highlightTimeout, () {
-      highlightIndex.value = null;
-    });
   }
 
   /// Ensures the [displayName] is either `true` or `false` based on the

@@ -122,16 +122,20 @@ class ContactsTabView extends StatelessWidget {
                   synchronization = const SizedBox.shrink();
                 }
 
-                child = Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('label_contacts'.l10n),
-                    AnimatedSizeAndFade(
-                      sizeDuration: const Duration(milliseconds: 300),
-                      fadeDuration: const Duration(milliseconds: 300),
-                      child: synchronization,
-                    ),
-                  ],
+                child = Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('label_contacts'.l10n),
+                      AnimatedSizeAndFade(
+                        sizeDuration: const Duration(milliseconds: 300),
+                        fadeDuration: const Duration(milliseconds: 300),
+                        child: synchronization,
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -142,7 +146,7 @@ class ContactsTabView extends StatelessWidget {
             }),
             actions: [
               Obx(() {
-                Widget? child;
+                final Widget? child;
 
                 if (c.search.value != null) {
                   if (c.search.value?.search.isEmpty.value == false) {
@@ -165,65 +169,96 @@ class ContactsTabView extends StatelessWidget {
                       : null;
                 }
 
+                if (child != null) {
+                  return AnimatedButton(
+                    key: c.search.value != null
+                        ? const Key('CloseSearchButton')
+                        : c.selecting.value
+                            ? const Key('CloseSelectingButton')
+                            : null,
+                    onPressed: () {
+                      if (c.search.value != null) {
+                        if (c.search.value?.search.isEmpty.value == false) {
+                          c.search.value?.search.clear();
+                          c.search.value?.query.value = '';
+                          c.search.value?.search.focus.requestFocus();
+                        }
+                      } else if (c.selecting.value) {
+                        c.toggleSelecting();
+                      }
+                    },
+                    decorator: (child) {
+                      return Container(
+                        padding: const EdgeInsets.only(left: 12, right: 16),
+                        height: double.infinity,
+                        child: child,
+                      );
+                    },
+                    child: SizedBox(
+                      width: 29.17,
+                      child: AnimatedSwitcher(
+                        duration: 250.milliseconds,
+                        child: child,
+                      ),
+                    ),
+                  );
+                }
+
                 return Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (child != null)
-                      AnimatedButton(
-                        onPressed: () {
-                          if (c.search.value != null) {
-                            if (c.search.value?.search.isEmpty.value == false) {
-                              c.search.value?.search.clear();
-                              c.search.value?.query.value = '';
-                              c.search.value?.search.focus.requestFocus();
-                            }
-                          } else if (c.selecting.value) {
-                            c.toggleSelecting();
-                          }
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: 29.69 + 12 + 18,
+                    AnimatedButton(
+                      key: const Key('ChatsButton'),
+                      onPressed: () => router.tab = HomeTab.chats,
+                      decorator: (child) {
+                        return Container(
+                          padding: const EdgeInsets.only(left: 20, right: 8),
                           height: double.infinity,
-                          child: Center(
-                            child: SafeAnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
-                            ),
-                          ),
-                        ),
+                          child: child,
+                        );
+                      },
+                      child: const SvgIcon(SvgIcons.chatsSwitch),
+                    ),
+                    AnimatedButton(
+                      key: const Key('SearchButton'),
+                      onPressed: () => c.toggleSearch(),
+                      decorator: (child) => Container(
+                        padding: const EdgeInsets.only(left: 20, right: 12),
+                        height: double.infinity,
+                        child: child,
                       ),
-                    if (c.search.value == null && !c.selecting.value)
-                      ContextMenuRegion(
-                        key: const Key('ContactsMenu'),
-                        alignment: Alignment.topRight,
-                        enablePrimaryTap: true,
-                        enableLongTap: false,
-                        enableSecondaryTap: false,
-                        selector: c.moreKey,
-                        margin: const EdgeInsets.only(bottom: 4, right: 0),
-                        actions: [
-                          ContextMenuButton(
-                            key: const Key('SelectContactsButton'),
-                            label: 'btn_select_and_delete'.l10n,
-                            onPressed: c.toggleSelecting,
-                            trailing: const SvgIcon(SvgIcons.select),
-                            inverted: const SvgIcon(SvgIcons.selectWhite),
-                          ),
-                        ],
-                        child: AnimatedButton(
-                          decorator: (child) => Container(
-                            key: c.moreKey,
-                            padding: const EdgeInsets.only(left: 12, right: 18),
-                            height: double.infinity,
+                      child: const SvgIcon(SvgIcons.search, key: Key('Search')),
+                    ),
+                    ContextMenuRegion(
+                      key: const Key('ContactsMenu'),
+                      alignment: Alignment.topRight,
+                      enablePrimaryTap: true,
+                      enableLongTap: false,
+                      enableSecondaryTap: false,
+                      selector: c.moreKey,
+                      margin: const EdgeInsets.only(bottom: 4),
+                      actions: [
+                        ContextMenuButton(
+                          key: const Key('SelectContactsButton'),
+                          label: 'btn_select_and_delete'.l10n,
+                          onPressed: c.toggleSelecting,
+                          trailing: const SvgIcon(SvgIcons.select),
+                          inverted: const SvgIcon(SvgIcons.selectWhite),
+                        ),
+                      ],
+                      child: AnimatedButton(
+                        decorator: (child) => Container(
+                          key: c.moreKey,
+                          padding: const EdgeInsets.only(left: 12, right: 18),
+                          height: double.infinity,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                             child: child,
                           ),
-                          child: Icon(
-                            Icons.more_vert,
-                            color: style.colors.primary,
-                          ),
                         ),
+                        child: const SvgIcon(SvgIcons.more),
                       ),
+                    ),
                   ],
                 );
               }),
@@ -236,7 +271,7 @@ class ContactsTabView extends StatelessWidget {
                         (e) => c.selectedContacts.any((m) => m == e.id),
                       );
 
-                  return WidgetButton(
+                  return AnimatedButton(
                     onPressed: () {
                       bool selected = c.contacts.every(
                         (e) => c.selectedContacts.any((m) => m == e.id),
@@ -252,26 +287,27 @@ class ContactsTabView extends StatelessWidget {
                         }
                       }
                     },
-                    child: Container(
+                    decorator: (child) => Container(
                       padding: const EdgeInsets.only(left: 20, right: 6),
                       height: double.infinity,
-                      child: SelectedDot(
-                        selected: selected,
-                        inverted: false,
-                        outlined: !selected,
-                        size: 21,
-                      ),
+                      child: child,
+                    ),
+                    child: SelectedDot(
+                      selected: selected,
+                      inverted: false,
+                      outlined: !selected,
+                      size: 21,
                     ),
                   );
                 }
 
+                if (c.search.value == null) {
+                  return const SizedBox(width: 21);
+                }
+
                 return AnimatedButton(
-                  key: c.search.value == null
-                      ? const Key('SearchButton')
-                      : const Key('CloseSearchButton'),
-                  onPressed: c.search.value == null
-                      ? () => c.toggleSearch(true)
-                      : () => c.toggleSearch(false),
+                  key: const Key('CloseSearchButton'),
+                  onPressed: () => c.toggleSearch(false),
                   decorator: (child) {
                     return Container(
                       padding: const EdgeInsets.only(left: 20, right: 6),
@@ -279,17 +315,7 @@ class ContactsTabView extends StatelessWidget {
                       child: child,
                     );
                   },
-                  child: SafeAnimatedSwitcher(
-                    duration: 250.milliseconds,
-                    child: c.search.value != null
-                        ? Icon(
-                            key: const Key('ArrowBack'),
-                            Icons.arrow_back_ios_new,
-                            size: 20,
-                            color: style.colors.primary,
-                          )
-                        : const SvgIcon(SvgIcons.search),
-                  ),
+                  child: const SvgIcon(SvgIcons.search),
                 );
               }),
             ],

@@ -52,6 +52,7 @@ class MessagePopup {
     String title, {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
+    Widget Function(BuildContext) button = _defaultButton,
   }) {
     final style = Theme.of(router.context!).style;
 
@@ -93,16 +94,7 @@ class MessagePopup {
               const SizedBox(height: 25),
               Padding(
                 padding: ModalPopup.padding(context),
-                child: OutlinedRoundedButton(
-                  key: const Key('Proceed'),
-                  maxWidth: double.infinity,
-                  onPressed: () => Navigator.of(context).pop(true),
-                  color: style.colors.primary,
-                  child: Text(
-                    'btn_proceed'.l10n,
-                    style: style.fonts.normal.regular.onPrimary,
-                  ),
-                ),
+                child: button(context),
               ),
               const SizedBox(height: 16),
             ],
@@ -115,4 +107,20 @@ class MessagePopup {
   /// Shows a [FloatingSnackBar] with the [title] message.
   static void success(String title, {double bottom = 16}) =>
       FloatingSnackBar.show(title, bottom: bottom);
+
+  /// Returns the proceed button, which invokes [NavigatorState.pop].
+  static Widget _defaultButton(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return OutlinedRoundedButton(
+      key: const Key('Proceed'),
+      maxWidth: double.infinity,
+      onPressed: () => Navigator.of(context).pop(true),
+      color: style.colors.primary,
+      child: Text(
+        'btn_proceed'.l10n,
+        style: style.fonts.normal.regular.onPrimary,
+      ),
+    );
+  }
 }

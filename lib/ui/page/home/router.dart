@@ -19,11 +19,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
+import '/ui/page/erase/view.dart';
+import '/ui/page/support/view.dart';
 import '/ui/page/work/page/vacancy/view.dart';
 import '/ui/widget/custom_page.dart';
 import 'page/chat/info/view.dart';
@@ -113,6 +115,18 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: VacancyWorkView(work),
           ));
         }
+      } else if (route.startsWith(Routes.erase)) {
+        pages.add(const CustomPage(
+          key: ValueKey('ErasePage'),
+          name: Routes.erase,
+          child: EraseView(),
+        ));
+      } else if (route.startsWith(Routes.support)) {
+        pages.add(const CustomPage(
+          key: ValueKey('SupportPage'),
+          name: Routes.support,
+          child: SupportView(),
+        ));
       }
     }
 

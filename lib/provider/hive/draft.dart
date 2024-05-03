@@ -88,6 +88,7 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(ThumbHashAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
     Hive.maybeRegisterAdapter(UserBioAdapter());
@@ -103,25 +104,25 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
 
   /// Puts the provided [ChatMessage] to [Hive].
   Future<void> put(ChatId id, ChatMessage draft) async {
-    Log.debug('put($id, $draft)', '$runtimeType');
+    Log.trace('put($id, $draft)', '$runtimeType');
     await putSafe(id.val, draft);
   }
 
   /// Returns a [ChatMessage] from [Hive] by the provided [id].
   ChatMessage? get(ChatId id) {
-    Log.debug('get($id)', '$runtimeType');
+    Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   /// Removes a [ChatMessage] from [Hive] by the provided [id].
   Future<void> remove(ChatId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
 
   /// Moves the [ChatMessage] at the [oldKey] to the [newKey].
   Future<void> move(ChatId oldKey, ChatId newKey) async {
-    Log.debug('move($oldKey, $newKey)', '$runtimeType');
+    Log.trace('move($oldKey, $newKey)', '$runtimeType');
 
     final ChatMessage? value = get(oldKey);
     if (value != null) {

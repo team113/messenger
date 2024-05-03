@@ -29,6 +29,7 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
+import 'hook/performance.dart';
 import 'hook/reset_app.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
@@ -211,6 +212,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         rightClickWidget,
         scrollAndSee,
         scrollToBottom,
+        scrollToTop,
         scrollUntilPresent,
         seeBlockedUsers,
         seeChatAsDismissed,
@@ -281,7 +283,13 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         waitUntilKeyExists,
         waitUntilMessageStatus,
       ]
-      ..hooks = [ResetAppHook()]
+      ..hooks = [
+        ResetAppHook(),
+
+        // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
+        // supported on Dart VM platforms.
+        if (!PlatformUtils.isWeb) PerformanceHook(),
+      ]
       ..reporters = [
         StdoutReporter(MessageLevel.verbose)
           ..setWriteLineFn(print)
@@ -342,7 +350,7 @@ Future<CustomUser> createUser({
   if (user != null && world != null) {
     world.sessions[user.name] = customUser;
 
-    provider.token = result.createUser.session.token;
+    provider.token = result.createUser.accessToken.secret;
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
       await provider.updateUserPassword(null, password);

@@ -42,14 +42,14 @@ class ApplicationSettingsHiveProvider
 
   /// Saves the provided [ApplicationSettings] in [Hive].
   Future<void> set(ApplicationSettings settings) async {
-    Log.debug('set($settings)', '$runtimeType');
+    Log.trace('set($settings)', '$runtimeType');
     await putSafe(0, settings);
   }
 
   /// Stores a new [enabled] value of [ApplicationSettings.enablePopups] to
   /// [Hive].
   Future<void> setPopupsEnabled(bool enabled) async {
-    Log.debug('setPopupsEnabled($enabled)', '$runtimeType');
+    Log.trace('setPopupsEnabled($enabled)', '$runtimeType');
 
     await putSafe(
       0,
@@ -59,14 +59,14 @@ class ApplicationSettingsHiveProvider
 
   /// Stores a new [locale] value of [ApplicationSettings.locale] to [Hive].
   Future<void> setLocale(String locale) async {
-    Log.debug('setLocale($locale)', '$runtimeType');
+    Log.trace('setLocale($locale)', '$runtimeType');
     await putSafe(0, (box.get(0) ?? ApplicationSettings())..locale = locale);
   }
 
   /// Stores a new [show] value of [ApplicationSettings.showIntroduction] to
   /// [Hive].
   Future<void> setShowIntroduction(bool show) async {
-    Log.debug('setShowIntroduction($show)', '$runtimeType');
+    Log.trace('setShowIntroduction($show)', '$runtimeType');
 
     await putSafe(
       0,
@@ -77,7 +77,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [width] value of [ApplicationSettings.sideBarWidth] to
   /// [Hive].
   Future<void> setSideBarWidth(double width) async {
-    Log.debug('setSideBarWidth($width)', '$runtimeType');
+    Log.trace('setSideBarWidth($width)', '$runtimeType');
 
     await putSafe(
       0,
@@ -88,7 +88,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [buttons] value of [ApplicationSettings.callButtons] to
   /// [Hive].
   Future<void> setCallButtons(List<String> buttons) async {
-    Log.debug('setCallButtons($buttons)', '$runtimeType');
+    Log.trace('setCallButtons($buttons)', '$runtimeType');
 
     await putSafe(
       0,
@@ -99,7 +99,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [show] value of
   /// [ApplicationSettings.showDragAndDropVideosHint] to [Hive].
   Future<void> setShowDragAndDropVideosHint(bool show) async {
-    Log.debug('setShowDragAndDropVideosHint($show)', '$runtimeType');
+    Log.trace('setShowDragAndDropVideosHint($show)', '$runtimeType');
 
     await putSafe(
       0,
@@ -110,7 +110,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [show] value of
   /// [ApplicationSettings.showDragAndDropButtonsHint] to [Hive].
   Future<void> setShowDragAndDropButtonsHint(bool show) async {
-    Log.debug('setShowDragAndDropButtonsHint($show)', '$runtimeType');
+    Log.trace('setShowDragAndDropButtonsHint($show)', '$runtimeType');
 
     await putSafe(
       0,
@@ -121,7 +121,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [buttons] value of [ApplicationSettings.pinnedActions] to
   /// [Hive].
   Future<void> setPinnedActions(List<String> buttons) async {
-    Log.debug('setPinnedActions($buttons)', '$runtimeType');
+    Log.trace('setPinnedActions($buttons)', '$runtimeType');
 
     await putSafe(
       0,
@@ -132,7 +132,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [position] value of
   /// [ApplicationSettings.callButtonsPosition] to [Hive].
   Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
-    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
+    Log.trace('setCallButtonsPosition($position)', '$runtimeType');
 
     await putSafe(
       0,
@@ -143,7 +143,7 @@ class ApplicationSettingsHiveProvider
   /// Stores a new [enabled] value of [ApplicationSettings.workWithUsTabEnabled]
   /// to [Hive].
   Future<void> setWorkWithUsTabEnabled(bool enabled) async {
-    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
+    Log.trace('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
 
     await putSafe(
       0,

@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
@@ -156,17 +157,20 @@ void main() async {
   await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
     await userProvider.clear();
-    credentialsProvider.set(
+    accountProvider.set(const UserId('me'));
+    credentialsProvider.put(
       Credentials(
-        Session(
-          const AccessToken('token'),
+        AccessToken(
+          const AccessTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
-        RememberedSession(
-          const RefreshToken('token'),
+        RefreshToken(
+          const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
         const UserId('me'),
@@ -197,9 +201,16 @@ void main() async {
     );
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credentialsProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credentialsProvider,
+      accountProvider,
+    ));
     authService.init();
 
     UserRepository userRepository =
@@ -330,9 +341,16 @@ void main() async {
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credentialsProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credentialsProvider,
+      accountProvider,
+    ));
     authService.init();
 
     UserRepository userRepository =
@@ -406,9 +424,16 @@ void main() async {
   test('CallService registers and successfully starts the call', () async {
     final graphQlProvider = _FakeGraphQlProvider();
 
-    AuthRepository authRepository = Get.put(AuthRepository(graphQlProvider));
-    AuthService authService =
-        Get.put(AuthService(authRepository, credentialsProvider));
+    AuthRepository authRepository = Get.put(AuthRepository(
+      graphQlProvider,
+      myUserProvider,
+      credentialsProvider,
+    ));
+    AuthService authService = Get.put(AuthService(
+      authRepository,
+      credentialsProvider,
+      accountProvider,
+    ));
     authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(

@@ -61,38 +61,60 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
   },
 );
 
-/// Scrolls the provided [Scrollable] to bottom.
+/// Scrolls the provided [Scrollable] to the bottom.
 ///
 /// Examples:
 /// - Then I scroll `Menu` to bottom
 final StepDefinitionGeneric<CustomWorld> scrollToBottom =
     then1<WidgetKey, CustomWorld>(
   RegExp(r'I scroll {key} to bottom'),
-  (WidgetKey list, StepContext<CustomWorld> context) async {
-    await context.world.appDriver.waitForAppToSettle();
-
-    Finder scrollable = find.descendant(
-      of: find.byKey(Key(list.name)),
-      matching: find.byWidgetPredicate((widget) {
-        // TODO: Find a proper way to differentiate [Scrollable]s from
-        //       [TextField]s:
-        //       https://github.com/flutter/flutter/issues/76981
-        if (widget is Scrollable) {
-          return widget.restorationId == null;
-        }
-        return false;
-      }),
-    );
-
-    final ScrollableState state = context.world.appDriver.nativeDriver
-        .state(scrollable) as ScrollableState;
-    final ScrollPosition position = state.position;
-
-    position.jumpTo(position.maxScrollExtent);
-
-    await context.world.appDriver.waitForAppToSettle();
+  (WidgetKey key, StepContext<CustomWorld> context) async {
+    await _scrollScrollableTo(key, context, (p) => p.maxScrollExtent);
   },
 );
+
+/// Scrolls the provided [Scrollable] to the top.
+///
+/// Examples:
+/// - Then I scroll `Menu` to top
+final StepDefinitionGeneric<CustomWorld> scrollToTop =
+    then1<WidgetKey, CustomWorld>(
+  RegExp(r'I scroll {key} to top'),
+  (WidgetKey key, StepContext<CustomWorld> context) async {
+    await _scrollScrollableTo(key, context, (_) => 0);
+  },
+);
+
+/// Scrolls the [Scrollable] identified by its [key] to the specified in the
+/// [getPosition] position.
+Future<void> _scrollScrollableTo(
+  WidgetKey key,
+  StepContext<CustomWorld> context,
+  double Function(ScrollPosition) getPosition,
+) async {
+  await context.world.appDriver.waitForAppToSettle();
+
+  final Finder scrollable = find.descendant(
+    of: find.byKey(Key(key.name)),
+    matching: find.byWidgetPredicate((widget) {
+      // TODO: Find a proper way to differentiate [Scrollable]s from
+      //       [TextField]s:
+      //       https://github.com/flutter/flutter/issues/76981
+      if (widget is Scrollable) {
+        return widget.restorationId == null;
+      }
+      return false;
+    }),
+  );
+
+  final ScrollableState state =
+      context.world.appDriver.nativeDriver.state(scrollable) as ScrollableState;
+  final ScrollPosition position = state.position;
+
+  position.jumpTo(getPosition(position));
+
+  await context.world.appDriver.waitForAppToSettle();
+}
 
 /// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
 /// replacement.
@@ -114,7 +136,7 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
       final ScrollPosition position = state.position;
 
       if (await isPresent(finder)) {
-        await Scrollable.ensureVisible(finder.evaluate().single);
+        await Scrollable.ensureVisible(finder.evaluate().first);
 
         // If [finder] is present and it's within our view, then break the loop.
         if (tester.getCenter(finder.first).dy <= height - dy ||

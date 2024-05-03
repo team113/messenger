@@ -20,14 +20,15 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model/my_user.dart';
-import '../model/user.dart';
-import '../repository/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/util/log.dart';
+import '/domain/model/user.dart';
+import '/domain/repository/my_user.dart';
 import '/routes.dart';
+import '/util/log.dart';
+import '/util/web/web_utils.dart';
 import 'auth.dart';
 import 'disposable_service.dart';
 
@@ -79,7 +80,7 @@ class MyUserService extends DisposableService {
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   ///
   /// Throws [UpdateUserLoginException].
-  Future<void> updateUserLogin(UserLogin login) async {
+  Future<void> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
     await _userRepo.updateUserLogin(login);
   }
@@ -109,10 +110,19 @@ class MyUserService extends DisposableService {
   }) async {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
+    final bool locked = _passwordChangeGuard.isLocked;
+
     await _passwordChangeGuard.protect(() async {
-      // TODO: Make sure [AuthService] doesn't its `renewSession` during that.
-      await _userRepo.updateUserPassword(oldPassword, newPassword);
-      await _auth.signIn(newPassword, num: myUser.value?.num);
+      if (locked) {
+        return;
+      }
+
+      await WebUtils.protect(() async {
+        await _userRepo.updateUserPassword(oldPassword, newPassword);
+
+        // TODO: Replace `force` with something more granular and correct.
+        await _auth.signIn(newPassword, num: myUser.value?.num, force: true);
+      });
     });
   }
 
@@ -236,19 +246,13 @@ class MyUserService extends DisposableService {
     await _userRepo.toggleMute(mute);
   }
 
-  /// Removes [MyUser] from the local data storage.
-  Future<void> clearCached() async {
-    Log.debug('clearCached()', '$runtimeType');
-    await _userRepo.clearCache();
-  }
-
   /// Refreshes the [MyUser] to be up to date.
   Future<void> refresh() async {
     Log.debug('refresh()', '$runtimeType');
     await _userRepo.refresh();
   }
 
-  /// Callback to be called when [MyUser]'s password is updated.
+  /// Callback to be called when the active [MyUser]'s password is updated.
   ///
   /// Performs log out if the current [AccessToken] is not valid.
   Future<void> _onPasswordUpdated() async {
@@ -257,19 +261,25 @@ class MyUserService extends DisposableService {
     await _passwordChangeGuard.protect(() async {
       final bool isTokenValid = await _auth.validateToken();
       if (!isTokenValid) {
-        router.go(await _auth.logout());
+        try {
+          await _auth.deleteSession();
+        } finally {
+          router.auth();
+        }
       }
     });
   }
 
-  /// Callback to be called when [MyUser] is deleted.
+  /// Callback to be called when the active [MyUser] is deleted.
   ///
-  /// Performs log out and clears [MyUser] store.
+  /// Performs log out.
   Future<void> _onUserDeleted() async {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
-    _auth.logout();
-    router.auth();
-    await clearCached();
+    try {
+      await _auth.deleteSession(force: true);
+    } finally {
+      router.auth();
+    }
   }
 }

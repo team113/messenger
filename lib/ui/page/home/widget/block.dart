@@ -18,8 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/widget/animated_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'highlighted_container.dart';
 
@@ -37,7 +35,6 @@ class Block extends StatelessWidget {
     this.background,
     this.headline,
     this.maxWidth = 400,
-    this.overlay = const [],
   });
 
   /// Optional header of this [Block].
@@ -72,12 +69,6 @@ class Block extends StatelessWidget {
 
   /// Maximum width this [Block] should occupy.
   final double maxWidth;
-
-  /// [Widget]s to display above this [Block].
-  ///
-  /// It's allowed to use [Positioned], as these [Widget]s are placed inside a
-  /// [Stack].
-  final List<Widget> overlay;
 
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
@@ -114,7 +105,7 @@ class Block extends StatelessWidget {
               enabledBorder: border,
               disabledBorder: border,
               focusedErrorBorder: border,
-              contentPadding: const EdgeInsets.all(12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               border: border,
             ),
             child: Stack(
@@ -130,10 +121,11 @@ class Block extends StatelessWidget {
                       crossAxisAlignment: crossAxisAlignment,
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        SizedBox(height: title != null ? 6 : 10),
                         if (title != null) ...[
                           Center(
                             child: Container(
-                              padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
                               child: Text(
                                 title!,
                                 textAlign: TextAlign.center,
@@ -141,9 +133,10 @@ class Block extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                         ],
                         ...children,
+                        const SizedBox(height: 4),
                       ],
                     ),
                   ),
@@ -152,7 +145,6 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(headline!, style: _headlineStyle(context)),
                   ),
-                ...overlay,
               ],
             ),
           ),
@@ -173,50 +165,5 @@ class Block extends StatelessWidget {
     }
 
     return style.fonts.small.regular.secondaryHighlightDarkest;
-  }
-}
-
-/// [SvgIcons.editSmall] button to put into [Block.overlay].
-///
-/// Returns [Positioned], meaning it must be placed inside a [Stack].
-class EditBlockButton extends StatelessWidget {
-  const EditBlockButton({
-    Key? key,
-    this.onPressed,
-    this.editing = false,
-  })  : _key = key,
-        super(key: null);
-
-  /// Callback, called when button is pressed.
-  final void Function()? onPressed;
-
-  /// Indicator whether an [SvgIcons.closeSmallPrimary] should be displayed
-  /// instead.
-  final bool editing;
-
-  /// [Key] to uniquely identify the [AnimatedButton].
-  final Key? _key;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      right: 0,
-      top: 0,
-      child: Center(
-        child: AnimatedButton(
-          key: _key,
-          onPressed: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-            child: editing
-                ? const Padding(
-                    padding: EdgeInsets.all(2),
-                    child: SvgIcon(SvgIcons.closeSmallPrimary),
-                  )
-                : const SvgIcon(SvgIcons.editSmall),
-          ),
-        ),
-      ),
-    );
   }
 }

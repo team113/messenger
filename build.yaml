@@ -15,12 +15,6 @@ targets:
               queries_glob: lib/api/backend/graphql/{query,subscription,mutation}/**/**.graphql
               naming_scheme: pathedWithFields
           scalar_mapping:
-            - graphql_type: AccessToken
-              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
-              dart_type:
-                name: AccessToken
-                imports:
-                  - "package:messenger/domain/model/session.dart"
             - graphql_type: AttachmentId
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/chat.dart"
               dart_type:
@@ -207,12 +201,6 @@ targets:
                 name: RecentChatsCursor
                 imports:
                   - "package:messenger/store/model/chat.dart"
-            - graphql_type: RefreshToken
-              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
-              dart_type:
-                name: RefreshToken
-                imports:
-                  - "package:messenger/domain/model/session.dart"
             - graphql_type: RememberedSessionVersion
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
               dart_type:
@@ -303,6 +291,30 @@ targets:
                 name: UserVersion
                 imports:
                   - "package:messenger/store/model/user.dart"
+            - graphql_type: UserAgent
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: UserAgent
+                imports:
+                  - "package:messenger/domain/model/session.dart"
+            - graphql_type: RefreshTokenSecret
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: RefreshTokenSecret
+                imports:
+                  - "package:messenger/domain/model/session.dart"
+            - graphql_type: AccessTokenSecret
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: AccessTokenSecret
+                imports:
+                  - "package:messenger/domain/model/session.dart"
+            - graphql_type: SessionId
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: SessionId
+                imports:
+                  - "package:messenger/domain/model/session.dart"
       messenger|pubspec_builder:
         enabled: true
 

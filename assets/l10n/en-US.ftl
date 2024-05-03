@@ -24,6 +24,11 @@ alert_are_you_sure_want_to_delete_phone =
     Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
+alert_by_proceeding_you_accept_terms1 = By proceeding, you agree with the{" "}
+alert_by_proceeding_you_accept_terms2 = Terms of Service
+alert_by_proceeding_you_accept_terms3 = {" "}and{" "}
+alert_by_proceeding_you_accept_terms4 = Privacy Policy
+alert_by_proceeding_you_accept_terms5 = {" "}of the service.
 alert_chat_will_be_blocked1 = Chat{" "}
 alert_chat_will_be_blocked2 = {" "}will be blocked.
 alert_chat_will_be_cleared1 = Chat{" "}
@@ -32,6 +37,8 @@ alert_chat_will_be_deleted1 = Chat{" "}
 alert_chat_will_be_deleted2 = {" "}will be deleted.
 
     To restore the chat, please, use the search.
+alert_chat_will_be_reported1 = Chat{" "}
+alert_chat_will_be_reported2 = {" "}will be reported.
 alert_chats_will_be_deleted = Chats ({$count}) will be deleted. Continue?
 alert_contact_will_be_removed1 = Contact{" "}
 alert_contact_will_be_removed2 = {" "}will be deleted.
@@ -60,7 +67,10 @@ alert_user_will_be_blocked1 = User{" "}
 alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
 alert_user_will_be_removed2 = {" "}will be removed from the group.
+alert_user_will_be_reported1 = User{" "}
+alert_user_will_be_reported2 = {" "}will be reported.
 alert_you_will_leave_group = You will leave the group.
+btn_accept = Accept
 btn_add = Add
 btn_add_member = Add member
 btn_add_participant = Add participant
@@ -170,6 +180,7 @@ btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
 btn_create_group = Create group
+btn_decline = Decline
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
@@ -180,6 +191,7 @@ btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
+btn_do_not_allow = Do not allow
 btn_download = Download
 btn_download_all = Download all
 btn_download_as = Download as
@@ -187,6 +199,7 @@ btn_download_as_all = Download all as
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
+btn_feedback = Feedback
 btn_file = File
 btn_forgot_password = Forgot password?
 btn_forward = Forward
@@ -197,6 +210,7 @@ btn_gallery = Gallery
 btn_generate_direct_chat_link = Generate
 btn_gift = Gift
 btn_guest = Guest
+btn_help = Help
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
@@ -212,6 +226,7 @@ btn_mute_chat = Mute chat
 btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
+btn_open_separately = open separately
 btn_participants = Participants
 btn_participants_desc =
     Call
@@ -219,12 +234,15 @@ btn_participants_desc =
 btn_password = Password
 btn_paste = Paste
 btn_personalize = Personalization
+btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
 btn_remove = Remove
 btn_rename = Rename
 btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
+btn_report_a_concern = Report a concern
+btn_report_a_bug = Report a bug
 btn_resend = Resend
 btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
@@ -232,10 +250,12 @@ btn_save = Save
 btn_save_all = Save all
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to gallery
+btn_schedule_an_interview = Schedule an interview
 btn_select = Select
 btn_select_and_delete = Select and delete
 btn_select_messages = Select messages
 btn_send = Send
+btn_send_application = Send an application
 btn_set_password = Set password
 btn_settings = Settings
 btn_share = Share
@@ -247,6 +267,7 @@ btn_sticker = Sticker
 btn_submit = Submit
 btn_take_photo = Take photo
 btn_take_video = Take video
+btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
 btn_unblock_short = Unblock
 btn_undo_delete = Undo delete
@@ -303,8 +324,8 @@ err_email_occupied = Specified E-mail is linked to another account. Please, annu
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
-err_incorrect_login_input = Unique login should contain only letters of the latin alphabet, numbers and symbols "-", "." and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
-err_incorrect_login_or_password = Invalid login or password
+err_incorrect_login_input = Login should contain only letters of the latin alphabet, numbers and symbols "-" and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
+err_incorrect_login_or_password = Incorrect account identifier or password.
 err_incorrect_phone = Incorrect phone number.
 err_input_empty = Must not be empty.
 err_invalid_crop_coordinates = Invalid crop coordinates
@@ -568,6 +589,8 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}updated avatar
 label_away = away
 label_background = Background
+label_besides_freelance_is_an_option_too1 = Besides, we offer an opportunity to collaborate as a freelance developer. The list of tasks and terms of cooperation can be found on the{" "}
+label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Block
 label_blocked = Blocked
 label_blocked_users = Blocked users
@@ -609,13 +632,41 @@ label_chats = Chats
 label_chats_section_hint = Audio and video call buttons
 label_clear_history = Clear history
 label_clicks_count = {$count} clicks
+label_code_requirements = Requirements for the code
+label_code_requirements_contribution_guide1 = - the code should follow the{" "}
+label_code_requirements_contribution_guide2 = Contribution Guide
+label_code_requirements_contribution_guide3 = ;
+label_code_requirements_documentation1 = - the code needs to be covered with documentation following the rules of{" "}
+label_code_requirements_documentation2 = Effective Dart: Documentation
+label_code_requirements_documentation3 = ;
+label_code_requirements_tests = - the code needs to be covered with unit, widget, and/or integration tests (if necessary).
 label_code_sent_again = The code has been re-sent.
+label_conditions = Conditions
+label_conditions_backend_developer =
+    - Daily payments;
+    - From 1500 EUR per month;
+    - 4-, 6- or 8-hour work day;
+    - Relocation possible to one of the company offices;
+    - Remote work.
+label_conditions_frontend_developer =
+    - Daily payments;
+    - From 1500 EUR per month;
+    - 4-, 6- or 8-hour work day;
+    - Relocation possible to one of the company offices;
+    - Remote work.
+label_conditions_ui_ux_designer =
+    - Daily payments;
+    - From 1500 EUR per month;
+    - 4-, 6- or 8-hour work day;
+    - Relocation possible to one of the company offices;
+    - Remote work.
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact = Contact
 label_contact_information = Contact information
+label_contact_us_via_provided_email = Please, contact us by email {$email}.
 label_contacts = Contacts
 label_copied = Copied
 label_copy = Copy
@@ -691,6 +742,10 @@ label_favorite_contacts = Favorite
 label_file_downloaded = File downloaded
 label_files_downloaded = Files are downloaded
 label_files_saved_to_gallery = Files are saved to the gallery
+label_for_learning_use_our_flutter_incubator1 = If you would like to learn/improve your knowledge of Flutter, you can use our{" "}
+label_for_learning_use_our_flutter_incubator2 = corporate sandbox.
+label_for_learning_use_our_rust_incubator1 = If you would like to learn/improve your knowledge of Rust, you can use our{" "}
+label_for_learning_use_our_rust_incubator2 = corporate sandbox.
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
@@ -723,14 +778,14 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
+label_info = Info
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 
          • you delete cookies / cache;
-
          • you click the button "Sign out".
 
-    To save access to your account, please set a password, e-mail or phone number in the{" "}
+    To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
 label_kb = {$amount} KB
@@ -738,6 +793,7 @@ label_language = Language
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
 label_leave_group = Leave group
+label_legal_information = Legal information
 label_link_to_chat = Chat link
 label_load_images = Load images
 label_login = Login
@@ -764,6 +820,11 @@ label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_messages_will_deleted_for_you = The messages will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
+label_money = Money
+label_money_freelance =
+    - payment upon completion of the task. A task is considered completed when it passes the review.
+    - the payment is sent based on a service agreement and/or an invoice.
+    - the payment is made with cryptocurrency USDT (TRC-20).
 label_monolog_created = Chat created
 label_mute_for = {$days ->
     [0] {$hours ->
@@ -820,6 +881,25 @@ label_password_not_set_info = No password has been set for your account. Consequ
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
 label_password_set = Password has been set.
+label_personal_data_deletion = Delete account
+label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
+label_personal_data_deletion_description =
+    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+
+    The data that will be deleted is:
+    - your avatar;
+    - your name;
+    - your biography;
+    - your login;
+    - all of your emails;
+    - all of your phone numbers;
+    - your contacts list.
+
+    The data that will not be deleted:
+    - your Gapopa ID, as is does not represent personal information;
+    - the messages you have sent, however no one will see you as an author of those messages.
+
+    Not a single user will be able to find, identify or detect the information of your presence within the system.
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
@@ -840,19 +920,60 @@ label_reason = Reason
 label_recent = Recent
 label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
-label_recover_account_description = Specify your Gapopa ID, login, E-mail or phone number.
+label_recover_account_description = Specify your Gapopa ID, login or E-mail.
 label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail/phone linked to this account. Please, enter the code below.
 label_recovery_enter_new_password = Please enter the new password below.
+label_regulations = Regulation
+label_regulations_freelance =
+    1. Choose a task from the list below
+    2. Make a fork of the project and form a PR (Pull Request)
+    3. Contact the frontend team (the button below) and send a request, including:
+        - your GitHub login
+        - PR (Pull Request) number
+        - the expected date of completion of the task (deadline)
+        - the expected method of solving the task
+    4. In the response message you will receive a confirmation that the task is assigned to you (the task status will change to “In progress”)
+    5. While working on the task you should push commit of your task at least once every 72 hours.
+    6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove member
 label_repeat_password = Repeat password
+label_replace_this_text_with_concern = Please, replace this text with the concern you want to share.
+label_replace_this_text_with_feedback = Please, replace this text with the feedback you want to share.
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
+label_report = Report
 label_required = Required
+label_requirements = Requirements
+label_requirements_backend_developer =
+    - Knowledge of Rust;
+    - Understanding FFl and UB;
+    - Skill in optimising programs and ability to use a code profiler;
+    - Understanding the principles of client-server web applications;
+    - Understanding the principles of designing database structures;
+    - Understanding the principles of DDD and layered architecture;
+    - Skill in writing unit and functional tests;
+    - Skill working with Git;
+    - Skill in using Unix-like operating systems.
+label_requirements_frontend_developer =
+    - Understanding the principles of UX design;
+    - Knowledge of GraphQL and WebSocket;
+    - Skill in code documentation;
+    - Skill in covering code with unit and/or integration tests;
+    - Skill in reading and understanding technical literature in English;
+    - Ability to provide high-quality audio and video communication.
+label_requirements_ui_ux_developer =
+    - Understanding of UI/UX design principles;
+    - Confident knowledge of Figma;
+    - Ability to provide high-quality audio and video communication.
 label_resend = Resend
 label_resend_timeout = Resend ({$timeout})
+label_review = Review
+label_review_freelance =
+    - a completed task should pass the review of the code;
+    - the request for the review of the completed task, comments, clarifications, and arguments should be posted publicly on GitHub in the corresponding issue or pull request.
 label_screen_sharing = Screen sharing
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
@@ -871,13 +992,14 @@ label_set_password = Set password
 label_settings = Settings
 label_show_sections = Show sections
 label_sign_in = Sign in
-label_sign_in_input = Gapopa ID, login, E-mail or phone
+label_sign_in_input = Gapopa ID, login, E-mail
 label_sign_in_with_password = Sign in with password
 label_sign_up = Sign up
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
 label_sort_by_name = Sort by name
 label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
+label_source_code = Source code
 label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
 label_storage = Storage
@@ -885,10 +1007,41 @@ label_subtitle_participants = {$count} {$count ->
     [1] participant
     *[other] participants
 }
+label_support_service = Support service
 label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_contacts = Contacts
 label_tab_menu = Menu
+label_tasks = Tasks
+label_tech_stack = Tech Stack
+label_tech_stack_backend_developer =
+    - Langauge - Rust;
+    - actix-web - web-framework;
+    - CockroachDB - database;
+    - baza - file storage;
+    - Medea - media server;
+    - Firebase - push notifications;
+    - GraphQL - API;
+    - Cucumber - E2E testing.
+label_tech_stack_freelance =
+    - Language - Dart;
+    - Flutter - Framework;
+    - GetX - Dependency Injection and State Management;
+    - Navigator 2.0 (Router) - navigation;
+    - Hive - local database;
+    - Firebase - push notifications;
+    - GraphQL and Artemis - communication with backend;
+    - Gherkin - E2E testing.
+label_tech_stack_frontend_developer =
+    - Language - Dart;
+    - Flutter - Framework;
+    - GetX - Dependency Injection and State Management;
+    - Navigator 2.0 (Router) - navigation;
+    - Hive - local database;
+    - Firebase - push notifications;
+    - GraphQL and Artemis - communication with backend;
+    - Gherkin - E2E testing.
+label_tech_stack_ui_ux_designer = - Figma - layout and prototyping.
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
 label_transition_count = Transitions: {$count}
@@ -931,7 +1084,30 @@ label_was_added2 = {" "}joined via direct link
 label_was_removed = {$author} left the group
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}left the group
+label_we_welcome = We welcome
+label_we_welcome_backend_developer =
+    - Skill in programming languages: C, C++;
+    - Skill in CQRS+ES principle;
+    - Skill in Memcached technologies;
+    - Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
+    - Skill in other programming languages: Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message_freelance =
+    Good afternoon. Please, specify:
+    - login on GitHub;
+    - PR number (Pull Request);
+    - estimated time for completing the task (deadline);
+    - the proposed method for solving the problem.
+label_welcome_message_vacancy =
+    Good afternoon.
+    Please upload your resume in PDF format.
+label_welcome_message_vacancy_24_hours =
+    Good afternoon.
+    Please upload your resume in PDF format. Within 24 hours you will be sent the date and time of the interview.
+label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
+label_work_with_us_desc =
+    Work
+    with us
 label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blocklist = Your blacklist

@@ -18,19 +18,20 @@
 mutation SignUp {
     createUser {
         user {
-            id
-            num
-            ver
+            __typename
+            ...MyUser
         }
         session {
-            token
-            expireAt
-            ver
+            __typename
+            ...Session
         }
-        remembered {
-            token
-            expireAt
-            ver
+        accessToken {
+            __typename
+            ...AccessToken
+        }
+        refreshToken {
+            __typename
+            ...RefreshToken
         }
     }
 }

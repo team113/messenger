@@ -420,6 +420,15 @@ class ChatDirectLink {
   /// Number of times this [ChatDirectLink] has been used.
   @HiveField(1)
   int usageCount;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChatDirectLink &&
+      slug == other.slug &&
+      usageCount == other.usageCount;
+
+  @override
+  int get hashCode => Object.hash(slug, usageCount);
 }
 
 /// Slug of a [ChatDirectLink].

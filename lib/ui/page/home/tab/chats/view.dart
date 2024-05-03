@@ -163,18 +163,21 @@ class ChatsTabView extends StatelessWidget {
                         synchronization = const SizedBox.shrink();
                       }
 
-                      child = AllowOverflow(
-                        child: Column(
-                          key: const Key('2'),
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('label_chats'.l10n),
-                            AnimatedSizeAndFade(
-                              sizeDuration: const Duration(milliseconds: 300),
-                              fadeDuration: const Duration(milliseconds: 300),
-                              child: synchronization,
-                            ),
-                          ],
+                      child = Align(
+                        alignment: Alignment.centerLeft,
+                        child: AllowOverflow(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('label_chats'.l10n),
+                              AnimatedSizeAndFade(
+                                sizeDuration: const Duration(milliseconds: 300),
+                                fadeDuration: const Duration(milliseconds: 300),
+                                child: synchronization,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }
@@ -197,7 +200,7 @@ class ChatsTabView extends StatelessWidget {
                               (e) => c.selectedChats.any((m) => m == e.id),
                             );
 
-                        return WidgetButton(
+                        return AnimatedButton(
                           onPressed: () {
                             if (selected) {
                               c.selectedChats.clear();
@@ -221,43 +224,49 @@ class ChatsTabView extends StatelessWidget {
                               }
                             }
                           },
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 20, right: 6),
-                            height: double.infinity,
-                            child: SelectedDot(
-                              selected: selected,
-                              inverted: false,
-                              outlined: !selected,
-                              size: 21,
-                            ),
+                          decorator: (child) {
+                            return Container(
+                              padding:
+                                  const EdgeInsets.only(left: 20, right: 6),
+                              height: double.infinity,
+                              child: child,
+                            );
+                          },
+                          child: SelectedDot(
+                            selected: selected,
+                            inverted: false,
+                            outlined: !selected,
+                            size: 21,
                           ),
                         );
                       }
 
-                      return AnimatedButton(
-                        key: c.searching.value
-                            ? const Key('CloseSearchButton')
-                            : const Key('SearchButton'),
-                        onPressed: c.searching.value
-                            ? () => c.closeSearch(c.groupCreating.isFalse)
-                            : () => c.startSearch(),
-                        decorator: (child) {
-                          return Container(
-                            padding: const EdgeInsets.only(left: 20, right: 6),
-                            height: double.infinity,
-                            child: child,
-                          );
-                        },
-                        child: SizedBox(
-                          width: 20,
-                          child: SafeAnimatedSwitcher(
-                            duration: 250.milliseconds,
-                            child: c.searching.value
+                      if (c.searching.value || c.groupCreating.value) {
+                        return AnimatedButton(
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : const Key('SearchButton'),
+                          onPressed: c.searching.value
+                              ? () => c.closeSearch(c.groupCreating.isFalse)
+                              : () => c.startSearch(),
+                          decorator: (child) {
+                            return Container(
+                              padding:
+                                  const EdgeInsets.only(left: 20, right: 6),
+                              width: 46,
+                              height: double.infinity,
+                              child: child,
+                            );
+                          },
+                          child: Center(
+                            child: c.groupCreating.value && c.searching.value
                                 ? const SvgIcon(SvgIcons.back)
                                 : const SvgIcon(SvgIcons.search),
                           ),
-                        ),
-                      );
+                        );
+                      }
+
+                      return const SizedBox(width: 21);
                     }),
                   ],
                   actions: [
@@ -289,7 +298,9 @@ class ChatsTabView extends StatelessWidget {
                         return AnimatedButton(
                           key: c.searching.value
                               ? const Key('CloseSearchButton')
-                              : null,
+                              : c.selecting.value
+                                  ? const Key('CloseSelectingButton')
+                                  : null,
                           onPressed: () {
                             if (c.searching.value) {
                               if (c.search.value?.search.isEmpty.value ==
@@ -300,38 +311,57 @@ class ChatsTabView extends StatelessWidget {
                               }
                             } else if (c.selecting.value) {
                               c.toggleSelecting();
-                            } else {
-                              if (c.groupCreating.value) {
-                                c.closeGroupCreating();
-                              }
+                            } else if (c.groupCreating.value) {
+                              c.closeGroupCreating();
                             }
                           },
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 12, right: 18),
-                            height: double.infinity,
-                            child: SizedBox(
-                              width: 21.77,
-                              child: AnimatedSwitcher(
-                                duration: 250.milliseconds,
-                                child: child,
-                              ),
+                          decorator: (child) {
+                            return Container(
+                              padding:
+                                  const EdgeInsets.only(left: 12, right: 16),
+                              height: double.infinity,
+                              child: child,
+                            );
+                          },
+                          child: SizedBox(
+                            width: 29.17,
+                            child: SafeAnimatedSwitcher(
+                              duration: 250.milliseconds,
+                              child: child,
                             ),
                           ),
                         );
                       }
 
-                      return IgnorePointer(
-                        ignoring: c.searching.value ||
-                            c.groupCreating.value ||
-                            c.selecting.value,
-                        child: AnimatedOpacity(
-                          duration: 250.milliseconds,
-                          opacity: c.searching.value ||
-                                  c.groupCreating.value ||
-                                  c.selecting.value
-                              ? 0
-                              : 1,
-                          child: ContextMenuRegion(
+                      return Row(
+                        children: [
+                          AnimatedButton(
+                            key: const Key('ContactsButton'),
+                            onPressed: () => router.tab = HomeTab.contacts,
+                            decorator: (child) {
+                              return Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 12),
+                                height: double.infinity,
+                                child: child,
+                              );
+                            },
+                            child: const SvgIcon(SvgIcons.contactsSwitch),
+                          ),
+                          AnimatedButton(
+                            key: const Key('SearchButton'),
+                            onPressed: () => c.startSearch(),
+                            decorator: (child) {
+                              return Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 12),
+                                height: double.infinity,
+                                child: child,
+                              );
+                            },
+                            child: const SvgIcon(SvgIcons.search),
+                          ),
+                          ContextMenuRegion(
                             key: const Key('ChatsMenu'),
                             selector: c.moreKey,
                             alignment: Alignment.topRight,
@@ -373,7 +403,7 @@ class ChatsTabView extends StatelessWidget {
                               child: const SvgIcon(SvgIcons.more),
                             ),
                           ),
-                        ),
+                        ],
                       );
                     }),
                   ],

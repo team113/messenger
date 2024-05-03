@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
@@ -105,7 +106,7 @@ class CallButtonsSwitchView extends StatelessWidget {
 
                   return AspectRatio(
                     aspectRatio: 680 / 314,
-                    child: AnimatedSwitcher(
+                    child: SafeAnimatedSwitcher(
                       duration: duration,
                       child: Image.asset(
                         'assets/images/media_buttons/$asset.jpg',

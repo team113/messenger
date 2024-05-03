@@ -38,6 +38,8 @@ import '/util/log.dart';
 mixin UserGraphQlMixin {
   GraphQlClient get client;
 
+  AccessTokenSecret? get token;
+
   /// Returns the current authenticated [MyUser].
   ///
   /// ### Authentication
@@ -46,8 +48,12 @@ mixin UserGraphQlMixin {
   Future<GetMyUser$Query> getMyUser() async {
     Log.debug('getMyUser()', '$runtimeType');
 
-    QueryResult res =
-        await client.query(QueryOptions(document: GetMyUserQuery().document));
+    QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'GetMyUser',
+        document: GetMyUserQuery().document,
+      ),
+    );
     return GetMyUser$Query.fromJson(res.data!);
   }
 
@@ -128,6 +134,7 @@ mixin UserGraphQlMixin {
       before: before,
     );
     QueryResult res = await client.query(QueryOptions(
+      operationName: 'SearchUsers',
       document: SearchUsersQuery(variables: variables).document,
       variables: variables.toJson(),
     ));
@@ -156,6 +163,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserNameArguments(name: name);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserName',
         document: UpdateUserNameMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -185,6 +193,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserBioArguments(bio: bio);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserBio',
         document: UpdateUserBioMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -216,6 +225,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserStatusArguments(text: text);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserStatus',
         document: UpdateUserStatusMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -231,19 +241,21 @@ mixin UserGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserLoginUpdated].
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserLoginUpdated] (if [login] argument is specified);
+  /// - [EventUserLoginDeleted] (if [login] argument is absent or is `null`).
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] uses the provided [login] already.
-  Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin login) async {
+  Future<MyUserEventsVersionedMixin?> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
     final variables = UpdateUserLoginArguments(login: login);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserLogin',
         document: UpdateUserLoginMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -280,6 +292,7 @@ mixin UserGraphQlMixin {
     final variables = UpdateUserPresenceArguments(presence: presence);
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserPresence',
         document: UpdateUserPresenceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
@@ -318,13 +331,16 @@ mixin UserGraphQlMixin {
     );
     QueryResult res = await client.mutate(
       MutationOptions(
+        operationName: 'UpdateUserPassword',
         document: UpdateUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
       onException: (data) => UpdateUserPasswordException(
-          (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
-                  as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
-              .code),
+        (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
+                as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
+            .code,
+      ),
+      raw: RawClientOptions(token),
     );
     return UpdateUserPassword$Mutation.fromJson(res.data!).updateUserPassword
         as MyUserEventsVersionedMixin?;
@@ -334,8 +350,7 @@ mixin UserGraphQlMixin {
   ///
   /// __This action cannot be reverted.__
   ///
-  /// Also deletes all the [Session]s and [RememberedSession]s of the
-  /// authenticated [MyUser].
+  /// Also deletes all the [Session]s of the authenticated [MyUser].
   ///
   /// ### Authentication
   ///
@@ -352,8 +367,12 @@ mixin UserGraphQlMixin {
   Future<MyUserEventsVersionedMixin> deleteMyUser() async {
     Log.debug('deleteMyUser()', '$runtimeType');
 
-    QueryResult res = await client
-        .mutate(MutationOptions(document: DeleteMyUserMutation().document));
+    QueryResult res = await client.mutate(
+      MutationOptions(
+        operationName: 'DeleteMyUser',
+        document: DeleteMyUserMutation().document,
+      ),
+    );
     return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser;
   }
 
@@ -925,6 +944,7 @@ mixin UserGraphQlMixin {
         options: file == null
             ? null
             : dio.Options(contentType: 'multipart/form-data'),
+        operationName: query.operationName,
         onSendProgress: onSendProgress,
         onException: (data) => UpdateUserAvatarException(
           (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
@@ -1007,6 +1027,7 @@ mixin UserGraphQlMixin {
         options: file == null
             ? null
             : dio.Options(contentType: 'multipart/form-data'),
+        operationName: query.operationName,
         onSendProgress: onSendProgress,
         onException: (data) => UpdateUserCallCoverException(
           (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
@@ -1293,6 +1314,7 @@ mixin UserGraphQlMixin {
           if (locale != null) 'Accept-Language': locale,
         },
       ),
+      operationName: query.operationName,
       onException: (data) => RegisterFcmDeviceException(
         RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
             as RegisterFcmDeviceErrorCode,

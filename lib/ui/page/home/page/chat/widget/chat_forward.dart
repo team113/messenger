@@ -125,8 +125,8 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called when a gallery list is required.
   ///
-  /// If not specified, then only media of these [forwards] and [note] will be
-  /// in a gallery.
+  /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
+  /// tapped.
   final List<GalleryAttachment> Function()? onGallery;
 
   /// Callback, called when a [ChatForward] is tapped.
@@ -440,7 +440,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     media.first,
                     galleries,
                     key: _galleryKeys[msg.id]?.firstOrNull,
-                    onGallery: widget.onGallery,
+                    onGallery: menu ? null : widget.onGallery,
                     onError: widget.onAttachmentError,
                     filled: false,
                   )
@@ -456,7 +456,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               e,
                               galleries,
                               key: _galleryKeys[msg.id]?[i],
-                              onGallery: widget.onGallery,
+                              onGallery: menu ? null : widget.onGallery,
                               onError: widget.onAttachmentError,
                             ),
                           )
@@ -732,7 +732,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       media.first,
                       galleries,
                       key: _galleryKeys[item.id]?.lastOrNull,
-                      onGallery: widget.onGallery,
+                      onGallery: menu ? null : widget.onGallery,
                       onError: widget.onAttachmentError,
                       filled: false,
                     )
@@ -748,7 +748,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 e,
                                 galleries,
                                 key: _galleryKeys[item.id]?[i],
-                                onGallery: widget.onGallery,
+                                onGallery: menu ? null : widget.onGallery,
                                 onError: widget.onAttachmentError,
                               ),
                             )

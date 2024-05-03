@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
@@ -58,48 +59,22 @@ class FrontendWorkView extends StatelessWidget {
               children: [
                 const SizedBox(height: 4),
                 const ProjectBlock(),
-                const Block(
-                  title: 'Условия',
+                Block(
+                  title: 'label_conditions'.l10n,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [Text('label_conditions_frontend_developer'.l10n)],
+                ),
+                Block(
+                  title: 'label_requirements'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '- ежедневная оплата;\n'
-                      '- от 2000 EUR;\n'
-                      '- 4-х, 6-ти или 8-ми часовой рабочий день;\n'
-                      '- учёт рабочего времени и оплата переработок;\n'
-                      '- удалённое сотрудничество.',
-                    ),
+                    Text('label_requirements_frontend_developer'.l10n),
                   ],
                 ),
-                const Block(
-                  title: 'Требования',
+                Block(
+                  title: 'label_tech_stack'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- понимание принципов UX дизайна;\n'
-                      '- знание GraphQL и WebSocket;\n'
-                      '- умение документировать код;\n'
-                      '- умение покрывать код юнит и/или интеграционными тестами;\n'
-                      '- умение читать и понимать техническую литературу на английском языке;\n'
-                      '- возможность обеспечить качественную аудио и видеосвязь;',
-                    ),
-                  ],
-                ),
-                const Block(
-                  title: 'Стек технологий',
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- Язык - Dart;\n'
-                      '- Flutter - фреймворк;\n'
-                      '- GetX - Dependency Injection и State Management;\n'
-                      '- Navigator 2.0 (Router) - навигация;\n'
-                      '- Hive - локальная база данных;\n'
-                      '- Firebase - push уведомления;\n'
-                      '- GraphQL и Artemis - связь с бэкэндом;\n'
-                      '- Gherkin - E2E тестирование.',
-                    ),
-                  ],
+                  children: [Text('label_tech_stack_frontend_developer'.l10n)],
                 ),
                 const SourceCodeBlock(),
                 Block(
@@ -110,11 +85,14 @@ class FrontendWorkView extends StatelessWidget {
                         children: [
                           TextSpan(
                             text:
-                                'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Flutter, Вы можете воспользоваться нашей ',
+                                'label_for_learning_use_our_flutter_incubator1'
+                                    .l10n,
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
-                            text: 'корпоративной песочницей.',
+                            text:
+                                'label_for_learning_use_our_flutter_incubator2'
+                                    .l10n,
                             style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
@@ -122,13 +100,17 @@ class FrontendWorkView extends StatelessWidget {
                                   ),
                           ),
                           TextSpan(
-                            text: '\n'
-                                '\n'
-                                'Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице ',
+                            text: '\n\n',
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
-                            text: 'Freelance.',
+                            text: 'label_besides_freelance_is_an_option_too1'
+                                .l10n,
+                            style: style.fonts.normal.regular.onBackground,
+                          ),
+                          TextSpan(
+                            text: 'label_besides_freelance_is_an_option_too2'
+                                .l10n,
                             style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => router.work(WorkTab.freelance),
@@ -140,7 +122,7 @@ class FrontendWorkView extends StatelessWidget {
                 ),
                 Obx(() {
                   return ProceedBlock(
-                    'Записаться на интервью',
+                    'btn_schedule_an_interview'.l10n,
                     onPressed: c.linkStatus.value.isLoading
                         ? null
                         : () async {

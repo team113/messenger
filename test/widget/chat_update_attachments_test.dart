@@ -42,6 +42,7 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -429,14 +430,18 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();
-  credentialsProvider.set(
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+
+  accountProvider.set(const UserId('me'));
+  credentialsProvider.put(
     Credentials(
-      Session(
-        const AccessToken('token'),
+      AccessToken(
+        const AccessTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
-      RememberedSession(
-        const RefreshToken('token'),
+      RefreshToken(
+        const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
@@ -517,8 +522,13 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
+        accountProvider,
       ),
     );
     authService.init();
@@ -590,6 +600,7 @@ void main() async {
             myUserProvider,
             blocklistRepository,
             userRepository,
+            accountProvider,
           ),
         ),
       ),
@@ -627,6 +638,13 @@ void main() async {
         .chats[const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')]!;
     await tester
         .runAsync(() => chat.updateAttachments(chat.messages.first.value));
+
+    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    //       should be done in a more strict way.
+    for (int i = 0; i < 20; i++) {
+      await tester.pump(const Duration(seconds: 2));
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(

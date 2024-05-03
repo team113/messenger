@@ -22,7 +22,6 @@ import 'package:flutter/widgets.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
 
-import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
@@ -89,11 +88,11 @@ class Config {
   static me.LogLevel logLevel = me.LogLevel.info;
 
   /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema = '0';
+  static String? schema = '1';
 
   /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
   /// mismatch is detected.
-  static String? credentials;
+  static String? credentials = '0';
 
   /// URL of a Sparkle Appcast XML file.
   ///
@@ -101,26 +100,15 @@ class Config {
   /// available.
   static String appcast = '';
 
-  /// Returns a [Map] being a configuration passed to a [FlutterCallkeep]
-  /// instance to initialize it.
-  static Map<String, dynamic> get callKeep {
-    return {
-      'ios': {'appName': 'Gapopa'},
-      'android': {
-        'alertTitle': 'label_call_permissions_title'.l10n,
-        'alertDescription': 'label_call_permissions_description'.l10n,
-        'cancelButton': 'btn_dismiss'.l10n,
-        'okButton': 'btn_allow'.l10n,
-        'foregroundService': {
-          'channelId': 'default',
-          'channelName': 'Default',
-          'notificationTitle': 'My app is running on background',
-          'notificationIcon': 'mipmap/ic_notification_launcher',
-        },
-        'additionalPermissions': <String>[],
-      },
-    };
-  }
+  /// Optional copyright to display at the bottom of [Routes.auth] page.
+  static String copyright = '';
+
+  /// Email address of the support service displayed on the [Routes.support]
+  /// page.
+  static String support = 'admin@gapopa.com';
+
+  /// URL of the repository (or anything else) for users to report bugs to.
+  static String repository = 'https://github.com/team113/messenger/issues';
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -129,7 +117,8 @@ class Config {
   /// - default values.
   static Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-    Map<String, dynamic> document =
+
+    final Map<String, dynamic> document =
         TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
             .toMap();
 
@@ -204,6 +193,18 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
         : (document['appcast']?['url'] ?? appcast);
 
+    copyright = const bool.hasEnvironment('SOCAPP_LEGAL_COPYRIGHT')
+        ? const String.fromEnvironment('SOCAPP_LEGAL_COPYRIGHT')
+        : (document['legal']?['copyright'] ?? copyright);
+
+    support = const bool.hasEnvironment('SOCAPP_LEGAL_SUPPORT')
+        ? const String.fromEnvironment('SOCAPP_LEGAL_SUPPORT')
+        : (document['legal']?['support'] ?? support);
+
+    repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
+        ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
+        : (document['legal']?['repository'] ?? repository);
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -244,7 +245,7 @@ class Config {
         final response = await (await PlatformUtils.dio)
             .fetch(RequestOptions(path: '$url:$port/conf.toml'));
         if (response.statusCode == 200) {
-          Map<String, dynamic> remote =
+          final Map<String, dynamic> remote =
               TomlDocument.parse(response.data.toString()).toMap();
 
           confRemote = remote['conf']?['remote'] ?? confRemote;
@@ -264,6 +265,11 @@ class Config {
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
             appcast = remote['appcast']?['url'] ?? appcast;
+            copyright = remote['legal']?[Uri.base.host]['copyright'] ??
+                remote['legal']?['copyright'] ??
+                copyright;
+            support = remote['legal']?['support'] ?? support;
+            repository = remote['legal']?['repository'] ?? repository;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],

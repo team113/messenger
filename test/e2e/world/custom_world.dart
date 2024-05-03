@@ -97,5 +97,5 @@ class CustomUser {
   }
 
   /// Returns the [AccessToken] of this [CustomUser].
-  AccessToken? get token => _credentials?.session.token;
+  AccessTokenSecret? get token => _credentials?.access.secret;
 }

@@ -24,6 +24,8 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
+import '/routes.dart';
+
 /// Localization of this application.
 class L10n {
   /// Currently selected [Language].
@@ -282,5 +284,31 @@ extension L10nDurationExtension on Duration {
     }
 
     return result;
+  }
+}
+
+/// Extension adding an ability to get [ProfileTab] localized title.
+extension L10nProfileTabExtension on ProfileTab {
+  /// Returns localized title of this [ProfileTab].
+  String get l10n {
+    return switch (this) {
+      ProfileTab.public => 'label_profile'.l10n,
+      ProfileTab.signing => 'label_login_options'.l10n,
+      ProfileTab.link => 'label_link_to_chat'.l10n,
+      ProfileTab.background => 'label_background'.l10n,
+      ProfileTab.chats => 'label_chats'.l10n,
+      ProfileTab.calls => 'label_calls'.l10n,
+      ProfileTab.media => 'label_media'.l10n,
+      ProfileTab.notifications => 'label_notifications'.l10n,
+      ProfileTab.storage => 'label_storage'.l10n,
+      ProfileTab.language => 'label_language'.l10n,
+      ProfileTab.blocklist => 'label_blocked_users'.l10n,
+      ProfileTab.sections => 'label_show_sections'.l10n,
+      ProfileTab.download => 'label_download'.l10n,
+      ProfileTab.danger => 'label_danger_zone'.l10n,
+      ProfileTab.legal => 'label_legal_information'.l10n,
+      ProfileTab.support => 'btn_help'.l10n,
+      ProfileTab.logout => 'btn_logout'.l10n,
+    };
   }
 }

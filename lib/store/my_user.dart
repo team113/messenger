@@ -23,7 +23,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -31,15 +30,16 @@ import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/account.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
@@ -56,6 +56,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this._myUserLocal,
     this._blocklistRepo,
     this._userRepo,
+    this._accountLocal,
   );
 
   @override
@@ -72,6 +73,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// [MyUser] local [Hive] storage.
   final MyUserHiveProvider _myUserLocal;
+
+  /// [Hive] storage providing the [UserId] of the currently active [MyUser].
+  final AccountHiveProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -90,13 +94,24 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamSubscription? _keepOnlineSubscription;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] initializing and
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged] initializing and
   /// canceling the [_keepOnlineSubscription].
   StreamSubscription? _onFocusChanged;
 
   /// Indicator whether this [MyUserRepository] has been disposed, meaning no
   /// requests should be made.
   bool _disposed = false;
+
+  /// [EventPool] debouncing [MyUserField] related [MyUserEvent]s handling.
+  final EventPool<MyUserField> _pool = EventPool();
+
+  /// Returns the currently active [HiveMyUser] from [Hive].
+  HiveMyUser? get _active {
+    final UserId? userId = _accountLocal.userId;
+    final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
+
+    return saved;
+  }
 
   @override
   Future<void> init({
@@ -108,7 +123,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    myUser = Rx<MyUser?>(_myUserLocal.myUser?.value);
+    myUser = Rx<MyUser?>(_active?.value);
 
     _initLocalSubscription();
     _initRemoteSubscription();
@@ -140,6 +155,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel();
     _onFocusChanged?.cancel();
+    _pool.dispose();
   }
 
   @override
@@ -152,52 +168,46 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserName(UserName? name) async {
     Log.debug('updateUserName($name)', '$runtimeType');
 
-    final UserName? oldName = myUser.value?.name;
-
-    myUser.update((u) => u?.name = name);
-
-    try {
-      await _graphQlProvider.updateUserName(name);
-    } catch (_) {
-      myUser.update((u) => u?.name = oldName);
-      rethrow;
-    }
+    await _debounce(
+      field: MyUserField.name,
+      current: () => myUser.value?.name,
+      saved: () => _active?.value.name,
+      value: name,
+      mutation: (v, _) => _graphQlProvider.updateUserName(v),
+      update: (v, _) => myUser.update((u) => u?.name = v),
+    );
   }
 
   @override
   Future<void> updateUserStatus(UserTextStatus? status) async {
     Log.debug('updateUserStatus($status)', '$runtimeType');
 
-    final UserTextStatus? oldStatus = myUser.value?.status;
-
-    myUser.update((u) => u?.status = status);
-
-    try {
-      await _graphQlProvider.updateUserStatus(status);
-    } catch (_) {
-      myUser.update((u) => u?.status = oldStatus);
-      rethrow;
-    }
+    await _debounce(
+      field: MyUserField.name,
+      current: () => myUser.value?.status,
+      saved: () => _active?.value.status,
+      value: status,
+      mutation: (v, _) => _graphQlProvider.updateUserStatus(v),
+      update: (v, _) => myUser.update((u) => u?.status = v),
+    );
   }
 
   @override
   Future<void> updateUserBio(UserBio? bio) async {
     Log.debug('updateUserBio($bio)', '$runtimeType');
 
-    final UserBio? oldBio = myUser.value?.bio;
-
-    myUser.update((u) => u?.bio = bio);
-
-    try {
-      await _graphQlProvider.updateUserBio(bio);
-    } catch (_) {
-      myUser.update((u) => u?.bio = oldBio);
-      rethrow;
-    }
+    await _debounce(
+      field: MyUserField.bio,
+      current: () => myUser.value?.bio,
+      saved: () => _active?.value.bio,
+      value: bio,
+      mutation: (v, _) => _graphQlProvider.updateUserBio(v),
+      update: (v, _) => myUser.update((u) => u?.bio = v),
+    );
   }
 
   @override
-  Future<void> updateUserLogin(UserLogin login) async {
+  Future<void> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
     // Don't do optimism, as [login] might be occupied, thus shouldn't set the
@@ -209,16 +219,15 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> updateUserPresence(Presence presence) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
 
-    final Presence? oldPresence = myUser.value?.presence;
-
-    myUser.update((u) => u?.presence = presence);
-
-    try {
-      await _graphQlProvider.updateUserPresence(presence);
-    } catch (_) {
-      myUser.update((u) => u?.presence = oldPresence!);
-      rethrow;
-    }
+    await _debounce(
+      field: MyUserField.presence,
+      current: () => myUser.value?.presence,
+      saved: () => _active?.value.presence,
+      value: presence,
+      mutation: (s, _) async =>
+          await _graphQlProvider.updateUserPresence(s ?? presence),
+      update: (v, _) => myUser.update((u) => u?.presence = v ?? presence),
+    );
   }
 
   @override
@@ -254,16 +263,26 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('deleteUserEmail($email)', '$runtimeType');
 
     if (myUser.value?.emails.unconfirmed == email) {
-      final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+      await _debounce(
+        field: MyUserField.email,
+        current: () => myUser.value?.emails.unconfirmed,
+        saved: () => _active?.value.emails.unconfirmed,
+        value: null,
+        mutation: (value, previous) async {
+          if (previous != null) {
+            return await _graphQlProvider.deleteUserEmail(previous);
+          } else if (value != null) {
+            return await _graphQlProvider.addUserEmail(value);
+          }
 
-      myUser.update((u) => u?.emails.unconfirmed = null);
-
-      try {
-        await _graphQlProvider.deleteUserEmail(email);
-      } catch (_) {
-        myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
-        rethrow;
-      }
+          return null;
+        },
+        update: (v, p) => myUser.update(
+          (u) => p != null
+              ? u?.emails.unconfirmed = null
+              : u?.emails.unconfirmed = v,
+        ),
+      );
     } else {
       int i = myUser.value?.emails.confirmed.indexOf(email) ?? -1;
 
@@ -288,16 +307,26 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('deleteUserPhone($phone)', '$runtimeType');
 
     if (myUser.value?.phones.unconfirmed == phone) {
-      final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+      await _debounce(
+        field: MyUserField.phone,
+        current: () => myUser.value?.phones.unconfirmed,
+        saved: () => _active?.value.phones.unconfirmed,
+        value: null,
+        mutation: (value, previous) async {
+          if (previous != null) {
+            return await _graphQlProvider.deleteUserPhone(previous);
+          } else if (value != null) {
+            return await _graphQlProvider.addUserPhone(value);
+          }
 
-      myUser.update((u) => u?.phones.unconfirmed = null);
-
-      try {
-        await _graphQlProvider.deleteUserPhone(phone);
-      } catch (_) {
-        myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
-        rethrow;
-      }
+          return null;
+        },
+        update: (v, p) => myUser.update(
+          (u) => p != null
+              ? u?.phones.unconfirmed = null
+              : u?.phones.unconfirmed = v,
+        ),
+      );
     } else {
       int i = myUser.value?.phones.confirmed.indexOf(phone) ?? -1;
 
@@ -321,32 +350,52 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> addUserEmail(UserEmail email) async {
     Log.debug('addUserEmail($email)', '$runtimeType');
 
-    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
+    await _debounce(
+      field: MyUserField.email,
+      current: () => myUser.value?.emails.unconfirmed,
+      saved: () => _active?.value.emails.unconfirmed,
+      value: email,
+      mutation: (value, previous) async {
+        if (previous != null) {
+          return await _graphQlProvider.deleteUserEmail(previous);
+        } else if (value != null) {
+          return await _graphQlProvider.addUserEmail(value);
+        }
 
-    myUser.update((u) => u?.emails.unconfirmed = email);
-
-    try {
-      await _graphQlProvider.addUserEmail(email);
-    } catch (_) {
-      myUser.update((u) => u?.emails.unconfirmed = unconfirmed);
-      rethrow;
-    }
+        return null;
+      },
+      update: (v, p) => myUser.update(
+        (u) => p != null
+            ? u?.emails.unconfirmed = null
+            : u?.emails.unconfirmed = v,
+      ),
+    );
   }
 
   @override
   Future<void> addUserPhone(UserPhone phone) async {
     Log.debug('addUserPhone($phone)', '$runtimeType');
 
-    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+    await _debounce(
+      field: MyUserField.phone,
+      current: () => myUser.value?.phones.unconfirmed,
+      saved: () => _active?.value.phones.unconfirmed,
+      value: phone,
+      mutation: (value, previous) async {
+        if (previous != null) {
+          return await _graphQlProvider.deleteUserPhone(previous);
+        } else if (value != null) {
+          return await _graphQlProvider.addUserPhone(value);
+        }
 
-    myUser.update((u) => u?.phones.unconfirmed = phone);
-
-    try {
-      await _graphQlProvider.addUserPhone(phone);
-    } catch (_) {
-      myUser.update((u) => u?.phones.unconfirmed = unconfirmed);
-      rethrow;
-    }
+        return null;
+      },
+      update: (v, p) => myUser.update(
+        (u) => p != null
+            ? u?.phones.unconfirmed = null
+            : u?.phones.unconfirmed = v,
+      ),
+    );
   }
 
   @override
@@ -403,6 +452,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
 
+    // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
+    // link right away.
     await _graphQlProvider.createUserDirectLink(slug);
 
     myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
@@ -485,20 +536,22 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', '$runtimeType');
 
-    final MuteDuration? muted = myUser.value?.muted;
-
-    final Muting? muting = mute == null
-        ? null
-        : Muting(duration: mute.forever == true ? null : mute.until);
-
-    myUser.update((u) => u?.muted = muting?.toModel());
-
-    try {
-      await _graphQlProvider.toggleMyUserMute(muting);
-    } catch (e) {
-      myUser.update((u) => u?.muted = muted);
-      rethrow;
-    }
+    await _debounce(
+      field: MyUserField.muted,
+      current: () => myUser.value?.muted,
+      saved: () => _active?.value.muted,
+      value: mute,
+      mutation: (duration, _) async {
+        return await _graphQlProvider.toggleMyUserMute(
+          duration == null
+              ? null
+              : Muting(
+                  duration: duration.forever == true ? null : duration.until,
+                ),
+        );
+      },
+      update: (v, _) => myUser.update((u) => u?.muted = v),
+    );
   }
 
   @override
@@ -575,16 +628,54 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _localSubscription = StreamIterator(_myUserLocal.boxEvents);
     while (await _localSubscription!.moveNext()) {
-      BoxEvent event = _localSubscription!.current;
-      if (event.deleted) {
-        myUser.value = null;
-        _remoteSubscription?.close(immediate: true);
-      } else {
-        myUser.value = event.value?.value;
+      final BoxEvent event = _localSubscription!.current;
 
-        // Refresh the value since [event.value] is the same [MyUser] stored in
-        // [_myUser] (so `==` operator fails to distinguish them).
-        myUser.refresh();
+      final UserId id = UserId(event.key);
+      final MyUser? user = event.value?.value;
+
+      if (id == (_active?.value ?? myUser.value)?.id) {
+        if (event.deleted) {
+          myUser.value = null;
+          _remoteSubscription?.close(immediate: true);
+        } else {
+          // Copy [event.value], as it always contains the same [MyUser].
+          final MyUser? value = user?.copyWith();
+
+          // Don't update the [MyUserField]s considered locked in the [_pool], as
+          // those events might've been applied optimistically during mutations
+          // and await corresponding subscription events to be persisted.
+          if (_pool.lockedWith(MyUserField.name, value?.name)) {
+            value?.name = myUser.value?.name;
+          }
+
+          if (_pool.lockedWith(MyUserField.status, value?.status)) {
+            value?.status = myUser.value?.status;
+          }
+
+          if (_pool.lockedWith(MyUserField.bio, value?.bio)) {
+            value?.bio = myUser.value?.bio;
+          }
+
+          if (_pool.lockedWith(MyUserField.presence, value?.presence)) {
+            value?.presence = myUser.value?.presence ?? value.presence;
+          }
+
+          if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
+            value?.muted = myUser.value?.muted;
+          }
+
+          if (_pool.lockedWith(MyUserField.email, value?.emails.unconfirmed)) {
+            value?.emails.unconfirmed = myUser.value?.emails.unconfirmed;
+          }
+
+          if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
+            value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
+          }
+
+          myUser.value = value;
+        }
+      } else {
+        // No-op, as those events aren't of the currently active [MyUser].
       }
     }
   }
@@ -602,11 +693,11 @@ class MyUserRepository implements AbstractMyUserRepository {
       _myUserRemoteEvents(() {
         // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
         // is `null`, to retrieve it.
-        if (_myUserLocal.myUser?.value.blocklistCount == null) {
+        if (_active?.value.blocklistCount == null) {
           return null;
         }
 
-        return _myUserLocal.myUser?.ver;
+        return _active?.ver;
       }),
     );
 
@@ -639,17 +730,20 @@ class MyUserRepository implements AbstractMyUserRepository {
     // Update the stored [MyUser], if the provided [user] has non-`null`
     // blocklist count, which is different from the stored one.
     final bool blocklist = user.value.blocklistCount != null &&
-        user.value.blocklistCount != _myUserLocal.myUser?.value.blocklistCount;
+        user.value.blocklistCount != _active?.value.blocklistCount;
 
-    if (user.ver >= _myUserLocal.myUser?.ver || blocklist || ignoreVersion) {
-      user.value.blocklistCount ??= _myUserLocal.myUser?.value.blocklistCount;
-      _myUserLocal.set(user);
+    if (user.ver >= _active?.ver || blocklist || ignoreVersion) {
+      user.value.blocklistCount ??= _active?.value.blocklistCount;
+      _myUserLocal.put(user);
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
-  Future<void> _myUserRemoteEvent(MyUserEventsVersioned versioned) async {
-    final HiveMyUser? userEntity = _myUserLocal.myUser;
+  void _myUserRemoteEvent(
+    MyUserEventsVersioned versioned, {
+    bool updateVersion = true,
+  }) {
+    final HiveMyUser? userEntity = _active;
 
     if (userEntity == null || versioned.ver < userEntity.ver) {
       Log.debug(
@@ -658,7 +752,16 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
       return;
     }
-    userEntity.ver = versioned.ver;
+
+    // If [updateVersion] is `true`, then those events are processed and should
+    // be removed from the [_pool], or added to it otherwise to prevent events
+    // overwriting each other's actions.
+    if (updateVersion) {
+      userEntity.ver = versioned.ver;
+      versioned.events.removeWhere(_pool.processed);
+    } else {
+      versioned.events.forEach(_pool.add);
+    }
 
     Log.debug(
       '_myUserRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
@@ -755,6 +858,11 @@ class MyUserRepository implements AbstractMyUserRepository {
           userEntity.value.login = event.login;
           break;
 
+        case MyUserEventKind.loginDeleted:
+          event as EventUserLoginDeleted;
+          userEntity.value.login = null;
+          break;
+
         case MyUserEventKind.emailAdded:
           event as EventUserEmailAdded;
           userEntity.value.emails.unconfirmed = event.email;
@@ -808,7 +916,10 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.passwordUpdated:
           event as EventUserPasswordUpdated;
           userEntity.value.hasPassword = true;
-          onPasswordUpdated();
+
+          if (event.userId == myUser.value?.id) {
+            onPasswordUpdated();
+          }
           break;
 
         case MyUserEventKind.userMuted:
@@ -830,9 +941,11 @@ class MyUserRepository implements AbstractMyUserRepository {
         case MyUserEventKind.cameOffline:
           event as EventUserCameOffline;
           userEntity.value.online = false;
-          put((u) => u
-            ..online = false
-            ..lastSeenAt = PreciseDateTime.now());
+          put(
+            (u) => u
+              ..online = false
+              ..lastSeenAt = event.at,
+          );
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
@@ -842,7 +955,10 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         case MyUserEventKind.deleted:
           event as EventUserDeleted;
-          onUserDeleted();
+
+          if (event.userId == myUser.value?.id) {
+            onUserDeleted();
+          }
           break;
 
         case MyUserEventKind.directLinkDeleted:
@@ -877,7 +993,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    _myUserLocal.set(userEntity);
+    _myUserLocal.put(userEntity);
   }
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
@@ -962,6 +1078,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     } else if (e.$$typename == 'EventUserLoginUpdated') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
       return EventUserLoginUpdated(node.userId, node.login);
+    } else if (e.$$typename == 'EventUserLoginDeleted') {
+      var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
+      return EventUserLoginDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserEmailAdded') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
       return EventUserEmailAdded(node.userId, node.email);
@@ -996,7 +1115,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
-      return EventUserCameOffline(node.userId);
+      return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
       var node = e
           as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
@@ -1040,4 +1159,75 @@ class MyUserRepository implements AbstractMyUserRepository {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }
   }
+
+  /// Debounces the [mutation] execution, synchronizing the results with [_pool]
+  /// for the provided [field].
+  Future<void> _debounce<T>({
+    required MyUserField field,
+    required T? Function() current,
+    required T? Function() saved,
+    T? value,
+    required void Function(T? value, T? previous) update,
+    required Future<MyUserEventsVersionedMixin?> Function(T? value, T? previous)
+        mutation,
+  }) async {
+    Log.debug(
+      '_debounce($field, current, saved, $value, update, mutation)',
+      '$runtimeType',
+    );
+
+    T? previous = current();
+
+    update(value, previous);
+
+    await _pool.protect(
+      field,
+      () async {
+        try {
+          final MyUserEventsVersionedMixin? response =
+              await mutation(value, previous);
+
+          if (response != null) {
+            final event = MyUserEventsVersioned(
+              response.events.map(_myUserEvent).toList(),
+              response.ver,
+            );
+
+            _myUserRemoteEvent(event, updateVersion: false);
+
+            // Wait for [Hive] to update the [HiveMyUser] from
+            // [_myUserRemoteEvent].
+            await Future.delayed(Duration.zero);
+          }
+
+          previous = value;
+        } catch (_) {
+          update(saved(), value);
+          rethrow;
+        }
+      },
+      values: [value, saved()],
+      repeat: () {
+        if (myUser.value != null && current() != saved()) {
+          value = current();
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
+}
+
+/// [MyUser] fields being updated via [MyUserEvent]s.
+///
+/// Used to update [MyUser] according to the [EventPool].
+enum MyUserField {
+  muted,
+  name,
+  status,
+  bio,
+  presence,
+  email,
+  phone,
 }

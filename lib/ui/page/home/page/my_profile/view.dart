@@ -31,6 +31,8 @@ import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/auth/widget/cupertino_button.dart';
+import '/ui/page/erase/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -43,6 +45,9 @@ import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/page/login/privacy_policy/view.dart';
+import '/ui/page/login/terms_of_use/view.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -94,23 +99,23 @@ class MyProfileView extends StatelessWidget {
                 itemCount: ProfileTab.values.length,
                 physics: const ClampingScrollPhysics(),
                 itemBuilder: (context, i) {
+                  final ProfileTab tab = ProfileTab.values[i];
+
                   // Builds a [Block] wrapped with [Obx] to highlight it.
                   Widget block({
-                    required String title,
-                    List<Widget> overlay = const [],
+                    String? title,
                     required List<Widget> children,
                   }) {
                     return Obx(() {
                       return Block(
-                        title: title,
+                        title: title ?? tab.l10n,
                         highlight: c.highlightIndex.value == i,
-                        overlay: overlay,
                         children: children,
                       );
                     });
                   }
 
-                  switch (ProfileTab.values[i]) {
+                  switch (tab) {
                     case ProfileTab.public:
                       return Obx(() {
                         return HighlightedContainer(
@@ -118,7 +123,6 @@ class MyProfileView extends StatelessWidget {
                           child: Column(
                             children: [
                               block(
-                                title: 'label_profile'.l10n,
                                 children: [
                                   Obx(() {
                                     return BigAvatarWidget.myUser(
@@ -130,7 +134,11 @@ class MyProfileView extends StatelessWidget {
                                           : null,
                                     );
                                   }),
-                                  const SizedBox(height: 12),
+                                ],
+                              ),
+                              block(
+                                title: 'label_about'.l10n,
+                                children: [
                                   Paddings.basic(
                                     Obx(() {
                                       return UserNameField(
@@ -139,11 +147,7 @@ class MyProfileView extends StatelessWidget {
                                       );
                                     }),
                                   ),
-                                ],
-                              ),
-                              block(
-                                title: 'label_about'.l10n,
-                                children: [
+                                  const SizedBox(height: 6),
                                   Paddings.basic(
                                     Obx(() {
                                       return UserBioField(
@@ -161,7 +165,6 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.signing:
                       return block(
-                        title: 'label_login_options'.l10n,
                         children: [
                           Paddings.basic(
                             Obx(() {
@@ -184,13 +187,7 @@ class MyProfileView extends StatelessWidget {
                               child: UserLoginField(
                                 c.myUser.value?.login,
                                 onSubmit: (s) async {
-                                  if (s == null) {
-                                    // TODO: Implement [UserLogin] deleting.
-                                    c.myUser.value?.login = null;
-                                    c.myUser.refresh();
-                                  } else {
-                                    await c.updateUserLogin(s);
-                                  }
+                                  await c.updateUserLogin(s);
                                 },
                               ),
                             );
@@ -203,79 +200,77 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.link:
-                      return Obx(() {
-                        return block(
-                          title: 'label_your_direct_link'.l10n,
-                          overlay: [
-                            EditBlockButton(
-                              key: const Key('EditLinkButton'),
-                              onPressed: c.linkEditing.toggle,
-                              editing: c.linkEditing.value,
-                            ),
-                          ],
-                          children: [
-                            Obx(() {
-                              return DirectLinkField(
-                                c.myUser.value?.chatDirectLink,
-                                onSubmit: (s) async {
-                                  if (s == null) {
-                                    c.linkEditing.value = false;
-                                    await c.deleteChatDirectLink();
-                                  } else {
-                                    await c.createChatDirectLink(s);
-                                    c.linkEditing.value = false;
+                      return block(
+                        title: 'label_your_direct_link'.l10n,
+                        children: [
+                          Obx(() {
+                            return DirectLinkField(
+                              c.myUser.value?.chatDirectLink,
+                              onSubmit: (s) async {
+                                if (s == null) {
+                                  await c.deleteChatDirectLink();
+                                } else {
+                                  await c.createChatDirectLink(s);
+                                }
+                              },
+                              background: c.background.value,
+                              onEditing: (b) {
+                                if (b) {
+                                  final ItemPosition? first = c
+                                      .positionsListener
+                                      .itemPositions
+                                      .value
+                                      .firstOrNull;
+
+                                  // If the [Block] containing this widget isn't
+                                  // fully visible, then animate to it's
+                                  // beginning.
+                                  if (first?.index == i &&
+                                      first!.itemLeadingEdge < 0) {
+                                    c.itemScrollController.scrollTo(
+                                      index: i,
+                                      curve: Curves.ease,
+                                      duration:
+                                          const Duration(milliseconds: 600),
+                                    );
+                                    c.highlight(ProfileTab.link);
                                   }
-                                },
-                                background: c.background.value,
-                                onEditing: (b) => c.linkEditing.value = b,
-                                editing: c.linkEditing.value,
-                              );
-                            }),
-                          ],
-                        );
-                      });
+                                }
+                              },
+                            );
+                          }),
+                        ],
+                      );
 
                     case ProfileTab.background:
                       return block(
-                        title: 'label_background'.l10n,
                         children: [
-                          Paddings.dense(
-                            Obx(() {
-                              return BackgroundPreview(
-                                c.background.value,
-                                onPick: c.pickBackground,
-                                onRemove: c.removeBackground,
-                              );
-                            }),
-                          )
+                          Obx(() {
+                            return BackgroundPreview(
+                              c.background.value,
+                              onPick: c.pickBackground,
+                              onRemove: c.removeBackground,
+                            );
+                          }),
                         ],
                       );
 
                     case ProfileTab.chats:
-                      return block(
-                        title: 'label_chats'.l10n,
-                        children: [_chats(context, c)],
-                      );
+                      return block(children: [_chats(context, c)]);
 
                     case ProfileTab.calls:
                       if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
                         return const SizedBox();
                       }
 
-                      return block(
-                        title: 'label_calls'.l10n,
-                        children: [_call(context, c)],
-                      );
+                      return block(children: [_call(context, c)]);
 
                     case ProfileTab.media:
                       if (PlatformUtils.isMobile) {
                         return const SizedBox();
                       }
 
-                      return block(
-                        title: 'label_media'.l10n,
-                        children: [_media(context, c)],
-                      );
+                      return block(children: [_media(context, c)]);
 
                     case ProfileTab.notifications:
                       return block(
@@ -304,28 +299,16 @@ class MyProfileView extends StatelessWidget {
                         return const SizedBox();
                       }
 
-                      return block(
-                        title: 'label_storage'.l10n,
-                        children: [_storage(context, c)],
-                      );
+                      return block(children: [_storage(context, c)]);
 
                     case ProfileTab.language:
-                      return block(
-                        title: 'label_language'.l10n,
-                        children: [_language(context, c)],
-                      );
+                      return block(children: [_language(context, c)]);
 
                     case ProfileTab.blocklist:
-                      return block(
-                        title: 'label_blocked_users'.l10n,
-                        children: [_blockedUsers(context, c)],
-                      );
+                      return block(children: [_blockedUsers(context, c)]);
 
                     case ProfileTab.sections:
-                      return block(
-                        title: 'label_show_sections'.l10n,
-                        children: [_sections(context, c)],
-                      );
+                      return block(children: [_sections(context, c)]);
 
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
@@ -338,10 +321,13 @@ class MyProfileView extends StatelessWidget {
                       );
 
                     case ProfileTab.danger:
-                      return block(
-                        title: 'label_danger_zone'.l10n,
-                        children: [_danger(context, c)],
-                      );
+                      return block(children: [_danger(context, c)]);
+
+                    case ProfileTab.legal:
+                      return block(children: [_legal(context, c)]);
+
+                    case ProfileTab.support:
+                      return const SizedBox();
 
                     case ProfileTab.logout:
                       return const SafeArea(
@@ -538,9 +524,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           child: UserLoginField(
             c.myUser.value?.login,
             onSubmit: (s) async {
-              if (s != null) {
-                await c.updateUserLogin(s);
-              }
+              await c.updateUserLogin(s);
             },
           ),
         );
@@ -1065,6 +1049,31 @@ Widget _storage(BuildContext context, MyProfileController c) {
   );
 }
 
+/// Returns the buttons for legal related information displaying.
+Widget _legal(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  return Column(
+    children: [
+      Center(
+        child: StyledCupertinoButton(
+          label: 'btn_terms_and_conditions'.l10n,
+          style: style.fonts.small.regular.primary,
+          onPressed: () => TermsOfUseView.show(context),
+        ),
+      ),
+      const SizedBox(height: 12),
+      Center(
+        child: StyledCupertinoButton(
+          label: 'btn_privacy_policy'.l10n,
+          style: style.fonts.small.regular.primary,
+          onPressed: () => PrivacyPolicy.show(context),
+        ),
+      ),
+    ],
+  );
+}
+
 /// Returns information about the [MyUser].
 Widget _bar(MyProfileController c, BuildContext context) {
   final style = Theme.of(context).style;
@@ -1129,7 +1138,11 @@ Widget _bar(MyProfileController c, BuildContext context) {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(child: Text('label_profile'.l10n)),
+              child: Center(
+                child: Text(
+                  router.profileSection.value?.l10n ?? 'label_profile'.l10n,
+                ),
+              ),
             ),
           ),
         ],
@@ -1139,7 +1152,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: AnimatedSwitcher(
+          child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 400),
             child: title,
           ),
@@ -1198,24 +1211,7 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  final style = Theme.of(context).style;
-
-  final bool? result = await MessagePopup.alert(
-    'label_delete_account'.l10n,
-    description: [
-      TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
-      TextSpan(
-        text: c.myUser.value?.name?.val ??
-            c.myUser.value?.login?.val ??
-            c.myUser.value?.num.toString() ??
-            'dot'.l10n * 3,
-        style: style.fonts.normal.regular.onBackground,
-      ),
-      TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
-    ],
+  await Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => const EraseView()),
   );
-
-  if (result == true) {
-    await c.deleteAccount();
-  }
 }

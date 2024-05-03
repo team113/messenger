@@ -18,6 +18,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '/themes.dart';
 import '/util/platform_utils.dart';
 
 /// [Page] with the [_CupertinoPageRoute] as its [Route].
@@ -78,13 +79,18 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
+    final style = Theme.of(context).style;
+
     return ClipRect(
-      child: matchingBuilder.buildTransitions(
-        this,
-        context,
-        animation,
-        secondaryAnimation,
-        child,
+      child: ColoredBox(
+        color: style.colors.transparent,
+        child: matchingBuilder.buildTransitions(
+          this,
+          context,
+          animation,
+          secondaryAnimation,
+          child,
+        ),
       ),
     );
   }

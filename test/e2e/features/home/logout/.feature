@@ -22,7 +22,7 @@ Feature: Logout confirmation
     Then I wait until `IntroductionView` is present
 
     When I copy from `NumCopyable` field
-    And I tap `CloseButton` button
+    And I tap `ProceedButton` button
     And I tap `MenuButton` button
     And I scroll `MenuListView` until `LogoutButton` is present
     And I tap `LogoutButton` button

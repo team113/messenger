@@ -33,7 +33,7 @@ final StepDefinitionGeneric chatIsMuted = given1<String, CustomWorld>(
   (String name, context) async {
     final provider = GraphQlProvider();
     final AuthService authService = Get.find();
-    provider.token = authService.credentials.value!.session.token;
+    provider.token = authService.credentials.value!.access.secret;
 
     await provider.toggleChatMute(
       context.world.groups[name]!,

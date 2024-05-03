@@ -26,6 +26,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -87,6 +88,8 @@ void main() async {
   await sessionProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
 
   setUp(() async {
     await myUserProvider.clear();
@@ -139,8 +142,13 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
+        accountProvider,
       ),
     );
     UserRepository userRepository =
@@ -161,6 +169,7 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
+      accountProvider,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     await Future.delayed(Duration.zero);
@@ -192,8 +201,13 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
+        accountProvider,
       ),
     );
     UserRepository userRepository =
@@ -214,11 +228,12 @@ void main() async {
       myUserProvider,
       blocklistRepository,
       userRepository,
+      accountProvider,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    expect(
+    await expectLater(
       () async => await myUserService.toggleMute(null),
       throwsA(isA<ToggleMyUserMuteException>()),
     );

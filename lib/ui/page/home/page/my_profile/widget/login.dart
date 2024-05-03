@@ -26,9 +26,9 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserLoginException;
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 
 /// Custom-styled [ReactiveTextField] displaying editable [UserLogin].
 class UserLoginField extends StatefulWidget {
@@ -129,7 +129,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
         InfoTile(
           title: 'label_login'.l10n,
           content: '@${_state.text}',
-          trailing: WidgetButton(
+          trailing: AnimatedButton(
             onPressed: () => setState(() => _editing = true),
             child: const SvgIcon(SvgIcons.editField),
           ),

@@ -38,13 +38,13 @@ class MonologHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Returns the stored [ChatId] from [Hive].
   ChatId? get() {
-    Log.debug('get()', '$runtimeType');
+    Log.trace('get()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Saves the provided [ChatId] to [Hive].
   Future<void> set(ChatId id) async {
-    Log.debug('set($id)', '$runtimeType');
+    Log.trace('set($id)', '$runtimeType');
     await putSafe(0, id);
   }
 }

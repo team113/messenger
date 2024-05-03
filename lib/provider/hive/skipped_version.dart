@@ -35,13 +35,13 @@ class SkippedVersionHiveProvider extends HiveBaseProvider<String> {
 
   /// Returns the skipped version from [Hive].
   String? get() {
-    Log.debug('get()', '$runtimeType');
+    Log.trace('get()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Stores the new skipped version to [Hive].
   Future<void> set(String version) async {
-    Log.debug('set($version)', '$runtimeType');
+    Log.trace('set($version)', '$runtimeType');
     await putSafe(0, version);
   }
 }

@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.12.3
+version: 0.1.0-alpha.13.4
 publish_to: none
 
 environment:
@@ -12,7 +12,6 @@ dependencies:
   async: ^2.10.0
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
-  callkeep: ^0.3.3
   collection: ^1.17.2
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
@@ -33,9 +32,8 @@ dependencies:
     sdk: flutter
   flutter_animate: ^4.5.0
   flutter_app_badger: ^1.5.0
-  flutter_background_service: ^2.4.6
-  flutter_background_service_android: ^3.0.3
-  flutter_background_service_ios: ^2.4.0
+  flutter_callkit_incoming:
+    git: https://github.com/SleepySquash/flutter_callkit_incoming_android
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
@@ -48,6 +46,7 @@ dependencies:
   flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
+  flutter_widget_from_html_core: ^0.14.11
   flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.6
@@ -87,7 +86,7 @@ dependencies:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
-  sentry_flutter: ^7.9.0
+  sentry_flutter: ^7.18.0
   share_plus: ^7.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
@@ -167,6 +166,8 @@ flutter:
     - assets/images/logo/
     - assets/images/media_buttons/
     - assets/l10n/
+    - assets/privacy.html
+    - assets/terms.html
   fonts:
     - family: Roboto
       fonts:

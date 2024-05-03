@@ -17,15 +17,15 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
+import '/domain/model_type_id.dart';
 import '/store/model/my_user.dart';
 import '/util/log.dart';
 import 'base.dart';
@@ -35,7 +35,7 @@ part 'my_user.g.dart';
 /// [Hive] storage for [MyUser].
 class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   @override
-  Stream<BoxEvent> get boxEvents => box.watch(key: 0);
+  Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
   String get boxName => 'my_user';
@@ -44,6 +44,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   void registerAdapters() {
     Log.debug('registerAdapters()', '$runtimeType');
 
+    Hive.maybeRegisterAdapter(BlocklistCursorAdapter());
     Hive.maybeRegisterAdapter(BlocklistReasonAdapter());
     Hive.maybeRegisterAdapter(BlocklistRecordAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkAdapter());
@@ -59,6 +60,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(MyUserVersionAdapter());
     Hive.maybeRegisterAdapter(PlainFileAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
+    Hive.maybeRegisterAdapter(ThumbHashAdapter());
     Hive.maybeRegisterAdapter(UserAvatarAdapter());
     Hive.maybeRegisterAdapter(UserBioAdapter());
     Hive.maybeRegisterAdapter(UserCallCoverAdapter());
@@ -71,13 +73,25 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(UserTextStatusAdapter());
   }
 
-  /// Returns the stored [MyUser] from [Hive].
-  HiveMyUser? get myUser => getSafe(0);
+  /// Returns the stored [MyUser]s from [Hive].
+  Iterable<HiveMyUser> get myUsers => valuesSafe;
 
   /// Saves the provided [MyUser] in [Hive].
-  Future<void> set(HiveMyUser user) async {
-    Log.debug('set($user)', '$runtimeType');
-    await putSafe(0, user);
+  Future<void> put(HiveMyUser user) async {
+    Log.trace('put($user)', '$runtimeType');
+    await putSafe(user.value.id.val, user);
+  }
+
+  /// Returns the [MyUser] from [Hive] by its [id].
+  HiveMyUser? get(UserId id) {
+    Log.trace('get($id)', '$runtimeType');
+    return getSafe(id.val);
+  }
+
+  /// Removes the [MyUser] from [Hive] by its [id].
+  Future<void> remove(UserId id) async {
+    Log.trace('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
   }
 }
 

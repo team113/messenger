@@ -33,6 +33,7 @@ import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -52,7 +53,6 @@ import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/view.dart';
-import 'package:messenger/ui/worker/background/background.dart';
 import 'package:messenger/util/audio_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -76,13 +76,24 @@ void main() async {
   await credentialsProvider.init();
   await credentialsProvider.clear();
 
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+  var myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+
   var graphQlProvider = _FakeGraphQlProvider();
-  AuthRepository authRepository = AuthRepository(graphQlProvider);
-  AuthService authService = AuthService(authRepository, credentialsProvider);
+  AuthRepository authRepository = AuthRepository(
+    graphQlProvider,
+    myUserProvider,
+    credentialsProvider,
+  );
+  AuthService authService = AuthService(
+    authRepository,
+    credentialsProvider,
+    accountProvider,
+  );
   authService.init();
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init(userId: const UserId('me'));
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
   var userProvider = UserHiveProvider();
@@ -130,13 +141,17 @@ void main() async {
     Get.put(settingsProvider);
     Get.put(callCredentialsProvider);
     Get.put(NotificationService(graphQlProvider));
-    Get.put(BackgroundWorker(credentialsProvider));
     Get.put(monologProvider);
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(Get.find())),
+        Get.put<AbstractAuthRepository>(AuthRepository(
+          Get.find(),
+          myUserProvider,
+          credentialsProvider,
+        )),
         credentialsProvider,
+        accountProvider,
       ),
     );
 
@@ -200,7 +215,7 @@ void main() async {
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
-  AccessToken? token;
+  AccessTokenSecret? token;
 
   @override
   Future<void> Function(AuthorizationException)? authExceptionHandler;
@@ -247,16 +262,25 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     return SignIn$Mutation$CreateSession$CreateSessionOk.fromJson(
       {
         'session': {
-          'token': 'token',
-          'expireAt': DateTime.now().add(const Duration(days: 1)).toString(),
-          'ver': '0',
+          '__typename': 'Session',
+          'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+          'userAgent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+          'isCurrent': true,
+          'lastActivatedAt': DateTime.now().toString(),
+          'ver': '031592915314290362597742826064324903711'
         },
-        'remembered': {
-          'token': 'token',
-          'expireAt': DateTime.now().add(const Duration(days: 1)).toString(),
-          'ver': '30066501444801094020394372057490153134',
+        'accessToken': {
+          '__typename': 'AccessToken',
+          'secret': 'token',
+          'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
         },
-        'user': userData
+        'refreshToken': {
+          '__typename': 'RefreshToken',
+          'secret': 'token',
+          'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
+        },
+        'user': userData,
       },
     );
   }

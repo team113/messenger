@@ -41,23 +41,7 @@ class MenuButton extends StatelessWidget {
     this.inverted = false,
     this.onPressed,
   })  : icon = null,
-        title = switch (tab) {
-          ProfileTab.public => 'label_profile'.l10n,
-          ProfileTab.signing => 'label_login_options'.l10n,
-          ProfileTab.link => 'label_link_to_chat'.l10n,
-          ProfileTab.background => 'label_background'.l10n,
-          ProfileTab.chats => 'label_chats'.l10n,
-          ProfileTab.calls => 'label_calls'.l10n,
-          ProfileTab.media => 'label_media'.l10n,
-          ProfileTab.notifications => 'label_notifications'.l10n,
-          ProfileTab.storage => 'label_storage'.l10n,
-          ProfileTab.language => 'label_language'.l10n,
-          ProfileTab.blocklist => 'label_blocked_users'.l10n,
-          ProfileTab.sections => 'label_show_sections'.l10n,
-          ProfileTab.download => 'label_download'.l10n,
-          ProfileTab.danger => 'label_danger_zone'.l10n,
-          ProfileTab.logout => 'btn_logout'.l10n,
-        },
+        title = tab.l10n,
         subtitle = switch (tab) {
           ProfileTab.public => 'label_public_section_hint'.l10n,
           ProfileTab.signing => 'label_login_section_hint'.l10n,
@@ -74,7 +58,9 @@ class MenuButton extends StatelessWidget {
           ProfileTab.sections => 'label_navigation_panel'.l10n,
           ProfileTab.download => 'label_application'.l10n,
           ProfileTab.danger => 'label_delete_account'.l10n,
-          ProfileTab.logout => 'label_end_session'.l10n,
+          ProfileTab.legal => 'btn_terms_and_conditions'.l10n,
+          ProfileTab.support => null,
+          ProfileTab.logout => null,
         },
         leading = switch (tab) {
           ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
@@ -92,6 +78,8 @@ class MenuButton extends StatelessWidget {
           ProfileTab.notifications => const SvgIcon(SvgIcons.menuNotifications),
           ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
           ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
+          ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
+          ProfileTab.support => const SvgIcon(SvgIcons.menuSupport),
         },
         super(
           key: key ??
@@ -110,6 +98,8 @@ class MenuButton extends StatelessWidget {
                 ProfileTab.sections => const Key('Sections'),
                 ProfileTab.download => const Key('Download'),
                 ProfileTab.danger => const Key('DangerZone'),
+                ProfileTab.legal => const Key('Legal'),
+                ProfileTab.support => const Key('Support'),
                 ProfileTab.logout => const Key('LogoutButton'),
               },
         );

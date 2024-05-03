@@ -704,6 +704,7 @@ class OngoingCall {
                   if (redialed != null) {
                     redialed.id = id;
                     redialed.isDialing.value = false;
+                    redialed.joinedAt.value = node.at;
                     members.move(redialedId, id);
                   }
 
@@ -713,12 +714,15 @@ class OngoingCall {
                     members[id] = CallMember(
                       id,
                       null,
+                      joinedAt: node.at,
                       isHandRaised: call.value?.members
                               .firstWhereOrNull((e) => e.user.id == id.userId)
                               ?.handRaised ??
                           false,
                       isConnected: false,
                     );
+                  } else {
+                    member.joinedAt.value = node.at;
                   }
                   break;
 
@@ -1609,16 +1613,16 @@ class OngoingCall {
             devices.output().firstOrNull;
       }
 
-      audioDevice.value = devices
+      audioDevice.value ??= devices
               .audio()
               .firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
           devices.audio().firstOrNull;
 
-      videoDevice.value = devices
+      videoDevice.value ??= devices
           .video()
           .firstWhereOrNull((e) => e.id() == _preferredVideoDevice);
 
-      screenDevice.value = displays
+      screenDevice.value ??= displays
           .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
 
       if (outputDevice.value != null) {
@@ -1826,6 +1830,10 @@ class OngoingCall {
 
       rethrow;
     }
+
+    // Set the [CallMember.joinedAt] of our [CallMember] to the moment when
+    // [RoomHandle.join] has been executed.
+    members[_me]?.joinedAt.value ??= PreciseDateTime.now();
 
     Log.info('Room joined!', '$runtimeType');
   }
@@ -2306,9 +2314,11 @@ class CallMember {
     bool isHandRaised = false,
     bool isConnected = false,
     bool isDialing = false,
+    PreciseDateTime? joinedAt,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
         isDialing = RxBool(isDialing),
+        joinedAt = Rx(joinedAt),
         owner = MediaOwnerKind.remote;
 
   CallMember.me(
@@ -2316,9 +2326,11 @@ class CallMember {
     bool isHandRaised = false,
     bool isConnected = false,
     bool isDialing = false,
+    PreciseDateTime? joinedAt,
   })  : isHandRaised = RxBool(isHandRaised),
         isConnected = RxBool(isConnected),
         isDialing = RxBool(isDialing),
+        joinedAt = Rx(joinedAt),
         owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
@@ -2341,6 +2353,9 @@ class CallMember {
 
   /// Signal quality of this [CallMember] ranging from 1 to 4.
   final RxInt quality = RxInt(4);
+
+  /// [DateTime] when this [CallMember] has joined.
+  final Rx<PreciseDateTime?> joinedAt;
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;

@@ -18,17 +18,26 @@
 import '/api/backend/schema.graphql.dart';
 import '/domain/model/session.dart';
 
+/// Extension adding models construction from a [RefreshTokenMixin].
+extension RefreshTokenConversion on RefreshTokenMixin {
+  /// Constructs a new [RefreshToken] from this [RefreshTokenMixin].
+  RefreshToken toModel() => RefreshToken(secret, expiresAt);
+}
+
+/// Extension adding models construction from a [AccessTokenMixin].
+extension AccessTokenConversion on AccessTokenMixin {
+  /// Constructs a new [AccessToken] from this [AccessTokenMixin].
+  AccessToken toModel() => AccessToken(secret, expiresAt);
+}
+
 /// Extension adding [Credentials] models construction from a
 /// [SignUp$Mutation] response.
 extension SignUpCredentials on SignUp$Mutation {
   /// Constructs the new [Credentials] from this [SignUp$Mutation].
   Credentials toModel() {
     return Credentials(
-      Session(createUser.session.token, createUser.session.expireAt),
-      RememberedSession(
-        createUser.remembered.token,
-        createUser.remembered.expireAt,
-      ),
+      createUser.accessToken.toModel(),
+      createUser.refreshToken.toModel(),
       createUser.user.id,
     );
   }
@@ -40,25 +49,17 @@ extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
   /// Constructs the new [Credentials] from this
   /// [SignIn$Mutation$CreateSession$CreateSessionOk].
   Credentials toModel() {
-    return Credentials(
-      Session(session.token, session.expireAt),
-      RememberedSession(remembered.token, remembered.expireAt),
-      user.id,
-    );
+    return Credentials(accessToken.toModel(), refreshToken.toModel(), user.id);
   }
 }
 
 /// Extension adding [Credentials] models construction from a
-/// [RenewSession$Mutation$RenewSession$RenewSessionOk] response.
-extension RenewSessionCredentials
-    on RenewSession$Mutation$RenewSession$RenewSessionOk {
+/// [RefreshSession$Mutation$RefreshSession$CreateSessionOk] response.
+extension RefreshSessionCredentials
+    on RefreshSession$Mutation$RefreshSession$CreateSessionOk {
   /// Constructs the new [Credentials] from this
-  /// [RenewSession$Mutation$RenewSession$RenewSessionOk].
+  /// [RefreshSession$Mutation$RefreshSession$CreateSessionOk].
   Credentials toModel() {
-    return Credentials(
-      Session(session.token, session.expireAt),
-      RememberedSession(remembered.token, remembered.expireAt),
-      user.id,
-    );
+    return Credentials(accessToken.toModel(), refreshToken.toModel(), user.id);
   }
 }

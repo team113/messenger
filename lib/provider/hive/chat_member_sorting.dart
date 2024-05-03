@@ -39,7 +39,7 @@ class ChatMemberSortingHiveProvider extends HiveBaseProvider<UserId> {
 
   @override
   void registerAdapters() {
-    Log.debug('registerAdapters()', '$runtimeType');
+    Log.debug('registerAdapters($id)', '$runtimeType');
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
@@ -48,13 +48,13 @@ class ChatMemberSortingHiveProvider extends HiveBaseProvider<UserId> {
 
   /// Puts the provided [UserId] by the provided [time] to [Hive].
   Future<void> put(PreciseDateTime time, UserId id) async {
-    Log.debug('put($time, $id)', '$runtimeType');
+    Log.trace('put($time, $id)', '$runtimeType');
     await putSafe('${time.toUtc().toString()}_$id', id);
   }
 
   /// Removes the provided [UserId] from [Hive].
   Future<void> remove(UserId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
 
     final int index = valuesSafe.toList().indexOf(id);
     if (index != -1) {

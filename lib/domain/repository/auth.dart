@@ -27,11 +27,12 @@ import '/provider/gql/exceptions.dart';
 /// All methods may throw [ConnectionException] and [GraphQlException].
 abstract class AbstractAuthRepository {
   /// Sets an authorization `token` of this repository.
-  set token(AccessToken? token);
+  set token(AccessTokenSecret? token);
 
   /// Sets [handler] that will be called on any [AuthorizationException].
   set authExceptionHandler(
-      Future<void> Function(AuthorizationException) handler);
+    Future<void> Function(AuthorizationException) handler,
+  );
 
   /// Applies the specified [token] right away instead of the lazy reconnection.
   ///
@@ -56,12 +57,14 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Deletes a [Session] of the [MyUser] identified by the [token] of this
-  /// repository.
+  /// Invalidates a [Session] of the [MyUser] identified by the [token].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
   /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
-  Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]);
+  Future<void> deleteSession([FcmRegistrationToken? fcmRegistrationToken]);
+
+  /// Deletes the [MyUser] identified by the provided [id] from the accounts.
+  Future<void> removeAccount(UserId id);
 
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
   ///
@@ -89,7 +92,7 @@ abstract class AbstractAuthRepository {
   /// The renewed [Session] has its own expiration after renewal, so to renew it
   /// again use this method with the new returned [RefreshToken] (omit using
   /// old ones).
-  Future<Credentials> renewSession(RefreshToken token);
+  Future<Credentials> refreshSession(RefreshTokenSecret secret);
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).

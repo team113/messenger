@@ -18,7 +18,7 @@ Feature: Chat members pagination
     And I sign in as Alice
     And I am in "Members" group
 
-    When I tap `CloseButton` button
+    When I tap `ProceedButton` button
     And I open chat's info
     Then I see 15 chat members
 

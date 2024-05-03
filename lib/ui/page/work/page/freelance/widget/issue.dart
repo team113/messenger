@@ -17,7 +17,6 @@
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../controller.dart';
@@ -25,6 +24,7 @@ import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/widget/markdown.dart';
 
 /// Visual representation of the provided [issue].
 class IssueWidget extends StatelessWidget {
@@ -115,31 +115,7 @@ class IssueWidget extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 children: [
-                  MarkdownBody(
-                    data: issue.description!,
-                    onTapLink: (_, href, __) async =>
-                        await launchUrlString(href!),
-                    styleSheet: MarkdownStyleSheet(
-                      h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
-
-                      // TODO: Exception.
-                      h2: style.fonts.largest.bold.onBackground
-                          .copyWith(fontSize: 20),
-
-                      p: style.fonts.normal.regular.onBackground,
-                      code: style.fonts.small.regular.onBackground.copyWith(
-                        letterSpacing: 1.2,
-                        backgroundColor: style.colors.secondaryHighlight,
-                      ),
-                      codeblockDecoration: BoxDecoration(
-                        color: style.colors.secondaryHighlight,
-                      ),
-                      codeblockPadding: const EdgeInsets.all(16),
-                      blockquoteDecoration: BoxDecoration(
-                        color: style.colors.secondaryHighlight,
-                      ),
-                    ),
-                  ),
+                  MarkdownWidget(issue.description!),
                   const SizedBox(height: 16),
                   StyledCupertinoButton(
                     onPressed: onPressed,

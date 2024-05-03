@@ -39,7 +39,7 @@ final StepDefinitionGeneric contactIsFavorite =
     final AuthService authService = Get.find();
 
     final provider = GraphQlProvider();
-    provider.token = authService.credentials.value!.session.token;
+    provider.token = authService.credentials.value!.access.secret;
 
     if (status == FavoriteStatus.favorite) {
       final List<RxChatContact> favorites = Get.find<ContactService>()

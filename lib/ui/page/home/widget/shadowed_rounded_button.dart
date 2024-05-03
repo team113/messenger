@@ -53,6 +53,7 @@ class ShadowedRoundedButton extends StatelessWidget {
       shadows: [
         BoxShadow(blurRadius: 8, color: style.colors.onBackgroundOpacity13),
       ],
+      headline: const SizedBox(),
       child: child,
     );
   }

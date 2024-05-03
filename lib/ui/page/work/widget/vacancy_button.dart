@@ -50,16 +50,13 @@ class VacancyWorkButton extends StatelessWidget {
         },
         subtitle: switch (work) {
           WorkTab.backend => 'Rust',
-          WorkTab.frontend => 'Flutter',
-          WorkTab.freelance => 'Flutter',
+          WorkTab.frontend => 'Flutter/Dart',
+          WorkTab.freelance => 'Flutter/Dart',
         },
         leading: switch (work) {
-          WorkTab.backend =>
-            SvgIcon(selected ? SvgIcons.rustWhite : SvgIcons.rust),
-          WorkTab.frontend =>
-            SvgIcon(selected ? SvgIcons.frontendWhite : SvgIcons.frontend),
-          WorkTab.freelance =>
-            SvgIcon(selected ? SvgIcons.freelanceWhite : SvgIcons.freelance),
+          WorkTab.backend => const SvgIcon(SvgIcons.workRust),
+          WorkTab.frontend => const SvgIcon(SvgIcons.workFlutter),
+          WorkTab.freelance => const SvgIcon(SvgIcons.workFreelance),
         },
         inverted: selected,
         onPressed: onPressed == null ? null : () => onPressed?.call(work),
@@ -69,6 +66,6 @@ class VacancyWorkButton extends StatelessWidget {
 
   /// Changes router location to the [work] page.
   ///
-  /// Intended to be used as a default of the [decorator].
+  /// Intended to be used as a default of the [onPressed].
   static void _defaultOnPressed(WorkTab work) => router.work(work);
 }

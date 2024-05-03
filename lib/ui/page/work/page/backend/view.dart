@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
@@ -57,63 +58,25 @@ class BackendWorkView extends StatelessWidget {
               children: [
                 const SizedBox(height: 4),
                 const ProjectBlock(),
-                const Block(
-                  title: 'Условия',
+                Block(
+                  title: 'label_conditions'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- ежедневная оплата;\n'
-                      '- от 2000 EUR;\n'
-                      '- 4-х, 6-ти или 8-ми часовой рабочий день;\n'
-                      '- учёт рабочего времени и оплата переработок;\n'
-                      '- удалённое сотрудничество.',
-                    ),
-                  ],
+                  children: [Text('label_conditions_backend_developer'.l10n)],
                 ),
-                const Block(
-                  title: 'Требуется',
+                Block(
+                  title: 'label_requirements'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- знание языка Rust;\n'
-                      '- понимание FFI и UB;\n'
-                      '- навык оптимизации программ и умение использовать профилировщик;\n'
-                      '- понимание принципов работы клиент-серверных web-приложений;\n'
-                      '- понимание принципов проектирования структур баз данных;\n'
-                      '- понимание принципов DDD и слоенной архитектуры;\n'
-                      '- навык написания модульных и функциональных тестов;\n'
-                      '- навык работы с Git;\n'
-                      '- умение использовать операционные системы типа *nix.',
-                    ),
-                  ],
+                  children: [Text('label_requirements_backend_developer'.l10n)],
                 ),
-                const Block(
-                  title: 'Приветствуется',
+                Block(
+                  title: 'label_we_welcome'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- навык работы с языками C, C++;\n'
-                      '- навык работы по CQRS+ES парадигме;\n'
-                      '- навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;\n'
-                      '- навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.',
-                    ),
-                  ],
+                  children: [Text('label_we_welcome_backend_developer'.l10n)],
                 ),
-                const Block(
-                  title: 'Стек технологий',
+                Block(
+                  title: 'label_tech_stack'.l10n,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '- Язык - Rust;\n'
-                      '- actix-web - веб-фреймворк;\n'
-                      '- CockroachDB - база данных;\n'
-                      '- baza - файловое хранилище;\n'
-                      '- Medea - медиа сервер;\n'
-                      '- Firebase - push уведомления;\n'
-                      '- GraphQL - API;\n'
-                      '- Cucumber - E2E тестирование.',
-                    ),
-                  ],
+                  children: [Text('label_tech_stack_backend_developer'.l10n)],
                 ),
                 Block(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,12 +85,13 @@ class BackendWorkView extends StatelessWidget {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text:
-                                'В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей ',
+                            text: 'label_for_learning_use_our_rust_incubator1'
+                                .l10n,
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
-                            text: 'корпоративной песочницей.',
+                            text: 'label_for_learning_use_our_rust_incubator2'
+                                .l10n,
                             style: style.fonts.normal.regular.primary,
                             recognizer: TapGestureRecognizer()
                               ..onTap = () => launchUrlString(
@@ -141,7 +105,7 @@ class BackendWorkView extends StatelessWidget {
                 ),
                 Obx(() {
                   return ProceedBlock(
-                    'Записаться на интервью',
+                    'btn_schedule_an_interview'.l10n,
                     onPressed: c.linkStatus.value.isLoading
                         ? null
                         : () async {

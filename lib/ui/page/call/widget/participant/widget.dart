@@ -39,6 +39,7 @@ class ParticipantWidget extends StatelessWidget {
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
     this.onSizeDetermined,
+    this.onHovered,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
   });
@@ -58,7 +59,11 @@ class ParticipantWidget extends StatelessWidget {
   final bool offstageUntilDetermined;
 
   /// Callback, called when the [Participant.video]'s size is determined.
-  final Function? onSizeDetermined;
+  final void Function()? onSizeDetermined;
+
+  /// Callback, called when this [ParticipantWidget] is being hovered or stops
+  /// being hovered.
+  final void Function(bool)? onHovered;
 
   /// Optional outline of this video.
   final Color? outline;
@@ -86,77 +91,82 @@ class ParticipantWidget extends StatelessWidget {
         ];
       }
 
-      return Stack(
-        children: [
-          if (!hasVideo) ...background(),
-          SafeAnimatedSwitcher(
-            key: const Key('AnimatedSwitcher'),
-            duration: animate
-                ? const Duration(milliseconds: 200)
-                : const Duration(seconds: 1),
-            child: !hasVideo
-                ? Container()
-                : Center(
-                    child: RtcVideoView(
-                      participant.video.value!.renderer.value
-                          as RtcVideoRenderer,
-                      source: participant.source,
-                      key: participant.videoKey,
-                      fit: fit,
-                      borderRadius: borderRadius ?? BorderRadius.circular(10),
-                      border:
-                          outline == null ? null : Border.all(color: outline!),
-                      onSizeDetermined: onSizeDetermined,
-                      enableContextMenu: false,
-                      respectAspectRatio: respectAspectRatio,
-                      offstageUntilDetermined: offstageUntilDetermined,
-                      framelessBuilder: () => Stack(children: background()),
+      return Center(
+        child: MouseRegion(
+          onEnter: (_) => onHovered?.call(true),
+          onHover: (_) => onHovered?.call(true),
+          onExit: (_) => onHovered?.call(false),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (!hasVideo) ...background(),
+              SafeAnimatedSwitcher(
+                key: const Key('AnimatedSwitcher'),
+                duration: animate
+                    ? const Duration(milliseconds: 200)
+                    : const Duration(seconds: 1),
+                child: !hasVideo
+                    ? Container()
+                    : RtcVideoView(
+                        participant.video.value!.renderer.value
+                            as RtcVideoRenderer,
+                        source: participant.source,
+                        key: participant.videoKey,
+                        fit: fit,
+                        borderRadius: borderRadius ?? BorderRadius.circular(10),
+                        border: outline == null
+                            ? null
+                            : Border.all(color: outline!),
+                        onSizeDetermined: onSizeDetermined,
+                        enableContextMenu: false,
+                        respectAspectRatio: respectAspectRatio,
+                        offstageUntilDetermined: offstageUntilDetermined,
+                        framelessBuilder: () => Stack(children: background()),
+                      ),
+              ),
+              Obx(() {
+                final Widget child;
+
+                if (participant.member.isConnected.value) {
+                  child = const SizedBox();
+                } else if (participant.member.isDialing.isTrue) {
+                  child = Container(
+                    key: Key('ParticipantDialing_${participant.member.id}'),
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: style.colors.onBackgroundOpacity50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(21.0),
+                      child: Center(
+                        child: Config.disableInfiniteAnimations
+                            ? const CustomProgressIndicator.big(value: 0)
+                            : const DoubleBounceLoadingIndicator(),
+                      ),
                     ),
-                  ),
-          ),
-          Obx(() {
-            final Widget child;
+                  );
+                } else {
+                  child = Container(
+                    key: Key('ParticipantConnecting_${participant.member.id}'),
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: style.colors.onBackgroundOpacity50,
+                    child: Center(
+                      child: CustomProgressIndicator.big(
+                        value: Config.disableInfiniteAnimations ? 0 : null,
+                      ),
+                    ),
+                  );
+                }
 
-            if (participant.member.isConnected.value) {
-              child = Container();
-            } else if (participant.member.isDialing.isTrue) {
-              child = Container(
-                key: Key('ParticipantDialing_${participant.member.id}'),
-                width: double.infinity,
-                height: double.infinity,
-                color: style.colors.onBackgroundOpacity50,
-                child: Padding(
-                  padding: const EdgeInsets.all(21.0),
-                  child: Center(
-                    child: Config.disableInfiniteAnimations
-                        ? const CustomProgressIndicator.big(value: 0)
-                        : const DoubleBounceLoadingIndicator(),
-                  ),
-                ),
-              );
-            } else {
-              child = Container(
-                key: Key('ParticipantConnecting_${participant.member.id}'),
-                width: double.infinity,
-                height: double.infinity,
-                color: style.colors.onBackgroundOpacity50,
-                child: Center(
-                  child: CustomProgressIndicator.big(
-                    value: Config.disableInfiniteAnimations ? 0 : null,
-                  ),
-                ),
-              );
-            }
-
-            return SafeAnimatedSwitcher(
-              duration: 250.milliseconds,
-              child: child,
-            );
-          }),
-          Center(
-            child: RaisedHand(participant.member.isHandRaised.value),
+                return SafeAnimatedSwitcher(
+                  duration: 250.milliseconds,
+                  child: child,
+                );
+              }),
+              RaisedHand(participant.member.isHandRaised.value),
+            ],
           ),
-        ],
+        ),
       );
     });
   }

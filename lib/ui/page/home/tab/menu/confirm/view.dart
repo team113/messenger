@@ -88,19 +88,23 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                OutlinedRoundedButton(
-                  key: const Key('ChangePasswordButton'),
-                  onPressed: c.password.isEmpty.value || c.repeat.isEmpty.value
-                      ? null
-                      : c.setPassword,
-                  color: style.colors.primary,
-                  child: Text(
-                    'btn_proceed'.l10n,
-                    style: c.password.isEmpty.value || c.repeat.isEmpty.value
-                        ? style.fonts.normal.regular.onBackground
-                        : style.fonts.normal.regular.onPrimary,
-                  ),
-                ),
+                Obx(() {
+                  final bool enabled = !c.repeat.status.value.isLoading &&
+                      !c.password.isEmpty.value &&
+                      !c.repeat.isEmpty.value;
+
+                  return OutlinedRoundedButton(
+                    key: const Key('ChangePasswordButton'),
+                    onPressed: enabled ? c.setPassword : null,
+                    color: style.colors.primary,
+                    child: Text(
+                      'btn_proceed'.l10n,
+                      style: enabled
+                          ? style.fonts.normal.regular.onPrimary
+                          : style.fonts.normal.regular.onBackground,
+                    ),
+                  );
+                }),
               ];
               break;
 

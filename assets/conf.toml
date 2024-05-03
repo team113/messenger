@@ -117,3 +117,19 @@
 #
 # Default:
 #   url = ""
+
+[legal]
+# Optional copyright to display at the bottom of auth page.
+#
+# Default:
+#   copyright = ""
+
+# Email address of the support service users can reach on the support page.
+#
+# Default:
+#   support = "admin@gapopa.com"
+
+# URL of the repository (or anything else) for users to report bugs to.
+#
+# Default:
+#   repository = "https://github.com/team113/messenger/issues"

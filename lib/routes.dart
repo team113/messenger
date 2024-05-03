@@ -58,7 +58,6 @@ import 'provider/hive/favorite_chat.dart';
 import 'provider/hive/favorite_contact.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
-import 'provider/hive/my_user.dart';
 import 'provider/hive/recent_chat.dart';
 import 'provider/hive/session_data.dart';
 import 'provider/hive/user.dart';
@@ -71,9 +70,11 @@ import 'store/settings.dart';
 import 'store/user.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
+import 'ui/page/erase/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
+import 'ui/page/support/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/worker/call.dart';
@@ -95,9 +96,11 @@ class Routes {
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
+  static const erase = '/erase';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
+  static const support = '/support';
   static const user = '/user';
   static const work = '/work';
 
@@ -112,7 +115,7 @@ class Routes {
 enum HomeTab { work, contacts, chats, menu }
 
 /// List of [Routes.work] page sections.
-enum WorkTab { freelance, frontend, backend }
+enum WorkTab { frontend, backend, freelance }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {
@@ -130,6 +133,8 @@ enum ProfileTab {
   sections,
   download,
   danger,
+  legal,
+  support,
   logout,
 }
 
@@ -278,7 +283,9 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
-    if (to.startsWith(Routes.work)) {
+    if (to.startsWith(Routes.work) ||
+        to.startsWith(Routes.erase) ||
+        to.startsWith(Routes.support)) {
       return to;
     }
 
@@ -492,7 +499,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               UserId me = _state._auth.userId!;
 
               await Future.wait([
-                deps.put(MyUserHiveProvider()).init(userId: me),
                 deps.put(ChatHiveProvider()).init(userId: me),
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -588,6 +594,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   blocklistRepository,
                   userRepository,
+                  Get.find(),
                 ),
               );
 
@@ -623,7 +630,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             UserId me = _state._auth.userId!;
 
             await Future.wait([
-              deps.put(MyUserHiveProvider()).init(userId: me),
               deps.put(ChatHiveProvider()).init(userId: me),
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
@@ -741,6 +747,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
                 blocklistRepository,
                 userRepository,
+                Get.find(),
               ),
             );
 
@@ -782,6 +789,22 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: WorkView(),
         )
       ];
+    } else if (_state.route.startsWith(Routes.erase)) {
+      return const [
+        MaterialPage(
+          key: ValueKey('ErasePage'),
+          name: Routes.erase,
+          child: EraseView(),
+        )
+      ];
+    } else if (_state.route.startsWith(Routes.support)) {
+      return const [
+        MaterialPage(
+          key: ValueKey('SupportPage'),
+          name: Routes.support,
+          child: SupportView(),
+        )
+      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -794,6 +817,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
         _state.route.startsWith(Routes.work) ||
+        _state.route.startsWith(Routes.erase) ||
+        _state.route.startsWith(Routes.support) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -865,7 +890,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 /// [RouterState]'s extension shortcuts on [Routes] constants.
 extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.auth] page.
-  void auth() => go(Routes.auth);
+  ///
+  /// Invokes [WebUtils.closeWindow], if called from a [WebUtils.isPopup].
+  void auth() {
+    if (WebUtils.isPopup) {
+      WebUtils.closeWindow();
+    } else {
+      go(Routes.auth);
+    }
+  }
 
   /// Changes router location to the [Routes.home] page.
   void home({bool? signedUp}) {
@@ -917,6 +950,9 @@ extension RouteLinks on RouterState {
   void work(WorkTab? tab, {bool push = false}) => (push
       ? this.push
       : go)('${Routes.work}${tab == null ? '' : '/${tab.name}'}');
+
+  /// Changes router location to the [Routes.support] page.
+  void support({bool push = false}) => (push ? this.push : go)(Routes.support);
 
   /// Changes router location to the [Routes.style] page.
   ///

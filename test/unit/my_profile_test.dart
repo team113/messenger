@@ -23,6 +23,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/my_user.dart';
@@ -49,6 +50,10 @@ void main() async {
   await sessionProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+  final credentialsProvider = CredentialsHiveProvider();
+  await credentialsProvider.init();
 
   test('MyProfile test', () async {
     Get.reset();
@@ -58,7 +63,15 @@ void main() async {
 
     final graphQlProvider = FakeGraphQlProvider();
 
-    Get.put(AuthService(AuthRepository(graphQlProvider), getStorage));
+    Get.put(AuthService(
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
+      getStorage,
+      accountProvider,
+    ));
 
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
@@ -81,6 +94,7 @@ void main() async {
           myUserProvider,
           blocklistRepository,
           userRepository,
+          accountProvider,
         ),
       ),
     );
@@ -94,7 +108,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   int version = 0;
 
   @override
-  AccessToken? token = const AccessToken('aaaaaaaaaaa');
+  AccessTokenSecret? token = const AccessTokenSecret('aaaaaaaaaaa');
 
   Map<String, dynamic> userData = {
     'id': 'id',

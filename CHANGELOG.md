@@ -6,7 +6,124 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.13] · 2024-??-??
+## [0.1.0-alpha.14] · 2024-??-??
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13.4...v0.1.0-alpha.14) | [Milestone](/../../milestone/23)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned avatar, name and link editing. ([#980], [#948])
+    - User page:
+        - Redesigned avatar and name editing. ([#980], [#948])
+    - Profile page:
+        - Redesigned avatar and link editing. ([#980], [#948])
+
+### Fixed
+
+- UI:
+    - Home page:
+        - Own avatar displaying with question marks when signing in or signing up. ([#978], [#950])
+    - Chat page:
+        - Tapping on image opens gallery when being in context menu. ([#983], [#979])
+
+[#948]: /../../issues/948
+[#950]: /../../issues/950
+[#978]: /../../pull/978
+[#979]: /../../issues/979
+[#980]: /../../pull/980
+[#983]: /../../pull/983
+
+
+
+
+## [0.1.0-alpha.13.4] · 2024-04-23
+[0.1.0-alpha.13.4]: /../../tree/v0.1.0-alpha.13.4
+
+[Diff](/../../compare/v0.1.0-alpha.13.3...v0.1.0-alpha.13.4) | [Milestone](/../../milestone/22)
+
+### Added
+
+- UI:
+    - Support page. ([#971])
+
+### Changed
+
+- UI:
+    - Home page:
+        - Contacts button moved to chats tab app bar. ([#970])
+    - Auth page:
+        - Redesigned footer. ([#971])
+    - Work page:
+        - Removed UI/UX designer vacancy. ([#971])
+
+[#970]: /../../pull/970
+[#971]: /../../pull/971
+
+
+
+
+## [0.1.0-alpha.13.3] · 2024-04-19
+[0.1.0-alpha.13.3]: /../../tree/v0.1.0-alpha.13.3
+
+[Diff](/../../compare/v0.1.0-alpha.13.2...v0.1.0-alpha.13.3) | [Milestone](/../../milestone/21)
+
+### Added
+
+- UI:
+    - Account deletion page. ([#961])
+    - "Terms and conditions" page. ([#961])
+    - "Privacy policy" page. ([#961])
+
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Dialogs missing their avatars in some cases. ([#967], [#964])
+
+[#961]: /../../pull/961
+[#964]: /../../issues/964
+[#967]: /../../pull/967
+
+
+
+
+## [0.1.0-alpha.13.2] · 2024-04-11
+[0.1.0-alpha.13.2]: /../../tree/v0.1.0-alpha.13.2
+
+[Diff](/../../compare/v0.1.0-alpha.13.1...v0.1.0-alpha.13.2) | [Milestone](/../../milestone/20)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Active and ended calls displaying invalid duration. ([#944])
+
+[#944]: /../../pull/944
+
+
+
+
+## [0.1.0-alpha.13.1] · 2024-04-10
+[0.1.0-alpha.13.1]: /../../tree/v0.1.0-alpha.13.1
+
+[Diff](/../../compare/v0.1.0-alpha.13...v0.1.0-alpha.13.1) | [Milestone](/../../milestone/19)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned app bar. ([#942], [#939])
+
+[#939]: /../../issues/939
+[#942]: /../../pull/942
+
+
+
+
+## [0.1.0-alpha.13] · 2024-04-09
 [0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
 
 [Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
@@ -16,13 +133,17 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Call ended sound and left alone in group call sound. ([#877], [#809])
+        - Member connected sound. ([#935], [#928])
     - Update available popup. ([#907], [#896])
+    - Work page:
+        - UI/UX designer vacancy. ([#941])
 
 ### Changed
 
 - UI:
     - Chat page:
         - Redesigned editing mode and actions. ([#868])
+        - Blurred previews under wide/narrow images. ([#934])
     - User page:
         - Redesigned editing mode and actions. ([#868])
     - Profile page:
@@ -46,6 +167,8 @@ All user visible changes to this project will be documented in this file. This p
         - Replied calls displaying irrelevant information. ([#919], [#455])
     - Gapopa ID displaying incorrectly in notifications. ([#910], [#909])
     - Incoming call notification duplicating. ([#914])
+    - Home page:
+        - Alarm sound when clicking on empty right space. ([#937])
 - Web:
     - Missing blurred image previews in gallery. ([#880])
 
@@ -73,6 +196,11 @@ All user visible changes to this project will be documented in this file. This p
 [#914]: /../../pull/914
 [#915]: /../../pull/915
 [#919]: /../../pull/919
+[#928]: /../../issues/928
+[#934]: /../../pull/934
+[#935]: /../../pull/935
+[#937]: /../../pull/937
+[#941]: /../../pull/941
 
 
 

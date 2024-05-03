@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -44,10 +45,8 @@ class BackendWorkController extends GetxController {
 
   // TODO: Remove when backend supports it out of the box.
   /// Welcome message of the [Chat] in the [_link].
-  static const ChatMessageText _welcome = ChatMessageText(
-    'Добрый день.\n'
-    'Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.',
-  );
+  static final ChatMessageText _welcome =
+      ChatMessageText('label_welcome_message_vacancy_24_hours'.l10n);
 
   /// Returns the authorization [RxStatus].
   Rx<RxStatus> get status => _authService.status;

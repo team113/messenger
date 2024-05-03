@@ -39,14 +39,14 @@ class MockGraphQlProvider extends GraphQlProvider {
   Mutex get clientGuard => _client.guard;
 
   @override
-  AccessToken? get token => _client.token;
+  AccessTokenSecret? get token => _client.token;
 
   @override
   set authExceptionHandler(Future<void> Function(AuthorizationException)? fn) =>
       _client.authExceptionHandler = fn;
 
   @override
-  set token(AccessToken? value) => _client.token = value;
+  set token(AccessTokenSecret? value) => _client.token = value;
 
   @override
   Future<void> reconnect() => _client.reconnect();
@@ -130,6 +130,7 @@ class MockGraphQlClient extends GraphQlClient {
   Future<dio.Response<T>> post<T>(
     dynamic data, {
     dio.Options? options,
+    String? operationName,
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
   }) async {

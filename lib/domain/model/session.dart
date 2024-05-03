@@ -17,8 +17,9 @@
 
 import 'package:hive/hive.dart';
 
-import '/domain/model_type_id.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'precise_date_time/precise_date_time.dart';
 
@@ -26,65 +27,129 @@ part 'session.g.dart';
 
 /// Session of a [MyUser] being signed-in.
 @HiveType(typeId: ModelTypeId.session)
-class Session extends HiveObject {
-  Session(this.token, this.expireAt);
+class Session {
+  const Session({
+    required this.id,
+    required this.userAgent,
+    this.isCurrent = true,
+    required this.lastActivatedAt,
+  });
 
-  /// Unique authentication token of this [Session].
+  /// Unique ID of this [Session].
   @HiveField(0)
-  final AccessToken token;
+  final SessionId id;
 
-  /// [PreciseDateTime] of this [Session] expiration.
+  /// [UserAgent] of the device, that used this [Session] last time.
   @HiveField(1)
-  final PreciseDateTime expireAt;
+  final UserAgent userAgent;
+
+  /// Indicator whether this [Session] is [MyUser]'s current [Session].
+  @HiveField(2)
+  final bool isCurrent;
+
+  /// [DateTime] when this [Session] was activated last time (either created or
+  /// refreshed).
+  @HiveField(3)
+  final PreciseDateTime lastActivatedAt;
 }
 
-/// Unique authentication token of a [Session].
+/// Type of [Session]'s ID.
+@HiveType(typeId: ModelTypeId.sessionId)
+class SessionId extends NewType<String> {
+  const SessionId(super.val);
+}
+
+/// Type of [MyUser]'s user agent.
+///
+/// Its values are always considered to be non-empty, and meet the following
+/// requirements:
+/// - consist only from ASCII characters;
+/// - contain at least one non-space-like character.
+@HiveType(typeId: ModelTypeId.userAgent)
+class UserAgent extends NewType<String> {
+  const UserAgent(super.val);
+}
+
+/// Token used for authenticating a [Session].
 @HiveType(typeId: ModelTypeId.accessToken)
-class AccessToken extends NewType<String> {
-  const AccessToken(super.val);
-}
+class AccessToken {
+  const AccessToken(this.secret, this.expireAt);
 
-/// Remembered session of a [MyUser] allowing to renew his [Session]s.
-@HiveType(typeId: ModelTypeId.rememberedSession)
-class RememberedSession extends HiveObject {
-  RememberedSession(this.token, this.expireAt);
-
-  /// Unique [RefreshToken] of this [RememberedSession].
+  /// Secret part of this [AccessToken].
   ///
-  /// This one should be used for a [Session] renewal and is **NOT** usable as a
-  /// [Bearer authentication token][1].
+  /// This one should be used as a [Bearer authentication token][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
   @HiveField(0)
-  final RefreshToken token;
+  final AccessTokenSecret secret;
 
-  /// [PreciseDateTime] of this [RememberedSession] expiration.
+  /// [DateTime] of this [AccessToken] expiration.
   ///
-  /// Once expired, it's not usable anymore and a new [RememberedSession]
-  /// should be created.
+  /// Once expired, it's not usable anymore and the [Session] should be
+  /// refreshed to get a new [AccessToken].
+  ///
+  /// Client applications are supposed to use this field for tracking
+  /// [AccessToken]'s expiration and refresh the [Session] before an
+  /// authentication error occurs.
   @HiveField(1)
   final PreciseDateTime expireAt;
 }
 
-/// Type of a [RememberedSession]'s refresh token.
-@HiveType(typeId: ModelTypeId.rememberedToken)
-class RefreshToken extends NewType<String> {
-  const RefreshToken(super.val);
+/// Type of [AccessToken]'s secret.
+@HiveType(typeId: ModelTypeId.accessTokenSecret)
+class AccessTokenSecret extends NewType<String> {
+  const AccessTokenSecret(super.val);
 }
 
-/// Container of a [Session] and a [RememberedSession] representing the current
+/// Token used for refreshing a [Session].
+@HiveType(typeId: ModelTypeId.refreshToken)
+class RefreshToken {
+  const RefreshToken(this.secret, this.expireAt);
+
+  /// Secret part of this [RefreshToken].
+  ///
+  /// This one should be used for refreshing the [Session] renewal and is
+  /// **NOT** usable as a [Bearer authentication token][1].
+  ///
+  /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
+  @HiveField(0)
+  final RefreshTokenSecret secret;
+
+  /// [DateTime] of this [RefreshToken] expiration.
+  ///
+  /// Once expired, it's not usable anymore and a new [Session] should be
+  /// renewed to get a new [RefreshToken].
+  ///
+  /// Client applications are supposed to use this field for tracking
+  /// [RefreshToken]'s expiration and sign out [MyUser]s properly.
+  ///
+  /// Expiration of a [RefreshToken] is not prolonged on refreshing, and remains
+  /// the same for all the [RefreshToken]s obtained.
+  @HiveField(1)
+  final PreciseDateTime expireAt;
+}
+
+/// Type of [RefreshToken]'s secret.
+@HiveType(typeId: ModelTypeId.refreshTokenSecret)
+class RefreshTokenSecret extends NewType<String> {
+  const RefreshTokenSecret(super.val);
+}
+
+/// Container of a [AccessToken] and a [RefreshToken] representing the current
 /// [MyUser] credentials.
 @HiveType(typeId: ModelTypeId.credentials)
 class Credentials {
-  const Credentials(this.session, this.rememberedSession, this.userId);
+  const Credentials(this.access, this.refresh, this.userId);
 
-  /// [Session] of these [Credentials].
+  /// Created or refreshed [AccessToken] for authenticating the [Session].
+  ///
+  /// It will expire in 30 minutes after creation.
   @HiveField(0)
-  final Session session;
+  final AccessToken access;
 
-  /// [RememberedSession] of these [Credentials].
+  /// [RefreshToken] of these [Credentials].
   @HiveField(1)
-  final RememberedSession rememberedSession;
+  final RefreshToken refresh;
 
   /// ID of the currently authenticated [MyUser].
   @HiveField(2)
@@ -93,13 +158,13 @@ class Credentials {
   /// Constructs [Credentials] from the provided [data].
   factory Credentials.fromJson(Map<dynamic, dynamic> data) {
     return Credentials(
-      Session(
-        AccessToken(data['session']['token']),
-        PreciseDateTime.parse(data['session']['expireAt']),
+      AccessToken(
+        AccessTokenSecret(data['access']['secret']),
+        PreciseDateTime.parse(data['access']['expireAt']),
       ),
-      RememberedSession(
-        RefreshToken(data['remembered']['token']),
-        PreciseDateTime.parse(data['remembered']['expireAt']),
+      RefreshToken(
+        RefreshTokenSecret(data['refresh']['secret']),
+        PreciseDateTime.parse(data['refresh']['expireAt']),
       ),
       UserId(data['userId']),
     );
@@ -108,13 +173,13 @@ class Credentials {
   /// Returns a [Map] containing data of these [Credentials].
   Map<String, dynamic> toJson() {
     return {
-      'session': {
-        'token': session.token.val,
-        'expireAt': session.expireAt.toString(),
+      'access': {
+        'secret': access.secret.val,
+        'expireAt': access.expireAt.toString(),
       },
-      'remembered': {
-        'token': rememberedSession.token.val,
-        'expireAt': rememberedSession.expireAt.toString(),
+      'refresh': {
+        'secret': refresh.secret.val,
+        'expireAt': refresh.expireAt.toString(),
       },
       'userId': userId.val,
     };

@@ -44,21 +44,21 @@ class CallCredentialsHiveProvider
 
   /// Puts the provided [ChatCallCredentials] to [Hive].
   Future<void> put(ChatItemId id, ChatCallCredentials creds) async {
-    Log.debug('put($id, $creds)', '$runtimeType');
+    Log.trace('put($id, $creds)', '$runtimeType');
     await putSafe(id.val, creds);
   }
 
   /// Returns the [ChatCallCredentials] from [Hive] by the provided
   /// [ChatItemId].
   ChatCallCredentials? get(ChatItemId id) {
-    Log.debug('get($id)', '$runtimeType');
+    Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   /// Removes the [ChatCallCredentials] from [Hive] by the provided
   /// [ChatItemId].
   Future<void> remove(ChatItemId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
 }

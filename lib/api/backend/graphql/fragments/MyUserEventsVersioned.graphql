@@ -95,6 +95,10 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             email
             at
         }
+        ... on EventUserLoginDeleted {
+            userId
+            at
+        }
         ... on EventUserLoginUpdated {
             userId
             login
@@ -123,6 +127,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
         }
         ... on EventUserCameOffline {
             userId
+            at
         }
         ... on EventUserPasswordUpdated {
             userId

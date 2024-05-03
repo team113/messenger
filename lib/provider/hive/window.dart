@@ -39,13 +39,13 @@ class WindowPreferencesHiveProvider
 
   /// Returns the stored [WindowPreferences] from [Hive].
   WindowPreferences? get() {
-    Log.debug('get()', '$runtimeType');
+    Log.trace('get()', '$runtimeType');
     return getSafe(0);
   }
 
   /// Stores the new [WindowPreferences] to [Hive].
   void set({Size? size, Offset? position}) {
-    Log.debug('set($size, $position)', '$runtimeType');
+    Log.trace('set($size, $position)', '$runtimeType');
 
     final WindowPreferences? stored = get();
     putSafe(

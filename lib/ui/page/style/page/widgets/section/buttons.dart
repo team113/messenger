@@ -56,7 +56,7 @@ class ButtonsSection {
             widget: MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
-              leading: const SvgIcon(SvgIcons.frontend),
+              leading: const SvgIcon(SvgIcons.workFlutter),
               inverted: false,
               onPressed: () {},
             ),
@@ -66,7 +66,7 @@ class ButtonsSection {
             widget: MenuButton(
               title: 'Title',
               subtitle: 'Subtitle',
-              leading: const SvgIcon(SvgIcons.frontendWhite),
+              leading: const SvgIcon(SvgIcons.workFlutter),
               inverted: true,
               onPressed: () {},
             ),

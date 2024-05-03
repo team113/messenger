@@ -38,6 +38,7 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
 import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
@@ -142,14 +143,21 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();
-  credentialsProvider.set(
+  final accountProvider = AccountHiveProvider();
+  await accountProvider.init();
+  final myUserProvider = MyUserHiveProvider();
+  await myUserProvider.init();
+  await myUserProvider.clear();
+
+  accountProvider.set(const UserId('me'));
+  credentialsProvider.put(
     Credentials(
-      Session(
-        const AccessToken('token'),
+      AccessToken(
+        const AccessTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
-      RememberedSession(
-        const RefreshToken('token'),
+      RefreshToken(
+        const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
       const UserId('me'),
@@ -171,7 +179,15 @@ void main() async {
   );
 
   AuthService authService = Get.put(
-    AuthService(AuthRepository(graphQlProvider), credentialsProvider),
+    AuthService(
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
+      credentialsProvider,
+      accountProvider,
+    ),
   );
   authService.init();
 
@@ -223,9 +239,6 @@ void main() async {
   await blocklistProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
-  var myUserProvider = Get.put(MyUserHiveProvider());
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -428,6 +441,7 @@ void main() async {
         myUserProvider,
         blocklistRepository,
         userRepository,
+        accountProvider,
       ),
     );
     Get.put(MyUserService(authService, myUserRepository));
@@ -443,7 +457,7 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    final editLink = find.byKey(const Key('EditLinkButton'));
+    final editLink = find.byKey(const Key('CreateLinkButton'));
     await tester.dragUntilVisible(
       editLink,
       find.byKey(const Key('ChatInfoScrollable')),
@@ -451,29 +465,11 @@ void main() async {
     );
 
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('EditLinkButton')));
+    await tester.tap(find.byKey(const Key('CreateLinkButton')));
     await tester.pumpAndSettle();
 
-    final link = find.byKey(const Key('LinkField'), skipOffstage: false);
-    await tester.dragUntilVisible(
-      link,
-      find.byKey(const Key('ChatInfoScrollable')),
-      const Offset(1, 0),
-    );
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(link);
-    await tester.pumpAndSettle();
-
-    await tester.enterText(link, 'newlink');
-    await tester.pumpAndSettle();
-
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-
+    await tester.tap(find.byKey(const Key('SaveLinkButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.byIcon(Icons.check), findsNothing);
 
     verify(graphQlProvider.createChatDirectLink(
       any,

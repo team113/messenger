@@ -27,7 +27,7 @@ import 'base.dart';
 /// [Hive] storage for a [Credentials].
 class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
   @override
-  Stream<BoxEvent> get boxEvents => box.watch(key: 0);
+  Stream<BoxEvent> get boxEvents => box.watch();
 
   @override
   String get boxName => 'credentials';
@@ -37,23 +37,33 @@ class CredentialsHiveProvider extends HiveBaseProvider<Credentials> {
     Log.debug('registerAdapters()', '$runtimeType');
 
     Hive.maybeRegisterAdapter(AccessTokenAdapter());
+    Hive.maybeRegisterAdapter(AccessTokenAdapter());
+    Hive.maybeRegisterAdapter(AccessTokenSecretAdapter());
     Hive.maybeRegisterAdapter(CredentialsAdapter());
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RefreshTokenAdapter());
-    Hive.maybeRegisterAdapter(RememberedSessionAdapter());
+    Hive.maybeRegisterAdapter(RefreshTokenSecretAdapter());
     Hive.maybeRegisterAdapter(SessionAdapter());
+    Hive.maybeRegisterAdapter(SessionIdAdapter());
+    Hive.maybeRegisterAdapter(UserAgentAdapter());
     Hive.maybeRegisterAdapter(UserIdAdapter());
   }
 
-  /// Returns the stored [Credentials] from [Hive].
-  Credentials? get() {
-    Log.debug('getCredentials()', '$runtimeType');
-    return getSafe(0);
+  /// Returns [Credentials] from [Hive] by its [id].
+  Credentials? get(UserId id) {
+    Log.trace('get($id)', '$runtimeType');
+    return getSafe(id.val);
   }
 
-  /// Stores new [Credentials] to [Hive].
-  Future<void> set(Credentials credentials) async {
-    Log.debug('setCredentials($credentials)', '$runtimeType');
-    await putSafe(0, credentials);
+  /// Saves the provided [Credentials] to [Hive].
+  Future<void> put(Credentials credentials) async {
+    Log.trace('put($credentials)', '$runtimeType');
+    await putSafe(credentials.userId.val, credentials);
+  }
+
+  /// Removes [Credentials] from [Hive] by its [id].
+  Future<void> remove(UserId id) async {
+    Log.trace('remove($id)', '$runtimeType');
+    await deleteSafe(id.val);
   }
 }

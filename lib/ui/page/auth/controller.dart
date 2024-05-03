@@ -17,7 +17,9 @@
 
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/service/auth.dart';
 import '/routes.dart';
@@ -38,8 +40,21 @@ class AuthController extends GetxController {
   /// [Timer] periodically increasing the [logoFrame].
   Timer? _animationTimer;
 
+  /// [Sentry] transaction monitoring this [AuthController] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.auth.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
+
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  @override
+  void onReady() {
+    SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    super.onReady();
+  }
 
   @override
   void onClose() {

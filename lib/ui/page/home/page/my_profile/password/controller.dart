@@ -155,13 +155,10 @@ class ChangePasswordController extends GetxController {
   Future<void> changePassword() async {
     if (myUser.value?.hasPassword == true) {
       oldPassword.focus.unfocus();
-      oldPassword.submit();
     }
 
     newPassword.focus.unfocus();
-    newPassword.submit();
     repeatPassword.focus.unfocus();
-    repeatPassword.submit();
 
     if (myUser.value?.hasPassword == true) {
       if (oldPassword.error.value != null) {

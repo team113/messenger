@@ -45,7 +45,7 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Puts the provided [ChatId] by the provided [key] to [Hive].
   Future<void> put(ChatFavoritePosition key, ChatId item) async {
-    Log.debug('put($key, $item)', '$runtimeType');
+    Log.trace('put($key, $item)', '$runtimeType');
 
     final String i = '${key.toPlainString()}_$item';
 
@@ -63,7 +63,7 @@ class FavoriteChatHiveProvider extends HiveBaseProvider<ChatId> {
 
   /// Removes the provided [ChatId] from [Hive].
   Future<void> remove(ChatId item) async {
-    Log.debug('remove($item)', '$runtimeType');
+    Log.trace('remove($item)', '$runtimeType');
 
     await _mutex.protect(() async {
       final int index = values.toList().indexOf(item);

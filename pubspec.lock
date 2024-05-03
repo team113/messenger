@@ -177,14 +177,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.9.1"
-  callkeep:
-    dependency: "direct main"
-    description:
-      name: callkeep
-      sha256: "9e86e9632a603a61f7045c179ea5ca0ee4da0a49fc5f80c2fe09fb422b96d3c6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.3"
   characters:
     dependency: transitive
     description:
@@ -480,38 +472,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
-  flutter_background_service:
+  flutter_callkit_incoming:
     dependency: "direct main"
     description:
-      name: flutter_background_service
-      sha256: "7b9f15ab7d1a5784850ecfde722be4ace4dbcf1072a1fe33b7f9cbe871241e53"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.6"
-  flutter_background_service_android:
-    dependency: "direct main"
-    description:
-      name: flutter_background_service_android
-      sha256: "57fd631d800f7e56ca5bfadcfc00c8903eb721b23506b1a387342039521883ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.3"
-  flutter_background_service_ios:
-    dependency: "direct main"
-    description:
-      name: flutter_background_service_ios
-      sha256: d3f1dc009137c1ac19f5e3d88668836f088a7e078396733547339765d46ff12f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
-  flutter_background_service_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_background_service_platform_interface
-      sha256: "5f0480ee8378984f718d640abbe09b4d6d024d58a72b2d8b86bdedb3cf095ff8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: c8310b00a27eb5e49329ee6e37fa79f0b306113d
+      url: "https://github.com/SleepySquash/flutter_callkit_incoming_android"
+    source: git
+    version: "2.0.4"
   flutter_custom_cursor:
     dependency: "direct main"
     description:
@@ -665,6 +634,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_widget_from_html_core:
+    dependency: "direct main"
+    description:
+      name: flutter_widget_from_html_core
+      sha256: "028f4989b9ff4907466af233d50146d807772600d98a3e895662fbdb09c39225"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.11"
   flutter_xlider:
     dependency: "direct main"
     description:
@@ -1619,10 +1596,10 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: d2ee9c850d876d285f22e2e662f400ec2438df9939fe4acd5d780df9841794ce
+      sha256: a460aa48568d47140dd0557410b624d344ffb8c05555107ac65035c1097cf1ad
       url: "https://pub.dev"
     source: hosted
-    version: "7.16.1"
+    version: "7.18.0"
   sentry_dart_plugin:
     dependency: "direct dev"
     description:
@@ -1635,10 +1612,10 @@ packages:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "5b428c189c825f16fb14e9166529043f06b965d5b59bfc3a1415e39c082398c0"
+      sha256: "3d0d1d4e0e407d276ae8128d123263ccbc37e988bae906765efd6f37d544f4c6"
       url: "https://pub.dev"
     source: hosted
-    version: "7.16.1"
+    version: "7.18.0"
   share_plus:
     dependency: "direct main"
     description:

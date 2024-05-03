@@ -65,19 +65,19 @@ class ContactHiveProvider extends HiveLazyProvider<HiveChatContact>
 
   @override
   Future<void> put(HiveChatContact contact) async {
-    Log.debug('put($contact)', '$runtimeType');
+    Log.trace('put($contact)', '$runtimeType');
     await putSafe(contact.value.id.val, contact);
   }
 
   @override
   Future<HiveChatContact?> get(ChatContactId id) {
-    Log.debug('get($id)', '$runtimeType');
+    Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
 
   @override
   Future<void> remove(ChatContactId id) async {
-    Log.debug('remove($id)', '$runtimeType');
+    Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
 }

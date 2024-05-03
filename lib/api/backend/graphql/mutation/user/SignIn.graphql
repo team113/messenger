@@ -33,17 +33,19 @@ mutation SignIn(
         ... on CreateSessionOk {
             user {
                 __typename
-                id
+                ...MyUser
+            }
+            accessToken {
+                __typename
+                ...AccessToken
+            }
+            refreshToken {
+                __typename
+                ...RefreshToken
             }
             session {
-                expireAt
-                token
-                ver
-            }
-            remembered {
-                expireAt
-                token
-                ver
+                __typename
+                ...Session
             }
         }
         ... on CreateSessionError {

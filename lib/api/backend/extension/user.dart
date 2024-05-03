@@ -15,11 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../schema.dart';
+import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/provider/hive/user.dart';
 import 'file.dart';
 

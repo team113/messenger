@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,6 +29,8 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
+import 'privacy_policy/view.dart';
+import 'terms_of_use/view.dart';
 import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
@@ -175,14 +178,16 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.newPassword.isEmpty.value ||
-                          c.repeatPassword.isEmpty.value
-                      ? null
-                      : c.resetUserPassword,
-                ),
+                Obx(() {
+                  final bool enabled = !c.newPassword.isEmpty.value &&
+                      !c.repeatPassword.isEmpty.value;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: 'btn_proceed'.l10n,
+                    onPressed: enabled ? c.resetUserPassword : null,
+                  );
+                }),
               ];
               break;
 
@@ -235,8 +240,9 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled =
-                      !c.emailCode.isEmpty.value && c.codeTimeout.value == 0;
+                  final bool enabled = !c.emailCode.isEmpty.value &&
+                      c.codeTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),
@@ -264,6 +270,7 @@ class LoginView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
@@ -303,7 +310,8 @@ class LoginView extends StatelessWidget {
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
+                _terms(context),
               ];
               break;
 
@@ -333,7 +341,10 @@ class LoginView extends StatelessWidget {
                         ? SvgIcons.visibleOff
                         : SvgIcons.visibleOn,
                   ),
-                  subtitle: WidgetButton(
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(21, 8, 8, 8),
+                  child: WidgetButton(
                     onPressed: () {
                       c.recovery.clear();
                       c.recoveryCode.clear();
@@ -353,7 +364,8 @@ class LoginView extends StatelessWidget {
                 Obx(() {
                   final bool enabled = !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
-                      c.signInTimeout.value == 0;
+                      c.signInTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
@@ -384,7 +396,7 @@ class LoginView extends StatelessWidget {
                   icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
                 ),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -400,7 +412,12 @@ class LoginView extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 25 / 2),
-                PrimaryButton(title: 'btn_guest'.l10n, onPressed: c.register),
+                Obx(() {
+                  return PrimaryButton(
+                    title: 'btn_guest'.l10n,
+                    onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+                  );
+                }),
                 const SizedBox(height: 16),
               ];
               break;
@@ -430,6 +447,42 @@ class LoginView extends StatelessWidget {
           );
         });
       },
+    );
+  }
+
+  /// Builds the legal disclaimer information.
+  Widget _terms(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms1'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms2'.l10n,
+            style: style.fonts.small.regular.primary,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => TermsOfUseView.show(context),
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms3'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms4'.l10n,
+            style: style.fonts.small.regular.primary,
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => PrivacyPolicy.show(context),
+          ),
+          TextSpan(
+            text: 'alert_by_proceeding_you_accept_terms5'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ],
+      ),
     );
   }
 }

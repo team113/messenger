@@ -19,7 +19,9 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -83,10 +85,21 @@ class _HomeViewState extends State<HomeView> {
   /// [ChildBackButtonDispatcher] to get "Back" button in the nested [Router].
   late ChildBackButtonDispatcher _backButtonDispatcher;
 
+  /// [Sentry] transaction monitoring this [HomeView] readiness.
+  final ISentrySpan _ready = Sentry.startTransaction(
+    'ui.home.ready',
+    'ui',
+    autoFinishAfter: const Duration(minutes: 2),
+  )..startChild('ready');
+
   @override
   void initState() {
     super.initState();
-    widget._depsFactory().then((v) => setState(() => _deps = v));
+
+    widget._depsFactory().then((v) {
+      setState(() => _deps = v);
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+    });
   }
 
   @override
@@ -199,72 +212,72 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
+                        final List<HomeTab> tabs =
+                            c.tabs.where((e) => e != HomeTab.contacts).toList();
+
                         return AnimatedSlider(
                           duration: 300.milliseconds,
                           isOpen: router.navigation.value,
                           beginOffset: const Offset(0.0, 5),
                           translate: false,
-                          child: Obx(() {
-                            return CustomNavigationBar(
-                              key: c.panelKey,
-                              items: c.tabs.map((e) {
-                                switch (e) {
-                                  case HomeTab.work:
-                                    return const CustomNavigationBarItem.work();
+                          child: CustomNavigationBar(
+                            key: c.panelKey,
+                            items: tabs.map((e) {
+                              switch (e) {
+                                case HomeTab.work:
+                                  return const CustomNavigationBarItem.work();
 
-                                  case HomeTab.contacts:
-                                    return const CustomNavigationBarItem
-                                        .contacts();
+                                case HomeTab.contacts:
+                                  return const CustomNavigationBarItem
+                                      .contacts();
 
-                                  case HomeTab.chats:
-                                    return Obx(() {
-                                      return CustomNavigationBarItem.chats(
-                                        unread: c.unreadChats.value.toString(),
-                                        danger: c.myUser.value?.muted == null,
-                                        selector: c.chatsKey,
-                                        onMute: c.toggleMute,
-                                      );
-                                    });
+                                case HomeTab.chats:
+                                  return Obx(() {
+                                    return CustomNavigationBarItem.chats(
+                                      unread: c.unreadChats.value.toString(),
+                                      danger: c.myUser.value?.muted == null,
+                                      selector: c.chatsKey,
+                                      onMute: c.toggleMute,
+                                    );
+                                  });
 
-                                  case HomeTab.menu:
-                                    return Obx(() {
-                                      return CustomNavigationBarItem.menu(
-                                        acceptAuxiliary:
-                                            style.colors.acceptAuxiliary,
-                                        warning: style.colors.warning,
-                                        onPresence: c.setPresence,
-                                        onAvatar: c.updateAvatar,
-                                        selector: c.panelKey,
-                                        myUser: c.myUser.value,
-                                        actions: [
-                                          ContextMenuBuilder(
-                                            (_) => Obx(() {
-                                              final hasWork = c.settings.value
-                                                      ?.workWithUsTabEnabled ==
-                                                  true;
+                                case HomeTab.menu:
+                                  return Obx(() {
+                                    return CustomNavigationBarItem.menu(
+                                      acceptAuxiliary:
+                                          style.colors.acceptAuxiliary,
+                                      warning: style.colors.warning,
+                                      onPresence: c.setPresence,
+                                      onAvatar: c.updateAvatar,
+                                      selector: c.panelKey,
+                                      myUser: c.myUser.value,
+                                      actions: [
+                                        ContextMenuBuilder(
+                                          (_) => Obx(() {
+                                            final hasWork = c.settings.value
+                                                    ?.workWithUsTabEnabled ==
+                                                true;
 
-                                              return ContextMenuTile(
-                                                asset: SvgIcons.partner,
-                                                label:
-                                                    'label_work_with_us'.l10n,
-                                                pinned: hasWork,
-                                                onPressed: (_) =>
-                                                    c.setWorkWithUsTabEnabled(
-                                                  !hasWork,
-                                                ),
-                                              );
-                                            }),
-                                          ),
-                                          const ContextMenuDivider(),
-                                        ],
-                                      );
-                                    });
-                                }
-                              }).toList(),
-                              currentIndex: c.tabs.indexOf(router.tab),
-                              onTap: (i) => c.pages.jumpToPage(c.tabs[i].index),
-                            );
-                          }),
+                                            return ContextMenuTile(
+                                              asset: SvgIcons.partner,
+                                              label: 'label_work_with_us'.l10n,
+                                              pinned: hasWork,
+                                              onPressed: (_) =>
+                                                  c.setWorkWithUsTabEnabled(
+                                                !hasWork,
+                                              ),
+                                            );
+                                          }),
+                                        ),
+                                        const ContextMenuDivider(),
+                                      ],
+                                    );
+                                  });
+                              }
+                            }).toList(),
+                            currentIndex: tabs.indexOf(router.tab),
+                            onTap: (i) => c.pages.jumpToPage(tabs[i].index),
+                          ),
                         );
                       }),
                     ),

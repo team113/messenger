@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/api/backend/extension/credentials.dart';
+import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
@@ -26,16 +27,28 @@ import '/domain/repository/auth.dart';
 import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/provider/hive/credentials.dart';
+import '/provider/hive/my_user.dart';
 import '/util/log.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
 /// All methods may throw [ConnectionException], [GraphQlException].
 class AuthRepository implements AbstractAuthRepository {
-  AuthRepository(this._graphQlProvider);
+  AuthRepository(
+    this._graphQlProvider,
+    this._myUserProvider,
+    this._credentialsProvider,
+  );
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
+
+  /// [MyUserHiveProvider] for removing [MyUser]s.
+  final MyUserHiveProvider _myUserProvider;
+
+  /// [CredentialsHiveProvider] for removing [Credentials].
+  final CredentialsHiveProvider _credentialsProvider;
 
   // TODO: Temporary solution, wait for support from backend.
   /// [Credentials] of [Session] created with [signUpWithEmail] returned in
@@ -43,7 +56,7 @@ class AuthRepository implements AbstractAuthRepository {
   Credentials? _signUpCredentials;
 
   @override
-  set token(AccessToken? token) {
+  set token(AccessTokenSecret? token) {
     Log.debug('set token($token)', '$runtimeType');
 
     _graphQlProvider.token = token;
@@ -71,6 +84,9 @@ class AuthRepository implements AbstractAuthRepository {
     Log.debug('signUp()', '$runtimeType');
 
     final response = await _graphQlProvider.signUp();
+
+    _myUserProvider.put(response.createUser.user.toHive());
+
     return response.toModel();
   }
 
@@ -89,6 +105,9 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response =
         await _graphQlProvider.signIn(password, login, num, email, phone);
+
+    _myUserProvider.put(response.user.toHive());
+
     return response.toModel();
   }
 
@@ -100,11 +119,13 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response = await _graphQlProvider.signUp();
 
+    _myUserProvider.put(response.createUser.user.toHive());
+
     _signUpCredentials = response.toModel();
 
     await _graphQlProvider.addUserEmail(
       email,
-      raw: RawClientOptions(_signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
   }
 
@@ -120,7 +141,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     await _graphQlProvider.confirmEmailCode(
       code,
-      raw: RawClientOptions(_signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
     return _signUpCredentials!;
   }
@@ -134,18 +155,28 @@ class AuthRepository implements AbstractAuthRepository {
     }
 
     await _graphQlProvider.resendEmail(
-      raw: RawClientOptions(_signUpCredentials!.session.token),
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
   }
 
   @override
-  Future<void> logout([FcmRegistrationToken? fcmRegistrationToken]) async {
-    Log.debug('logout($fcmRegistrationToken)', '$runtimeType');
+  Future<void> deleteSession([
+    FcmRegistrationToken? fcmRegistrationToken,
+  ]) async {
+    Log.debug('deleteSession($fcmRegistrationToken)', '$runtimeType');
 
     if (fcmRegistrationToken != null) {
       await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
     }
     await _graphQlProvider.deleteSession();
+  }
+
+  @override
+  Future<void> removeAccount(UserId id) async {
+    Log.debug('removeAccount($id)', '$runtimeType');
+
+    await _myUserProvider.remove(id);
+    await _credentialsProvider.remove(id);
   }
 
   @override
@@ -155,13 +186,14 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<Credentials> renewSession(RefreshToken token) {
-    Log.debug('renewSession($token)', '$runtimeType');
+  Future<Credentials> refreshSession(RefreshTokenSecret secret) {
+    Log.debug('refreshSession($secret)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
-      var response = (await _graphQlProvider.renewSession(token)).renewSession
-          as RenewSession$Mutation$RenewSession$RenewSessionOk;
-      _graphQlProvider.token = response.session.token;
+      final response =
+          (await _graphQlProvider.refreshSession(secret)).refreshSession
+              as RefreshSession$Mutation$RefreshSession$CreateSessionOk;
+      _graphQlProvider.token = response.accessToken.secret;
       _graphQlProvider.reconnect();
       return response.toModel();
     });

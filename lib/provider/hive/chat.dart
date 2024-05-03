@@ -102,6 +102,7 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
     Hive.maybeRegisterAdapter(PreciseDateTimeAdapter());
     Hive.maybeRegisterAdapter(RecentChatsCursorAdapter());
     Hive.maybeRegisterAdapter(SendingStatusAdapter());
+    Hive.maybeRegisterAdapter(ThumbHashAdapter());
     Hive.maybeRegisterAdapter(UserAdapter());
   }
 
@@ -113,19 +114,19 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
 
   @override
   Future<void> put(HiveChat item) async {
-    Log.debug('put($item)', '$runtimeType');
+    Log.trace('put($item)', '$runtimeType');
     await putSafe(item.value.id.val, item);
   }
 
   @override
   Future<HiveChat?> get(ChatId key) async {
-    Log.debug('get($key)', '$runtimeType');
+    Log.trace('get($key)', '$runtimeType');
     return await getSafe(key.val);
   }
 
   @override
   Future<void> remove(ChatId key) async {
-    Log.debug('remove($key)', '$runtimeType');
+    Log.trace('remove($key)', '$runtimeType');
     await deleteSafe(key.val);
   }
 }
