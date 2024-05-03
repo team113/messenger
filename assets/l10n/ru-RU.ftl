@@ -169,15 +169,15 @@ btn_cancel = Отменить
 btn_call_video_on_desc =
     Включить
     камеру
-btn_change = Сменить
+btn_change = Изменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_clear_cache = Очистить кэш
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
-btn_copy = Скопировать
-btn_copy_text = Скопировать текст
+btn_copy = Копировать
+btn_copy_text = Копировать текст
 btn_create = Создать
 btn_create_group = Создать группу
 btn_decline = Отклонить
@@ -804,6 +804,7 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
+label_info = Информация
 label_introduction_description1 =
     Доступ к гостевому аккаунту сохраняется в течение одного года или пока:
 

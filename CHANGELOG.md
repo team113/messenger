@@ -14,6 +14,12 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Chat page:
+        - Redesigned avatar, name and link editing. ([#980], [#948])
+    - User page:
+        - Redesigned avatar and name editing. ([#980], [#948])
+    - Profile page:
+        - Redesigned avatar and link editing. ([#980], [#948])
     - Update available popup displaying critical updates. ([#973], [#896])
 
 ### Fixed
@@ -21,11 +27,17 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Own avatar displaying with question marks when signing in or signing up. ([#978], [#950])
+    - Chat page:
+        - Tapping on image opens gallery when being in context menu. ([#983], [#979])
 
 [#896]: /../../issues/896
+[#948]: /../../issues/948
 [#950]: /../../issues/950
 [#973]: /../../pull/973
 [#978]: /../../pull/978
+[#979]: /../../issues/979
+[#980]: /../../pull/980
+[#983]: /../../pull/983
 
 
 
