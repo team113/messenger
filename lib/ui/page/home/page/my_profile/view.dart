@@ -872,7 +872,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
             final List<Session> sessions = c.sessions.toList();
 
             final Session? current =
-            sessions.firstWhereOrNull((e) => e.isCurrent);
+                sessions.firstWhereOrNull((e) => e.isCurrent);
 
             if (current != null) {
               sessions.remove(current);
