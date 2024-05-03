@@ -72,9 +72,6 @@ class AddEmailController extends GetxController {
   void onInit() {
     code = TextFieldState(
       onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
         if (s.text.isNotEmpty) {
           try {
             ConfirmationCode(s.text);
@@ -96,7 +93,8 @@ class AddEmailController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserEmailException catch (e) {
-            if (e.code == ConfirmUserEmailErrorCode.occupied) {
+            if (e.code == ConfirmUserEmailErrorCode.occupied ||
+                e.code == ConfirmUserEmailErrorCode.artemisUnknown) {
               s.resubmitOnError.value = true;
             }
 

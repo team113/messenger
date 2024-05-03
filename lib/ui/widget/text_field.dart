@@ -565,6 +565,7 @@ class TextFieldState extends ReactiveFieldState {
 
         prev = controller.text;
         this.error.value = null;
+        resubmitOnError.value = false;
       }
     });
 
@@ -572,8 +573,7 @@ class TextFieldState extends ReactiveFieldState {
       isFocused.value = this.focus.hasFocus;
 
       if (onFocus != null) {
-        if (controller.text != _previousText &&
-            (_previousText != null || controller.text.isNotEmpty)) {
+        if (_previousText != null || controller.text.isNotEmpty) {
           isEmpty.value = controller.text.isEmpty;
           if (!this.focus.hasFocus) {
             onFocus?.call(this);

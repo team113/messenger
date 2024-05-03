@@ -188,9 +188,6 @@ class MyProfileController extends GetxController {
     phone = TextFieldState(
       approvable: true,
       onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
         if (s.text.isNotEmpty) {
           try {
             final phone = UserPhone(s.text.replaceAll(' ', ''));
@@ -248,9 +245,6 @@ class MyProfileController extends GetxController {
     email = TextFieldState(
       approvable: true,
       onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
         if (s.text.isNotEmpty) {
           try {
             final email = UserEmail(s.text);

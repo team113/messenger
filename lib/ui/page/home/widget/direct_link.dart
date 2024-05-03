@@ -86,8 +86,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       text: widget.link?.slug.val,
       submitted: widget.link != null,
       onFocus: (s) {
-        s.error.value = null;
-
         if (s.text.isNotEmpty) {
           try {
             ChatDirectLinkSlug(s.text);
@@ -458,6 +456,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         _state.error.value = e.toMessage();
       } catch (e) {
         _state.status.value = RxStatus.empty();
+        _state.resubmitOnError.value = true;
         _state.error.value = 'err_data_transfer'.l10n;
         _state.unsubmit();
         rethrow;

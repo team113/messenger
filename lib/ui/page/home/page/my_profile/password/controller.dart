@@ -73,7 +73,6 @@ class ChangePasswordController extends GetxController {
   void onInit() {
     oldPassword = TextFieldState(
       onFocus: (s) {
-        oldPassword.error.value = null;
         repeatPassword.unsubmit();
 
         if (s.text.isNotEmpty) {
@@ -92,7 +91,6 @@ class ChangePasswordController extends GetxController {
 
     newPassword = TextFieldState(
       onChanged: (_) {
-        newPassword.error.value = null;
         repeatPassword.error.value = null;
       },
       onFocus: (s) {
@@ -120,8 +118,6 @@ class ChangePasswordController extends GetxController {
     repeatPassword = TextFieldState(
       onChanged: (_) {
         newPassword.error.value = null;
-        repeatPassword.error.value = null;
-        repeatPassword.resubmitOnError.value = false;
       },
       onFocus: (s) {
         if (s.text.isNotEmpty) {

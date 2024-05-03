@@ -171,29 +171,13 @@ class LoginController extends GetxController {
     );
 
     password = TextFieldState(
-      onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-        s.unsubmit();
-      },
+      onFocus: (s) => s.unsubmit(),
       onSubmitted: (s) => signIn(),
     );
 
-    recovery = TextFieldState(
-      onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-      },
-      onSubmitted: (s) => recoverAccess(),
-    );
+    recovery = TextFieldState(onSubmitted: (s) => recoverAccess());
 
-    recoveryCode = TextFieldState(
-      onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-      },
-      onSubmitted: (s) => validateCode(),
-    );
+    recoveryCode = TextFieldState(onSubmitted: (s) => validateCode());
 
     newPassword = TextFieldState(
       onChanged: (_) {
@@ -208,10 +192,6 @@ class LoginController extends GetxController {
 
     repeatPassword = TextFieldState(
       onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-        newPassword.error.value = null;
-
         if (s.text != newPassword.text && newPassword.isValidated) {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
@@ -221,9 +201,6 @@ class LoginController extends GetxController {
 
     email = TextFieldState(
       onFocus: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
         if (s.text.isNotEmpty) {
           try {
             UserEmail(s.text.toLowerCase());
@@ -262,9 +239,6 @@ class LoginController extends GetxController {
     );
 
     emailCode = TextFieldState(
-      onFocus: (s) {
-        s.resubmitOnError.value = false;
-      },
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {

@@ -67,10 +67,8 @@ class ConfirmLogoutController extends GetxController {
     hasPassword = RxBool(myUser.value?.hasPassword ?? false);
 
     password = TextFieldState(
+      onChanged: (_) => repeat.error.value = null,
       onFocus: (s) {
-        password.error.value = null;
-        repeat.error.value = null;
-
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
@@ -94,9 +92,6 @@ class ConfirmLogoutController extends GetxController {
 
     repeat = TextFieldState(
       onFocus: (s) {
-        password.error.value = null;
-        repeat.error.value = null;
-
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
@@ -156,6 +151,7 @@ class ConfirmLogoutController extends GetxController {
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
     } catch (e) {
+      repeat.resubmitOnError.value = true;
       repeat.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {

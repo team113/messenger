@@ -47,9 +47,6 @@ class _UserNameFieldState extends State<UserNameField> {
   late final TextFieldState _state = TextFieldState(
     text: widget.name?.val,
     onFocus: (s) async {
-      s.error.value = null;
-      s.resubmitOnError.value = false;
-
       if (s.text.isNotEmpty) {
         try {
           UserName(s.text);
@@ -58,18 +55,19 @@ class _UserNameFieldState extends State<UserNameField> {
         }
       }
 
-      if (s.error.value == null) {
+      if (s.error.value == null || s.resubmitOnError.isTrue) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
           await widget.onSubmit?.call(UserName.tryParse(s.text));
-          s.status.value = RxStatus.empty();
         } catch (e) {
           s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
-          s.status.value = RxStatus.empty();
+          s.unsubmit();
+          s.changed.value = true;
           rethrow;
         } finally {
+          s.status.value = RxStatus.empty();
           s.editable.value = true;
         }
       }

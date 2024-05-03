@@ -75,8 +75,6 @@ class AddPhoneController extends GetxController {
   void onInit() {
     code = TextFieldState(
       onFocus: (s) {
-        s.error.value = null;
-
         if (s.text.isNotEmpty) {
           try {
             ConfirmationCode(s.text);
@@ -98,7 +96,8 @@ class AddPhoneController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserPhoneException catch (e) {
-            if (e.code == ConfirmUserPhoneErrorCode.occupied) {
+            if (e.code == ConfirmUserPhoneErrorCode.occupied ||
+                e.code == ConfirmUserPhoneErrorCode.artemisUnknown) {
               s.resubmitOnError.value = true;
             }
 

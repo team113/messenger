@@ -34,16 +34,11 @@ class EraseController extends GetxController {
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login = TextFieldState(
-    onFocus: (s) => s.error.value = null,
     onSubmitted: (s) => password.focus.requestFocus(),
   );
 
   /// [TextFieldState] of a password text input.
   late final TextFieldState password = TextFieldState(
-    onFocus: (s) {
-      s.error.value = null;
-      s.resubmitOnError.value = false;
-    },
     onSubmitted: (s) => signIn(),
   );
 
