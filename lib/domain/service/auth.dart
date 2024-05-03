@@ -64,6 +64,12 @@ class AuthService extends GetxService {
   /// - `status.isSuccess` meaning successful authorization.
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
+  /// [Credentials] of the available accounts.
+  ///
+  /// If there're no [Credentials] for the given [UserId], then their
+  /// [Credentials] should be considered as stale.
+  final RxMap<UserId, Rx<Credentials>> allCredentials = RxMap();
+
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
 
@@ -73,26 +79,9 @@ class AuthService extends GetxService {
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
 
-  /// Map of [Timer]s used to periodically check and refresh [Session]s of
-  /// available accounts.
+  /// [Timer]s used to periodically check and refresh [Session]s of available
+  /// accounts.
   final Map<UserId, Timer> _refreshTimers = {};
-
-  /// Map, storing the [Credentials] of available accounts.
-  ///
-  /// If there's no [Credentials] for the given [UserId], then his [Credentials]
-  /// should be considered as stale.
-  final RxMap<UserId, Rx<Credentials>> allCredentials = RxMap();
-
-  /// Puts the provided [creds] to [allCredentials].
-  void _putCredentials(Credentials creds) {
-    Log.debug('_putCredentials($creds)', '$runtimeType');
-
-    if (allCredentials.containsKey(creds.userId)) {
-      allCredentials[creds.userId]?.value = creds;
-    } else {
-      allCredentials[creds.userId] = Rx(creds);
-    }
-  }
 
   /// [_refreshTimer] interval.
   final Duration _refreshTaskInterval = const Duration(seconds: 30);
@@ -204,6 +193,7 @@ class AuthService extends GetxService {
         '_credentialsSubscription event deleted: ${e.deleted}, ${e.key}',
         '$runtimeType',
       );
+
       if (e.deleted) {
         WebUtils.removeCredentials(UserId(e.key as String));
       } else {
@@ -245,10 +235,7 @@ class AuthService extends GetxService {
   }
 
   /// Returns authorization status of the [MyUser] identified by the provided
-  /// [UserId].
-  ///
-  /// Returns authorization status of the active [MyUser] if [userId] is not
-  /// provided.
+  /// [UserId], if [userId] is non-`null`, or of the active [MyUser] otherwise.
   bool isAuthorized([UserId? userId]) {
     if (userId == null || userId == credentials.value?.userId) {
       return _hasAuthorization;
@@ -627,10 +614,17 @@ class AuthService extends GetxService {
   ///
   /// If none provided, checks the current [credentials].
   Future<bool> validateToken([Credentials? creds]) async {
+    if (creds == null) {
+      Log.debug(
+        'validateToken($creds) with current being: ${credentials.value}',
+        '$runtimeType',
+      );
+    } else {
+      Log.debug('validateToken($creds)', '$runtimeType');
+    }
+
     // If [creds] are not provided, then validate the current [credentials].
     creds ??= credentials.value;
-
-    Log.debug('validateToken($creds)', '$runtimeType');
 
     if (creds == null) {
       return false;
@@ -762,6 +756,17 @@ class AuthService extends GetxService {
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
     return await _authRepository.useChatDirectLink(slug);
+  }
+
+  /// Puts the provided [creds] to [allCredentials].
+  void _putCredentials(Credentials creds) {
+    Log.debug('_putCredentials($creds)', '$runtimeType');
+
+    if (allCredentials.containsKey(creds.userId)) {
+      allCredentials[creds.userId]?.value = creds;
+    } else {
+      allCredentials[creds.userId] = Rx(creds);
+    }
   }
 
   /// Initializes the refresh timers for all the authenticated [MyUser]s.
