@@ -24,9 +24,11 @@
      When I tap `MenuButton` button
      And I scroll `MenuListView` until `Devices` is present
      And I tap `Devices` button
-     And I tap `DeleteSessionButton` button
+     Then I see 2 active sessions
+
+     When I tap `DeleteSessionButton` button
      Then I wait until `PasswordField` is present
 
      When I fill `PasswordField` field with "123"
      And I tap `ProceedButton` button
-     Then I wait until `DeleteSessionButton` is absent
+     Then I see 1 active session

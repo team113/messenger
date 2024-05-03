@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/info_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -65,12 +66,9 @@ class DeleteSessionView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          session.userAgent.deviceName,
-                          style: style.fonts.big.regular.onBackground,
-                        ),
+                      InfoTile(
+                        title: session.lastActivatedAt.val.toRelative(),
+                        content: session.userAgent.deviceName,
                       ),
                       const SizedBox(height: 21),
                       ReactiveTextField(

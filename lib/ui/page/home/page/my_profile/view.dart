@@ -70,7 +70,7 @@ import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
-import 'session/view.dart';
+import 'session/controller.dart';
 import 'widget/background_preview.dart';
 import 'widget/bio.dart';
 import 'widget/login.dart';
