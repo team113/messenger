@@ -656,54 +656,65 @@ class MyUserRepository implements AbstractMyUserRepository {
       final BoxEvent event = _localSubscription!.current;
 
       final UserId id = UserId(event.key);
-      final MyUser? user = event.value?.value;
+      final bool isCurrent = id == (_active?.value ?? myUser.value)?.id;
 
-      if (id == (_active?.value ?? myUser.value)?.id) {
-        if (event.deleted) {
+      if (event.deleted) {
+        if (isCurrent) {
           myUser.value = null;
           _remoteSubscription?.close(immediate: true);
-        } else {
+        }
+
+        myUsers.remove(id);
+      } else {
+        final MyUser user = event.value!.value;
+
+        if (isCurrent) {
           // Copy [event.value], as it always contains the same [MyUser].
-          final MyUser? value = user?.copyWith();
+          final MyUser value = user.copyWith();
 
           // Don't update the [MyUserField]s considered locked in the [_pool], as
           // those events might've been applied optimistically during mutations
           // and await corresponding subscription events to be persisted.
-          if (_pool.lockedWith(MyUserField.name, value?.name)) {
-            value?.name = myUser.value?.name;
+          if (_pool.lockedWith(MyUserField.name, value.name)) {
+            value.name = myUser.value?.name;
           }
 
-          if (_pool.lockedWith(MyUserField.status, value?.status)) {
-            value?.status = myUser.value?.status;
+          if (_pool.lockedWith(MyUserField.status, value.status)) {
+            value.status = myUser.value?.status;
           }
 
-          if (_pool.lockedWith(MyUserField.bio, value?.bio)) {
-            value?.bio = myUser.value?.bio;
+          if (_pool.lockedWith(MyUserField.bio, value.bio)) {
+            value.bio = myUser.value?.bio;
           }
 
-          if (_pool.lockedWith(MyUserField.presence, value?.presence)) {
-            value?.presence = myUser.value?.presence ?? value.presence;
+          if (_pool.lockedWith(MyUserField.presence, value.presence)) {
+            value.presence = myUser.value?.presence ?? value.presence;
           }
 
-          if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
-            value?.muted = myUser.value?.muted;
+          if (_pool.lockedWith(MyUserField.muted, value.muted)) {
+            value.muted = myUser.value?.muted;
           }
 
-          if (_pool.lockedWith(MyUserField.email, value?.emails.unconfirmed)) {
-            value?.emails.unconfirmed = myUser.value?.emails.unconfirmed;
+          if (_pool.lockedWith(MyUserField.email, value.emails.unconfirmed)) {
+            value.emails.unconfirmed = myUser.value?.emails.unconfirmed;
           }
 
-          if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
-            value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
+          if (_pool.lockedWith(MyUserField.phone, value.phones.unconfirmed)) {
+            value.phones.unconfirmed = myUser.value?.phones.unconfirmed;
           }
 
           myUser.value = value;
+          myUsers[id]!.value = value;
+        } else {
+          // This event is not of the currently active [MyUser], so just update
+          // [myUsers].
+          if (myUsers[id] == null) {
+            myUsers[id] = Rx(user);
+          } else {
+            myUsers[id]!.value = user;
+          }
         }
-      } else {
-        // No-op, as those events aren't of the currently active [MyUser].
       }
-
-      _populateMyUsers();
     }
   }
 
