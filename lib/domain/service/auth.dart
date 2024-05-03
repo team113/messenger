@@ -589,7 +589,7 @@ class AuthService extends GetxService {
 
     try {
       if (_shouldRefresh(creds)) {
-        await refreshSession();
+        await refreshSession(userId: creds.userId);
       }
 
       final Credentials? freshCredentials = allCredentials[userId]?.value;
