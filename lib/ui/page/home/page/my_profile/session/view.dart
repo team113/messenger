@@ -67,7 +67,7 @@ class DeleteSessionView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       InfoTile(
-                        title: session.lastActivatedAt.val.toRelative(),
+                        title: session.lastActivatedAt.val.yMdHm,
                         content: session.userAgent.deviceName,
                       ),
                       const SizedBox(height: 21),

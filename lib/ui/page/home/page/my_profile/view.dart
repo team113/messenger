@@ -848,7 +848,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
       child: InfoTile(
         title: session.isCurrent
             ? 'label_this_device'.l10n
-            : session.lastActivatedAt.val.toRelative(),
+            : session.lastActivatedAt.val.yMdHm,
         content: session.userAgent.deviceName,
         trailing: session.isCurrent
             ? null
@@ -861,59 +861,60 @@ Widget _devices(BuildContext context, MyProfileController c) {
     );
   }
 
-  return Paddings.dense(
-    Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 500),
-          child: Scrollbar(
-            controller: c.devicesScrollController,
-            child: Obx(() {
-              final List<Session> sessions = c.sessions.toList();
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 500),
+        child: Scrollbar(
+          controller: c.devicesScrollController,
+          child: Obx(() {
+            final List<Session> sessions = c.sessions.toList();
 
-              final Session? current =
-                  sessions.firstWhereOrNull((e) => e.isCurrent);
+            final Session? current =
+            sessions.firstWhereOrNull((e) => e.isCurrent);
 
-              if (current != null) {
-                sessions.remove(current);
-                sessions.insert(0, current);
-              }
+            if (current != null) {
+              sessions.remove(current);
+              sessions.insert(0, current);
+            }
 
-              return ListView.builder(
-                controller: c.devicesScrollController,
-                shrinkWrap: true,
-                itemCount: sessions.length,
-                itemBuilder: (_, i) {
-                  return Column(
-                    children: [
-                      device(sessions[i]),
-                      const SizedBox(height: 25),
-                    ],
-                  );
-                },
-              );
-            }),
-          ),
+            return ListView.builder(
+              controller: c.devicesScrollController,
+              shrinkWrap: true,
+              itemCount: sessions.length,
+              itemBuilder: (_, i) {
+                return Column(
+                  children: [
+                    device(sessions[i]),
+                    if (i != sessions.length - 1) const SizedBox(height: 25),
+                  ],
+                );
+              },
+            );
+          }),
         ),
-        Obx(() {
-          if (c.sessionsUpdating.isFalse) {
-            return WidgetButton(
+      ),
+      const SizedBox(height: 10),
+      Obx(() {
+        if (c.sessionsUpdating.isFalse) {
+          return Center(
+            child: WidgetButton(
               onPressed: c.updateSessions,
               child: Text(
                 'btn_refresh'.l10n,
                 style: style.fonts.small.regular.primary,
               ),
-            );
-          } else {
-            return const SizedBox.square(
-              dimension: 17,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            );
-          }
-        }),
-      ],
-    ),
+            ),
+          );
+        } else {
+          return const SizedBox.square(
+            dimension: 17,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        }
+      }),
+    ],
   );
 }
 
