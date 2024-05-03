@@ -300,7 +300,7 @@ abstract class RxChat implements Comparable<RxChat> {
   RxBool get inCall;
 
   RxObsList<RxUser> get bots;
-  Future<void> addBot(RxUser user);
+  Future<void> addBot(RxUser user, {bool first = true});
   Future<void> removeBot(RxUser user);
 
   /// Fetches the [Paginated] page around the [item], if specified, or

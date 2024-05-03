@@ -456,26 +456,29 @@ class ChatController extends GetxController {
               send.replied.isNotEmpty) {
             _chatService
                 .sendChatMessage(
-                  chat?.chat.value.id ?? id,
-                  text: send.field.text.trim().isEmpty
-                      ? null
-                      : ChatMessageText(send.field.text.trim()),
-                  repliesTo: send.replied.map((e) => e.value).toList(),
-                  attachments: send.attachments.map((e) => e.value).toList(),
-                )
+              chat?.chat.value.id ?? id,
+              text: send.field.text.trim().isEmpty
+                  ? null
+                  : ChatMessageText(send.field.text.trim()),
+              repliesTo: send.replied.map((e) => e.value).toList(),
+              attachments: send.attachments.map((e) => e.value).toList(),
+            )
                 .then(
-                  (_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3'),
-                  ),
-                )
-                .onError<PostChatMessageException>(
-                  (_, __) => _showBlockedPopup(),
-                  test: (e) => e.code == PostChatMessageErrorCode.blocked,
-                )
-                .onError<UploadAttachmentException>(
-                  (e, _) => MessagePopup.error(e),
-                )
-                .onError<ConnectionException>((e, _) {});
+              (_) {
+                AudioUtils.once(
+                  AudioSource.asset('audio/message_sent.mp3'),
+                );
+              },
+            ).onError<PostChatMessageException>(
+              (_, __) {
+                _showBlockedPopup();
+              },
+              test: (e) => e.code == PostChatMessageErrorCode.blocked,
+            ).onError<UploadAttachmentException>(
+              (e, _) {
+                MessagePopup.error(e);
+              },
+            ).onError<ConnectionException>((e, _) {});
 
             send.clear(unfocus: false);
 
@@ -1048,8 +1051,12 @@ class ChatController extends GetxController {
   Future<void> postCommand(String command, {ChatItem? repliesTo}) async {
     await _chatService.sendChatMessage(
       id,
-      text: ChatMessageText(command),
-      repliesTo: [if (repliesTo != null) repliesTo],
+      text: command.isEmpty
+          ? repliesTo is ChatMessage
+              ? ChatMessageText('${repliesTo.text?.val} [no-bot]')
+              : null
+          : ChatMessageText(command),
+      repliesTo: command.isEmpty ? [] : [if (repliesTo != null) repliesTo],
     );
 
     if (repliesTo is ChatMessage) {

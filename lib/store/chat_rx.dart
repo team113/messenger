@@ -23,8 +23,10 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/domain/service/user.dart';
 import 'package:mutex/mutex.dart';
 
+import '../util/get.dart';
 import '/api/backend/schema.dart'
     show ChatCallFinishReason, ChatKind, PostChatMessageErrorCode;
 import '/domain/model/attachment.dart';
@@ -756,6 +758,46 @@ class HiveRxChat extends RxChat {
         remove(message.value.id);
         _pending.remove(message.value);
         message = event.item as HiveChatMessage;
+
+        if (text?.val.startsWith('/') == false &&
+            text?.val.startsWith('[@bot]') == false &&
+            text?.val.contains('[no-bot]') == false) {
+          if (bots.isNotEmpty) {
+            final msg = message.value as ChatMessage;
+
+            postChatMessage(
+              text: ChatMessageText.bot(
+                localized: {
+                  const Locale('en', 'US'): ChatBotText(
+                    title: 'Translation',
+                    text:
+                        'Detected: English. Your message contains ${msg.text?.val.length} symbols, which will cost in total: \$${1.1 / 100 * (msg.text?.val.length ?? 0)}',
+                    actions: const [
+                      BotAction(
+                        text: 'Translate and send',
+                        command: '/proceed',
+                      ),
+                      BotAction(text: 'Don\'t translate', command: ''),
+                    ],
+                  ),
+                  const Locale('ru', 'RU'): ChatBotText(
+                    title: 'Перевод',
+                    text:
+                        'Определён: Русский. Ваше сообщение содержит ${msg.text?.val.length} символов, перевод будет стоить: \$${1.1 / 100 * (msg.text?.val.length ?? 0)}',
+                    actions: const [
+                      BotAction(
+                        text: 'Перевести и отправить',
+                        command: '/proceed',
+                      ),
+                      BotAction(text: 'Не переводить', command: ''),
+                    ],
+                  ),
+                },
+              ),
+              repliesTo: [msg],
+            );
+          }
+        }
       }
     } catch (e) {
       message.value.status.value = SendingStatus.error;
@@ -981,30 +1023,34 @@ class HiveRxChat extends RxChat {
   final RxObsList<RxUser> bots = RxObsList();
 
   @override
-  Future<void> addBot(RxUser user) async {
+  Future<void> addBot(RxUser user, {bool first = true}) async {
     bots.addIf(!bots.contains(user), user);
 
-    await postChatMessage(
-      text: ChatMessageText.bot(
-        localized: {
-          const Locale('en', 'US'): const ChatBotText(
-            title: 'Translation',
-            text:
-                'Translation service is enabled. Please, [connect your translation.com](https://translation.com) account.',
-          ),
-          const Locale('ru', 'RU'): const ChatBotText(
-            title: 'Перевод',
-            text:
-                'Переводческий сервис подключен. Пожалуйста, [привяжите Ваш translation.com](https://translation.com) аккаунт.',
-          ),
-        },
-      ),
-    );
+    if (first) {
+      await postChatMessage(
+        text: ChatMessageText.bot(
+          localized: {
+            const Locale('en', 'US'): const ChatBotText(
+              title: 'Translation',
+              text:
+                  'Translation service is enabled.  \nCertificated translators in real-time.',
+            ),
+            const Locale('ru', 'RU'): const ChatBotText(
+              title: 'Перевод',
+              text:
+                  'Переводческий сервис подключен.  \nСертифицированные переводчики в режиме реального времени.',
+            ),
+          },
+        ),
+      );
+    }
   }
 
   @override
   Future<void> removeBot(RxUser user) async {
     bots.remove(user);
+
+    await postChatMessage(text: ChatMessageText('/kick @${user.id}'));
   }
 
   @override
@@ -1947,6 +1993,32 @@ class HiveRxChat extends RxChat {
                       final action = msg.action as ChatInfoActionNameUpdated;
                       chatEntity.value.name = action.name;
                       break;
+                  }
+                }
+
+                if (item is HiveChatMessage) {
+                  final msg = item.value as ChatMessage;
+
+                  if (bots.isEmpty) {
+                    if (msg.text?.val.startsWith('[@bot]') == true) {
+                      final userService = Get.findOrNull<UserService>();
+
+                      if (userService != null) {
+                        final search =
+                            userService.search(login: UserLogin('translateit'));
+                        search.around().then((_) {
+                          final user = search.items.values.firstOrNull;
+                          if (user?.isBot ?? false) {
+                            addBot(user!, first: false);
+                          }
+                        });
+                      }
+                    }
+                  } else {
+                    if (msg.text?.val.startsWith('/kick @') == true) {
+                      final id = msg.text!.val.replaceFirst('/kick @', '');
+                      bots.removeWhere((e) => e.id.val == id);
+                    }
                   }
                 }
                 break;

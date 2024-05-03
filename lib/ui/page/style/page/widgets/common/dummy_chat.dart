@@ -136,7 +136,7 @@ class DummyRxChat extends RxChat {
   int compareTo(RxChat other) => 0;
 
   @override
-  Future<void> addBot(RxUser user) {
+  Future<void> addBot(RxUser user, {bool first = false}) {
     // TODO: implement addBot
     throw UnimplementedError();
   }
