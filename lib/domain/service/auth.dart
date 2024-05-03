@@ -621,7 +621,7 @@ class AuthService extends GetxService {
   /// Updates the [sessions] list.
   Future<void> updateSessions() async {
     Log.debug('updateSessions()', '$runtimeType');
-    return await _authRepository.updateSessions();
+    await _authRepository.updateSessions();
   }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
