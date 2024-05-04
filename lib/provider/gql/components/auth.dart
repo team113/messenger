@@ -76,8 +76,17 @@ mixin AuthGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds as no-op if the specified [Session] has been deleted already.
-  Future<void> deleteSession({SessionId? id, UserPassword? password}) async {
-    Log.debug('deleteSession($id, password)', '$runtimeType');
+  Future<void> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    AccessTokenSecret? token,
+  }) async {
+    token ??= this.token;
+
+    Log.debug(
+      'deleteSession(id: $id, password: ***, token: $token)',
+      '$runtimeType',
+    );
 
     if (token != null) {
       final variables = DeleteSessionArguments(id: id, password: password);

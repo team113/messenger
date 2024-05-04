@@ -57,11 +57,14 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Invalidates a [Session] of the [MyUser] identified by the [token].
+  /// Invalidates a [Session] of the [MyUser] identified by the [accessToken].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
-  /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
-  Future<void> deleteSession([FcmRegistrationToken? fcmRegistrationToken]);
+  /// via Firebase Cloud Messaging, if [fcmToken] is provided.
+  Future<void> deleteSession({
+    FcmRegistrationToken? fcmToken,
+    AccessTokenSecret? accessToken,
+  });
 
   /// Deletes the [MyUser] identified by the provided [id] from the accounts.
   Future<void> removeAccount(UserId id);

@@ -536,7 +536,7 @@ class AuthService extends GetxService {
           }
         }
 
-        await _authRepository.deleteSession(fcmToken);
+        await _authRepository.deleteSession(fcmToken: fcmToken);
       } catch (e) {
         printError(info: e.toString());
       }
@@ -604,9 +604,17 @@ class AuthService extends GetxService {
     return false;
   }
 
-  /// Deletes the [MyUser] identified by the provided [id] from the accounts.
+  /// Deletes the [MyUser] identified by the provided [id] from the accounts and 
+  /// invalidates their [Session].
   Future<void> removeAccount(UserId id) async {
     Log.debug('removeAccount($id)', '$runtimeType');
+
+    // Delete [Session] for this account if it's not the current one.
+    final AccessTokenSecret? token = allCredentials[id]?.value.access.secret;
+    if (id != userId && token != null) {
+      await _authRepository.deleteSession(accessToken: token);
+    }
+
     await _authRepository.removeAccount(id);
   }
 

@@ -169,15 +169,16 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> deleteSession([
-    FcmRegistrationToken? fcmRegistrationToken,
-  ]) async {
-    Log.debug('deleteSession($fcmRegistrationToken)', '$runtimeType');
+  Future<void> deleteSession({
+    FcmRegistrationToken? fcmToken,
+    AccessTokenSecret? accessToken,
+  }) async {
+    Log.debug('deleteSession($fcmToken)', '$runtimeType');
 
-    if (fcmRegistrationToken != null) {
-      await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
+    if (fcmToken != null) {
+      await _graphQlProvider.unregisterFcmDevice(fcmToken);
     }
-    await _graphQlProvider.deleteSession();
+    await _graphQlProvider.deleteSession(token: accessToken);
   }
 
   @override
