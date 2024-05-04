@@ -604,7 +604,7 @@ class AuthService extends GetxService {
     return false;
   }
 
-  /// Deletes the [MyUser] identified by the provided [id] from the accounts and 
+  /// Deletes the [MyUser] identified by the provided [id] from the accounts and
   /// invalidates their [Session].
   Future<void> removeAccount(UserId id) async {
     Log.debug('removeAccount($id)', '$runtimeType');
