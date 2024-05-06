@@ -332,25 +332,16 @@ class LoginController extends GetxController {
 
       (onSuccess ?? router.home)();
     } on CreateSessionException catch (e) {
-      switch (e.code) {
-        case CreateSessionErrorCode.wrongPassword:
-          ++signInAttempts;
+      ++signInAttempts;
 
-          if (signInAttempts >= 3) {
-            // Wrong password was entered three times. Login is possible in N
-            // seconds.
-            signInAttempts = 0;
-            _setSignInTimer();
-          }
-
-          password.error.value = e.toMessage();
-          break;
-
-        case CreateSessionErrorCode.artemisUnknown:
-          password.resubmitOnError.value = true;
-          password.error.value = 'err_data_transfer'.l10n;
-          rethrow;
+      if (signInAttempts >= 3) {
+        // Wrong password was entered three times. Login is possible in N
+        // seconds.
+        signInAttempts = 0;
+        _setSignInTimer();
       }
+
+      password.error.value = e.toMessage();
     } on ConnectionException {
       password.unsubmit();
       password.resubmitOnError.value = true;

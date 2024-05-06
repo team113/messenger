@@ -96,8 +96,7 @@ class AddPhoneController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserPhoneException catch (e) {
-            if (e.code == ConfirmUserPhoneErrorCode.occupied ||
-                e.code == ConfirmUserPhoneErrorCode.artemisUnknown) {
+            if (e.code == ConfirmUserPhoneErrorCode.occupied) {
               s.resubmitOnError.value = true;
             }
 

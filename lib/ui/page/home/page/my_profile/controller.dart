@@ -219,9 +219,7 @@ class MyProfileController extends GetxController {
 
             if (e is AddUserPhoneException) {
               s.error.value = e.toMessage();
-              s.resubmitOnError.value =
-                  e.code == AddUserPhoneErrorCode.artemisUnknown ||
-                      e.code == AddUserPhoneErrorCode.busy;
+              s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
             } else {
               s.error.value = 'err_data_transfer'.l10n;
               s.resubmitOnError.value = true;
@@ -275,8 +273,7 @@ class MyProfileController extends GetxController {
 
           if (e is AddUserEmailException) {
             s.error.value = e.toMessage();
-            s.resubmitOnError.value =
-                e.code == AddUserEmailErrorCode.artemisUnknown;
+            s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
           } else {
             s.error.value = 'err_data_transfer'.l10n;
             s.resubmitOnError.value = true;

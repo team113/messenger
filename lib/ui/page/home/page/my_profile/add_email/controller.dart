@@ -93,8 +93,7 @@ class AddEmailController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserEmailException catch (e) {
-            if (e.code == ConfirmUserEmailErrorCode.occupied ||
-                e.code == ConfirmUserEmailErrorCode.artemisUnknown) {
+            if (e.code == ConfirmUserEmailErrorCode.occupied) {
               s.resubmitOnError.value = true;
             }
 
