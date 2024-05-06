@@ -427,7 +427,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   }
 
   /// Submits this [DirectLinkField].
-  void _submitLink() async {
+  Future<void> _submitLink() async {
+    _state.focus.unfocus();
+
     ChatDirectLinkSlug? slug;
 
     if (_state.text.isNotEmpty) {
@@ -438,7 +440,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       }
     }
 
-    if (_state.error.value == null) {
+    if (_state.error.value == null || _state.resubmitOnError.isTrue) {
       if (slug == widget.link?.slug) {
         setState(() => _editing = false);
         widget.onEditing?.call(false);
@@ -450,19 +452,17 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
 
       try {
         await widget.onSubmit?.call(slug);
-        _state.status.value = RxStatus.empty();
+        setState(() => _editing = false);
+        widget.onEditing?.call(false);
       } on CreateChatDirectLinkException catch (e) {
-        _state.status.value = RxStatus.empty();
         _state.error.value = e.toMessage();
       } catch (e) {
-        _state.status.value = RxStatus.empty();
         _state.resubmitOnError.value = true;
         _state.error.value = 'err_data_transfer'.l10n;
         _state.unsubmit();
         rethrow;
       } finally {
-        setState(() => _editing = false);
-        widget.onEditing?.call(false);
+        _state.status.value = RxStatus.empty();
         _state.editable.value = true;
       }
     }

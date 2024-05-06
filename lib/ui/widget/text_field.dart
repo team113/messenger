@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -569,14 +571,15 @@ class TextFieldState extends ReactiveFieldState {
       }
     });
 
-    this.focus.addListener(() {
+    this.focus.addListener(() async {
       isFocused.value = this.focus.hasFocus;
 
       if (onFocus != null) {
-        if (_previousText != null || controller.text.isNotEmpty) {
+        if (controller.text != _previousText &&
+            (_previousText != null || controller.text.isNotEmpty)) {
           isEmpty.value = controller.text.isEmpty;
           if (!this.focus.hasFocus) {
-            onFocus?.call(this);
+            await onFocus?.call(this);
             _previousText = controller.text;
           }
         }
@@ -593,14 +596,14 @@ class TextFieldState extends ReactiveFieldState {
   /// - submit action of [TextEditingController] was emitted;
   /// - [focus] node changed its focus;
   /// - setter or [submit] was manually called.
-  Function(TextFieldState)? onFocus;
+  final FutureOr<void> Function(TextFieldState)? onFocus;
 
   /// Callback, called when the [text] is submitted.
   ///
   /// This callback is fired only when the [text] value was not yet submitted:
   /// - submit action of [TextEditingController] was emitted;
   /// - [submit] was manually called.
-  final Function(TextFieldState)? onSubmitted;
+  final FutureOr<void> Function(TextFieldState)? onSubmitted;
 
   @override
   final RxBool changed = RxBool(false);
@@ -667,6 +670,8 @@ class TextFieldState extends ReactiveFieldState {
         }
 
         if (error.value == null || resubmitOnError.isTrue) {
+          error.value = null;
+          resubmitOnError.value = false;
           _previousSubmit = controller.text;
           onSubmitted?.call(this);
           changed.value = false;
