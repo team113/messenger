@@ -563,14 +563,14 @@ class LoginController extends GetxController {
   /// Starts or stops the [_signInTimer] based on [enabled] value.
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
-      password.submitable.value = false;
+      password.submittable.value = false;
       signInTimeout.value = 30;
       _signInTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) {
           signInTimeout.value--;
           if (signInTimeout.value <= 0) {
-            password.submitable.value = true;
+            password.submittable.value = true;
             signInTimeout.value = 0;
             _signInTimer?.cancel();
             _signInTimer = null;
@@ -578,7 +578,7 @@ class LoginController extends GetxController {
         },
       );
     } else {
-      password.submitable.value = true;
+      password.submittable.value = true;
       signInTimeout.value = 0;
       _signInTimer?.cancel();
       _signInTimer = null;
@@ -610,14 +610,14 @@ class LoginController extends GetxController {
   /// Starts or stops the [_codeTimer] based on [enabled] value.
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
-      emailCode.submitable.value = false;
+      emailCode.submittable.value = false;
       codeTimeout.value = 30;
       _codeTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) {
           codeTimeout.value--;
           if (codeTimeout.value <= 0) {
-            emailCode.submitable.value = true;
+            emailCode.submittable.value = true;
             codeTimeout.value = 0;
             _codeTimer?.cancel();
             _codeTimer = null;
@@ -625,7 +625,7 @@ class LoginController extends GetxController {
         },
       );
     } else {
-      emailCode.submitable.value = true;
+      emailCode.submittable.value = true;
       codeTimeout.value = 0;
       _codeTimer?.cancel();
       _codeTimer = null;

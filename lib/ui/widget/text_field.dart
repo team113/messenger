@@ -515,7 +515,7 @@ abstract class ReactiveFieldState {
   final RxBool resubmitOnError = RxBool(false);
 
   /// Indicator whether this [ReactiveFieldState] can be [submit]ted.
-  final RxBool submitable = RxBool(true);
+  final RxBool submittable = RxBool(true);
 
   /// Submits this [ReactiveFieldState].
   void submit() {
@@ -660,7 +660,7 @@ class TextFieldState extends ReactiveFieldState {
 
   @override
   void submit() {
-    if (editable.isTrue && submitable.isTrue) {
+    if (editable.isTrue && submittable.isTrue) {
       if (controller.text != _previousSubmit) {
         if (_previousText != controller.text) {
           _previousText = controller.text;
