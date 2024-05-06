@@ -536,7 +536,6 @@ class TextFieldState extends ReactiveFieldState {
     bool approvable = false,
     bool editable = true,
     bool submitted = true,
-    bool sync = false,
     String? error,
   }) : focus = focus ?? FocusNode() {
     controller = TextEditingController(text: text);
@@ -687,7 +686,7 @@ class TextFieldState extends ReactiveFieldState {
   }
 
   /// Clears the [TextEditingController]'s text without calling [onFocus] and
-  /// [onFocus].
+  /// [onChanged].
   void clear({bool unfocus = true}) {
     isEmpty.value = true;
     controller.text = '';

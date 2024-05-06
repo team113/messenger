@@ -259,9 +259,6 @@ class LoginController extends GetxController {
               s.status.value = RxStatus.empty();
               break;
 
-            case ConfirmUserEmailErrorCode.occupied:
-              s.resubmitOnError.value = true;
-
             default:
               s.error.value = 'err_wrong_recovery_code'.l10n;
               break;
