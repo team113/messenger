@@ -20,8 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
+import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
