@@ -297,8 +297,8 @@ class HiveRxChat extends RxChat {
   ChatItem? get lastItem {
     ChatItem? item = chat.value.lastItem;
     if (messages.isNotEmpty) {
-      final ChatItem last = messages.last.value;
-      if (item?.at.isBefore(last.at) == true) {
+      final ChatItem last = messages.lastWhere((e) => !e.value.isCommand).value;
+      if (item?.at.isBefore(last.at) == true || item?.isCommand == true) {
         item = last;
       }
     }
@@ -771,25 +771,25 @@ class HiveRxChat extends RxChat {
                   const Locale('en', 'US'): ChatBotText(
                     title: 'Translation',
                     text:
-                        'Detected: English. Your message contains ${msg.text?.val.length} symbols, which will cost in total: \$${1.1 / 100 * (msg.text?.val.length ?? 0)}',
+                        'English - Russian. Cost: \$${(1.1 / 100 * (msg.text?.val.length ?? 0)).toStringAsFixed(2)}',
                     actions: const [
+                      BotAction(text: 'Send', command: '/resend'),
                       BotAction(
                         text: 'Translate and send',
                         command: '/proceed',
                       ),
-                      BotAction(text: 'Don\'t translate', command: ''),
                     ],
                   ),
                   const Locale('ru', 'RU'): ChatBotText(
                     title: 'Перевод',
                     text:
-                        'Определён: Русский. Ваше сообщение содержит ${msg.text?.val.length} символов, перевод будет стоить: \$${1.1 / 100 * (msg.text?.val.length ?? 0)}',
+                        'Русский - Английский. Стоимость: \$${(1.1 / 100 * (msg.text?.val.length ?? 0)).toStringAsFixed(2)}',
                     actions: const [
+                      BotAction(text: 'Отправить', command: '/resend'),
                       BotAction(
                         text: 'Перевести и отправить',
                         command: '/proceed',
                       ),
-                      BotAction(text: 'Не переводить', command: ''),
                     ],
                   ),
                 },
@@ -1024,8 +1024,6 @@ class HiveRxChat extends RxChat {
 
   @override
   Future<void> addBot(RxUser user, {bool first = true}) async {
-    bots.addIf(!bots.contains(user), user);
-
     if (first) {
       await postChatMessage(
         text: ChatMessageText.bot(
@@ -1033,17 +1031,19 @@ class HiveRxChat extends RxChat {
             const Locale('en', 'US'): const ChatBotText(
               title: 'Translation',
               text:
-                  'Translation service is enabled.  \nCertificated translators in real-time.',
+                  'Translation service is enabled. Certificated translators in real-time.',
             ),
             const Locale('ru', 'RU'): const ChatBotText(
               title: 'Перевод',
               text:
-                  'Переводческий сервис подключен.  \nСертифицированные переводчики в режиме реального времени.',
+                  'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени.',
             ),
           },
         ),
       );
     }
+
+    bots.addIf(!bots.contains(user), user);
   }
 
   @override

@@ -1156,9 +1156,11 @@ class ChatView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(element.string, style: style.systemMessageStyle),
-                if (element.actions.isNotEmpty) ...[
+                if (element.string != null)
+                  Text(element.string!, style: style.systemMessageStyle),
+                if (element.string != null && element.actions.isNotEmpty)
                   const SizedBox(height: 4),
+                if (element.actions.isNotEmpty) ...[
                   Wrap(
                     spacing: 2,
                     runSpacing: 2,
@@ -1549,15 +1551,88 @@ class ChatView extends StatelessWidget {
         );
       }
 
-      return MessageFieldView(
-        key: const Key('SendField'),
-        controller: c.send,
-        onChanged: c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-        onItemPressed: (item) =>
-            c.animateTo(item.id, item: item, addToHistory: false),
-        canForward: true,
-        onAttachmentError: c.chat?.updateAttachments,
-        // symbols: c.hasBot,
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Obx(() {
+            final e = c.botInfo.value;
+            if (e == null) {
+              return const SizedBox();
+            }
+
+            const Color color = Color.fromARGB(255, 149, 209, 149);
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  // scrollDirection: Axis.horizontal,
+                  children: [
+                    if (c.botInfo.value!.string != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: color, width: 0.5),
+                          color: const Color(0xFFddf1f4),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          c.botInfo.value!.string!,
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                      ),
+                    if (c.botInfo.value!.string != null && e.actions.isNotEmpty)
+                      const SizedBox(width: 8),
+                    ...e.actions.map((e) {
+                      return WidgetButton(
+                        onPressed: () => c.postCommand(e.command),
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              // color: style.systemMessageColor,
+                              color: const Color(0xFFD3E3E6),
+                              // color: const Color(0xFFCEE1E4),
+                              width: 1,
+                            ),
+                            color: const Color(0xFFddf1f4),
+                          ),
+                          child: Text(
+                            e.text,
+                            style: style.fonts.small.regular.primary,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            );
+          }),
+          MessageFieldView(
+            key: const Key('SendField'),
+            controller: c.send,
+            onChanged:
+                c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
+            onItemPressed: (item) =>
+                c.animateTo(item.id, item: item, addToHistory: false),
+            canForward: true,
+            onAttachmentError: c.chat?.updateAttachments,
+            // symbols: c.hasBot,
+          ),
+        ],
       );
     });
   }

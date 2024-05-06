@@ -850,11 +850,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
-    const Color color = Color.fromARGB(255, 149, 209, 149);
+    if (e.text?.val.isEmpty == true) {
+      return const SizedBox();
+    }
+
+    // const Color color = Color.fromARGB(255, 149, 209, 149);
 
     final InputBorder border = OutlineInputBorder(
       borderSide: BorderSide(
-        color: style.primaryBorder.top.color,
+        // color: style.primaryBorder.top.color,
+        color: const Color(0xFFD3E3E6),
         width: style.primaryBorder.top.width,
       ),
       borderRadius: BorderRadius.circular(15),
@@ -864,13 +869,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
       child: InputDecorator(
         decoration: InputDecoration(
-          label: Text(
-            e.title,
-            // style: style.fonts.small.regular.secondary,
-          ),
+          label: Text(e.title),
           floatingLabelStyle: style.fonts.small.regular.secondary,
           filled: true,
-          fillColor: Colors.white.withOpacity(0.34),
+          // fillColor: Colors.white.withOpacity(0.34),
+          fillColor: const Color(0xFFddf1f4),
           floatingLabelAlignment: FloatingLabelAlignment.center,
           focusedBorder: border,
           errorBorder: border,
@@ -888,7 +891,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             if (e.text != null)
               MarkdownWidget(
                 e.text!.val,
-                style: style.systemMessageStyle,
+                // style: style.systemMessageStyle,
+                style: style.fonts.smallest.regular.secondary,
               ),
             if (e.actions != null && e.text != null) const SizedBox(height: 4),
             if (e.actions != null) ...[
@@ -907,14 +911,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(
-                            color: style.systemMessageColor,
+                            color: const Color(0xFFD3E3E6),
                             width: 1,
                           ),
-                          color: color,
+                          color: const Color(0xFFddf1f4),
                         ),
                         child: Text(
                           e.text,
-                          style: style.fonts.smallest.regular.onPrimary,
+                          style:
+                              style.fonts.smallest.regular.secondary.copyWith(
+                            color: style.colors.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -952,7 +959,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: color, width: 0.5),
+            border: Border.all(color: const Color(0xFFD3E3E6), width: 0.5),
             // color: style.systemMessageColor,
             color: color,
           ),

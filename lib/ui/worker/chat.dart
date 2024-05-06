@@ -360,6 +360,10 @@ class _ChatWatchData {
                 ? 'file'
                 : 'attachments';
 
+    if (text?.val.startsWith('[@bot]') == true) {
+      return null;
+    }
+
     return 'fcm_message'.l10nfmt({
       'type': type,
       'text': text?.val ?? '',

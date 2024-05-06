@@ -55,6 +55,7 @@ class MarkdownWidget extends StatelessWidget {
         blockquoteDecoration: BoxDecoration(
           color: style.colors.secondaryHighlight,
         ),
+        a: TextStyle(color: style.colors.primary),
       ),
     );
   }

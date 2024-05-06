@@ -507,8 +507,14 @@ class RecentChatTile extends StatelessWidget {
 
           final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
 
+          BotInfo? bot;
           if (item.text != null) {
-            desc.write(item.text!.val);
+            bot = BotInfo.parse(item);
+            if (bot == null) {
+              desc.write(item.text!.val);
+            } else {
+              desc.write(bot.text?.val ?? 'Bot replied');
+            }
           }
 
           final List<Widget> images = [];
@@ -542,7 +548,7 @@ class RecentChatTile extends StatelessWidget {
           }
 
           subtitle = [
-            if (item.author.id == me)
+            if (bot == null && item.author.id == me)
               Text('${'label_you'.l10n}${'colon_space'.l10n}')
             else if (chat.isGroup)
               Padding(

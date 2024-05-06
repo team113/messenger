@@ -1123,6 +1123,19 @@ class ChatController extends GetxController {
           ),
           repliesTo: [repliesTo],
         );
+      } else if (command == '/resend') {
+        await _chatService.sendChatMessage(
+          id,
+          text: ChatMessageText.bot(
+            localized: {
+              const Locale('en', 'US'):
+                  const ChatBotText(title: 'Translation', text: ''),
+              const Locale('ru', 'RU'):
+                  const ChatBotText(title: 'Перевод', text: ''),
+            },
+          ),
+          repliesTo: [repliesTo],
+        );
       }
     }
   }
@@ -2098,6 +2111,8 @@ class ChatController extends GetxController {
     });
   }
 
+  final Rx<BotInfoElement?> botInfo = Rx(null);
+
   void _addBotInfo(RxUser e) {
     if ((e.user.value.bio?.val.length ?? 0) > 'bot '.length) {
       final String? about = e.user.value.bio?.val.substring('bot '.length);
@@ -2114,17 +2129,15 @@ class ChatController extends GetxController {
       final actions = decoded?[L10n.chosen.value!.toString()]?['actions'] ??
           decoded?['actions'];
 
-      if (text != null) {
-        final info = BotInfoElement(
-          text,
-          at: PreciseDateTime.now(),
-          actions: (actions as List?)?.map((e) {
-                return BotAction(text: e['text'], command: e['command']);
-              }).toList() ??
-              [],
-        );
-        elements[info.id] = info;
-      }
+      botInfo.value = BotInfoElement(
+        text,
+        at: PreciseDateTime.now(),
+        actions: (actions as List?)?.map((e) {
+              return BotAction(text: e['text'], command: e['command']);
+            }).toList() ??
+            [],
+      );
+      // elements[botInfo.id] = botInfo;
     }
   }
 
@@ -2499,7 +2512,7 @@ class BotInfoElement extends ListElement {
   }) : super(ListElementId(at, const ChatItemId('0')));
 
   /// [String] of this [BotInfoElement].
-  final String string;
+  final String? string;
 
   final List<BotAction> actions;
 }

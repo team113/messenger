@@ -70,6 +70,15 @@ abstract class ChatItem {
   /// Meant to be used as a key sorted by posting [DateTime] of this [ChatItem].
   ChatItemKey get key => ChatItemKey(at, id);
 
+  bool get isCommand {
+    if (this is! ChatMessage) {
+      return false;
+    }
+
+    final msg = this as ChatMessage;
+    return msg.text?.val.startsWith('/') == true;
+  }
+
   @override
   String toString() => '$runtimeType($id, $chatId)';
 }
