@@ -586,8 +586,8 @@ class TextFieldState extends ReactiveFieldState {
     });
   }
 
-  /// Callback, called every time when the [text] changed.
-  Function(TextFieldState)? onChanged;
+  /// Callback, called every time when the [text] changes.
+  final Function(TextFieldState)? onChanged;
 
   /// Callback, called when the [text] has finished changing.
   ///
