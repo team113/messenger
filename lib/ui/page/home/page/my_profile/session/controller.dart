@@ -142,18 +142,22 @@ extension UserAgentExtension on UserAgent {
     else {
       List<String> parts = val.split(' ');
 
-      String? version = parts
-          .firstWhereOrNull((e) => e.contains('Version/'))
-          ?.split('/')
-          .last;
+      String? versionPart =
+          parts.firstWhereOrNull((e) => e.startsWith('Version/'));
 
       for (final BrowserRule e in _rules) {
         final int i = parts.indexWhere((p) => p.startsWith(e.rule));
         if (i != -1) {
-          version ??= parts[i].split('/').last;
-          version = version.split('.').take(e.versionLength).join('.');
+          parts = (versionPart ?? parts[i]).split('/');
 
-          return '${e.name} $version';
+          if (parts.length > 1) {
+            String version =
+                parts[1].split('.').take(e.versionLength).join('.');
+
+            return '${e.name} $version';
+          } else {
+            return e.name;
+          }
         }
       }
     }
