@@ -1577,7 +1577,13 @@ class ChatView extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: color, width: 0.5),
-                          color: const Color(0xFFddf1f4),
+                          // color: const Color(0xFFddf1f4),
+                          gradient: const LinearGradient(
+                            stops: [0, 1],
+                            colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
                         ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
@@ -1593,26 +1599,49 @@ class ChatView extends StatelessWidget {
                     ...e.actions.map((e) {
                       return WidgetButton(
                         onPressed: () => c.postCommand(e.command),
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              // color: style.systemMessageColor,
-                              color: const Color(0xFFD3E3E6),
-                              // color: const Color(0xFFCEE1E4),
-                              width: 1,
+                        child: Stack(
+                          children: [
+                            // Positioned.fill(
+                            //   child: ClipRRect(
+                            //     borderRadius: BorderRadius.circular(15),
+                            //     child: const SvgImage.asset(
+                            //       'assets/images/bot_texture.svg',
+                            //       width: double.infinity,
+                            //       height: double.infinity,
+                            //       fit: BoxFit.cover,
+                            //     ),
+                            //   ),
+                            // ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  // color: style.systemMessageColor,
+                                  color: const Color(0xFFD3E3E6),
+                                  // color: const Color(0xFFCEE1E4),
+                                  width: 1,
+                                ),
+                                color: const Color(0xFFddf1f4),
+                                // gradient: const LinearGradient(
+                                //   stops: [0, 1],
+                                //   colors: [
+                                //     Color(0xFFE1F0F3),
+                                //     Color(0xFFBDF4FF)
+                                //   ],
+                                //   begin: Alignment.topCenter,
+                                //   end: Alignment.bottomCenter,
+                                // ),
+                              ),
+                              child: Text(
+                                e.text,
+                                style: style.fonts.small.regular.primary,
+                              ),
                             ),
-                            color: const Color(0xFFddf1f4),
-                          ),
-                          child: Text(
-                            e.text,
-                            style: style.fonts.small.regular.primary,
-                          ),
+                          ],
                         ),
                       );
                     }),

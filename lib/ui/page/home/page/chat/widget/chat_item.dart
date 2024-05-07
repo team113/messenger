@@ -865,73 +865,123 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       borderRadius: BorderRadius.circular(15),
     );
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 0),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          label: Text(e.title),
-          floatingLabelStyle: style.fonts.small.regular.secondary,
-          filled: true,
-          // fillColor: Colors.white.withOpacity(0.34),
-          fillColor: const Color(0xFFddf1f4),
-          floatingLabelAlignment: FloatingLabelAlignment.center,
-          focusedBorder: border,
-          errorBorder: border,
-          enabledBorder: border,
-          disabledBorder: border,
-          focusedErrorBorder: border,
-          contentPadding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-          isCollapsed: true,
-          // contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          border: border,
-        ),
-        child: Column(
-          children: [
-            // Text('${e.text}', style: style.fonts.smallest.regular.secondary),
-            if (e.text != null)
-              MarkdownWidget(
-                e.text!.val,
-                // style: style.systemMessageStyle,
-                style: style.fonts.smallest.regular.secondary,
-              ),
-            if (e.actions != null && e.text != null) const SizedBox(height: 4),
-            if (e.actions != null) ...[
-              Wrap(
-                spacing: 2,
-                runSpacing: 2,
-                children: e.actions!.map((e) {
-                  return SelectionContainer.disabled(
-                    child: WidgetButton(
-                      onPressed: () => widget.onAction?.call(e),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: const Color(0xFFD3E3E6),
-                            width: 1,
-                          ),
-                          color: const Color(0xFFddf1f4),
-                        ),
-                        child: Text(
-                          e.text,
-                          style:
-                              style.fonts.smallest.regular.secondary.copyWith(
-                            color: style.colors.primary,
-                          ),
+    return Stack(
+      children: [
+        // Positioned.fill(
+        //   child: ClipRRect(
+        //     borderRadius: BorderRadius.circular(15),
+        //     child: const SvgImage.asset(
+        //       'assets/images/bot_texture.svg',
+        //       width: double.infinity,
+        //       height: double.infinity,
+        //       fit: BoxFit.cover,
+        //     ),
+        //   ),
+        // ),
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            // color: const Color(0xFFddf1f4),
+            // gradient: const LinearGradient(
+            //   stops: [0, 1],
+            //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+            //   begin: Alignment.topCenter,
+            //   end: Alignment.bottomCenter,
+            // ),
+          ),
+          padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+          // decoration: InputDecoration(
+          //   // label: Text(e.title),
+          //   floatingLabelStyle: style.fonts.small.regular.secondary,
+          //   filled: true,
+          //   // fillColor: Colors.white.withOpacity(0.34),
+          //   // fillColor: const Color(0xFFddf1f4),
+          //   floatingLabelAlignment: FloatingLabelAlignment.center,
+          //   focusedBorder: border,
+          //   errorBorder: border,
+          //   enabledBorder: border,
+          //   disabledBorder: border,
+          //   focusedErrorBorder: border,
+          //   contentPadding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          //   isCollapsed: true,
+          //   // contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          //   border: border,
+          // ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Text('${e.text}', style: style.fonts.smallest.regular.secondary),
+              if (e.text != null)
+                MarkdownWidget(
+                  e.text!.val,
+                  // style: style.systemMessageStyle,
+                  style: style.fonts.smaller.regular.secondary,
+                ),
+              if (e.actions != null && e.text != null)
+                const SizedBox(height: 2),
+              if (e.actions != null) ...[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  // spacing: 2,
+                  // runSpacing: 2,
+                  // crossAxisAlignment: WrapCrossAlignment.end,
+                  // alignment: WrapAlignment.end,
+                  children: e.actions!.map((e) {
+                    return SelectionContainer.disabled(
+                      child: WidgetButton(
+                        onPressed: () => widget.onAction?.call(e),
+                        child: Stack(
+                          children: [
+                            // Positioned.fill(
+                            //   child: ClipRRect(
+                            //     borderRadius: BorderRadius.circular(15),
+                            //     child: const SvgImage.asset(
+                            //       'assets/images/bot_texture.svg',
+                            //       width: double.infinity,
+                            //       height: double.infinity,
+                            //       fit: BoxFit.cover,
+                            //     ),
+                            //   ),
+                            // ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: const Color(0xFFD3E3E6),
+                                  width: 1,
+                                ),
+                                color: const Color(0xFFddf1f4),
+                                // gradient: const LinearGradient(
+                                //   stops: [0, 1],
+                                //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+                                //   begin: Alignment.topCenter,
+                                //   end: Alignment.bottomCenter,
+                                // ),
+                              ),
+                              child: Text(
+                                e.text,
+                                style: style.fonts.small.regular.secondary
+                                    .copyWith(
+                                  color: style.colors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -955,65 +1005,86 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: const Color(0xFFD3E3E6), width: 0.5),
-            // color: style.systemMessageColor,
-            color: color,
-          ),
-          child: IntrinsicWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (info.text != null)
-                  MarkdownWidget(
-                    info.text!.val,
-                    style: style.systemMessageStyle,
-                  ),
-                // Text('${info.text}', style: style.systemMessageStyle),
-                if (info.actions != null) ...[
-                  const SizedBox(height: 4),
-                  Wrap(
-                    spacing: 2,
-                    runSpacing: 2,
-                    children: info.actions!.map((e) {
-                      return SelectionContainer.disabled(
-                        child: WidgetButton(
-                          onPressed: () async {
-                            final ChatService chatService = Get.find();
-                            await chatService.sendChatMessage(
-                              msg.chatId,
-                              text: ChatMessageText(e.command),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: style.systemMessageColor,
-                                width: 1,
+        child: Stack(
+          children: [
+            // Positioned.fill(
+            //   child: ClipRRect(
+            //     borderRadius: BorderRadius.circular(15),
+            //     child: const SvgImage.asset(
+            //       'assets/images/bot_texture.svg',
+            //       width: double.infinity,
+            //       height: double.infinity,
+            //       fit: BoxFit.cover,
+            //     ),
+            //   ),
+            // ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: const Color(0xFFD3E3E6), width: 0.5),
+                // color: style.systemMessageColor,
+                color: color,
+                // gradient: const LinearGradient(
+                //   stops: [0, 1],
+                //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+                //   begin: Alignment.topCenter,
+                //   end: Alignment.bottomCenter,
+                // ),
+              ),
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (info.text != null)
+                      MarkdownWidget(
+                        info.text!.val,
+                        style: style.systemMessageStyle,
+                      ),
+                    // Text('${info.text}', style: style.systemMessageStyle),
+                    if (info.actions != null) ...[
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 2,
+                        runSpacing: 2,
+                        children: info.actions!.map((e) {
+                          return SelectionContainer.disabled(
+                            child: WidgetButton(
+                              onPressed: () async {
+                                final ChatService chatService = Get.find();
+                                await chatService.sendChatMessage(
+                                  msg.chatId,
+                                  text: ChatMessageText(e.command),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: style.systemMessageColor,
+                                    width: 1,
+                                  ),
+                                  color: color,
+                                ),
+                                child: Text(
+                                  e.text,
+                                  style: style.fonts.small.regular.onPrimary,
+                                ),
                               ),
-                              color: color,
                             ),
-                            child: Text(
-                              e.text,
-                              style: style.fonts.small.regular.onPrimary,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ],
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -1048,6 +1119,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     // the [ChatMessage] (e.g. if there's an [ImageAttachment]).
     final bool timeInBubble =
         media.isNotEmpty && files.isEmpty && _text == null;
+    final bool hasBot = widget.infos
+        .where((e) =>
+            e.text?.val.isNotEmpty == true || e.actions?.isNotEmpty == true)
+        .isNotEmpty;
 
     return _rounded(
       context,
@@ -1188,7 +1263,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         if (files.last != e) const SizedBox(height: 6),
                       ],
                     ),
-                    if (_text == null)
+                    if (_text == null && !hasBot)
                       Opacity(opacity: 0, child: _timestamp(msg)),
                   ],
                 ),
@@ -1209,7 +1284,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         TextSpan(
                           children: [
                             if (_text != null) _text!,
-                            if (!timeInBubble) ...[
+                            if (!hasBot && !timeInBubble) ...[
                               const WidgetSpan(child: SizedBox(width: 4)),
                               WidgetSpan(
                                 child:
@@ -1255,6 +1330,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     : style.primaryBorder,
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Stack(
                     children: [
@@ -1262,21 +1338,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: children,
                       ),
-                      Positioned(
-                        right: timeInBubble ? 6 : 8,
-                        bottom: 4,
-                        child: timeInBubble
-                            ? Container(
-                                padding:
-                                    const EdgeInsets.only(left: 4, right: 4),
-                                decoration: BoxDecoration(
-                                  color: style.colors.onBackgroundOpacity50,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: _timestamp(msg, true),
-                              )
-                            : _timestamp(msg),
-                      )
+                      if (!hasBot)
+                        Positioned(
+                          right: timeInBubble ? 6 : 8,
+                          bottom: 4,
+                          child: timeInBubble
+                              ? Container(
+                                  padding:
+                                      const EdgeInsets.only(left: 4, right: 4),
+                                  decoration: BoxDecoration(
+                                    color: style.colors.onBackgroundOpacity50,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: _timestamp(msg, true),
+                                )
+                              : _timestamp(msg),
+                        )
                     ],
                   ),
                   ...widget.infos.map((e) => _botInfo(context, e)),

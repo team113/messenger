@@ -173,18 +173,18 @@ class ChatItemId extends NewType<String> {
 class ChatBotText {
   const ChatBotText({
     this.title,
-    required this.text,
+    this.text,
     this.actions = const [],
   });
 
   final String? title;
-  final String text;
+  final String? text;
   final List<BotAction> actions;
 
   Map<String, dynamic> toMap() {
     return {
       if (title != null) 'title': title,
-      'text': text,
+      if (text != null) 'text': text,
       if (actions.isNotEmpty)
         'actions':
             actions.map((e) => {'text': e.text, 'command': e.command}).toList(),

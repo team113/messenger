@@ -770,24 +770,22 @@ class HiveRxChat extends RxChat {
                 localized: {
                   const Locale('en', 'US'): ChatBotText(
                     title: 'Translation',
-                    text:
-                        'English - Russian. Cost: \$${(1.1 / 100 * (msg.text?.val.length ?? 0)).toStringAsFixed(2)}',
-                    actions: const [
-                      BotAction(text: 'Send', command: '/resend'),
+                    actions: [
+                      const BotAction(text: 'Send', command: '/resend'),
                       BotAction(
-                        text: 'Translate and send',
+                        text:
+                            'Translate and send for \$${(1.1 / 100 * (msg.text?.val.length ?? 0)).toStringAsFixed(2)}',
                         command: '/proceed',
                       ),
                     ],
                   ),
                   const Locale('ru', 'RU'): ChatBotText(
                     title: 'Перевод',
-                    text:
-                        'Русский - Английский. Стоимость: \$${(1.1 / 100 * (msg.text?.val.length ?? 0)).toStringAsFixed(2)}',
-                    actions: const [
-                      BotAction(text: 'Отправить', command: '/resend'),
+                    actions: [
+                      const BotAction(text: 'Отправить', command: '/resend'),
                       BotAction(
-                        text: 'Перевести и отправить',
+                        text:
+                            'Перевести и отправить за \$${(1.1 / 100 * (msg.text?.val.length ?? 0)).toStringAsFixed(2)}',
                         command: '/proceed',
                       ),
                     ],
