@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart'
     show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
@@ -95,12 +96,6 @@ class AccountsController extends GetxController {
   /// Reactive list of [MyUser]s paired with the corresponding [User]s.
   final RxList<AccountData> accounts = RxList();
 
-  /// Reactive set with [UserId]s of authorized accounts.
-  ///
-  /// Accounts whose [UserId]s are present in this set are available for
-  /// switching.
-  final RxSet<UserId> sessions = RxSet();
-
   /// [Timer] disabling [emailCode] submitting for [codeTimeout].
   Timer? _codeTimer;
 
@@ -128,6 +123,12 @@ class AccountsController extends GetxController {
 
   /// Current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
+
+  /// Returns a reactive map of all authenticated sessions.
+  ///
+  /// Accounts whose [UserId]s are present in this set are available for
+  /// switching.
+  RxMap<UserId, Rx<Credentials>> get sessions => _authService.allCredentials;
 
   @override
   void onInit() {
@@ -270,8 +271,6 @@ class AccountsController extends GetxController {
     );
 
     _populateUsers();
-
-    sessions.addAll(_authService.allCredentials.keys);
 
     super.onInit();
   }

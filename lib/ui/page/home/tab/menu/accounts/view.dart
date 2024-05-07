@@ -397,7 +397,7 @@ class AccountsView extends StatelessWidget {
                     Padding(
                       padding: ModalPopup.padding(context),
                       child: Obx(() {
-                        final bool authorized = c.sessions.contains(user.id);
+                        final bool authorized = c.sessions.containsKey(user.id);
 
                         return ContactTile(
                           myUser: myUser,
