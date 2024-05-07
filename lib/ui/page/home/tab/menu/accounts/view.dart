@@ -48,6 +48,7 @@ class AccountsView extends StatelessWidget {
     this.initial = AccountsViewStage.accounts,
   });
 
+  /// Initial [AccountsViewStage] of this [AccountsView].
   final AccountsViewStage initial;
 
   /// Displays an [AccountsView] wrapped in a [ModalPopup].
@@ -119,15 +120,6 @@ class AccountsView extends StatelessWidget {
                   );
                 }),
               ];
-
-              children = children
-                  .map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: Center(child: e),
-                    ),
-                  )
-                  .toList();
               break;
 
             case AccountsViewStage.signIn:
@@ -146,15 +138,6 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
               ];
-
-              children = children
-                  .map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: Center(child: e),
-                    ),
-                  )
-                  .toList();
               break;
 
             case AccountsViewStage.signUpWithEmailCode:
@@ -225,15 +208,6 @@ class AccountsView extends StatelessWidget {
                   );
                 }),
               ];
-
-              children = children
-                  .map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: Center(child: e),
-                    ),
-                  )
-                  .toList();
               break;
 
             case AccountsViewStage.signUpWithEmail:
@@ -271,15 +245,6 @@ class AccountsView extends StatelessWidget {
                   }),
                 ),
               ];
-
-              children = children
-                  .map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: Center(child: e),
-                    ),
-                  )
-                  .toList();
               break;
 
             case AccountsViewStage.signUp:
@@ -296,15 +261,6 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25 / 2),
               ];
-
-              children = children
-                  .map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: Center(child: e),
-                    ),
-                  )
-                  .toList();
               break;
 
             case AccountsViewStage.add:
@@ -314,63 +270,54 @@ class AccountsView extends StatelessWidget {
               );
 
               children = [
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Center(
-                    child: Obx(() {
-                      final bool enabled = c.authStatus.value.isSuccess;
+                Center(
+                  child: Obx(() {
+                    final bool enabled = c.authStatus.value.isSuccess;
 
-                      return OutlinedRoundedButton(
-                        key: const Key('StartButton'),
-                        maxWidth: 290,
-                        height: 46,
-                        leading: Transform.translate(
-                          offset: const Offset(4, 0),
-                          child: const SvgIcon(SvgIcons.guest),
-                        ),
-                        onPressed: enabled
-                            ? () {
-                                Navigator.of(context).pop();
-                                c.register();
-                              }
-                            : () {},
-                        child: Text('btn_guest'.l10n),
-                      );
-                    }),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Center(
-                    child: OutlinedRoundedButton(
-                      key: const Key('SignUpButton'),
-                      maxWidth: 290,
-                      height: 46,
-                      leading: Transform.translate(
-                        offset: const Offset(3, 0),
-                        child: const SvgIcon(SvgIcons.register),
-                      ),
-                      onPressed: () => c.stage.value = AccountsViewStage.signUp,
-                      child: Text('btn_sign_up'.l10n),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Center(
-                    child: OutlinedRoundedButton(
-                      key: const Key('SignInButton'),
+                    return OutlinedRoundedButton(
+                      key: const Key('StartButton'),
                       maxWidth: 290,
                       height: 46,
                       leading: Transform.translate(
                         offset: const Offset(4, 0),
-                        child: const SvgIcon(SvgIcons.enter),
+                        child: const SvgIcon(SvgIcons.guest),
                       ),
-                      onPressed: () => c.stage.value = AccountsViewStage.signIn,
-                      child: Text('btn_sign_in'.l10n),
+                      onPressed: enabled
+                          ? () {
+                              Navigator.of(context).pop();
+                              c.register();
+                            }
+                          : () {},
+                      child: Text('btn_guest'.l10n),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: OutlinedRoundedButton(
+                    key: const Key('SignUpButton'),
+                    maxWidth: 290,
+                    height: 46,
+                    leading: Transform.translate(
+                      offset: const Offset(3, 0),
+                      child: const SvgIcon(SvgIcons.register),
                     ),
+                    onPressed: () => c.stage.value = AccountsViewStage.signUp,
+                    child: Text('btn_sign_up'.l10n),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: OutlinedRoundedButton(
+                    key: const Key('SignInButton'),
+                    maxWidth: 290,
+                    height: 46,
+                    leading: Transform.translate(
+                      offset: const Offset(4, 0),
+                      child: const SvgIcon(SvgIcons.enter),
+                    ),
+                    onPressed: () => c.stage.value = AccountsViewStage.signIn,
+                    child: Text('btn_sign_in'.l10n),
                   ),
                 ),
               ];
@@ -394,116 +341,104 @@ class AccountsView extends StatelessWidget {
                   final RxUser user = e.user;
 
                   tiles.add(
-                    Padding(
-                      padding: ModalPopup.padding(context),
-                      child: Obx(() {
-                        final bool authorized = c.sessions.containsKey(user.id);
+                    Obx(() {
+                      final bool authorized = c.sessions.containsKey(user.id);
 
-                        return ContactTile(
-                          myUser: myUser,
-                          user: user,
-                          darken: authorized ? 0 : 0.06,
-                          onTap: authorized && c.me != user.id
-                              ? () {
-                                  Navigator.of(context).pop();
-                                  c.switchTo(user.id);
-                                }
-                              : null,
-                          trailing: [
-                            AnimatedButton(
-                              decorator: (child) => Padding(
-                                padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                                child: child,
-                              ),
-                              onPressed: () async {
-                                final bool? result = await MessagePopup.alert(
-                                  'btn_logout'.l10n,
-                                  description: [
-                                    TextSpan(
-                                      style:
-                                          style.fonts.medium.regular.secondary,
-                                      children: [
-                                        TextSpan(
-                                          text:
-                                              'alert_are_you_sure_want_to_log_out1'
-                                                  .l10n,
-                                        ),
-                                        TextSpan(
-                                          style: style.fonts.medium.regular
-                                              .onBackground,
-                                          text:
-                                              '${myUser?.name ?? myUser?.num}',
-                                        ),
-                                        TextSpan(
-                                          text:
-                                              'alert_are_you_sure_want_to_log_out2'
-                                                  .l10n,
-                                        ),
-                                        if (!(myUser?.hasPassword ?? true)) ...[
-                                          const TextSpan(text: '\n\n'),
-                                          TextSpan(
-                                            text: 'label_password_not_set'.l10n,
-                                          ),
-                                        ],
-                                        if (myUser?.emails.confirmed.isEmpty ??
-                                            false) ...[
-                                          const TextSpan(text: '\n\n'),
-                                          TextSpan(
-                                            text:
-                                                'label_email_or_password_not_set'
-                                                    .l10n,
-                                          ),
-                                        ],
-                                      ],
-                                    )
-                                  ],
-                                );
-
-                                if (result == true) {
-                                  await c.deleteAccount(user.id);
-                                }
-                              },
-                              child: c.me == myUser?.id
-                                  ? const SvgIcon(SvgIcons.logoutWhite)
-                                  : const SvgIcon(SvgIcons.logout),
+                      return ContactTile(
+                        myUser: myUser,
+                        user: user,
+                        darken: authorized ? 0 : 0.06,
+                        onTap: authorized && c.me != user.id
+                            ? () {
+                                Navigator.of(context).pop();
+                                c.switchTo(user.id);
+                              }
+                            : null,
+                        trailing: [
+                          AnimatedButton(
+                            decorator: (child) => Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                              child: child,
                             ),
-                          ],
-                          selected: c.me == myUser?.id,
-                          subtitle: [
-                            const SizedBox(height: 5),
-                            if (c.me == myUser?.id)
-                              Text(
-                                'label_active_account'.l10n,
-                                style: style.fonts.small.regular.onPrimary,
-                              )
-                            else
-                              Obx(() {
-                                return Text(
-                                  user.user.value.getStatus() ?? '',
-                                  style: style.fonts.small.regular.secondary,
-                                );
-                              })
-                          ],
-                        );
-                      }),
-                    ),
+                            onPressed: () async {
+                              final bool? result = await MessagePopup.alert(
+                                'btn_logout'.l10n,
+                                description: [
+                                  TextSpan(
+                                    style: style.fonts.medium.regular.secondary,
+                                    children: [
+                                      TextSpan(
+                                        text:
+                                            'alert_are_you_sure_want_to_log_out1'
+                                                .l10n,
+                                      ),
+                                      TextSpan(
+                                        style: style
+                                            .fonts.medium.regular.onBackground,
+                                        text: '${myUser?.name ?? myUser?.num}',
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            'alert_are_you_sure_want_to_log_out2'
+                                                .l10n,
+                                      ),
+                                      if (!(myUser?.hasPassword ?? true)) ...[
+                                        const TextSpan(text: '\n\n'),
+                                        TextSpan(
+                                          text: 'label_password_not_set'.l10n,
+                                        ),
+                                      ],
+                                      if (myUser?.emails.confirmed.isEmpty ??
+                                          false) ...[
+                                        const TextSpan(text: '\n\n'),
+                                        TextSpan(
+                                          text:
+                                              'label_email_or_password_not_set'
+                                                  .l10n,
+                                        ),
+                                      ],
+                                    ],
+                                  )
+                                ],
+                              );
+
+                              if (result == true) {
+                                await c.deleteAccount(user.id);
+                              }
+                            },
+                            child: c.me == myUser?.id
+                                ? const SvgIcon(SvgIcons.logoutWhite)
+                                : const SvgIcon(SvgIcons.logout),
+                          ),
+                        ],
+                        selected: c.me == myUser?.id,
+                        subtitle: [
+                          const SizedBox(height: 5),
+                          if (c.me == myUser?.id)
+                            Text(
+                              'label_active_account'.l10n,
+                              style: style.fonts.small.regular.onPrimary,
+                            )
+                          else
+                            Obx(() {
+                              return Text(
+                                user.user.value.getStatus() ?? '',
+                                style: style.fonts.small.regular.secondary,
+                              );
+                            })
+                        ],
+                      );
+                    }),
                   );
                 }
               }
 
-              children = [
-                ...tiles,
-                const SizedBox(height: 10),
-                Padding(
-                  padding: ModalPopup.padding(context),
-                  child: PrimaryButton(
-                    onPressed: () => c.stage.value = AccountsViewStage.add,
-                    title: 'btn_add_account'.l10n,
-                  ),
-                ),
-              ];
+              children = tiles;
               break;
           }
+
+          final bool isAccountsStage =
+              c.stage.value == AccountsViewStage.accounts;
 
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
@@ -517,11 +452,25 @@ class AccountsView extends StatelessWidget {
                   const SizedBox(height: 13),
                   Flexible(
                     child: ListView(
+                      padding: ModalPopup.padding(context),
                       shrinkWrap: true,
                       physics: const ClampingScrollPhysics(),
-                      children: [...children, const SizedBox(height: 16)],
+                      children: [
+                        ...children,
+                        SizedBox(height: isAccountsStage ? 10 : 16),
+                      ],
                     ),
                   ),
+                  if (isAccountsStage) ...[
+                    Padding(
+                      padding: ModalPopup.padding(context),
+                      child: PrimaryButton(
+                        onPressed: () => c.stage.value = AccountsViewStage.add,
+                        title: 'btn_add_account'.l10n,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ]
                 ],
               ),
             ),
