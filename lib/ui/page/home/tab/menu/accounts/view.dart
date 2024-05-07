@@ -263,11 +263,9 @@ class AccountsView extends StatelessWidget {
                       maxWidth: double.infinity,
                       child: Text(
                         'btn_proceed'.l10n,
-                        style: style.fonts.medium.regular.onBackground.copyWith(
-                          color: enabled
-                              ? style.colors.onPrimary
-                              : style.fonts.medium.regular.onBackground.color,
-                        ),
+                        style: enabled
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
                       ),
                     );
                   }),

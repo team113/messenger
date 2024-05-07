@@ -119,11 +119,9 @@ class AccountsController extends GetxController {
   /// [UserService] used to retrieve [User]s.
   final UserService _userService;
 
-  /// [Worker] updating the [accounts] list.
-  Worker? _myUsersWorker;
-
-  /// [Worker] updating the [sessions] list.
-  Worker? _sessionsWorker;
+  /// Subscription for [MyUserService.myUsers] changes updating the [accounts]
+  /// list.
+  StreamSubscription? _myUsersSubscription;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -133,7 +131,7 @@ class AccountsController extends GetxController {
 
   @override
   void onInit() {
-    _myUserService.myUsers.changes.listen((e) async {
+    _myUsersSubscription = _myUserService.myUsers.changes.listen((e) async {
       final UserId? id = e.key;
       final Rx<MyUser>? myUser = e.value;
 
@@ -155,18 +153,10 @@ class AccountsController extends GetxController {
           break;
 
         case OperationKind.updated:
-          // No-op.
+          accounts.sort(_compareAccounts);
           break;
       }
     });
-
-    _sessionsWorker ??= ever(
-      _authService.allCredentials,
-      (v) {
-        sessions.clear();
-        sessions.addAll(v.keys);
-      },
-    );
 
     login = TextFieldState(
       onChanged: (s) {
@@ -298,31 +288,15 @@ class AccountsController extends GetxController {
       final Rx<MyUser> myUser = e.value;
 
       final FutureOr<RxUser?> futureOrUser = _userService.get(id);
-      final user = futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
+      final RxUser? user =
+          futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
 
       if (user != null) {
         values.add((myUser: myUser, user: user));
       }
     }
 
-    values.sort((a, b) {
-      if (_authService.credentials.value?.userId == a.user.id) {
-        return -1;
-      } else if (_authService.credentials.value?.userId == b.user.id) {
-        return 1;
-      } else if (a.user.user.value.online && !b.user.user.value.online) {
-        return -1;
-      } else if (!a.user.user.value.online && b.user.user.value.online) {
-        return 1;
-      } else if (a.user.user.value.lastSeenAt == null ||
-          b.user.user.value.lastSeenAt == null) {
-        return -1;
-      }
-
-      return -a.user.user.value.lastSeenAt!.compareTo(
-        b.user.user.value.lastSeenAt!,
-      );
-    });
+    values.sort(_compareAccounts);
 
     accounts.value = values;
     status.value = RxStatus.success();
@@ -330,8 +304,7 @@ class AccountsController extends GetxController {
 
   @override
   void onClose() {
-    _myUsersWorker?.dispose();
-
+    _myUsersSubscription?.cancel();
     super.onClose();
   }
 
