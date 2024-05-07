@@ -403,7 +403,7 @@ class AccountsView extends StatelessWidget {
                           myUser: myUser,
                           user: user,
                           darken: authorized ? 0 : 0.06,
-                          onTap: authorized && c.myUser.value?.id != user.id
+                          onTap: authorized && c.me != user.id
                               ? () {
                                   Navigator.of(context).pop();
                                   c.switchTo(user.id);
@@ -416,7 +416,7 @@ class AccountsView extends StatelessWidget {
                                 child: child,
                               ),
                               onPressed: () async {
-                                final result = await MessagePopup.alert(
+                                final bool? result = await MessagePopup.alert(
                                   'btn_logout'.l10n,
                                   description: [
                                     TextSpan(
@@ -431,8 +431,8 @@ class AccountsView extends StatelessWidget {
                                         TextSpan(
                                           style: style.fonts.medium.regular
                                               .onBackground,
-                                          text: myUser?.name?.val ??
-                                              myUser?.num.toString(),
+                                          text:
+                                              '${myUser?.name ?? myUser?.num}',
                                         ),
                                         TextSpan(
                                           text:
@@ -463,15 +463,15 @@ class AccountsView extends StatelessWidget {
                                   await c.deleteAccount(user.id);
                                 }
                               },
-                              child: c.myUser.value?.id == myUser?.id
+                              child: c.me == myUser?.id
                                   ? const SvgIcon(SvgIcons.logoutWhite)
                                   : const SvgIcon(SvgIcons.logout),
                             ),
                           ],
-                          selected: c.myUser.value?.id == myUser?.id,
+                          selected: c.me == myUser?.id,
                           subtitle: [
                             const SizedBox(height: 5),
-                            if (c.myUser.value?.id == myUser?.id)
+                            if (c.me == myUser?.id)
                               Text(
                                 'label_active_account'.l10n,
                                 style: style.fonts.small.regular.onPrimary,

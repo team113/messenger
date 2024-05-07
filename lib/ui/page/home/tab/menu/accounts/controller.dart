@@ -118,10 +118,10 @@ class AccountsController extends GetxController {
   /// list.
   StreamSubscription? _myUsersSubscription;
 
-  /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUserService.myUser;
+  /// Returns [UserId] of currently authenticated [MyUser].
+  UserId? get me => _authService.userId;
 
-  /// Current authentication status.
+  /// Returns the current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
   /// Returns a reactive map of all authenticated sessions.
@@ -228,7 +228,7 @@ class AccountsController extends GetxController {
         try {
           await _authService.confirmSignUpEmail(
             ConfirmationCode(emailCode.text),
-            switching: true,
+            force: true,
           );
 
           // Change the route only after the mutation ends, as possible errors
@@ -342,7 +342,7 @@ class AccountsController extends GetxController {
         num: userNum,
         email: userEmail,
         phone: userPhone,
-        switching: true,
+        force: true,
       );
 
       router.nowhere();
@@ -423,7 +423,7 @@ class AccountsController extends GetxController {
     router.nowhere();
 
     try {
-      await _authService.register(switching: true);
+      await _authService.register(force: true);
       await Future.delayed(500.milliseconds);
       router.tab = HomeTab.chats;
       router.home();
@@ -519,9 +519,9 @@ class AccountsController extends GetxController {
   /// Compares two [AccountData]s based on the last seen time and the online
   /// status.
   int _compareAccounts(AccountData a, AccountData b) {
-    if (_authService.credentials.value?.userId == a.user.id) {
+    if (a.user.id == me) {
       return -1;
-    } else if (_authService.credentials.value?.userId == b.user.id) {
+    } else if (b.user.id == me) {
       return 1;
     } else if (a.user.user.value.online && !b.user.user.value.online) {
       return -1;
