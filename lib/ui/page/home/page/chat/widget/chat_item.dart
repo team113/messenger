@@ -890,7 +890,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             //   end: Alignment.bottomCenter,
             // ),
           ),
-          padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+          padding: const EdgeInsets.fromLTRB(9, 2, 9, 10),
           // decoration: InputDecoration(
           //   // label: Text(e.title),
           //   floatingLabelStyle: style.fonts.small.regular.secondary,
@@ -931,47 +931,50 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     return SelectionContainer.disabled(
                       child: WidgetButton(
                         onPressed: () => widget.onAction?.call(e),
-                        child: Stack(
-                          children: [
-                            // Positioned.fill(
-                            //   child: ClipRRect(
-                            //     borderRadius: BorderRadius.circular(15),
-                            //     child: const SvgImage.asset(
-                            //       'assets/images/bot_texture.svg',
-                            //       width: double.infinity,
-                            //       height: double.infinity,
-                            //       fit: BoxFit.cover,
-                            //     ),
-                            //   ),
-                            // ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  color: const Color(0xFFD3E3E6),
-                                  width: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(1, 0, 1, 0),
+                          child: Stack(
+                            children: [
+                              // Positioned.fill(
+                              //   child: ClipRRect(
+                              //     borderRadius: BorderRadius.circular(15),
+                              //     child: const SvgImage.asset(
+                              //       'assets/images/bot_texture.svg',
+                              //       width: double.infinity,
+                              //       height: double.infinity,
+                              //       fit: BoxFit.cover,
+                              //     ),
+                              //   ),
+                              // ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 4,
                                 ),
-                                color: const Color(0xFFddf1f4),
-                                // gradient: const LinearGradient(
-                                //   stops: [0, 1],
-                                //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
-                                //   begin: Alignment.topCenter,
-                                //   end: Alignment.bottomCenter,
-                                // ),
-                              ),
-                              child: Text(
-                                e.text,
-                                style: style.fonts.small.regular.secondary
-                                    .copyWith(
-                                  color: style.colors.primary,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: const Color(0xFFD3E3E6),
+                                    width: 1,
+                                  ),
+                                  color: const Color(0xFFddf1f4),
+                                  // gradient: const LinearGradient(
+                                  //   stops: [0, 1],
+                                  //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+                                  //   begin: Alignment.topCenter,
+                                  //   end: Alignment.bottomCenter,
+                                  // ),
+                                ),
+                                child: Text(
+                                  e.text,
+                                  style: style.fonts.small.regular.secondary
+                                      .copyWith(
+                                    color: style.colors.primary,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );
