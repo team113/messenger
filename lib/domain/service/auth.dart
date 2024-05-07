@@ -332,20 +332,21 @@ class AuthService extends GetxService {
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
   ///
-  /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying [switching] as `true`.
+  /// If [status] is already authorized, then this method does nothing, however,
+  /// this logic can be ignored by specifying [force] as `true`. [force] also
+  /// ignores [_unauthorized] call in case of an error.
   Future<void> register({
-    bool switching = false,
+    bool force = false,
   }) async {
-    Log.debug('register(switching: $switching)', '$runtimeType');
+    Log.debug('register(force: $force)', '$runtimeType');
 
-    status.value = switching ? RxStatus.loadingMore() : RxStatus.loading();
+    status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
 
     await WebUtils.protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase or account
       // switching, or otherwise the dependencies will be broken as of now.
-      if (!switching && _hasAuthorization) {
+      if (!force && _hasAuthorization) {
         return;
       }
 
@@ -354,7 +355,7 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        if (switching) {
+        if (force) {
           status.value = RxStatus.success();
         } else {
           _unauthorized();
@@ -377,24 +378,25 @@ class AuthService extends GetxService {
 
   /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
   ///
-  /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying [switching] as `true`.
+  /// If [status] is already authorized, then this method does nothing, however,
+  /// this logic can be ignored by specifying [force] as `true`. [force] also
+  /// ignores [_unauthorized] call in case of an error.
   Future<void> confirmSignUpEmail(
     ConfirmationCode code, {
-    bool switching = false,
+    bool force = false,
   }) async {
     Log.debug(
-      'confirmSignUpEmail($code, switching: $switching)',
+      'confirmSignUpEmail($code, force: $force)',
       '$runtimeType',
     );
 
-    status.value = switching ? RxStatus.loadingMore() : RxStatus.loading();
+    status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
 
     await WebUtils.protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase, or otherwise the
       // dependencies will be broken as of now.
-      if (!switching && _hasAuthorization) {
+      if (!force && _hasAuthorization) {
         return;
       }
 
@@ -403,7 +405,7 @@ class AuthService extends GetxService {
         _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
-        if (switching) {
+        if (force) {
           status.value = RxStatus.success();
         } else {
           _unauthorized();
@@ -428,35 +430,36 @@ class AuthService extends GetxService {
   ///
   /// Throws [CreateSessionException].
   ///
-  /// If [status] is already authorized, then this method does nothing, however
-  /// this logic can be ignored by specifying either [force] or [switching] as
-  /// `true`. But be careful, [force] set to `true` also ignores possible
+  /// If [status] is already authorized, then this method does nothing, however,
+  /// this logic can be ignored by specifying either [ignoreLock] or [force] as
+  /// `true`. But be careful, [ignoreLock] set to `true` also ignores possible
   /// [WebUtils.protect] races - you may want to lock it before invoking this
-  /// method to be async-safe.
+  /// method to be async-safe. [force] also ignores [_unauthorized] call in case
+  /// of an error.
   Future<void> signIn(
     UserPassword password, {
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    bool ignoreLock = false,
     bool force = false,
-    bool switching = false,
   }) async {
     Log.debug(
-      'signIn(***, login: $login, num: $num, email: ***, phone: ***, force: $force, switching: $switching)',
+      'signIn(***, login: $login, num: $num, email: ***, phone: ***, ignoreLock: $ignoreLock, force: $force)',
       '$runtimeType',
     );
 
-    // If [force] is `true`, then [WebUtils.protect] is ignored.
-    final Function protect = force ? (fn) => fn() : WebUtils.protect;
+    // If [ignoreLock] is `true`, then [WebUtils.protect] is ignored.
+    final Function protect = ignoreLock ? (fn) => fn() : WebUtils.protect;
 
     status.value =
-        switching || force ? RxStatus.loadingMore() : RxStatus.loading();
+        force || ignoreLock ? RxStatus.loadingMore() : RxStatus.loading();
     await protect(() async {
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase or to sign in to a
       // new account , or otherwise the dependencies will be broken as of now.
-      if (!force && !switching && _hasAuthorization) {
+      if (!ignoreLock && !force && _hasAuthorization) {
         return;
       }
 
@@ -471,7 +474,7 @@ class AuthService extends GetxService {
         _authorized(creds);
         status.value = RxStatus.success();
       } catch (e) {
-        if (switching) {
+        if (force) {
           status.value = RxStatus.success();
         } else {
           _unauthorized();
@@ -609,13 +612,13 @@ class AuthService extends GetxService {
   Future<void> removeAccount(UserId id) async {
     Log.debug('removeAccount($id)', '$runtimeType');
 
+    _authRepository.removeAccount(id);
+
     // Delete [Session] for this account if it's not the current one.
     final AccessTokenSecret? token = allCredentials[id]?.value.access.secret;
     if (id != userId && token != null) {
       await _authRepository.deleteSession(accessToken: token);
     }
-
-    await _authRepository.removeAccount(id);
   }
 
   /// Validates the [AccessToken] of the provided [Credentials].

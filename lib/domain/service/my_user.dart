@@ -124,8 +124,11 @@ class MyUserService extends DisposableService {
       await WebUtils.protect(() async {
         await _userRepo.updateUserPassword(oldPassword, newPassword);
 
-        // TODO: Replace `force` with something more granular and correct.
-        await _auth.signIn(newPassword, num: myUser.value?.num, force: true);
+        await _auth.signIn(
+          newPassword,
+          num: myUser.value?.num,
+          ignoreLock: true,
+        );
       });
     });
   }

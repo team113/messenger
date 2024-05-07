@@ -46,7 +46,7 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     await Get.find<AuthService>().signIn(
       password,
       num: context.world.sessions[user.name]?.userNum,
-      force: true,
+      ignoreLock: true,
     );
 
     router.home();
@@ -77,7 +77,7 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
       await Get.find<AuthService>().signIn(
         password,
         num: context.world.sessions[user.name]!.userNum,
-        force: true,
+        ignoreLock: true,
       );
     }
 
