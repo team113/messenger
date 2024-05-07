@@ -34,13 +34,11 @@ class EraseController extends GetxController {
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login = TextFieldState(
-    onChanged: (s) => s.error.value = null,
     onSubmitted: (s) => password.focus.requestFocus(),
   );
 
   /// [TextFieldState] of a password text input.
   late final TextFieldState password = TextFieldState(
-    onChanged: (s) => s.error.value = null,
     onSubmitted: (s) => signIn(),
   );
 
@@ -131,9 +129,11 @@ class EraseController extends GetxController {
       password.error.value = 'err_incorrect_login_or_password'.l10n;
     } on ConnectionException {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
     } catch (e) {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {

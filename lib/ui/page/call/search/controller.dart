@@ -198,7 +198,7 @@ class SearchController extends GetxController {
               scrollController.position.maxScrollExtent - 500),
     );
 
-    search = TextFieldState(onChanged: (d) => query.value = d.text);
+    search = TextFieldState(onFocus: (d) => query.value = d.text);
     _searchDebounce = debounce(query, (q) => _search(q.trim()));
     _searchWorker = ever(query, (String q) {
       if (q.length < 2) {

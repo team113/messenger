@@ -44,7 +44,7 @@ class _UserBioFieldState extends State<UserBioField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.bio?.val ?? '',
-    onChanged: (s) {
+    onFocus: (s) async {
       s.error.value = null;
 
       if (s.text.isNotEmpty) {
@@ -62,13 +62,13 @@ class _UserBioFieldState extends State<UserBioField> {
         s.status.value = RxStatus.loading();
 
         try {
-          widget.onSubmit?.call(UserBio.tryParse(s.text));
-          s.status.value = RxStatus.empty();
+          await widget.onSubmit?.call(UserBio.tryParse(s.text));
         } catch (e) {
+          s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
-          s.status.value = RxStatus.empty();
           rethrow;
         } finally {
+          s.status.value = RxStatus.empty();
           s.editable.value = true;
         }
       }
