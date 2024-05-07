@@ -383,6 +383,8 @@ class AccountsController extends GetxController {
   ///
   /// Also performs logout if deleting the current account.
   Future<void> deleteAccount(UserId id) async {
+    accounts.removeWhere((e) => e.user.id == id);
+
     if (id == _authService.userId) {
       _authService.logout();
       router.auth();
