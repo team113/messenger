@@ -100,6 +100,17 @@ class DeleteSessionController extends GetxController {
 
 /// Extension adding ability to get the device name part from a [UserAgent].
 extension UserAgentExtension on UserAgent {
+  /// List of [BrowserRule]s to look for in this [UserAgent].
+  static final List<BrowserRule> _rules = [
+    const BrowserRule(rule: 'Firefox', name: 'Firefox'),
+    const BrowserRule(rule: 'Edg', name: 'Microsoft Edge', versionLength: 1),
+    const BrowserRule(rule: r'OPR|Opera', name: 'Opera'),
+    const BrowserRule(rule: 'SamsungBrowser', name: 'Samsung Browser'),
+    const BrowserRule(rule: 'YaBrowser', name: 'Yandex Browser'),
+    const BrowserRule(rule: 'Chrome', name: 'Chrome', versionLength: 1),
+    const BrowserRule(rule: 'Safari', name: 'Safari'),
+  ];
+
   /// Returns the device name part of this [UserAgent], if any, or otherwise
   /// returns the whole [UserAgent].
   String get deviceName {
@@ -111,20 +122,18 @@ extension UserAgentExtension on UserAgent {
         final String value = val.substring(i + 1, val.length - 1);
 
         final List<String> parts = value.split(';');
-        if (value.contains('macOS') ||
-            value.contains('Android') ||
-            value.contains('iOS')) {
-          if (parts.length > 1) {
-            return parts[parts.length - 2].trim();
+
+        final String? part =
+            parts.firstWhereOrNull((e) => e.startsWith(' device:'));
+
+        if (part != null) {
+          return part.substring(' device:'.length).trim();
+        } else {
+          final int i = value.indexOf(';');
+
+          if (i != -1) {
+            return value.substring(0, i).trim();
           }
-        } else if (value.contains('Windows')) {
-          if (parts.isNotEmpty) {
-            return parts[0].split(' ').take(3).join(' ');
-          }
-        }
-        // Linux.
-        else if (parts.isNotEmpty) {
-          return parts[0].split(' ').take(2).join(' ');
         }
       }
     }
@@ -133,46 +142,40 @@ extension UserAgentExtension on UserAgent {
     else {
       List<String> parts = val.split(' ');
 
-      int? i;
+      String? version = parts
+          .firstWhereOrNull((e) => e.contains('Version/'))
+          ?.split('/')
+          .last;
 
-      i = parts.indexWhere(
-        (e) =>
-            e.startsWith('Firefox') ||
-            e.startsWith('Edg') ||
-            e.startsWith('OPR') ||
-            e.startsWith('Opera') ||
-            e.startsWith('SamsungBrowser') ||
-            e.startsWith('YaBrowser'),
-      );
+      for (final BrowserRule e in _rules) {
+        final int i = parts.indexWhere((p) => p.startsWith(e.rule));
+        if (i != -1) {
+          version ??= parts[i].split('/').last;
+          version = version.split('.').take(e.versionLength).join('.');
 
-      if (i == -1) {
-        i = parts.indexWhere((e) => e.startsWith('Chrome'));
-      }
-
-      if (i == -1) {
-        i = parts.indexWhere((e) => e.startsWith('Safari'));
-      }
-
-      if (i != -1) {
-        parts = parts[i].split('/');
-
-        if (parts.length > 1) {
-          String name = parts[0];
-          String version = parts[1];
-
-          name = name
-              .replaceAll('OPR', 'Opera')
-              .replaceAll('SamsungBrowser', 'Samsung Browser')
-              .replaceAll('Edg', 'Microsoft Edge')
-              .replaceAll('YaBrowser', 'Yandex Browser');
-
-          version = version.split('.')[0];
-
-          return '$name $version';
+          return '${e.name} $version';
         }
       }
     }
 
     return val;
   }
+}
+
+/// Data for parsing a browser from a [UserAgent].
+class BrowserRule {
+  const BrowserRule({
+    required this.rule,
+    required this.name,
+    this.versionLength = 4,
+  });
+
+  /// [Pattern] of the browser.
+  final Pattern rule;
+
+  /// Name of the browser.
+  final String name;
+
+  /// Length of the browser version.
+  final int versionLength;
 }

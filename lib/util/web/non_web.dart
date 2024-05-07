@@ -262,7 +262,7 @@ class WebUtils {
     if (PlatformUtils.isMacOS) {
       final info = await device.macOsInfo;
       final StringBuffer buffer = StringBuffer(
-        'macOS ${info.osRelease} ${info.kernelVersion}',
+        'macOS ${info.osRelease}; ${info.kernelVersion}',
       );
 
       buffer.write('; ${info.arch}');
@@ -274,7 +274,7 @@ class WebUtils {
         );
       }
 
-      buffer.write('; ${info.model}');
+      buffer.write('; device: ${info.model}');
 
       if (info.systemGUID != null) {
         buffer.write('; ${info.systemGUID}');
@@ -285,7 +285,7 @@ class WebUtils {
       final info = await device.windowsInfo;
 
       final StringBuffer buffer = StringBuffer(
-        '${info.productName} (build ${info.buildLabEx}); ${info.displayVersion}',
+        '${info.productName}; (build ${info.buildLabEx}); ${info.displayVersion}',
       );
 
       Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
@@ -336,6 +336,8 @@ class WebUtils {
         buffer.write(' ${utsname.release}');
       }
 
+      buffer.write(';');
+
       if (info.variant != null) {
         buffer.write(' ${info.variant}');
       }
@@ -358,20 +360,20 @@ class WebUtils {
       final utsname = uname();
 
       final StringBuffer buffer = StringBuffer(
-        'Android ${info.version.release} ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+        'Android ${info.version.release}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
       );
 
       if (utsname != null) {
         buffer.write('; ${utsname.machine} ${info.hardware}');
       }
 
-      buffer.write('; ${info.manufacturer} ${info.model}; ${info.id}');
+      buffer.write('; device: ${info.manufacturer} ${info.model}; ${info.id}');
 
       system = buffer.toString();
     } else if (PlatformUtils.isIOS) {
       final info = await device.iosInfo;
       final StringBuffer buffer = StringBuffer(
-        '${info.systemName} ${info.systemVersion} ${info.utsname.version}',
+        '${info.systemName} ${info.systemVersion}; ${info.utsname.version}',
       );
 
       try {
@@ -380,7 +382,7 @@ class WebUtils {
         // No-op.
       }
 
-      buffer.write('; ${info.utsname.machine}');
+      buffer.write('; device: ${info.utsname.machine}');
 
       if (info.identifierForVendor != null) {
         buffer.write('; ${info.identifierForVendor}');
