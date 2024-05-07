@@ -187,10 +187,7 @@ class MyProfileController extends GetxController {
 
     phone = TextFieldState(
       approvable: true,
-      onChanged: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             final phone = UserPhone(s.text.replaceAll(' ', ''));
@@ -222,9 +219,7 @@ class MyProfileController extends GetxController {
 
             if (e is AddUserPhoneException) {
               s.error.value = e.toMessage();
-              s.resubmitOnError.value =
-                  e.code == AddUserPhoneErrorCode.artemisUnknown ||
-                      e.code == AddUserPhoneErrorCode.busy;
+              s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
             } else {
               s.error.value = 'err_data_transfer'.l10n;
               s.resubmitOnError.value = true;
@@ -247,10 +242,7 @@ class MyProfileController extends GetxController {
 
     email = TextFieldState(
       approvable: true,
-      onChanged: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             final email = UserEmail(s.text);
@@ -281,8 +273,7 @@ class MyProfileController extends GetxController {
 
           if (e is AddUserEmailException) {
             s.error.value = e.toMessage();
-            s.resubmitOnError.value =
-                e.code == AddUserEmailErrorCode.artemisUnknown;
+            s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
           } else {
             s.error.value = 'err_data_transfer'.l10n;
             s.resubmitOnError.value = true;

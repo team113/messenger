@@ -52,8 +52,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
   /// State of the [ReactiveTextField].
   late final TextFieldState _state = TextFieldState(
     text: widget.login?.val,
-    onChanged: (s) async {
-      s.error.value = null;
+    onFocus: (s) async {
       if (s.text.isNotEmpty) {
         try {
           UserLogin(s.text.toLowerCase());
@@ -62,7 +61,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
         }
       }
 
-      if (s.error.value == null) {
+      if (s.error.value == null || s.resubmitOnError.isTrue) {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
 
@@ -75,7 +74,10 @@ class _UserLoginFieldState extends State<UserLoginField> {
         } on UpdateUserLoginException catch (e) {
           s.error.value = e.toMessage();
         } catch (e) {
+          s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
+          s.unsubmit();
+          s.changed.value = true;
           rethrow;
         } finally {
           s.status.value = RxStatus.empty();
