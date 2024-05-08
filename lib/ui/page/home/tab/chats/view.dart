@@ -24,6 +24,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
+import '../../../auth/controller.dart';
+import '../../introduction/controller.dart';
+import '../../introduction/view.dart';
 import '/config.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -360,6 +363,22 @@ class ChatsTabView extends StatelessWidget {
                               );
                             },
                             child: const SvgIcon(SvgIcons.search),
+                          ),
+                          AnimatedButton(
+                            key: const Key('Gapopa modal'),
+                            onPressed: () => IntroductionView.show(
+                              context,
+                              initial: IntroductionViewStage.link,
+                            ),
+                            decorator: (child) {
+                              return Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 12),
+                                height: double.infinity,
+                                child: child,
+                              );
+                            },
+                            child: const SvgIcon(SvgIcons.logo),
                           ),
                           ContextMenuRegion(
                             key: const Key('ChatsMenu'),
@@ -996,6 +1015,7 @@ class ChatsTabView extends StatelessWidget {
                                   sliver: SliverList(
                                     delegate: SliverChildListDelegate.fixed(
                                       [
+                                        const BrowserAlertBlock(slidable: true),
                                         ...chats.mapIndexed((i, e) {
                                           return AnimationConfiguration
                                               .staggeredList(

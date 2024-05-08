@@ -22,6 +22,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../auth/controller.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -250,8 +251,9 @@ class IntroductionView extends StatelessWidget {
                   dense: false,
                 );
                 children = [
+                  const BrowserAlertBlock(width: 300),
                   const SizedBox(height: 8),
-                  if (PlatformUtils.isWeb) ...[
+                  if (true || PlatformUtils.isWeb) ...[
                     applicationButton,
                     const SizedBox(height: 15),
                   ],

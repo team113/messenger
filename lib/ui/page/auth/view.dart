@@ -15,9 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
+import '../login/widget/primary_button.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -135,6 +139,9 @@ class AuthView extends StatelessWidget {
 
         // Footer part of the page.
         List<Widget> footer = [
+          const SizedBox(height: 25),
+          // const BrowserAlertBlock(width: 300),
+          const BrowserAlertInline(),
           const SizedBox(height: 25),
           Obx(() {
             return OutlinedRoundedButton(
@@ -263,6 +270,234 @@ class AuthView extends StatelessWidget {
           const SizedBox(height: 18),
         ],
       ),
+    );
+  }
+}
+
+class BrowserAlertBlock extends StatefulWidget {
+  const BrowserAlertBlock({super.key, this.width = 330, this.slidable = false});
+
+  final int width;
+
+  final bool slidable;
+
+  @override
+  State<BrowserAlertBlock> createState() => _BrowserAlertBlockState();
+}
+
+class _BrowserAlertBlockState extends State<BrowserAlertBlock> {
+  bool show = true;
+
+  bool expanded = false;
+
+  Future<void> _hide() async {
+    show = false;
+    setState(() {});
+
+    await Future.delayed(3.seconds);
+    show = true;
+    setState(() {});
+  }
+
+  void _toggle() {
+    expanded = !expanded;
+    setState(() {});
+  }
+
+  Widget _wrapper(Widget child) {
+    return widget.slidable
+        ? Slidable(
+            key: const Key('BrowserAlert'),
+            endActionPane: ActionPane(
+              extentRatio: 0.33,
+              motion: const StretchMotion(),
+              dismissible: DismissiblePane(onDismissed: _hide),
+              children: [],
+            ),
+            child: child,
+          )
+        : child;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).style;
+
+    return AnimatedSizeAndFade(
+      fadeDuration: const Duration(milliseconds: 400),
+      sizeDuration: const Duration(milliseconds: 400),
+      child: SizedBox(
+        width: widget.width.toDouble(),
+        child: show
+            ? _wrapper(
+                Card(
+                  elevation: 0.3,
+                  color: const Color.fromARGB(255, 255, 255, 250),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 8, 8),
+                    child: GestureDetector(
+                      onTap: _toggle,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.warning,
+                                  color: Colors.orange, size: 20),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'В Вашем браузере возможны проблемы.',
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          if (!expanded)
+                            Row(
+                              children: [
+                                Text.rich(
+                                  TextSpan(
+                                    text: 'Подробнее',
+                                    style: style.fonts.small.regular.primary,
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = _toggle,
+                                  ),
+                                ),
+                                const SizedBox(width: 40),
+                                Text.rich(
+                                  TextSpan(
+                                    text: 'Больше не показывать',
+                                    style: style.fonts.small.regular.primary,
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = _hide,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (expanded)
+                            const Text(
+                              'Для лучшего опыта мы рекомендуем Вам использовать один из следующих браузеров:',
+                            ),
+                          if (expanded) const SizedBox(height: 10),
+                          if (expanded)
+                            const Text(
+                              '- Google Chrome\n- Opera\n- Microsoft Edge',
+                            ),
+                          if (expanded) const SizedBox(height: 10),
+                          if (expanded)
+                            Row(
+                              children: [
+                                Text.rich(
+                                  TextSpan(
+                                    text: 'Свернуть',
+                                    style: style.fonts.small.regular.primary,
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = _toggle,
+                                  ),
+                                ),
+                                const SizedBox(width: 40),
+                                Text.rich(
+                                  TextSpan(
+                                    text: 'Больше не показывать',
+                                    style: style.fonts.small.regular.primary,
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = _hide,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+class BrowserAlertInline extends StatelessWidget {
+  const BrowserAlertInline({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final Style style = Theme.of(context).style;
+
+    return StyledCupertinoButton(
+      label: 'В Вашем браузере возможны проблемы',
+      style: style.fonts.small.regular.secondary.copyWith(color: Colors.red),
+      onPressed: () {
+        ModalPopup.show(
+            context: context,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ModalPopupHeader(
+                  text: 'Смените браузер',
+                  dense: true,
+                ),
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(30, 12, 30, 0),
+                  child: Text(
+                    'Для лучшего опыта мы рекомендуем Вам использовать один из следующих браузеров:',
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 12, 30, 0),
+                  child: Text.rich(
+                    TextSpan(children: [
+                      const TextSpan(text: '- '),
+                      TextSpan(
+                        text: 'Google Chrome',
+                        style: style.fonts.small.regular.primary
+                            .copyWith(fontSize: 14),
+                      ),
+                    ]),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: Text.rich(
+                    TextSpan(children: [
+                      const TextSpan(text: '- '),
+                      TextSpan(
+                        text: 'Opera',
+                        style: style.fonts.small.regular.primary
+                            .copyWith(fontSize: 14),
+                      ),
+                    ]),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: Text.rich(
+                    TextSpan(children: [
+                      const TextSpan(text: '- '),
+                      TextSpan(
+                        text: 'Microsoft Edge',
+                        style: style.fonts.small.regular.primary
+                            .copyWith(fontSize: 14),
+                      ),
+                    ]),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: PrimaryButton(
+                    title: 'Больше не показывать',
+                    onPressed: Navigator.of(context).pop,
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ));
+      },
     );
   }
 }
