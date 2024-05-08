@@ -19,8 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
+import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -202,6 +201,7 @@ class AccountsController extends GetxController {
 
             stage.value = AccountsViewStage.signUpWithEmail;
           } catch (_) {
+            s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             _setResendEmailTimer(false);
             s.unsubmit();
@@ -253,6 +253,7 @@ class AccountsController extends GetxController {
             _setCodeTimer();
           }
         } catch (_) {
+          s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
           s.unsubmit();
@@ -308,33 +309,30 @@ class AccountsController extends GetxController {
         force: true,
       );
 
+      // TODO: This is a hack that should be removed, as whenever the account is
+      //       changed, the [HomeView] and its dependencies must be rebuilt,
+      //       which may take some unidentifiable amount of time as of now.
       router.nowhere();
       await Future.delayed(const Duration(milliseconds: 500));
       router.home();
     } on CreateSessionException catch (e) {
-      switch (e.code) {
-        case CreateSessionErrorCode.wrongPassword:
-          ++signInAttempts;
+      ++signInAttempts;
 
-          if (signInAttempts >= 3) {
-            // Wrong password was entered three times. Login is possible in N
-            // seconds.
-            signInAttempts = 0;
-            _setSignInTimer();
-          }
-          password.error.value = e.toMessage();
-          break;
-
-        case CreateSessionErrorCode.artemisUnknown:
-          password.error.value = 'err_data_transfer'.l10n;
-          rethrow;
+      if (signInAttempts >= 3) {
+        // Wrong password was entered three times. Login is possible in N
+        // seconds.
+        signInAttempts = 0;
+        _setSignInTimer();
       }
+      password.error.value = e.toMessage();
     } on ConnectionException {
       password.unsubmit();
       password.error.value = 'err_data_transfer'.l10n;
+      password.resubmitOnError.value = true;
     } catch (e) {
       password.unsubmit();
       password.error.value = 'err_data_transfer'.l10n;
+      password.resubmitOnError.value = true;
       rethrow;
     } finally {
       login.status.value = RxStatus.empty();
@@ -364,6 +362,10 @@ class AccountsController extends GetxController {
 
       final bool succeeded = await _authService.switchAccount(id);
       if (succeeded) {
+        // TODO: This is a hack that should be removed, as whenever the account
+        //       is changed, the [HomeView] and its dependencies must be
+        //       rebuilt, which may take some unidentifiable amount of time as
+        //       of now.
         await Future.delayed(500.milliseconds);
         router.tab = HomeTab.chats;
         router.home();
@@ -387,7 +389,12 @@ class AccountsController extends GetxController {
 
     try {
       await _authService.register(force: true);
+
+      // TODO: This is a hack that should be removed, as whenever the account is
+      //       changed, the [HomeView] and its dependencies must be rebuilt,
+      //       which may take some unidentifiable amount of time as of now.
       await Future.delayed(500.milliseconds);
+
       router.tab = HomeTab.chats;
       router.home();
     } catch (e) {

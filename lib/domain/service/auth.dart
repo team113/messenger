@@ -377,8 +377,6 @@ class AuthService extends GetxService {
   ///
   /// If [status] is already authorized, then this method does nothing, however,
   /// this logic can be ignored by specifying [force] as `true`.
-  ///
-  /// [force] also ignores [_unauthorized] call in case of an error.
   Future<void> confirmSignUpEmail(
     ConfirmationCode code, {
     bool force = false,
