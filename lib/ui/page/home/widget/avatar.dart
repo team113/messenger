@@ -81,6 +81,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.label,
     this.onForbidden,
+    this.shape = BoxShape.circle,
     this.child,
     this.shape = BoxShape.circle,
   });
@@ -349,6 +350,9 @@ class AvatarWidget extends StatelessWidget {
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
 
+  /// [BoxShape] of this [AvatarWidget].
+  final BoxShape shape;
+
   /// [Widget] to display inside this [AvatarWidget].
   ///
   /// No-op, if [avatar] is specified.
@@ -501,7 +505,7 @@ class AvatarWidget extends StatelessWidget {
     });
   }
 
-  /// Applies the appropriate clipping according to the [shape] specified.
+  /// Returns a [ClipRRect] or [ClipOval] widget based on the [shape].
   Widget _clip({required Widget child}) {
     return switch (shape) {
       BoxShape.circle => ClipOval(child: child),

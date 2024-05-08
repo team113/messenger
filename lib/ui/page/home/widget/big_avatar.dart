@@ -120,10 +120,20 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                         width: AvatarRadius.largest.toDouble() * 2,
                         height: AvatarRadius.largest.toDouble() * 2,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(
+                            0.035 * (AvatarRadius.largest.toDouble() * 2),
+                          ),
                           color: style.colors.onBackgroundOpacity13,
                         ),
-                        child: const Center(child: CustomProgressIndicator()),
+                        child: const Center(
+                          // TODO: Remove, when flutter/flutter##120874 is
+                          //       fixed:
+                          //       https://github.com/flutter/flutter/issues/120874
+                          child: RepaintBoundary(
+                            child: CustomProgressIndicator(),
+                          ),
+                        ),
                       )
                     : const SizedBox.shrink(),
               ),
@@ -135,7 +145,8 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.onDelete != null) const SizedBox(width: 16),
+              if (widget.onUpload != null && widget.onDelete != null)
+                const SizedBox(width: 16),
               if (widget.onUpload != null)
                 WidgetButton(
                   key: const Key('UploadAvatar'),
@@ -145,8 +156,9 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
-              if (widget.onDelete != null) ...[
+              if (widget.onUpload != null && widget.onDelete != null)
                 const Spacer(),
+              if (widget.onDelete != null) ...[
                 WidgetButton(
                   key: const Key('DeleteAvatar'),
                   onPressed: widget.onDelete,
@@ -155,7 +167,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
-                const SizedBox(width: 16),
+                if (widget.onUpload != null) const SizedBox(width: 16),
               ],
             ],
           ),

@@ -169,15 +169,15 @@ btn_cancel = Отменить
 btn_call_video_on_desc =
     Включить
     камеру
-btn_change = Сменить
+btn_change = Изменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_clear_cache = Очистить кэш
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
-btn_copy = Скопировать
-btn_copy_text = Скопировать текст
+btn_copy = Копировать
+btn_copy_text = Копировать текст
 btn_create = Создать
 btn_create_group = Создать группу
 btn_decline = Отклонить
@@ -310,7 +310,7 @@ err_call_popup_was_blocked =
 err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята.
-err_code_limit_exceed =
+err_code_limit_exceeded =
     Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
 err_contact_not_group = Чат с указанным ID не является группой

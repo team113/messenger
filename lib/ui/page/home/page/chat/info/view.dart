@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/platform_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
@@ -86,25 +86,12 @@ class ChatInfoView extends StatelessWidget {
             );
           }
 
-          Widget highlighted({
-            required int index,
-            required Widget child,
-          }) {
-            return HighlightedContainer(
-              highlight: c.highlighted.value == index,
-              child: child,
-            );
-          }
-
           final List<Widget> blocks = [
             const SizedBox(height: 8),
-            highlighted(index: 0, child: _profile(c, context)),
-            highlighted(index: 1, child: _status(c, context)),
+            _avatar(c, context),
+            _name(c, context),
             if (!c.isMonolog) ...[
-              highlighted(
-                index: 2,
-                child: SelectionContainer.disabled(child: _link(c, context)),
-              ),
+              SelectionContainer.disabled(child: _link(c, context)),
               SelectionContainer.disabled(child: _members(c, context)),
             ],
             SelectionContainer.disabled(
@@ -118,14 +105,19 @@ class ChatInfoView extends StatelessWidget {
             body: Scrollbar(
               controller: c.scrollController,
               child: SelectionArea(
+                contextMenuBuilder: (_, __) => const SizedBox(),
                 child: ScrollablePositionedList.builder(
                   key: const Key('ChatInfoScrollable'),
-                  itemCount: blocks.length,
-                  itemBuilder: (_, i) => blocks[i],
                   scrollController: c.scrollController,
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
-                  initialScrollIndex: 0,
+                  itemCount: blocks.length,
+                  itemBuilder: (_, i) => Obx(() {
+                    return HighlightedContainer(
+                      highlight: c.highlighted.value == i,
+                      child: blocks[i],
+                    );
+                  }),
                 ),
               ),
             ),
@@ -135,10 +127,9 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Builds the [Block] displaying a [ChatAvatar], if any, and [ChatName].
-  Widget _profile(ChatInfoController c, BuildContext context) {
+  /// Returns the [Block] displaying a [Chat.avatar].
+  Widget _avatar(ChatInfoController c, BuildContext context) {
     return Block(
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
       children: [
         SelectionContainer.disabled(
           child: BigAvatarWidget.chat(
@@ -154,13 +145,120 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
+  /// Returns the [Block] displaying a [Chat.name].
+  Widget _name(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Block(
+      children: [
+        Obx(() {
+          final List<Widget> children;
+
+          if (c.nameEditing.value) {
+            children = [
+              const SizedBox(height: 10),
+              SelectionContainer.disabled(
+                child: ReactiveTextField(
+                  key: const Key('RenameChatField'),
+                  state: c.name,
+                  label: 'label_name'.l10n,
+                  hint: c.chat?.title,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  formatters: [LengthLimitingTextInputFormatter(100)],
+                ),
+              ),
+              const SizedBox(height: 16),
+              SelectionContainer.disabled(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: 16),
+                    WidgetButton(
+                      key: const Key('SaveNameButton'),
+                      onPressed: c.submitName,
+                      child: Text(
+                        'btn_save'.l10n,
+                        style: style.fonts.small.regular.primary,
+                      ),
+                    ),
+                    const Spacer(),
+                    WidgetButton(
+                      onPressed: () {
+                        c.name.text = c.chat!.chat.value.name?.val ?? '';
+                        c.nameEditing.value = false;
+                      },
+                      child: SelectionContainer.disabled(
+                        child: Text(
+                          'btn_cancel'.l10n,
+                          style: style.fonts.small.regular.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+            ];
+          } else {
+            children = [
+              Container(width: double.infinity),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Text(
+                  c.chat?.title ?? c.name.text,
+                  style: style.fonts.larger.regular.onBackground,
+                ),
+              ),
+              const SizedBox(height: 12),
+              WidgetButton(
+                key: const Key('EditNameButton'),
+                onPressed: () {
+                  final ItemPosition? first =
+                      c.positionsListener.itemPositions.value.firstOrNull;
+
+                  // If the [Block] containing this button isn't fully
+                  // visible, then animate to it's beginning.
+                  if (first?.index == 2 && first!.itemLeadingEdge < 0) {
+                    c.itemScrollController.scrollTo(
+                      index: 2,
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                    );
+                    c.highlight(2);
+                  }
+
+                  c.nameEditing.value = true;
+                },
+                child: SelectionContainer.disabled(
+                  child: Text(
+                    'btn_change'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+              ),
+            ];
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: 250.milliseconds,
+            sizeDuration: 250.milliseconds,
+            child: Column(
+              key: Key(c.nameEditing.value.toString()),
+              children: children,
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
   /// Returns the [Chat.directLink] visual representation.
   Widget _link(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Block(
       title: 'label_direct_chat_link'.l10n,
-      padding: Block.defaultPadding.copyWith(bottom: 10),
       children: [
         Obx(() {
           return Column(
@@ -177,26 +275,28 @@ class ChatInfoView extends StatelessWidget {
                 c.chat?.chat.value.directLink,
                 onSubmit: (s) async {
                   if (s == null) {
-                    c.linkEditing.value = false;
                     await c.deleteChatDirectLink();
                   } else {
                     await c.createChatDirectLink(s);
-                    c.linkEditing.value = false;
                   }
                 },
                 background: c.background.value,
-                editing: c.linkEditing.value,
                 onEditing: (b) {
                   if (b) {
-                    c.itemScrollController.scrollTo(
-                      index: 3,
-                      curve: Curves.ease,
-                      duration: const Duration(milliseconds: 600),
-                    );
-                    c.highlight(2);
-                  }
+                    final ItemPosition? first =
+                        c.positionsListener.itemPositions.value.firstOrNull;
 
-                  c.linkEditing.value = b;
+                    // If the [Block] containing this widget isn't fully
+                    // visible, then animate to it's beginning.
+                    if (first?.index == 3 && first!.itemLeadingEdge < 0) {
+                      c.itemScrollController.scrollTo(
+                        index: 3,
+                        curve: Curves.ease,
+                        duration: const Duration(milliseconds: 600),
+                      );
+                      c.highlight(3);
+                    }
+                  }
                 },
               ),
             ],
@@ -211,7 +311,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Block(
-      padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+      padding: Block.defaultPadding.copyWith(right: 0, left: 0),
       title: 'label_participants'
           .l10nfmt({'count': c.chat!.chat.value.membersCount}),
       children: [
@@ -307,113 +407,13 @@ class ChatInfoView extends StatelessWidget {
         }),
         const SizedBox(height: 16),
         WidgetButton(
+          key: const Key('AddMemberButton'),
           onPressed: () => AddChatMemberView.show(context, chatId: id),
           child: Text(
-            'btn_add_participant'.l10n,
+            'btn_add_member'.l10n,
             style: style.fonts.small.regular.primary,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _status(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Block(
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 8),
-      children: [
-        Obx(() {
-          final List<Widget> children;
-
-          if (c.profileEditing.value) {
-            children = [
-              const SizedBox(height: 18),
-              SelectionContainer.disabled(
-                child: ReactiveTextField(
-                  key: const Key('RenameChatField'),
-                  state: c.name,
-                  label: 'label_name'.l10n,
-                  hint: c.chat?.title,
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  formatters: [LengthLimitingTextInputFormatter(100)],
-                ),
-              ),
-              const SizedBox(height: 16),
-              SelectionContainer.disabled(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(width: 16),
-                    WidgetButton(
-                      onPressed: () {
-                        c.submitName();
-                        c.profileEditing.value = false;
-                      },
-                      child: Text(
-                        'btn_save'.l10n,
-                        style: style.fonts.small.regular.primary,
-                      ),
-                    ),
-                    const Spacer(),
-                    WidgetButton(
-                      onPressed: () {
-                        c.name.text = c.chat!.chat.value.name?.val ?? '';
-                        c.profileEditing.value = false;
-                      },
-                      child: SelectionContainer.disabled(
-                        child: Text(
-                          'btn_cancel'.l10n,
-                          style: style.fonts.small.regular.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 4),
-            ];
-          } else {
-            children = [
-              Container(width: double.infinity),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: Text(
-                  c.chat?.title ?? c.name.text,
-                  style: style.fonts.larger.regular.onBackground,
-                ),
-              ),
-              const SizedBox(height: 12),
-              WidgetButton(
-                onPressed: () {
-                  c.itemScrollController.scrollTo(
-                    index: 2,
-                    curve: Curves.ease,
-                    duration: const Duration(milliseconds: 600),
-                  );
-                  c.highlight(1);
-                  c.profileEditing.value = true;
-                },
-                child: SelectionContainer.disabled(
-                  child: Text(
-                    'btn_edit'.l10n,
-                    style: style.fonts.small.regular.primary,
-                  ),
-                ),
-              ),
-            ];
-          }
-
-          return AnimatedSizeAndFade(
-            fadeDuration: 250.milliseconds,
-            sizeDuration: 250.milliseconds,
-            child: Column(
-              key: Key(c.profileEditing.value.toString()),
-              children: children,
-            ),
-          );
-        }),
       ],
     );
   }
@@ -472,119 +472,88 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     // [SvgIcons.more] buttons with its [ContextMenuRegion].
-    final Widget editButton = Obx(key: const Key('MoreButton'), () {
+    final Widget moreButton = Obx(key: const Key('MoreButton'), () {
       final bool favorite = c.chat?.chat.value.favoritePosition != null;
-      final bool hasCall = c.chat?.chat.value.ongoingCall != null;
       final bool muted = c.chat?.chat.value.muted != null;
 
-      return ContextMenuRegion(
-        key: c.moreKey,
-        selector: c.moreKey,
-        alignment: Alignment.topRight,
-        enablePrimaryTap: true,
-        margin: const EdgeInsets.only(bottom: 4, left: 20),
-        actions: [
-          ContextMenuButton(
-            label: 'label_open_chat'.l10n,
-            onPressed: () => router.chat(id),
-            trailing: const SvgIcon(SvgIcons.chat18),
-            inverted: const SvgIcon(SvgIcons.chat18White),
-          ),
-          ContextMenuButton(
-            label: 'btn_audio_call'.l10n,
-            onPressed: hasCall ? null : () => c.call(false),
-            trailing: hasCall
-                ? const SvgIcon(SvgIcons.makeAudioCallDisabled)
-                : const SvgIcon(SvgIcons.makeAudioCall),
-            inverted: const SvgIcon(SvgIcons.makeAudioCallWhite),
-          ),
-          ContextMenuButton(
-            label: 'btn_video_call'.l10n,
-            onPressed: hasCall ? null : () => c.call(true),
-            trailing: Transform.translate(
-              offset: const Offset(2, 0),
-              child: hasCall
-                  ? const SvgIcon(SvgIcons.makeVideoCallDisabled)
-                  : const SvgIcon(SvgIcons.makeVideoCall),
-            ),
-            inverted: Transform.translate(
-              offset: const Offset(2, 0),
-              child: const SvgIcon(SvgIcons.makeVideoCallWhite),
-            ),
-          ),
-          ContextMenuButton(
-            label: favorite
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-            trailing: SvgIcon(
-              favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
-            ),
-            inverted: SvgIcon(
-              favorite
-                  ? SvgIcons.favoriteSmallWhite
-                  : SvgIcons.unfavoriteSmallWhite,
-            ),
-          ),
-          if (!c.isMonolog)
+      return AnimatedButton(
+        child: ContextMenuRegion(
+          key: c.moreKey,
+          selector: c.moreKey,
+          alignment: Alignment.topRight,
+          enablePrimaryTap: true,
+          margin: const EdgeInsets.only(bottom: 4, left: 6),
+          actions: [
             ContextMenuButton(
-              key: Key(
-                muted ? 'UnmuteChatButton' : 'MuteChatButton',
-              ),
-              label: muted
-                  ? PlatformUtils.isMobile
-                      ? 'btn_unmute'.l10n
-                      : 'btn_unmute_chat'.l10n
-                  : PlatformUtils.isMobile
-                      ? 'btn_mute'.l10n
-                      : 'btn_mute_chat'.l10n,
+              label: favorite
+                  ? 'btn_delete_from_favorites'.l10n
+                  : 'btn_add_to_favorites'.l10n,
+              onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
               trailing: SvgIcon(
-                muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
               ),
               inverted: SvgIcon(
-                muted ? SvgIcons.unmuteSmallWhite : SvgIcons.muteSmallWhite,
+                favorite
+                    ? SvgIcons.favoriteSmallWhite
+                    : SvgIcons.unfavoriteSmallWhite,
               ),
-              onPressed: muted ? c.unmuteChat : c.muteChat,
             ),
-          if (!c.isMonolog)
+            if (!c.isMonolog) ...[
+              ContextMenuButton(
+                key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
+                label: muted
+                    ? PlatformUtils.isMobile
+                        ? 'btn_unmute'.l10n
+                        : 'btn_unmute_chat'.l10n
+                    : PlatformUtils.isMobile
+                        ? 'btn_mute'.l10n
+                        : 'btn_mute_chat'.l10n,
+                trailing: SvgIcon(
+                  muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                ),
+                inverted: SvgIcon(
+                  muted ? SvgIcons.unmuteSmallWhite : SvgIcons.muteSmallWhite,
+                ),
+                onPressed: muted ? c.unmuteChat : c.muteChat,
+              ),
+              ContextMenuButton(
+                onPressed: () => _reportChat(c, context),
+                label: 'btn_report'.l10n,
+                trailing: const SvgIcon(SvgIcons.report),
+                inverted: const SvgIcon(SvgIcons.reportWhite),
+              ),
+            ],
             ContextMenuButton(
-              onPressed: () => _reportChat(c, context),
-              label: 'btn_report'.l10n,
-              trailing: const SvgIcon(SvgIcons.report),
-              inverted: const SvgIcon(SvgIcons.reportWhite),
+              onPressed: () => _clearChat(c, context),
+              label: 'btn_clear_history'.l10n,
+              trailing: const SvgIcon(SvgIcons.cleanHistory),
+              inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
             ),
-          ContextMenuButton(
-            onPressed: () => _clearChat(c, context),
-            label: 'btn_clear_history'.l10n,
-            trailing: const SvgIcon(SvgIcons.cleanHistory),
-            inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-          ),
-          ContextMenuButton(
-            key: const Key('HideChatButton'),
-            onPressed: () => _hideChat(c, context),
-            label: 'btn_delete_chat'.l10n,
-            trailing: const SvgIcon(SvgIcons.delete19),
-            inverted: const SvgIcon(SvgIcons.delete19White),
-          ),
-          if (!c.isMonolog)
             ContextMenuButton(
-              onPressed: () => _leaveGroup(c, context),
-              label: 'btn_leave_group'.l10n,
-              trailing: const SvgIcon(SvgIcons.leaveGroup),
-              inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
+              key: const Key('HideChatButton'),
+              onPressed: () => _hideChat(c, context),
+              label: 'btn_delete_chat'.l10n,
+              trailing: const SvgIcon(SvgIcons.delete19),
+              inverted: const SvgIcon(SvgIcons.delete19White),
             ),
-        ],
-        child: Container(
-          padding: const EdgeInsets.only(left: 31, right: 25),
-          height: double.infinity,
-          child: const SvgIcon(SvgIcons.more),
+            if (!c.isMonolog)
+              ContextMenuButton(
+                onPressed: () => _leaveGroup(c, context),
+                label: 'btn_leave_group'.l10n,
+                trailing: const SvgIcon(SvgIcons.leaveGroup),
+                inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
+              ),
+          ],
+          child: Container(
+            padding: const EdgeInsets.only(left: 28, right: 21),
+            height: double.infinity,
+            child: const SvgIcon(SvgIcons.more),
+          ),
         ),
       );
     });
 
-    final Widget title;
-
-    title = Row(
+    final Widget title = Row(
       children: [
         const StyledBackButton(),
         Material(
@@ -603,13 +572,11 @@ class ChatInfoView extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Obx(() {
                   return Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Flexible(
                         child: Text(
@@ -643,7 +610,9 @@ class ChatInfoView extends StatelessWidget {
 
     return Row(
       children: [
-        Expanded(child: title),
+        Expanded(
+          child: title,
+        ),
         const SizedBox(width: 8),
         AnimatedButton(
           onPressed: () => router.chat(id),
@@ -660,7 +629,7 @@ class ChatInfoView extends StatelessWidget {
           onPressed: () => c.call(false),
           child: const SvgIcon(SvgIcons.chatAudioCall),
         ),
-        editButton,
+        moreButton,
       ],
     );
   }

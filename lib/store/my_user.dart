@@ -452,6 +452,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
 
+    // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
+    // link right away.
     await _graphQlProvider.createUserDirectLink(slug);
 
     myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));

@@ -72,8 +72,7 @@ class ChangePasswordController extends GetxController {
   @override
   void onInit() {
     oldPassword = TextFieldState(
-      onChanged: (s) {
-        oldPassword.error.value = null;
+      onFocus: (s) {
         repeatPassword.unsubmit();
 
         if (s.text.isNotEmpty) {
@@ -91,10 +90,10 @@ class ChangePasswordController extends GetxController {
     );
 
     newPassword = TextFieldState(
-      onChanged: (s) {
-        newPassword.error.value = null;
+      onChanged: (_) {
         repeatPassword.error.value = null;
-
+      },
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
@@ -117,10 +116,10 @@ class ChangePasswordController extends GetxController {
     );
 
     repeatPassword = TextFieldState(
-      onChanged: (s) {
+      onChanged: (_) {
         newPassword.error.value = null;
-        repeatPassword.error.value = null;
-
+      },
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
@@ -190,6 +189,7 @@ class ChangePasswordController extends GetxController {
       } on UpdateUserPasswordException catch (e) {
         oldPassword.error.value = e.toMessage();
       } catch (e) {
+        repeatPassword.resubmitOnError.value = true;
         repeatPassword.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {

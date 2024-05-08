@@ -66,7 +66,7 @@ class MessageFieldController extends GetxController {
             RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()) {
     field = TextFieldState(
       text: text,
-      onChanged: (_) => onChanged?.call(),
+      onFocus: (_) => onChanged?.call(),
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();

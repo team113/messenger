@@ -21,7 +21,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/my_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -97,6 +96,13 @@ class UserController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
+  final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
+  final ItemPositionsListener positionsListener =
+      ItemPositionsListener.create();
+
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
@@ -117,7 +123,7 @@ class UserController extends GetxController {
   late final TextFieldState name;
 
   /// Indicator whether the editing mode is enabled.
-  final RxBool profileEditing = RxBool(false);
+  final RxBool nameEditing = RxBool(false);
 
   /// Status of a [block] progression.
   ///
@@ -126,8 +132,9 @@ class UserController extends GetxController {
   /// - `status.isEmpty`, meaning no [block] is executing.
   final Rx<RxStatus> blocklistStatus = Rx(RxStatus.empty());
 
-  /// Indicator whether [AppBar] should display the [UserName] and [UserAvatar].
-  final RxBool displayName = RxBool(false);
+  /// Index of an item from the profile's [ScrollablePositionedList] that should
+  /// be highlighted.
+  final RxnInt highlighted = RxnInt();
 
   /// Index of the [Block] that should be highlighted.
   final RxnInt highlighted = RxnInt();
@@ -170,6 +177,13 @@ class UserController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
+  /// passed.
+  Timer? _highlightTimer;
+
+  /// [Duration] of the highlighting.
+  static const Duration _highlightTimeout = Duration(seconds: 1);
+
   /// Indicates whether this [user] is blocked.
   BlocklistRecord? get isBlocked => user?.user.value.isBlocked;
 
@@ -192,10 +206,12 @@ class UserController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserName(s.text);
+          } on FormatException {
+            s.error.value = 'err_incorrect_input'.l10n;
           } catch (e) {
             s.error.value = e.toString();
           }
@@ -213,15 +229,13 @@ class UserController extends GetxController {
       if (user != null) {
         _contactWorker = ever(contact, (contact) {
           if (contact == null) {
-            profileEditing.value = false;
+            nameEditing.value = false;
           }
 
           _updateWorker();
         });
       }
     });
-
-    scrollController.addListener(_ensureNameDisplayed);
 
     super.onInit();
   }
@@ -557,9 +571,51 @@ class UserController extends GetxController {
     }
   }
 
-  /// Highlights the [Block] at the [i] index.
-  void highlight(int i) {
-    highlighted.value = i;
+  /// Submits the [name] field.
+  Future<void> submitName() async {
+    name.focus.unfocus();
+
+    if (name.text == contact.value?.contact.value.name.val) {
+      name.unsubmit();
+      nameEditing.value = false;
+      return;
+    }
+
+    UserName? userName;
+    try {
+      userName = UserName(name.text);
+    } on FormatException catch (_) {
+      name.status.value = RxStatus.empty();
+      name.error.value = 'err_incorrect_input'.l10n;
+      name.unsubmit();
+      return;
+    }
+
+    if (name.error.value == null || name.resubmitOnError.isTrue) {
+      name.status.value = RxStatus.loading();
+      name.editable.value = false;
+
+      try {
+        await _contactService.changeContactName(contact.value!.id, userName);
+        name.error.value = null;
+        nameEditing.value = false;
+        name.unsubmit();
+      } on UpdateChatContactNameException catch (e) {
+        name.error.value = e.toString();
+      } catch (e) {
+        name.resubmitOnError.value = true;
+        name.error.value = 'err_data_transfer'.l10n;
+        rethrow;
+      } finally {
+        name.status.value = RxStatus.empty();
+        name.editable.value = true;
+      }
+    }
+  }
+
+  /// Highlights the item with the provided [index].
+  void highlight(int index) {
+    highlighted.value = index;
 
     _highlightTimer?.cancel();
     _highlightTimer = Timer(_highlightTimeout, () {
@@ -611,12 +667,6 @@ class UserController extends GetxController {
         }
       });
     }
-  }
-
-  /// Ensures the [displayName] is either `true` or `false` based on the
-  /// [scrollController].
-  void _ensureNameDisplayed() {
-    displayName.value = scrollController.position.pixels >= 250;
   }
 }
 

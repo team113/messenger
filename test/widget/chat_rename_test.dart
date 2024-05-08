@@ -434,7 +434,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester
-        .tap(find.byKey(const Key('EditProfileButton'), skipOffstage: false));
+        .tap(find.byKey(const Key('EditNameButton'), skipOffstage: false));
     await tester.pumpAndSettle();
 
     var field = find.byKey(const Key('RenameChatField'));
@@ -444,6 +444,10 @@ void main() async {
     await tester.pumpAndSettle();
 
     await tester.enterText(field, 'newname');
+    await tester.pumpAndSettle();
+
+    await tester
+        .tap(find.byKey(const Key('SaveNameButton'), skipOffstage: false));
     await tester.pumpAndSettle();
 
     await tester.testTextInput.receiveAction(TextInputAction.done);

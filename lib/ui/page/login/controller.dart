@@ -20,8 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart'
-    show ConfirmUserEmailErrorCode, CreateSessionErrorCode;
+import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -217,8 +216,8 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     login = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
+      onChanged: (_) {
+        password.error.value = null;
         password.unsubmit();
       },
       onSubmitted: (s) {
@@ -228,26 +227,16 @@ class LoginController extends GetxController {
     );
 
     password = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        s.unsubmit();
-      },
+      onFocus: (s) => s.unsubmit(),
       onSubmitted: (s) => signIn(),
     );
 
-    recovery = TextFieldState(
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) => recoverAccess(),
-    );
+    recovery = TextFieldState(onSubmitted: (s) => recoverAccess());
 
-    recoveryCode = TextFieldState(
-      onChanged: (s) => s.error.value = null,
-      onSubmitted: (s) => validateCode(),
-    );
+    recoveryCode = TextFieldState(onSubmitted: (s) => validateCode());
 
     newPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
+      onChanged: (_) {
         repeatPassword.error.value = null;
         repeatPassword.unsubmit();
       },
@@ -258,10 +247,7 @@ class LoginController extends GetxController {
     );
 
     repeatPassword = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-        newPassword.error.value = null;
-
+      onFocus: (s) {
         if (s.text != newPassword.text && newPassword.isValidated) {
           s.error.value = 'err_passwords_mismatch'.l10n;
         }
@@ -272,9 +258,7 @@ class LoginController extends GetxController {
     );
 
     email = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserEmail(s.text.toLowerCase());
@@ -300,6 +284,7 @@ class LoginController extends GetxController {
 
             stage.value = LoginViewStage.signUpWithEmail;
           } catch (_) {
+            s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             _setResendEmailTimer(false);
             s.unsubmit();
@@ -345,6 +330,7 @@ class LoginController extends GetxController {
             _setCodeTimer();
           }
         } catch (_) {
+          s.resubmitOnError.value = true;
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
           s.unsubmit();
@@ -404,29 +390,23 @@ class LoginController extends GetxController {
 
       (onSuccess ?? router.home)();
     } on CreateSessionException catch (e) {
-      switch (e.code) {
-        case CreateSessionErrorCode.wrongPassword:
-          ++signInAttempts;
+      ++signInAttempts;
 
-          if (signInAttempts >= 3) {
-            // Wrong password was entered three times. Login is possible in N
-            // seconds.
-            signInAttempts = 0;
-            _setSignInTimer();
-          }
-
-          password.error.value = e.toMessage();
-          break;
-
-        case CreateSessionErrorCode.artemisUnknown:
-          password.error.value = 'err_data_transfer'.l10n;
-          rethrow;
+      if (signInAttempts >= 3) {
+        // Wrong password was entered three times. Login is possible in N
+        // seconds.
+        signInAttempts = 0;
+        _setSignInTimer();
       }
+
+      password.error.value = e.toMessage();
     } on ConnectionException {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
     } catch (e) {
       password.unsubmit();
+      password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -560,6 +540,7 @@ class LoginController extends GetxController {
       recovery.error.value = 'err_account_not_found'.l10n;
     } catch (e) {
       recovery.unsubmit();
+      recovery.resubmitOnError.value = true;
       recovery.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -602,6 +583,7 @@ class LoginController extends GetxController {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
       recoveryCode.unsubmit();
+      recoveryCode.resubmitOnError.value = true;
       recoveryCode.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -670,6 +652,7 @@ class LoginController extends GetxController {
     } on ResetUserPasswordException catch (e) {
       repeatPassword.error.value = e.toMessage();
     } catch (e) {
+      repeatPassword.resubmitOnError.value = true;
       repeatPassword.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -689,6 +672,7 @@ class LoginController extends GetxController {
     } on ResendUserEmailConfirmationException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
+      emailCode.resubmitOnError.value = true;
       emailCode.error.value = 'err_data_transfer'.l10n;
       _setResendEmailTimer(false);
       rethrow;
@@ -698,12 +682,14 @@ class LoginController extends GetxController {
   /// Starts or stops the [_signInTimer] based on [enabled] value.
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
+      password.submittable.value = false;
       signInTimeout.value = 30;
       _signInTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) {
           signInTimeout.value--;
           if (signInTimeout.value <= 0) {
+            password.submittable.value = true;
             signInTimeout.value = 0;
             _signInTimer?.cancel();
             _signInTimer = null;
@@ -711,6 +697,7 @@ class LoginController extends GetxController {
         },
       );
     } else {
+      password.submittable.value = true;
       signInTimeout.value = 0;
       _signInTimer?.cancel();
       _signInTimer = null;
@@ -742,12 +729,14 @@ class LoginController extends GetxController {
   /// Starts or stops the [_codeTimer] based on [enabled] value.
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
+      emailCode.submittable.value = false;
       codeTimeout.value = 30;
       _codeTimer = Timer.periodic(
         const Duration(seconds: 1),
         (_) {
           codeTimeout.value--;
           if (codeTimeout.value <= 0) {
+            emailCode.submittable.value = true;
             codeTimeout.value = 0;
             _codeTimer?.cancel();
             _codeTimer = null;
@@ -755,6 +744,7 @@ class LoginController extends GetxController {
         },
       );
     } else {
+      emailCode.submittable.value = true;
       codeTimeout.value = 0;
       _codeTimer?.cancel();
       _codeTimer = null;

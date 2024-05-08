@@ -49,7 +49,6 @@ class DirectLinkField extends StatefulWidget {
     super.key,
     this.onSubmit,
     this.background,
-    this.editing,
     this.onEditing,
   });
 
@@ -61,11 +60,6 @@ class DirectLinkField extends StatefulWidget {
 
   /// Bytes of the background to display under the widget.
   final Uint8List? background;
-
-  /// Indicator whether editing mode should be enabled or disabled.
-  ///
-  /// If `null`, then this is determined dynamically.
-  final bool? editing;
 
   /// Callback, called when editing mode changes.
   final void Function(bool)? onEditing;
@@ -91,10 +85,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     _state = TextFieldState(
       text: widget.link?.slug.val,
       submitted: widget.link != null,
-      debounce: true,
-      onChanged: (s) {
-        s.error.value = null;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             ChatDirectLinkSlug(s.text);
@@ -103,12 +94,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           }
         }
       },
-      onSubmitted: (s) async => await _submitLink(),
     );
 
     if (widget.link == null) {
       _state.text = _generated;
-      _editing = widget.editing ?? false;
     }
 
     super.initState();
@@ -122,15 +111,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         _state.editable.value) {
       _state.unchecked = widget.link?.slug.val;
     }
-
-    if (widget.editing == true && widget.editing != oldWidget.editing) {
-      if (_state.text.isEmpty) {
-        _state.unsubmit();
-        _state.text = _generated;
-      }
-    }
-
-    _editing = widget.editing ?? _editing;
 
     super.didUpdateWidget(oldWidget);
   }
@@ -150,7 +130,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             Obx(() {
               final bool deletable = !_state.isEmpty.value &&
                   _state.error.value == null &&
-                  _state.text.isNotEmpty;
+                  _state.text.isNotEmpty &&
+                  widget.link != null;
 
               return ReactiveTextField(
                 key: const Key('LinkField'),
@@ -191,6 +172,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: WidgetButton(
+                    key: const Key('SaveLinkButton'),
                     onPressed: _submitLink,
                     child: Text(
                       'btn_save'.l10n,
@@ -242,6 +224,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 children: [
                   const SizedBox(height: 14),
                   WidgetButton(
+                    key: const Key('CreateLinkButton'),
                     onPressed: () {
                       _state.text = _generated;
                       setState(() => _editing = true);
@@ -373,7 +356,6 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           ),
           const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(width: 16),
               WidgetButton(
@@ -401,14 +383,14 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     widget.onEditing?.call(_editing);
                   },
                   child: Text(
-                    'btn_edit'.l10n,
+                    'btn_change'.l10n,
                     style: style.fonts.small.regular.primary,
                   ),
                 ),
               ),
               const SizedBox(width: 16),
             ],
-          ),
+          )
         ],
       );
     }
@@ -444,40 +426,43 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     );
   }
 
-  /// Submits the [_state] as the new [ChatDirectLinkSlug].
+  /// Submits this [DirectLinkField].
   Future<void> _submitLink() async {
-    final ChatDirectLinkSlug? slug = ChatDirectLinkSlug.tryParse(_state.text);
+    _state.focus.unfocus();
+
+    ChatDirectLinkSlug? slug;
 
     if (_state.text.isNotEmpty) {
-      if (slug == null) {
+      try {
+        slug = ChatDirectLinkSlug(_state.text);
+      } on FormatException {
         _state.error.value = 'err_invalid_symbols_in_link'.l10n;
-      }
-
-      if (slug == null || slug == widget.link?.slug) {
-        setState(() => _editing = false);
-        widget.onEditing?.call(_editing);
-        return;
       }
     }
 
-    if (_state.error.value == null) {
+    if (_state.error.value == null || _state.resubmitOnError.isTrue) {
+      if (slug == widget.link?.slug) {
+        setState(() => _editing = false);
+        widget.onEditing?.call(false);
+        return;
+      }
+
       _state.editable.value = false;
       _state.status.value = RxStatus.loading();
 
       try {
         await widget.onSubmit?.call(slug);
-        _state.status.value = RxStatus.success();
-        await Future.delayed(const Duration(seconds: 1));
-        _state.status.value = RxStatus.empty();
+        setState(() => _editing = false);
+        widget.onEditing?.call(false);
       } on CreateChatDirectLinkException catch (e) {
-        _state.status.value = RxStatus.empty();
         _state.error.value = e.toMessage();
       } catch (e) {
-        _state.status.value = RxStatus.empty();
+        _state.resubmitOnError.value = true;
         _state.error.value = 'err_data_transfer'.l10n;
         _state.unsubmit();
         rethrow;
       } finally {
+        _state.status.value = RxStatus.empty();
         _state.editable.value = true;
       }
     }
