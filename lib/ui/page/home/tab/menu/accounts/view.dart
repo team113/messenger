@@ -22,11 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
-import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
-import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/login/widget/primary_button.dart';
 import '/ui/page/login/widget/sign_button.dart';
@@ -43,10 +42,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AccountsView extends StatelessWidget {
-  const AccountsView({
-    super.key,
-    this.initial = AccountsViewStage.accounts,
-  });
+  const AccountsView({super.key, this.initial = AccountsViewStage.accounts});
 
   /// Initial [AccountsViewStage] of this [AccountsView].
   final AccountsViewStage initial;
@@ -69,11 +65,12 @@ class AccountsView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('AccountsView'),
-      init: AccountsController(Get.find(), Get.find(), Get.find()),
+      init: AccountsController(Get.find(), Get.find()),
       builder: (AccountsController c) {
         return Obx(() {
           final Widget header;
-          List<Widget> children;
+          final List<Widget> children;
+          final List<Widget> bottom = [];
 
           switch (c.stage.value) {
             case AccountsViewStage.signInWithPassword:
@@ -119,6 +116,7 @@ class AccountsView extends StatelessWidget {
                     onPressed: enabled ? c.password.submit : null,
                   );
                 }),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -137,6 +135,7 @@ class AccountsView extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 1),
                 ),
                 const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -207,6 +206,7 @@ class AccountsView extends StatelessWidget {
                     onPressed: enabled ? c.emailCode.submit : null,
                   );
                 }),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -244,6 +244,7 @@ class AccountsView extends StatelessWidget {
                     );
                   }),
                 ),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -260,6 +261,7 @@ class AccountsView extends StatelessWidget {
                       c.stage.value = AccountsViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
               ];
               break;
 
@@ -320,40 +322,45 @@ class AccountsView extends StatelessWidget {
                     child: Text('btn_sign_in'.l10n),
                   ),
                 ),
+                const SizedBox(height: 16),
               ];
               break;
 
             case AccountsViewStage.accounts:
               header = ModalPopupHeader(text: 'label_accounts'.l10n);
 
-              final List<Widget> tiles = [];
-
               if (c.status.value.isLoading) {
-                tiles.add(
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                );
+                children = const [
+                  Center(child: CircularProgressIndicator()),
+                  SizedBox(height: 12),
+                ];
               } else {
-                for (final e in c.accounts) {
-                  final MyUser myUser = e.myUser.value;
-                  final RxUser user = e.user;
+                children = [];
 
-                  tiles.add(
+                for (final e in c.accounts) {
+                  children.add(
                     Obx(() {
-                      final bool authorized = c.sessions.containsKey(user.id);
+                      final MyUser myUser = e.value;
+                      final bool authorized = c.isAuthorized(myUser.id);
+                      final bool active = c.me == myUser.id;
 
                       return ContactTile(
                         myUser: myUser,
-                        user: user,
                         darken: authorized ? 0 : 0.06,
-                        onTap: authorized && c.me != user.id
+                        onTap: authorized && c.me != myUser.id
                             ? () {
                                 Navigator.of(context).pop();
-                                c.switchTo(user.id);
+                                c.switchTo(myUser.id);
                               }
                             : null,
+
+                        // TODO: Remove, when [MyUser]s will be reactive.
+                        avatarBuilder: (_) => AvatarWidget.fromMyUser(
+                          myUser,
+                          radius: AvatarRadius.large,
+                          badge: active,
+                        ),
+
                         trailing: [
                           AnimatedButton(
                             decorator: (child) => Padding(
@@ -402,42 +409,50 @@ class AccountsView extends StatelessWidget {
                               );
 
                               if (result == true) {
-                                await c.deleteAccount(user.id);
+                                await c.deleteAccount(myUser.id);
                               }
                             },
-                            child: c.me == myUser.id
+                            child: active
                                 ? const SvgIcon(SvgIcons.logoutWhite)
                                 : const SvgIcon(SvgIcons.logout),
                           ),
                         ],
-                        selected: c.me == myUser.id,
+                        selected: active,
                         subtitle: [
                           const SizedBox(height: 5),
-                          if (c.me == myUser.id)
+                          if (active)
                             Text(
                               'label_active_account'.l10n,
                               style: style.fonts.small.regular.onPrimary,
                             )
-                          else
-                            Obx(() {
-                              return Text(
-                                user.user.value.getStatus() ?? '',
-                                style: style.fonts.small.regular.secondary,
-                              );
-                            })
+
+                          // TODO: Uncomment, when [MyUser]s will be reactive.
+                          // else
+                          //   Text(
+                          //     myUser.getStatus() ?? '',
+                          //     style: style.fonts.small.regular.secondary,
+                          //   )
                         ],
                       );
                     }),
                   );
                 }
+
+                children.add(const SizedBox(height: 10));
               }
 
-              children = tiles;
+              bottom.addAll([
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: PrimaryButton(
+                    onPressed: () => c.stage.value = AccountsViewStage.add,
+                    title: 'btn_add_account'.l10n,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ]);
               break;
           }
-
-          final bool isAccountsStage =
-              c.stage.value == AccountsViewStage.accounts;
 
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
@@ -453,23 +468,10 @@ class AccountsView extends StatelessWidget {
                     child: ListView(
                       padding: ModalPopup.padding(context),
                       shrinkWrap: true,
-                      physics: const ClampingScrollPhysics(),
-                      children: [
-                        ...children,
-                        SizedBox(height: isAccountsStage ? 10 : 16),
-                      ],
+                      children: children,
                     ),
                   ),
-                  if (isAccountsStage) ...[
-                    Padding(
-                      padding: ModalPopup.padding(context),
-                      child: PrimaryButton(
-                        onPressed: () => c.stage.value = AccountsViewStage.add,
-                        title: 'btn_add_account'.l10n,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ]
+                  ...bottom,
                 ],
               ),
             ),
@@ -479,3 +481,34 @@ class AccountsView extends StatelessWidget {
     );
   }
 }
+
+// TODO: Uncomment, when [MyUser]s will be reactive.
+/// Extension adding [MyUser] related wrappers and helpers.
+// extension _MyUserViewExt on MyUser {
+//   /// Returns a text represented status of this [MyUser] based on its
+//   /// [MyUser.presence] and [MyUser.online] fields.
+//   String? getStatus() {
+//     switch (presence) {
+//       case Presence.present:
+//         if (online) {
+//           return 'label_online'.l10n;
+//         } else if (lastSeenAt != null) {
+//           return lastSeenAt?.val.toDifferenceAgo();
+//         } else {
+//           return 'label_offline'.l10n;
+//         }
+
+//       case Presence.away:
+//         if (online) {
+//           return 'label_away'.l10n;
+//         } else if (lastSeenAt != null) {
+//           return lastSeenAt?.val.toDifferenceAgo();
+//         } else {
+//           return 'label_offline'.l10n;
+//         }
+
+//       case Presence.artemisUnknown:
+//         return null;
+//     }
+//   }
+// }

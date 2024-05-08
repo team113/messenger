@@ -24,18 +24,14 @@ import '/api/backend/schema.dart'
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
-import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-
-typedef AccountData = ({Rx<MyUser> myUser, RxUser user});
 
 /// Possible [AccountsView] flow stage.
 enum AccountsViewStage {
@@ -52,8 +48,7 @@ enum AccountsViewStage {
 class AccountsController extends GetxController {
   AccountsController(
     this._myUserService,
-    this._authService,
-    this._userService, {
+    this._authService, {
     AccountsViewStage initial = AccountsViewStage.accounts,
   }) : stage = Rx(initial);
 
@@ -93,8 +88,8 @@ class AccountsController extends GetxController {
   /// Timeout of a [resendEmail] next invoke attempt.
   final RxInt resendEmailTimeout = RxInt(0);
 
-  /// Reactive list of [MyUser]s paired with the corresponding [User]s.
-  final RxList<AccountData> accounts = RxList();
+  /// Known [MyUser] accounts that can be used to [signIn] to.
+  final RxList<Rx<MyUser>> accounts = RxList();
 
   /// [Timer] disabling [emailCode] submitting for [codeTimeout].
   Timer? _codeTimer;
@@ -105,14 +100,11 @@ class AccountsController extends GetxController {
   /// [Timer] used to disable resend code button for [resendEmailTimeout].
   Timer? _resendEmailTimer;
 
-  /// [MyUserService] to obtain [_accounts] and [myUser].
+  /// [MyUserService] to obtain [accounts] and [me].
   final MyUserService _myUserService;
 
   /// [AuthService] providing the authentication capabilities.
   final AuthService _authService;
-
-  /// [UserService] used to retrieve [User]s.
-  final UserService _userService;
 
   /// Subscription for [MyUserService.myUsers] changes updating the [accounts]
   /// list.
@@ -124,33 +116,32 @@ class AccountsController extends GetxController {
   /// Returns the current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
-  /// Returns a reactive map of all authenticated sessions.
+  /// Returns a reactive map of all the known [MyUser] accounts.
+  RxObsMap<UserId, Rx<MyUser>> get _accounts => _myUserService.myUsers;
+
+  /// Returns a reactive map of all the authenticated [Credentials] for
+  /// [accounts].
   ///
   /// Accounts whose [UserId]s are present in this set are available for
   /// switching.
-  RxMap<UserId, Rx<Credentials>> get sessions => _authService.allCredentials;
+  RxMap<UserId, Rx<Credentials>> get _sessions => _authService.accounts;
 
   @override
   void onInit() {
-    _myUsersSubscription = _myUserService.myUsers.changes.listen((e) async {
-      final UserId? id = e.key;
-      final Rx<MyUser>? myUser = e.value;
+    for (var e in _accounts.values) {
+      accounts.add(e);
+    }
+    accounts.sort(_compareAccounts);
 
+    _myUsersSubscription = _accounts.changes.listen((e) async {
       switch (e.op) {
         case OperationKind.added:
-          final FutureOr<RxUser?> futureOrUser = _userService.get(id!);
-          final RxUser? user =
-              futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
-
-          if (user != null) {
-            accounts.add((myUser: myUser!, user: user));
-          }
-
+          accounts.add(e.value!);
           accounts.sort(_compareAccounts);
           break;
 
         case OperationKind.removed:
-          accounts.removeWhere((e) => e.user.id == id);
+          accounts.removeWhere((u) => u.value.id == e.key);
           break;
 
         case OperationKind.updated:
@@ -160,7 +151,7 @@ class AccountsController extends GetxController {
     });
 
     login = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         password.unsubmit();
       },
@@ -171,7 +162,7 @@ class AccountsController extends GetxController {
     );
 
     password = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         s.error.value = null;
         s.unsubmit();
       },
@@ -179,7 +170,7 @@ class AccountsController extends GetxController {
     );
 
     email = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         try {
           if (s.text.isNotEmpty) {
             UserEmail(s.text.toLowerCase());
@@ -270,35 +261,7 @@ class AccountsController extends GetxController {
       },
     );
 
-    _populateUsers();
-
     super.onInit();
-  }
-
-  /// Updates the [accounts] list with the currently authenticated [MyUser]s
-  /// with sorting applied.
-  void _populateUsers() async {
-    status.value = RxStatus.loading();
-
-    final List<AccountData> values = [];
-
-    for (final e in _myUserService.myUsers.entries) {
-      final UserId id = e.key;
-      final Rx<MyUser> myUser = e.value;
-
-      final FutureOr<RxUser?> futureOrUser = _userService.get(id);
-      final RxUser? user =
-          futureOrUser is RxUser? ? futureOrUser : await futureOrUser;
-
-      if (user != null) {
-        values.add((myUser: myUser, user: user));
-      }
-    }
-
-    values.sort(_compareAccounts);
-
-    accounts.value = values;
-    status.value = RxStatus.success();
   }
 
   @override
@@ -381,9 +344,9 @@ class AccountsController extends GetxController {
 
   /// Deletes the account with the provided [UserId] from the list.
   ///
-  /// Also performs logout if deleting the current account.
+  /// Also performs logout, when deleting the current account.
   Future<void> deleteAccount(UserId id) async {
-    accounts.removeWhere((e) => e.user.id == id);
+    accounts.removeWhere((e) => e.value.id == id);
 
     if (id == _authService.userId) {
       _authService.logout();
@@ -516,24 +479,25 @@ class AccountsController extends GetxController {
     }
   }
 
-  /// Compares two [AccountData]s based on the last seen time and the online
-  /// status.
-  int _compareAccounts(AccountData a, AccountData b) {
-    if (a.user.id == me) {
+  /// Indicates whether [Credentials] authorizing the provided [id] are present
+  /// and up to date.
+  bool isAuthorized(UserId id) => _sessions.containsKey(id);
+
+  /// Compares two [MyUser]s based on their last seen times and the online
+  /// statuses.
+  int _compareAccounts(Rx<MyUser> a, Rx<MyUser> b) {
+    if (a.value.id == me) {
       return -1;
-    } else if (b.user.id == me) {
+    } else if (b.value.id == me) {
       return 1;
-    } else if (a.user.user.value.online && !b.user.user.value.online) {
+    } else if (a.value.online && !b.value.online) {
       return -1;
-    } else if (!a.user.user.value.online && b.user.user.value.online) {
+    } else if (!a.value.online && b.value.online) {
       return 1;
-    } else if (a.user.user.value.lastSeenAt == null ||
-        b.user.user.value.lastSeenAt == null) {
+    } else if (a.value.lastSeenAt == null || b.value.lastSeenAt == null) {
       return -1;
     }
 
-    return -a.user.user.value.lastSeenAt!.compareTo(
-      b.user.user.value.lastSeenAt!,
-    );
+    return -a.value.lastSeenAt!.compareTo(b.value.lastSeenAt!);
   }
 }

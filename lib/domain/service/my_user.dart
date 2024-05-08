@@ -50,7 +50,7 @@ class MyUserService extends DisposableService {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _userRepo.myUser;
 
-  /// Returns a reactive map of all authenticated [MyUser]s available.
+  /// Returns a reactive map of all the authenticated [MyUser]s available.
   RxObsMap<UserId, Rx<MyUser>> get myUsers => _userRepo.myUsers;
 
   @override
@@ -124,10 +124,12 @@ class MyUserService extends DisposableService {
       await WebUtils.protect(() async {
         await _userRepo.updateUserPassword(oldPassword, newPassword);
 
+        // TODO: Replace `force` with something more granular and correct.
         await _auth.signIn(
           newPassword,
           num: myUser.value?.num,
-          ignoreLock: true,
+          unsafe: true,
+          force: true,
         );
       });
     });

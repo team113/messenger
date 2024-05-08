@@ -311,7 +311,7 @@ class WebUtils {
     return _guard.isLocked || held;
   }
 
-  /// Removes [Credentials] of the user with the provided [UserId] from the
+  /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {
     html.window.localStorage.remove('credentials_$userId');
@@ -324,16 +324,15 @@ class WebUtils {
     );
   }
 
-  /// Returns the stored in browser's storage [Credentials] of the user with
-  /// the provided [UserId].
+  /// Returns the stored in browser's storage [Credentials] identified by the
+  /// provided [UserId].
   static Credentials? getCredentials(UserId userId) {
     if (html.window.localStorage['credentials_$userId'] == null) {
       return null;
     } else {
-      var decoded = json.decode(
-        html.window.localStorage['credentials_$userId']!,
+      return Credentials.fromJson(
+        json.decode(html.window.localStorage['credentials_$userId']!),
       );
-      return Credentials.fromJson(decoded);
     }
   }
 

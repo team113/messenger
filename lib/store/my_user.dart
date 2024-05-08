@@ -131,8 +131,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser = Rx<MyUser?>(_active?.value);
 
-    _populateMyUsers();
-
+    _initMyUsers();
     _initLocalSubscription();
     _initRemoteSubscription();
 
@@ -630,9 +629,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Updates [myUsers] when [_localSubscription] emits a new event.
-  void _populateMyUsers() {
-    Log.debug('_populateMyUsers()', '$runtimeType');
+  /// Populates the [myUsers] with values stored in the [_myUserLocal].
+  void _initMyUsers() {
+    Log.debug('_initMyUsers()', '$runtimeType');
 
     final Iterable<MyUser> stored = _myUserLocal.valuesSafe.map((u) => u.value);
 
@@ -667,6 +666,11 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         myUsers.remove(id);
       } else {
+        if (event.value == null) {
+          Log.warning('Expected non-`null` value of `MyUser`', '$runtimeType');
+          return;
+        }
+
         final MyUser user = event.value!.value;
 
         if (isCurrent) {
@@ -705,14 +709,17 @@ class MyUserRepository implements AbstractMyUserRepository {
           }
 
           myUser.value = value;
-          myUsers[id]!.value = value;
-        } else {
-          // This event is not of the currently active [MyUser], so just update
-          // [myUsers].
-          if (myUsers[id] == null) {
+          myUsers[id]?.value = value;
+        }
+
+        // This event is not of the currently active [MyUser], so just update
+        // the [myUsers].
+        else {
+          final Rx<MyUser>? existing = myUsers[id];
+          if (existing == null) {
             myUsers[id] = Rx(user);
           } else {
-            myUsers[id]!.value = user;
+            existing.value = user;
           }
         }
       }
