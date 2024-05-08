@@ -28,7 +28,7 @@ import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -72,8 +72,6 @@ class ParticipantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       init: ParticipantController(
         call,
@@ -208,19 +206,12 @@ class ParticipantView extends StatelessWidget {
                       const SizedBox(height: 18),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                        child: OutlinedRoundedButton(
-                          maxWidth: double.infinity,
+                        child: PrimaryButton(
                           onPressed: () {
                             c.status.value = RxStatus.empty();
                             c.stage.value = ParticipantsFlowStage.search;
                           },
-                          color: style.colors.primary,
-                          child: Text(
-                            'btn_add_participants'.l10n,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: style.fonts.medium.regular.onPrimary,
-                          ),
+                          title: 'btn_add_participants'.l10n,
                         ),
                       ),
                     ],

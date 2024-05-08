@@ -20,10 +20,9 @@ import 'package:get/get.dart';
 
 import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
@@ -48,30 +47,28 @@ class DeleteSessionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       init: DeleteSessionController(Get.find(), pop: context.popModal),
       builder: (DeleteSessionController c) {
-        return Obx(() {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ModalPopupHeader(text: 'label_delete_device'.l10n),
-              const SizedBox(height: 13),
-              Flexible(
-                child: Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InfoTile(
-                        title: session.lastActivatedAt.val.yMdHm,
-                        content: session.userAgent.deviceName,
-                      ),
-                      const SizedBox(height: 21),
-                      ReactiveTextField(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ModalPopupHeader(text: 'label_delete_device'.l10n),
+            const SizedBox(height: 13),
+            Flexible(
+              child: Padding(
+                padding: ModalPopup.padding(context),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InfoTile(
+                      title: session.lastActivatedAt.val.yMdHm,
+                      content: session.userAgent.deviceName,
+                    ),
+                    const SizedBox(height: 21),
+                    Obx(() {
+                      return ReactiveTextField(
                         key: const Key('PasswordField'),
                         state: c.password,
                         label: 'label_current_password'.l10n,
@@ -83,26 +80,25 @@ class DeleteSessionView extends StatelessWidget {
                               ? SvgIcons.visibleOff
                               : SvgIcons.visibleOn,
                         ),
-                      ),
-                      const SizedBox(height: 21),
-                      OutlinedRoundedButton(
+                      );
+                    }),
+                    const SizedBox(height: 21),
+                    Obx(() {
+                      return PrimaryButton(
                         key: const Key('ProceedButton'),
-                        maxWidth: double.infinity,
-                        onPressed: () => c.deleteSession(session),
-                        color: style.colors.primary,
-                        child: Text(
-                          'btn_proceed'.l10n,
-                          style: style.fonts.normal.regular.onPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
+                        onPressed: c.password.isEmpty.isTrue
+                            ? null
+                            : () => c.deleteSession(session),
+                        title: 'btn_proceed'.l10n,
+                      );
+                    }),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-            ],
-          );
-        });
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
       },
     );
   }

@@ -23,7 +23,7 @@ import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
@@ -68,15 +68,10 @@ class ChangePasswordView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 25),
-                    OutlinedRoundedButton(
+                    PrimaryButton(
                       key: const Key('Close'),
-                      maxWidth: double.infinity,
                       onPressed: Navigator.of(context).pop,
-                      color: style.colors.primary,
-                      child: Text(
-                        'btn_close'.l10n,
-                        style: style.fonts.normal.regular.onPrimary,
-                      ),
+                      title: 'btn_close'.l10n,
                     ),
                   ],
                 ),
@@ -155,17 +150,10 @@ class ChangePasswordView extends StatelessWidget {
                             !c.repeatPassword.isEmpty.value;
                       }
 
-                      return OutlinedRoundedButton(
+                      return PrimaryButton(
                         key: const Key('Proceed'),
-                        maxWidth: double.infinity,
                         onPressed: enabled ? c.changePassword : null,
-                        color: style.colors.primary,
-                        child: Text(
-                          'btn_proceed'.l10n,
-                          style: enabled
-                              ? style.fonts.normal.regular.onPrimary
-                              : style.fonts.normal.regular.onBackground,
-                        ),
+                        title: 'btn_proceed'.l10n,
                       );
                     }),
                   ],

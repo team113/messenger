@@ -261,9 +261,9 @@ class WebUtils {
 
     if (PlatformUtils.isMacOS) {
       final info = await device.macOsInfo;
-      final StringBuffer buffer = StringBuffer(
-        'macOS ${info.osRelease}; ${info.kernelVersion}',
-      );
+      final StringBuffer buffer = StringBuffer(info.model);
+
+      buffer.write('; macOS ${info.osRelease}; ${info.kernelVersion}');
 
       buffer.write('; ${info.arch}');
 
@@ -273,8 +273,6 @@ class WebUtils {
           ' ${res.stdout.toString().substring('machdep.cpu.brand_string: '.length, res.stdout.toString().length - 1)}',
         );
       }
-
-      buffer.write('; device: ${info.model}');
 
       if (info.systemGUID != null) {
         buffer.write('; ${info.systemGUID}');
@@ -336,7 +334,9 @@ class WebUtils {
         buffer.write(' ${utsname.release}');
       }
 
-      buffer.write(';');
+      if (info.variant != null || info.buildId != null) {
+        buffer.write(';');
+      }
 
       if (info.variant != null) {
         buffer.write(' ${info.variant}');
@@ -360,20 +360,18 @@ class WebUtils {
       final utsname = uname();
 
       final StringBuffer buffer = StringBuffer(
-        'Android ${info.version.release}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+        '${info.manufacturer} ${info.model}; ${info.id}; Android ${info.version.release}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
       );
 
       if (utsname != null) {
         buffer.write('; ${utsname.machine} ${info.hardware}');
       }
 
-      buffer.write('; device: ${info.manufacturer} ${info.model}; ${info.id}');
-
       system = buffer.toString();
     } else if (PlatformUtils.isIOS) {
       final info = await device.iosInfo;
       final StringBuffer buffer = StringBuffer(
-        '${info.systemName} ${info.systemVersion}; ${info.utsname.version}',
+        '${info.utsname.machine}; ${info.systemName} ${info.systemVersion}; ${info.utsname.version}',
       );
 
       try {
@@ -381,8 +379,6 @@ class WebUtils {
       } catch (_) {
         // No-op.
       }
-
-      buffer.write('; device: ${info.utsname.machine}');
 
       if (info.identifierForVendor != null) {
         buffer.write('; ${info.identifierForVendor}');
