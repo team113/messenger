@@ -177,7 +177,7 @@ class ChatInfoController extends GetxController {
 
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
-      onChanged: (s) async {
+      onFocus: (s) async {
         if (s.text.isNotEmpty) {
           try {
             ChatName(s.text);
@@ -430,7 +430,6 @@ class ChatInfoController extends GetxController {
 
   /// Submits the [name] field.
   Future<void> submitName() async {
-    name.error.value = null;
     name.focus.unfocus();
 
     if (name.text == chat?.chat.value.name?.val) {
@@ -449,24 +448,23 @@ class ChatInfoController extends GetxController {
       return;
     }
 
-    if (name.error.value == null) {
-      nameEditing.value = false;
-
+    if (name.error.value == null || name.resubmitOnError.isTrue) {
       name.status.value = RxStatus.loading();
       name.editable.value = false;
 
       try {
         await _chatService.renameChat(chat!.chat.value.id, chatName);
-        name.status.value = RxStatus.empty();
+        name.error.value = null;
+        nameEditing.value = false;
         name.unsubmit();
       } on RenameChatException catch (e) {
-        name.status.value = RxStatus.empty();
         name.error.value = e.toString();
       } catch (e) {
-        name.status.value = RxStatus.empty();
-        MessagePopup.error(e.toString());
+        name.resubmitOnError.value = true;
+        name.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {
+        name.status.value = RxStatus.empty();
         name.editable.value = true;
       }
     }
