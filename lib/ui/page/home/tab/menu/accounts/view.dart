@@ -341,7 +341,7 @@ class AccountsView extends StatelessWidget {
                   children.add(
                     Obx(() {
                       final MyUser myUser = e.value;
-                      final bool authorized = c.isAuthorized(myUser.id);
+                      final bool authorized = c.sessions.containsKey(myUser.id);
                       final bool active = c.me == myUser.id;
 
                       return ContactTile(

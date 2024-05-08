@@ -116,15 +116,15 @@ class AccountsController extends GetxController {
   /// Returns the current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
-  /// Returns a reactive map of all the known [MyUser] accounts.
-  RxObsMap<UserId, Rx<MyUser>> get _accounts => _myUserService.myUsers;
-
   /// Returns a reactive map of all the authenticated [Credentials] for
   /// [accounts].
   ///
   /// Accounts whose [UserId]s are present in this set are available for
   /// switching.
-  RxMap<UserId, Rx<Credentials>> get _sessions => _authService.accounts;
+  RxMap<UserId, Rx<Credentials>> get sessions => _authService.accounts;
+
+  /// Returns a reactive map of all the known [MyUser] accounts.
+  RxObsMap<UserId, Rx<MyUser>> get _accounts => _myUserService.myUsers;
 
   @override
   void onInit() {
@@ -478,10 +478,6 @@ class AccountsController extends GetxController {
       rethrow;
     }
   }
-
-  /// Indicates whether [Credentials] authorizing the provided [id] are present
-  /// and up to date.
-  bool isAuthorized(UserId id) => _sessions.containsKey(id);
 
   /// Compares two [MyUser]s based on their last seen times and the online
   /// statuses.
