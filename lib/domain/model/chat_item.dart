@@ -285,7 +285,6 @@ class ChatItemKey implements Comparable<ChatItemKey> {
 }
 
 /// Command in a [Chat].
-@HiveType(typeId: ModelTypeId.chatCommand)
 class ChatCommand extends ChatItem {
   ChatCommand(
     super.id,
@@ -305,7 +304,6 @@ class ChatCommand extends ChatItem {
 }
 
 /// Command in a [Chat].
-@HiveType(typeId: ModelTypeId.botInfo)
 class BotInfo extends ChatItem {
   BotInfo(
     super.id,
@@ -368,7 +366,6 @@ class BotInfo extends ChatItem {
   String title;
 }
 
-@HiveType(typeId: ModelTypeId.botAction)
 class BotAction {
   const BotAction({
     required this.text,

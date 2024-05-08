@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -29,7 +28,6 @@ import 'package:messenger/ui/widget/markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../../domain/service/chat.dart';
-import '../../../../../widget/outlined_rounded_button.dart';
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
@@ -890,7 +888,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             //   end: Alignment.bottomCenter,
             // ),
           ),
-          padding: const EdgeInsets.fromLTRB(9, 2, 9, 10),
+          padding: const EdgeInsets.fromLTRB(10, 2, 10, 10),
           // decoration: InputDecoration(
           //   // label: Text(e.title),
           //   floatingLabelStyle: style.fonts.small.regular.secondary,
@@ -931,53 +929,52 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     return SelectionContainer.disabled(
                       child: WidgetButton(
                         onPressed: () => widget.onAction?.call(e),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(1, 0, 1, 0),
-                          child: Stack(
-                            children: [
-                              // Positioned.fill(
-                              //   child: ClipRRect(
-                              //     borderRadius: BorderRadius.circular(15),
-                              //     child: const SvgImage.asset(
-                              //       'assets/images/bot_texture.svg',
-                              //       width: double.infinity,
-                              //       height: double.infinity,
-                              //       fit: BoxFit.cover,
-                              //     ),
-                              //   ),
-                              // ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 4,
+                        child: Stack(
+                          children: [
+                            // Positioned.fill(
+                            //   child: ClipRRect(
+                            //     borderRadius: BorderRadius.circular(15),
+                            //     child: const SvgImage.asset(
+                            //       'assets/images/bot_texture.svg',
+                            //       width: double.infinity,
+                            //       height: double.infinity,
+                            //       fit: BoxFit.cover,
+                            //     ),
+                            //   ),
+                            // ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFFD3E3E6),
+                                  width: 1,
                                 ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: const Color(0xFFD3E3E6),
-                                    width: 1,
-                                  ),
-                                  color: const Color(0xFFddf1f4),
-                                  // gradient: const LinearGradient(
-                                  //   stops: [0, 1],
-                                  //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
-                                  //   begin: Alignment.topCenter,
-                                  //   end: Alignment.bottomCenter,
-                                  // ),
-                                ),
-                                child: Text(
-                                  e.text,
-                                  style: style.fonts.small.regular.secondary
-                                      .copyWith(
-                                    color: style.colors.primary,
-                                  ),
+                                color: const Color(0xFFddf1f4),
+                                // gradient: const LinearGradient(
+                                //   stops: [0, 1],
+                                //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+                                //   begin: Alignment.topCenter,
+                                //   end: Alignment.bottomCenter,
+                                // ),
+                              ),
+                              child: Text(
+                                e.text,
+                                style: style.fonts.small.regular.secondary
+                                    .copyWith(
+                                  color: style.colors.primary,
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     );
+                  }).between((_, __) {
+                    return const SizedBox(width: 8);
                   }).toList(),
                 ),
               ],
@@ -2425,5 +2422,22 @@ extension LinkParsingExtension on String {
     }
 
     return TextSpan(children: spans);
+  }
+}
+
+extension WidgetBetweenListExtension on Iterable<Widget> {
+  Iterable<Widget> between(Widget Function(Widget a, Widget b) callback) {
+    final List<Widget> list = [];
+
+    if (length > 0) {
+      list.add(first);
+    }
+
+    for (var i = 1; i < length; ++i) {
+      list.add(callback(elementAt(i - 1), elementAt(i)));
+      list.add(elementAt(i));
+    }
+
+    return list;
   }
 }

@@ -1029,12 +1029,12 @@ class HiveRxChat extends RxChat {
             const Locale('en', 'US'): const ChatBotText(
               title: 'Translation',
               text:
-                  'Translation service is enabled. Certificated translators in real-time.',
+                  'Translation service is enabled. Certificated translators in real-time. [Terms and services](https://google.com)',
             ),
             const Locale('ru', 'RU'): const ChatBotText(
               title: 'Перевод',
               text:
-                  'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени.',
+                  'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени. [Условия использования](https://google.com)',
             ),
           },
         ),

@@ -129,9 +129,4 @@ class ModelTypeId {
   static const refreshTokenSecret = 106;
   static const accessToken = 107;
   static const accessTokenSecret = 108;
-  static const chatCommand = 109;
-  static const botInfo = 110;
-  static const botAction = 111;
-  static const hiveChatCommand = 112;
-  static const hiveBotInfo = 113;
 }

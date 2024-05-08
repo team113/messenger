@@ -240,23 +240,3 @@ class HiveChatItemQuote {
   @HiveField(1)
   ChatItemsCursor? cursor;
 }
-
-/// Persisted in [Hive] storage [ChatInfo]'s [value].
-@HiveType(typeId: ModelTypeId.hiveChatCommand)
-class HiveChatCommand extends HiveChatItem {
-  HiveChatCommand(
-    super.value,
-    super.cursor,
-    super.ver,
-  );
-}
-
-/// Persisted in [Hive] storage [ChatInfo]'s [value].
-@HiveType(typeId: ModelTypeId.hiveBotInfo)
-class HiveBotInfo extends HiveChatItem {
-  HiveBotInfo(
-    super.value,
-    super.cursor,
-    super.ver,
-  );
-}
