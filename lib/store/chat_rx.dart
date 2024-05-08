@@ -1568,6 +1568,12 @@ class HiveRxChat extends RxChat {
 
           chatEntity.ver = versioned.ver;
 
+          // Update the [chat] value as popup window doesn't write to [Hive] and
+          // we should use [chat] value for synchronization.
+          if (WebUtils.isPopup) {
+            chatEntity.value = chat.value;
+          }
+
           bool shouldPutChat = subscribed;
 
           for (var event in versioned.events) {
@@ -1974,8 +1980,13 @@ class HiveRxChat extends RxChat {
 
   /// Puts the provided [chat] to the [Hive] using the provided [txn].
   Future<void> _putChat(HiveChat chat, HiveTransaction<HiveChat> txn) async {
+    // TODO: https://github.com/team113/messenger/issues/27
+    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+    // synchronization, thus writes from multiple applications may lead to
+    // missing events.
     if (WebUtils.isPopup) {
       this.chat.value = chat.value;
+      this.chat.refresh();
     } else {
       await txn.put(chat.value.id.val, chat);
     }
