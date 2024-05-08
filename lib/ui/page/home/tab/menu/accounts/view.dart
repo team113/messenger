@@ -337,7 +337,7 @@ class AccountsView extends StatelessWidget {
                 );
               } else {
                 for (final e in c.accounts) {
-                  final MyUser? myUser = e.myUser.value;
+                  final MyUser myUser = e.myUser.value;
                   final RxUser user = e.user;
 
                   tiles.add(
@@ -375,26 +375,25 @@ class AccountsView extends StatelessWidget {
                                       TextSpan(
                                         style: style
                                             .fonts.medium.regular.onBackground,
-                                        text: '${myUser?.name ?? myUser?.num}',
+                                        text: '${myUser.name ?? myUser.num}',
                                       ),
                                       TextSpan(
                                         text:
                                             'alert_are_you_sure_want_to_log_out2'
                                                 .l10n,
                                       ),
-                                      if (!(myUser?.hasPassword ?? true)) ...[
+                                      if (!myUser.hasPassword) ...[
                                         const TextSpan(text: '\n\n'),
                                         TextSpan(
                                           text: 'label_password_not_set'.l10n,
                                         ),
                                       ],
-                                      if (myUser?.emails.confirmed.isEmpty ??
-                                          false) ...[
+                                      if (myUser.emails.confirmed.isEmpty &&
+                                          myUser.phones.confirmed.isEmpty) ...[
                                         const TextSpan(text: '\n\n'),
                                         TextSpan(
-                                          text:
-                                              'label_email_or_password_not_set'
-                                                  .l10n,
+                                          text: 'label_email_or_phone_not_set'
+                                              .l10n,
                                         ),
                                       ],
                                     ],
@@ -406,15 +405,15 @@ class AccountsView extends StatelessWidget {
                                 await c.deleteAccount(user.id);
                               }
                             },
-                            child: c.me == myUser?.id
+                            child: c.me == myUser.id
                                 ? const SvgIcon(SvgIcons.logoutWhite)
                                 : const SvgIcon(SvgIcons.logout),
                           ),
                         ],
-                        selected: c.me == myUser?.id,
+                        selected: c.me == myUser.id,
                         subtitle: [
                           const SizedBox(height: 5),
-                          if (c.me == myUser?.id)
+                          if (c.me == myUser.id)
                             Text(
                               'label_active_account'.l10n,
                               style: style.fonts.small.regular.onPrimary,

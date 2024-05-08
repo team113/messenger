@@ -35,7 +35,7 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
-typedef AccountData = ({Rx<MyUser?> myUser, RxUser user});
+typedef AccountData = ({Rx<MyUser> myUser, RxUser user});
 
 /// Possible [AccountsView] flow stage.
 enum AccountsViewStage {
