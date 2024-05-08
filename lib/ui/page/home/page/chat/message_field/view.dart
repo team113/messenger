@@ -54,7 +54,7 @@ import 'widget/chat_button.dart';
 import 'widget/close_button.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
-class MessageFieldView extends StatefulWidget {
+class MessageFieldView extends StatelessWidget {
   const MessageFieldView({
     super.key,
     this.controller,
@@ -66,7 +66,6 @@ class MessageFieldView extends StatefulWidget {
     this.canForward = false,
     this.canAttach = true,
     this.constraints,
-    this.symbols = false,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -96,8 +95,6 @@ class MessageFieldView extends StatefulWidget {
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
-
-  final bool symbols;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
@@ -134,67 +131,40 @@ class MessageFieldView extends StatefulWidget {
   }
 
   @override
-  State<MessageFieldView> createState() => _MessageFieldViewState();
-}
-
-class _MessageFieldViewState extends State<MessageFieldView> {
-  final GlobalKey _sizeKey = GlobalKey();
-  final GlobalKey _backdropKey = GlobalKey();
-
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: widget.controller ??
+      init: controller ??
           MessageFieldController(Get.find(), Get.find(), Get.find()),
       global: false,
       builder: (MessageFieldController c) {
         return Theme(
-          data: MessageFieldView.theme(context),
+          data: theme(context),
           child: SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.symbols)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
-                      child: Text(
-                        'Symbols: ${c.symbols.value}',
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                    ),
+            child: Container(
+              key: const Key('SendField'),
+              decoration: BoxDecoration(
+                borderRadius: style.cardRadius,
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
                   ),
-                Container(
-                  key: const Key('SendField'),
-                  decoration: BoxDecoration(
-                    borderRadius: style.cardRadius,
-                    boxShadow: [
-                      CustomBoxShadow(
-                        blurRadius: 8,
-                        color: style.colors.onBackgroundOpacity13,
-                      ),
-                    ],
-                  ),
-                  child: ConditionalBackdropFilter(
-                    condition: style.cardBlur > 0,
-                    filter: ImageFilter.blur(
-                      sigmaX: style.cardBlur,
-                      sigmaY: style.cardBlur,
-                    ),
-                    borderRadius: style.cardRadius,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildHeader(c, context),
-                        _buildField(c, context),
-                      ],
-                    ),
-                  ),
+                ],
+              ),
+              child: ConditionalBackdropFilter(
+                condition: style.cardBlur > 0,
+                filter: ImageFilter.blur(
+                  sigmaX: style.cardBlur,
+                  sigmaY: style.cardBlur,
                 ),
-              ],
+                borderRadius: style.cardRadius,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [_buildHeader(c, context), _buildField(c, context)],
+                ),
+              ),
             ),
           ),
         );
@@ -351,7 +321,7 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: WidgetButton(
-                          onPressed: () => widget.onItemPressed?.call(e.value),
+                          onPressed: () => onItemPressed?.call(e.value),
                           child: _buildPreview(
                             context,
                             e.value,
@@ -369,7 +339,6 @@ class _MessageFieldViewState extends State<MessageFieldView> {
         }
 
         return ConditionalBackdropFilter(
-          key: _backdropKey,
           condition: style.cardBlur > 0,
           filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
           borderRadius: BorderRadius.only(
@@ -379,7 +348,6 @@ class _MessageFieldViewState extends State<MessageFieldView> {
           child: Container(
             color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(
-              key: _sizeKey,
               duration: 400.milliseconds,
               alignment: Alignment.bottomCenter,
               curve: Curves.ease,
@@ -397,8 +365,7 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 2),
                         child: WidgetButton(
-                          onPressed: () =>
-                              widget.onItemPressed?.call(c.edited.value!),
+                          onPressed: () => onItemPressed?.call(c.edited.value!),
                           child: _buildPreview(
                             context,
                             c.edited.value!,
@@ -410,7 +377,7 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                       ),
                     if (previews != null)
                       ConstrainedBox(
-                        constraints: widget.constraints ??
+                        constraints: this.constraints ??
                             BoxConstraints(
                               maxHeight: max(
                                 100,
@@ -450,7 +417,7 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                           ),
                         ),
                       ),
-                    ],
+                    ]
                   ],
                 ),
               ),
@@ -476,7 +443,7 @@ class _MessageFieldViewState extends State<MessageFieldView> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             WidgetButton(
-              onPressed: widget.canAttach ? c.toggleMore : null,
+              onPressed: canAttach ? c.toggleMore : null,
               child: AnimatedButton(
                 child: SizedBox(
                   width: 50,
@@ -503,11 +470,8 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                 child: Transform.translate(
                   offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
                   child: ReactiveTextField(
-                    onChanged: () {
-                      c.symbols.value = c.field.text.length;
-                      widget.onChanged?.call();
-                    },
-                    key: widget.fieldKey ?? const Key('MessageField'),
+                    onChanged: onChanged,
+                    key: fieldKey ?? const Key('MessageField'),
                     state: c.field,
                     hint: 'label_send_message_hint'.l10n,
                     minLines: 1,
@@ -544,11 +508,10 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                       child: ChatButtonWidget.send(
                         key: c.forwarding.value
                             ? const Key('Forward')
-                            : widget.sendKey ?? const Key('Send'),
+                            : sendKey ?? const Key('Send'),
                         forwarding: c.forwarding.value,
                         onPressed: c.field.submit,
-                        onLongPress:
-                            widget.canForward ? c.forwarding.toggle : null,
+                        onLongPress: canForward ? c.forwarding.toggle : null,
                       ),
                     );
                   })
@@ -893,7 +856,7 @@ class _MessageFieldViewState extends State<MessageFieldView> {
                       width: 30,
                       borderRadius: BorderRadius.circular(4),
                       onForbidden: () async =>
-                          await widget.onAttachmentError?.call(item),
+                          await onAttachmentError?.call(item),
                     ),
             );
           }).toList(),

@@ -852,102 +852,33 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _botInfo(BuildContext context, BotInfo e) {
     final style = Theme.of(context).style;
 
-    final ChatMessage msg = widget.item.value as ChatMessage;
-
     if (e.text?.val.isEmpty == true) {
       return const SizedBox();
     }
 
-    // const Color color = Color.fromARGB(255, 149, 209, 149);
-
-    final InputBorder border = OutlineInputBorder(
-      borderSide: BorderSide(
-        // color: style.primaryBorder.top.color,
-        color: const Color(0xFFD3E3E6),
-        width: style.primaryBorder.top.width,
-      ),
-      borderRadius: BorderRadius.circular(15),
-    );
-
-    return Stack(
-      children: [
-        // Positioned.fill(
-        //   child: ClipRRect(
-        //     borderRadius: BorderRadius.circular(15),
-        //     child: const SvgImage.asset(
-        //       'assets/images/bot_texture.svg',
-        //       width: double.infinity,
-        //       height: double.infinity,
-        //       fit: BoxFit.cover,
-        //     ),
-        //   ),
-        // ),
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            // color: const Color(0xFFddf1f4),
-            // gradient: const LinearGradient(
-            //   stops: [0, 1],
-            //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
-            //   begin: Alignment.topCenter,
-            //   end: Alignment.bottomCenter,
-            // ),
-          ),
-          padding: const EdgeInsets.fromLTRB(10, 2, 10, 10),
-          // decoration: InputDecoration(
-          //   // label: Text(e.title),
-          //   floatingLabelStyle: style.fonts.small.regular.secondary,
-          //   filled: true,
-          //   // fillColor: Colors.white.withOpacity(0.34),
-          //   // fillColor: const Color(0xFFddf1f4),
-          //   floatingLabelAlignment: FloatingLabelAlignment.center,
-          //   focusedBorder: border,
-          //   errorBorder: border,
-          //   enabledBorder: border,
-          //   disabledBorder: border,
-          //   focusedErrorBorder: border,
-          //   contentPadding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          //   isCollapsed: true,
-          //   // contentPadding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          //   border: border,
-          // ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Text('${e.text}', style: style.fonts.smallest.regular.secondary),
-              if (e.text != null)
-                MarkdownWidget(
-                  e.text!.val,
-                  // style: style.systemMessageStyle,
-                  style: style.fonts.smaller.regular.secondary,
-                ),
-              if (e.actions != null && e.text != null)
-                const SizedBox(height: 2),
-              if (e.actions != null) ...[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  // spacing: 2,
-                  // runSpacing: 2,
-                  // crossAxisAlignment: WrapCrossAlignment.end,
-                  // alignment: WrapAlignment.end,
-                  children: e.actions!.map((e) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+      padding: const EdgeInsets.fromLTRB(10, 2, 10, 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (e.text != null)
+            MarkdownWidget(
+              e.text!.val,
+              style: style.fonts.smaller.regular.secondary,
+            ),
+          if (e.actions != null && e.text != null) const SizedBox(height: 2),
+          if (e.actions != null) ...[
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: e.actions!
+                  .map((e) {
                     return SelectionContainer.disabled(
                       child: WidgetButton(
                         onPressed: () => widget.onAction?.call(e),
                         child: Stack(
                           children: [
-                            // Positioned.fill(
-                            //   child: ClipRRect(
-                            //     borderRadius: BorderRadius.circular(15),
-                            //     child: const SvgImage.asset(
-                            //       'assets/images/bot_texture.svg',
-                            //       width: double.infinity,
-                            //       height: double.infinity,
-                            //       fit: BoxFit.cover,
-                            //     ),
-                            //   ),
-                            // ),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
@@ -960,12 +891,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   width: 1,
                                 ),
                                 color: const Color(0xFFddf1f4),
-                                // gradient: const LinearGradient(
-                                //   stops: [0, 1],
-                                //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
-                                //   begin: Alignment.topCenter,
-                                //   end: Alignment.bottomCenter,
-                                // ),
                               ),
                               child: Text(
                                 e.text,
@@ -979,64 +904,35 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                       ),
                     );
-                  }).between((_, __) {
-                    return const SizedBox(width: 8);
-                  }).toList(),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
+                  })
+                  .between((_, __) => const SizedBox(width: 8))
+                  .toList(),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
   Widget _renderAsBotInfo(BuildContext context) {
     final style = Theme.of(context).style;
 
-    // return const SizedBox();
-
     final ChatMessage msg = widget.item.value as ChatMessage;
     final BotInfo info = _bot!;
 
-    // const Color color = Color.fromARGB(255, 149, 209, 149);
-    // const Color color = Color(0xFFb68ad1);
-    // const Color color = Color(0xFF1f8429);
-    // const Color color = Color(0xFFD2E3F9);
-    // const Color color = Color.fromARGB(255, 228, 228, 228);
-
     const Color color = Color(0xFFddf1f4);
-    // const Color color = Color.fromARGB(255, 161, 255, 183);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
       child: Center(
         child: Stack(
           children: [
-            // Positioned.fill(
-            //   child: ClipRRect(
-            //     borderRadius: BorderRadius.circular(15),
-            //     child: const SvgImage.asset(
-            //       'assets/images/bot_texture.svg',
-            //       width: double.infinity,
-            //       height: double.infinity,
-            //       fit: BoxFit.cover,
-            //     ),
-            //   ),
-            // ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: const Color(0xFFD3E3E6), width: 0.5),
-                // color: style.systemMessageColor,
                 color: color,
-                // gradient: const LinearGradient(
-                //   stops: [0, 1],
-                //   colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
-                //   begin: Alignment.topCenter,
-                //   end: Alignment.bottomCenter,
-                // ),
               ),
               child: IntrinsicWidth(
                 child: Column(
@@ -1047,7 +943,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         info.text!.val,
                         style: style.systemMessageStyle,
                       ),
-                    // Text('${info.text}', style: style.systemMessageStyle),
                     if (info.actions != null) ...[
                       const SizedBox(height: 4),
                       Wrap(

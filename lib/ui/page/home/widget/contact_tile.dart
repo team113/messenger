@@ -192,7 +192,6 @@ class ContactTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // if (user?.isBot == true) const Text('Bot'),
                   if (user?.isBot == true)
                     Icon(
                       Icons.smart_toy,

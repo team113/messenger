@@ -22,7 +22,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -99,16 +98,6 @@ class ChatInfoController extends GetxController {
   /// enabled.
   final RxBool nameEditing = RxBool(false);
 
-  /// Index of the [Block] that should be highlighted.
-  final RxnInt highlighted = RxnInt();
-
-  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
-  final ItemScrollController itemScrollController = ItemScrollController();
-
-  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
-  final ItemPositionsListener positionsListener =
-      ItemPositionsListener.create();
-
   /// [Chat.name] field state.
   late final TextFieldState name;
 
@@ -139,13 +128,6 @@ class ChatInfoController extends GetxController {
 
   /// Settings repository, used to retrieve the [background].
   final AbstractSettingsRepository _settingsRepo;
-
-  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
-  /// passed.
-  Timer? _highlightTimer;
-
-  /// [Duration] of the [highlight]ing.
-  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   /// Worker to react on [chat] changes.
   Worker? _worker;
@@ -294,40 +276,6 @@ class ChatInfoController extends GetxController {
       avatar.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
-    }
-  }
-
-  /// Renames the [Chat] to the [name].
-  Future<void> submitName() async {
-    ChatName? name;
-
-    try {
-      name = this.name.text.isEmpty ? null : ChatName(this.name.text);
-    } on FormatException catch (_) {
-      this.name.status.value = RxStatus.empty();
-      this.name.error.value = 'err_incorrect_input'.l10n;
-      this.name.unsubmit();
-      return;
-    }
-
-    if (this.name.error.value == null) {
-      this.name.status.value = RxStatus.loading();
-      this.name.editable.value = false;
-
-      try {
-        await _chatService.renameChat(chat!.chat.value.id, name);
-        this.name.status.value = RxStatus.empty();
-        this.name.unsubmit();
-      } on RenameChatException catch (e) {
-        this.name.status.value = RxStatus.empty();
-        this.name.error.value = e.toString();
-      } catch (e) {
-        this.name.status.value = RxStatus.empty();
-        MessagePopup.error(e.toString());
-        rethrow;
-      } finally {
-        this.name.editable.value = true;
-      }
     }
   }
 

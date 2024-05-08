@@ -90,34 +90,32 @@ Future<void> main() async {
     dateStamp: !PlatformUtils.isWeb,
   );
 
-  await _initHive();
-
-  if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-    await windowManager.ensureInitialized();
-    await windowManager.setMinimumSize(const Size(400, 400));
-
-    final WindowPreferencesHiveProvider preferences = Get.find();
-    final WindowPreferences? prefs = preferences.get();
-
-    if (prefs?.size != null) {
-      await windowManager.setSize(prefs!.size!);
-    }
-
-    if (prefs?.position != null) {
-      await windowManager.setPosition(prefs!.position!);
-    }
-
-    await windowManager.show();
-
-    Get.put(WindowWorker(preferences));
-  }
-
-  await L10n.init();
-
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
+
+    await _initHive();
+
+    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+      await windowManager.ensureInitialized();
+      await windowManager.setMinimumSize(const Size(400, 400));
+
+      final WindowPreferencesHiveProvider preferences = Get.find();
+      final WindowPreferences? prefs = preferences.get();
+
+      if (prefs?.size != null) {
+        await windowManager.setSize(prefs!.size!);
+      }
+
+      if (prefs?.position != null) {
+        await windowManager.setPosition(prefs!.position!);
+      }
+
+      await windowManager.show();
+
+      Get.put(WindowWorker(preferences));
+    }
 
     final graphQlProvider = Get.put(GraphQlProvider());
 
@@ -132,6 +130,7 @@ Future<void> main() async {
     router = RouterState(authService);
 
     authService.init();
+    await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
     Get.put(UpgradeWorker(Get.findOrNull()));

@@ -83,7 +83,6 @@ class AvatarWidget extends StatelessWidget {
     this.onForbidden,
     this.shape = BoxShape.circle,
     this.child,
-    this.shape = BoxShape.circle,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -359,9 +358,6 @@ class AvatarWidget extends StatelessWidget {
   ///
   /// Intended to be used on the [Routes.style] page only.
   final Widget? child;
-
-  /// [BoxShape] to display this [AvatarWidget] of.
-  final BoxShape shape;
 
   /// Returns minimum diameter of the avatar.
   double get _minDiameter {

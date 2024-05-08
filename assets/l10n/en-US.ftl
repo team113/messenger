@@ -568,11 +568,6 @@ label_ago_date = {$years ->
     *[other] {$years} years ago
 }
 label_all = All
-label_anonymous_reports = Anonymous reports
-label_anonymous_reports_description =
-    Application may collect anonymously technical performance data and detailed reports of errors happening, if any.
-
-    Allow application to collect and send such data?
 label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
@@ -587,7 +582,6 @@ label_audio_call = Audio call{$by ->
         *[other] {" "}by {$by}
     }
 label_audio_notifications = Audio notifications
-label_avatar = Avatar
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}removed avatar

@@ -57,23 +57,6 @@ mixin UserGraphQlMixin {
     return GetMyUser$Query.fromJson(res.data!);
   }
 
-  Future<bool> checkUserLoginOccupied(
-    UserLogin login
-  ) async {
-    Log.debug('checkUserLoginOccupied($login)', '$runtimeType');
-
-    final variables = CheckUserLoginOccupiedArguments(login: login);
-    QueryResult res = await client.query(
-      QueryOptions(
-        operationName: 'CheckUserLoginOccupied',
-        document: CheckUserLoginOccupiedQuery(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return CheckUserLoginOccupied$Query.fromJson(res.data!)
-        .checkUserLoginOccupied;
-  }
-
   /// Returns an [User] by its [id].
   ///
   /// ### Authentication

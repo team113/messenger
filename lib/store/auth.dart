@@ -267,10 +267,4 @@ class AuthRepository implements AbstractAuthRepository {
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
   }
-
-  @override
-  Future<bool> checkUserLoginOccupied(UserLogin login) async {
-    Log.debug('checkUserLoginOccupied($login)', '$runtimeType');
-    return await _graphQlProvider.checkUserLoginOccupied(login);
-  }
 }

@@ -154,21 +154,6 @@ extension ChatMessageConversion on ChatMessageMixin {
   HiveChatItem toHive(ChatItemsCursor cursor) {
     List<HiveChatItemQuote> items = repliesTo.map((e) => e.toHive()).toList();
 
-    // if (text?.val.startsWith('/') ?? false) {
-    //   return HiveChatCommand(
-    //     ChatCommand(
-    //       id,
-    //       chatId,
-    //       author.toModel(),
-    //       at,
-    //       repliesTo: items.firstOrNull?.value,
-    //       text: text,
-    //     ),
-    //     cursor,
-    //     ver,
-    //   );
-    // }
-
     return HiveChatMessage(
       ChatMessage(
         id,

@@ -21,6 +21,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -106,13 +107,6 @@ class UserController extends GetxController {
   /// [GlobalKey] of the more [ContextMenuRegion] button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
-  final ItemScrollController itemScrollController = ItemScrollController();
-
-  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
-  final ItemPositionsListener positionsListener =
-      ItemPositionsListener.create();
-
   /// [TextFieldState] for blocking reason.
   final TextFieldState reason = TextFieldState();
 
@@ -136,9 +130,6 @@ class UserController extends GetxController {
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
 
-  /// Index of the [Block] that should be highlighted.
-  final RxnInt highlighted = RxnInt();
-
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -159,13 +150,6 @@ class UserController extends GetxController {
   /// [Worker] reacting on the [RxChatContact.contact] or [user] changes
   /// updating the [name].
   Worker? _worker;
-
-  /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
-  /// passed.
-  Timer? _highlightTimer;
-
-  /// [Duration] of the [highlight]ing.
-  static const Duration _highlightTimeout = Duration(seconds: 1);
 
   /// Subscription for the [user] changes.
   StreamSubscription? _userSubscription;
@@ -353,54 +337,6 @@ class UserController extends GetxController {
       reason.clear();
     } finally {
       blocklistStatus.value = RxStatus.empty();
-    }
-  }
-
-  /// Renames the [ChatContact] this [User] is linked to.
-  ///
-  /// If no [ChatContact] is linked, then this method creates one.
-  Future<void> submitName() async {
-    name.error.value = null;
-    name.focus.unfocus();
-
-    if (name.text == contact.value?.contact.value.name.val) {
-      name.unsubmit();
-      return;
-    }
-
-    UserName? userName;
-    try {
-      userName = UserName(name.text);
-    } on FormatException catch (_) {
-      name.status.value = RxStatus.empty();
-      name.error.value = 'err_incorrect_input'.l10n;
-      name.unsubmit();
-      return;
-    }
-
-    if (name.error.value == null) {
-      if (contactId == null) {
-        await addToContacts(name: userName);
-        return;
-      }
-
-      name.status.value = RxStatus.loading();
-      name.editable.value = false;
-
-      try {
-        await _contactService.changeContactName(contact.value!.id, userName);
-        name.status.value = RxStatus.empty();
-        name.unsubmit();
-      } on UpdateChatContactNameException catch (e) {
-        name.status.value = RxStatus.empty();
-        name.error.value = e.toString();
-      } catch (e) {
-        name.status.value = RxStatus.empty();
-        MessagePopup.error(e.toString());
-        rethrow;
-      } finally {
-        name.editable.value = true;
-      }
     }
   }
 

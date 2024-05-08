@@ -348,13 +348,6 @@ class ChatView extends StatelessWidget {
                                       right: 10,
                                     ),
                                     actions: [
-                                      // ContextMenuButton(
-                                      //   label: 'Bot: ${c.botEnabled.value}',
-                                      //   onPressed: () {
-                                      //     c.botEnabled.toggle();
-                                      //     c.elements.refresh();
-                                      //   },
-                                      // ),
                                       ContextMenuButton(
                                         label: 'Debug: ${c.showCommands.value}',
                                         onPressed: () {
@@ -931,23 +924,7 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
-                  onAction: (b) => c.postCommand(
-                    b.command,
-                    repliesTo: e.value,
-                  ),
-                  actions: [
-                    // if (c.botEnabled.value)
-                    if (c.chat?.bots
-                            .any((e) => e.title == 'Translation Service') ==
-                        true)
-                      ContextMenuButton(
-                        onPressed: () => c.postCommand(
-                          '/translate',
-                          repliesTo: e.value,
-                        ),
-                        label: 'Translate',
-                      ),
-                  ],
+                  onAction: (b) => c.postCommand(b.command, repliesTo: e.value),
                   infos: element is ChatMessageElement
                       ? element.infos.values.toList()
                       : [],
@@ -1141,7 +1118,6 @@ class ChatView extends StatelessWidget {
       });
     } else if (element is BotInfoElement) {
       const Color color = Color.fromARGB(255, 149, 209, 149);
-      // const Color color = Color(0xFFddf1f4);
 
       return Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
@@ -1570,14 +1546,12 @@ class ChatView extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  // scrollDirection: Axis.horizontal,
                   children: [
                     if (c.botInfo.value!.string != null)
                       Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: color, width: 0.5),
-                          // color: const Color(0xFFddf1f4),
                           gradient: const LinearGradient(
                             stops: [0, 1],
                             colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
@@ -1601,17 +1575,6 @@ class ChatView extends StatelessWidget {
                         onPressed: () => c.postCommand(e.command),
                         child: Stack(
                           children: [
-                            // Positioned.fill(
-                            //   child: ClipRRect(
-                            //     borderRadius: BorderRadius.circular(15),
-                            //     child: const SvgImage.asset(
-                            //       'assets/images/bot_texture.svg',
-                            //       width: double.infinity,
-                            //       height: double.infinity,
-                            //       fit: BoxFit.cover,
-                            //     ),
-                            //   ),
-                            // ),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -1620,21 +1583,10 @@ class ChatView extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                  // color: style.systemMessageColor,
                                   color: const Color(0xFFD3E3E6),
-                                  // color: const Color(0xFFCEE1E4),
                                   width: 1,
                                 ),
                                 color: const Color(0xFFddf1f4),
-                                // gradient: const LinearGradient(
-                                //   stops: [0, 1],
-                                //   colors: [
-                                //     Color(0xFFE1F0F3),
-                                //     Color(0xFFBDF4FF)
-                                //   ],
-                                //   begin: Alignment.topCenter,
-                                //   end: Alignment.bottomCenter,
-                                // ),
                               ),
                               child: Text(
                                 e.text,

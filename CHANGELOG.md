@@ -1171,4 +1171,3 @@ All user visible changes to this project will be documented in this file. This p
 [Helm]: https://helm.sh
 [PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org
-[Sentry]: https://sentry.io

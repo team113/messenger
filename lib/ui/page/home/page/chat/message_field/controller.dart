@@ -198,14 +198,8 @@ class MessageFieldController extends GetxController {
   /// [GlobalKey] of the text field itself.
   final GlobalKey fieldKey = GlobalKey();
 
-  final RxInt symbols = RxInt(0);
-
   /// [ChatButton]s displayed in the more panel.
   late final RxList<ChatButton> panel = RxList([
-    // const AudioMessageButton(),
-    // const VideoMessageButton(),
-    // const DonateButton(),
-    // const StickerButton(),
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) ...[
       TakePhotoButton(pickImageFromCamera),
       if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),

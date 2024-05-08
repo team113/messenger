@@ -137,5 +137,5 @@ abstract class AbstractAuthRepository {
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug);
 
-  Future<bool> checkUserLoginOccupied(UserLogin login);
+
 }
