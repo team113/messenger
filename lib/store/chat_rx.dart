@@ -42,6 +42,7 @@ import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
+import '/provider/hive/base.dart';
 import '/provider/hive/chat.dart';
 import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat_item_sorting.dart';
@@ -807,7 +808,7 @@ class HiveRxChat extends RxChat {
           chatEntity?.lastItemCursor = null;
         }
 
-        await txn.put(chatEntity!.value.id.val, chatEntity);
+        await _putChat(chatEntity!, txn);
       }
     });
   }
@@ -971,7 +972,7 @@ class HiveRxChat extends RxChat {
         // TODO: Avatar should be updated by [Hive] subscription.
         this.avatar.value = avatar;
 
-        await txn.put(chatEntity.value.id.val, chatEntity);
+        await _putChat(chatEntity, txn);
       }
     });
   }
@@ -1017,7 +1018,7 @@ class HiveRxChat extends RxChat {
                   firstItem != null &&
                   chatEntity.value.firstItem != firstItem) {
                 chatEntity.value.firstItem = firstItem;
-                await txn.put(chatEntity.value.id.val, chatEntity);
+                await _putChat(chatEntity, txn);
               }
             });
           }
@@ -1318,7 +1319,7 @@ class HiveRxChat extends RxChat {
             final HiveChat? chat = await txn.get(id.val);
             if (chat != null) {
               chat.value.muted = null;
-              await txn.put(chat.value.id.val, chat);
+              await _putChat(chat, txn);
             }
           });
         },
@@ -1531,9 +1532,9 @@ class HiveRxChat extends RxChat {
           if (chatEntity != null) {
             chatEntity.value = node.chat.value;
             chatEntity.ver = node.chat.ver;
-            await txn.put(chatEntity.value.id.val, chatEntity);
+            await _putChat(chatEntity, txn);
           } else {
-            await txn.put(node.chat.value.id.val, node.chat);
+            await _putChat(node.chat, txn);
           }
         });
 
@@ -1552,6 +1553,10 @@ class HiveRxChat extends RxChat {
               '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
               '$runtimeType($id)',
             );
+
+            if(chatEntity != null && WebUtils.isPopup) {
+              chat.value = chatEntity.value;
+            }
 
             return;
           }
@@ -1960,10 +1965,19 @@ class HiveRxChat extends RxChat {
           }
 
           if (shouldPutChat) {
-            await txn.put(chatEntity.value.id.val, chatEntity);
+            await _putChat(chatEntity, txn);
           }
         });
         break;
+    }
+  }
+
+  /// Puts the provided [chat] to the [Hive] using the provided [txn].
+  Future<void> _putChat(HiveChat chat, HiveTransaction<HiveChat> txn) async {
+    if (WebUtils.isPopup) {
+      this.chat.value = chat.value;
+    } else {
+      await txn.put(chat.value.id.val, chat);
     }
   }
 }
