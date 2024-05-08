@@ -26,28 +26,28 @@ void main() async {
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64 Apple M1 Max; device: MacBookPro18,2; E08855EB-C338-5EDC-B046-713AC743BA90)',
+        'Gapopa/0.1.0-alpha.8 (MacBookPro18,2; macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64 Apple M1 Max; E08855EB-C338-5EDC-B046-713AC743BA90)',
       ).deviceName,
       'MacBookPro18,2',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64; device: MacBookPro18,2; E08855EB-C338-5EDC-B046-713AC743BA90)',
+        'Gapopa/0.1.0-alpha.8 (MacBookPro18,2; macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64; E08855EB-C338-5EDC-B046-713AC743BA90)',
       ).deviceName,
       'MacBookPro18,2',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64 Apple M1 Max; device: MacBookPro18,2)',
+        'Gapopa/0.1.0-alpha.8 (MacBookPro18,2; macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64 Apple M1 Max)',
       ).deviceName,
       'MacBookPro18,2',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64; device: MacBookPro18,2)',
+        'Gapopa/0.1.0-alpha.8 (MacBookPro18,2; macOS Version 13.3.1 (Build 22E261) Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64)',
       ).deviceName,
       'MacBookPro18,2',
     );
@@ -68,14 +68,14 @@ void main() async {
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (Android 13 V14.0.1.0.TKLRUXM (build Redmi/rosemary_ru/rosemary:13/TP1A.220624.014/V14.0.1.0.TKLRUXM:user/release-keys); SDK 33; aarch64 mt6785; device: Xiaomi M2101K7BNY; TP1A.220624.014)',
+        'Gapopa/0.1.0-alpha.8 (Xiaomi M2101K7BNY; Android 13 V14.0.1.0.TKLRUXM (build Redmi/rosemary_ru/rosemary:13/TP1A.220624.014/V14.0.1.0.TKLRUXM:user/release-keys); SDK 33; aarch64 mt6785; TP1A.220624.014)',
       ).deviceName,
       'Xiaomi M2101K7BNY',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (iOS 16.5.1 Darwin Kernel Version 22.5.0: Thu Jun  8 17:15:47 PDT 2023; root:xnu-8796.122.5~1/RELEASE_ARM64_T8120; ARM64E; device: iPhone15,3; E56728D4-9546-4236-8748-CA98599E452B)',
+        'Gapopa/0.1.0-alpha.8 (iPhone15,3; iOS 16.5.1 Darwin Kernel Version 22.5.0: Thu Jun  8 17:15:47 PDT 2023; root:xnu-8796.122.5~1/RELEASE_ARM64_T8120; ARM64E; E56728D4-9546-4236-8748-CA98599E452B)',
       ).deviceName,
       'iPhone15,3',
     );
