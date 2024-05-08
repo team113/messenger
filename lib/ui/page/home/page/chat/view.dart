@@ -1618,7 +1618,7 @@ class ChatView extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
+                                borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   // color: style.systemMessageColor,
                                   color: const Color(0xFFD3E3E6),

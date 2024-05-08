@@ -952,7 +952,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.circular(6),
                                   border: Border.all(
                                     color: const Color(0xFFD3E3E6),
                                     width: 1,
@@ -1123,8 +1123,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     final bool timeInBubble =
         media.isNotEmpty && files.isEmpty && _text == null;
     final bool hasBot = widget.infos
-        .where((e) =>
-            e.text?.val.isNotEmpty == true || e.actions?.isNotEmpty == true)
+        .where(
+          (e) =>
+              e.text?.val.isNotEmpty == true || e.actions?.isNotEmpty == true,
+        )
         .isNotEmpty;
 
     return _rounded(
