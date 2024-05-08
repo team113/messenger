@@ -1554,7 +1554,7 @@ class HiveRxChat extends RxChat {
               '$runtimeType($id)',
             );
 
-            if(chatEntity != null && WebUtils.isPopup) {
+            if (chatEntity != null && WebUtils.isPopup) {
               chat.value = chatEntity.value;
             }
 
