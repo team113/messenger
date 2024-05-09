@@ -60,6 +60,11 @@ class AuthRepository implements AbstractAuthRepository {
   /// successful [confirmSignUpEmail].
   Credentials? _signUpCredentials;
 
+  // TODO: Temporary solution, wait for support from backend.
+  /// [HiveMyUser] created with [signUpWithEmail] and put to [Hive] in
+  /// successful [confirmSignUpEmail].
+  HiveMyUser? _signedUpUser;
+
   @override
   set token(AccessTokenSecret? token) {
     Log.debug('set token($token)', '$runtimeType');
@@ -124,8 +129,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response = await _graphQlProvider.signUp();
 
-    _myUserProvider.put(response.createUser.user.toHive());
-
+    _signedUpUser = response.createUser.user.toHive();
     _signUpCredentials = response.toModel();
 
     await _graphQlProvider.addUserEmail(
@@ -142,12 +146,17 @@ class AuthRepository implements AbstractAuthRepository {
 
     if (_signUpCredentials == null) {
       throw ArgumentError.notNull('_signUpCredentials');
+    } else if (_signedUpUser == null) {
+      throw ArgumentError.notNull('_signedUpUser');
     }
 
     await _graphQlProvider.confirmEmailCode(
       code,
       raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
+
+    _myUserProvider.put(_signedUpUser!);
+
     return _signUpCredentials!;
   }
 
@@ -169,13 +178,22 @@ class AuthRepository implements AbstractAuthRepository {
     SessionId? id,
     UserPassword? password,
     FcmRegistrationToken? fcmToken,
+    AccessTokenSecret? accessToken,
   }) async {
-    Log.debug('deleteSession($fcmToken)', '$runtimeType');
+    Log.debug(
+      'deleteSession(id: $id, password: ${password?.obscured}, fcmToken: $fcmToken, accessToken: $accessToken)',
+      '$runtimeType',
+    );
 
     if (fcmToken != null) {
       await _graphQlProvider.unregisterFcmDevice(fcmToken);
     }
-    await _graphQlProvider.deleteSession(id: id, password: password);
+
+    await _graphQlProvider.deleteSession(
+      id: id,
+      password: password,
+      token: accessToken,
+    );
 
     if (id != null) {
       sessions.removeWhere((e) => e.id == id);
@@ -191,21 +209,28 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> validateToken() async {
-    Log.debug('validateToken()', '$runtimeType');
-    await _graphQlProvider.validateToken();
+  Future<void> validateToken(Credentials credentials) async {
+    Log.debug('validateToken($credentials)', '$runtimeType');
+    await _graphQlProvider.validateToken(credentials);
   }
 
   @override
-  Future<Credentials> refreshSession(RefreshTokenSecret secret) {
+  Future<Credentials> refreshSession(
+    RefreshTokenSecret secret, {
+    bool reconnect = true,
+  }) {
     Log.debug('refreshSession($secret)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
       final response =
           (await _graphQlProvider.refreshSession(secret)).refreshSession
               as RefreshSession$Mutation$RefreshSession$CreateSessionOk;
-      _graphQlProvider.token = response.accessToken.secret;
-      _graphQlProvider.reconnect();
+
+      if (reconnect) {
+        _graphQlProvider.token = response.accessToken.secret;
+        _graphQlProvider.reconnect();
+      }
+
       return response.toModel();
     });
   }

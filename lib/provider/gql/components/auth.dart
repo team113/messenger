@@ -76,8 +76,17 @@ mixin AuthGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds as no-op if the specified [Session] has been deleted already.
-  Future<void> deleteSession({SessionId? id, UserPassword? password}) async {
-    Log.debug('deleteSession($id, password)', '$runtimeType');
+  Future<void> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    AccessTokenSecret? token,
+  }) async {
+    token ??= this.token;
+
+    Log.debug(
+      'deleteSession(id: $id, password: ${password?.obscured}, token: $token)',
+      '$runtimeType',
+    );
 
     if (token != null) {
       final variables = DeleteSessionArguments(id: id, password: password);
@@ -144,20 +153,20 @@ mixin AuthGraphQlMixin {
         as SignIn$Mutation$CreateSession$CreateSessionOk;
   }
 
-  /// Validates the current authorization token.
+  /// Validates the authorization token of the provided [Credentials].
   ///
   /// ### Authentication
   ///
   /// Mandatory.
-  Future<ValidateToken$Query> validateToken() async {
-    Log.debug('validateToken()', '$runtimeType');
+  Future<ValidateToken$Query> validateToken(Credentials creds) async {
+    Log.debug('validateToken($creds)', '$runtimeType');
 
     final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'ValidateToken',
         document: ValidateTokenQuery().document,
       ),
-      raw: RawClientOptions(token),
+      raw: RawClientOptions(creds.access.secret),
     );
     return ValidateToken$Query.fromJson(res.data!);
   }

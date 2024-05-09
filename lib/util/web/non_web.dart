@@ -33,6 +33,7 @@ import 'package:win32/win32.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
@@ -80,16 +81,23 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
-  /// Sets the provided [Credentials] to the browser's storage.
-  static set credentials(Credentials? creds) {
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked => _guard.isLocked;
+
+  /// Removes [Credentials] identified by the provided [UserId] from the
+  /// browser's storage.
+  static void removeCredentials(UserId userId) {
     // No-op.
   }
 
-  /// Returns the stored in browser's storage [Credentials].
-  static Credentials? get credentials => null;
+  /// Puts the provided [Credentials] to the browser's storage.
+  static void putCredentials(Credentials creds) {
+    // No-op.
+  }
 
-  /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
+  /// Returns the stored in browser's storage [Credentials] identified by the
+  /// provided [UserId], if any.
+  static Credentials? getCredentials(UserId userId) => null;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
