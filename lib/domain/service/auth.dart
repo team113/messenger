@@ -97,6 +97,9 @@ class AuthService extends GetxService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions => _authRepository.sessions;
+
   /// Indicates whether the [credentials] require a refresh.
   bool get _shouldRefresh =>
       credentials.value?.access.expireAt
@@ -459,14 +462,24 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Deletes [Session] of the active [MyUser].
+  /// Deletes [Session] with the provided [id], if any, or otherwise [Session]
+  /// of the active [MyUser].
   ///
   /// Returns the path of the authentication page.
   ///
   /// If [force] is `true`, then the current [Credentials] will be revoked
   /// unilaterally and immediately.
-  Future<String> deleteSession({bool force = false}) async {
-    Log.debug('deleteSession(force: $force)', '$runtimeType');
+  Future<String?> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    bool force = false,
+  }) async {
+    Log.debug('deleteSession($id, $password, force: $force)', '$runtimeType');
+
+    if (id != null) {
+      await _authRepository.deleteSession(id: id, password: password);
+      return null;
+    }
 
     status.value = RxStatus.empty();
 
@@ -497,7 +510,7 @@ class AuthService extends GetxService {
           }
         }
 
-        await _authRepository.deleteSession(fcmToken);
+        await _authRepository.deleteSession(fcmToken: fcmToken);
       } catch (e) {
         printError(info: e.toString());
       }
@@ -517,7 +530,7 @@ class AuthService extends GetxService {
       _authRepository.removeAccount(userId!);
     }
 
-    return await deleteSession();
+    return await deleteSession() ?? Routes.auth;
   }
 
   /// Validates the current [AccessToken].
@@ -605,6 +618,12 @@ class AuthService extends GetxService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
+  /// Updates the [sessions] list.
+  Future<void> updateSessions() async {
+    Log.debug('updateSessions()', '$runtimeType');
+    await _authRepository.updateSessions();
+  }
+
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
   void _authorized(Credentials creds) {
     Log.debug('_authorized($creds)', '$runtimeType');
@@ -637,6 +656,7 @@ class AuthService extends GetxService {
 
     _accountProvider.clear();
     _authRepository.token = null;
+    _authRepository.sessions.clear();
     credentials.value = null;
     status.value = RxStatus.empty();
     _refreshTimer?.cancel();

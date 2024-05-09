@@ -44,6 +44,8 @@ class PrimaryButton extends StatelessWidget {
       color: style.colors.primary,
       child: Text(
         title,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
         style: onPressed == null
             ? style.fonts.medium.regular.onBackground
             : style.fonts.medium.regular.onPrimary,

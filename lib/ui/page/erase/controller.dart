@@ -45,7 +45,7 @@ class EraseController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
-  /// [AuthService] user for signing into an account.
+  /// [AuthService] used for signing into an account.
   final AuthService _authService;
 
   /// [MyUserService] used to delete authorized [MyUser].
