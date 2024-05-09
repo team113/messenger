@@ -293,7 +293,11 @@ class UserView extends StatelessWidget {
         ),
         if (bio != null)
           Paddings.basic(
-            InfoTile(title: 'label_about'.l10n, content: bio.val),
+            InfoTile(
+              title: 'label_about'.l10n,
+              content: bio.val,
+              maxLines: null,
+            ),
           ),
       ],
     );

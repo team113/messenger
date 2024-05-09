@@ -1024,22 +1024,41 @@ class HiveRxChat extends RxChat {
   @override
   Future<void> addBot(RxUser user, {bool first = true}) async {
     if (first) {
-      await postChatMessage(
-        text: ChatMessageText.bot(
-          localized: {
-            const Locale('en', 'US'): const ChatBotText(
-              title: 'Translation',
-              text:
-                  'Translation service is enabled. Certificated translators in real-time. [Terms and services](https://google.com)',
-            ),
-            const Locale('ru', 'RU'): const ChatBotText(
-              title: 'Перевод',
-              text:
-                  'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени. [Условия использования](https://google.com)',
-            ),
-          },
-        ),
-      );
+      if (user.user.value.name?.val == 'Translation Service') {
+        await postChatMessage(
+          text: ChatMessageText.bot(
+            localized: {
+              const Locale('en', 'US'): const ChatBotText(
+                title: 'Translation',
+                text:
+                    'Translation service is enabled. Certificated translators in real-time. [Terms and services](https://google.com)',
+              ),
+              const Locale('ru', 'RU'): const ChatBotText(
+                title: 'Перевод',
+                text:
+                    'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени. [Условия использования](https://google.com)',
+              ),
+            },
+          ),
+        );
+      } else if (user.user.value.name?.val == 'Donation Service') {
+        await postChatMessage(
+          text: ChatMessageText.bot(
+            localized: {
+              const Locale('en', 'US'): const ChatBotText(
+                title: 'Translation',
+                text:
+                    'Donation service is enabled. [Terms and services](https://google.com)',
+              ),
+              const Locale('ru', 'RU'): const ChatBotText(
+                title: 'Перевод',
+                text:
+                    'Подключен сервис донатов. [Условия использования](https://google.com)',
+              ),
+            },
+          ),
+        );
+      }
     }
 
     bots.addIf(!bots.contains(user), user);

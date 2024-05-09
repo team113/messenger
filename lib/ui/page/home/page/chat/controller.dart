@@ -1137,6 +1137,29 @@ class ChatController extends GetxController {
           repliesTo: [repliesTo],
         );
       }
+    } else {
+      if (command.startsWith('/donate')) {
+        final double? sum =
+            double.tryParse(command.substring('/donate'.length));
+
+        if (sum != null) {
+          await _chatService.sendChatMessage(
+            id,
+            text: ChatMessageText.bot(
+              localized: {
+                const Locale('en', 'US'): ChatBotText(
+                  title: 'Donate',
+                  text: 'Donated \$${sum.toStringAsFixed(2)}',
+                ),
+                const Locale('ru', 'RU'): ChatBotText(
+                  title: 'Донат',
+                  text: 'Отправлен донат \$${sum.toStringAsFixed(2)}',
+                ),
+              },
+            ),
+          );
+        }
+      }
     }
   }
 
