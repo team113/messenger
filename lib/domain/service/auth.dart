@@ -591,6 +591,10 @@ class AuthService extends GetxService {
         });
 
         return true;
+      } else {
+        status.value = RxStatus.success();
+        _credentialsProvider.remove(userId);
+        sessions.remove(userId);
       }
     } catch (_) {
       status.value = RxStatus.success();
@@ -627,14 +631,14 @@ class AuthService extends GetxService {
       Log.debug('validateToken($creds)', '$runtimeType');
     }
 
-    // If [creds] are not provided, then validate the current [credentials].
-    creds ??= credentials.value;
-
-    if (creds == null) {
-      return false;
-    }
-
     return await WebUtils.protect(() async {
+      // If [creds] are not provided, then validate the current [credentials].
+      creds ??= credentials.value;
+
+      if (creds == null) {
+        return false;
+      }
+
       try {
         await _authRepository.validateToken(creds!);
         return true;
@@ -762,7 +766,7 @@ class AuthService extends GetxService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
-  /// Puts the provided [creds] to [allCredentials].
+  /// Puts the provided [creds] to [sessions].
   void _putCredentials(Credentials creds) {
     Log.debug('_putCredentials($creds)', '$runtimeType');
 
