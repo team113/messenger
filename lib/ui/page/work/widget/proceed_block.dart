@@ -37,12 +37,7 @@ class ProceedBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Block(
       children: [
-        Paddings.basic(
-          PrimaryButton(
-            onPressed: onPressed,
-            title: text,
-          ),
-        ),
+        Paddings.basic(PrimaryButton(onPressed: onPressed, title: text)),
       ],
     );
   }

@@ -261,11 +261,9 @@ class WebUtils {
 
     if (PlatformUtils.isMacOS) {
       final info = await device.macOsInfo;
-      final StringBuffer buffer = StringBuffer(info.model);
-
-      buffer.write('; macOS ${info.osRelease}; ${info.kernelVersion}');
-
-      buffer.write('; ${info.arch}');
+      final StringBuffer buffer = StringBuffer(
+        'macOS ${info.osRelease}; ${info.model}; ${info.kernelVersion}; ${info.arch};',
+      );
 
       final res = await Process.run('sysctl', ['machdep.cpu.brand_string']);
       if (res.exitCode == 0) {
@@ -283,7 +281,7 @@ class WebUtils {
       final info = await device.windowsInfo;
 
       final StringBuffer buffer = StringBuffer(
-        '${info.productName}; (build ${info.buildLabEx}); ${info.displayVersion}',
+        '${info.productName}; ${info.displayVersion}; build ${info.buildLabEx};',
       );
 
       Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
@@ -331,7 +329,7 @@ class WebUtils {
       final StringBuffer buffer = StringBuffer(info.prettyName);
 
       if (utsname != null) {
-        buffer.write(' ${utsname.release}');
+        buffer.write('; ${utsname.release}');
       }
 
       if (info.variant != null || info.buildId != null) {
@@ -360,7 +358,7 @@ class WebUtils {
       final utsname = uname();
 
       final StringBuffer buffer = StringBuffer(
-        '${info.manufacturer} ${info.model}; ${info.id}; Android ${info.version.release}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+        'Android ${info.version.release}; ${info.manufacturer} ${info.model}; ${info.id}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
       );
 
       if (utsname != null) {
@@ -371,7 +369,7 @@ class WebUtils {
     } else if (PlatformUtils.isIOS) {
       final info = await device.iosInfo;
       final StringBuffer buffer = StringBuffer(
-        '${info.utsname.machine}; ${info.systemName} ${info.systemVersion}; ${info.utsname.version}',
+        '${info.systemName} ${info.systemVersion}; ${info.utsname.machine}; ${info.utsname.version}',
       );
 
       try {

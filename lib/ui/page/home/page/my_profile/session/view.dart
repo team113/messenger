@@ -64,7 +64,7 @@ class DeleteSessionView extends StatelessWidget {
                   children: [
                     InfoTile(
                       title: session.lastActivatedAt.val.yMdHm,
-                      content: session.userAgent.deviceName,
+                      content: session.userAgent.localized,
                     ),
                     const SizedBox(height: 21),
                     Obx(() {

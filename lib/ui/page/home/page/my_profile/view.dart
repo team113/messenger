@@ -849,7 +849,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
         title: session.isCurrent
             ? 'label_this_device'.l10n
             : session.lastActivatedAt.val.yMdHm,
-        content: session.userAgent.deviceName,
+        content: session.userAgent.localized,
         trailing: session.isCurrent
             ? null
             : WidgetButton(
