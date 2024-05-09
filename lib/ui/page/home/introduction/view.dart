@@ -35,6 +35,7 @@ import '/ui/page/login/view.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -92,15 +93,10 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 25),
                 _link(c, context),
                 const SizedBox(height: 25),
-                OutlinedRoundedButton(
+                PrimaryButton(
                   key: const Key('OkButton'),
-                  maxWidth: double.infinity,
                   onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
-                  child: Text(
-                    'btn_ok'.l10n,
-                    style: style.fonts.normal.regular.onPrimary,
-                  ),
+                  title: 'btn_ok'.l10n,
                 ),
                 const SizedBox(height: 16),
               ];
@@ -144,15 +140,10 @@ class IntroductionView extends StatelessWidget {
                 const SizedBox(height: 25),
                 _terms(context),
                 const SizedBox(height: 25 / 2),
-                OutlinedRoundedButton(
+                PrimaryButton(
                   key: const Key('ProceedButton'),
-                  maxWidth: double.infinity,
                   onPressed: Navigator.of(context).pop,
-                  color: style.colors.primary,
-                  child: Text(
-                    'btn_ok'.l10n,
-                    style: style.fonts.normal.regular.onPrimary,
-                  ),
+                  title: 'btn_ok'.l10n,
                 ),
                 const SizedBox(height: 8),
               ];

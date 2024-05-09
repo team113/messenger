@@ -68,7 +68,7 @@ class AuthService extends GetxService {
   ///
   /// If there're no [Credentials] for the given [UserId], then their
   /// [Credentials] should be considered as stale.
-  final RxMap<UserId, Rx<Credentials>> sessions = RxMap();
+  final RxMap<UserId, Rx<Credentials>> accounts = RxMap();
 
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
@@ -99,6 +99,9 @@ class AuthService extends GetxService {
 
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
+
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions => _authRepository.sessions;
 
   /// Indicates whether this [AuthService] is considered authorized.
   bool get _hasAuthorization => credentials.value != null;
@@ -164,17 +167,17 @@ class AuthService extends GetxService {
               router.home();
             }
           } else {
-            current = sessions[received.userId]?.value;
+            current = accounts[received.userId]?.value;
             if (received.access.secret != current?.access.secret) {
               // These [Credentials] are of another account, so just save them.
               _putCredentials(received);
             }
           }
         } else {
-          final UserId? deletedId = sessions.keys
+          final UserId? deletedId = accounts.keys
               .firstWhereOrNull((k) => e.key?.endsWith(k.val) ?? false);
 
-          sessions.remove(deletedId);
+          accounts.remove(deletedId);
 
           final bool currentAreNull = credentials.value == null;
           final bool currentDeleted =
@@ -241,7 +244,7 @@ class AuthService extends GetxService {
       return _hasAuthorization;
     }
 
-    return sessions[userId]?.value != null;
+    return accounts[userId]?.value != null;
   }
 
   /// Initiates password recovery for a [MyUser] identified by the provided
@@ -493,14 +496,24 @@ class AuthService extends GetxService {
     });
   }
 
-  /// Deletes [Session] of the active [MyUser].
+  /// Deletes [Session] with the provided [id], if any, or otherwise [Session]
+  /// of the active [MyUser].
   ///
   /// Returns the path of the authentication page.
   ///
   /// If [force] is `true`, then the current [Credentials] will be revoked
   /// unilaterally and immediately.
-  Future<String> deleteSession({bool force = false}) async {
-    Log.debug('deleteSession(force: $force)', '$runtimeType');
+  Future<String?> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    bool force = false,
+  }) async {
+    Log.debug('deleteSession($id, $password, force: $force)', '$runtimeType');
+
+    if (id != null) {
+      await _authRepository.deleteSession(id: id, password: password);
+      return null;
+    }
 
     status.value = RxStatus.empty();
 
@@ -551,7 +564,7 @@ class AuthService extends GetxService {
       _authRepository.removeAccount(userId!);
     }
 
-    return await deleteSession();
+    return await deleteSession() ?? Routes.auth;
   }
 
   /// Switches to the account with the provided [UserId] using the persisted
@@ -562,7 +575,7 @@ class AuthService extends GetxService {
   Future<bool> switchAccount(UserId userId) async {
     Log.debug('switchAccount($userId)', '$runtimeType');
 
-    Credentials? creds = sessions[userId]?.value;
+    Credentials? creds = accounts[userId]?.value;
     if (creds == null) {
       return false;
     }
@@ -574,7 +587,7 @@ class AuthService extends GetxService {
         await refreshSession(userId: creds.userId);
       }
 
-      creds = sessions[userId]?.value;
+      creds = accounts[userId]?.value;
       if (creds == null) {
         return false;
       }
@@ -594,7 +607,7 @@ class AuthService extends GetxService {
       } else {
         status.value = RxStatus.success();
         _credentialsProvider.remove(userId);
-        sessions.remove(userId);
+        accounts.remove(userId);
       }
     } catch (_) {
       status.value = RxStatus.success();
@@ -612,7 +625,7 @@ class AuthService extends GetxService {
     _authRepository.removeAccount(id);
 
     // Delete [Session] for this account if it's not the current one.
-    final AccessTokenSecret? token = sessions[id]?.value.access.secret;
+    final AccessTokenSecret? token = accounts[id]?.value.access.secret;
     if (id != userId && token != null) {
       await _authRepository.deleteSession(accessToken: token);
     }
@@ -667,7 +680,7 @@ class AuthService extends GetxService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        final Credentials? oldCreds = sessions[userId]?.value;
+        final Credentials? oldCreds = accounts[userId]?.value;
 
         if (isLocked) {
           Log.debug(
@@ -766,13 +779,19 @@ class AuthService extends GetxService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
+  /// Updates the [sessions] list.
+  Future<void> updateSessions() async {
+    Log.debug('updateSessions()', '$runtimeType');
+    await _authRepository.updateSessions();
+  }
+
   /// Puts the provided [creds] to [sessions].
   void _putCredentials(Credentials creds) {
     Log.debug('_putCredentials($creds)', '$runtimeType');
 
-    final Rx<Credentials>? stored = sessions[creds.userId];
+    final Rx<Credentials>? stored = accounts[creds.userId];
     if (stored == null) {
-      sessions[creds.userId] = Rx(creds);
+      accounts[creds.userId] = Rx(creds);
     } else {
       stored.value = creds;
     }
@@ -785,11 +804,11 @@ class AuthService extends GetxService {
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
-    for (final UserId id in sessions.keys) {
+    for (final UserId id in accounts.keys) {
       _refreshTimers[id] = Timer.periodic(
         _refreshTaskInterval,
         (_) async {
-          final Credentials? creds = sessions[id]?.value;
+          final Credentials? creds = accounts[id]?.value;
           if (creds == null) {
             Log.debug(
               '_initRefreshTimers(): no credentials found for user $id, killing timer',
@@ -833,7 +852,7 @@ class AuthService extends GetxService {
     if (id != null) {
       _credentialsProvider.remove(id);
       _refreshTimers.remove(id)?.cancel();
-      sessions.remove(id);
+      accounts.remove(id);
     }
 
     if (id == _accountProvider.userId) {
@@ -845,6 +864,7 @@ class AuthService extends GetxService {
     }
 
     _authRepository.token = null;
+    _authRepository.sessions.clear();
     credentials.value = null;
     status.value = RxStatus.empty();
 

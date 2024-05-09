@@ -23,7 +23,7 @@ import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -92,38 +92,24 @@ class AddEmailView extends StatelessWidget {
                 return Row(
                   children: [
                     Expanded(
-                      child: OutlinedRoundedButton(
+                      child: PrimaryButton(
                         key: const Key('Resend'),
-                        maxWidth: double.infinity,
                         onPressed: c.resendEmailTimeout.value == 0
                             ? c.resendEmail
                             : null,
-                        color: style.colors.primary,
-                        child: Text(
-                          c.resendEmailTimeout.value == 0
-                              ? 'label_resend'.l10n
-                              : 'label_resend_timeout'.l10nfmt(
-                                  {'timeout': c.resendEmailTimeout.value},
-                                ),
-                          style: c.resendEmailTimeout.value == 0
-                              ? style.fonts.normal.regular.onPrimary
-                              : style.fonts.normal.regular.onBackground,
-                        ),
+                        title: c.resendEmailTimeout.value == 0
+                            ? 'label_resend'.l10n
+                            : 'label_resend_timeout'.l10nfmt(
+                                {'timeout': c.resendEmailTimeout.value},
+                              ),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: OutlinedRoundedButton(
+                      child: PrimaryButton(
                         key: const Key('Proceed'),
-                        maxWidth: double.infinity,
                         onPressed: c.code.isEmpty.value ? null : c.code.submit,
-                        color: style.colors.primary,
-                        child: Text(
-                          'btn_proceed'.l10n,
-                          style: c.code.isEmpty.value
-                              ? style.fonts.normal.regular.onBackground
-                              : style.fonts.normal.regular.onPrimary,
-                        ),
+                        title: 'btn_proceed'.l10n,
                       ),
                     ),
                   ],

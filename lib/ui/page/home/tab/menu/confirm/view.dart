@@ -23,6 +23,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
@@ -93,16 +94,10 @@ class ConfirmLogoutView extends StatelessWidget {
                       !c.password.isEmpty.value &&
                       !c.repeat.isEmpty.value;
 
-                  return OutlinedRoundedButton(
+                  return PrimaryButton(
                     key: const Key('ChangePasswordButton'),
                     onPressed: enabled ? c.setPassword : null,
-                    color: style.colors.primary,
-                    child: Text(
-                      'btn_proceed'.l10n,
-                      style: enabled
-                          ? style.fonts.normal.regular.onPrimary
-                          : style.fonts.normal.regular.onBackground,
-                    ),
+                    title: 'btn_proceed'.l10n,
                   );
                 }),
               ];
@@ -118,15 +113,10 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Center(
-                  child: OutlinedRoundedButton(
+                  child: PrimaryButton(
                     key: const Key('CloseButton'),
-                    maxWidth: double.infinity,
                     onPressed: Navigator.of(context).pop,
-                    color: style.colors.primary,
-                    child: Text(
-                      'btn_close'.l10n,
-                      style: style.fonts.medium.regular.onPrimary,
-                    ),
+                    title: 'btn_close'.l10n,
                   ),
                 ),
               ];
@@ -159,15 +149,10 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 if (c.hasPassword.value) ...[
-                  OutlinedRoundedButton(
+                  PrimaryButton(
                     key: const Key('ConfirmLogoutButton'),
-                    maxWidth: double.infinity,
                     onPressed: () => Navigator.of(context).pop(true),
-                    color: style.colors.primary,
-                    child: Text(
-                      'btn_logout'.l10n,
-                      style: style.fonts.medium.regular.onPrimary,
-                    ),
+                    title: 'btn_logout'.l10n,
                   ),
                 ] else ...[
                   RichText(
@@ -189,22 +174,17 @@ class ConfirmLogoutView extends StatelessWidget {
                           color: style.colors.secondaryHighlight,
                           child: Text(
                             'btn_logout'.l10n,
-                            style: style.fonts.normal.regular.onBackground,
+                            style: style.fonts.medium.regular.onBackground,
                           ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: OutlinedRoundedButton(
+                        child: PrimaryButton(
                           key: const Key('SetPasswordButton'),
-                          maxWidth: double.infinity,
                           onPressed: () =>
                               c.stage.value = ConfirmLogoutViewStage.password,
-                          color: style.colors.primary,
-                          child: Text(
-                            'btn_set_password'.l10n,
-                            style: style.fonts.normal.regular.onPrimary,
-                          ),
+                          title: 'btn_set_password'.l10n,
                         ),
                       ),
                     ],

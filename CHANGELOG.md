@@ -15,7 +15,8 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Profile page:
-        - Accounts switching. ([#975], [#312])
+        - Connected devices list. ([#986], [#566])
+    - Accounts switching. ([#975], [#312])
 
 ### Changed
 
@@ -36,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
         - Tapping on image opens gallery when being in context menu. ([#983], [#979])
 
 [#312]: /../../issues/312
+[#566]: /../../issues/566
 [#948]: /../../issues/948
 [#950]: /../../issues/950
 [#975]: /../../pull/975
@@ -43,6 +45,7 @@ All user visible changes to this project will be documented in this file. This p
 [#979]: /../../issues/979
 [#980]: /../../pull/980
 [#983]: /../../pull/983
+[#986]: /../../pull/986
 
 
 

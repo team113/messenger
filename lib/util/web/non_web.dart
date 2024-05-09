@@ -270,10 +270,8 @@ class WebUtils {
     if (PlatformUtils.isMacOS) {
       final info = await device.macOsInfo;
       final StringBuffer buffer = StringBuffer(
-        'macOS ${info.osRelease} ${info.kernelVersion}',
+        'macOS ${info.osRelease}; ${info.model}; ${info.kernelVersion}; ${info.arch};',
       );
-
-      buffer.write('; ${info.arch}');
 
       final res = await Process.run('sysctl', ['machdep.cpu.brand_string']);
       if (res.exitCode == 0) {
@@ -281,8 +279,6 @@ class WebUtils {
           ' ${res.stdout.toString().substring('machdep.cpu.brand_string: '.length, res.stdout.toString().length - 1)}',
         );
       }
-
-      buffer.write('; ${info.model}');
 
       if (info.systemGUID != null) {
         buffer.write('; ${info.systemGUID}');
@@ -293,7 +289,7 @@ class WebUtils {
       final info = await device.windowsInfo;
 
       final StringBuffer buffer = StringBuffer(
-        '${info.productName} (build ${info.buildLabEx}); ${info.displayVersion}',
+        '${info.productName}; ${info.displayVersion}; build ${info.buildLabEx};',
       );
 
       Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
@@ -341,7 +337,11 @@ class WebUtils {
       final StringBuffer buffer = StringBuffer(info.prettyName);
 
       if (utsname != null) {
-        buffer.write(' ${utsname.release}');
+        buffer.write('; ${utsname.release}');
+      }
+
+      if (info.variant != null || info.buildId != null) {
+        buffer.write(';');
       }
 
       if (info.variant != null) {
@@ -366,20 +366,18 @@ class WebUtils {
       final utsname = uname();
 
       final StringBuffer buffer = StringBuffer(
-        'Android ${info.version.release} ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+        'Android ${info.version.release}; ${info.manufacturer} ${info.model}; ${info.id}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
       );
 
       if (utsname != null) {
         buffer.write('; ${utsname.machine} ${info.hardware}');
       }
 
-      buffer.write('; ${info.manufacturer} ${info.model}; ${info.id}');
-
       system = buffer.toString();
     } else if (PlatformUtils.isIOS) {
       final info = await device.iosInfo;
       final StringBuffer buffer = StringBuffer(
-        '${info.systemName} ${info.systemVersion} ${info.utsname.version}',
+        '${info.systemName} ${info.systemVersion}; ${info.utsname.machine}; ${info.utsname.version}',
       );
 
       try {
@@ -387,8 +385,6 @@ class WebUtils {
       } catch (_) {
         // No-op.
       }
-
-      buffer.write('; ${info.utsname.machine}');
 
       if (info.identifierForVendor != null) {
         buffer.write('; ${info.identifierForVendor}');

@@ -21,11 +21,11 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/markdown.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/worker/upgrade.dart';
 import 'controller.dart';
 
