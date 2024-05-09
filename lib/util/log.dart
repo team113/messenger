@@ -82,15 +82,15 @@ class Log {
   }
 }
 
-/// Extension adding obfuscated getter to [NewType]s.
-extension ObfuscatedNewTypeExtension on NewType {
-  /// Returns this value as a obfuscated string.
+/// Extension adding obscured getter to [NewType]s.
+extension ObscuredNewTypeExtension on NewType {
+  /// Returns this value as a obscured string.
   ///
-  /// Intended to be used to obfuscate sensitive information in [Log]s:
+  /// Intended to be used to obscure sensitive information in [Log]s:
   /// ```dart
   /// // - prints `[Type] signIn(password: ***)`, when non-`null`;
   /// // - prints `[Type] signIn(password: null)`, when `null`;
-  /// Log.debug('signIn(password: ${password?.obfuscated})', '$runtimeType');
+  /// Log.debug('signIn(password: ${password?.obscured})', '$runtimeType');
   /// ```
-  String get obfuscated => '***';
+  String get obscured => '***';
 }

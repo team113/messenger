@@ -116,7 +116,7 @@ class AccountsController extends GetxController {
   ///
   /// Accounts whose [UserId]s are present in this set are available for
   /// switching.
-  RxMap<UserId, Rx<Credentials>> get sessions => _authService.sessions;
+  RxMap<UserId, Rx<Credentials>> get sessions => _authService.accounts;
 
   /// Returns a reactive map of all the known [MyUser] profiles for [accounts].
   RxObsMap<UserId, Rx<MyUser>> get _profiles => _myUserService.profiles;

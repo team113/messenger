@@ -181,8 +181,9 @@ class AuthRepository implements AbstractAuthRepository {
     AccessTokenSecret? accessToken,
   }) async {
     Log.debug(
-        'deleteSession(id: $id, password: ${password?.obscured} $fcmToken)',
-        '$runtimeType');
+      'deleteSession(id: $id, password: ${password?.obscured}, fcmToken: $fcmToken, accessToken: $accessToken)',
+      '$runtimeType',
+    );
 
     if (fcmToken != null) {
       await _graphQlProvider.unregisterFcmDevice(fcmToken);
