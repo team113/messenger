@@ -160,7 +160,7 @@ class AuthService extends GetxService {
             _authRepository.token = received.access.secret;
             _authRepository.applyToken();
             credentials.value = received;
-            _addAccount(received);
+            _putCredentials(received);
             status.value = RxStatus.success();
 
             if (!authorized) {
@@ -170,7 +170,7 @@ class AuthService extends GetxService {
             current = accounts[received.userId]?.value;
             if (received.access.secret != current?.access.secret) {
               // These [Credentials] are of another account, so just save them.
-              _addAccount(received);
+              _putCredentials(received);
             }
           }
         } else {
@@ -205,7 +205,7 @@ class AuthService extends GetxService {
 
     for (final Credentials e in _credentialsProvider.valuesSafe) {
       WebUtils.putCredentials(e);
-      _addAccount(e);
+      _putCredentials(e);
     }
 
     final UserId? userId = _accountProvider.userId;
@@ -718,7 +718,7 @@ class AuthService extends GetxService {
             status.value = RxStatus.success();
           } else {
             // [Credentials] of another account were refreshed.
-            _addAccount(stored);
+            _putCredentials(stored);
           }
           return;
         }
@@ -738,7 +738,7 @@ class AuthService extends GetxService {
             // Saving to [Hive] is safe here, as this callback is guarded by
             // the [WebUtils.protect] lock.
             await _credentialsProvider.put(data);
-            _addAccount(data);
+            _putCredentials(data);
           }
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
@@ -786,8 +786,8 @@ class AuthService extends GetxService {
   }
 
   /// Puts the provided [creds] to [accounts].
-  void _addAccount(Credentials creds) {
-    Log.debug('_addAccount($creds)', '$runtimeType');
+  void _putCredentials(Credentials creds) {
+    Log.debug('_putCredentials($creds)', '$runtimeType');
 
     final Rx<Credentials>? stored = accounts[creds.userId];
     if (stored == null) {
@@ -837,7 +837,7 @@ class AuthService extends GetxService {
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
-    _addAccount(creds);
+    _putCredentials(creds);
 
     _initRefreshTimers();
 
