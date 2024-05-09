@@ -325,6 +325,10 @@ class ChatInfoView extends StatelessWidget {
             }
           }
 
+          for (var u in c.chat!.bots) {
+            members.add(u);
+          }
+
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
