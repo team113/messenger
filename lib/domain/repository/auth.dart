@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
+
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
@@ -26,6 +28,9 @@ import '/provider/gql/exceptions.dart';
 ///
 /// All methods may throw [ConnectionException] and [GraphQlException].
 abstract class AbstractAuthRepository {
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions;
+
   /// Sets an authorization `token` of this repository.
   set token(AccessTokenSecret? token);
 
@@ -57,11 +62,16 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Invalidates a [Session] of the [MyUser] identified by the [token].
+  /// Invalidates a [Session] with the provided [id], if any, or otherwise
+  /// [Session] of the [MyUser] identified by the [token].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
-  /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
-  Future<void> deleteSession([FcmRegistrationToken? fcmRegistrationToken]);
+  /// via Firebase Cloud Messaging, if [fcmToken] is provided.
+  Future<void> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    FcmRegistrationToken? fcmToken,
+  });
 
   /// Deletes the [MyUser] identified by the provided [id] from the accounts.
   Future<void> removeAccount(UserId id);
@@ -137,5 +147,7 @@ abstract class AbstractAuthRepository {
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug);
 
-
+  // TODO: Replace with real-time updates, when backend supports those.
+  /// Updates the [sessions] list.
+  Future<void> updateSessions();
 }

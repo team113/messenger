@@ -18,6 +18,7 @@
 import '/api/backend/schema.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/blocklist.dart';
 import '/provider/hive/my_user.dart';
@@ -90,4 +91,17 @@ extension BlocklistRecordConversion on BlocklistRecordMixin {
   /// Constructs a new [HiveBlocklistRecord] from this [BlocklistRecordMixin].
   HiveBlocklistRecord toHive({BlocklistCursor? cursor}) =>
       HiveBlocklistRecord(toModel(), cursor);
+}
+
+/// Extension adding [Session] model construction from a [SessionMixin].
+extension SessionExtension on SessionMixin {
+  /// Constructs a new [Session] from this [SessionMixin].
+  Session toModel() {
+    return Session(
+      id: id,
+      lastActivatedAt: lastActivatedAt,
+      isCurrent: isCurrent,
+      userAgent: userAgent,
+    );
+  }
 }

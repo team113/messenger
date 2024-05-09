@@ -186,6 +186,13 @@ jobs:
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ios web', matrix.platform) }}
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin  # Temurin is cached on GitHub Actions Runners.
+          java-version: 17
+          cache: gradle
+        if: ${{ contains('apk appbundle', matrix.platform) }}
+
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json

@@ -1350,4 +1350,27 @@ mixin UserGraphQlMixin {
     return UnregisterFcmDevice$Mutation.fromJson(result.data!)
         .unregisterFcmDevice;
   }
+
+  /// Returns all active [Session]s of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Sorting
+  ///
+  /// Returned [Session]s are sorted primarily by their last activity
+  /// [DateTime], and secondary by their IDs (if the last activity [DateTime] is
+  /// the same), in descending order.
+  Future<List<SessionMixin>> sessions() async {
+    Log.debug('sessions()', '$runtimeType');
+
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'Sessions',
+        document: SessionsQuery().document,
+      ),
+    );
+    return Sessions$Query.fromJson(result.data!).sessions;
+  }
 }

@@ -22,7 +22,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import 'localized_exception.dart';
 
 /// Helper to display a popup message in UI.
@@ -110,17 +110,10 @@ class MessagePopup {
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return OutlinedRoundedButton(
+    return PrimaryButton(
       key: const Key('Proceed'),
-      maxWidth: double.infinity,
       onPressed: () => Navigator.of(context).pop(true),
-      color: style.colors.primary,
-      child: Text(
-        'btn_proceed'.l10n,
-        style: style.fonts.normal.regular.onPrimary,
-      ),
+      title: 'btn_proceed'.l10n,
     );
   }
 }

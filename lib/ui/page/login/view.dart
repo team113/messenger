@@ -25,14 +25,13 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'privacy_policy/view.dart';
 import 'terms_of_use/view.dart';
-import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
 /// View for logging in or recovering access on.
@@ -280,16 +279,9 @@ class LoginView extends StatelessWidget {
                   child: Obx(() {
                     final bool enabled = !c.email.isEmpty.value;
 
-                    return OutlinedRoundedButton(
+                    return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
-                      child: Text(
-                        'btn_proceed'.l10n,
-                        style: enabled
-                            ? style.fonts.medium.regular.onPrimary
-                            : style.fonts.medium.regular.onBackground,
-                      ),
+                      title: 'btn_proceed'.l10n,
                     );
                   }),
                 ),
