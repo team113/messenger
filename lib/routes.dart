@@ -102,10 +102,13 @@ class Routes {
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
-  static const nowhere = '/nowhere';
   static const support = '/support';
   static const user = '/user';
   static const work = '/work';
+
+  // TODO: Dirty hack used to reinitialize the dependencies when changing
+  //       accounts, should remove it.
+  static const nowhere = '/nowhere';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';

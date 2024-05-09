@@ -54,7 +54,7 @@ class AccountsController extends GetxController {
   /// [AccountsViewStage] currently being displayed.
   late final Rx<AccountsViewStage> stage;
 
-  /// [MyUser.login]'s copyable [TextFieldState].
+  /// [MyUser.login]'s [TextFieldState].
   late final TextFieldState login;
 
   /// [TextFieldState] for a password input.
@@ -68,9 +68,6 @@ class AccountsController extends GetxController {
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
-
-  /// Current status of the account list initialization.
-  final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   /// Amount of [signIn] unsuccessful submitting attempts.
   int signInAttempts = 0;
@@ -107,7 +104,7 @@ class AccountsController extends GetxController {
 
   /// Subscription for [MyUserService.myUsers] changes updating the [accounts]
   /// list.
-  StreamSubscription? _myUsersSubscription;
+  StreamSubscription? _profilesSubscription;
 
   /// Returns [UserId] of currently authenticated [MyUser].
   UserId? get me => _authService.userId;
@@ -115,24 +112,23 @@ class AccountsController extends GetxController {
   /// Returns the current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
-  /// Returns a reactive map of all the authenticated [Credentials] for
-  /// [accounts].
+  /// Returns a reactive map of all the active [Credentials] for [accounts].
   ///
   /// Accounts whose [UserId]s are present in this set are available for
   /// switching.
-  RxMap<UserId, Rx<Credentials>> get sessions => _authService.accounts;
+  RxMap<UserId, Rx<Credentials>> get sessions => _authService.sessions;
 
-  /// Returns a reactive map of all the known [MyUser] accounts.
-  RxObsMap<UserId, Rx<MyUser>> get _accounts => _myUserService.myUsers;
+  /// Returns a reactive map of all the known [MyUser] profiles for [accounts].
+  RxObsMap<UserId, Rx<MyUser>> get _profiles => _myUserService.profiles;
 
   @override
   void onInit() {
-    for (var e in _accounts.values) {
+    for (var e in _profiles.values) {
       accounts.add(e);
     }
     accounts.sort(_compareAccounts);
 
-    _myUsersSubscription = _accounts.changes.listen((e) async {
+    _profilesSubscription = _profiles.changes.listen((e) async {
       switch (e.op) {
         case OperationKind.added:
           accounts.add(e.value!);
@@ -222,8 +218,10 @@ class AccountsController extends GetxController {
             force: true,
           );
 
-          // Change the route only after the mutation ends, as possible errors
-          // should be handled within the same modal.
+          // TODO: This is a hack that should be removed, as whenever the
+          //       account is changed, the [HomeView] and its dependencies must
+          //       be rebuilt, which may take some unidentifiable amount of time
+          //       as of now.
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
@@ -241,7 +239,7 @@ class AccountsController extends GetxController {
               break;
 
             default:
-              s.error.value = 'err_wrong_recovery_code'.l10n;
+              s.error.value = e.toMessage();
               break;
           }
         } on FormatException catch (_) {
@@ -267,7 +265,7 @@ class AccountsController extends GetxController {
 
   @override
   void onClose() {
-    _myUsersSubscription?.cancel();
+    _profilesSubscription?.cancel();
     super.onClose();
   }
 
@@ -358,14 +356,13 @@ class AccountsController extends GetxController {
   /// Switches to the account with the given [id].
   Future<void> switchTo(UserId id) async {
     try {
+      // TODO: This is a hack that should be removed, as whenever the account is
+      //       changed, the [HomeView] and its dependencies must be rebuilt,
+      //       which may take some unidentifiable amount of time as of now.
       router.nowhere();
 
       final bool succeeded = await _authService.switchAccount(id);
       if (succeeded) {
-        // TODO: This is a hack that should be removed, as whenever the account
-        //       is changed, the [HomeView] and its dependencies must be
-        //       rebuilt, which may take some unidentifiable amount of time as
-        //       of now.
         await Future.delayed(500.milliseconds);
         router.tab = HomeTab.chats;
         router.home();

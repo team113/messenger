@@ -123,7 +123,7 @@ class MenuTabView extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
-                    final bool hasMultipleAccounts = c.accounts.length > 1;
+                    final bool hasMultipleAccounts = c.profiles.length > 1;
                     final String label = hasMultipleAccounts
                         ? 'btn_change_account_desc'
                         : 'btn_add_account_with_desc';

@@ -26,11 +26,16 @@ import '/util/obs/rxmap.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
-  /// Returns stored [MyUser] value.
+  /// Returns the currently active [MyUser] profile.
   Rx<MyUser?> get myUser;
 
-  /// Returns a reactive map of [MyUser]s.
-  RxObsMap<UserId, Rx<MyUser>> get myUsers;
+  /// Returns a reactive map of known [MyUser] profiles.
+  ///
+  /// __Note__, that having a [MyUser] here doesn't mean that
+  /// [AbstractAuthRepository] can sign into that account: it must also have
+  /// non-stale [Credentials], which can be found in [AuthService.accounts]
+  /// field.
+  RxObsMap<UserId, Rx<MyUser>> get profiles;
 
   /// Initializes the repository.
   ///

@@ -84,7 +84,7 @@ mixin AuthGraphQlMixin {
     token ??= this.token;
 
     Log.debug(
-      'deleteSession(id: $id, password: ***, token: $token)',
+      'deleteSession(id: $id, password: ${password?.obfuscated}, token: $token)',
       '$runtimeType',
     );
 

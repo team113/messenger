@@ -84,7 +84,7 @@ class WebUtils {
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked => _guard.isLocked;
 
-  /// Removes [Credentials] of the user with the provided [UserId] from the
+  /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {
     // No-op.
@@ -95,8 +95,8 @@ class WebUtils {
     // No-op.
   }
 
-  /// Returns the stored in browser's storage [Credentials] of the user with
-  /// the provided [UserId].
+  /// Returns the stored in browser's storage [Credentials] identified by the
+  /// provided [UserId], if any.
   static Credentials? getCredentials(UserId userId) => null;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or

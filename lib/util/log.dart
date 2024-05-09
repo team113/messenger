@@ -20,6 +20,7 @@ import 'package:log_me/log_me.dart' as me;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/config.dart';
+import 'new_type.dart';
 
 /// Utility logging messages to console.
 class Log {
@@ -79,4 +80,17 @@ class Log {
       }
     }
   }
+}
+
+/// Extension adding obfuscated getter to [NewType]s.
+extension ObfuscatedNewTypeExtension on NewType {
+  /// Returns this value as a obfuscated string.
+  ///
+  /// Intended to be used to obfuscate sensitive information in [Log]s:
+  /// ```dart
+  /// // - prints `[Type] signIn(password: ***)`, when non-`null`;
+  /// // - prints `[Type] signIn(password: null)`, when `null`;
+  /// Log.debug('signIn(password: ${password?.obfuscated})', '$runtimeType');
+  /// ```
+  String get obfuscated => '***';
 }

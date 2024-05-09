@@ -63,10 +63,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   @override
   late final Rx<MyUser?> myUser;
 
-  // TODO: Should be synchronized across multiple tabs on Web as they all share
-  //       the same [Hive] box for [MyUser]s.
   @override
-  final RxObsMap<UserId, Rx<MyUser>> myUsers = RxObsMap();
+  final RxObsMap<UserId, Rx<MyUser>> profiles = RxObsMap();
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -131,7 +129,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser = Rx<MyUser?>(_active?.value);
 
-    _initMyUsers();
+    _initProfiles();
     _initLocalSubscription();
     _initRemoteSubscription();
 
@@ -629,21 +627,12 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Populates the [myUsers] with values stored in the [_myUserLocal].
-  void _initMyUsers() {
-    Log.debug('_initMyUsers()', '$runtimeType');
-
-    final Iterable<MyUser> stored = _myUserLocal.valuesSafe.map((u) => u.value);
-
-    myUsers.removeWhere((key, _) => !stored.map((u) => u.id).contains(key));
+  /// Populates the [profiles] with values stored in the [_myUserLocal].
+  void _initProfiles() {
+    Log.debug('_initProfiles()', '$runtimeType');
 
     for (final HiveMyUser u in _myUserLocal.valuesSafe) {
-      final Rx<MyUser>? myUser = myUsers[u.value.id];
-      if (myUser == null) {
-        myUsers[u.value.id] = Rx<MyUser>(u.value);
-      } else {
-        myUser.value = u.value;
-      }
+      profiles[u.value.id] = Rx(u.value);
     }
   }
 
@@ -664,7 +653,7 @@ class MyUserRepository implements AbstractMyUserRepository {
           _remoteSubscription?.close(immediate: true);
         }
 
-        myUsers.remove(id);
+        profiles.remove(id);
       } else {
         if (event.value == null) {
           Log.warning('Expected non-`null` value of `MyUser`', '$runtimeType');
@@ -709,15 +698,15 @@ class MyUserRepository implements AbstractMyUserRepository {
           }
 
           myUser.value = value;
-          myUsers[id]?.value = value;
+          profiles[id]?.value = value;
         }
 
         // This event is not of the currently active [MyUser], so just update
-        // the [myUsers].
+        // the [profiles].
         else {
-          final Rx<MyUser>? existing = myUsers[id];
+          final Rx<MyUser>? existing = profiles[id];
           if (existing == null) {
-            myUsers[id] = Rx(user);
+            profiles[id] = Rx(user);
           } else {
             existing.value = user;
           }

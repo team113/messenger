@@ -38,7 +38,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
-/// View for authenticated [MyUser]s management.
+/// View for known [MyUser] profiles management.
 ///
 /// Intended to be displayed with the [show] method.
 class AccountsView extends StatelessWidget {
@@ -328,118 +328,114 @@ class AccountsView extends StatelessWidget {
 
             case AccountsViewStage.accounts:
               header = ModalPopupHeader(text: 'label_accounts'.l10n);
+              children = [];
 
-              if (c.status.value.isLoading) {
-                children = const [
-                  Center(child: CircularProgressIndicator()),
-                  SizedBox(height: 12),
-                ];
-              } else {
-                children = [];
+              for (final e in c.accounts) {
+                children.add(
+                  Obx(() {
+                    final MyUser myUser = e.value;
+                    final bool authorized = c.sessions.containsKey(myUser.id);
+                    final bool active = c.me == myUser.id;
 
-                for (final e in c.accounts) {
-                  children.add(
-                    Obx(() {
-                      final MyUser myUser = e.value;
-                      final bool authorized = c.sessions.containsKey(myUser.id);
-                      final bool active = c.me == myUser.id;
+                    return ContactTile(
+                      myUser: myUser,
+                      darken: authorized ? 0 : 0.06,
 
-                      return ContactTile(
-                        myUser: myUser,
-                        darken: authorized ? 0 : 0.06,
-                        onTap: authorized && c.me != myUser.id
-                            ? () {
-                                Navigator.of(context).pop();
-                                c.switchTo(myUser.id);
-                              }
-                            : null,
+                      // TODO: Prompt to sign in to the non-[authorized].
+                      onTap: authorized && c.me != myUser.id
+                          ? () {
+                              Navigator.of(context).pop();
+                              c.switchTo(myUser.id);
+                            }
+                          : null,
 
-                        // TODO: Remove, when [MyUser]s will be reactive.
-                        avatarBuilder: (_) => AvatarWidget.fromMyUser(
-                          myUser,
-                          radius: AvatarRadius.large,
-                          badge: active,
-                        ),
+                      // TODO: Remove, when [MyUser]s will receive their
+                      //       updates in real-time.
+                      avatarBuilder: (_) => AvatarWidget.fromMyUser(
+                        myUser,
+                        radius: AvatarRadius.large,
+                        badge: active,
+                      ),
 
-                        trailing: [
-                          AnimatedButton(
-                            decorator: (child) => Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                              child: child,
-                            ),
-                            onPressed: () async {
-                              final bool? result = await MessagePopup.alert(
-                                'btn_logout'.l10n,
-                                description: [
-                                  TextSpan(
-                                    style: style.fonts.medium.regular.secondary,
-                                    children: [
-                                      TextSpan(
-                                        text:
-                                            'alert_are_you_sure_want_to_log_out1'
-                                                .l10n,
-                                      ),
-                                      TextSpan(
-                                        style: style
-                                            .fonts.medium.regular.onBackground,
-                                        text: '${myUser.name ?? myUser.num}',
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            'alert_are_you_sure_want_to_log_out2'
-                                                .l10n,
-                                      ),
-                                      if (!myUser.hasPassword) ...[
-                                        const TextSpan(text: '\n\n'),
-                                        TextSpan(
-                                          text: 'label_password_not_set'.l10n,
-                                        ),
-                                      ],
-                                      if (myUser.emails.confirmed.isEmpty &&
-                                          myUser.phones.confirmed.isEmpty) ...[
-                                        const TextSpan(text: '\n\n'),
-                                        TextSpan(
-                                          text: 'label_email_or_phone_not_set'
-                                              .l10n,
-                                        ),
-                                      ],
-                                    ],
-                                  )
-                                ],
-                              );
-
-                              if (result == true) {
-                                await c.deleteAccount(myUser.id);
-                              }
-                            },
-                            child: active
-                                ? const SvgIcon(SvgIcons.logoutWhite)
-                                : const SvgIcon(SvgIcons.logout),
+                      trailing: [
+                        AnimatedButton(
+                          decorator: (child) => Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                            child: child,
                           ),
-                        ],
-                        selected: active,
-                        subtitle: [
-                          const SizedBox(height: 5),
-                          if (active)
-                            Text(
-                              'label_active_account'.l10n,
-                              style: style.fonts.small.regular.onPrimary,
-                            )
+                          onPressed: () async {
+                            final bool? result = await MessagePopup.alert(
+                              'btn_logout'.l10n,
+                              description: [
+                                TextSpan(
+                                  style: style.fonts.medium.regular.secondary,
+                                  children: [
+                                    TextSpan(
+                                      text:
+                                          'alert_are_you_sure_want_to_log_out1'
+                                              .l10n,
+                                    ),
+                                    TextSpan(
+                                      style: style
+                                          .fonts.medium.regular.onBackground,
+                                      text: '${myUser.name ?? myUser.num}',
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          'alert_are_you_sure_want_to_log_out2'
+                                              .l10n,
+                                    ),
+                                    if (!myUser.hasPassword) ...[
+                                      const TextSpan(text: '\n\n'),
+                                      TextSpan(
+                                        text: 'label_password_not_set'.l10n,
+                                      ),
+                                    ],
+                                    if (myUser.emails.confirmed.isEmpty &&
+                                        myUser.phones.confirmed.isEmpty) ...[
+                                      const TextSpan(text: '\n\n'),
+                                      TextSpan(
+                                        text:
+                                            'label_email_or_phone_not_set'.l10n,
+                                      ),
+                                    ],
+                                  ],
+                                )
+                              ],
+                            );
 
-                          // TODO: Uncomment, when [MyUser]s will be reactive.
-                          // else
-                          //   Text(
-                          //     myUser.getStatus() ?? '',
-                          //     style: style.fonts.small.regular.secondary,
-                          //   )
-                        ],
-                      );
-                    }),
-                  );
-                }
+                            if (result == true) {
+                              await c.deleteAccount(myUser.id);
+                            }
+                          },
+                          child: active
+                              ? const SvgIcon(SvgIcons.logoutWhite)
+                              : const SvgIcon(SvgIcons.logout),
+                        ),
+                      ],
+                      selected: active,
+                      subtitle: [
+                        const SizedBox(height: 5),
+                        if (active)
+                          Text(
+                            'label_active_account'.l10n,
+                            style: style.fonts.small.regular.onPrimary,
+                          )
 
-                children.add(const SizedBox(height: 10));
+                        // TODO: Uncomment, when [MyUser]s will receive their
+                        //       updates in real-time.
+                        // else
+                        //   Text(
+                        //     myUser.getStatus() ?? '',
+                        //     style: style.fonts.small.regular.secondary,
+                        //   )
+                      ],
+                    );
+                  }),
+                );
               }
+
+              children.add(const SizedBox(height: 10));
 
               bottom.addAll([
                 Padding(
@@ -457,23 +453,21 @@ class AccountsView extends StatelessWidget {
           return AnimatedSizeAndFade(
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
-            child: KeyedSubtree(
+            child: Column(
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  header,
-                  const SizedBox(height: 13),
-                  Flexible(
-                    child: ListView(
-                      padding: ModalPopup.padding(context),
-                      shrinkWrap: true,
-                      children: children,
-                    ),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                header,
+                const SizedBox(height: 13),
+                Flexible(
+                  child: ListView(
+                    padding: ModalPopup.padding(context),
+                    shrinkWrap: true,
+                    children: children,
                   ),
-                  ...bottom,
-                ],
-              ),
+                ),
+                ...bottom,
+              ],
             ),
           );
         });
@@ -482,7 +476,7 @@ class AccountsView extends StatelessWidget {
   }
 }
 
-// TODO: Uncomment, when [MyUser]s will be reactive.
+// TODO: Uncomment, when [MyUser]s will receive their updates in real-time.
 /// Extension adding [MyUser] related wrappers and helpers.
 // extension _MyUserViewExt on MyUser {
 //   /// Returns a text represented status of this [MyUser] based on its

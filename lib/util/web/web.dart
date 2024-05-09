@@ -325,7 +325,7 @@ class WebUtils {
   }
 
   /// Returns the stored in browser's storage [Credentials] identified by the
-  /// provided [UserId].
+  /// provided [UserId], if any.
   static Credentials? getCredentials(UserId userId) {
     if (html.window.localStorage['credentials_$userId'] == null) {
       return null;
