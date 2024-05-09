@@ -27,12 +27,20 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+/// Possible [Routes.auth] page screens.
+enum AuthScreen { accounts, signIn }
+
 /// [Routes.auth] page controller.
 class AuthController extends GetxController {
   AuthController(this._auth);
 
   /// Current [AnimatedLogo] animation frame.
   final RxInt logoFrame = RxInt(0);
+
+  /// Current [AuthScreen] of this controller.
+  late final Rx<AuthScreen> screen = Rx(
+    _auth.accounts.isEmpty ? AuthScreen.signIn : AuthScreen.accounts,
+  );
 
   /// Authorization service used for signing up.
   final AuthService _auth;
