@@ -72,6 +72,10 @@ alert_user_will_be_reported2 = {" "}будет отправлена жалоба
 alert_you_will_leave_group = Вы покинете группу.
 btn_accept = Принять
 btn_add = Добавить
+btn_add_account = Добавить аккаунт
+btn_add_account_with_desc =
+    Добавить
+    аккаунт
 btn_add_member = Добавить участника
 btn_add_participant = Добавить участника
 btn_add_participant_desc =
@@ -169,6 +173,9 @@ btn_cancel = Отменить
 btn_call_video_on_desc =
     Включить
     камеру
+btn_change_account_desc =
+    Сменить
+    аккаунт
 btn_change = Изменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
@@ -297,6 +304,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
+err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
 err_blocked_by = {$user} добавил Вас в чёрный список.
 err_blocked_by_multiple = Один или несколько выбранных пользователей внесли Вас в чёрный список.
@@ -520,8 +528,11 @@ label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
 label_account = Аккаунт
+label_accounts = Ваши аккаунты
 label_account_created = Аккаунт создан
 label_actions = Действия
+label_active_account = Текущий
+label_add_account = Добавить аккаунт
 label_add_additional_email = Добавить дополнительный E-mail
 label_add_additional_number = Добавить дополнительный телефон
 label_add_chat_member = Добавление участника
@@ -758,6 +769,7 @@ label_duration_second_short = с
 label_edit = Редактировать
 label_email = E-mail
 label_email_not_verified = E-mail не верифицирован
+label_email_or_phone_not_set = E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.
 label_email_example = example@gmail.com
 label_email_visible = Ваш E-mail видят:{" "}
 label_empty_message = Пустое сообщение

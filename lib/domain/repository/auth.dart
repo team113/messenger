@@ -62,8 +62,9 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Invalidates a [Session] with the provided [id], if any, or otherwise
-  /// [Session] of the [MyUser] identified by the [token].
+  /// Invalidates a [Session] with the provided [id] of the [MyUser] identified
+  /// by the [accessToken], if any, or otherwise [Session] of the [MyUser]
+  /// identified by the [token].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
   /// via Firebase Cloud Messaging, if [fcmToken] is provided.
@@ -71,6 +72,7 @@ abstract class AbstractAuthRepository {
     SessionId? id,
     UserPassword? password,
     FcmRegistrationToken? fcmToken,
+    AccessTokenSecret? accessToken,
   });
 
   /// Deletes the [MyUser] identified by the provided [id] from the accounts.
@@ -91,8 +93,8 @@ abstract class AbstractAuthRepository {
   /// [signUpWithEmail].
   Future<void> resendSignUpEmail();
 
-  /// Validates the current [AccessToken].
-  Future<void> validateToken();
+  /// Validates the [AccessToken] of the provided [Credentials].
+  Future<void> validateToken(Credentials credentials);
 
   /// Refreshes the current [AccessToken].
   ///
@@ -102,7 +104,13 @@ abstract class AbstractAuthRepository {
   /// The renewed [Session] has its own expiration after renewal, so to renew it
   /// again use this method with the new returned [RefreshToken] (omit using
   /// old ones).
-  Future<Credentials> refreshSession(RefreshTokenSecret secret);
+  ///
+  /// If [reconnect] is `true`, then applies the retrieved [Credentials] as the
+  /// [token] right away.
+  Future<Credentials> refreshSession(
+    RefreshTokenSecret secret, {
+    bool reconnect,
+  });
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).

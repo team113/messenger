@@ -22,9 +22,11 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
+import '/util/obs/rxmap.dart';
 import 'confirm/view.dart';
 
 export 'view.dart';
@@ -45,8 +47,11 @@ class MenuTabController extends GetxController {
   /// Service managing [MyUser].
   final MyUserService _myUserService;
 
-  /// Current [MyUser].
+  /// Returns the current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Returns the known [MyUser] profiles.
+  RxObsMap<UserId, Rx<MyUser>> get profiles => _myUserService.profiles;
 
   @override
   void onClose() {

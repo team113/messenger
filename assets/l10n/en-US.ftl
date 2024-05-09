@@ -72,6 +72,10 @@ alert_user_will_be_reported2 = {" "}will be reported.
 alert_you_will_leave_group = You will leave the group.
 btn_accept = Accept
 btn_add = Add
+btn_add_account = Add account
+btn_add_account_with_desc =
+    Add
+    account
 btn_add_member = Add member
 btn_add_participant = Add participant
 btn_add_participant_desc =
@@ -170,6 +174,9 @@ btn_call_video_on_desc =
     Turn
     video on
 btn_change = Change
+btn_change_account_desc =
+    Change
+    account
 btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_clear_cache = Clear cache
@@ -297,6 +304,7 @@ email_verification_code =
     {$domain}
 email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
+err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
 err_blocked_by = {$user} has added you to their blocklist.
 err_blocked_by_multiple = One or more of the selected users have added you to their blocklist.
@@ -509,8 +517,11 @@ label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
 label_account = Account
+label_accounts = Your accounts
 label_account_created = Account is created
 label_actions = Actions
+label_active_account = Active
+label_add_account = Add account
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
 label_add_chat_member = Add member
@@ -733,6 +744,7 @@ label_duration_second_short = s
 label_edit = Edit
 label_email = E-mail
 label_email_not_verified = E-mail not verified
+label_email_or_phone_not_set = E-mail or phone number is not set. Access to the account will be lost.
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
@@ -879,7 +891,7 @@ label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
-label_password_not_set = Password not set. Access to the account will be lost.
+label_password_not_set = Password is not set. Access to the account will be lost.
 label_password_not_set_info = No password has been set for your account. Consequently:
 
     • access to your account will be lost forever when you close the current window;
