@@ -182,6 +182,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: RectangleButton(
+                      key: const Key('KeepCredentialsSwitch'),
                       label: 'label_keep_credentials'.l10n,
                       toggleable: true,
                       radio: true,

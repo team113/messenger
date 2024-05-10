@@ -95,6 +95,7 @@ enum WidgetKey {
   HideForMe,
   HomeView,
   IntroductionView,
+  KeepCredentialsSwitch,
   Language,
   Language_en,
   Language_ru,
