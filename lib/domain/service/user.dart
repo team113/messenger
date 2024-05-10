@@ -29,6 +29,9 @@ import 'disposable_service.dart';
 class UserService extends DisposableService {
   UserService(this._userRepository);
 
+  /// List of [UserId]s for which [blockUser] or [unblockUser] is being invoked.
+  final RxList<UserId> blockingUsers = RxList();
+
   /// Repository to fetch [User]s from.
   final AbstractUserRepository _userRepository;
 
@@ -58,20 +61,41 @@ class UserService extends DisposableService {
 
   /// Returns an [User] by the provided [id].
   FutureOr<RxUser?> get(UserId id) {
+    Log.debug('get($id)', '$runtimeType');
     return _userRepository.get(id);
   }
 
   /// Blocks the specified [User] for the authenticated [MyUser].
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
     Log.debug('blockUser($id, $reason)', '$runtimeType');
-    await _userRepository.blockUser(id, reason);
+
+    if(blockingUsers.contains(id)) {
+      return;
+    }
+
+    try {
+      blockingUsers.add(id);
+      await _userRepository.blockUser(id, reason);
+    } finally {
+      blockingUsers.remove(id);
+    }
   }
 
   /// Removes the specified [User] from the blocklist of the authenticated
   /// [MyUser].
   Future<void> unblockUser(UserId id) async {
     Log.debug('unblockUser($id)', '$runtimeType');
-    await _userRepository.unblockUser(id);
+
+    if(blockingUsers.contains(id)) {
+      return;
+    }
+
+    try {
+      blockingUsers.add(id);
+      await _userRepository.unblockUser(id);
+    } finally {
+      blockingUsers.remove(id);
+    }
   }
 
   /// Removes [users] from the local data storage.

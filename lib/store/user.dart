@@ -27,7 +27,6 @@ import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -210,26 +209,18 @@ class UserRepository extends DisposableInterface
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
     Log.debug('blockUser($id, $reason)', '$runtimeType');
 
-    final RxUser? user = users[id];
-    final BlocklistRecord? record = user?.user.value.isBlocked;
+    final BlocklistEventsVersionedMixin? response =
+        await _graphQlProvider.blockUser(id, reason);
 
-    if (user?.user.value.isBlocked == null) {
-      user?.user.value.isBlocked = BlocklistRecord(
-        userId: id,
-        reason: reason,
-        at: PreciseDateTime.now(),
+    if (response != null) {
+      final event = UserEventsBlocklistEventsEvent(
+        BlocklistEventsVersioned(
+          response.events.map((e) => _blocklistEvent(e)).toList(),
+          response.myVer,
+        ),
       );
-      user?.user.refresh();
-    }
 
-    try {
-      await _graphQlProvider.blockUser(id, reason);
-    } catch (_) {
-      if (user != null && user.user.value.isBlocked != record) {
-        user.user.value.isBlocked = record ?? user.user.value.isBlocked;
-        user.user.refresh();
-      }
-      rethrow;
+      await users[id]?.userEvent(event, updateVersion: false);
     }
   }
 
@@ -237,22 +228,18 @@ class UserRepository extends DisposableInterface
   Future<void> unblockUser(UserId id) async {
     Log.debug('unblockUser($id)', '$runtimeType');
 
-    final RxUser? user = users[id];
-    final BlocklistRecord? record = user?.user.value.isBlocked;
+    final BlocklistEventsVersionedMixin? response =
+        await _graphQlProvider.unblockUser(id);
 
-    if (user?.user.value.isBlocked != null) {
-      user?.user.value.isBlocked = null;
-      user?.user.refresh();
-    }
+    if (response != null) {
+      final event = UserEventsBlocklistEventsEvent(
+        BlocklistEventsVersioned(
+          response.events.map((e) => _blocklistEvent(e)).toList(),
+          response.myVer,
+        ),
+      );
 
-    try {
-      await _graphQlProvider.unblockUser(id);
-    } catch (_) {
-      if (user != null && user.user.value.isBlocked != record) {
-        user.user.value.isBlocked = record ?? user.user.value.isBlocked;
-        user.user.refresh();
-      }
-      rethrow;
+      await users[id]?.userEvent(event, updateVersion: false);
     }
   }
 

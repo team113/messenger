@@ -508,9 +508,12 @@ class ChatView extends StatelessWidget {
                                           inverted: const SvgIcon(
                                             SvgIcons.blockWhite,
                                           ),
-                                          onPressed: blocked
-                                              ? c.unblock
-                                              : () => _blockUser(c, context),
+                                          onPressed: c.isBlocking
+                                              ? null
+                                              : blocked
+                                                  ? c.unblock
+                                                  : () =>
+                                                      _blockUser(c, context),
                                         ),
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
@@ -1391,7 +1394,7 @@ class ChatView extends StatelessWidget {
       }
 
       if (c.chat?.blocked == true) {
-        return SafeArea(child: UnblockButton(c.unblock));
+        return SafeArea(child: UnblockButton(c.isBlocking ? null : c.unblock));
       }
 
       if (c.edit.value != null) {

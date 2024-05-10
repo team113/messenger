@@ -26,8 +26,8 @@ void main() {
     pool.protect(
       'tag',
       () => Future.delayed(const Duration(seconds: 2)),
-      values: ['value', 'value1'],
     );
+    pool.lock('tag', ['value', 'value1']);
     await Future.delayed(Duration.zero);
 
     expect(pool.lockedWith('tag', 'value'), true);
@@ -42,7 +42,6 @@ void main() {
     pool.protect(
       'tag',
       () => Future.delayed(const Duration(seconds: 2)),
-      values: ['value'],
     );
 
     final startedAt = DateTime.now();
@@ -50,7 +49,6 @@ void main() {
     await pool.protect(
       'tag',
       () => Future.delayed(const Duration(seconds: 2)),
-      values: ['value'],
     );
 
     expect(DateTime.now().difference(startedAt) < 15.milliseconds, true);
@@ -81,8 +79,8 @@ void main() {
       'tag',
       () => Future.delayed(const Duration(milliseconds: 100)),
       repeat: () => true,
-      values: ['value'],
     );
+    pool.lock('tag', ['value']);
     pool.dispose();
 
     await Future.delayed(const Duration(milliseconds: 200));

@@ -1184,6 +1184,10 @@ class MyUserRepository implements AbstractMyUserRepository {
       field,
       () async {
         try {
+          // Lock the [field] before each mutation as [current] and [saved]
+          // values may changed.
+          _pool.lock(field, [current(), saved()]);
+
           final MyUserEventsVersionedMixin? response =
               await mutation(value, previous);
 
@@ -1206,7 +1210,6 @@ class MyUserRepository implements AbstractMyUserRepository {
           rethrow;
         }
       },
-      values: [value, saved()],
       repeat: () {
         if (myUser.value != null && current() != saved()) {
           value = current();

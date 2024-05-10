@@ -179,6 +179,9 @@ class UserController extends GetxController {
   /// [contact] may be fetched with a delay.
   ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  /// Indicates whether the [user] in being [block]ed or [unblock]ed.
+  bool get isBlocking => _userService.blockingUsers.contains(id);
+
   @override
   void onInit() {
     name = TextFieldState(

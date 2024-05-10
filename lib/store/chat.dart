@@ -69,6 +69,7 @@ import '/store/pagination/graphql.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/store/user.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -1029,20 +1030,22 @@ class ChatRepository extends DisposableInterface
     Log.debug('toggleChatMute($id, $mute)', '$runtimeType');
 
     final HiveRxChat? chat = chats[id];
-    final MuteDuration? muted = chat?.chat.value.muted;
 
-    final Muting? muting = mute == null
-        ? null
-        : Muting(duration: mute.forever == true ? null : mute.until);
+    await _debounce(
+      field: ChatField.muted,
+      current: () => chat?.chat.value.muted,
+      saved: () async => (await _chatLocal.get(id))?.value.muted,
+      chat: chat,
+      value: mute,
+      update: (mute) => chat?.chat.update((c) => c?.muted = mute),
+      mutation: (mute) {
+        final Muting? muting = mute == null
+            ? null
+            : Muting(duration: mute.forever == true ? null : mute.until);
 
-    chat?.chat.update((c) => c?.muted = muting?.toModel());
-
-    try {
-      await _graphQlProvider.toggleChatMute(id, muting);
-    } catch (e) {
-      chat?.chat.update((c) => c?.muted = muted);
-      rethrow;
-    }
+        return _graphQlProvider.toggleChatMute(id, muting);
+      },
+    );
   }
 
   /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
@@ -1205,7 +1208,6 @@ class ChatRepository extends DisposableInterface
     Log.debug('favoriteChat($id, $position)', '$runtimeType');
 
     final HiveRxChat? chat = chats[id];
-    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
     final ChatFavoritePosition newPosition;
 
     if (position == null) {
@@ -1229,36 +1231,42 @@ class ChatRepository extends DisposableInterface
       newPosition = position;
     }
 
-    chat?.chat.update((c) => c?.favoritePosition = newPosition);
-    paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-
-    try {
-      if (id.isLocalWith(me)) {
-        _localMonologFavoritePosition = newPosition;
-        final ChatData monolog =
-            _chat(await _graphQlProvider.createMonologChat());
-
-        id = monolog.chat.value.id;
-        await _monologLocal.set(id);
-      } else if (id.isLocal) {
-        final HiveRxChat? chat = await ensureRemoteDialog(id);
-        if (chat != null) {
-          id = chat.id;
+    await _debounce(
+      field: ChatField.favoritePosition,
+      current: () => chat?.chat.value.favoritePosition,
+      saved: () async => (await _chatLocal.get(id))?.value.favoritePosition,
+      chat: chat,
+      value: newPosition,
+      update: (pos) {
+        if (pos == null && chat?.chat.value.isMonolog == true) {
+          _localMonologFavoritePosition = null;
         }
-      }
 
-      if (!id.isLocal) {
-        await _graphQlProvider.favoriteChat(id, newPosition);
-      }
-    } catch (e) {
-      if (chat?.chat.value.isMonolog == true) {
-        _localMonologFavoritePosition = null;
-      }
+        chat?.chat.update((c) => c?.favoritePosition = pos);
+        paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      },
+      mutation: (pos) async {
+        if (id.isLocalWith(me)) {
+          _localMonologFavoritePosition = newPosition;
+          final ChatData monolog =
+              _chat(await _graphQlProvider.createMonologChat());
 
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
+          id = monolog.chat.value.id;
+          await _monologLocal.set(id);
+        } else if (id.isLocal) {
+          final HiveRxChat? chat = await ensureRemoteDialog(id);
+          if (chat != null) {
+            id = chat.id;
+          }
+        }
+
+        if (pos != null) {
+          return await _graphQlProvider.favoriteChat(id, pos);
+        } else {
+          return await _graphQlProvider.unfavoriteChat(id);
+        }
+      },
+    );
   }
 
   @override
@@ -1270,18 +1278,25 @@ class ChatRepository extends DisposableInterface
     }
 
     final HiveRxChat? chat = chats[id];
-    final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
 
-    chat?.chat.update((c) => c?.favoritePosition = null);
-    paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-
-    try {
-      await _graphQlProvider.unfavoriteChat(id);
-    } catch (e) {
-      chat?.chat.update((c) => c?.favoritePosition = oldPosition);
-      paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
-      rethrow;
-    }
+    await _debounce(
+      field: ChatField.favoritePosition,
+      current: () => chat?.chat.value.favoritePosition,
+      saved: () async => (await _chatLocal.get(id))?.value.favoritePosition,
+      chat: chat,
+      value: null,
+      update: (pos) {
+        chat?.chat.update((c) => c?.favoritePosition = pos);
+        paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
+      },
+      mutation: (pos) async {
+        if (pos != null) {
+          return await _graphQlProvider.favoriteChat(id, pos);
+        } else {
+          return await _graphQlProvider.unfavoriteChat(id);
+        }
+      },
+    );
   }
 
   @override
@@ -1680,6 +1695,23 @@ class ChatRepository extends DisposableInterface
         // stored version is less or equal to the [chat], then add it.
         if (existing == null ||
             (existing.ver != null && existing.ver! <= event.value.ver)) {
+          if (existing != null) {
+            // Don't update the [ChatField]s considered locked in the
+            // [EventPool], as those events might've been applied optimistically
+            // during mutations and await corresponding subscription events to
+            // be persisted.
+            if (existing.eventPool.lockedWith(ChatField.muted, chat.muted)) {
+              chat.muted = existing.chat.value.muted;
+            }
+
+            if (existing.eventPool.lockedWith(
+              ChatField.favoritePosition,
+              chat.favoritePosition,
+            )) {
+              chat.favoritePosition = existing.chat.value.favoritePosition;
+            }
+          }
+
           _add(event.value);
         }
 
@@ -2433,6 +2465,65 @@ class ChatRepository extends DisposableInterface
       }
     });
   }
+
+  /// Debounces the [mutation] execution, synchronizing the results with
+  /// [EventPool] for the provided [field].
+  Future<void> _debounce<T>({
+    required ChatField field,
+    required T? Function() current,
+    required Future<T?> Function() saved,
+    HiveRxChat? chat,
+    T? value,
+    required void Function(T? value) update,
+    required Future<ChatEventsVersionedMixin?> Function(T? value) mutation,
+  }) async {
+    Log.debug(
+      '_debounce($field, current, saved, $chat, $value, update, mutation)',
+      '$runtimeType',
+    );
+
+    if (chat == null) {
+      await mutation(value);
+      return;
+    }
+
+    update(value);
+
+    await chat.eventPool.protect(
+      field,
+      () async {
+        try {
+          // Lock the [field] before each mutation as [current] and [saved]
+          // values may changed.
+          chat.eventPool.lock(field, [current(), await saved()]);
+
+          final ChatEventsVersionedMixin? response = await mutation(value);
+
+          if (response != null) {
+            final event = ChatEventsEvent(
+              ChatEventsVersioned(
+                response.events.map((e) => chatEvent(e)).toList(),
+                response.ver,
+              ),
+            );
+
+            await chat.chatEvent(event, updateVersion: false);
+          }
+        } catch (_) {
+          update(await saved());
+          rethrow;
+        }
+      },
+      repeat: () async {
+        if (current() != await saved()) {
+          value = current();
+          return true;
+        }
+
+        return false;
+      },
+    );
+  }
 }
 
 /// Result of fetching a [Chat].
@@ -2452,3 +2543,8 @@ class ChatData {
   String toString() =>
       '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
 }
+
+/// [Chat] fields being updated via [ChatEvent]s.
+///
+/// Used to update [Chat] according to the [EventPool].
+enum ChatField { muted, favoritePosition }

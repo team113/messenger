@@ -154,6 +154,25 @@ class User extends HiveObject {
 
   @override
   String toString() => '$runtimeType($id)';
+
+  /// Returns a copy of this [User].
+  User copyWith() => User(
+        id,
+        num,
+        name: name,
+        bio: bio,
+        avatar: avatar,
+        callCover: callCover,
+        mutualContactsCount: mutualContactsCount,
+        online: online,
+        presenceIndex: presenceIndex,
+        status: status,
+        isDeleted: isDeleted,
+        dialog: _dialog,
+        isBlocked: isBlocked,
+        lastSeenAt: lastSeenAt,
+        contacts: contacts,
+      );
 }
 
 /// Unique ID of an [User].

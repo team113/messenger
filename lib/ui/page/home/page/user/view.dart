@@ -78,20 +78,24 @@ class UserView extends StatelessWidget {
             );
           }
 
+          final BlocklistRecord? isBlocked = c.isBlocked;
+
           final List<Widget> blocks = [
             const SizedBox(height: 8),
-            if (c.isBlocked != null)
+            if (isBlocked != null)
               Block(
                 title: 'label_user_is_blocked'.l10n,
                 children: [
-                  BlocklistRecordWidget(
-                    c.isBlocked!,
-                    onUnblock: c.unblock,
-                  ),
+                  Obx(() {
+                    return BlocklistRecordWidget(
+                      isBlocked,
+                      onUnblock: c.isBlocking ? null : c.unblock,
+                    );
+                  }),
                 ],
               ),
             _avatar(c, context),
-            _name(c, context, index: c.isBlocked != null ? 3 : 2),
+            _name(c, context, index: isBlocked != null ? 3 : 2),
             _info(c),
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
@@ -525,7 +529,7 @@ class UserView extends StatelessWidget {
             return ActionButton(
               key: const Key('Block'),
               text: 'btn_block'.l10n,
-              onPressed: () => _blockUser(c, context),
+              onPressed: c.isBlocking ? null : () => _blockUser(c, context),
               trailing: const SvgIcon(SvgIcons.blockSmall),
             );
           }),

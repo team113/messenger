@@ -171,6 +171,13 @@ class EventChatContactFavorited extends ChatContactEvent {
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.favorited;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventChatContactFavorited && position == other.position;
+
+  @override
+  int get hashCode => position.hashCode;
 }
 
 /// Event of a [Chat]-group being added to the [ChatContact].
@@ -257,6 +264,12 @@ class EventChatContactUnfavorited extends ChatContactEvent {
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.unfavorited;
+
+  @override
+  bool operator ==(Object other) => other is EventChatContactUnfavorited;
+
+  @override
+  int get hashCode => kind.hashCode;
 }
 
 /// Event of an [User] being added to a [ChatContact].
