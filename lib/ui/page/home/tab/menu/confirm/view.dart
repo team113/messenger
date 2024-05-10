@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
@@ -45,7 +46,7 @@ class ConfirmLogoutView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('ConfirmLogoutView'),
-      init: ConfirmLogoutController(Get.find()),
+      init: ConfirmLogoutController(Get.find(), Get.find()),
       builder: (ConfirmLogoutController c) {
         return Obx(() {
           final Widget header;
@@ -148,13 +149,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 25),
-                if (c.hasPassword.value) ...[
-                  PrimaryButton(
-                    key: const Key('ConfirmLogoutButton'),
-                    onPressed: () => Navigator.of(context).pop(true),
-                    title: 'btn_logout'.l10n,
-                  ),
-                ] else ...[
+                if (!c.hasPassword.value) ...[
                   RichText(
                     text: TextSpan(
                       style: style.fonts.medium.regular.secondary,
@@ -164,13 +159,48 @@ class ConfirmLogoutView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 25),
+                ],
+                if (c.myUser.value?.emails.confirmed.isNotEmpty != true &&
+                    c.myUser.value?.phones.confirmed.isNotEmpty != true) ...[
+                  RichText(
+                    text: TextSpan(
+                      style: style.fonts.medium.regular.secondary,
+                      children: [
+                        TextSpan(text: 'label_email_or_phone_not_set'.l10n),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                ],
+                Obx(() {
+                  return RectangleButton(
+                    label: 'label_keep_credentials'.l10n,
+                    toggleable: true,
+                    radio: true,
+                    selected: c.keep.value,
+                    onPressed: c.keep.toggle,
+                  );
+                }),
+                const SizedBox(height: 16),
+                if (c.hasPassword.value) ...[
+                  OutlinedRoundedButton(
+                    key: const Key('ConfirmLogoutButton'),
+                    maxWidth: double.infinity,
+                    onPressed: c.logout,
+                    color: style.colors.primary,
+                    child: Text(
+                      'btn_logout'.l10n,
+                      style: style.fonts.medium.regular.onPrimary,
+                    ),
+                  ),
+                ] else ...[
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedRoundedButton(
                           key: const Key('ConfirmLogoutButton'),
                           maxWidth: double.infinity,
-                          onPressed: () => Navigator.of(context).pop(true),
+                          onPressed: c.logout,
                           color: style.colors.secondaryHighlight,
                           child: Text(
                             'btn_logout'.l10n,

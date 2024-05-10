@@ -21,6 +21,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '/domain/model/my_user.dart';
+import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -38,9 +41,8 @@ class AuthController extends GetxController {
   final RxInt logoFrame = RxInt(0);
 
   /// Current [AuthScreen] of this controller.
-  late final Rx<AuthScreen> screen = Rx(
-    _auth.accounts.isEmpty ? AuthScreen.signIn : AuthScreen.accounts,
-  );
+  late final Rx<AuthScreen> screen =
+      Rx(profiles.isEmpty ? AuthScreen.signIn : AuthScreen.accounts);
 
   /// Authorization service used for signing up.
   final AuthService _auth;
@@ -57,6 +59,12 @@ class AuthController extends GetxController {
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
+
+  /// Returns the reactive list of known [MyUser]s.
+  RxList<MyUser> get profiles => _auth.profiles;
+
+  /// Returns the [Credentials] of the available accounts.
+  RxMap<UserId, Rx<Credentials>> get accounts => _auth.accounts;
 
   @override
   void onReady() {
@@ -79,6 +87,17 @@ class AuthController extends GetxController {
       MessagePopup.error(e);
       rethrow;
     }
+  }
+
+  /// Signs in as the provided [MyUser] and redirects to the [Routes.home] page.
+  Future<void> signInAs(MyUser myUser) async {
+    await _auth.switchAccount(myUser.id);
+    router.home();
+  }
+
+  /// Removes the [myUser] from both the [profiles] and [accounts].
+  Future<void> deleteAccount(MyUser myUser) async {
+    await _auth.removeAccount(myUser.id);
   }
 
   /// Resets the [logoFrame] and starts the blinking animation.

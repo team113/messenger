@@ -31,6 +31,10 @@ abstract class AbstractAuthRepository {
   /// Returns the reactive list of active [Session]s.
   RxList<Session> get sessions;
 
+  // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
+  /// Returns the known [MyUser] profiles.
+  RxList<MyUser> get profiles;
+
   /// Sets an authorization `token` of this repository.
   set token(AccessTokenSecret? token);
 
@@ -76,7 +80,9 @@ abstract class AbstractAuthRepository {
   });
 
   /// Deletes the [MyUser] identified by the provided [id] from the accounts.
-  Future<void> removeAccount(UserId id);
+  ///
+  /// If [keepProfile] is `true`, then keeps the [MyUser] in the [profiles].
+  Future<void> removeAccount(UserId id, {bool keepProfile = false});
 
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
   ///

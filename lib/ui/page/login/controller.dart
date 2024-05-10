@@ -56,8 +56,10 @@ class LoginController extends GetxController {
   LoginController(
     this._authService, {
     LoginViewStage initial = LoginViewStage.signUp,
+    MyUser? myUser,
     this.onSuccess,
-  }) : stage = Rx(initial);
+  })  : stage = Rx(initial),
+        _myUser = myUser;
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -153,12 +155,16 @@ class LoginController extends GetxController {
   /// and [resetUserPassword].
   UserLogin? _recoveryLogin;
 
+  /// [MyUser], whose data should be prefilled in the fields.
+  final MyUser? _myUser;
+
   /// Current authentication status.
   Rx<RxStatus> get authStatus => _authService.status;
 
   @override
   void onInit() {
     login = TextFieldState(
+      text: _myUser?.num.toString(),
       onChanged: (_) {
         password.error.value = null;
         password.unsubmit();
@@ -321,15 +327,32 @@ class LoginController extends GetxController {
     try {
       login.status.value = RxStatus.loading();
       password.status.value = RxStatus.loading();
+
+      final bool authorized = _authService.isAuthorized();
+
       await _authService.signIn(
         userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
         phone: userPhone,
+        force: authorized,
       );
 
-      (onSuccess ?? router.home)();
+      if (onSuccess != null) {
+        onSuccess?.call();
+      } else {
+        // TODO: This is a hack that should be removed, as whenever the account
+        //       is changed, the [HomeView] and its dependencies must be
+        //       rebuilt, which may take some unidentifiable amount of time as
+        //       of now.
+        if (authorized) {
+          router.nowhere();
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+
+        router.home();
+      }
     } on CreateSessionException catch (e) {
       ++signInAttempts;
 
