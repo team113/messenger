@@ -83,7 +83,7 @@ class AuthService extends GetxService {
   /// accounts.
   final Map<UserId, Timer> _refreshTimers = {};
 
-  /// [_refreshTimer] interval.
+  /// [_refreshTimers] interval.
   final Duration _refreshTaskInterval = const Duration(seconds: 30);
 
   /// Minimal allowed [credentials] TTL.
@@ -102,6 +102,10 @@ class AuthService extends GetxService {
 
   /// Returns the reactive list of active [Session]s.
   RxList<Session> get sessions => _authRepository.sessions;
+
+  // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
+  /// Returns the reactive list of known [MyUser]s.
+  RxList<MyUser> get profiles => _authRepository.profiles;
 
   /// Indicates whether this [AuthService] is considered authorized.
   bool get _hasAuthorization => credentials.value != null;
@@ -190,23 +194,23 @@ class AuthService extends GetxService {
       }
     });
 
-    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      Log.debug(
-        '_credentialsSubscription event deleted: ${e.deleted}, ${e.key}',
-        '$runtimeType',
-      );
-
-      if (e.deleted) {
-        WebUtils.removeCredentials(UserId(e.key as String));
-      } else {
-        WebUtils.putCredentials(e.value);
-      }
-    });
-
     for (final Credentials e in _credentialsProvider.valuesSafe) {
       WebUtils.putCredentials(e);
       _putCredentials(e);
     }
+
+    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
+      Log.debug(
+        '_credentialsSubscription(${e.key}): ${e.value}, deleted(${e.deleted})',
+        '$runtimeType',
+      );
+
+      if (e.deleted) {
+        WebUtils.removeCredentials(UserId(e.key));
+      } else {
+        WebUtils.putCredentials(e.value);
+      }
+    });
 
     final UserId? userId = _accountProvider.userId;
     final Credentials? creds =
@@ -449,15 +453,9 @@ class AuthService extends GetxService {
     // If [ignoreLock] is `true`, then [WebUtils.protect] is ignored.
     final Function protect = unsafe ? (fn) => fn() : WebUtils.protect;
 
-    status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
+    status.value =
+        _hasAuthorization ? RxStatus.loadingMore() : RxStatus.loading();
     await protect(() async {
-      // If service is already authorized, then no-op, as this operation is
-      // meant to be invoked only during unauthorized phase, or otherwise the
-      // dependencies will be broken as of now.
-      if (!force && _hasAuthorization) {
-        return;
-      }
-
       try {
         final Credentials creds = await _authRepository.signIn(
           password,
@@ -557,11 +555,18 @@ class AuthService extends GetxService {
   /// available accounts.
   ///
   /// Returns the path of the authentication page.
-  Future<String> logout() async {
+  ///
+  /// If [keepProfile] is `true`, then keeps the [MyUser] in the [profiles].
+  Future<String> logout([bool keepProfile = false]) async {
     Log.debug('logout()', '$runtimeType');
 
     if (userId != null) {
-      _authRepository.removeAccount(userId!);
+      accounts.remove(userId);
+      if (!keepProfile) {
+        profiles.removeWhere((e) => e.id == userId);
+      }
+
+      _authRepository.removeAccount(userId!, keepProfile: keepProfile);
     }
 
     return await deleteSession() ?? Routes.auth;
@@ -580,6 +585,8 @@ class AuthService extends GetxService {
       return false;
     }
 
+    final bool hadAuthorization = _hasAuthorization;
+
     status.value = RxStatus.loading();
 
     try {
@@ -589,6 +596,7 @@ class AuthService extends GetxService {
 
       creds = accounts[userId]?.value;
       if (creds == null) {
+        status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
         return false;
       }
 
@@ -605,12 +613,12 @@ class AuthService extends GetxService {
 
         return true;
       } else {
-        status.value = RxStatus.success();
+        status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
         _credentialsProvider.remove(userId);
         accounts.remove(userId);
       }
     } catch (_) {
-      status.value = RxStatus.success();
+      status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
       rethrow;
     }
 

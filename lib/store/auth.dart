@@ -15,6 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/extension/credentials.dart';
@@ -36,7 +39,8 @@ import '/util/log.dart';
 /// Implementation of an [AbstractAuthRepository].
 ///
 /// All methods may throw [ConnectionException], [GraphQlException].
-class AuthRepository implements AbstractAuthRepository {
+class AuthRepository extends DisposableInterface
+    implements AbstractAuthRepository {
   AuthRepository(
     this._graphQlProvider,
     this._myUserProvider,
@@ -45,6 +49,9 @@ class AuthRepository implements AbstractAuthRepository {
 
   @override
   final RxList<Session> sessions = RxList();
+
+  @override
+  final RxList<MyUser> profiles = RxList();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -65,6 +72,9 @@ class AuthRepository implements AbstractAuthRepository {
   /// successful [confirmSignUpEmail].
   HiveMyUser? _signedUpUser;
 
+  /// [StreamSubscription] for the [MyUserHiveProvider.boxEvents].
+  StreamSubscription? _profilesSubscription;
+
   @override
   set token(AccessTokenSecret? token) {
     Log.debug('set token($token)', '$runtimeType');
@@ -81,6 +91,26 @@ class AuthRepository implements AbstractAuthRepository {
   ) {
     Log.debug('set authExceptionHandler(handler)', '$runtimeType');
     _graphQlProvider.authExceptionHandler = handler;
+  }
+
+  @override
+  void onInit() {
+    profiles.addAll(_myUserProvider.myUsers.map((e) => e.value).toList());
+    _profilesSubscription = _myUserProvider.boxEvents.listen((e) {
+      if (e.deleted) {
+        profiles.removeWhere((m) => m.id.val == e.key);
+      } else {
+        profiles.addIf(profiles.none((m) => m.id.val == e.key), e.value.value);
+      }
+    });
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _profilesSubscription?.cancel();
+    super.onClose();
   }
 
   @override
@@ -201,11 +231,13 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> removeAccount(UserId id) async {
+  Future<void> removeAccount(UserId id, {bool keepProfile = false}) async {
     Log.debug('removeAccount($id)', '$runtimeType');
 
-    await _myUserProvider.remove(id);
-    await _credentialsProvider.remove(id);
+    await Future.wait([
+      if (!keepProfile) _myUserProvider.remove(id),
+      _credentialsProvider.remove(id),
+    ]);
   }
 
   @override

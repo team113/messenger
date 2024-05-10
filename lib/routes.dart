@@ -644,8 +644,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         name: Routes.home,
         child: HomeView(
           () async {
-            ScopedDependencies deps = ScopedDependencies();
-            UserId me = _state._auth.userId!;
+            final UserId? me = _state._auth.userId;
+            if (me == null) {
+              return null;
+            }
+
+            final ScopedDependencies deps = ScopedDependencies();
 
             await Future.wait([
               deps.put(ChatHiveProvider()).init(userId: me),

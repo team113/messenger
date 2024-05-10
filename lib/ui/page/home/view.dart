@@ -66,7 +66,7 @@ class HomeView extends StatefulWidget {
   final ChatDirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
-  final Future<ScopedDependencies> Function() _depsFactory;
+  final Future<ScopedDependencies?> Function() _depsFactory;
 
   @override
   State<HomeView> createState() => _HomeViewState();
@@ -99,6 +99,10 @@ class _HomeViewState extends State<HomeView> {
     widget._depsFactory().then((v) {
       setState(() => _deps = v);
       SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
+      if (v == null) {
+        router.auth();
+      }
     });
   }
 

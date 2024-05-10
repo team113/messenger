@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Connected devices list. ([#986], [#566])
     - Accounts switching. ([#975], [#312])
+    - Auth page:
+        - Kept accounts displaying. ([#992])
 
 ### Changed
 
@@ -46,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 [#980]: /../../pull/980
 [#983]: /../../pull/983
 [#986]: /../../pull/986
+[#992]: /../../pull/992
 
 
 
