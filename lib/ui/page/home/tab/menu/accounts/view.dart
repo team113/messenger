@@ -27,6 +27,8 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/login/controller.dart';
+import '/ui/page/login/view.dart';
 import '/ui/page/login/widget/sign_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/modal_popup.dart';
@@ -334,20 +336,27 @@ class AccountsView extends StatelessWidget {
                 children.add(
                   Obx(() {
                     final MyUser myUser = e.value;
-                    final bool authorized = c.sessions.containsKey(myUser.id);
+                    final bool expired = !c.sessions.containsKey(myUser.id);
                     final bool active = c.me == myUser.id;
 
                     return ContactTile(
                       myUser: myUser,
-                      darken: authorized ? 0 : 0.06,
 
                       // TODO: Prompt to sign in to the non-[authorized].
-                      onTap: authorized && c.me != myUser.id
-                          ? () {
-                              Navigator.of(context).pop();
-                              c.switchTo(myUser.id);
-                            }
-                          : null,
+                      onTap: active
+                          ? null
+                          : () async {
+                              if (expired) {
+                                await LoginView.show(
+                                  context,
+                                  initial: LoginViewStage.signIn,
+                                  myUser: myUser,
+                                );
+                              } else {
+                                Navigator.of(context).pop();
+                                await c.switchTo(myUser.id);
+                              }
+                            },
 
                       // TODO: Remove, when [MyUser]s will receive their
                       //       updates in real-time.
@@ -420,6 +429,11 @@ class AccountsView extends StatelessWidget {
                           Text(
                             'label_active_account'.l10n,
                             style: style.fonts.small.regular.onPrimary,
+                          )
+                        else if (expired)
+                          Text(
+                            'label_sign_in_required'.l10n,
+                            style: style.fonts.small.regular.danger,
                           )
 
                         // TODO: Uncomment, when [MyUser]s will receive their

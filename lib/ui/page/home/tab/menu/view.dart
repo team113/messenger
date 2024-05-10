@@ -31,6 +31,7 @@ import '/ui/widget/menu_button.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'accounts/view.dart';
+import 'confirm/view.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.menu] tab.
@@ -41,7 +42,7 @@ class MenuTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MenuTab'),
-      init: MenuTabController(Get.find(), Get.find()),
+      init: MenuTabController(Get.find()),
       builder: (MenuTabController c) {
         final style = Theme.of(context).style;
 
@@ -193,11 +194,7 @@ class MenuTabView extends StatelessWidget {
                       onPressed: switch (tab) {
                         ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
-                            if (await c.confirmLogout()) {
-                              c.logout();
-                              router.auth();
-                              router.tab = HomeTab.chats;
-                            }
+                            await ConfirmLogoutView.show(router.context!);
                           },
                         (_) => () {
                             if (router.profileSection.value == tab) {
