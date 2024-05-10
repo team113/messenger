@@ -329,7 +329,6 @@ endif
 #	                 [out=(appcast/appcast.xml|<output-file>)
 
 appcast-xml-files = $(call reverse,$(wildcard $(or $(from),appcast)/*.xml))
-appcast-xml-items = $(or $(items),$$(make appcast.xml.items))
 
 appcast.xml:
 	@echo '<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>' >> $(or $(out),appcast/appcast.xml)
