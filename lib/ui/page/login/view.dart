@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
