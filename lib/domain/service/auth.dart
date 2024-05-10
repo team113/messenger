@@ -585,6 +585,8 @@ class AuthService extends GetxService {
       return false;
     }
 
+    final bool hadAuthorization = _hasAuthorization;
+
     status.value = RxStatus.loading();
 
     try {
@@ -594,6 +596,7 @@ class AuthService extends GetxService {
 
       creds = accounts[userId]?.value;
       if (creds == null) {
+        status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
         return false;
       }
 
@@ -610,12 +613,12 @@ class AuthService extends GetxService {
 
         return true;
       } else {
-        status.value = RxStatus.success();
+        status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
         _credentialsProvider.remove(userId);
         accounts.remove(userId);
       }
     } catch (_) {
-      status.value = RxStatus.success();
+      status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
       rethrow;
     }
 

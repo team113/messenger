@@ -71,6 +71,11 @@ class ConfirmLogoutController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Indicator whether the account of [myUser] can be recovered.
+  bool get canRecover =>
+      myUser.value?.emails.confirmed.isNotEmpty == true ||
+      myUser.value?.phones.confirmed.isNotEmpty == true;
+
   @override
   void onInit() {
     hasPassword = RxBool(myUser.value?.hasPassword ?? false);
@@ -175,7 +180,10 @@ class ConfirmLogoutController extends GetxController {
 
   /// Logs out the current session and go to the [Routes.auth] page.
   void logout() {
-    _authService.logout(keep.value);
+    // Don't allow user to keep his profile, when no recovery methods are
+    // available or any password set, as they won't be able to sign in.
+    _authService.logout(canRecover || hasPassword.value ? keep.value : false);
+
     router.auth();
     router.tab = HomeTab.chats;
   }

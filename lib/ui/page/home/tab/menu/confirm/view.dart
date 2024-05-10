@@ -160,8 +160,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                   const SizedBox(height: 25),
                 ],
-                if (c.myUser.value?.emails.confirmed.isNotEmpty != true &&
-                    c.myUser.value?.phones.confirmed.isNotEmpty != true) ...[
+                if (!c.canRecover) ...[
                   RichText(
                     text: TextSpan(
                       style: style.fonts.medium.regular.secondary,
@@ -173,15 +172,24 @@ class ConfirmLogoutView extends StatelessWidget {
                   const SizedBox(height: 25),
                 ],
                 Obx(() {
-                  return RectangleButton(
-                    label: 'label_keep_credentials'.l10n,
-                    toggleable: true,
-                    radio: true,
-                    selected: c.keep.value,
-                    onPressed: c.keep.toggle,
+                  if (!c.hasPassword.value && !c.canRecover) {
+                    // Don't allow user to keep his profile, when no recovery
+                    // methods are available or any password set, as they won't
+                    // be able to sign in.
+                    return const SizedBox();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: RectangleButton(
+                      label: 'label_keep_credentials'.l10n,
+                      toggleable: true,
+                      radio: true,
+                      selected: c.keep.value,
+                      onPressed: c.keep.toggle,
+                    ),
                   );
                 }),
-                const SizedBox(height: 16),
                 if (c.hasPassword.value) ...[
                   OutlinedRoundedButton(
                     key: const Key('ConfirmLogoutButton'),

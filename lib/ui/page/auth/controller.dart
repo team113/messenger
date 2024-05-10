@@ -21,6 +21,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '/l10n/l10n.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -91,8 +92,14 @@ class AuthController extends GetxController {
 
   /// Signs in as the provided [MyUser] and redirects to the [Routes.home] page.
   Future<void> signInAs(MyUser myUser) async {
-    await _auth.switchAccount(myUser.id);
+    final bool succeeded = await _auth.switchAccount(myUser.id);
+
     router.home();
+
+    if (!succeeded) {
+      await Future.delayed(500.milliseconds);
+      MessagePopup.error('err_account_unavailable'.l10n);
+    }
   }
 
   /// Removes the [myUser] from both the [profiles] and [accounts].
