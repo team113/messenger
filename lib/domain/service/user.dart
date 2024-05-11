@@ -69,7 +69,7 @@ class UserService extends DisposableService {
   Future<void> blockUser(UserId id, BlocklistReason? reason) async {
     Log.debug('blockUser($id, $reason)', '$runtimeType');
 
-    if(blockingUsers.contains(id)) {
+    if (blockingUsers.contains(id)) {
       return;
     }
 
@@ -86,7 +86,7 @@ class UserService extends DisposableService {
   Future<void> unblockUser(UserId id) async {
     Log.debug('unblockUser($id)', '$runtimeType');
 
-    if(blockingUsers.contains(id)) {
+    if (blockingUsers.contains(id)) {
       return;
     }
 
