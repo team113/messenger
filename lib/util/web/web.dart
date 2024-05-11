@@ -40,11 +40,12 @@ import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 
-import '../platform_utils.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
 html.Navigator _navigator = html.window.navigator;
@@ -122,7 +123,7 @@ external Future<dynamic> _requestLock(
 );
 
 @JS('getLocks')
-external Future<dynamic> _queryLock();
+external Future<dynamic> _getLocks();
 
 @JS('locksAvailable')
 external bool _locksAvailable();
@@ -291,25 +292,6 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
-  /// Sets the provided [Credentials] to the browser's storage.
-  static set credentials(Credentials? creds) {
-    if (creds == null) {
-      html.window.localStorage.remove('credentials');
-    } else {
-      html.window.localStorage['credentials'] = json.encode(creds.toJson());
-    }
-  }
-
-  /// Returns the stored in browser's storage [Credentials].
-  static Credentials? get credentials {
-    if (html.window.localStorage['credentials'] == null) {
-      return null;
-    } else {
-      var decoded = json.decode(html.window.localStorage['credentials']!);
-      return Credentials.fromJson(decoded);
-    }
-  }
-
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked async {
     // Web Locks API is unavailable for some reason, so proceed without it.
@@ -320,13 +302,38 @@ class WebUtils {
     bool held = false;
 
     try {
-      final locks = await promiseToFuture(_queryLock());
+      final locks = await promiseToFuture(_getLocks());
       held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
     } catch (e) {
       held = false;
     }
 
     return _guard.isLocked || held;
+  }
+
+  /// Removes [Credentials] identified by the provided [UserId] from the
+  /// browser's storage.
+  static void removeCredentials(UserId userId) {
+    html.window.localStorage.remove('credentials_$userId');
+  }
+
+  /// Puts the provided [Credentials] to the browser's storage.
+  static void putCredentials(Credentials creds) {
+    html.window.localStorage['credentials_${creds.userId}'] = json.encode(
+      creds.toJson(),
+    );
+  }
+
+  /// Returns the stored in browser's storage [Credentials] identified by the
+  /// provided [UserId], if any.
+  static Credentials? getCredentials(UserId userId) {
+    if (html.window.localStorage['credentials_$userId'] == null) {
+      return null;
+    } else {
+      return Credentials.fromJson(
+        json.decode(html.window.localStorage['credentials_$userId']!),
+      );
+    }
   }
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or

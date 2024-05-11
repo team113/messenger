@@ -42,6 +42,7 @@ import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
+import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'blocklist.dart';
@@ -61,6 +62,9 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   @override
   late final Rx<MyUser?> myUser;
+
+  @override
+  final RxObsMap<UserId, Rx<MyUser>> profiles = RxObsMap();
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -125,6 +129,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     myUser = Rx<MyUser?>(_active?.value);
 
+    _initProfiles();
     _initLocalSubscription();
     _initRemoteSubscription();
 
@@ -622,6 +627,15 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
+  /// Populates the [profiles] with values stored in the [_myUserLocal].
+  void _initProfiles() {
+    Log.debug('_initProfiles()', '$runtimeType');
+
+    for (final HiveMyUser u in _myUserLocal.valuesSafe) {
+      profiles[u.value.id] = Rx(u.value);
+    }
+  }
+
   /// Initializes [MyUserHiveProvider.boxEvents] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
@@ -631,51 +645,72 @@ class MyUserRepository implements AbstractMyUserRepository {
       final BoxEvent event = _localSubscription!.current;
 
       final UserId id = UserId(event.key);
-      final MyUser? user = event.value?.value;
+      final bool isCurrent = id == (_active?.value ?? myUser.value)?.id;
 
-      if (id == (_active?.value ?? myUser.value)?.id) {
-        if (event.deleted) {
+      if (event.deleted) {
+        if (isCurrent) {
           myUser.value = null;
           _remoteSubscription?.close(immediate: true);
-        } else {
+        }
+
+        profiles.remove(id);
+      } else {
+        if (event.value == null) {
+          Log.warning('Expected non-`null` value of `MyUser`', '$runtimeType');
+          return;
+        }
+
+        final MyUser user = event.value!.value;
+
+        if (isCurrent) {
           // Copy [event.value], as it always contains the same [MyUser].
-          final MyUser? value = user?.copyWith();
+          final MyUser value = user.copyWith();
 
           // Don't update the [MyUserField]s considered locked in the [_pool], as
           // those events might've been applied optimistically during mutations
           // and await corresponding subscription events to be persisted.
-          if (_pool.lockedWith(MyUserField.name, value?.name)) {
-            value?.name = myUser.value?.name;
+          if (_pool.lockedWith(MyUserField.name, value.name)) {
+            value.name = myUser.value?.name;
           }
 
-          if (_pool.lockedWith(MyUserField.status, value?.status)) {
-            value?.status = myUser.value?.status;
+          if (_pool.lockedWith(MyUserField.status, value.status)) {
+            value.status = myUser.value?.status;
           }
 
-          if (_pool.lockedWith(MyUserField.bio, value?.bio)) {
-            value?.bio = myUser.value?.bio;
+          if (_pool.lockedWith(MyUserField.bio, value.bio)) {
+            value.bio = myUser.value?.bio;
           }
 
-          if (_pool.lockedWith(MyUserField.presence, value?.presence)) {
-            value?.presence = myUser.value?.presence ?? value.presence;
+          if (_pool.lockedWith(MyUserField.presence, value.presence)) {
+            value.presence = myUser.value?.presence ?? value.presence;
           }
 
-          if (_pool.lockedWith(MyUserField.muted, value?.muted)) {
-            value?.muted = myUser.value?.muted;
+          if (_pool.lockedWith(MyUserField.muted, value.muted)) {
+            value.muted = myUser.value?.muted;
           }
 
-          if (_pool.lockedWith(MyUserField.email, value?.emails.unconfirmed)) {
-            value?.emails.unconfirmed = myUser.value?.emails.unconfirmed;
+          if (_pool.lockedWith(MyUserField.email, value.emails.unconfirmed)) {
+            value.emails.unconfirmed = myUser.value?.emails.unconfirmed;
           }
 
-          if (_pool.lockedWith(MyUserField.phone, value?.phones.unconfirmed)) {
-            value?.phones.unconfirmed = myUser.value?.phones.unconfirmed;
+          if (_pool.lockedWith(MyUserField.phone, value.phones.unconfirmed)) {
+            value.phones.unconfirmed = myUser.value?.phones.unconfirmed;
           }
 
           myUser.value = value;
+          profiles[id]?.value = value;
         }
-      } else {
-        // No-op, as those events aren't of the currently active [MyUser].
+
+        // This event is not of the currently active [MyUser], so just update
+        // the [profiles].
+        else {
+          final Rx<MyUser>? existing = profiles[id];
+          if (existing == null) {
+            profiles[id] = Rx(user);
+          } else {
+            existing.value = user;
+          }
+        }
       }
     }
   }

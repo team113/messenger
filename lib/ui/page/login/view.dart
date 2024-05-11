@@ -20,18 +20,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 import 'privacy_policy/view.dart';
 import 'terms_of_use/view.dart';
-import 'widget/primary_button.dart';
 import 'widget/sign_button.dart';
 
 /// View for logging in or recovering access on.
@@ -41,6 +41,7 @@ class LoginView extends StatelessWidget {
   const LoginView({
     super.key,
     this.initial = LoginViewStage.signUp,
+    this.myUser,
     this.onSuccess,
   });
 
@@ -52,15 +53,19 @@ class LoginView extends StatelessWidget {
   /// If not specified, the [RouteLinks.home] redirect is invoked.
   final void Function({bool? signedUp})? onSuccess;
 
+  /// [MyUser], whose data should be prefilled in the fields.
+  final MyUser? myUser;
+
   /// Displays a [LoginView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     LoginViewStage initial = LoginViewStage.signUp,
+    MyUser? myUser,
     void Function({bool? signedUp})? onSuccess,
   }) {
     return ModalPopup.show(
       context: context,
-      child: LoginView(initial: initial, onSuccess: onSuccess),
+      child: LoginView(initial: initial, myUser: myUser, onSuccess: onSuccess),
     );
   }
 
@@ -73,6 +78,7 @@ class LoginView extends StatelessWidget {
       init: LoginController(
         Get.find(),
         initial: initial,
+        myUser: myUser,
         onSuccess: onSuccess,
       ),
       builder: (LoginController c) {
@@ -279,16 +285,9 @@ class LoginView extends StatelessWidget {
                   child: Obx(() {
                     final bool enabled = !c.email.isEmpty.value;
 
-                    return OutlinedRoundedButton(
+                    return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
-                      child: Text(
-                        'btn_proceed'.l10n,
-                        style: enabled
-                            ? style.fonts.medium.regular.onPrimary
-                            : style.fonts.medium.regular.onBackground,
-                      ),
+                      title: 'btn_proceed'.l10n,
                     );
                   }),
                 ),
@@ -365,7 +364,7 @@ class LoginView extends StatelessWidget {
                   final bool enabled = !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
                       c.signInTimeout.value == 0 &&
-                      c.authStatus.value.isEmpty;
+                      !c.authStatus.value.isLoading;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
@@ -404,21 +403,38 @@ class LoginView extends StatelessWidget {
               header = ModalPopupHeader(text: 'label_sign_in'.l10n);
 
               children = [
-                PrimaryButton(
-                  title: 'btn_sign_in'.l10n,
+                Obx(() {
+                  return SignButton(
+                    key: const Key('StartButton'),
+                    icon: const SvgIcon(SvgIcons.guest),
+                    padding: const EdgeInsets.only(left: 4),
+                    onPressed: c.authStatus.value.isEmpty ? c.register : () {},
+                    title: 'btn_guest'.l10n,
+                  );
+                }),
+                const SizedBox(height: 15),
+                SignButton(
+                  key: const Key('RegisterButton'),
+                  icon: const SvgIcon(SvgIcons.register),
+                  padding: const EdgeInsets.only(left: 3),
+                  onPressed: () {
+                    c.returnTo = c.stage.value;
+                    c.stage.value = LoginViewStage.signUp;
+                  },
+                  title: 'btn_sign_up'.l10n,
+                ),
+                const SizedBox(height: 15),
+                SignButton(
+                  key: const Key('SignInButton'),
+                  icon: const SvgIcon(SvgIcons.enter),
+                  padding: const EdgeInsets.only(left: 4),
                   onPressed: () {
                     c.returnTo = c.stage.value;
                     c.stage.value = LoginViewStage.signIn;
                   },
+                  title: 'btn_sign_in'.l10n,
                 ),
-                const SizedBox(height: 25 / 2),
-                Obx(() {
-                  return PrimaryButton(
-                    title: 'btn_guest'.l10n,
-                    onPressed: c.authStatus.value.isEmpty ? c.register : () {},
-                  );
-                }),
-                const SizedBox(height: 16),
+                const SizedBox(height: 15),
               ];
               break;
           }

@@ -129,12 +129,12 @@ class GraphQlClient {
 
   /// [RateLimiter] limiting the [subscribe] requests to the backend per second.
   final RateLimiter _subscriptionLimiter = RateLimiter(
-    per: const Duration(milliseconds: 500),
+    per: const Duration(milliseconds: 1000),
   );
 
   /// [RateLimiter] limiting the [query] requests to the backend per second.
   final RateLimiter _queryLimiter = RateLimiter(
-    per: const Duration(milliseconds: 500),
+    per: const Duration(milliseconds: 1000),
   );
 
   /// Returns [GraphQLClient] with or without [token] header authorization.

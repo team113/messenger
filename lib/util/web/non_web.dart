@@ -33,6 +33,7 @@ import 'package:win32/win32.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
+import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
@@ -80,16 +81,23 @@ class WebUtils {
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
 
-  /// Sets the provided [Credentials] to the browser's storage.
-  static set credentials(Credentials? creds) {
+  /// Indicates whether the [protect] is currently locked.
+  static FutureOr<bool> get isLocked => _guard.isLocked;
+
+  /// Removes [Credentials] identified by the provided [UserId] from the
+  /// browser's storage.
+  static void removeCredentials(UserId userId) {
     // No-op.
   }
 
-  /// Returns the stored in browser's storage [Credentials].
-  static Credentials? get credentials => null;
+  /// Puts the provided [Credentials] to the browser's storage.
+  static void putCredentials(Credentials creds) {
+    // No-op.
+  }
 
-  /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
+  /// Returns the stored in browser's storage [Credentials] identified by the
+  /// provided [UserId], if any.
+  static Credentials? getCredentials(UserId userId) => null;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
@@ -262,10 +270,8 @@ class WebUtils {
     if (PlatformUtils.isMacOS) {
       final info = await device.macOsInfo;
       final StringBuffer buffer = StringBuffer(
-        'macOS ${info.osRelease} ${info.kernelVersion}',
+        'macOS ${info.osRelease}; ${info.model}; ${info.kernelVersion}; ${info.arch};',
       );
-
-      buffer.write('; ${info.arch}');
 
       final res = await Process.run('sysctl', ['machdep.cpu.brand_string']);
       if (res.exitCode == 0) {
@@ -273,8 +279,6 @@ class WebUtils {
           ' ${res.stdout.toString().substring('machdep.cpu.brand_string: '.length, res.stdout.toString().length - 1)}',
         );
       }
-
-      buffer.write('; ${info.model}');
 
       if (info.systemGUID != null) {
         buffer.write('; ${info.systemGUID}');
@@ -285,7 +289,7 @@ class WebUtils {
       final info = await device.windowsInfo;
 
       final StringBuffer buffer = StringBuffer(
-        '${info.productName} (build ${info.buildLabEx}); ${info.displayVersion}',
+        '${info.productName}; ${info.displayVersion}; build ${info.buildLabEx};',
       );
 
       Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
@@ -333,7 +337,11 @@ class WebUtils {
       final StringBuffer buffer = StringBuffer(info.prettyName);
 
       if (utsname != null) {
-        buffer.write(' ${utsname.release}');
+        buffer.write('; ${utsname.release}');
+      }
+
+      if (info.variant != null || info.buildId != null) {
+        buffer.write(';');
       }
 
       if (info.variant != null) {
@@ -358,20 +366,18 @@ class WebUtils {
       final utsname = uname();
 
       final StringBuffer buffer = StringBuffer(
-        'Android ${info.version.release} ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
+        'Android ${info.version.release}; ${info.manufacturer} ${info.model}; ${info.id}; ${info.version.incremental} (build ${info.fingerprint}); SDK ${info.version.sdkInt}',
       );
 
       if (utsname != null) {
         buffer.write('; ${utsname.machine} ${info.hardware}');
       }
 
-      buffer.write('; ${info.manufacturer} ${info.model}; ${info.id}');
-
       system = buffer.toString();
     } else if (PlatformUtils.isIOS) {
       final info = await device.iosInfo;
       final StringBuffer buffer = StringBuffer(
-        '${info.systemName} ${info.systemVersion} ${info.utsname.version}',
+        '${info.systemName} ${info.systemVersion}; ${info.utsname.machine}; ${info.utsname.version}',
       );
 
       try {
@@ -379,8 +385,6 @@ class WebUtils {
       } catch (_) {
         // No-op.
       }
-
-      buffer.write('; ${info.utsname.machine}');
 
       if (info.identifierForVendor != null) {
         buffer.write('; ${info.identifierForVendor}');

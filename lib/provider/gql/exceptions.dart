@@ -1553,3 +1553,24 @@ class RegisterFcmDeviceException
     }
   }
 }
+
+/// Exception of `Mutation.deleteSession` described in the [code].
+class DeleteSessionException with LocalizedExceptionMixin implements Exception {
+  const DeleteSessionException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final DeleteSessionErrorCode code;
+
+  @override
+  String toString() => 'DeleteSessionException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case DeleteSessionErrorCode.wrongPassword:
+        return 'err_wrong_password'.l10n;
+      case DeleteSessionErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

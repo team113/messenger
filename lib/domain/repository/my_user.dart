@@ -22,11 +22,20 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
+import '/util/obs/rxmap.dart';
 
 /// [MyUser] repository interface.
 abstract class AbstractMyUserRepository {
-  /// Returns stored [MyUser] value.
+  /// Returns the currently active [MyUser] profile.
   Rx<MyUser?> get myUser;
+
+  /// Returns a reactive map of known [MyUser] profiles.
+  ///
+  /// __Note__, that having a [MyUser] here doesn't mean that
+  /// [AbstractAuthRepository] can sign into that account: it must also have
+  /// non-stale [Credentials], which can be found in [AuthService.sessions]
+  /// field.
+  RxObsMap<UserId, Rx<MyUser>> get profiles;
 
   /// Initializes the repository.
   ///

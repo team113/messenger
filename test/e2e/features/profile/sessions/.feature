@@ -15,22 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: MyUser's online status is correctly updated
+ Feature: User sessions
 
-  Scenario: Bob sees Alice changing her online status
-    Given I am Alice
-    And user Bob
+   Scenario: User deletes session
+     Given I am Alice
+     And Alice has another active session
 
-    Then I wait until `HomeView` is present
-    And Bob sees Alice as online
+     When I tap `MenuButton` button
+     And I scroll `MenuListView` until `Devices` is present
+     And I tap `Devices` button
+     Then I see 2 active sessions
 
-    When I tap `MenuButton` button
-    And I scroll `MenuListView` until `LogoutButton` is present
-    And I tap `LogoutButton` button
-    And I tap `KeepCredentialsSwitch` button
-    And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
-    And Bob sees Alice as offline
+     When I tap `DeleteSessionButton` button
+     Then I wait until `PasswordField` is present
 
-    When I sign in as Alice
-    Then Bob sees Alice as online
+     When I fill `PasswordField` field with "123"
+     And I tap `ProceedButton` button
+     Then I see 1 active session

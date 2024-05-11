@@ -28,13 +28,13 @@ import '/ui/page/home/widget/gallery_button.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/page/home/widget/unblock_button.dart';
-import '/ui/page/login/widget/primary_button.dart';
 import '/ui/page/login/widget/sign_button.dart';
 import '/ui/page/work/widget/vacancy_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/menu_button.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 

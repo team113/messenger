@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
+
 import '/domain/model/chat.dart';
 import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
@@ -26,6 +28,13 @@ import '/provider/gql/exceptions.dart';
 ///
 /// All methods may throw [ConnectionException] and [GraphQlException].
 abstract class AbstractAuthRepository {
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions;
+
+  // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
+  /// Returns the known [MyUser] profiles.
+  RxList<MyUser> get profiles;
+
   /// Sets an authorization `token` of this repository.
   set token(AccessTokenSecret? token);
 
@@ -57,14 +66,23 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Invalidates a [Session] of the [MyUser] identified by the [token].
+  /// Invalidates a [Session] with the provided [id] of the [MyUser] identified
+  /// by the [accessToken], if any, or otherwise [Session] of the [MyUser]
+  /// identified by the [token].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
-  /// via Firebase Cloud Messaging, if [fcmRegistrationToken] is provided.
-  Future<void> deleteSession([FcmRegistrationToken? fcmRegistrationToken]);
+  /// via Firebase Cloud Messaging, if [fcmToken] is provided.
+  Future<void> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    FcmRegistrationToken? fcmToken,
+    AccessTokenSecret? accessToken,
+  });
 
   /// Deletes the [MyUser] identified by the provided [id] from the accounts.
-  Future<void> removeAccount(UserId id);
+  ///
+  /// If [keepProfile] is `true`, then keeps the [MyUser] in the [profiles].
+  Future<void> removeAccount(UserId id, {bool keepProfile = false});
 
   /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
   ///
@@ -81,8 +99,8 @@ abstract class AbstractAuthRepository {
   /// [signUpWithEmail].
   Future<void> resendSignUpEmail();
 
-  /// Validates the current [AccessToken].
-  Future<void> validateToken();
+  /// Validates the [AccessToken] of the provided [Credentials].
+  Future<void> validateToken(Credentials credentials);
 
   /// Refreshes the current [AccessToken].
   ///
@@ -92,7 +110,13 @@ abstract class AbstractAuthRepository {
   /// The renewed [Session] has its own expiration after renewal, so to renew it
   /// again use this method with the new returned [RefreshToken] (omit using
   /// old ones).
-  Future<Credentials> refreshSession(RefreshTokenSecret secret);
+  ///
+  /// If [reconnect] is `true`, then applies the retrieved [Credentials] as the
+  /// [token] right away.
+  Future<Credentials> refreshSession(
+    RefreshTokenSecret secret, {
+    bool reconnect,
+  });
 
   /// Initiates password recovery for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
@@ -136,4 +160,8 @@ abstract class AbstractAuthRepository {
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug);
+
+  // TODO: Replace with real-time updates, when backend supports those.
+  /// Updates the [sessions] list.
+  Future<void> updateSessions();
 }
