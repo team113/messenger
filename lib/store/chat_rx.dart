@@ -1975,7 +1975,6 @@ class HiveRxChat extends RxChat {
 
               case ChatEventKind.favorited:
                 event as EventChatFavorited;
-                print('ChatEventKind.favorited: ${event.position}');
                 chatEntity.value.favoritePosition = event.position;
                 break;
 

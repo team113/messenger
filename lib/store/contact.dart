@@ -138,15 +138,17 @@ class ContactRepository extends DisposableInterface
     _initRemoteSubscription();
 
     _contactsSubscription = contacts.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          _pools[event.key!] ??= EventPool();
-          break;
+      if (event.key != null) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            _pools[event.key!] ??= EventPool();
+            break;
 
-        case OperationKind.removed:
-          _pools.remove(event.key!)?.dispose();
-          break;
+          case OperationKind.removed:
+            _pools.remove(event.key!)?.dispose();
+            break;
+        }
       }
     });
 
@@ -389,6 +391,11 @@ class ContactRepository extends DisposableInterface
       contact = contacts[id];
       if (contact == null) {
         final HiveChatContact? hiveContact = await _contactLocal.get(id);
+
+        if (contacts[id] != null) {
+          return contacts[id];
+        }
+
         if (hiveContact != null) {
           contact = HiveRxChatContact(_userRepo, hiveContact);
           contact!.init();
@@ -396,13 +403,14 @@ class ContactRepository extends DisposableInterface
 
         if (contact == null) {
           final query = (await _graphQlProvider.chatContact(id)).chatContact;
+
+          if (contacts[id] != null) {
+            return contacts[id];
+          }
+
           if (query != null) {
             contact = await _putChatContact(query.toHive());
           }
-        }
-
-        if (contact != null) {
-          contacts[id] = contact!;
         }
       }
 
@@ -709,7 +717,9 @@ class ContactRepository extends DisposableInterface
           }
         }
 
-        if (existing == null || existing.ver <= value.ver) {
+        if (existing == null) {
+          _putChatContact(value);
+        } else if (existing.ver <= value.ver) {
           _add(value);
         }
 
@@ -777,11 +787,6 @@ class ContactRepository extends DisposableInterface
             '$runtimeType',
           );
         } else {
-          Log.debug(
-            '_contactRemoteEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
-            '$runtimeType',
-          );
-
           // If [updateVersion] is `true`, then those events are processed and
           // should be removed from the [EventPool], or added to it otherwise
           // to prevent events overwriting each other's actions.
@@ -801,20 +806,27 @@ class ContactRepository extends DisposableInterface
             }
           }
 
+          Log.debug(
+            '_contactRemoteEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+
           final Map<ChatContactId, HiveChatContact> entities = {};
 
           for (var node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
-              entities[node.contactId] = HiveChatContact(
-                ChatContact(
-                  node.contactId,
-                  name: node.name,
-                ),
-                versioned.ver,
-                null,
-                null,
-              );
+              entities[node.contactId] =
+                  await _contactLocal.get(node.contactId) ??
+                      HiveChatContact(
+                        ChatContact(
+                          node.contactId,
+                          name: node.name,
+                        ),
+                        versioned.ver,
+                        null,
+                        null,
+                      );
 
               continue;
             } else if (node.kind == ChatContactEventKind.deleted) {
@@ -1202,7 +1214,7 @@ class ContactRepository extends DisposableInterface
   }
 }
 
-/// [Contact] fields being updated via [ChatContactsEvents].
+/// [ChatContact] fields being updated via [ChatContactsEvents].
 ///
-/// Used to update [Contact] according to the [EventPool].
+/// Used to update [ChatContact] according to the [EventPool].
 enum ContactField { favoritePosition }
