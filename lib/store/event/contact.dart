@@ -115,6 +115,16 @@ class EventChatContactCreated extends ChatContactEvent {
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.created;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventChatContactCreated &&
+      contactId == other.contactId &&
+      at == other.at &&
+      name == other.name;
+
+  @override
+  int get hashCode => Object.hash(contactId, at, name);
 }
 
 /// Event of a [ChatContact] being deleted.
@@ -174,10 +184,13 @@ class EventChatContactFavorited extends ChatContactEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventChatContactFavorited && position == other.position;
+      other is EventChatContactFavorited &&
+      contactId == other.contactId &&
+      at == other.at &&
+      position == other.position;
 
   @override
-  int get hashCode => position.hashCode;
+  int get hashCode => Object.hash(contactId, at, position);
 }
 
 /// Event of a [Chat]-group being added to the [ChatContact].
@@ -266,10 +279,13 @@ class EventChatContactUnfavorited extends ChatContactEvent {
   ChatContactEventKind get kind => ChatContactEventKind.unfavorited;
 
   @override
-  bool operator ==(Object other) => other is EventChatContactUnfavorited;
+  bool operator ==(Object other) =>
+      other is EventChatContactUnfavorited &&
+      contactId == other.contactId &&
+      at == other.at;
 
   @override
-  int get hashCode => kind.hashCode;
+  int get hashCode => Object.hash(contactId, at, kind);
 }
 
 /// Event of an [User] being added to a [ChatContact].
@@ -285,6 +301,16 @@ class EventChatContactUserAdded extends ChatContactEvent {
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.userAdded;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventChatContactUserAdded &&
+      contactId == other.contactId &&
+      at == other.at &&
+      user.id == other.user.id;
+
+  @override
+  int get hashCode => Object.hash(contactId, at, user);
 }
 
 /// Event of an [User] being removed from a [ChatContact].

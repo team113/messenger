@@ -110,9 +110,6 @@ class ContactRepository extends DisposableInterface
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
 
-  /// Subscription to the [contacts] changes populating the [_pools].
-  StreamSubscription? _contactsSubscription;
-
   /// [_chatContactsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
@@ -137,21 +134,6 @@ class ContactRepository extends DisposableInterface
     _initLocalSubscription();
     _initRemoteSubscription();
 
-    _contactsSubscription = contacts.changes.listen((event) {
-      if (event.key != null) {
-        switch (event.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            _pools[event.key!] ??= EventPool();
-            break;
-
-          case OperationKind.removed:
-            _pools.remove(event.key!)?.dispose();
-            break;
-        }
-      }
-    });
-
     super.onInit();
   }
 
@@ -162,7 +144,6 @@ class ContactRepository extends DisposableInterface
     contacts.forEach((_, v) => v.dispose());
     _localSubscription?.cancel();
     _paginationSubscription?.cancel();
-    _contactsSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _pagination.dispose();
 
@@ -708,9 +689,9 @@ class ContactRepository extends DisposableInterface
         final HiveChatContact value = event.value;
 
         final HiveRxChatContact? existing = contacts[value.value.id];
-        final EventPool<ContactField>? pool = _pools[value.value.id];
+        final EventPool<ContactField> pool = _getPool(value.value.id);
 
-        if (existing != null && pool != null) {
+        if (existing != null) {
           if (pool.lockedWith(
             ContactField.favoritePosition,
             value.value.favoritePosition,
@@ -796,16 +777,11 @@ class ContactRepository extends DisposableInterface
           if (updateVersion) {
             _sessionLocal.setChatContactsListVersion(versioned.listVer);
 
-            versioned.events.removeWhere((e) {
-              final EventPool<ContactField>? pool = _pools[e.contactId];
-
-              return pool?.processed(e) ?? false;
-            });
+            versioned.events
+                .removeWhere((e) => _getPool(e.contactId).processed(e));
           } else {
             for (var e in versioned.events) {
-              final EventPool<ContactField>? pool = _pools[e.contactId];
-
-              pool?.add(e);
+              _getPool(e.contactId).add(e);
             }
           }
 
@@ -820,7 +796,6 @@ class ContactRepository extends DisposableInterface
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
               entities[node.contactId] =
-                  await _contactLocal.get(node.contactId) ??
                       HiveChatContact(
                         ChatContact(
                           node.contactId,
@@ -1169,12 +1144,7 @@ class ContactRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    final EventPool<ContactField>? pool = _pools[contactId];
-
-    if (pool == null) {
-      await mutation(value);
-      return;
-    }
+    final EventPool<ContactField> pool = _getPool(contactId);
 
     update(value);
 
@@ -1214,6 +1184,17 @@ class ContactRepository extends DisposableInterface
         return false;
       },
     );
+  }
+
+  /// Returns the [EventPool] for the [ChatContact] with the provided [id].
+  EventPool<ContactField> _getPool(ChatContactId id) {
+    EventPool<ContactField>? pool = _pools[id];
+    if (pool == null) {
+      pool = EventPool();
+      _pools[id] = pool;
+    }
+
+    return pool;
   }
 }
 

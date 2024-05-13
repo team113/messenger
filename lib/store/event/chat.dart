@@ -235,10 +235,12 @@ class EventChatMuted extends ChatEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventChatMuted && duration == other.duration;
+      other is EventChatMuted &&
+      chatId == other.chatId &&
+      duration == other.duration;
 
   @override
-  int get hashCode => duration.hashCode;
+  int get hashCode => Object.hash(chatId, duration);
 }
 
 /// Event of a [ChatMember] started typing in a [Chat].
@@ -261,10 +263,11 @@ class EventChatUnmuted extends ChatEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventChatUnmuted && kind == other.kind;
+      other is EventChatUnmuted &&
+          chatId == other.chatId && kind == other.kind;
 
   @override
-  int get hashCode => kind.hashCode;
+  int get hashCode => Object.hash(chatId, kind);
 }
 
 /// Event of a [ChatMember] stopped typing in a [Chat].
@@ -524,10 +527,11 @@ class EventChatFavorited extends FavoriteChatsEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventChatFavorited && position == other.position;
+      other is EventChatFavorited &&
+          chatId == other.chatId && position == other.position;
 
   @override
-  int get hashCode => position.hashCode;
+  int get hashCode => Object.hash(chatId, position);
 }
 
 /// Event of a [Chat] being removed from the favorites list of the authenticated
@@ -540,10 +544,11 @@ class EventChatUnfavorited extends FavoriteChatsEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventChatUnfavorited && kind == other.kind;
+      other is EventChatUnfavorited &&
+          chatId == other.chatId && kind == other.kind;
 
   @override
-  int get hashCode => kind.hashCode;
+  int get hashCode =>Object.hash(chatId, kind);
 }
 
 /// Event of an audio/video conversation being started in a [ChatCall], meaning
