@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -33,6 +34,8 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -49,7 +52,6 @@ import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -122,14 +124,20 @@ var favoriteQuery = {
   }
 };
 
+late DriftProvider _database;
+
 void main() async {
-  setUp(() => Get.reset());
+  setUp(() {
+    Get.reset();
+    _database = DriftProvider(NativeDatabase.memory());
+  });
+  tearDown(() async => await _database.close());
+
   Hive.init('./test/.temp_hive/unit_call');
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  final userProvider = UserDriftProvider(_database);
   var credentialsProvider = CredentialsHiveProvider();
   await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -639,7 +647,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       );
 
   @override
-  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) =>
+  Future<Stream<QueryResult>> userEvents(
+    UserId id,
+    Future<UserVersion?> Function() ver,
+  ) async =>
       Stream.value(
         QueryResult.internal(
           source: QueryResultSource.network,

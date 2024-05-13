@@ -185,7 +185,7 @@ class BlocklistRepository extends DisposableInterface
       before: before,
     );
 
-    final users = RxList(query.edges.map((e) => e.node.user.toHive()).toList());
+    final users = RxList(query.edges.map((e) => e.node.user.toDrift()).toList());
 
     // Ensure all [users] are stored in [_userRepo].
     await Future.wait(users.map(_userRepo.put));

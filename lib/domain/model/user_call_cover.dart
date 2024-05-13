@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'crop_area.dart';
@@ -27,6 +28,7 @@ part 'user_call_cover.g.dart';
 ///
 /// Specified as relative paths on a files storage. Prepend them with a files
 /// storage URL to obtain a link to the concrete image.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userCallCover)
 class UserCallCover extends HiveObject {
   UserCallCover({
@@ -36,6 +38,10 @@ class UserCallCover extends HiveObject {
     required this.original,
     this.crop,
   });
+
+  /// Constructs a [UserCallCover] from the provided [json].
+  factory UserCallCover.fromJson(Map<String, dynamic> json) =>
+      _$UserCallCoverFromJson(json);
 
   /// Original image [StorageFile] representing this [UserCallCover].
   @HiveField(0)
@@ -60,4 +66,7 @@ class UserCallCover extends HiveObject {
   /// [UserCallCover].
   @HiveField(4)
   final CropArea? crop;
+
+  /// Returns a [Map] representing this [UserCallCover].
+  Map<String, dynamic> toJson() => _$UserCallCoverToJson(this);
 }

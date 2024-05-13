@@ -32,13 +32,13 @@ import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
+import '/provider/drift/user.dart';
 import '/provider/gql/exceptions.dart' show StaleVersionException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/contact.dart';
 import '/provider/hive/contact_sorting.dart';
 import '/provider/hive/favorite_contact.dart';
 import '/provider/hive/session_data.dart';
-import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
@@ -898,7 +898,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      final List<HiveUser> users = c.node.getHiveUsers();
+      final List<DriftUser> users = c.node.getDriftUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -935,7 +935,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      final List<HiveUser> users = c.node.getHiveUsers();
+      final List<DriftUser> users = c.node.getDriftUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -1046,7 +1046,7 @@ class ContactRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatContactUserAdded') {
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
-      _userRepo.put(e.user.toHive());
+      _userRepo.put(e.user.toDrift());
 
       return EventChatContactUserAdded(
         node.contactId,

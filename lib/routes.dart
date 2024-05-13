@@ -19,6 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'domain/model/chat.dart';
@@ -537,6 +538,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MonologHiveProvider()).init(userId: me),
               ]);
 
+              deps.put(UserDriftProvider(Get.find()));
+
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
                 SettingsRepository(
@@ -671,6 +674,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
+
+            deps.put(UserDriftProvider(Get.find()));
 
             GraphQlProvider graphQlProvider = Get.find();
 

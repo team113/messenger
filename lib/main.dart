@@ -53,6 +53,7 @@ import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
+import 'provider/drift/drift.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
@@ -96,6 +97,7 @@ Future<void> main() async {
     WebUtils.setPathUrlStrategy();
 
     await _initHive();
+    _initDrift();
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
@@ -466,6 +468,13 @@ Future<void> _initHive() async {
     await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
+}
+
+/// Initializes a `drift` storage.
+void _initDrift() {
+  Get.put(DriftProvider());
+
+  // TODO: Move all logic happening in [_initHive] here.
 }
 
 /// Extension adding an ability to clean [Hive].

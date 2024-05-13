@@ -27,21 +27,21 @@ import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
-import '/provider/hive/user.dart';
+import '/provider/drift/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 
-/// [RxUser] implementation backed by local [Hive] storage.
+/// [RxUser] implementation backed by local [DriftProvider] storage.
 class HiveRxUser extends RxUser {
   HiveRxUser(
     this._userRepository,
     this._userLocal,
-    HiveUser hiveUser,
-  )   : user = Rx<User>(hiveUser.value),
-        lastSeen = Rx(hiveUser.value.lastSeenAt) {
+    DriftUser stored,
+  )   : user = Rx<User>(stored.value),
+        lastSeen = Rx(stored.value.lastSeenAt) {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
@@ -95,8 +95,8 @@ class HiveRxUser extends RxUser {
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
-  /// [User]s local [Hive] storage.
-  final UserHiveProvider _userLocal;
+  /// [User]s local [DriftProvider] storage.
+  final UserDriftProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
   Rx<RxChat?>? _dialog;
@@ -158,7 +158,10 @@ class HiveRxUser extends RxUser {
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
+      await _userRepository.userEvents(
+        id,
+        () async => (await _userLocal.read(id))?.ver,
+      ),
     );
     await _remoteSubscription!.execute(_userEvent);
   }
@@ -174,14 +177,14 @@ class HiveRxUser extends RxUser {
         Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
 
         events as UserEventsUser;
-        final saved = _userLocal.get(id);
+        final saved = await _userLocal.read(id);
         if (saved == null || saved.ver <= events.user.ver) {
-          await _userLocal.put(events.user);
+          await _userLocal.upsert(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        final userEntity = _userLocal.get(id);
+        final userEntity = await _userLocal.read(id);
         final versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
@@ -264,12 +267,12 @@ class HiveRxUser extends RxUser {
               break;
           }
 
-          _userLocal.put(userEntity);
+          _userLocal.upsert(userEntity);
         }
         break;
 
       case UserEventsKind.blocklistEvent:
-        final userEntity = _userLocal.get(id);
+        final userEntity = await _userLocal.read(id);
         final versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
@@ -278,13 +281,13 @@ class HiveRxUser extends RxUser {
         }
 
         for (var event in versioned.events) {
-          _userLocal.put(event.user);
+          _userLocal.upsert(event.user);
         }
         break;
 
       case UserEventsKind.isBlocked:
         final versioned = events as UserEventsIsBlocked;
-        final userEntity = _userLocal.get(id);
+        final userEntity = await _userLocal.read(id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
@@ -294,7 +297,7 @@ class HiveRxUser extends RxUser {
 
           userEntity.value.isBlocked = versioned.record;
           userEntity.blockedVer = versioned.ver;
-          _userLocal.put(userEntity);
+          _userLocal.upsert(userEntity);
         }
         break;
     }

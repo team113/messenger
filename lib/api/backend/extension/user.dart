@@ -20,6 +20,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/provider/drift/user.dart';
 import '/provider/hive/user.dart';
 import 'file.dart';
 
@@ -48,6 +49,9 @@ extension UserConversion on UserMixin {
 
   /// Constructs a new [HiveUser] from this [UserMixin].
   HiveUser toHive() => HiveUser(toModel(), ver, isBlocked.ver);
+
+  /// Constructs a new [DriftUser] from this [UserMixin].
+  DriftUser toDrift() => DriftUser(toModel(), ver, isBlocked.ver);
 }
 
 /// Extension adding models construction from a

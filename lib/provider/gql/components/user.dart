@@ -495,10 +495,13 @@ mixin UserGraphQlMixin {
   /// This subscription could emit the same [EventUserDeleted] multiple times,
   /// so a client side is expected to handle it idempotently considering the
   /// [UserVersion].
-  Stream<QueryResult> userEvents(UserId id, UserVersion? Function() ver) {
+  Future<Stream<QueryResult>> userEvents(
+    UserId id,
+    Future<UserVersion?> Function() ver,
+  ) async {
     Log.debug('userEvents($id, ver)', '$runtimeType');
 
-    final variables = UserEventsArguments(id: id, ver: ver());
+    final variables = UserEventsArguments(id: id, ver: await ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'UserEvents',

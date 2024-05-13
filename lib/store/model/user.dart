@@ -27,10 +27,22 @@ part 'user.g.dart';
 @HiveType(typeId: ModelTypeId.userVersion)
 class UserVersion extends Version {
   UserVersion(super.val);
+
+  /// Constructs a [UsersCursor] from the provided [val].
+  factory UserVersion.fromJson(String val) = UserVersion;
+
+  /// Returns a [String] representing this [UserId].
+  String toJson() => val;
 }
 
 /// Cursor used for [User]s pagination.
 @HiveType(typeId: ModelTypeId.usersCursor)
 class UsersCursor extends NewType<String> {
   UsersCursor(super.val);
+
+  /// Constructs a [UsersCursor] from the provided [val].
+  factory UsersCursor.fromJson(String val) = UsersCursor;
+
+  /// Returns a [String] representing this [UsersCursor].
+  String toJson() => val;
 }
