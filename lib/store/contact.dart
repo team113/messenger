@@ -392,18 +392,21 @@ class ContactRepository extends DisposableInterface
       if (contact == null) {
         final HiveChatContact? hiveContact = await _contactLocal.get(id);
 
+        // [ChatContact] may be added to the [contacts] list during async
+        // operation above.
         if (contacts[id] != null) {
           return contacts[id];
         }
 
         if (hiveContact != null) {
-          contact = HiveRxChatContact(_userRepo, hiveContact);
-          contact!.init();
+          contact = await _putChatContact(hiveContact);
         }
 
         if (contact == null) {
           final query = (await _graphQlProvider.chatContact(id)).chatContact;
 
+          // [ChatContact] may be added to the [contacts] list during async
+          // operation above.
           if (contacts[id] != null) {
             return contacts[id];
           }
