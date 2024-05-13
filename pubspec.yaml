@@ -1,5 +1,5 @@
 name: messenger
-version: 0.1.0-alpha.13.4
+version: 0.1.0-alpha.13.5
 publish_to: none
 
 environment:
@@ -9,13 +9,14 @@ environment:
 dependencies:
   all_sensors: ^0.4.2
   animated_size_and_fade: ^4.0.0
+  apple_product_name: ^3.0.0
   async: ^2.10.0
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
   collection: ^1.17.2
   crypto: ^3.0.3
   desktop_drop: ^0.4.1
-  device_info_plus: ^9.0.2
+  device_info_plus: ^10.1.0
   dio: ^5.1.2
   dough:
     git:

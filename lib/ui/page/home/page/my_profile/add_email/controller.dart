@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
@@ -70,9 +71,7 @@ class AddEmailController extends GetxController {
   @override
   void onInit() {
     code = TextFieldState(
-      onChanged: (s) {
-        s.error.value = null;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             ConfirmationCode(s.text);
@@ -94,8 +93,13 @@ class AddEmailController extends GetxController {
             pop?.call();
             s.clear();
           } on ConfirmUserEmailException catch (e) {
+            if (e.code == ConfirmUserEmailErrorCode.occupied) {
+              s.resubmitOnError.value = true;
+            }
+
             s.error.value = e.toMessage();
           } catch (e) {
+            s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             s.unsubmit();
             rethrow;

@@ -32,8 +32,10 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -51,7 +53,11 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService, this._settingsRepo);
+  MyProfileController(
+    this._myUserService,
+    this._authService,
+    this._settingsRepo,
+  );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -62,6 +68,10 @@ class MyProfileController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]
+  /// section.
+  final ScrollController devicesScrollController = ScrollController();
 
   /// [ItemScrollController] of the profile's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
@@ -98,8 +108,14 @@ class MyProfileController extends GetxController {
   /// the [AppBar].
   final RxBool displayName = RxBool(false);
 
+  /// Indicator whether the [sessions] are being updated.
+  final RxBool sessionsUpdating = RxBool(false);
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
+
+  /// [AuthService] used to get [sessions] value.
+  final AuthService _authService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -137,6 +153,9 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
+  /// Returns the list of active [Session]s.
+  RxList<Session> get sessions => _authService.sessions;
+
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
@@ -147,6 +166,13 @@ class MyProfileController extends GetxController {
       } catch (_) {
         // No-op, shouldn't break the view.
       }
+    }
+
+    // [List.isEmpty] can be used as an indicator to fetch the [Session]s here,
+    // as our current [Session] must be on the list, so the length must be at
+    // least 1 to be up to date.
+    if (sessions.isEmpty) {
+      updateSessions();
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -187,10 +213,7 @@ class MyProfileController extends GetxController {
 
     phone = TextFieldState(
       approvable: true,
-      onChanged: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             final phone = UserPhone(s.text.replaceAll(' ', ''));
@@ -222,9 +245,7 @@ class MyProfileController extends GetxController {
 
             if (e is AddUserPhoneException) {
               s.error.value = e.toMessage();
-              s.resubmitOnError.value =
-                  e.code == AddUserPhoneErrorCode.artemisUnknown ||
-                      e.code == AddUserPhoneErrorCode.busy;
+              s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
             } else {
               s.error.value = 'err_data_transfer'.l10n;
               s.resubmitOnError.value = true;
@@ -247,10 +268,7 @@ class MyProfileController extends GetxController {
 
     email = TextFieldState(
       approvable: true,
-      onChanged: (s) {
-        s.error.value = null;
-        s.resubmitOnError.value = false;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             final email = UserEmail(s.text);
@@ -281,8 +299,7 @@ class MyProfileController extends GetxController {
 
           if (e is AddUserEmailException) {
             s.error.value = e.toMessage();
-            s.resubmitOnError.value =
-                e.code == AddUserEmailErrorCode.artemisUnknown;
+            s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
           } else {
             s.error.value = 'err_data_transfer'.l10n;
             s.resubmitOnError.value = true;
@@ -467,6 +484,18 @@ class MyProfileController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlightIndex.value = null;
     });
+  }
+
+  // TODO: Remove, when backend supports real-time updates.
+  /// Updates the [sessions] value.
+  Future<void> updateSessions() async {
+    sessionsUpdating.value = true;
+
+    try {
+      await _authService.updateSessions();
+    } finally {
+      sessionsUpdating.value = false;
+    }
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].

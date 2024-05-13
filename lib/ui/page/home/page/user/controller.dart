@@ -182,7 +182,7 @@ class UserController extends GetxController {
   @override
   void onInit() {
     name = TextFieldState(
-      onChanged: (s) {
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserName(s.text);
@@ -468,7 +468,6 @@ class UserController extends GetxController {
 
   /// Submits the [name] field.
   Future<void> submitName() async {
-    name.error.value = null;
     name.focus.unfocus();
 
     if (name.text == contact.value?.contact.value.name.val) {
@@ -487,23 +486,23 @@ class UserController extends GetxController {
       return;
     }
 
-    if (name.error.value == null) {
+    if (name.error.value == null || name.resubmitOnError.isTrue) {
       name.status.value = RxStatus.loading();
       name.editable.value = false;
 
       try {
-        nameEditing.value = false;
         await _contactService.changeContactName(contact.value!.id, userName);
-        name.status.value = RxStatus.empty();
+        name.error.value = null;
+        nameEditing.value = false;
         name.unsubmit();
       } on UpdateChatContactNameException catch (e) {
-        name.status.value = RxStatus.empty();
         name.error.value = e.toString();
       } catch (e) {
-        name.status.value = RxStatus.empty();
-        MessagePopup.error(e.toString());
+        name.resubmitOnError.value = true;
+        name.error.value = 'err_data_transfer'.l10n;
         rethrow;
       } finally {
+        name.status.value = RxStatus.empty();
         name.editable.value = true;
       }
     }
@@ -601,7 +600,7 @@ extension UserViewExt on User {
 
 /// Extension adding an ability to get text represented indication of how long
 /// ago a [DateTime] happened compared to [DateTime.now].
-extension _DateTimeToAgo on DateTime {
+extension DateTimeToAgo on DateTime {
   /// Returns text representation of a [difference] with [DateTime.now]
   /// indicating how long ago this [DateTime] happened compared to
   /// [DateTime.now].

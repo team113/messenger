@@ -22,16 +22,16 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
-import '/domain/service/auth.dart';
+import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
-import 'confirm/view.dart';
+import '/util/obs/rxmap.dart';
 
 export 'view.dart';
 
 /// Controller of the [HomeTab.menu] tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._authService, this._myUserService);
+  MenuTabController(this._myUserService);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -39,35 +39,20 @@ class MenuTabController extends GetxController {
   /// [GlobalKey] of an [AvatarWidget] in the tab title.
   final GlobalKey profileKey = GlobalKey();
 
-  /// [AuthService] used in a [logout].
-  final AuthService _authService;
-
   /// Service managing [MyUser].
   final MyUserService _myUserService;
 
-  /// Current [MyUser].
+  /// Returns the current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Returns the known [MyUser] profiles.
+  RxObsMap<UserId, Rx<MyUser>> get profiles => _myUserService.profiles;
 
   @override
   void onClose() {
     scrollController.dispose();
     super.onClose();
   }
-
-  /// Determines whether the [logout] action may be invoked or not.
-  ///
-  /// Shows a confirmation popup if there's any ongoing calls.
-  Future<bool> confirmLogout() async {
-    // TODO: [MyUserService.myUser] might still be `null` here.
-    if (await ConfirmLogoutView.show(router.context!) != true) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /// Logs out the current session and goes to the [Routes.auth] page.
-  Future<String> logout() => _authService.logout();
 
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(Presence presence) =>

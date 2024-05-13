@@ -15,6 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
+import 'package:collection/collection.dart';
+import 'package:get/get.dart';
+
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
@@ -34,12 +39,19 @@ import '/util/log.dart';
 /// Implementation of an [AbstractAuthRepository].
 ///
 /// All methods may throw [ConnectionException], [GraphQlException].
-class AuthRepository implements AbstractAuthRepository {
+class AuthRepository extends DisposableInterface
+    implements AbstractAuthRepository {
   AuthRepository(
     this._graphQlProvider,
     this._myUserProvider,
     this._credentialsProvider,
   );
+
+  @override
+  final RxList<Session> sessions = RxList();
+
+  @override
+  final RxList<MyUser> profiles = RxList();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -54,6 +66,14 @@ class AuthRepository implements AbstractAuthRepository {
   /// [Credentials] of [Session] created with [signUpWithEmail] returned in
   /// successful [confirmSignUpEmail].
   Credentials? _signUpCredentials;
+
+  // TODO: Temporary solution, wait for support from backend.
+  /// [HiveMyUser] created with [signUpWithEmail] and put to [Hive] in
+  /// successful [confirmSignUpEmail].
+  HiveMyUser? _signedUpUser;
+
+  /// [StreamSubscription] for the [MyUserHiveProvider.boxEvents].
+  StreamSubscription? _profilesSubscription;
 
   @override
   set token(AccessTokenSecret? token) {
@@ -71,6 +91,26 @@ class AuthRepository implements AbstractAuthRepository {
   ) {
     Log.debug('set authExceptionHandler(handler)', '$runtimeType');
     _graphQlProvider.authExceptionHandler = handler;
+  }
+
+  @override
+  void onInit() {
+    profiles.addAll(_myUserProvider.myUsers.map((e) => e.value).toList());
+    _profilesSubscription = _myUserProvider.boxEvents.listen((e) {
+      if (e.deleted) {
+        profiles.removeWhere((m) => m.id.val == e.key);
+      } else {
+        profiles.addIf(profiles.none((m) => m.id.val == e.key), e.value.value);
+      }
+    });
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _profilesSubscription?.cancel();
+    super.onClose();
   }
 
   @override
@@ -119,8 +159,7 @@ class AuthRepository implements AbstractAuthRepository {
 
     final response = await _graphQlProvider.signUp();
 
-    _myUserProvider.put(response.createUser.user.toHive());
-
+    _signedUpUser = response.createUser.user.toHive();
     _signUpCredentials = response.toModel();
 
     await _graphQlProvider.addUserEmail(
@@ -137,12 +176,17 @@ class AuthRepository implements AbstractAuthRepository {
 
     if (_signUpCredentials == null) {
       throw ArgumentError.notNull('_signUpCredentials');
+    } else if (_signedUpUser == null) {
+      throw ArgumentError.notNull('_signedUpUser');
     }
 
     await _graphQlProvider.confirmEmailCode(
       code,
       raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
+
+    _myUserProvider.put(_signedUpUser!);
+
     return _signUpCredentials!;
   }
 
@@ -160,41 +204,65 @@ class AuthRepository implements AbstractAuthRepository {
   }
 
   @override
-  Future<void> deleteSession([
-    FcmRegistrationToken? fcmRegistrationToken,
-  ]) async {
-    Log.debug('deleteSession($fcmRegistrationToken)', '$runtimeType');
+  Future<void> deleteSession({
+    SessionId? id,
+    UserPassword? password,
+    FcmRegistrationToken? fcmToken,
+    AccessTokenSecret? accessToken,
+  }) async {
+    Log.debug(
+      'deleteSession(id: $id, password: ${password?.obscured}, fcmToken: $fcmToken, accessToken: $accessToken)',
+      '$runtimeType',
+    );
 
-    if (fcmRegistrationToken != null) {
-      await _graphQlProvider.unregisterFcmDevice(fcmRegistrationToken);
+    if (fcmToken != null) {
+      await _graphQlProvider.unregisterFcmDevice(fcmToken);
     }
-    await _graphQlProvider.deleteSession();
+
+    await _graphQlProvider.deleteSession(
+      id: id,
+      password: password,
+      token: accessToken,
+    );
+
+    if (id != null) {
+      sessions.removeWhere((e) => e.id == id);
+    }
   }
 
   @override
-  Future<void> removeAccount(UserId id) async {
+  Future<void> removeAccount(UserId id, {bool keepProfile = false}) async {
     Log.debug('removeAccount($id)', '$runtimeType');
 
-    await _myUserProvider.remove(id);
-    await _credentialsProvider.remove(id);
+    await Future.wait([
+      if (!keepProfile) _myUserProvider.remove(id),
+      _credentialsProvider.remove(id),
+    ]);
   }
 
   @override
-  Future<void> validateToken() async {
-    Log.debug('validateToken()', '$runtimeType');
-    await _graphQlProvider.validateToken();
+  Future<void> validateToken(Credentials credentials) async {
+    Log.debug('validateToken($credentials)', '$runtimeType');
+    await _graphQlProvider.validateToken(credentials);
   }
 
   @override
-  Future<Credentials> refreshSession(RefreshTokenSecret secret) {
+  Future<Credentials> refreshSession(
+    RefreshTokenSecret secret, {
+    bool reconnect = true,
+  }) {
     Log.debug('refreshSession($secret)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
       final response =
           (await _graphQlProvider.refreshSession(secret)).refreshSession
               as RefreshSession$Mutation$RefreshSession$CreateSessionOk;
-      _graphQlProvider.token = response.accessToken.secret;
-      _graphQlProvider.reconnect();
+
+      if (reconnect) {
+        _graphQlProvider.token = response.accessToken.secret;
+        _graphQlProvider.reconnect();
+      }
+
       return response.toModel();
     });
   }
@@ -266,5 +334,12 @@ class AuthRepository implements AbstractAuthRepository {
 
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
+  }
+
+  @override
+  Future<void> updateSessions() async {
+    Log.debug('updateSessions()', '$runtimeType');
+    sessions.value =
+        (await _graphQlProvider.sessions()).map((e) => e.toModel()).toList();
   }
 }

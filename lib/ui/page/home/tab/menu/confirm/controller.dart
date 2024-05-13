@@ -20,9 +20,11 @@ import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UpdateUserPasswordException;
+import '/routes.dart';
 import '/ui/widget/text_field.dart';
 
 /// Possible [ConfirmLogoutView] flow stage.
@@ -33,7 +35,7 @@ enum ConfirmLogoutViewStage {
 
 /// Controller of a [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {
-  ConfirmLogoutController(this._myUser);
+  ConfirmLogoutController(this._myUserService, this._authService);
 
   /// [ConfirmLogoutViewStage] currently being displayed.
   final Rx<ConfirmLogoutViewStage?> stage = Rx(null);
@@ -56,21 +58,31 @@ class ConfirmLogoutController extends GetxController {
   /// Indicator whether the currently authenticated [MyUser] has a password.
   late final RxBool hasPassword;
 
+  /// Indicator whether the current [MyUser] profile should be kept in the
+  /// [AuthService.profiles] or completely erased otherwise.
+  final RxBool keep = RxBool(true);
+
   /// [MyUserService] setting the password.
-  final MyUserService _myUser;
+  final MyUserService _myUserService;
+
+  /// [AuthService] used to [logout].
+  final AuthService _authService;
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _myUser.myUser;
+  Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Indicator whether the account of [myUser] can be recovered.
+  bool get canRecover =>
+      myUser.value?.emails.confirmed.isNotEmpty == true ||
+      myUser.value?.phones.confirmed.isNotEmpty == true;
 
   @override
   void onInit() {
     hasPassword = RxBool(myUser.value?.hasPassword ?? false);
 
     password = TextFieldState(
-      onChanged: (s) {
-        password.error.value = null;
-        repeat.error.value = null;
-
+      onChanged: (_) => repeat.error.value = null,
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
@@ -93,10 +105,7 @@ class ConfirmLogoutController extends GetxController {
     );
 
     repeat = TextFieldState(
-      onChanged: (s) {
-        password.error.value = null;
-        repeat.error.value = null;
-
+      onFocus: (s) {
         if (s.text.isNotEmpty) {
           try {
             UserPassword(s.text);
@@ -148,7 +157,9 @@ class ConfirmLogoutController extends GetxController {
     password.status.value = RxStatus.loading();
     repeat.status.value = RxStatus.loading();
     try {
-      await _myUser.updateUserPassword(newPassword: UserPassword(repeat.text));
+      await _myUserService.updateUserPassword(
+        newPassword: UserPassword(repeat.text),
+      );
       password.status.value = RxStatus.success();
       repeat.status.value = RxStatus.success();
       await Future.delayed(1.seconds);
@@ -156,6 +167,7 @@ class ConfirmLogoutController extends GetxController {
     } on UpdateUserPasswordException catch (e) {
       repeat.error.value = e.toMessage();
     } catch (e) {
+      repeat.resubmitOnError.value = true;
       repeat.error.value = 'err_data_transfer'.l10n;
       rethrow;
     } finally {
@@ -164,5 +176,15 @@ class ConfirmLogoutController extends GetxController {
       password.editable.value = true;
       repeat.editable.value = true;
     }
+  }
+
+  /// Logs out the current session and go to the [Routes.auth] page.
+  void logout() {
+    // Don't allow user to keep his profile, when no recovery methods are
+    // available or any password set, as they won't be able to sign in.
+    _authService.logout(canRecover || hasPassword.value ? keep.value : false);
+
+    router.auth();
+    router.tab = HomeTab.chats;
   }
 }

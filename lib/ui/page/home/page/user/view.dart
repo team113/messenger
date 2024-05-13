@@ -37,10 +37,10 @@ import '/ui/page/home/widget/copy_or_share.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/info_tile.dart';
 import '/ui/page/home/widget/paddings.dart';
-import '/ui/page/login/widget/primary_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -274,7 +274,11 @@ class UserView extends StatelessWidget {
         ),
         if (bio != null)
           Paddings.basic(
-            InfoTile(title: 'label_about'.l10n, content: bio.val),
+            InfoTile(
+              title: 'label_about'.l10n,
+              content: bio.val,
+              maxLines: null,
+            ),
           ),
       ],
     );

@@ -186,11 +186,12 @@ class Release {
               (e) => e.attributes.any(
                 (p) =>
                     p.name.qualified == 'xml:lang' &&
-                    p.value == language?.locale.languageCode,
+                    p.value == language?.toString(),
               ),
             )
             ?.innerText ??
         xml.findElements('description').firstOrNull?.innerText;
+
     final String date = xml.findElements('pubDate').first.innerText;
     final List<ReleaseArtifact> assets = xml
         .findElements('enclosure')
@@ -199,7 +200,7 @@ class Release {
 
     return Release(
       name: title,
-      description: (description?.isEmpty ?? true) ? null : description,
+      description: (description?.isEmpty ?? true) ? null : description?.trim(),
       publishedAt: Rfc822ToDateTime.tryParse(date) ?? DateTime.now(),
       assets: assets,
     );

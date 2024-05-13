@@ -28,7 +28,10 @@ import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
+import 'accounts/view.dart';
+import 'confirm/view.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.menu] tab.
@@ -39,7 +42,7 @@ class MenuTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MenuTab'),
-      init: MenuTabController(Get.find(), Get.find()),
+      init: MenuTabController(Get.find()),
       builder: (MenuTabController c) {
         final style = Theme.of(context).style;
 
@@ -114,6 +117,27 @@ class MenuTabView extends StatelessWidget {
               ),
             ),
             leading: const [SizedBox(width: 20)],
+            actions: [
+              WidgetButton(
+                behavior: HitTestBehavior.translucent,
+                onPressed: () => AccountsView.show(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Obx(() {
+                    final bool hasMultipleAccounts = c.profiles.length > 1;
+                    final String label = hasMultipleAccounts
+                        ? 'btn_change_account_desc'
+                        : 'btn_add_account_with_desc';
+
+                    return Text(
+                      label.l10n,
+                      style: style.fonts.small.regular.primary,
+                      textAlign: TextAlign.center,
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
           body: SafeScrollbar(
             controller: c.scrollController,
@@ -170,11 +194,7 @@ class MenuTabView extends StatelessWidget {
                       onPressed: switch (tab) {
                         ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
-                            if (await c.confirmLogout()) {
-                              c.logout();
-                              router.auth();
-                              router.tab = HomeTab.chats;
-                            }
+                            await ConfirmLogoutView.show(router.context!);
                           },
                         (_) => () {
                             if (router.profileSection.value == tab) {

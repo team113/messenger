@@ -328,13 +328,21 @@ endif
 #	                 [from=(appcast|<input-directory>)
 #	                 [out=(appcast/appcast.xml|<output-file>)
 
-appcast-xml-items = $(or $(items),$(foreach xml,\
-	$(call reverse,$(wildcard $(or $(from),appcast)/*.xml)),\
-		$(shell cat $(xml))))
+appcast-xml-out = $(or $(out),appcast/appcast.xml)
 
 appcast.xml:
-	@echo '<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>$(appcast-xml-items)</channel></rss>' \
-	> $(or $(out),appcast/appcast.xml)
+	@echo '<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>' >> $(appcast-xml-out)
+ifeq ($(items),)
+	$(foreach f,$(call reverse,$(wildcard $(or $(from),appcast)/*.xml)),\
+		$(call appcast.xml.write.file,$(f)))
+else
+	@echo '$(items)' >> $(appcast-xml-out)
+endif
+	@echo '</channel></rss>' >> $(appcast-xml-out)
+define appcast.xml.write.file
+	$()
+	cat $(1) >> $(appcast-xml-out)
+endef
 
 
 # Create single item of Sparkle Appcast XML format.
@@ -351,7 +359,7 @@ appcast.xml:
 
 appcast-item-ver = $(or $(version),\
 	$(shell git describe --tags --dirty --match "v*" --always))
-appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)><![CDATA[$(shell cat $(xml))]]></description>)
+appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
 	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","messenger-macos.zip")$(call appcast.xml.item.release,"windows","messenger-windows.zip")$(call appcast.xml.item.release,"linux","messenger-linux.zip")$(call appcast.xml.item.release,"android","messenger-android.zip")$(call appcast.xml.item.release,"ios","messenger-ios.zip")</item>" \

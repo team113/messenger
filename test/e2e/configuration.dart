@@ -109,6 +109,7 @@ import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_favorite_monolog.dart';
 import 'steps/see_search_results.dart';
+import 'steps/see_sessions.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -186,6 +187,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         haveGroupNamed,
         haveInternetWithDelay,
         haveInternetWithoutDelay,
+        hasSession,
         iAm,
         iAmInChatNamed,
         iAmInChatWith,
@@ -236,6 +238,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeCountChats,
         seeCountContacts,
         seeCountFavoriteChats,
+        seeCountSessions,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeMonologAsFavorite,

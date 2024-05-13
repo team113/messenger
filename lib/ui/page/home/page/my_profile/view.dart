@@ -27,6 +27,7 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
@@ -70,6 +71,7 @@ import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
+import 'session/controller.dart';
 import 'widget/background_preview.dart';
 import 'widget/bio.dart';
 import 'widget/login.dart';
@@ -83,7 +85,7 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -307,6 +309,9 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.blocklist:
                       return block(children: [_blockedUsers(context, c)]);
+
+                    case ProfileTab.devices:
+                      return block(children: [_devices(context, c)]);
 
                     case ProfileTab.sections:
                       return block(children: [_sections(context, c)]);
@@ -832,6 +837,86 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
       ),
     );
   });
+}
+
+/// Returns the contents of a [ProfileTab.devices] section.
+Widget _devices(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  Widget device(Session session) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: InfoTile(
+        title: session.isCurrent
+            ? 'label_this_device'.l10n
+            : session.lastActivatedAt.val.yMdHm,
+        content: session.userAgent.localized,
+        trailing: session.isCurrent
+            ? null
+            : WidgetButton(
+                key: const Key('DeleteSessionButton'),
+                onPressed: () => DeleteSessionView.show(context, session),
+                child: const SvgIcon(SvgIcons.delete),
+              ),
+      ),
+    );
+  }
+
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 500),
+        child: Scrollbar(
+          controller: c.devicesScrollController,
+          child: Obx(() {
+            final List<Session> sessions = c.sessions.toList();
+
+            final Session? current =
+                sessions.firstWhereOrNull((e) => e.isCurrent);
+
+            if (current != null) {
+              sessions.remove(current);
+              sessions.insert(0, current);
+            }
+
+            return ListView.builder(
+              controller: c.devicesScrollController,
+              shrinkWrap: true,
+              itemCount: sessions.length,
+              itemBuilder: (_, i) {
+                return Column(
+                  children: [
+                    device(sessions[i]),
+                    if (i != sessions.length - 1) const SizedBox(height: 25),
+                  ],
+                );
+              },
+            );
+          }),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Obx(() {
+        if (c.sessionsUpdating.isFalse) {
+          return Center(
+            child: WidgetButton(
+              onPressed: c.updateSessions,
+              child: Text(
+                'btn_refresh'.l10n,
+                style: style.fonts.small.regular.primary,
+              ),
+            ),
+          );
+        } else {
+          return const SizedBox.square(
+            dimension: 17,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        }
+      }),
+    ],
+  );
 }
 
 /// Returns the contents of a [ProfileTab.sections] section.

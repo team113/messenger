@@ -68,6 +68,7 @@ import 'store/contact.dart';
 import 'store/my_user.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
+import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
@@ -77,6 +78,7 @@ import 'ui/page/style/view.dart';
 import 'ui/page/support/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
+import 'ui/widget/progress_indicator.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
@@ -104,6 +106,10 @@ class Routes {
   static const user = '/user';
   static const work = '/work';
 
+  // TODO: Dirty hack used to reinitialize the dependencies when changing
+  //       accounts, should remove it.
+  static const nowhere = '/nowhere';
+
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
 
@@ -130,6 +136,7 @@ enum ProfileTab {
   storage,
   language,
   blocklist,
+  devices,
   sections,
   download,
   danger,
@@ -467,6 +474,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: Center(child: Text('Restarting...')),
         ),
       ];
+    } else if (_state.route == Routes.nowhere) {
+      return [
+        MaterialPage(
+          key: const ValueKey('NowherePage'),
+          name: Routes.nowhere,
+          child: Scaffold(
+            backgroundColor: Theme.of(router.context!).style.colors.background,
+            body: const Center(child: CustomProgressIndicator.big()),
+          ),
+        ),
+      ];
     } else if (_state.route == Routes.style) {
       return [
         const MaterialPage(
@@ -626,8 +644,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         name: Routes.home,
         child: HomeView(
           () async {
-            ScopedDependencies deps = ScopedDependencies();
-            UserId me = _state._auth.userId!;
+            final UserId? me = _state._auth.userId;
+            if (me == null) {
+              return null;
+            }
+
+            final ScopedDependencies deps = ScopedDependencies();
 
             await Future.wait([
               deps.put(ChatHiveProvider()).init(userId: me),
@@ -958,6 +980,9 @@ extension RouteLinks on RouterState {
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
   void style({bool push = false}) => (push ? this.push : go)(Routes.style);
+
+  /// Changes router location to the [Routes.nowhere] page.
+  void nowhere() => go(Routes.nowhere);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

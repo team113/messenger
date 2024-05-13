@@ -1892,4 +1892,16 @@ class SvgIcons {
     width: 32,
     height: 32,
   );
+
+  static const SvgData logout = SvgData(
+    'assets/icons/logout.svg',
+    width: 16.28,
+    height: 19,
+  );
+
+  static const SvgData logoutWhite = SvgData(
+    'assets/icons/logout_white.svg',
+    width: 16.28,
+    height: 19,
+  );
 }

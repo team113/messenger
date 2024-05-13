@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 
 /// [Block] displaying a single [OutlinedRoundedButton] with the provided
 /// [text].
@@ -35,18 +35,9 @@ class ProceedBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Block(
       children: [
-        Paddings.basic(
-          OutlinedRoundedButton(
-            onPressed: onPressed,
-            maxWidth: double.infinity,
-            color: style.colors.primary,
-            child: Text(text, style: style.fonts.medium.regular.onPrimary),
-          ),
-        ),
+        Paddings.basic(PrimaryButton(onPressed: onPressed, title: text)),
       ],
     );
   }
