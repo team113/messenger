@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.0-alpha.14] · 2024-??-?? (unreleased)
+[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+
+[Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0-alpha.14) | [Milestone](/../../milestone/24)
+
+### Changed
+
+- UI:
+    - Update available popup displaying critical updates. ([#973], [#896])
+
+[#896]: /../../issues/896
+[#973]: /../../pull/973
+
+
+
+
 ## [0.1.0-alpha.13.5] · 2024-05-13
 [0.1.0-alpha.13.5]: /../../tree/v0.1.0-alpha.13.5
 
@@ -29,7 +45,6 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned avatar and name editing. ([#980], [#948])
     - Profile page:
         - Redesigned avatar and link editing. ([#980], [#948])
-    - Update available popup displaying critical updates. ([#973], [#896])
 
 ### Fixed
 
