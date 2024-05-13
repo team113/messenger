@@ -776,7 +776,6 @@ class ContactRepository extends DisposableInterface
           // to prevent events overwriting each other's actions.
           if (updateVersion) {
             _sessionLocal.setChatContactsListVersion(versioned.listVer);
-
             versioned.events
                 .removeWhere((e) => _getPool(e.contactId).processed(e));
           } else {
