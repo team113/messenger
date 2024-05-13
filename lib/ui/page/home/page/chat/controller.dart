@@ -263,6 +263,9 @@ class ChatController extends GetxController {
   /// [active].
   StreamSubscription? _onActivityChanged;
 
+  /// Subscription to the [PlatformUtils.onFocusChanged] invoking [_stopTyping].
+  StreamSubscription? _onFocusChanged;
+
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
 
@@ -494,6 +497,12 @@ class ChatController extends GetxController {
       }
     });
 
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((value) {
+      if (!value) {
+        _stopTyping();
+      }
+    });
+
     // Stop the [_typingSubscription] when the send field loses its focus.
     send.field.focus.addListener(_stopTypingOnUnfocus);
 
@@ -520,6 +529,7 @@ class ChatController extends GetxController {
     _chatSubscription?.cancel();
     _userSubscription?.cancel();
     _onActivityChanged?.cancel();
+    _onFocusChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
