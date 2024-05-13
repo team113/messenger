@@ -328,16 +328,21 @@ endif
 #	                 [from=(appcast|<input-directory>)
 #	                 [out=(appcast/appcast.xml|<output-file>)
 
-appcast-xml-files = $(call reverse,$(wildcard $(or $(from),appcast)/*.xml))
+appcast-xml-out = $(or $(out),appcast/appcast.xml)
 
 appcast.xml:
-	@echo '<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>' >> $(or $(out),appcast/appcast.xml)
+	@echo '<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>' >> $(appcast-xml-out)
 ifeq ($(items),)
-	@for f in $(appcast-xml-files); do cat $${f}; done >> $(or $(out),appcast/appcast.xml)
+	$(foreach f,$(call reverse,$(wildcard $(or $(from),appcast)/*.xml)),\
+		$(call appcast.xml.write.file,$(f)))
 else
-	@echo '$(items)' >> $(or $(out),appcast/appcast.xml)
+	@echo '$(items)' >> $(appcast-xml-out)
 endif
-	@echo '</channel></rss>' >> $(or $(out),appcast/appcast.xml)
+	@echo '</channel></rss>' >> $(appcast-xml-out)
+define appcast.xml.write.file
+	$()
+	cat $(1) >> $(appcast-xml-out)
+endef
 
 
 # Create single item of Sparkle Appcast XML format.
