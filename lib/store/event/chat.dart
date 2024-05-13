@@ -263,8 +263,7 @@ class EventChatUnmuted extends ChatEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventChatUnmuted &&
-          chatId == other.chatId && kind == other.kind;
+      other is EventChatUnmuted && chatId == other.chatId && kind == other.kind;
 
   @override
   int get hashCode => Object.hash(chatId, kind);
@@ -528,7 +527,8 @@ class EventChatFavorited extends FavoriteChatsEvent {
   @override
   bool operator ==(Object other) =>
       other is EventChatFavorited &&
-          chatId == other.chatId && position == other.position;
+      chatId == other.chatId &&
+      position == other.position;
 
   @override
   int get hashCode => Object.hash(chatId, position);
@@ -545,10 +545,11 @@ class EventChatUnfavorited extends FavoriteChatsEvent {
   @override
   bool operator ==(Object other) =>
       other is EventChatUnfavorited &&
-          chatId == other.chatId && kind == other.kind;
+      chatId == other.chatId &&
+      kind == other.kind;
 
   @override
-  int get hashCode =>Object.hash(chatId, kind);
+  int get hashCode => Object.hash(chatId, kind);
 }
 
 /// Event of an audio/video conversation being started in a [ChatCall], meaning

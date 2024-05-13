@@ -795,16 +795,15 @@ class ContactRepository extends DisposableInterface
           for (var node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
-              entities[node.contactId] =
-                      HiveChatContact(
-                        ChatContact(
-                          node.contactId,
-                          name: node.name,
-                        ),
-                        versioned.ver,
-                        null,
-                        null,
-                      );
+              entities[node.contactId] = HiveChatContact(
+                ChatContact(
+                  node.contactId,
+                  name: node.name,
+                ),
+                versioned.ver,
+                null,
+                null,
+              );
 
               continue;
             } else if (node.kind == ChatContactEventKind.deleted) {
