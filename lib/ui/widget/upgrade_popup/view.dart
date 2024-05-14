@@ -99,7 +99,7 @@ class UpgradePopupView extends StatelessWidget {
                   DownloadButton.linux(link: linux.url),
                   const SizedBox(height: 8),
                 ],
-                if (Config.appStoreLink.isNotEmpty) ...[
+                if (Config.appStoreUrl.isNotEmpty) ...[
                   DownloadButton.appStore(),
                   const SizedBox(height: 8),
                 ],
@@ -107,7 +107,7 @@ class UpgradePopupView extends StatelessWidget {
                   DownloadButton.ios(link: ios.url),
                   const SizedBox(height: 8),
                 ],
-                if (Config.googlePlayLink.isNotEmpty) ...[
+                if (Config.googlePlayUrl.isNotEmpty) ...[
                   DownloadButton.googlePlay(),
                   const SizedBox(height: 8),
                 ],
@@ -180,12 +180,12 @@ class UpgradePopupView extends StatelessWidget {
                               ? () =>
                                   c.screen.value = UpgradePopupScreen.download
                               : PlatformUtils.isIOS &&
-                                      Config.appStoreLink.isNotEmpty
-                                  ? () => launchUrlString(Config.appStoreLink)
+                                      Config.appStoreUrl.isNotEmpty
+                                  ? () => launchUrlString(Config.appStoreUrl)
                                   : PlatformUtils.isAndroid &&
-                                          Config.googlePlayLink.isNotEmpty
+                                          Config.googlePlayUrl.isNotEmpty
                                       ? () =>
-                                          launchUrlString(Config.googlePlayLink)
+                                          launchUrlString(Config.googlePlayUrl)
                                       : null,
                           title: 'btn_download'.l10n,
                         ),

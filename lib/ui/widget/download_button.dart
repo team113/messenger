@@ -58,7 +58,7 @@ class DownloadButton extends StatelessWidget {
   DownloadButton.appStore({super.key})
       : asset = SvgIcons.appStore,
         title = 'App Store',
-        link = Config.appStoreLink,
+        link = Config.appStoreUrl,
         download = false;
 
   /// Constructs a [DownloadButton] for downloading the Android application.
@@ -72,7 +72,7 @@ class DownloadButton extends StatelessWidget {
   DownloadButton.googlePlay({super.key})
       : asset = SvgIcons.googlePlay,
         title = 'Google Play',
-        link = Config.googlePlayLink,
+        link = Config.googlePlayUrl,
         download = false;
 
   /// Asset to display as a prefix to this [DownloadButton].

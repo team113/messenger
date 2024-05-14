@@ -947,13 +947,13 @@ Widget _downloads(BuildContext context, MyProfileController c) {
         const SizedBox(height: 8),
         const DownloadButton.linux(),
         const SizedBox(height: 8),
-        if (Config.appStoreLink.isNotEmpty) ...[
+        if (Config.appStoreUrl.isNotEmpty) ...[
           DownloadButton.appStore(),
           const SizedBox(height: 8),
         ],
         const DownloadButton.ios(),
         const SizedBox(height: 8),
-        if (Config.googlePlayLink.isNotEmpty) ...[
+        if (Config.googlePlayUrl.isNotEmpty) ...[
           DownloadButton.googlePlay(),
           const SizedBox(height: 8),
         ],

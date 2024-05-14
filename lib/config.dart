@@ -67,10 +67,10 @@ class Config {
   static bool downloadable = true;
 
   /// URL of the application entry in App Store.
-  static String appStoreLink = 'https://apps.apple.com/app/gapopa/id6444211477';
+  static String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
 
   /// URL of the application entry in Google Play.
-  static String googlePlayLink =
+  static String googlePlayUrl =
       'https://play.google.com/store/apps/details?id=com.team113.messenger';
 
   /// VAPID (Voluntary Application Server Identification) key for Web Push.
@@ -172,13 +172,14 @@ class Config {
         ? const bool.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
         : (document['downloads']?['downloadable'] ?? downloadable);
 
-    appStoreLink = const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE')
-        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_APP_STORE')
-        : (document['downloads']?['app_store'] ?? appStoreLink);
+    appStoreUrl = const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+        : (document['downloads']?['app_store_url'] ?? appStoreUrl);
 
-    googlePlayLink = const bool.hasEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY')
-        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY')
-        : (document['downloads']?['google_play'] ?? googlePlayLink);
+    googlePlayUrl =
+        const bool.hasEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
+            ? const String.fromEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
+            : (document['downloads']?['google_play_url'] ?? googlePlayUrl);
 
     userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
