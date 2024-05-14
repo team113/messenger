@@ -32,7 +32,6 @@ devtools_options.yaml
 /lib/**/*.g.dart
 /lib/api/backend/*.dart
 /web/worker.dart.js
-/web/worker.dart.min.js
 
 # Symbolication and obfuscation related
 /debug/

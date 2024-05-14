@@ -96,8 +96,9 @@ Future<void> main() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
+    Get.put(DriftProvider());
+
     await _initHive();
-    _initDrift();
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
@@ -468,13 +469,6 @@ Future<void> _initHive() async {
     await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
-}
-
-/// Initializes a `drift` storage.
-void _initDrift() {
-  Get.put(DriftProvider());
-
-  // TODO: Move all logic happening in [_initHive] here.
 }
 
 /// Extension adding an ability to clean [Hive].

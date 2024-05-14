@@ -510,11 +510,7 @@ class UserRepository extends DisposableInterface
     if (e.$$typename == 'EventBlocklistRecordAdded') {
       final node =
           e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
-      return EventBlocklistRecordAdded(
-        e.user.toDto(),
-        e.at,
-        node.reason,
-      );
+      return EventBlocklistRecordAdded(e.user.toDto(), e.at, node.reason);
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
       return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
     } else {

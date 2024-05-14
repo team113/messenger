@@ -239,6 +239,7 @@ else
 	dart run build_runner build --delete-conflicting-outputs -o web:build/web/ \
 		$(if $(call eq,$(release),no),,--release)
 	cp -f build/web/worker.dart.js web/worker.dart.js
+	rm -f build/web/worker.dart
 endif
 
 
@@ -302,6 +303,11 @@ endif
 ifneq ($(gen),no)
 ifeq ($(wildcard test/e2e/*.g.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
+endif
+ifneq (,$(filter $(or $(device),chrome),chrome web-server))
+ifeq ($(wildcard web/worker.dart.js),)
+	@make flutter.gen.worker dockerized=$(dockerized)
+endif
 endif
 endif
 ifeq ($(start-app),yes)

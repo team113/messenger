@@ -111,6 +111,7 @@ class HiveRxUser extends RxUser {
   /// [UserRepository.userEvents] subscription.
   StreamQueue<UserEvents>? _remoteSubscription;
 
+  /// [UserDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
 
   /// [StreamController] for [updates] of this [HiveRxUser].
