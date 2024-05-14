@@ -316,17 +316,10 @@ targets:
                 name: SessionId
                 imports:
                   - "package:messenger/domain/model/session.dart"
-      build_web_compilers:entrypoint:
+      drift_dev:
+        enabled: true
         generate_for:
-          - web/**.dart
-        options:
-          compiler: dart2js
-        dev_options:
-          dart2js_args:
-            - --no-minify
-        release_options:
-          dart2js_args:
-            - -O4
+          - lib/provider/drift/**.dart
       messenger|pubspec_builder:
         enabled: true
 

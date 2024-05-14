@@ -139,7 +139,7 @@ ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 endif
 ifeq ($(platform),web)
 ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.gen.worker dockerized=$(dockerized)
+	@make flutter.worker dockerized=$(dockerized)
 endif
 endif
 ifeq ($(dockerized),yes)
@@ -223,26 +223,6 @@ else
 endif
 
 
-# Generate JavaScript code for SQLite web worker from Dart sources.
-#
-# Usage:
-#	make flutter.gen.worker [release=(yes|no)] [dockerized=(no|yes)]
-
-flutter.gen.worker:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make flutter.gen.worker release=$(release) dockerized=no
-else
-	rm -f web/worker.dart.js
-	dart run build_runner build --delete-conflicting-outputs -o web:build/web/ \
-		$(if $(call eq,$(release),no),,--release)
-	cp -f build/web/worker.dart.js web/worker.dart.js
-	rm -f build/web/worker.dart
-endif
-
-
 # Resolve Flutter project dependencies.
 #
 # Usage:
@@ -272,7 +252,7 @@ ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 endif
 ifeq ($(device),web)
 ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.gen.worker dockerized=$(dockerized)
+	@make flutter.worker dockerized=$(dockerized)
 endif
 endif
 	flutter run $(if $(call eq,$(debug),no),--release,) \
@@ -280,6 +260,21 @@ endif
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 
 
+# Compiles JavaScript code for `drift` web worker from Dart sources.
+#
+# Usage:
+#	make flutter.worker [dockerized=(no|yes)]
+
+flutter.worker:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.worker dockerized=no
+else
+	dart compile js web/worker.dart -o web/worker.dart.js -O4
+	rm -f web/worker.dart.js.deps web/worker.dart.js.map
+endif
 
 
 ####################
@@ -306,7 +301,7 @@ ifeq ($(wildcard test/e2e/*.g.dart),)
 endif
 ifneq (,$(filter $(or $(device),chrome),chrome web-server))
 ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.gen.worker dockerized=$(dockerized)
+	@make flutter.worker dockerized=$(dockerized)
 endif
 endif
 endif
@@ -972,7 +967,7 @@ sentry.upload:
         docs.dart \
         fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        flutter.gen.worker flutter.pub flutter.run \
+        flutter.pub flutter.run flutter.worker\
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
