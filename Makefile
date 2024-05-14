@@ -137,6 +137,11 @@ flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
 endif
+ifeq ($(platform),web)
+ifeq ($(wildcard web/worker.dart.js),)
+	@make flutter.gen.worker overwrite=yes dockerized=$(dockerized)
+endif
+endif
 ifeq ($(dockerized),yes)
 ifeq ($(platform),macos)
 	$(error Dockerized macOS build is not supported)
@@ -218,13 +223,25 @@ else
 endif
 
 
+# Generate JavaScript code for SQLite web worker from Dart sources.
+#
+# Usage:
+#	make flutter.gen.worker [dockerized=(no|yes)]
+
 flutter.gen.worker:
-	rm -f web/worker.dart.js
-	rm -f web/worker.dart.min.js
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.gen.worker dockerized=no
+else
+	rm -f web/worker.dart.js web/worker.dart.min.js
 	dart run build_runner build --delete-conflicting-outputs -o web:build/web/
 	cp -f build/web/worker.dart.js web/worker.dart.js
-	dart run build_runner build --release --delete-conflicting-outputs -o web:build/web/
+	dart run build_runner build --delete-conflicting-outputs -o web:build/web/ \
+		--release
 	cp -f build/web/worker.dart.js web/worker.dart.min.js
+endif
 
 
 # Resolve Flutter project dependencies.
@@ -946,7 +963,7 @@ sentry.upload:
         docs.dart \
         fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        flutter.pub flutter.run \
+        flutter.gen.worker flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \

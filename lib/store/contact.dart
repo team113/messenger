@@ -805,7 +805,7 @@ class ContactRepository extends DisposableInterface
                 // Add the [entity.value] to the [node.user], as [User] has no
                 // events about its [User.contacts] list changes.
                 for (var e in entity.value.users) {
-                  _userRepo.addContact(entity.value, e.id);
+                  await _userRepo.addContact(entity.value, e.id);
                 }
                 break;
 
@@ -829,7 +829,7 @@ class ContactRepository extends DisposableInterface
 
                 // Add the [entity.value] to the [node.user], as [User] has no
                 // events about its [User.contacts] list changes.
-                _userRepo.addContact(entity.value, node.user.id);
+                await _userRepo.addContact(entity.value, node.user.id);
                 break;
 
               case ChatContactEventKind.userRemoved:
@@ -838,7 +838,7 @@ class ContactRepository extends DisposableInterface
 
                 // Remove the [node.contactId] from the [node.userId], as [User]
                 // has no events about its [User.contacts] list changes.
-                _userRepo.removeContact(node.contactId, node.userId);
+                await _userRepo.removeContact(node.contactId, node.userId);
                 break;
 
               case ChatContactEventKind.created:

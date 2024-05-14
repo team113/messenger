@@ -315,7 +315,7 @@ class UserController extends GetxController {
           scheme: 'mailto',
           path: Config.support,
           query: encodeQueryParameters({
-            'subject': '[App] Report on UserId($id)',
+            'subject': '[Abuse] Report on UserId($id)',
             'body': '${reporting.text}\n\n',
           }),
         ),
@@ -340,6 +340,7 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
+      print('======= contactId: $contactId');
       if (contactId != null) {
         await _contactService.favoriteChatContact(contactId!);
       }

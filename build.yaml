@@ -1,27 +1,11 @@
 targets:
-  # web:
-  #   sources:
-  #     - web/**.dart
-  #   builders:
-  #     artemis:
-  #       enabled: false
-  #     build_web_compilers:entrypoint:
-  #       generate_for:
-  #         - web/**.dart
-  #       options:
-  #         compiler: dart2js
-  #       dev_options:
-  #         dart2js_args:
-  #           - --no-minify
-  #       release_options:
-  #         dart2js_args:
-  #           - -O4
   $default:
     sources:
       - $package$
       - lib/**
       - schema.graphql
       - test/**
+      - web/**.dart
     builders:
       artemis:
         options:
@@ -332,6 +316,17 @@ targets:
                 name: SessionId
                 imports:
                   - "package:messenger/domain/model/session.dart"
+      build_web_compilers:entrypoint:
+        generate_for:
+          - web/**.dart
+        options:
+          compiler: dart2js
+        dev_options:
+          dart2js_args:
+            - --no-minify
+        release_options:
+          dart2js_args:
+            - -O4
       messenger|pubspec_builder:
         enabled: true
 

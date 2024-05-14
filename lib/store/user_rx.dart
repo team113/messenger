@@ -81,6 +81,13 @@ class HiveRxUser extends RxUser {
         }
       }
     });
+
+    _localSubscription = _userLocal.watch(id).listen((e) {
+      if (e != null) {
+        print('===== GOT LOCAL SUB($id): ${e.value.contacts}');
+        user.value = e.value;
+      }
+    });
   }
 
   @override
@@ -103,6 +110,8 @@ class HiveRxUser extends RxUser {
 
   /// [UserRepository.userEvents] subscription.
   StreamQueue<UserEvents>? _remoteSubscription;
+
+  StreamSubscription? _localSubscription;
 
   /// [StreamController] for [updates] of this [HiveRxUser].
   ///
@@ -150,6 +159,7 @@ class HiveRxUser extends RxUser {
 
     _lastSeenTimer?.cancel();
     _worker?.dispose();
+    _localSubscription?.cancel();
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
