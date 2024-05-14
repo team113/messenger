@@ -317,9 +317,9 @@ targets:
                 imports:
                   - "package:messenger/domain/model/session.dart"
       drift_dev:
-        enabled: true
         generate_for:
-          - lib/provider/drift/**.dart
+          include:
+            - lib/provider/drift/**.dart
       messenger|pubspec_builder:
         enabled: true
 
