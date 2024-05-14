@@ -17,10 +17,7 @@
 
 import 'package:drift/drift.dart';
 
+/// Obtains a database connection for running `drift`.
 QueryExecutor connect() {
-  throw UnsupportedError('`drift` isn\'t supported on this platform.');
-}
-
-Future<void> validateDatabaseSchema(GeneratedDatabase database) async {
   throw UnsupportedError('`drift` isn\'t supported on this platform.');
 }

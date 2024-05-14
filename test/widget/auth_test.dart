@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -31,6 +32,8 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -46,7 +49,6 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/chat.dart';
@@ -70,6 +72,8 @@ void main() async {
   Config.clsid = 'clsid';
   await L10n.init();
 
+  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+
   Hive.init('./test/.temp_hive/auth_widget');
 
   var credentialsProvider = CredentialsHiveProvider();
@@ -80,24 +84,13 @@ void main() async {
   await accountProvider.init();
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
+  await myUserProvider.clear();
 
-  var graphQlProvider = _FakeGraphQlProvider();
-  AuthRepository authRepository = AuthRepository(
-    graphQlProvider,
-    myUserProvider,
-    credentialsProvider,
-  );
-  AuthService authService = AuthService(
-    authRepository,
-    credentialsProvider,
-    accountProvider,
-  );
-  authService.init();
+  final graphQlProvider = _FakeGraphQlProvider();
 
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
-  var userProvider = UserHiveProvider();
-  await userProvider.init(userId: const UserId('me'));
+  final userProvider = UserDriftProvider(database);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init(userId: const UserId('me'));
   var settingsProvider = MediaSettingsHiveProvider();
@@ -143,7 +136,7 @@ void main() async {
     Get.put(NotificationService(graphQlProvider));
     Get.put(monologProvider);
 
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(
           Get.find(),
@@ -211,6 +204,8 @@ void main() async {
 
     await Get.deleteAll(force: true);
   });
+
+  tearDown(() async => await database.close());
 }
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {

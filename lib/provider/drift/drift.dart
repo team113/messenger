@@ -25,6 +25,7 @@ import 'user.dart';
 
 part 'drift.g.dart';
 
+/// [DriftDatabase] provider for storing data locally.
 @DriftDatabase(tables: [Users])
 class DriftProvider extends _$DriftProvider {
   DriftProvider([QueryExecutor? e]) : super(e ?? connect());
@@ -55,11 +56,14 @@ class DriftProvider extends _$DriftProvider {
   }
 }
 
+/// [DriftProvider] base provider, exposing common methods for [db].
 class DriftProviderBase {
-  DriftProviderBase(this.db);
+  const DriftProviderBase(this.db);
 
+  /// [DriftProvider] itself.
   final DriftProvider db;
 
+  /// Completes the provided [action] as a transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await db.transaction(action);
   }

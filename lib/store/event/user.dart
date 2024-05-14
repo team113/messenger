@@ -20,7 +20,6 @@ import '/domain/model/avatar.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/drift/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
 import 'my_user.dart' show BlocklistEvent;

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -25,13 +26,14 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
@@ -49,7 +51,11 @@ void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
+
+  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+
   Hive.init('./test/.temp_hive/password_recovery');
+
   await L10n.init();
 
   var credentialsProvider = CredentialsHiveProvider();
@@ -63,8 +69,7 @@ void main() async {
   await myUserProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  final userProvider = UserDriftProvider(database);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
 
@@ -164,4 +169,6 @@ void main() async {
 
     await Get.deleteAll(force: true);
   });
+
+  tearDown(() async => await database.close());
 }

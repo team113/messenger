@@ -40,8 +40,8 @@ class Users extends Table {
   TextColumn get num => text().unique()();
   TextColumn get name => text().nullable()();
   TextColumn get bio => text().nullable()();
-  TextColumn get avatar => text().nullable()(); // JSON
-  TextColumn get callCover => text().nullable()(); // JSON
+  TextColumn get avatar => text().nullable()();
+  TextColumn get callCover => text().nullable()();
   IntColumn get mutualContactsCount =>
       integer().withDefault(const Constant(0))();
   BoolColumn get online => boolean().withDefault(const Constant(false))();
@@ -49,11 +49,10 @@ class Users extends Table {
   TextColumn get status => text().nullable()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get dialog => text().nullable()();
-  TextColumn get isBlocked => text().nullable()(); // JSON
+  TextColumn get isBlocked => text().nullable()();
   IntColumn get lastSeenAt =>
       integer().nullable().map(const PreciseDateTimeConverter())();
-  TextColumn get contacts =>
-      text().withDefault(const Constant('[]'))(); // Array of JSONs
+  TextColumn get contacts => text().withDefault(const Constant('[]'))();
   TextColumn get ver => text()();
   TextColumn get blockedVer => text()();
 }
@@ -109,7 +108,7 @@ class UserDriftProvider extends DriftProviderBase {
 
     StreamController<DtoUser?>? controller = _controllers[id];
     if (controller == null) {
-      controller = StreamController<DtoUser?>.broadcast();
+      controller = StreamController<DtoUser?>.broadcast(sync: true);
       _controllers[id] = controller;
     }
 
@@ -120,32 +119,6 @@ class UserDriftProvider extends DriftProviderBase {
       ],
     );
   }
-}
-
-/// Persisted in [Users] storage [User]'s [value].
-class DtoUser {
-  DtoUser(this.value, this.ver, this.blockedVer);
-
-  /// Persisted [User] model.
-  User value;
-
-  /// Version of this [User]'s state.
-  ///
-  /// It increases monotonically, so may be used (and is intended to) for
-  /// tracking state's actuality.
-  UserVersion ver;
-
-  /// Version of the authenticated [MyUser]'s blocklist state.
-  ///
-  /// It increases monotonically, so may be used (and is intended to) for
-  /// tracking state's actuality.
-  MyUserVersion blockedVer;
-
-  /// Returns the [UserId] of [value].
-  UserId get id => value.id;
-
-  @override
-  String toString() => '$runtimeType($value, $ver, $blockedVer)';
 }
 
 /// Extension adding conversion methods from [UserRow] to [DtoUser].

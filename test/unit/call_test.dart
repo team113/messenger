@@ -62,82 +62,18 @@ import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
 
-Map<String, dynamic> _caller([String? id]) => {
-      'id': id ?? 'id',
-      'num': '1234567890123456',
-      'mutualContactsCount': 0,
-      'contacts': [],
-      'isDeleted': false,
-      'isBlocked': {'ver': '0'},
-      'presence': 'AWAY',
-      'ver': '0',
-    };
-
-var chatData = {
-  'id': 'chatId',
-  'name': null,
-  'avatar': null,
-  'members': {'nodes': [], 'totalCount': 0},
-  'kind': 'GROUP',
-  'isHidden': false,
-  'muted': null,
-  'directLink': null,
-  'createdAt': '2021-12-15T15:11:18.316846+00:00',
-  'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-  'lastReads': [],
-  'lastDelivery': '1970-01-01T00:00:00+00:00',
-  'lastItem': null,
-  'lastReadItem': null,
-  'unreadCount': 0,
-  'totalCount': 0,
-  'ongoingCall': null,
-  'ver': '0'
-};
-
-var chatsQuery = {
-  'recentChats': {
-    'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
-    ],
-    'pageInfo': {
-      'endCursor': 'endCursor',
-      'hasNextPage': false,
-      'startCursor': 'startCursor',
-      'hasPreviousPage': false,
-    }
-  }
-};
-
-var favoriteQuery = {
-  'favoriteChats': {
-    'edges': [],
-    'pageInfo': {
-      'endCursor': 'endCursor',
-      'hasNextPage': false,
-      'startCursor': 'startCursor',
-      'hasPreviousPage': false,
-    },
-    'ver': '0'
-  }
-};
-
-late DriftProvider _database;
+late DriftProvider database;
 
 void main() async {
   setUp(() {
     Get.reset();
-    _database = DriftProvider(NativeDatabase.memory());
+    database = DriftProvider(NativeDatabase.memory());
   });
-  tearDown(() async => await _database.close());
 
   Hive.init('./test/.temp_hive/unit_call');
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  final userProvider = UserDriftProvider(_database);
   var credentialsProvider = CredentialsHiveProvider();
   await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -169,7 +105,8 @@ void main() async {
   await accountProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
-    await userProvider.clear();
+    final userProvider = Get.put(UserDriftProvider(database));
+
     accountProvider.set(const UserId('me'));
     credentialsProvider.put(
       Credentials(
@@ -346,24 +283,26 @@ void main() async {
   });
 
   test('CallService registers and successfully answers the call', () async {
+    final userProvider = Get.put(UserDriftProvider(database));
+
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(AuthRepository(
+    final AuthRepository authRepository = Get.put(AuthRepository(
       graphQlProvider,
       myUserProvider,
       credentialsProvider,
     ));
-    AuthService authService = Get.put(AuthService(
+    final AuthService authService = Get.put(AuthService(
       authRepository,
       credentialsProvider,
       accountProvider,
     ));
     authService.init();
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -382,7 +321,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatRepository chatRepository = Get.put(
+    final ChatRepository chatRepository = Get.put(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -396,8 +335,9 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    CallService callService = Get.put(
+    final ChatService chatService =
+        Get.put(ChatService(chatRepository, authService));
+    final CallService callService = Get.put(
       CallService(authService, chatService, callRepository),
     );
     callService.onReady();
@@ -430,6 +370,8 @@ void main() async {
   });
 
   test('CallService registers and successfully starts the call', () async {
+    final userProvider = Get.put(UserDriftProvider(database));
+
     final graphQlProvider = _FakeGraphQlProvider();
 
     AuthRepository authRepository = Get.put(AuthRepository(
@@ -567,6 +509,8 @@ void main() async {
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
   });
+
+  tearDown(() async => await database.close());
 }
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {
@@ -882,3 +826,65 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     return GetMessage$Query.fromJson({'chatItem': null});
   }
 }
+
+Map<String, dynamic> _caller([String? id]) => {
+      'id': id ?? 'id',
+      'num': '1234567890123456',
+      'mutualContactsCount': 0,
+      'contacts': [],
+      'isDeleted': false,
+      'isBlocked': {'ver': '0'},
+      'presence': 'AWAY',
+      'ver': '0',
+    };
+
+final chatData = {
+  'id': 'chatId',
+  'name': null,
+  'avatar': null,
+  'members': {'nodes': [], 'totalCount': 0},
+  'kind': 'GROUP',
+  'isHidden': false,
+  'muted': null,
+  'directLink': null,
+  'createdAt': '2021-12-15T15:11:18.316846+00:00',
+  'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+  'lastReads': [],
+  'lastDelivery': '1970-01-01T00:00:00+00:00',
+  'lastItem': null,
+  'lastReadItem': null,
+  'unreadCount': 0,
+  'totalCount': 0,
+  'ongoingCall': null,
+  'ver': '0'
+};
+
+final chatsQuery = {
+  'recentChats': {
+    'edges': [
+      {
+        'node': chatData,
+        'cursor': 'cursor',
+      }
+    ],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  }
+};
+
+final favoriteQuery = {
+  'favoriteChats': {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    },
+    'ver': '0'
+  }
+};

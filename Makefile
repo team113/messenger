@@ -139,7 +139,7 @@ ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 endif
 ifeq ($(platform),web)
 ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.gen.worker overwrite=yes dockerized=$(dockerized)
+	@make flutter.gen.worker dockerized=$(dockerized)
 endif
 endif
 ifeq ($(dockerized),yes)
@@ -226,21 +226,19 @@ endif
 # Generate JavaScript code for SQLite web worker from Dart sources.
 #
 # Usage:
-#	make flutter.gen.worker [dockerized=(no|yes)]
+#	make flutter.gen.worker [release=(yes|no)] [dockerized=(no|yes)]
 
 flutter.gen.worker:
 ifeq ($(dockerized),yes)
 	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make flutter.gen.worker dockerized=no
+			make flutter.gen.worker release=$(release) dockerized=no
 else
-	rm -f web/worker.dart.js web/worker.dart.min.js
-	dart run build_runner build --delete-conflicting-outputs -o web:build/web/
-	cp -f build/web/worker.dart.js web/worker.dart.js
+	rm -f web/worker.dart.js
 	dart run build_runner build --delete-conflicting-outputs -o web:build/web/ \
-		--release
-	cp -f build/web/worker.dart.js web/worker.dart.min.js
+		$(if $(call eq,$(release),no),,--release)
+	cp -f build/web/worker.dart.js web/worker.dart.js
 endif
 
 
@@ -270,6 +268,11 @@ endif
 flutter.run:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
+endif
+ifeq ($(device),web)
+ifeq ($(wildcard web/worker.dart.js),)
+	@make flutter.gen.worker dockerized=$(dockerized)
+endif
 endif
 	flutter run $(if $(call eq,$(debug),no),--release,) \
 		$(if $(call eq,$(device),),,-d $(device)) \

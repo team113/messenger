@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -24,6 +25,8 @@ import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/chat.dart';
@@ -32,7 +35,6 @@ import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -44,11 +46,12 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
+  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+
   var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
   await credentialsHiveProvider.init();
   await credentialsHiveProvider.clear();
-  var userHiveProvider = Get.put(UserHiveProvider());
-  await userHiveProvider.init();
+  final userProvider = Get.put(UserDriftProvider(database));
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -133,7 +136,7 @@ void main() async {
   };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
-    UserRepository userRepo = UserRepository(graphQlProvider, userHiveProvider);
+    UserRepository userRepo = UserRepository(graphQlProvider, userProvider);
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(
@@ -260,4 +263,6 @@ void main() async {
       ),
     );
   });
+
+  tearDown(() async => await database.close());
 }

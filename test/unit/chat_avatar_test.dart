@@ -17,6 +17,7 @@
 
 import 'dart:typed_data';
 
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -28,6 +29,8 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -45,7 +48,6 @@ import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -58,31 +60,18 @@ import 'chat_avatar_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
+  setUp(Get.reset);
+
+  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+
   Hive.init('./test/.temp_hive/chat_avatar_unit');
-  var userData = {
-    '__typename': 'User',
-    'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
-    'num': '7461878581615099',
-    'name': 'user',
-    'avatar': null,
-    'callCover': null,
-    'mutualContactsCount': 0,
-    'contacts': [],
-    'online': {'__typename': 'UserOnline'},
-    'presence': 'PRESENT',
-    'status': null,
-    'isDeleted': false,
-    'dialog': null,
-    'isBlocked': {'ver': '1'},
-    'ver': '2'
-  };
 
   var credentialsProvider = CredentialsHiveProvider();
   await credentialsProvider.init();
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await credentialsProvider.init();
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
@@ -90,9 +79,7 @@ void main() async {
   var chatHiveProvider = ChatHiveProvider();
   await chatHiveProvider.init();
   await chatHiveProvider.clear();
-  var userHiveProvider = UserHiveProvider();
-  await userHiveProvider.init();
-  await userHiveProvider.clear();
+  final userProvider = UserDriftProvider(database);
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -118,12 +105,6 @@ void main() async {
   await sessionProvider.init();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-
-  Get.put(myUserProvider);
-  Get.put(userHiveProvider);
-  Get.put(chatHiveProvider);
-  Get.put(credentialsProvider);
-  Get.put<GraphQlProvider>(graphQlProvider);
 
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
@@ -188,7 +169,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
+          graphQlProvider,
           myUserProvider,
           credentialsProvider,
         )),
@@ -198,8 +179,8 @@ void main() async {
     );
     authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userHiveProvider);
+    final UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -210,7 +191,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatRepository chatRepository = ChatRepository(
+    final ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
       recentChatProvider,
@@ -223,7 +204,7 @@ void main() async {
       me: const UserId('me'),
     );
 
-    ChatService chatService = ChatService(chatRepository, authService);
+    final ChatService chatService = ChatService(chatRepository, authService);
 
     await chatService.updateChatAvatar(
       const ChatId('123'),
@@ -286,7 +267,7 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
+          graphQlProvider,
           myUserProvider,
           credentialsProvider,
         )),
@@ -296,8 +277,8 @@ void main() async {
     );
     authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userHiveProvider);
+    final UserRepository userRepository =
+        UserRepository(graphQlProvider, userProvider);
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -308,7 +289,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatRepository chatRepository = ChatRepository(
+    final ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
       recentChatProvider,
@@ -321,7 +302,7 @@ void main() async {
       me: const UserId('me'),
     );
 
-    ChatService chatService = ChatService(chatRepository, authService);
+    final ChatService chatService = ChatService(chatRepository, authService);
 
     Object? exception;
 
@@ -374,4 +355,24 @@ void main() async {
       ),
     ]);
   });
+
+  tearDown(() async => await database.close());
 }
+
+final userData = {
+  '__typename': 'User',
+  'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
+  'num': '7461878581615099',
+  'name': 'user',
+  'avatar': null,
+  'callCover': null,
+  'mutualContactsCount': 0,
+  'contacts': [],
+  'online': {'__typename': 'UserOnline'},
+  'presence': 'PRESENT',
+  'status': null,
+  'isDeleted': false,
+  'dialog': null,
+  'isBlocked': {'ver': '1'},
+  'ver': '2'
+};
