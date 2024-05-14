@@ -54,7 +54,7 @@ class UserRepository extends DisposableInterface
   );
 
   @override
-  final RxMap<UserId, HiveRxUser> users = RxMap();
+  final RxMap<UserId, RxUserImpl> users = RxMap();
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
@@ -139,7 +139,7 @@ class UserRepository extends DisposableInterface
   @override
   FutureOr<RxUser?> get(UserId id) {
     // Return the stored user instance, if it exists.
-    final HiveRxUser? user = users[id];
+    final RxUserImpl? user = users[id];
     if (user != null) {
       return user;
     }
@@ -153,17 +153,22 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      HiveRxUser? user = users[id];
+      RxUserImpl? user = users[id];
 
       if (user == null) {
-        final response = (await _graphQlProvider.getUser(id)).user;
-        if (response != null) {
-          final DtoUser dto = response.toDto();
-          put(dto);
+        final DtoUser? stored = await _userLocal.read(id);
+        if (stored != null) {
+          final RxUserImpl rxUser = RxUserImpl(this, _userLocal, stored);
+          return users[id] = rxUser;
+        } else {
+          final response = (await _graphQlProvider.getUser(id)).user;
+          if (response != null) {
+            final DtoUser dto = response.toDto();
+            put(dto);
 
-          final HiveRxUser rxUser = HiveRxUser(this, _userLocal, dto);
-          users[id] = rxUser;
-          user = rxUser;
+            final RxUserImpl rxUser = RxUserImpl(this, _userLocal, dto);
+            return users[id] = rxUser;
+          }
         }
       }
 

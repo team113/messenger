@@ -143,15 +143,15 @@ class BlocklistRepository extends DisposableInterface
     if (!pagination) {
       await _pagination.put(record);
     } else {
-      _add(record.value.userId);
+      await Future.wait([
+        _add(record.value.userId),
 
-      // TODO: https://github.com/team113/messenger/issues/27
-      // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
-      // synchronization, thus writes from multiple applications may lead to
-      // missing events.
-      if (!WebUtils.isPopup) {
-        await _blocklistLocal.put(record);
-      }
+        // TODO: https://github.com/team113/messenger/issues/27
+        // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
+        // synchronization, thus writes from multiple applications may lead to
+        // missing events.
+        if (!WebUtils.isPopup) _blocklistLocal.put(record),
+      ]);
     }
   }
 
@@ -197,7 +197,7 @@ class BlocklistRepository extends DisposableInterface
   }
 
   /// Adds the [User] with the specified [userId] to the [blocklist].
-  FutureOr<void> _add(UserId userId) {
+  Future<void> _add(UserId userId) async {
     Log.debug('_add($userId)', '$runtimeType');
 
     final RxUser? user = blocklist[userId];
@@ -209,9 +209,10 @@ class BlocklistRepository extends DisposableInterface
           blocklist[userId] = userOrFuture;
         }
       } else {
-        return userOrFuture.then(
-          (user) => user != null ? blocklist[userId] = user : null,
-        );
+        final user = await userOrFuture;
+        if (user != null) {
+          blocklist[userId] = user;
+        }
       }
     }
   }
@@ -272,15 +273,15 @@ class BlocklistRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    _paginationSubscription = _pagination.changes.listen((event) {
+    _paginationSubscription = _pagination.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          put(event.value!, pagination: true);
+          await put(event.value!, pagination: true);
           break;
 
         case OperationKind.removed:
-          remove(event.key!);
+          await remove(event.key!);
           break;
       }
     });

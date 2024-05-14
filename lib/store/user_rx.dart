@@ -36,8 +36,8 @@ import '/util/stream_utils.dart';
 import 'model/user.dart';
 
 /// [RxUser] implementation backed by local [DriftProvider] storage.
-class HiveRxUser extends RxUser {
-  HiveRxUser(
+class RxUserImpl extends RxUser {
+  RxUserImpl(
     this._userRepository,
     this._userLocal,
     DtoUser dto,
@@ -114,7 +114,7 @@ class HiveRxUser extends RxUser {
   /// [UserDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
 
-  /// [StreamController] for [updates] of this [HiveRxUser].
+  /// [StreamController] for [updates] of this [RxUserImpl].
   ///
   /// Behaves like a reference counter: when [updates] are listened to, this
   /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
@@ -154,7 +154,7 @@ class HiveRxUser extends RxUser {
   @override
   Stream<void> get updates => _controller.stream;
 
-  /// Disposes this [HiveRxUser].
+  /// Disposes this [RxUserImpl].
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
 

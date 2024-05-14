@@ -54,7 +54,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
             }),
           )
           .first,
-      dy: 200,
+      dy: 50,
     );
 
     await context.world.appDriver.waitForAppToSettle();
@@ -136,7 +136,11 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
       final ScrollPosition position = state.position;
 
       if (await isPresent(finder)) {
-        await Scrollable.ensureVisible(finder.evaluate().first);
+        await Scrollable.ensureVisible(
+          finder.evaluate().first,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 1000),
+        );
 
         // If [finder] is present and it's within our view, then break the loop.
         if (tester.getCenter(finder.first).dy <= height - dy ||

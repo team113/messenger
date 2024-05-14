@@ -22,7 +22,8 @@ Feature: Chats pagination
     And Alice has 16 groups
     And I sign in as Alice
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     Then I wait until `Chats` is present
     And I see 15 chats
 
@@ -55,7 +56,8 @@ Feature: Chats pagination
     And Alice has 16 favorite groups
     And I sign in as Alice
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     Then I see 15 favorite chats
 
     When I scroll `Chats` to bottom
@@ -67,7 +69,8 @@ Feature: Chats pagination
     And Alice has 15 groups
     And I sign in as Alice
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     Then I see 15 favorite chats
 
     When I scroll `Chats` to bottom
