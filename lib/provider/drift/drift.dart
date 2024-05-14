@@ -29,8 +29,8 @@ part 'drift.g.dart';
 
 /// [DriftDatabase] storing data locally.
 @DriftDatabase(tables: [Users])
-class Database extends _$DriftProvider {
-  Database([QueryExecutor? e]) : super(e ?? connect());
+class AppDatabase extends _$AppDatabase {
+  AppDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
   int get schemaVersion => 1;
@@ -58,14 +58,14 @@ class Database extends _$DriftProvider {
   }
 }
 
-/// [Database] provider.
+/// [AppDatabase] provider.
 final class DriftProvider extends DisposableInterface {
-  DriftProvider([QueryExecutor? e]) : db = Database(e);
+  DriftProvider([QueryExecutor? e]) : db = AppDatabase(e);
 
-  /// [Database] itself.
-  final Database db;
+  /// [AppDatabase] itself.
+  final AppDatabase db;
 
-  /// Closes the [Database].
+  /// Closes the [AppDatabase].
   @visibleForTesting
   Future<void> close() async {
     await db.close();
@@ -85,8 +85,8 @@ abstract class DriftProviderBase {
   /// [DriftProvider] itself.
   final DriftProvider _provider;
 
-  /// Returns the [Database].
-  Database get db => _provider.db;
+  /// Returns the [AppDatabase].
+  AppDatabase get db => _provider.db;
 
   /// Completes the provided [action] as a transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
