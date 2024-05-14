@@ -17,7 +17,7 @@
 
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Value;
 import 'package:log_me/log_me.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
