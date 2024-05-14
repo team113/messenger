@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:get/get.dart';
 import 'package:log_me/log_me.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -25,10 +27,10 @@ import 'user.dart';
 
 part 'drift.g.dart';
 
-/// [DriftDatabase] provider for storing data locally.
+/// [DriftDatabase] storing data locally.
 @DriftDatabase(tables: [Users])
-class DriftProvider extends _$DriftProvider {
-  DriftProvider([QueryExecutor? e]) : super(e ?? connect());
+class Database extends _$DriftProvider {
+  Database([QueryExecutor? e]) : super(e ?? connect());
 
   @override
   int get schemaVersion => 1;
@@ -56,12 +58,35 @@ class DriftProvider extends _$DriftProvider {
   }
 }
 
-/// [DriftProvider] base provider, exposing common methods for [db].
-class DriftProviderBase {
-  const DriftProviderBase(this.db);
+/// [Database] provider.
+final class DriftProvider extends DisposableInterface {
+  DriftProvider([QueryExecutor? e]) : db = Database(e);
+
+  /// [Database] itself.
+  final Database db;
+
+  /// Closes the [Database].
+  @visibleForTesting
+  Future<void> close() async {
+    await db.close();
+  }
+
+  @override
+  void onClose() async {
+    await close();
+    super.onClose();
+  }
+}
+
+/// [DriftProvider] with common helper and utility methods over it.
+abstract class DriftProviderBase {
+  const DriftProviderBase(this._provider);
 
   /// [DriftProvider] itself.
-  final DriftProvider db;
+  final DriftProvider _provider;
+
+  /// Returns the [Database].
+  Database get db => _provider.db;
 
   /// Completes the provided [action] as a transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
