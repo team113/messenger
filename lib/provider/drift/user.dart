@@ -15,8 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:async/async.dart';
 import 'package:drift/drift.dart';
 
 import '/domain/model/avatar.dart';
@@ -60,58 +62,69 @@ class Users extends Table {
 class UserDriftProvider extends DriftProviderBase {
   UserDriftProvider(super.database);
 
-  Future<DriftUser> create(DriftUser user) async {
-    return UserDb.fromDb(await db.into(db.users).insertReturning(user.toDb()));
-  }
+  /// [StreamController] emitting [DtoUser]s in [watch]
+  final Map<UserId, StreamController<DtoUser?>> _controllers = {};
 
-  Future<DriftUser?> read(UserId id) async {
-    final dto = await (db.select(db.users)..where((u) => u.id.equals(id.val)))
-        .getSingleOrNull();
-
-    if (dto == null) {
-      return null;
-    }
-
-    return UserDb.fromDb(dto);
-  }
-
-  Future<void> update(DriftUser user) async {
-    final stmt = db.update(db.users);
-    await stmt.replace(user.toDb());
-  }
-
-  Future<void> delete(UserId id) async {
-    final stmt = db.delete(db.users);
-    stmt.where((e) => e.id.equals(id.val));
-    await stmt.go();
-  }
-
-  Future<void> clear() async => await db.delete(db.users).go();
-
-  Future<DriftUser> upsert(DriftUser user) async {
-    return UserDb.fromDb(
+  /// Creates or updates the provided [user] in the database.
+  Future<DtoUser> upsert(DtoUser user) async {
+    final DtoUser stored = _UserDb.fromDb(
       await db
           .into(db.users)
           .insertReturning(user.toDb(), mode: InsertMode.replace),
     );
+
+    _controllers[stored.id]?.add(stored);
+
+    return stored;
   }
 
-  Stream<DriftUser?> watch(UserId id) {
+  /// Returns the [DtoUser] stored in the database by the provided [id], if
+  /// any.
+  Future<DtoUser?> read(UserId id) async {
+    final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
+    final UserRow? row = await stmt.getSingleOrNull();
+
+    if (row == null) {
+      return null;
+    }
+
+    return _UserDb.fromDb(row);
+  }
+
+  /// Deletes the [DtoUser] identified by the provided [id] from the database.
+  Future<void> delete(UserId id) async {
+    final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
+    await stmt.go();
+
+    _controllers[id]?.add(null);
+  }
+
+  /// Deletes all the [DtoUser] stored in the database.
+  Future<void> clear() async => await db.delete(db.users).go();
+
+  /// Returns the [Stream] of real-time changes happening with the [DtoUser]
+  /// identified by the provided [id].
+  Stream<DtoUser?> watch(UserId id) {
     final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
 
-    return stmt.watch().map((e) {
-      if (e.isEmpty) {
-        return null;
-      }
+    StreamController<DtoUser?>? controller = _controllers[id];
+    if (controller == null) {
+      controller = StreamController<DtoUser?>.broadcast();
+      _controllers[id] = controller;
+    }
 
-      return UserDb.fromDb(e.first);
-    });
+    return StreamGroup.merge(
+      [
+        controller.stream,
+        stmt.watch().map((e) => e.isEmpty ? null : _UserDb.fromDb(e.first)),
+      ],
+    );
   }
 }
 
 /// Persisted in [Users] storage [User]'s [value].
-class DriftUser {
-  DriftUser(this.value, this.ver, this.blockedVer);
+class DtoUser {
+  DtoUser(this.value, this.ver, this.blockedVer);
 
   /// Persisted [User] model.
   User value;
@@ -128,13 +141,18 @@ class DriftUser {
   /// tracking state's actuality.
   MyUserVersion blockedVer;
 
+  /// Returns the [UserId] of [value].
+  UserId get id => value.id;
+
   @override
   String toString() => '$runtimeType($value, $ver, $blockedVer)';
 }
 
-extension UserDb on DriftUser {
-  static DriftUser fromDb(UserRow e) {
-    return DriftUser(
+/// Extension adding conversion methods from [UserRow] to [DtoUser].
+extension _UserDb on DtoUser {
+  /// Returns the [DtoUser] from the provided [UserRow].
+  static DtoUser fromDb(UserRow e) {
+    return DtoUser(
       User(
         UserId(e.id),
         UserNum(e.num),
@@ -166,6 +184,7 @@ extension UserDb on DriftUser {
     );
   }
 
+  /// Returns the [UserRow] from this [DtoUser].
   UserRow toDb() {
     return UserRow(
       id: value.id.val,

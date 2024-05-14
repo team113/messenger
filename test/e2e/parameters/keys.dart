@@ -94,6 +94,7 @@ enum WidgetKey {
   HideChatButton,
   HideForMe,
   HomeView,
+  IntroductionScrollable,
   IntroductionView,
   KeepCredentialsSwitch,
   Language,

@@ -340,7 +340,6 @@ class UserController extends GetxController {
   /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
-      print('======= contactId: $contactId');
       if (contactId != null) {
         await _contactService.favoriteChatContact(contactId!);
       }

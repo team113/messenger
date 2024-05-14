@@ -22,7 +22,8 @@ Feature: Contacts pagination
     And Alice has 16 contacts
     And I sign in as Alice
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     And I tap `ContactsButton` button
     Then I wait until `ContactsTab` is present
     And I see 15 contacts
@@ -38,7 +39,8 @@ Feature: Contacts pagination
     And Alice has 15 contacts
     And I sign in as Alice
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     And I tap `ContactsButton` button
     Then I see 15 contacts
 

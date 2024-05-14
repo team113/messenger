@@ -1096,7 +1096,7 @@ class ChatRepository extends DisposableInterface
     );
 
     for (var e in query.chat!.members.edges) {
-      _userRepo.put(e.node.user.toDrift());
+      _userRepo.put(e.node.user.toDto());
     }
 
     return Page(
@@ -1368,13 +1368,13 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatTypingStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatTypingStarted(e.chatId, node.user.toModel());
     } else if (e.$$typename == 'EventChatUnmuted') {
       return EventChatUnmuted(e.chatId);
     } else if (e.$$typename == 'EventChatTypingStopped') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStopped;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatTypingStopped(
         e.chatId,
         node.user.toModel(),
@@ -1419,7 +1419,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatCallMemberLeft(
         e.chatId,
         node.user.toModel(),
@@ -1427,7 +1427,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatCallMemberJoined(
         e.chatId,
         node.call.toModel(),
@@ -1437,7 +1437,7 @@ class ChatRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatCallMemberRedialed') {
       var node =
           e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatCallMemberRedialed(
         e.chatId,
         node.at,
@@ -1454,7 +1454,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatRead') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
-      _userRepo.put(node.byUser.toDrift());
+      _userRepo.put(node.byUser.toDto());
       return EventChatRead(
         e.chatId,
         node.byUser.toModel(),
@@ -1462,7 +1462,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatCallDeclined') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatCallDeclined(
         e.chatId,
         node.callId,
@@ -1488,7 +1488,7 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallMoved;
-      _userRepo.put(node.user.toDrift());
+      _userRepo.put(node.user.toDto());
       return EventChatCallMoved(
         e.chatId,
         node.callId,
@@ -2212,7 +2212,7 @@ class ChatRepository extends DisposableInterface
     );
 
     for (var m in q.members.nodes) {
-      _userRepo.put(m.user.toDrift());
+      _userRepo.put(m.user.toDto());
     }
 
     return q.toData(recentCursor, favoriteCursor);

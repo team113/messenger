@@ -40,8 +40,8 @@ extension ChatContactConversion on ChatContactMixin {
   /// Constructs a new list of [HiveUser]s from this [ChatContactMixin].
   List<HiveUser> getHiveUsers() => users.map((e) => e.toHive()).toList();
 
-  /// Constructs a new list of [DriftUser]s from this [ChatContactMixin].
-  List<DriftUser> getDriftUsers() => users.map((e) => e.toDrift()).toList();
+  /// Constructs a new list of [DtoUser]s from this [ChatContactMixin].
+  List<DtoUser> getDtoUsers() => users.map((e) => e.toDto()).toList();
 
   /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
   HiveChatContact toHive({

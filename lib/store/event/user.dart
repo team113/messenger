@@ -147,7 +147,7 @@ class UserEventsUser extends UserEvents {
   const UserEventsUser(this.user);
 
   /// Initial state itself.
-  final DriftUser user;
+  final DtoUser user;
 
   @override
   UserEventsKind get kind => UserEventsKind.user;

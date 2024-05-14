@@ -39,9 +39,9 @@ class HiveRxUser extends RxUser {
   HiveRxUser(
     this._userRepository,
     this._userLocal,
-    DriftUser stored,
-  )   : user = Rx<User>(stored.value),
-        lastSeen = Rx(stored.value.lastSeenAt) {
+    DtoUser dto,
+  )   : user = Rx<User>(dto.value),
+        lastSeen = Rx(dto.value.lastSeenAt) {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
@@ -84,7 +84,6 @@ class HiveRxUser extends RxUser {
 
     _localSubscription = _userLocal.watch(id).listen((e) {
       if (e != null) {
-        print('===== GOT LOCAL SUB($id): ${e.value.contacts}');
         user.value = e.value;
       }
     });

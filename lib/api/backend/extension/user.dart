@@ -50,8 +50,8 @@ extension UserConversion on UserMixin {
   /// Constructs a new [HiveUser] from this [UserMixin].
   HiveUser toHive() => HiveUser(toModel(), ver, isBlocked.ver);
 
-  /// Constructs a new [DriftUser] from this [UserMixin].
-  DriftUser toDrift() => DriftUser(toModel(), ver, isBlocked.ver);
+  /// Constructs a new [DtoUser] from this [UserMixin].
+  DtoUser toDto() => DtoUser(toModel(), ver, isBlocked.ver);
 }
 
 /// Extension adding models construction from a

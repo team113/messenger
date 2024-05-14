@@ -34,7 +34,6 @@ import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/pagination.dart';
@@ -159,10 +158,10 @@ class UserRepository extends DisposableInterface
       if (user == null) {
         final response = (await _graphQlProvider.getUser(id)).user;
         if (response != null) {
-          final DriftUser driftUser = response.toDrift();
-          put(driftUser);
+          final DtoUser dto = response.toDto();
+          put(dto);
 
-          final HiveRxUser rxUser = HiveRxUser(this, _userLocal, driftUser);
+          final HiveRxUser rxUser = HiveRxUser(this, _userLocal, dto);
           users[id] = rxUser;
           user = rxUser;
         }
@@ -222,17 +221,16 @@ class UserRepository extends DisposableInterface
     }
   }
 
-  /// Updates the locally stored [HiveUser] with the provided [user] value.
+  /// Updates the locally stored [DtoUser] with the provided [user] value.
   Future<void> update(User user) async {
-    final DriftUser? stored = await _userLocal.read(user.id);
-    if (stored != null) {
-      stored.value = user;
-      put(stored, ignoreVersion: true);
+    final DtoUser? dto = await _userLocal.read(user.id);
+    if (dto != null) {
+      put(dto..value = user, ignoreVersion: true);
     }
   }
 
   /// Puts the provided [user] into the local [DriftProvider] storage.
-  Future<void> put(DriftUser user, {bool ignoreVersion = false}) async {
+  Future<void> put(DtoUser user, {bool ignoreVersion = false}) async {
     Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
     // If the provided [user] doesn't exist in the [users] yet, then we should
@@ -288,17 +286,17 @@ class UserRepository extends DisposableInterface
   Future<void> addContact(ChatContact contact, UserId userId) async {
     Log.debug('addContact($contact, $userId)', '$runtimeType');
 
-    final DriftUser? user = await _userLocal.read(userId);
-    if (user != null) {
+    final DtoUser? dto = await _userLocal.read(userId);
+    if (dto != null) {
       final NestedChatContact? existing =
-          user.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
+          dto.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
 
       if (existing == null) {
-        user.value.contacts.add(NestedChatContact.from(contact));
-        await _userLocal.upsert(user);
+        dto.value.contacts.add(NestedChatContact.from(contact));
+        await _userLocal.upsert(dto);
       } else if (existing.name != contact.name) {
         existing.name = contact.name;
-        await _userLocal.upsert(user);
+        await _userLocal.upsert(dto);
       }
     }
   }
@@ -311,14 +309,14 @@ class UserRepository extends DisposableInterface
   Future<void> removeContact(ChatContactId contactId, UserId userId) async {
     Log.debug('removeContact($contactId, $userId)', '$runtimeType');
 
-    final DriftUser? user = await _userLocal.read(userId);
-    if (user != null) {
+    final DtoUser? dto = await _userLocal.read(userId);
+    if (dto != null) {
       final NestedChatContact? existing =
-          user.value.contacts.firstWhereOrNull((e) => e.id == contactId);
+          dto.value.contacts.firstWhereOrNull((e) => e.id == contactId);
 
       if (existing != null) {
-        user.value.contacts.remove(existing);
-        await _userLocal.upsert(user);
+        dto.value.contacts.remove(existing);
+        await _userLocal.upsert(dto);
       }
     }
   }
@@ -340,7 +338,7 @@ class UserRepository extends DisposableInterface
         yield const UserEventsInitialized();
       } else if (events.$$typename == 'User') {
         final mixin = events as UserEvents$Subscription$UserEvents$User;
-        yield UserEventsUser(mixin.toDrift());
+        yield UserEventsUser(mixin.toDto());
       } else if (events.$$typename == 'UserEventsVersioned') {
         final mixin = events as UserEventsVersionedMixin;
         yield UserEventsEvent(UserEventsVersioned(
@@ -370,7 +368,7 @@ class UserRepository extends DisposableInterface
   }
 
   /// Puts the provided [user] to [DriftProvider].
-  Future<void> _putUser(DriftUser user, {bool ignoreVersion = false}) async {
+  Future<void> _putUser(DtoUser user, {bool ignoreVersion = false}) async {
     Log.trace('_putUser($user, $ignoreVersion)', '$runtimeType');
 
     final saved = await _userLocal.read(user.value.id);
@@ -410,10 +408,10 @@ class UserRepository extends DisposableInterface
       first: first ?? maxInt,
     );
 
-    final List<DriftUser> hiveUsers =
-        response.searchUsers.edges.map((c) => c.node.toDrift()).toList();
+    final List<DtoUser> dtoUsers =
+        response.searchUsers.edges.map((c) => c.node.toDto()).toList();
 
-    hiveUsers.forEach(put);
+    dtoUsers.forEach(put);
 
     // We are waiting for a dummy [Future] here because [put] updates
     // [boxEvents] by scheduling a microtask, so we can use [get] method (after
@@ -423,8 +421,8 @@ class UserRepository extends DisposableInterface
     final List<RxUser> users = [];
     final List<Future<RxUser?>> futures = [];
 
-    for (final hiveUser in hiveUsers) {
-      final FutureOr<RxUser?> rxUser = get(hiveUser.value.id);
+    for (final dto in dtoUsers) {
+      final FutureOr<RxUser?> rxUser = get(dto.value.id);
       if (rxUser is RxUser?) {
         if (rxUser != null) {
           users.add(rxUser);
@@ -513,12 +511,12 @@ class UserRepository extends DisposableInterface
       final node =
           e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
       return EventBlocklistRecordAdded(
-        e.user.toDrift(),
+        e.user.toDto(),
         e.at,
         node.reason,
       );
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      return EventBlocklistRecordRemoved(e.user.toDrift(), e.at);
+      return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }

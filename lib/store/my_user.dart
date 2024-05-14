@@ -1182,14 +1182,14 @@ class MyUserRepository implements AbstractMyUserRepository {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordAdded;
       return EventBlocklistRecordAdded(
-        node.user.toDrift(),
+        node.user.toDto(),
         node.at,
         node.reason,
       );
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordRemoved;
-      return EventBlocklistRecordRemoved(node.user.toDrift(), node.at);
+      return EventBlocklistRecordRemoved(node.user.toDto(), node.at);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

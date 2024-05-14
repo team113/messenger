@@ -552,8 +552,8 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 abstract class BlocklistEvent extends MyUserEvent {
   BlocklistEvent(this.user, this.at) : super(user.value.id);
 
-  /// [User] this [BlocklistEvent] is about.
-  final DriftUser user;
+  /// [DtoUser] this [BlocklistEvent] is about.
+  final DtoUser user;
 
   /// [PreciseDateTime] when this [BlocklistEvent] happened.
   final PreciseDateTime at;

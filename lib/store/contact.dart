@@ -898,7 +898,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      final List<DriftUser> users = c.node.getDriftUsers();
+      final List<DtoUser> users = c.node.getDtoUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -935,7 +935,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      final List<DriftUser> users = c.node.getDriftUsers();
+      final List<DtoUser> users = c.node.getDtoUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -1046,7 +1046,7 @@ class ContactRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatContactUserAdded') {
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
-      _userRepo.put(e.user.toDrift());
+      _userRepo.put(e.user.toDto());
 
       return EventChatContactUserAdded(
         node.contactId,
