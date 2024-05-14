@@ -98,7 +98,7 @@ class UserDriftProvider extends DriftProviderBase {
     _controllers[id]?.add(null);
   }
 
-  /// Deletes all the [DtoUser] stored in the database.
+  /// Deletes all the [DtoUser]s stored in the database.
   Future<void> clear() async => await db.delete(db.users).go();
 
   /// Returns the [Stream] of real-time changes happening with the [DtoUser]

@@ -5,7 +5,6 @@ targets:
       - lib/**
       - schema.graphql
       - test/**
-      - web/**.dart
     builders:
       artemis:
         options:
